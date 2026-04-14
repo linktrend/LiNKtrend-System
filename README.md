@@ -14,6 +14,7 @@ Remote: [github.com/linktrend/LiNKtrend-System](https://github.com/linktrend/LiN
 ```bash
 pnpm install
 pnpm build
+pnpm test
 pnpm --filter @linktrend/linkaios-web dev
 ```
 
@@ -25,7 +26,7 @@ pnpm --filter @linktrend/prism-defender dev
 pnpm --filter @linktrend/zulip-gateway dev
 ```
 
-- **bot-runtime** — opens a `bot_runtime.worker_sessions` row, heartbeats every 30s, resolves `bootstrap` skill, writes a `linkaios.traces` row, closes the session on SIGINT/SIGTERM.
+- **bot-runtime** — opens a `bot_runtime.worker_sessions` row, heartbeats every 30s, builds `linktrendGovernance` (mission + manifest tool names + skill instructions), writes `linkaios.traces` rows, optionally **POST**s to `OPENCLAW_AGENT_RUN_URL`, closes the session on SIGINT/SIGTERM.
 - **zulip-gateway** — HTTP server on port **8790** (override with `ZULIP_GATEWAY_PORT`). `POST /webhooks/zulip` upserts `gateway.zulip_message_links`. `GET /health` for probes.
 - **prism-defender** — inserts a `prism.cleanup_events` heartbeat periodically (interval `PRISM_HEARTBEAT_MS`, default 60000).
 
@@ -57,12 +58,20 @@ So the JavaScript client can use `.schema("linkaios")`, add these schemas to **e
 
 The **Zulip server** continues to use its **own** database for Zulip’s native data; this project’s `gateway` schema only stores **bridge** metadata (for example message ↔ mission links).
 
+### OpenClaw fork handoff
+
+Set `OPENCLAW_AGENT_RUN_URL` (and optionally `OPENCLAW_RUN_AUTH_BEARER`) so **bot-runtime** can POST JSON shaped as `{ "linktrendGovernance": { ... } }` after a session opens. The exact route and body envelope must match your OpenClaw fork’s gateway; adjust `apps/bot-runtime/src/openclaw-handoff.ts` if the fork expects a different path or wrapper.
+
+Optional: `BOT_RUNTIME_MISSION_ID` pins the mission row used for governance; `BOT_RUNTIME_SKILL_NAME` defaults to `bootstrap`.
+
+In **development**, LiNKaios exposes **Gov JSON** in the nav (`/devtools/governance`) — the same payload builder used by bot-runtime — so you can verify Supabase reads without running the worker.
+
 ## Layout
 
 | Path | Role |
 |------|------|
 | `apps/linkaios-web` | Next.js (App Router) command centre |
-| `apps/bot-runtime` | Worker runtime wrapper (OpenClaw integration later) |
+| `apps/bot-runtime` | Worker runtime wrapper; optional OpenClaw governance POST |
 | `apps/prism-defender` | Cleanup / containment sidecar |
 | `apps/zulip-gateway` | Mission-aware Zulip bridge |
 | `packages/linklogic-sdk` | Retrieval / enforcement (skeleton) |

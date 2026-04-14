@@ -12,7 +12,8 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "lint": "echo \"no lint yet\"",
-    "typecheck": "tsc -p tsconfig.json --noEmit"
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run"
   },
   "dependencies": {
     "@linktrend/db": "workspace:*",
@@ -21,6 +22,7 @@
     "@linktrend/shared-types": "workspace:*"
   },
   "devDependencies": {
-    "@types/node": "^20.19.39"
+    "@types/node": "^20.19.39",
+    "vitest": "^3.2.4"
   }
 }

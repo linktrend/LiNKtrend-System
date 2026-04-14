@@ -7,6 +7,7 @@ const nextConfig: NextConfig = {
     "@linktrend/shared-types",
     "@linktrend/db",
     "@linktrend/observability",
+    "@linktrend/linklogic-sdk",
   ],
 };
 

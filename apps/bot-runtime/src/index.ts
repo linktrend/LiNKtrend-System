@@ -1,15 +1,17 @@
 import os from "node:os";
 
 import {
+  buildLinktrendGovernancePayload,
   closeWorkerSession,
   ensureWorkerAgent,
   openWorkerSession,
   pulseWorkerSession,
   recordTrace,
-  resolveSkillByName,
 } from "@linktrend/linklogic-sdk";
 import { log } from "@linktrend/observability";
 import { loadEnv } from "@linktrend/shared-config";
+
+import { postGovernanceToOpenClaw } from "./openclaw-handoff.js";
 
 const HEARTBEAT_MS = 30_000;
 
@@ -42,25 +44,61 @@ async function main() {
   process.once("SIGINT", () => void shutdown("SIGINT"));
   process.once("SIGTERM", () => void shutdown("SIGTERM"));
 
+  const skillName = env.BOT_RUNTIME_SKILL_NAME ?? "bootstrap";
+
   try {
-    const skill = await resolveSkillByName(env, {
-      service: "bot-runtime",
-      skillName: "bootstrap",
+    const governance = await buildLinktrendGovernancePayload(env, {
+      correlationId: sessionId,
+      skillName,
+      missionId: env.BOT_RUNTIME_MISSION_ID ?? null,
     });
-    log("info", "bootstrap skill lookup", {
+    log("info", "governance built", {
       service: "bot-runtime",
-      found: Boolean(skill),
+      skillName,
+      hasInstructions: Boolean(governance.runtimeInstructions?.text),
     });
+
     try {
       await recordTrace(env, {
-        eventType: "bot_runtime.bootstrap_skill",
-        payload: { sessionId, found: Boolean(skill), skillName: "bootstrap" },
+        eventType: "bot_runtime.governance_built",
+        payload: {
+          sessionId,
+          traceId: governance.bootstrap.traceId,
+          skillName,
+          hasMission: Boolean(governance.mission),
+        },
       });
     } catch {
-      /* trace is best-effort */
+      /* best-effort */
+    }
+
+    const handoff = await postGovernanceToOpenClaw(env, governance);
+    if (env.OPENCLAW_AGENT_RUN_URL) {
+      log(handoff.ok ? "info" : "warn", "openclaw handoff", {
+        service: "bot-runtime",
+        status: handoff.status,
+        preview: handoff.text.slice(0, 500),
+      });
+      try {
+        await recordTrace(env, {
+          eventType: handoff.ok ? "bot_runtime.openclaw_ok" : "bot_runtime.openclaw_error",
+          payload: { sessionId, status: handoff.status, bodyPreview: handoff.text.slice(0, 800) },
+        });
+      } catch {
+        /* best-effort */
+      }
+    } else {
+      log("info", "openclaw handoff skipped (set OPENCLAW_AGENT_RUN_URL); payload summary", {
+        service: "bot-runtime",
+        traceId: governance.bootstrap.traceId,
+        authorizationState: governance.bootstrap.authorizationState,
+        toolCount: governance.approvedTools.toolNames.length,
+        hasMission: Boolean(governance.mission),
+        hasInstructions: Boolean(governance.runtimeInstructions?.text),
+      });
     }
   } catch (e) {
-    log("warn", "bootstrap skill lookup failed", {
+    log("warn", "bootstrap / governance path failed", {
       service: "bot-runtime",
       error: String(e),
     });

@@ -13,7 +13,8 @@
   "dependencies": {
     "@linktrend/linklogic-sdk": "workspace:*",
     "@linktrend/observability": "workspace:*",
-    "@linktrend/shared-config": "workspace:*"
+    "@linktrend/shared-config": "workspace:*",
+    "@linktrend/shared-types": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^20.19.39",

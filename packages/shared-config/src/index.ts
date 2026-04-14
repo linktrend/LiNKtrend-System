@@ -13,6 +13,13 @@ const envSchema = z.object({
   NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: optionalNonEmpty(),
   SUPABASE_SECRET_KEY: optionalNonEmpty(),
   DATABASE_URL: optionalNonEmpty(),
+  /** POST target for `{ linktrendGovernance }` JSON (OpenClaw gateway / custom shim). */
+  OPENCLAW_AGENT_RUN_URL: optionalNonEmpty(),
+  OPENCLAW_RUN_AUTH_BEARER: optionalNonEmpty(),
+  BOT_RUNTIME_MISSION_ID: optionalNonEmpty(),
+  BOT_RUNTIME_SKILL_NAME: optionalNonEmpty(),
+  ZULIP_GATEWAY_PORT: optionalNonEmpty(),
+  PRISM_HEARTBEAT_MS: optionalNonEmpty(),
 });
 
 export type Env = z.infer<typeof envSchema>;

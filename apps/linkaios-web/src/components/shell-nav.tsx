@@ -3,15 +3,19 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-const links = [
+const baseLinks = [
   { href: "/", label: "Overview" },
   { href: "/workers", label: "Workers" },
   { href: "/gateway", label: "Gateway" },
   { href: "/traces", label: "Traces" },
 ] as const;
 
-export function ShellNav() {
+export function ShellNav(props: { showDevtools?: boolean }) {
   const pathname = usePathname() ?? "/";
+  const links = [
+    ...baseLinks,
+    ...(props.showDevtools ? ([{ href: "/devtools/governance", label: "Gov JSON" }] as const) : []),
+  ];
 
   return (
     <nav className="border-b border-zinc-200 bg-white">

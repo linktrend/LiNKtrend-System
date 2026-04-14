@@ -30,7 +30,9 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <ShellLayout>{children}</ShellLayout>
+        <ShellLayout showDevtools={process.env.NODE_ENV === "development"}>
+          {children}
+        </ShellLayout>
       </body>
     </html>
   );
