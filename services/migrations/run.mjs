@@ -22,7 +22,7 @@ async function main() {
   const client = new pg.Client({ connectionString });
   await client.connect();
   const files = (await readdir(__dirname))
-    .filter((f) => f.endsWith(".sql"))
+    .filter((f) => f.endsWith(".sql") && f !== "ALL_IN_ONE.sql")
     .sort();
 
   for (const file of files) {
@@ -39,5 +39,10 @@ async function main() {
 
 main().catch((err) => {
   console.error(err);
+  if (err?.code === "ENOTFOUND" && String(process.env.DATABASE_URL).includes("db.")) {
+    console.error(
+      "\nHint: direct db.<project>.supabase.co is often IPv6-only. Use the Session pooler URI from Supabase Dashboard → Connect, or run ALL_IN_ONE.sql in the SQL Editor.\n",
+    );
+  }
   process.exit(1);
 });

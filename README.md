@@ -17,13 +17,17 @@ pnpm build
 pnpm --filter @linktrend/linkaios-web dev
 ```
 
-Other services (until wired fully):
+Other services:
 
 ```bash
 pnpm --filter @linktrend/bot-runtime dev
 pnpm --filter @linktrend/prism-defender dev
 pnpm --filter @linktrend/zulip-gateway dev
 ```
+
+- **bot-runtime** — opens a `bot_runtime.worker_sessions` row, heartbeats every 30s, resolves `bootstrap` skill, writes a `linkaios.traces` row, closes the session on SIGINT/SIGTERM.
+- **zulip-gateway** — HTTP server on port **8790** (override with `ZULIP_GATEWAY_PORT`). `POST /webhooks/zulip` upserts `gateway.zulip_message_links`. `GET /health` for probes.
+- **prism-defender** — inserts a `prism.cleanup_events` heartbeat periodically (interval `PRISM_HEARTBEAT_MS`, default 60000).
 
 ## Environment variables
 

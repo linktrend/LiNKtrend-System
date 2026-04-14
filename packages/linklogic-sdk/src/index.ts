@@ -3,6 +3,15 @@ import type { SkillRecord } from "@linktrend/shared-types";
 import { createSupabaseServiceClient } from "@linktrend/db";
 import { log } from "@linktrend/observability";
 
+export {
+  closeWorkerSession,
+  ensureWorkerAgent,
+  openWorkerSession,
+  pulseWorkerSession,
+} from "./sessions.js";
+
+export { recordTrace } from "./trace.js";
+
 /**
  * Skeleton: fetch latest approved skill by name from `linkaios.skills`.
  * Real LiNKlogic will add manifest checks, progressive memory, tool resolution, etc.
