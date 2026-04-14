@@ -8,7 +8,6 @@ export function ShellLayout(props: {
   userEmail?: string | null;
   commandCentreRole?: CommandCentreRole;
   canWrite?: boolean;
-  showAdminNav?: boolean;
 }) {
   const role = props.commandCentreRole;
   const roleBadge =
@@ -24,7 +23,7 @@ export function ShellLayout(props: {
     <div className="min-h-screen bg-zinc-50">
       <header className="border-b border-zinc-200 bg-white">
         <div className="mx-auto flex max-w-6xl flex-col gap-2 px-6 py-3 sm:flex-row sm:items-center sm:justify-between">
-          <ShellNav showDevtools={props.showDevtools} showAdminNav={props.showAdminNav} />
+          <ShellNav showDevtools={props.showDevtools} />
           <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
             {role ? (
               <span className="flex items-center gap-2 text-xs text-zinc-600" title="Command centre access level">

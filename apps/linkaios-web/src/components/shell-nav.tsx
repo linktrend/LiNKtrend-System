@@ -11,13 +11,13 @@ const baseLinks = [
   { href: "/workers", label: "Workers" },
   { href: "/gateway", label: "Gateway" },
   { href: "/traces", label: "Traces" },
+  { href: "/settings", label: "Settings" },
 ] as const;
 
-export function ShellNav(props: { showDevtools?: boolean; showAdminNav?: boolean }) {
+export function ShellNav(props: { showDevtools?: boolean }) {
   const pathname = usePathname() ?? "/";
   const links = [
     ...baseLinks,
-    ...(props.showAdminNav ? ([{ href: "/admin/access", label: "Admin" }] as const) : []),
     ...(props.showDevtools ? ([{ href: "/devtools/governance", label: "Gov JSON" }] as const) : []),
   ];
 

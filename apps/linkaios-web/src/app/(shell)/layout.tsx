@@ -1,9 +1,5 @@
 import { ShellLayout } from "@/components/shell-layout";
-import {
-  canWriteCommandCentre,
-  getCommandCentreRoleForUser,
-  isCommandCentreAdmin,
-} from "@/lib/command-centre-access";
+import { canWriteCommandCentre, getCommandCentreRoleForUser } from "@/lib/command-centre-access";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export default async function ShellAppLayout({ children }: { children: React.ReactNode }) {
@@ -18,8 +14,6 @@ export default async function ShellAppLayout({ children }: { children: React.Rea
       : undefined;
   const canWrite =
     commandCentreRole != null ? canWriteCommandCentre(commandCentreRole) : undefined;
-  const showAdminNav =
-    user?.id != null ? await isCommandCentreAdmin(supabase, { userId: user.id, email: user.email }) : false;
 
   return (
     <ShellLayout
@@ -27,7 +21,6 @@ export default async function ShellAppLayout({ children }: { children: React.Rea
       userEmail={user?.email ?? null}
       commandCentreRole={commandCentreRole}
       canWrite={canWrite}
-      showAdminNav={showAdminNav}
     >
       {children}
     </ShellLayout>
