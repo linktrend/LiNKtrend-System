@@ -29,6 +29,8 @@ const envSchema = z.object({
   BOT_RUNTIME_SKILL_NAME: optionalNonEmpty(),
   ZULIP_GATEWAY_PORT: optionalNonEmpty(),
   PRISM_HEARTBEAT_MS: optionalNonEmpty(),
+  /** Delete `sidecar_heartbeat` rows older than this many days (prism-defender). Default 14 when unset. */
+  PRISM_RETENTION_DAYS: optionalNonEmpty(),
   /** Set to "0" to disable residue sweep (default on). */
   PRISM_RESIDUE_SWEEP: optionalNonEmpty(),
   /** Max closed sessions to acknowledge per sweep cycle. */

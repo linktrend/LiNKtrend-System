@@ -2,26 +2,60 @@ import { createServer, type IncomingMessage, type ServerResponse } from "node:ht
 import { text } from "node:stream/consumers";
 
 import { createSupabaseServiceClient } from "@linktrend/db";
+import { recordTrace } from "@linktrend/linklogic-sdk";
 import { log } from "@linktrend/observability";
 import { loadEnv } from "@linktrend/shared-config";
 
+import { extractZulipMessageId, extractZulipStreamId, extractZulipTopic } from "./zulip-payload.js";
+
 const DEFAULT_PORT = 8790;
 
-function extractZulipMessageId(body: unknown): string | null {
-  if (!body || typeof body !== "object") return null;
-  const o = body as Record<string, unknown>;
-  if (typeof o.id === "number" || typeof o.id === "string") return String(o.id);
-  const msg = o.message;
-  if (msg && typeof msg === "object") {
-    const m = msg as Record<string, unknown>;
-    if (typeof m.id === "number" || typeof m.id === "string") return String(m.id);
+async function resolveMissionId(params: {
+  client: ReturnType<typeof createSupabaseServiceClient>;
+  streamId: number | null;
+  overrideMissionId: string | null;
+}): Promise<{ missionId: string | null; source: string }> {
+  if (params.overrideMissionId) {
+    const { data, error } = await params.client
+      .schema("linkaios")
+      .from("missions")
+      .select("id")
+      .eq("id", params.overrideMissionId)
+      .maybeSingle();
+    if (error) {
+      log("warn", "gateway mission override lookup failed", {
+        service: "zulip-gateway",
+        message: error.message,
+      });
+      return { missionId: null, source: "override_invalid" };
+    }
+    if (data?.id) return { missionId: String(data.id), source: "query_override" };
+    return { missionId: null, source: "override_not_found" };
   }
-  return null;
+  if (params.streamId == null) {
+    return { missionId: null, source: "no_stream" };
+  }
+  const { data, error } = await params.client
+    .schema("gateway")
+    .from("stream_routing")
+    .select("mission_id")
+    .eq("zulip_stream_id", params.streamId)
+    .maybeSingle();
+  if (error) {
+    log("warn", "gateway stream_routing lookup failed", {
+      service: "zulip-gateway",
+      message: error.message,
+    });
+    return { missionId: null, source: "routing_error" };
+  }
+  if (data?.mission_id) return { missionId: String(data.mission_id), source: "stream_routing" };
+  return { missionId: null, source: "no_routing_row" };
 }
 
 async function handleZulipWebhook(
   env: ReturnType<typeof loadEnv>,
   rawBody: string,
+  queryMissionId: string | null,
 ): Promise<{ ok: boolean; status: number; body: string }> {
   let parsed: unknown;
   try {
@@ -35,14 +69,36 @@ async function handleZulipWebhook(
     return { ok: false, status: 422, body: "no message id" };
   }
 
+  const streamId = extractZulipStreamId(parsed);
+  const topic = extractZulipTopic(parsed);
   const client = createSupabaseServiceClient(env);
+
+  const override =
+    queryMissionId && /^[0-9a-f-]{36}$/i.test(queryMissionId.trim()) ? queryMissionId.trim() : null;
+  const { missionId, source } = await resolveMissionId({
+    client,
+    streamId,
+    overrideMissionId: override,
+  });
+
+  const basePayload: Record<string, unknown> =
+    parsed && typeof parsed === "object" && !Array.isArray(parsed)
+      ? { ...(parsed as Record<string, unknown>) }
+      : { value: parsed };
+  basePayload._linktrend = {
+    missionResolution: { missionId, source, streamId, topic },
+  };
+
   const { error } = await client
     .schema("gateway")
     .from("zulip_message_links")
     .upsert(
       {
         zulip_message_id: zulipMessageId,
-        payload: parsed as Record<string, unknown>,
+        stream_id: streamId ?? undefined,
+        topic: topic ?? undefined,
+        mission_id: missionId ?? undefined,
+        payload: basePayload,
       },
       { onConflict: "zulip_message_id" },
     );
@@ -50,6 +106,21 @@ async function handleZulipWebhook(
   if (error) {
     log("error", "gateway upsert failed", { service: "zulip-gateway", message: error.message });
     return { ok: false, status: 500, body: error.message };
+  }
+
+  try {
+    await recordTrace(env, {
+      eventType: missionId ? "gateway.message_linked" : "gateway.mission_unresolved",
+      missionId,
+      payload: {
+        zulipMessageId,
+        streamId,
+        topic,
+        resolutionSource: source,
+      },
+    });
+  } catch (e) {
+    log("warn", "gateway trace failed", { service: "zulip-gateway", error: String(e) });
   }
 
   return { ok: true, status: 200, body: "ok" };
@@ -66,7 +137,8 @@ async function dispatch(req: IncomingMessage, res: ServerResponse, env: ReturnTy
 
   if (req.method === "POST" && url.pathname === "/webhooks/zulip") {
     const raw = await text(req);
-    const result = await handleZulipWebhook(env, raw);
+    const missionOverride = url.searchParams.get("mission_id");
+    const result = await handleZulipWebhook(env, raw, missionOverride);
     res.writeHead(result.status, { "content-type": "text/plain" });
     res.end(result.body);
     return;

@@ -2,6 +2,7 @@ import { createSupabaseServiceClient } from "@linktrend/db";
 import { log } from "@linktrend/observability";
 import { loadEnv } from "@linktrend/shared-config";
 
+import { pruneOldHeartbeats } from "./heartbeat-retention.js";
 import { sweepWorkerResidue } from "./residue-sweep.js";
 
 const HEARTBEAT_MS = Number(process.env.PRISM_HEARTBEAT_MS ?? 60_000);
@@ -26,6 +27,7 @@ async function recordHeartbeat(env: ReturnType<typeof loadEnv>) {
 
 async function tick(env: ReturnType<typeof loadEnv>) {
   await recordHeartbeat(env);
+  await pruneOldHeartbeats(env);
   if (!RESIDUE_SWEEP_DISABLED) {
     await sweepWorkerResidue(env, { batch: RESIDUE_BATCH });
   }
@@ -36,6 +38,7 @@ async function main() {
   log("info", "prism-defender sidecar active", {
     service: "prism-defender",
     heartbeatMs: HEARTBEAT_MS,
+    retentionDays: env.PRISM_RETENTION_DAYS ?? "(default 14)",
     residueSweep: !RESIDUE_SWEEP_DISABLED,
     residueBatch: RESIDUE_BATCH,
   });

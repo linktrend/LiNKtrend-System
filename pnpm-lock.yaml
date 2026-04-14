@@ -162,6 +162,9 @@ importers:
       '@linktrend/db':
         specifier: workspace:*
         version: link:../../packages/db
+      '@linktrend/linklogic-sdk':
+        specifier: workspace:*
+        version: link:../../packages/linklogic-sdk
       '@linktrend/observability':
         specifier: workspace:*
         version: link:../../packages/observability

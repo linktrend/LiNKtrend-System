@@ -16,6 +16,8 @@ export { listMemoryEntries } from "./memory-catalog.js";
 export type { MemoryEntryRow } from "./memory-catalog.js";
 export { listSkills } from "./skills-catalog.js";
 
+export { appendCentralMemoryEntry } from "./central-memory.js";
+
 export {
   buildLinktrendGovernancePayload,
   buildOpenClawAgentIngressBody,

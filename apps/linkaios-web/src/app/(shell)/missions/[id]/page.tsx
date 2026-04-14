@@ -10,6 +10,8 @@ import {
 import { EntityTable } from "@/components/entity-table";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
+import { AppendMemoryForm } from "./append-memory-form";
+
 export const dynamic = "force-dynamic";
 
 export default async function MissionDetailPage(props: { params: Promise<{ id: string }> }) {
@@ -64,6 +66,7 @@ export default async function MissionDetailPage(props: { params: Promise<{ id: s
 
       <section className="mt-10">
         <h2 className="text-lg font-medium text-zinc-900">Memory (LiNKbrain)</h2>
+        <AppendMemoryForm missionId={mission.id} />
         {memory.error ? (
           <p className="mt-2 text-sm text-red-700">{memory.error.message}</p>
         ) : (

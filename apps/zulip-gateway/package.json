@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@linktrend/db": "workspace:*",
+    "@linktrend/linklogic-sdk": "workspace:*",
     "@linktrend/observability": "workspace:*",
     "@linktrend/shared-config": "workspace:*"
   },
