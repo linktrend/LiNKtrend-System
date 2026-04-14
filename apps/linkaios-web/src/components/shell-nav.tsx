@@ -13,10 +13,11 @@ const baseLinks = [
   { href: "/traces", label: "Traces" },
 ] as const;
 
-export function ShellNav(props: { showDevtools?: boolean }) {
+export function ShellNav(props: { showDevtools?: boolean; showAdminNav?: boolean }) {
   const pathname = usePathname() ?? "/";
   const links = [
     ...baseLinks,
+    ...(props.showAdminNav ? ([{ href: "/admin/access", label: "Admin" }] as const) : []),
     ...(props.showDevtools ? ([{ href: "/devtools/governance", label: "Gov JSON" }] as const) : []),
   ];
 

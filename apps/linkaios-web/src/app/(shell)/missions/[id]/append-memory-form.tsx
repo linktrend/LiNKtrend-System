@@ -5,11 +5,19 @@ import { useActionState } from "react";
 import type { AppendMissionMemoryState } from "./actions";
 import { appendMissionMemory } from "./actions";
 
-export function AppendMemoryForm({ missionId }: { missionId: string }) {
+export function AppendMemoryForm({ missionId, canWrite }: { missionId: string; canWrite: boolean }) {
   const [state, formAction, pending] = useActionState<AppendMissionMemoryState, FormData>(
     appendMissionMemory,
     null,
   );
+
+  if (!canWrite) {
+    return (
+      <p className="mt-4 max-w-xl rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-950">
+        Read-only access: you cannot add memory entries. Ask an admin to change your role if this is unexpected.
+      </p>
+    );
+  }
 
   return (
     <form action={formAction} className="mt-4 max-w-xl space-y-3">

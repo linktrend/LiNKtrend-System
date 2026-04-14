@@ -8,6 +8,7 @@ import {
 } from "@linktrend/linklogic-sdk";
 
 import { EntityTable } from "@/components/entity-table";
+import { canWriteCommandCentre, getCommandCentreRoleForUser } from "@/lib/command-centre-access";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 import { AppendMemoryForm } from "./append-memory-form";
@@ -17,6 +18,14 @@ export const dynamic = "force-dynamic";
 export default async function MissionDetailPage(props: { params: Promise<{ id: string }> }) {
   const { id } = await props.params;
   const supabase = await createSupabaseServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const role =
+    user?.id != null
+      ? await getCommandCentreRoleForUser(supabase, { userId: user.id, email: user.email })
+      : "operator";
+  const canWrite = canWriteCommandCentre(role);
 
   const [{ data: mission, error: mErr }, manifests, memory] = await Promise.all([
     getMissionById(supabase, id),
@@ -66,7 +75,7 @@ export default async function MissionDetailPage(props: { params: Promise<{ id: s
 
       <section className="mt-10">
         <h2 className="text-lg font-medium text-zinc-900">Memory (LiNKbrain)</h2>
-        <AppendMemoryForm missionId={mission.id} />
+        <AppendMemoryForm missionId={mission.id} canWrite={canWrite} />
         {memory.error ? (
           <p className="mt-2 text-sm text-red-700">{memory.error.message}</p>
         ) : (
