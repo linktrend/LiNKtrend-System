@@ -1,0 +1,26 @@
+{
+  "name": "@linktrend/linklogic-sdk",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "lint": "echo \"no lint yet\"",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@linktrend/db": "workspace:*",
+    "@linktrend/observability": "workspace:*",
+    "@linktrend/shared-config": "workspace:*",
+    "@linktrend/shared-types": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.39"
+  }
+}

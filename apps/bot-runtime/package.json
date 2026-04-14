@@ -1,0 +1,23 @@
+{
+  "name": "@linktrend/bot-runtime",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "dev": "tsx watch src/index.ts",
+    "start": "node dist/index.js",
+    "lint": "echo \"no lint yet\"",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@linktrend/linklogic-sdk": "workspace:*",
+    "@linktrend/observability": "workspace:*",
+    "@linktrend/shared-config": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.39",
+    "tsx": "^4.19.4",
+    "typescript": "^5.9.3"
+  }
+}
