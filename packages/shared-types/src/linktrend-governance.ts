@@ -1,36 +1,42 @@
 /**
- * JSON shape sent to the OpenClaw fork as `linktrendGovernance` (ingress / AgentCommand).
- * Keep aligned with fork `src/linktrend/` types; extend when the fork contract grows.
+ * JSON nested under `linktrendGovernance` on OpenClaw gateway `agent` RPC params.
+ * Mirrors LiNKbot-core `src/linktrend/governance-types.ts` + `AgentParamsSchema` subset.
  */
-export type LinktrendAuthorizationState = "accepted" | "denied" | "pending";
+export type LinktrendBootstrapAuthorization = "granted" | "denied" | "pending";
 
 export interface LinktrendGovernanceBootstrap {
-  traceId: string;
-  authorizationState: LinktrendAuthorizationState;
-  /** Correlate with `bot_runtime.worker_sessions.id`, Supabase traces, etc. */
-  correlationId?: string;
+  workerIdentityRef?: string;
+  authorizationState: LinktrendBootstrapAuthorization;
+  traceCorrelationId?: string;
+  denialReasonCategory?: string;
 }
 
 export interface LinktrendGovernanceMission {
-  id: string;
+  missionId?: string;
+  summaryText?: string;
+  objective?: Record<string, unknown>;
+}
+
+export interface LinktrendRuntimeInstructionSegment {
   title?: string;
-  status?: string;
+  body: string;
 }
 
 export interface LinktrendGovernanceRuntimeInstructions {
   text?: string;
-  segments?: { role: string; content: string }[];
-  skillVersionRef?: { name: string; version: number };
+  segments?: LinktrendRuntimeInstructionSegment[];
+  skillVersionRef?: string;
 }
 
 export interface LinktrendGovernanceApprovedTools {
-  toolNames: string[];
+  toolNames?: string[];
+  restrictToApprovedList?: boolean;
 }
 
 /** Payload nested under `linktrendGovernance` when calling the fork. */
 export interface LinktrendGovernancePayload {
-  bootstrap: LinktrendGovernanceBootstrap;
+  bootstrap?: LinktrendGovernanceBootstrap;
   mission?: LinktrendGovernanceMission;
   runtimeInstructions?: LinktrendGovernanceRuntimeInstructions;
-  approvedTools: LinktrendGovernanceApprovedTools;
+  approvedTools?: LinktrendGovernanceApprovedTools;
 }

@@ -63,7 +63,7 @@ async function main() {
         eventType: "bot_runtime.governance_built",
         payload: {
           sessionId,
-          traceId: governance.bootstrap.traceId,
+          traceCorrelationId: governance.bootstrap?.traceCorrelationId,
           skillName,
           hasMission: Boolean(governance.mission),
         },
@@ -90,9 +90,9 @@ async function main() {
     } else {
       log("info", "openclaw handoff skipped (set OPENCLAW_AGENT_RUN_URL); payload summary", {
         service: "bot-runtime",
-        traceId: governance.bootstrap.traceId,
-        authorizationState: governance.bootstrap.authorizationState,
-        toolCount: governance.approvedTools.toolNames.length,
+        traceCorrelationId: governance.bootstrap?.traceCorrelationId,
+        authorizationState: governance.bootstrap?.authorizationState,
+        toolCount: governance.approvedTools?.toolNames?.length ?? 0,
         hasMission: Boolean(governance.mission),
         hasInstructions: Boolean(governance.runtimeInstructions?.text),
       });

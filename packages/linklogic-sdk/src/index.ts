@@ -11,6 +11,7 @@ export { resolveSkillByName } from "./resolve-skill.js";
 
 export {
   buildLinktrendGovernancePayload,
+  buildOpenClawAgentIngressBody,
   toolNamesFromManifestPayload,
   wrapGovernanceForOpenClaw,
 } from "./governance-payload.js";

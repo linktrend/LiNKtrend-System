@@ -48,10 +48,11 @@ export interface SkillRecord {
 }
 
 export type {
-  LinktrendAuthorizationState,
+  LinktrendBootstrapAuthorization,
   LinktrendGovernanceApprovedTools,
   LinktrendGovernanceBootstrap,
   LinktrendGovernanceMission,
   LinktrendGovernancePayload,
   LinktrendGovernanceRuntimeInstructions,
+  LinktrendRuntimeInstructionSegment,
 } from "./linktrend-governance.js";

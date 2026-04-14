@@ -58,13 +58,17 @@ So the JavaScript client can use `.schema("linkaios")`, add these schemas to **e
 
 The **Zulip server** continues to use its **own** database for Zulip’s native data; this project’s `gateway` schema only stores **bridge** metadata (for example message ↔ mission links).
 
-### OpenClaw fork handoff
+### OpenClaw fork handoff (LiNKbot-core)
 
-Set `OPENCLAW_AGENT_RUN_URL` (and optionally `OPENCLAW_RUN_AUTH_BEARER`) so **bot-runtime** can POST JSON shaped as `{ "linktrendGovernance": { ... } }` after a session opens. The exact route and body envelope must match your OpenClaw fork’s gateway; adjust `apps/bot-runtime/src/openclaw-handoff.ts` if the fork expects a different path or wrapper.
+The LiNKtrend engine fork typically lives beside this repo, for example `/Users/linktrend/Projects/LiNKbot-core`. Its contract is documented in that tree at `docs/linktrend-governance.md`: gateway **`agent`** RPC `params` include `message`, `idempotencyKey`, optional `sessionKey`, and `linktrendGovernance` (validated by `LinktrendGovernanceParamsSchema`).
 
-Optional: `BOT_RUNTIME_MISSION_ID` pins the mission row used for governance; `BOT_RUNTIME_SKILL_NAME` defaults to `bootstrap`.
+**bot-runtime** posts to `OPENCLAW_AGENT_RUN_URL` (optional) using **`OPENCLAW_AGENT_RUN_BODY=agent_params`** by default: a flat JSON object with `message`, `idempotencyKey`, optional `sessionKey` / `agentId`, and `linktrendGovernance`. Point the URL at a small HTTP shim that forwards those fields to the gateway WebSocket `agent` call, or set **`OPENCLAW_AGENT_RUN_BODY=governance_only`** if your proxy already wraps governance alone.
 
-In **development**, LiNKaios exposes **Gov JSON** in the nav (`/devtools/governance`) — the same payload builder used by bot-runtime — so you can verify Supabase reads without running the worker.
+LiNKbot-core’s built-in **`/hooks/.../agent`** path normalizes webhook payloads and does **not** forward `linktrendGovernance` today; do not assume posting to hooks is sufficient unless you extend the fork.
+
+Optional env: `OPENCLAW_AGENT_INGRESS_MESSAGE`, `OPENCLAW_AGENT_SESSION_KEY`, `OPENCLAW_AGENT_ID`, `OPENCLAW_RUN_AUTH_BEARER`. Mission and skill selection: `BOT_RUNTIME_MISSION_ID`, `BOT_RUNTIME_SKILL_NAME` (default `bootstrap`).
+
+In **development**, LiNKaios exposes **Gov JSON** in the nav (`/devtools/governance`) — the same `linktrendGovernance` object used inside the default POST body — so you can verify Supabase reads without running the worker.
 
 ## Layout
 

@@ -1,10 +1,11 @@
 import type { Env } from "@linktrend/shared-config";
 import type { LinktrendGovernancePayload } from "@linktrend/shared-types";
-import { wrapGovernanceForOpenClaw } from "@linktrend/linklogic-sdk";
+import { buildOpenClawAgentIngressBody } from "@linktrend/linklogic-sdk";
 
 /**
- * POST `{ linktrendGovernance }` to a configured OpenClaw (or shim) HTTP endpoint.
- * URL and auth come from env — see README OpenClaw integration.
+ * POST governance to a configured OpenClaw HTTP shim or proxy.
+ * Default JSON matches LiNKbot-core gateway `agent` params (`message`, `idempotencyKey`, `linktrendGovernance`, …).
+ * Set `OPENCLAW_AGENT_RUN_BODY=governance_only` for `{ linktrendGovernance }` only.
  */
 export async function postGovernanceToOpenClaw(
   env: Env,
@@ -23,7 +24,7 @@ export async function postGovernanceToOpenClaw(
     headers.authorization = `Bearer ${env.OPENCLAW_RUN_AUTH_BEARER}`;
   }
 
-  const body = wrapGovernanceForOpenClaw(payload);
+  const body = buildOpenClawAgentIngressBody(env, payload);
   const res = await fetch(url, {
     method: "POST",
     headers,

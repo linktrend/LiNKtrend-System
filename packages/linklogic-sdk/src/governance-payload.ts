@@ -83,26 +83,35 @@ export async function buildLinktrendGovernancePayload(
     }
   }
 
+  const workerIdentityRef =
+    typeof options.correlationId === "string" && options.correlationId.trim()
+      ? `linktrend:worker-session:${options.correlationId.trim()}`
+      : undefined;
+
+  const skillVersionRef =
+    skill != null ? `${skill.name}@${String(skill.version)}` : undefined;
+
   const payload: LinktrendGovernancePayload = {
     bootstrap: {
-      traceId,
-      authorizationState: options.deny ? "denied" : "accepted",
-      correlationId: options.correlationId ?? undefined,
+      workerIdentityRef,
+      authorizationState: options.deny ? "denied" : "granted",
+      traceCorrelationId: traceId,
+      denialReasonCategory: options.deny ? "policy" : undefined,
     },
     mission: mission
       ? {
-          id: mission.id,
-          title: mission.title,
-          status: mission.status,
+          missionId: mission.id,
+          summaryText: mission.title ?? undefined,
+          objective: mission.status ? { status: mission.status } : undefined,
         }
       : undefined,
     runtimeInstructions: skill
       ? {
-          text: skill.body_markdown,
-          skillVersionRef: { name: skill.name, version: skill.version },
+          text: skill.body_markdown ?? undefined,
+          skillVersionRef,
         }
       : undefined,
-    approvedTools: { toolNames },
+    approvedTools: toolNames.length ? { toolNames } : undefined,
   };
 
   return payload;
@@ -113,4 +122,31 @@ export function wrapGovernanceForOpenClaw(payload: LinktrendGovernancePayload): 
   linktrendGovernance: LinktrendGovernancePayload;
 } {
   return { linktrendGovernance: payload };
+}
+
+/**
+ * Body for `OPENCLAW_AGENT_RUN_URL`.
+ * - `agent_params`: flat object matching gateway `agent` method params (LiNKbot-core WebSocket / shims).
+ * - `governance_only`: `{ linktrendGovernance }` for custom proxies.
+ */
+export function buildOpenClawAgentIngressBody(
+  env: Env,
+  governance: LinktrendGovernancePayload,
+): Record<string, unknown> {
+  const mode = env.OPENCLAW_AGENT_RUN_BODY ?? "agent_params";
+  if (mode === "governance_only") {
+    return wrapGovernanceForOpenClaw(governance) as unknown as Record<string, unknown>;
+  }
+
+  return {
+    message:
+      env.OPENCLAW_AGENT_INGRESS_MESSAGE?.trim() ||
+      "[LiNKtrend] bot-runtime governed ingress (no user message).",
+    idempotencyKey: crypto.randomUUID(),
+    ...(env.OPENCLAW_AGENT_SESSION_KEY
+      ? { sessionKey: env.OPENCLAW_AGENT_SESSION_KEY.trim() }
+      : {}),
+    ...(env.OPENCLAW_AGENT_ID ? { agentId: env.OPENCLAW_AGENT_ID.trim() } : {}),
+    linktrendGovernance: governance,
+  };
 }
