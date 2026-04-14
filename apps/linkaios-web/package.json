@@ -25,6 +25,7 @@
     "server-only": "^0.0.1"
   },
   "devDependencies": {
+    "dotenv": "^16.5.0",
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
