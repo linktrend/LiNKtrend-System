@@ -51,6 +51,7 @@ async function main() {
       correlationId: sessionId,
       skillName,
       missionId: env.BOT_RUNTIME_MISSION_ID ?? null,
+      requireApprovedSkill: true,
     });
     log("info", "governance built", {
       service: "bot-runtime",

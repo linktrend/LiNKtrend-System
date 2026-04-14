@@ -1,10 +1,10 @@
 import { EntityTable } from "@/components/entity-table";
-import { getSupabaseAdmin } from "@/lib/supabase-admin";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
 
 export default async function GatewayPage() {
-  const supabase = getSupabaseAdmin();
+  const supabase = await createSupabaseServerClient();
   const { data, error } = await supabase
     .schema("gateway")
     .from("zulip_message_links")

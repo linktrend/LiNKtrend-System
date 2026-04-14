@@ -1,5 +1,10 @@
-/**
- * Central auth helpers will live here (Supabase Auth session, operator roles, etc.).
- * Intentionally minimal until LiNKaios operator model is wired end-to-end.
- */
-export const AUTH_PACKAGE_PLACEHOLDER = true;
+import type { User } from "@supabase/supabase-js";
+
+/** Throws if Supabase Auth user is missing (server routes / actions). */
+export function assertAuthenticatedUser(user: User | null | undefined): asserts user is User {
+  if (!user) {
+    throw new Error("Unauthorized");
+  }
+}
+
+export type { User };

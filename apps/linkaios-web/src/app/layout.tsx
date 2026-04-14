@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 
-import { ShellLayout } from "@/components/shell-layout";
-
 import "./globals.css";
 
 const geistSans = Geist({
@@ -30,9 +28,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <ShellLayout showDevtools={process.env.NODE_ENV === "development"}>
-          {children}
-        </ShellLayout>
+        {children}
       </body>
     </html>
   );

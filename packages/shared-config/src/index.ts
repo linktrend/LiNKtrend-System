@@ -29,6 +29,12 @@ const envSchema = z.object({
   BOT_RUNTIME_SKILL_NAME: optionalNonEmpty(),
   ZULIP_GATEWAY_PORT: optionalNonEmpty(),
   PRISM_HEARTBEAT_MS: optionalNonEmpty(),
+  /** Set to "0" to disable residue sweep (default on). */
+  PRISM_RESIDUE_SWEEP: optionalNonEmpty(),
+  /** Max closed sessions to acknowledge per sweep cycle. */
+  PRISM_RESIDUE_BATCH: optionalNonEmpty(),
+  /** Default 8789. Local OpenClaw ingress mock for bot-runtime. */
+  OPENCLAW_SHIM_PORT: optionalNonEmpty(),
 });
 
 export type Env = z.infer<typeof envSchema>;

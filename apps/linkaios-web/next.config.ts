@@ -8,6 +8,7 @@ const nextConfig: NextConfig = {
     "@linktrend/db",
     "@linktrend/observability",
     "@linktrend/linklogic-sdk",
+    "@linktrend/auth",
   ],
 };
 

@@ -18,17 +18,21 @@ pnpm test
 pnpm --filter @linktrend/linkaios-web dev
 ```
 
+LiNKaios opens at `/login` until you sign in with a **Supabase Auth** user (Email provider). Command-centre reads use the **anon key + your session JWT** and **Row Level Security** (apply migration `008_rls_and_prism_swept.sql` or the tail of `ALL_IN_ONE.sql`).
+
 Other services:
 
 ```bash
 pnpm --filter @linktrend/bot-runtime dev
 pnpm --filter @linktrend/prism-defender dev
 pnpm --filter @linktrend/zulip-gateway dev
+pnpm --filter @linktrend/openclaw-shim dev
 ```
 
 - **bot-runtime** — opens a `bot_runtime.worker_sessions` row, heartbeats every 30s, builds `linktrendGovernance` (mission + manifest tool names + skill instructions), writes `linkaios.traces` rows, optionally **POST**s to `OPENCLAW_AGENT_RUN_URL`, closes the session on SIGINT/SIGTERM.
 - **zulip-gateway** — HTTP server on port **8790** (override with `ZULIP_GATEWAY_PORT`). `POST /webhooks/zulip` upserts `gateway.zulip_message_links`. `GET /health` for probes.
-- **prism-defender** — inserts a `prism.cleanup_events` heartbeat periodically (interval `PRISM_HEARTBEAT_MS`, default 60000).
+- **prism-defender** — heartbeat plus **residue sweep**: acknowledges closed `bot_runtime.worker_sessions` into `prism.swept_sessions` (disable with `PRISM_RESIDUE_SWEEP=0`, tune batch with `PRISM_RESIDUE_BATCH`).
+- **openclaw-shim** — local HTTP mock (default port **8789**, `OPENCLAW_SHIM_PORT`). Set `OPENCLAW_AGENT_RUN_URL=http://127.0.0.1:8789/` on **bot-runtime** to exercise the governance POST without LiNKbot-core.
 
 ## Environment variables
 
@@ -78,6 +82,7 @@ In **development**, LiNKaios exposes **Gov JSON** in the nav (`/devtools/governa
 | `apps/bot-runtime` | Worker runtime wrapper; optional OpenClaw governance POST |
 | `apps/prism-defender` | Cleanup / containment sidecar |
 | `apps/zulip-gateway` | Mission-aware Zulip bridge |
+| `apps/openclaw-shim` | Local ingress mock for `bot-runtime` POSTs |
 | `packages/linklogic-sdk` | Retrieval / enforcement (skeleton) |
 | `packages/db` | Supabase client helpers |
 | `packages/shared-types` | Cross-app types |

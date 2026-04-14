@@ -19,7 +19,8 @@
     "@linktrend/db": "workspace:*",
     "@linktrend/observability": "workspace:*",
     "@linktrend/shared-config": "workspace:*",
-    "@linktrend/shared-types": "workspace:*"
+    "@linktrend/shared-types": "workspace:*",
+    "@supabase/supabase-js": "^2.49.8"
   },
   "devDependencies": {
     "@types/node": "^20.19.39",

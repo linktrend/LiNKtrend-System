@@ -5,6 +5,9 @@ import { usePathname } from "next/navigation";
 
 const baseLinks = [
   { href: "/", label: "Overview" },
+  { href: "/missions", label: "Missions" },
+  { href: "/skills", label: "Skills" },
+  { href: "/memory", label: "Memory" },
   { href: "/workers", label: "Workers" },
   { href: "/gateway", label: "Gateway" },
   { href: "/traces", label: "Traces" },
@@ -18,10 +21,12 @@ export function ShellNav(props: { showDevtools?: boolean }) {
   ];
 
   return (
-    <nav className="border-b border-zinc-200 bg-white">
-      <div className="mx-auto flex max-w-6xl flex-wrap gap-1 px-6 py-3">
-        {links.map((l) => {
-          const active = pathname === l.href;
+    <nav className="flex flex-wrap gap-1">
+      {links.map((l) => {
+        const active =
+          l.href === "/"
+            ? pathname === "/"
+            : pathname === l.href || pathname.startsWith(`${l.href}/`);
           return (
             <Link
               key={l.href}
@@ -37,7 +42,6 @@ export function ShellNav(props: { showDevtools?: boolean }) {
             </Link>
           );
         })}
-      </div>
     </nav>
   );
 }

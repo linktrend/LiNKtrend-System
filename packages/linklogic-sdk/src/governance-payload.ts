@@ -5,6 +5,7 @@ import type {
 } from "@linktrend/shared-types";
 import { createSupabaseServiceClient } from "@linktrend/db";
 
+import { assertResolvedApprovedSkill } from "./enforcement.js";
 import { resolveSkillByName } from "./resolve-skill.js";
 
 export type BuildGovernanceOptions = {
@@ -16,6 +17,11 @@ export type BuildGovernanceOptions = {
   deny?: boolean;
   /** Passed through as bootstrap.correlationId (e.g. worker session id). */
   correlationId?: string | null;
+  /**
+   * When true, throws if the named skill is missing or not `approved`.
+   * Workers should set this; LiNKaios devtools leaves it false.
+   */
+  requireApprovedSkill?: boolean;
 };
 
 /** Extract tool names from manifest.payload JSON (best-effort; shapes evolve). */
@@ -67,6 +73,9 @@ export async function buildLinktrendGovernancePayload(
   }
 
   const skill = await resolveSkillByName(env, { service: "linklogic-sdk", skillName });
+  if (options.requireApprovedSkill) {
+    assertResolvedApprovedSkill(skillName, skill);
+  }
 
   let toolNames: string[] = [];
   if (mission?.id) {

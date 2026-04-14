@@ -1,10 +1,10 @@
 import { EntityTable } from "@/components/entity-table";
-import { getSupabaseAdmin } from "@/lib/supabase-admin";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
 
 export default async function WorkersPage() {
-  const supabase = getSupabaseAdmin();
+  const supabase = await createSupabaseServerClient();
 
   const [sessionsRes, agentsRes] = await Promise.all([
     supabase

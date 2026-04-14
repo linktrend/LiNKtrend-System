@@ -4,7 +4,9 @@
 
 From the Supabase dashboard: **SQL Editor** → **New query** → paste the contents of **`ALL_IN_ONE.sql`** (this folder) → **Run**.
 
-That file runs, in order: drop service schemas → create `linkaios`, `bot_runtime`, `prism`, `gateway` → seed demo rows → grant API roles.
+That file runs, in order: drop service schemas → create `linkaios`, `bot_runtime`, `prism`, `gateway` → seed demo rows → grant API roles → **RLS policies** and `prism.swept_sessions` (same as `008_rls_and_prism_swept.sql`).
+
+Existing projects that already applied an older `ALL_IN_ONE.sql` should run **`008_rls_and_prism_swept.sql`** once via `pnpm db:migrate` or the SQL Editor (additive; does **not** touch `auth` or existing users).
 
 ## Expose schemas (required for the JS client)
 

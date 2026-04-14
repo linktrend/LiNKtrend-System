@@ -48,6 +48,9 @@ importers:
 
   apps/linkaios-web:
     dependencies:
+      '@linktrend/auth':
+        specifier: workspace:*
+        version: link:../../packages/auth
       '@linktrend/db':
         specifier: workspace:*
         version: link:../../packages/db
@@ -66,6 +69,12 @@ importers:
       '@linktrend/ui':
         specifier: workspace:*
         version: link:../../packages/ui
+      '@supabase/ssr':
+        specifier: ^0.6.1
+        version: 0.6.1(@supabase/supabase-js@2.103.0)
+      '@supabase/supabase-js':
+        specifier: ^2.49.8
+        version: 2.103.0
       next:
         specifier: 15.5.9
         version: 15.5.9(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
@@ -105,6 +114,22 @@ importers:
         version: 4.2.2
       typescript:
         specifier: ^5
+        version: 5.9.3
+
+  apps/openclaw-shim:
+    dependencies:
+      '@linktrend/observability':
+        specifier: workspace:*
+        version: link:../../packages/observability
+    devDependencies:
+      '@types/node':
+        specifier: ^20.19.39
+        version: 20.19.39
+      tsx:
+        specifier: ^4.19.4
+        version: 4.21.0
+      typescript:
+        specifier: ^5.9.3
         version: 5.9.3
 
   apps/prism-defender:
@@ -159,6 +184,9 @@ importers:
       '@linktrend/shared-config':
         specifier: workspace:*
         version: link:../shared-config
+      '@supabase/supabase-js':
+        specifier: ^2.49.8
+        version: 2.103.0
     devDependencies:
       '@types/node':
         specifier: ^20.19.39
@@ -191,6 +219,9 @@ importers:
       '@linktrend/shared-types':
         specifier: workspace:*
         version: link:../shared-types
+      '@supabase/supabase-js':
+        specifier: ^2.49.8
+        version: 2.103.0
     devDependencies:
       '@types/node':
         specifier: ^20.19.39
@@ -840,6 +871,11 @@ packages:
     resolution: {integrity: sha512-gcPtXzZ6izyyBVf2of7K3dEt8CScPJn8VcSlQq6oWL9QoE1kqfQl0oFrOMHd5qrcADewxI7OxxosLB8W4XqtIQ==}
     engines: {node: '>=20.0.0'}
 
+  '@supabase/ssr@0.6.1':
+    resolution: {integrity: sha512-QtQgEMvaDzr77Mk3vZ3jWg2/y+D8tExYF7vcJT+wQ8ysuvOeGGjYbZlvj5bHYsj/SpC0bihcisnwPrM4Gp5G4g==}
+    peerDependencies:
+      '@supabase/supabase-js': ^2.43.4
+
   '@supabase/storage-js@2.103.0':
     resolution: {integrity: sha512-DHmlvdAXwtOmZNbkIZi4lkobPR3XjIzoOgzoz5duMf6G+sDeY015YrzMJCnqdccuYr7X5x4yYuSwF//RoN2dvQ==}
     engines: {node: '>=20.0.0'}
@@ -1328,6 +1364,10 @@ packages:
 
   concat-map@0.0.1:
     resolution: {integrity: sha512-/Srv4dswyQNBfohGpz9o6Yb3Gz3SrUDqBH5rTuhGR7ahtlbYKnVxw2bCFMRljaA7EXHaXZ8wsHdodFvbkhKmqg==}
+
+  cookie@1.1.1:
+    resolution: {integrity: sha512-ei8Aos7ja0weRpFzJnEA9UHJ/7XQmqglbRwnf2ATjcB9Wq874VKH9kfjjirM6UhU2/E5fFYadylyhFldcqSidQ==}
+    engines: {node: '>=18'}
 
   cross-spawn@7.0.6:
     resolution: {integrity: sha512-uV2QOWP2nWzsy2aMp8aRibhi9dlzF5Hgh5SHaB9OiTGEyDTiJJyx0uy51QXdyWbtAHNua4XJzUKca3OzKUd3vA==}
@@ -3031,6 +3071,11 @@ snapshots:
       - bufferutil
       - utf-8-validate
 
+  '@supabase/ssr@0.6.1(@supabase/supabase-js@2.103.0)':
+    dependencies:
+      '@supabase/supabase-js': 2.103.0
+      cookie: 1.1.1
+
   '@supabase/storage-js@2.103.0':
     dependencies:
       iceberg-js: 0.8.1
@@ -3530,6 +3575,8 @@ snapshots:
   color-name@1.1.4: {}
 
   concat-map@0.0.1: {}
+
+  cookie@1.1.1: {}
 
   cross-spawn@7.0.6:
     dependencies:

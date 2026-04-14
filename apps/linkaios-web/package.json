@@ -10,12 +10,15 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@linktrend/auth": "workspace:*",
     "@linktrend/db": "workspace:*",
     "@linktrend/linklogic-sdk": "workspace:*",
     "@linktrend/observability": "workspace:*",
     "@linktrend/shared-config": "workspace:*",
     "@linktrend/shared-types": "workspace:*",
     "@linktrend/ui": "workspace:*",
+    "@supabase/ssr": "^0.6.1",
+    "@supabase/supabase-js": "^2.49.8",
     "next": "15.5.9",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
