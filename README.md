@@ -37,17 +37,19 @@ If any production or privileged credential was ever pasted into a chat or ticket
 
 SQL files live in `services/migrations/`. They **drop and recreate** only the product schemas `linkaios`, `bot_runtime`, `prism`, and `gateway`. They do **not** remove Supabase `auth`, `storage`, or other system schemas.
 
-**Option A — Supabase SQL Editor (simplest):** open the SQL Editor in the dashboard, paste each file in order (`001_…` through `006_…`), and run.
+**Recommended — Supabase SQL Editor:** open **SQL Editor** → paste `services/migrations/ALL_IN_ONE.sql` → **Run**. That applies drops, tables, demo seed, and API role grants in one step. See `services/migrations/README.md` for details.
 
-**Option B — From your machine:** set `DATABASE_URL` in `.env`, then from the repo root:
+**Optional — From your machine:** set `DATABASE_URL` in `.env`, then:
 
 ```bash
 pnpm db:migrate
 ```
 
+Use the **Session pooler** URI from the dashboard (**Connect** → **Session mode**) if `db.<project>.supabase.co` fails with `ENOTFOUND` (many networks are IPv4-only; the direct host is often IPv6-only).
+
 ### PostgREST: expose custom schemas
 
-So the JavaScript client can use `.schema("linkaios")`, add these schemas to **exposed schemas** in Supabase (Project Settings → API / Data API — wording varies by dashboard version): `linkaios`, `bot_runtime`, `prism`, `gateway`. Save, then retry API calls.
+So the JavaScript client can use `.schema("linkaios")`, add these schemas to **exposed schemas** in Supabase (**Project Settings** → **Data API** / **API**): `linkaios`, `bot_runtime`, `prism`, `gateway`. Save, then reload LiNKaios.
 
 The **Zulip server** continues to use its **own** database for Zulip’s native data; this project’s `gateway` schema only stores **bridge** metadata (for example message ↔ mission links).
 
