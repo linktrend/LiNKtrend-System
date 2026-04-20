@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 
 import "./globals.css";
+import { THEME_BOOT_INLINE_SCRIPT } from "@/lib/theme-boot-inline-script";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -24,10 +25,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+    <html lang="en" suppressHydrationWarning>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        <script dangerouslySetInnerHTML={{ __html: THEME_BOOT_INLINE_SCRIPT }} />
         {children}
       </body>
     </html>

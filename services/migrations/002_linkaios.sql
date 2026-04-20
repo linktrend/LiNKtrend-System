@@ -8,7 +8,8 @@ CREATE TABLE linkaios.agents (
   display_name text NOT NULL,
   status text NOT NULL DEFAULT 'inactive' CHECK (status IN ('active', 'inactive', 'retired')),
   created_at timestamptz NOT NULL DEFAULT now(),
-  updated_at timestamptz NOT NULL DEFAULT now()
+  updated_at timestamptz NOT NULL DEFAULT now(),
+  runtime_settings jsonb NOT NULL DEFAULT '{}'::jsonb
 );
 
 CREATE TABLE linkaios.missions (

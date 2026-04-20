@@ -7,6 +7,17 @@ import type { NextConfig } from "next";
 dotenv.config({ path: path.resolve(process.cwd(), "..", "..", ".env") });
 
 const nextConfig: NextConfig = {
+  /** Docker / `next start` in minimal images: trace server deps into `.next/standalone`. */
+  output: "standalone",
+  /** Monorepo: trace workspace packages from repo root (matches Docker pruned layout under `/app`). */
+  outputFileTracingRoot: path.join(process.cwd(), "../.."),
+  devIndicators: false,
+  async redirects() {
+    return [
+      { source: "/missions", destination: "/projects", permanent: false },
+      { source: "/missions/:path*", destination: "/projects/:path*", permanent: false },
+    ];
+  },
   transpilePackages: [
     "@linktrend/ui",
     "@linktrend/shared-config",

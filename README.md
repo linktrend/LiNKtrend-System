@@ -34,6 +34,10 @@ pnpm --filter @linktrend/openclaw-shim dev
 - **prism-defender** — heartbeat plus **residue sweep**: acknowledges closed `bot_runtime.worker_sessions` into `prism.swept_sessions` (disable with `PRISM_RESIDUE_SWEEP=0`, tune batch with `PRISM_RESIDUE_BATCH`).
 - **openclaw-shim** — local HTTP mock (default port **8789**, `OPENCLAW_SHIM_PORT`). Set `OPENCLAW_AGENT_RUN_URL=http://127.0.0.1:8789/` on **bot-runtime** to exercise the governance POST without LiNKbot-core.
 
+## Docker (optional)
+
+LiNKaios plus the three LiNKtrend Plugin services as containers: **`deploy/README.md`** and **`docker-compose.linktrend.yml`** at the repo root. With Docker running and a filled **`.env`**, run `docker compose -f docker-compose.linktrend.yml build` then `up` from the repository root.
+
 ## Environment variables
 
 1. Copy `.env.example` to `.env` in the **repository root** (this file is git-ignored).

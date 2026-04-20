@@ -1,0 +1,42 @@
+import type { ChannelMessageThread } from "@/lib/work-messages";
+
+export const DEMO_CHANNEL_THREADS: ChannelMessageThread[] = [
+  {
+    id: "demo-channel-ops",
+    channel: "Zulip",
+    channelTag: "Zulip",
+    subject: "Stream ops · LiNKaios rollout",
+    preview: "Fixture thread: routing check and hand-off to Plane.",
+    lastActivity: new Date(Date.now() - 25 * 60 * 1000).toISOString(),
+    detail: "Fixture detail body for modal preview.",
+    missionId: "demo-smb",
+    messageCount: 4,
+    hasUnread: true,
+    openHref: "/settings/gateway",
+  },
+  {
+    id: "demo-channel-support",
+    channel: "Zulip",
+    channelTag: "Zulip",
+    subject: "Stream support · customer intake",
+    preview: "Fixture thread: triage labels and SLA reminder.",
+    lastActivity: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(),
+    detail: "Fixture detail body for modal preview.",
+    missionId: "demo-ai-edu",
+    messageCount: 2,
+    hasUnread: false,
+    openHref: "/settings/gateway",
+  },
+  {
+    id: "demo-channel-slack",
+    channel: "Slack",
+    channelTag: "Slack",
+    subject: "#eng-deploys · staging cutover",
+    preview: "Fixture Slack-style thread for multi-channel layout.",
+    lastActivity: new Date(Date.now() - 50 * 60 * 1000).toISOString(),
+    detail: "Fixture conversation body.",
+    messageCount: 1,
+    hasUnread: true,
+    openHref: "/work/messages",
+  },
+];

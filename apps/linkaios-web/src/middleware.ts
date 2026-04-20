@@ -35,8 +35,11 @@ export async function middleware(request: NextRequest) {
   const isLogin = path === "/login" || path.startsWith("/login/");
   const isAuthPath = path.startsWith("/auth/");
   const isPublicHealth = path.startsWith("/api/health");
+  const isPublicBrainApi = path.startsWith("/api/brain/");
+  /** Cron / automation: handler validates `LINKAIOS_CRON_SECRET`; must not require operator cookies. */
+  const isInternalBrainEmbed = path.startsWith("/api/internal/brain-embed");
 
-  if (!user && !isLogin && !isAuthPath && !isPublicHealth) {
+  if (!user && !isLogin && !isAuthPath && !isPublicHealth && !isPublicBrainApi && !isInternalBrainEmbed) {
     const redirectUrl = request.nextUrl.clone();
     redirectUrl.pathname = "/login";
     redirectUrl.searchParams.set("next", path);

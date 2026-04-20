@@ -1,27 +1,25 @@
 import { ShellLayout } from "@/components/shell-layout";
-import { canWriteCommandCentre, getCommandCentreRoleForUser } from "@/lib/command-centre-access";
+import { isUiMocksEnabled } from "@/lib/ui-mocks/flags";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export default async function ShellAppLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createSupabaseServerClient();
+  const uiMocksEnabled = isUiMocksEnabled();
   const {
     data: { user },
   } = await supabase.auth.getUser();
-
-  const commandCentreRole =
-    user?.id != null
-      ? await getCommandCentreRoleForUser(supabase, { userId: user.id, email: user.email })
-      : undefined;
-  const canWrite =
-    commandCentreRole != null ? canWriteCommandCentre(commandCentreRole) : undefined;
+  const meta = user?.user_metadata as Record<string, unknown> | undefined;
+  const pickStr = (v: unknown) => (typeof v === "string" && v.trim() ? v.trim() : null);
+  const sidebarUser = user
+    ? {
+        email: user.email ?? null,
+        displayName: pickStr(meta?.full_name) ?? pickStr(meta?.name) ?? null,
+        avatarUrl: pickStr(meta?.avatar_url),
+      }
+    : null;
 
   return (
-    <ShellLayout
-      showDevtools={process.env.NODE_ENV === "development"}
-      userEmail={user?.email ?? null}
-      commandCentreRole={commandCentreRole}
-      canWrite={canWrite}
-    >
+    <ShellLayout sidebarUser={sidebarUser} uiMocksEnabled={uiMocksEnabled}>
       {children}
     </ShellLayout>
   );

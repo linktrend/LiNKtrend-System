@@ -1,0 +1,23 @@
+# Git and caches
+.git
+.github
+**/.turbo
+**/node_modules
+**/.next
+**/dist
+
+# Local env (inject at runtime via compose `env_file`, not image layers)
+.env
+.env.*
+!.env.example
+
+# Tooling / docs not needed to compile apps in Docker
+*.md
+docs
+.cursor
+.codex
+**/*.test.ts
+**/vitest.config.ts
+
+# Optional: keep image smaller (migrations not used by runtime containers here)
+services/migrations

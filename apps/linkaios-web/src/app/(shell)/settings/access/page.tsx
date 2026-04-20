@@ -1,14 +1,15 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
-import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import {
   commandCentreRoleLabel,
   getCommandCentreRoleForUser,
   getEffectiveCommandCentreRole,
   isCommandCentreAdmin,
 } from "@/lib/command-centre-access";
+import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { TABLE } from "@/lib/ui-standards";
 
 import { RoleRowForm } from "./role-row-form";
 
@@ -27,22 +28,20 @@ export default async function SettingsAccessPage() {
   if (!allowed) {
     return (
       <main>
-        <p className="text-sm text-zinc-500">
-          <Link href="/settings" className="text-zinc-700 underline">
+        <p className="text-sm text-zinc-500 dark:text-zinc-400">
+          <Link href="/settings/user" className="text-zinc-700 underline dark:text-zinc-300">
             Settings
           </Link>
           <span className="mx-2">/</span>
-          <span className="text-zinc-900">Access</span>
+          <span className="text-zinc-900 dark:text-zinc-100">Access</span>
         </p>
-        <h1 className="mt-2 text-xl font-semibold text-zinc-900">Command centre access</h1>
-        <p className="mt-4 max-w-xl text-sm text-zinc-700">
-          You need an <strong>admin</strong> role in <code className="text-xs">linkaios.user_access</code>, or your
-          email must be listed in <code className="text-xs">COMMAND_CENTRE_BOOTSTRAP_ADMIN_EMAILS</code> in the server
-          environment (comma-separated).
+        <h1 className="mt-2 text-xl font-semibold text-zinc-900 dark:text-zinc-100">Access</h1>
+        <p className="mt-4 max-w-xl text-sm text-zinc-600 dark:text-zinc-400">
+          Only workspace <strong>Admins</strong> can change roles here. Ask an Admin if you need a different level of access.
         </p>
         <p className="mt-4 text-sm">
-          <Link href="/settings" className="text-zinc-700 underline">
-            Back to settings
+          <Link href="/settings/user" className="text-sky-700 underline dark:text-sky-400">
+            Back to Settings
           </Link>
         </p>
       </main>
@@ -55,8 +54,8 @@ export default async function SettingsAccessPage() {
   if (listErr) {
     return (
       <main>
-        <h1 className="text-xl font-semibold text-zinc-900">Command centre access</h1>
-        <p className="mt-4 text-sm text-red-700">{listErr.message}</p>
+        <h1 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100">Access</h1>
+        <p className="mt-4 text-sm text-zinc-600 dark:text-zinc-400">The user directory could not be loaded.</p>
       </main>
     );
   }
@@ -73,8 +72,7 @@ export default async function SettingsAccessPage() {
         .eq("user_id", u.id)
         .maybeSingle();
       const raw = row?.role as string | undefined;
-      const dbRole: DbRole =
-        raw === "admin" || raw === "operator" || raw === "viewer" ? raw : null;
+      const dbRole: DbRole = raw === "admin" || raw === "operator" || raw === "viewer" ? raw : null;
       const effectiveRole = getEffectiveCommandCentreRole({
         dbRole,
         email: u.email,
@@ -95,32 +93,32 @@ export default async function SettingsAccessPage() {
 
   return (
     <main>
-      <p className="text-sm text-zinc-500">
-        <Link href="/settings" className="text-zinc-700 underline">
+      <p className="text-sm text-zinc-500 dark:text-zinc-400">
+        <Link href="/settings/user" className="text-zinc-700 underline dark:text-zinc-300">
           Settings
         </Link>
         <span className="mx-2">/</span>
-        <span className="text-zinc-900">Access</span>
+        <span className="text-zinc-900 dark:text-zinc-100">Access</span>
       </p>
-      <h1 className="mt-2 text-xl font-semibold text-zinc-900">Command centre access</h1>
-      <p className="mt-2 max-w-3xl text-sm text-zinc-600">
-        Assign <code className="text-xs">viewer</code> for read-only dashboards, <code className="text-xs">operator</code>{" "}
-        for normal writes, <code className="text-xs">admin</code> for settings administration. Removing a row restores
-        implicit <strong>operator</strong> (same as before migration <code className="text-xs">010</code>), unless the
-        account matches bootstrap admin emails.
+      <h1 className="mt-2 text-xl font-semibold text-zinc-900 dark:text-zinc-100">Access</h1>
+      <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
+        Your role: <strong>{commandCentreRoleLabel(selfRole)}</strong>
       </p>
-      <p className="mt-2 text-sm text-zinc-600">
-        Your session is <strong>{commandCentreRoleLabel(selfRole)}</strong>.
+      <p className="mt-2 max-w-2xl text-sm text-zinc-600 dark:text-zinc-400">
+        <strong>Admin</strong> can manage settings and roles. <strong>Operator</strong> can use day-to-day controls.{" "}
+        <strong>Viewer</strong> is read-only.
       </p>
 
-      <div className="mt-8 overflow-x-auto rounded-lg border border-zinc-200 bg-white shadow-sm">
+      <div className="mt-8 overflow-x-auto rounded-lg border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
         <table className="min-w-full text-left text-sm">
-          <thead className="bg-zinc-100 text-xs font-medium uppercase tracking-wide text-zinc-600">
+          <thead className="bg-zinc-100 text-xs font-medium uppercase tracking-wide text-zinc-600 dark:bg-zinc-900 dark:text-zinc-400">
             <tr>
-              <th className="px-3 py-2">User id</th>
-              <th className="px-3 py-2">Email</th>
-              <th className="px-3 py-2">DB role</th>
-              <th className="px-3 py-2">Actions</th>
+              <th className={`px-3 py-2 ${TABLE.thText}`}>User id</th>
+              <th className={`px-3 py-2 ${TABLE.thText}`}>Email</th>
+              <th className={`px-3 py-2 ${TABLE.thText}`}>Assigned role</th>
+              <th className={`px-3 py-2 ${TABLE.thControl}`}>
+                <div className={TABLE.thControlInner}>Actions</div>
+              </th>
             </tr>
           </thead>
           <tbody>

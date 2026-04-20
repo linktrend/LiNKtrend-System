@@ -1,0 +1,49 @@
+# LiNKaios + LiNKtrend Plugin (4 containers). Run from monorepo root so `.env` applies
+# to both Compose substitution and container env:
+#
+#   docker compose -f docker-compose.linktrend.yml build
+#   docker compose -f docker-compose.linktrend.yml up
+#
+# NEXT_PUBLIC_* must be present in `.env` (or your shell) at **build** time for LiNKaios.
+
+name: linktrend
+
+services:
+  linkaios:
+    build:
+      context: .
+      dockerfile: deploy/docker/linkaios-web.Dockerfile
+      args:
+        NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL}
+        NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY}
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    restart: unless-stopped
+
+  bot-runtime:
+    build:
+      context: .
+      dockerfile: deploy/docker/bot-runtime.Dockerfile
+    env_file:
+      - .env
+    restart: unless-stopped
+
+  zulip-gateway:
+    build:
+      context: .
+      dockerfile: deploy/docker/zulip-gateway.Dockerfile
+    ports:
+      - "8790:8790"
+    env_file:
+      - .env
+    restart: unless-stopped
+
+  prism-defender:
+    build:
+      context: .
+      dockerfile: deploy/docker/prism-defender.Dockerfile
+    env_file:
+      - .env
+    restart: unless-stopped
