@@ -7,6 +7,7 @@ export type SkillAdminFlags = {
   runtimeEnabled: boolean;
   category: string;
   description: string;
+  usageTrigger: string;
 };
 
 const ADMIN_KEY = "linkaios_admin";
@@ -22,6 +23,7 @@ export function readSkillAdminFlags(skill: SkillRecord): SkillAdminFlags {
     (admin?.description as string) ||
     (meta.description as string) ||
     skill.name.replace(/-/g, " ");
+  const usageTrigger = typeof admin?.usage_trigger === "string" ? admin.usage_trigger : "";
   let published = typeof admin?.published === "boolean" ? admin.published : undefined;
   let runtimeEnabled = typeof admin?.runtime_enabled === "boolean" ? admin.runtime_enabled : undefined;
   if (published === undefined) {
@@ -33,7 +35,7 @@ export function readSkillAdminFlags(skill: SkillRecord): SkillAdminFlags {
   if (!published) {
     runtimeEnabled = false;
   }
-  return { published, runtimeEnabled, category, description };
+  return { published, runtimeEnabled, category, description, usageTrigger };
 }
 
 export function mergeSkillMetadata(prev: Record<string, unknown>, patch: Record<string, unknown>): Record<string, unknown> {
@@ -66,6 +68,24 @@ export function writeSkillScripts(meta: Record<string, unknown>, scripts: SkillS
 }
 
 export type SkillFileRow = { id: string; name: string; kind: "asset" | "reference"; bytes?: number };
+
+/** First-class `linkaios.skill_references` row shape for the editor. */
+export type SkillReferenceTableRow = {
+  id: string;
+  label: string;
+  kind: "brain_path" | "storage_uri" | "tool_name";
+  target: string;
+  step_ordinal: number | null;
+};
+
+/** First-class `linkaios.skill_assets` row shape for the editor. */
+export type SkillAssetTableRow = {
+  id: string;
+  name: string;
+  storage_uri: string;
+  byte_size: number | null;
+  step_ordinal: number | null;
+};
 
 const ASSETS_KEY = "linkaios_assets";
 const REFS_KEY = "linkaios_references";

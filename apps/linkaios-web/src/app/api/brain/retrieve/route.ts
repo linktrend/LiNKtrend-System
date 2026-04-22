@@ -1,6 +1,11 @@
 import { NextResponse } from "next/server";
 
-import { embedTextGemini, retrieveBrainContextForPath, type BrainScope } from "@linktrend/linklogic-sdk";
+import {
+  embedTextGemini,
+  retrieveBrainContextForPath,
+  type BrainRetrieveStage,
+  type BrainScope,
+} from "@linktrend/linklogic-sdk";
 
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 
@@ -11,6 +16,11 @@ function unauthorized() {
 function parseScope(v: unknown): BrainScope {
   if (v === "mission" || v === "agent") return v;
   return "company";
+}
+
+function parseStage(v: unknown): BrainRetrieveStage | undefined {
+  if (v === "orientation" || v === "index_cards" || v === "chunks" || v === "full") return v;
+  return undefined;
 }
 
 /**
@@ -34,6 +44,7 @@ export async function POST(req: Request) {
     missionId?: unknown;
     agentId?: unknown;
     topK?: unknown;
+    stage?: unknown;
   } | null;
   const logicalPath = typeof body?.logicalPath === "string" ? body.logicalPath.trim() : "";
   const query = typeof body?.query === "string" ? body.query : "";
@@ -55,6 +66,8 @@ export async function POST(req: Request) {
     : async () => null;
 
   const supabase = getSupabaseAdmin();
+  /** When omitted, prefer index cards without chunk bodies unless callers explicitly widen. */
+  const stage = parseStage(body?.stage) ?? "index_cards";
   const result = await retrieveBrainContextForPath(supabase, {
     scope,
     logicalPath,
@@ -63,6 +76,7 @@ export async function POST(req: Request) {
     query,
     topK,
     embedQuery,
+    stage,
   });
 
   return NextResponse.json(result);

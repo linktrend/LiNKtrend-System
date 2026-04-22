@@ -7,8 +7,9 @@
     "build": "tsc -p tsconfig.json",
     "dev": "tsx watch src/index.ts",
     "start": "node dist/index.js",
-    "lint": "echo \"no lint yet\"",
-    "typecheck": "tsc -p tsconfig.json --noEmit"
+    "lint": "eslint .",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run"
   },
   "dependencies": {
     "@linktrend/db": "workspace:*",
@@ -16,8 +17,12 @@
     "@linktrend/shared-config": "workspace:*"
   },
   "devDependencies": {
+    "@eslint/js": "^9.39.4",
     "@types/node": "^20.19.39",
+    "eslint": "^9.39.4",
     "tsx": "^4.19.4",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.58.2",
+    "vitest": "^3.2.4"
   }
 }

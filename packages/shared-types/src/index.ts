@@ -72,6 +72,15 @@ export interface SkillRecord {
   metadata: Record<string, unknown>;
   created_at: string;
   updated_at: string;
+  /** Progressive disclosure: FK to `linkaios.skill_categories`. */
+  category_id?: string | null;
+  default_model?: string | null;
+  skill_mode?: "simple" | "stepped";
+  /** Ordered step definitions when `skill_mode` is `stepped`. */
+  step_recipe?: unknown;
+  /** Authoritative declared tool names (simple + stepped defaults). */
+  default_declared_tools?: string[];
+  tags?: string[];
 }
 
 /** Row from `linkaios.tools` (PostgREST uses snake_case column names). */

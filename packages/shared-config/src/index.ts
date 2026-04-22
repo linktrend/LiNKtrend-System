@@ -64,6 +64,8 @@ const envSchema = z.object({
   GEMINI_API_KEY: optionalNonEmpty(),
   /** Shared secret for `POST /api/brain/*` routes (OpenClaw / bot-runtime virtual file bridge). */
   BOT_BRAIN_API_SECRET: optionalNonEmpty(),
+  /** Optional dedicated bearer for `POST /api/skills/execution`; otherwise `BOT_BRAIN_API_SECRET` is accepted. */
+  BOT_SKILLS_API_SECRET: optionalNonEmpty(),
   /** Cron / internal routes (`/api/internal/brain-embed`, librarian). Vercel Cron may use `CRON_SECRET` instead. */
   LINKAIOS_CRON_SECRET: optionalNonEmpty(),
   CRON_SECRET: optionalNonEmpty(),

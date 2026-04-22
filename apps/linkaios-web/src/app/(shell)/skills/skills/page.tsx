@@ -4,6 +4,7 @@ import type { SkillRecord } from "@linktrend/shared-types";
 import Link from "next/link";
 
 import { SkillsCatalogTable, type SkillCatalogRow } from "@/components/skills-catalog-table";
+import { SkillsSemanticDiscovery } from "@/components/skills-semantic-discovery";
 import { readSkillAdminFlags } from "@/lib/skills-admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { isUiMocksEnabled } from "@/lib/ui-mocks/flags";
@@ -62,9 +63,14 @@ export default async function SkillsCatalogPage() {
         </div>
       </header>
 
-      <section>
+      <section className="space-y-8">
+        <p className="max-w-3xl text-xs text-zinc-600 dark:text-zinc-400">
+          Skill <strong>categories</strong> are curated in Postgres (<code className="rounded bg-zinc-100 px-1 dark:bg-zinc-800">linkaios.skill_categories</code>
+          ) and seeded/maintained by migrations or SQL — there is no category authoring UI in LiNKskills v1 yet.
+        </p>
+        <SkillsSemanticDiscovery />
         {rows.length === 0 ? (
-          <div className="mt-6 rounded-xl border border-dashed border-zinc-300 bg-zinc-50/80 p-8 text-center dark:border-zinc-700 dark:bg-zinc-900/40">
+          <div className="mt-2 rounded-xl border border-dashed border-zinc-300 bg-zinc-50/80 p-8 text-center dark:border-zinc-700 dark:bg-zinc-900/40">
             <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">No skills in catalogue</p>
             <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
               No skills are available in the catalogue yet. Ask your workspace administrator to publish skills, then

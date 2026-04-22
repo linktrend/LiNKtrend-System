@@ -31,3 +31,8 @@ export function mergeSkillBodyMarkdown(frontmatterYaml: string, promptMarkdown: 
   }
   return `---\n${yaml}\n---\n\n${promptMarkdown}`;
 }
+
+/** Prose-only body: strips legacy YAML frontmatter for display and for saves that must not reintroduce manifest YAML. */
+export function getSkillBodyPromptOnly(body: string): string {
+  return parseSkillBodyMarkdown(body).promptMarkdown;
+}

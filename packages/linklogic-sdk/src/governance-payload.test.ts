@@ -48,6 +48,7 @@ describe("buildOpenClawAgentIngressBody", () => {
   it("defaults to flat agent params with linktrendGovernance", () => {
     const gov = {
       bootstrap: { authorizationState: "granted" as const, traceCorrelationId: "x" },
+      approvedTools: { toolNames: [] as string[] },
     };
     const body = buildOpenClawAgentIngressBody(baseEnv, gov);
     expect(body.message).toBe("ping");
@@ -58,7 +59,10 @@ describe("buildOpenClawAgentIngressBody", () => {
 
   it("supports governance_only", () => {
     const env = { ...baseEnv, OPENCLAW_AGENT_RUN_BODY: "governance_only" } as unknown as Env;
-    const gov = { bootstrap: { authorizationState: "granted" as const } };
+    const gov = {
+      bootstrap: { authorizationState: "granted" as const, traceCorrelationId: "y" },
+      approvedTools: { toolNames: [] as string[] },
+    };
     const body = buildOpenClawAgentIngressBody(env, gov);
     expect(body).toEqual({ linktrendGovernance: gov });
   });

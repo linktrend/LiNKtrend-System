@@ -38,8 +38,20 @@ export async function middleware(request: NextRequest) {
   const isPublicBrainApi = path.startsWith("/api/brain/");
   /** Cron / automation: handler validates `LINKAIOS_CRON_SECRET`; must not require operator cookies. */
   const isInternalBrainEmbed = path.startsWith("/api/internal/brain-embed");
+  const isInternalSkillEmbed = path.startsWith("/api/internal/skill-embed");
+  /** Handler validates `Authorization: Bearer` against `BOT_SKILLS_API_SECRET` or `BOT_BRAIN_API_SECRET` — not anonymous. */
+  const isPublicSkillsExecution = path.startsWith("/api/skills/execution");
 
-  if (!user && !isLogin && !isAuthPath && !isPublicHealth && !isPublicBrainApi && !isInternalBrainEmbed) {
+  if (
+    !user &&
+    !isLogin &&
+    !isAuthPath &&
+    !isPublicHealth &&
+    !isPublicBrainApi &&
+    !isInternalBrainEmbed &&
+    !isInternalSkillEmbed &&
+    !isPublicSkillsExecution
+  ) {
     const redirectUrl = request.nextUrl.clone();
     redirectUrl.pathname = "/login";
     redirectUrl.searchParams.set("next", path);

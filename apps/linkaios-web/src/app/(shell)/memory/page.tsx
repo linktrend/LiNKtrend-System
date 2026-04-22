@@ -8,6 +8,7 @@ import { BUTTON } from "@/lib/ui-standards";
 import { isUiMocksEnabled } from "@/lib/ui-mocks/flags";
 import { applyLinkbrainUiMockOverlay } from "@/lib/ui-mocks/linkbrain-demo-overlay";
 import { runBrainRetrievalSandbox } from "@/lib/brain-sandbox";
+import type { BrainRetrieveStage } from "@linktrend/linklogic-sdk";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 import type { BrainInboxItemType, BrainRetrieveContextResult, BrainScope } from "@linktrend/linklogic-sdk";
@@ -53,6 +54,7 @@ export default async function MemoryPage(props: {
     b_agent?: string;
     b_path?: string;
     b_query?: string;
+    b_stage?: string;
     b_file?: string;
     b_kind?: string;
     inbox_item?: string;
@@ -78,6 +80,14 @@ export default async function MemoryPage(props: {
   const inboxSort = sp.inbox_sort === "asc" ? "asc" : "desc";
   const brainFileKindFilter = sp.b_kind?.trim() || null;
   const askSelectedFileId = sp.b_file?.trim() || undefined;
+
+  const rawStage = sp.b_stage?.trim() ?? "";
+  const allowedStages = new Set<BrainRetrieveStage>(["full", "orientation", "index_cards", "chunks"]);
+  const brainRetrieveStage: BrainRetrieveStage = allowedStages.has(rawStage as BrainRetrieveStage)
+    ? (rawStage as BrainRetrieveStage)
+    : sandboxQuery
+      ? "chunks"
+      : "index_cards";
 
   const supabase = await createSupabaseServerClient();
   const uiMocksEnabled = isUiMocksEnabled();
@@ -113,6 +123,7 @@ export default async function MemoryPage(props: {
       query: sandboxQuery,
       missionId: brainMissionId,
       agentId: brainAgentId,
+      stage: brainRetrieveStage,
     });
   }
 
@@ -173,6 +184,7 @@ export default async function MemoryPage(props: {
         inboxSort={inboxSort}
         brainFileKindFilter={brainFileKindFilter}
         brainSandbox={brainSandbox}
+        brainRetrieveStage={brainRetrieveStage}
       />
     </main>
   );

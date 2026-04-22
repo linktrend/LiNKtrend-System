@@ -16,6 +16,7 @@ import {
   type BrainInboxItemType,
   type BrainInboxRow,
   type BrainRetrieveContextResult,
+  type BrainRetrieveStage,
   type BrainScope,
   type BrainVirtualFileEnriched,
 } from "@linktrend/linklogic-sdk";
@@ -105,6 +106,7 @@ export function MemoryCommandCentre(props: {
   inboxSort?: "asc" | "desc";
   brainFileKindFilter?: string | null;
   brainSandbox: BrainRetrieveContextResult | null;
+  brainRetrieveStage: BrainRetrieveStage;
 }) {
   const { tab, data } = props;
   const defaultLegalEntityId = data.legalEntities[0]?.id ?? "";
@@ -532,6 +534,23 @@ export function MemoryCommandCentre(props: {
                 className="mt-1 w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
               />
             </div>
+            <div>
+              <label className="text-sm font-medium text-zinc-900 dark:text-zinc-100">Retrieval stage</label>
+              <select
+                name="b_stage"
+                defaultValue={props.brainRetrieveStage}
+                className="mt-1 w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+              >
+                <option value="full">Full (cards + passages)</option>
+                <option value="orientation">Orientation (company map + doc cards)</option>
+                <option value="index_cards">Index cards only</option>
+                <option value="chunks">Passages only</option>
+              </select>
+              <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+                Progressive disclosure: start with orientation or cards, then switch to passages when you need grounded
+                excerpts.
+              </p>
+            </div>
             <button
               type="submit"
               className="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white dark:bg-zinc-100 dark:text-zinc-900"
@@ -550,6 +569,19 @@ export function MemoryCommandCentre(props: {
                 </p>
               ) : (
                 <>
+                  {props.brainSandbox.mapIndexCards && props.brainSandbox.mapIndexCards.length > 0 ? (
+                    <>
+                      <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Company orientation map</h3>
+                      <ul className="mt-2 space-y-2">
+                        {props.brainSandbox.mapIndexCards.map((c) => (
+                          <li key={c.card_key} className="text-sm">
+                            <span className="font-medium text-zinc-900 dark:text-zinc-100">{c.title}</span>
+                            <p className="text-zinc-600 dark:text-zinc-400">{c.summary}</p>
+                          </li>
+                        ))}
+                      </ul>
+                    </>
+                  ) : null}
                   <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Index cards</h3>
                   {props.brainSandbox.indexCards.length === 0 ? (
                     <p className="text-sm text-zinc-500">None yet.</p>

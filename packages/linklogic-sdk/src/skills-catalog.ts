@@ -3,6 +3,9 @@ import type { SkillRecord } from "@linktrend/shared-types";
 
 import { getDeclaredToolsFromSkill } from "./declared-tools.js";
 
+const SKILL_LIST_SLIM =
+  "id, name, version, status, metadata, created_at, updated_at, category_id, default_model, skill_mode, step_recipe, default_declared_tools, tags";
+
 export async function listSkills(
   client: SupabaseClient,
   params: { limit?: number } = {},
@@ -11,10 +14,14 @@ export async function listSkills(
   const { data, error } = await client
     .schema("linkaios")
     .from("skills")
-    .select("*")
+    .select(SKILL_LIST_SLIM)
     .order("updated_at", { ascending: false })
     .limit(limit);
-  return { data: (data ?? []) as SkillRecord[], error: error ? new Error(error.message) : null };
+  const rows = (data ?? []) as Omit<SkillRecord, "body_markdown">[];
+  return {
+    data: rows.map((r) => ({ ...r, body_markdown: "" }) as SkillRecord),
+    error: error ? new Error(error.message) : null,
+  };
 }
 
 export async function getSkillById(

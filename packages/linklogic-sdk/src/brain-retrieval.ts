@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
+import { BRAIN_ORIENTATION_MAP_PATH } from "./brain-orientation.js";
 import { mergeDailyLogLinesIntoPublishedBody, parseDailyLogDateFromPath } from "./brain-daily-log.js";
 import {
   cosineSimilarity,
@@ -9,6 +10,8 @@ import {
   type BrainScope,
   type BrainVirtualFileRow,
 } from "./brain-virtual-files.js";
+
+export type BrainRetrieveStage = "full" | "orientation" | "index_cards" | "chunks";
 
 export type BrainIndexCardLite = {
   card_key: string;
@@ -32,6 +35,8 @@ export type BrainRetrieveContextResult = {
   relevantChunks: BrainRetrievedChunk[];
   /** Short published body preview when no cards/chunks. */
   publishedExcerpt: string;
+  /** Company-scope orientation map index cards (neutral path); optional. */
+  mapIndexCards?: BrainIndexCardLite[];
   error: string | null;
 };
 
@@ -83,8 +88,23 @@ async function loadPublishedChunksWithEmbeddings(
   return { rows, error: null };
 }
 
+async function loadOrientationMapCards(client: SupabaseClient): Promise<BrainIndexCardLite[]> {
+  const { data: mapFile, error } = await findBrainVirtualFile(client, {
+    scope: "company",
+    logicalPath: BRAIN_ORIENTATION_MAP_PATH,
+    missionId: null,
+    agentId: null,
+  });
+  if (error || !mapFile) return [];
+  const { data, error: cErr } = await listIndexCardsForFile(client, mapFile.id);
+  if (cErr) return [];
+  return data;
+}
+
 /**
  * Progressive disclosure for a virtual file: index cards, then top‑K chunks (semantic if `embedQuery` works).
+ * When `stage` is omitted, defaults to **`index_cards`** (cards only, no chunk bodies) so direct callers do not
+ * accidentally load passage text; pass **`chunks`** or **`full`** when chunk bodies are intended.
  */
 export async function retrieveBrainContextForPath(
   client: SupabaseClient,
@@ -97,8 +117,11 @@ export async function retrieveBrainContextForPath(
     topK?: number;
     /** When provided, used to rank chunks; otherwise chunks are taken in document order. */
     embedQuery?: (text: string) => Promise<number[] | null>;
+    /** Retrieval stage; `orientation` and `index_cards` omit chunk bodies. */
+    stage?: BrainRetrieveStage;
   },
 ): Promise<BrainRetrieveContextResult> {
+  const stage = params.stage ?? "index_cards";
   const topK = params.topK ?? 5;
   const logicalPath = params.logicalPath;
   const { data: file, error: fErr } = await findBrainVirtualFile(client, {
@@ -172,8 +195,36 @@ export async function retrieveBrainContextForPath(
     };
   }
 
+  let mapIndexCards: BrainIndexCardLite[] | undefined;
+  if (stage === "orientation") {
+    mapIndexCards = await loadOrientationMapCards(client);
+    const excerpt =
+      cards.length === 0 && !published?.id ? mergedPublishedBody.slice(0, 400) : "";
+    return {
+      fileId: file.id,
+      logicalPath,
+      indexCards: cards,
+      relevantChunks: [],
+      publishedExcerpt: excerpt,
+      mapIndexCards,
+      error: null,
+    };
+  }
+
+  if (stage === "index_cards") {
+    return {
+      fileId: file.id,
+      logicalPath,
+      indexCards: cards,
+      relevantChunks: [],
+      publishedExcerpt: "",
+      error: null,
+    };
+  }
+
   let relevantChunks: BrainRetrievedChunk[] = [];
-  if (published?.id) {
+  let hasDbChunks = false;
+  if (published?.id && (stage === "chunks" || stage === "full")) {
     const { rows: baseRows, error: chErr } = await loadPublishedChunksWithEmbeddings(client, published.id);
     if (chErr) {
       return {
@@ -185,6 +236,7 @@ export async function retrieveBrainContextForPath(
         error: chErr.message,
       };
     }
+    hasDbChunks = baseRows.length > 0;
     let rows = [...baseRows];
     if (dailyLogLines.length > 0 && logDate) {
       let ord = 0;
@@ -221,7 +273,8 @@ export async function retrieveBrainContextForPath(
     }
   }
 
-  const excerpt = mergedPublishedBody.slice(0, 800);
+  const excerpt =
+    hasDbChunks || relevantChunks.length > 0 ? "" : mergedPublishedBody.slice(0, 800);
 
   return {
     fileId: file.id,

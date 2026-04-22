@@ -1,11 +1,16 @@
-import { getDeclaredToolsFromSkill, listTools } from "@linktrend/linklogic-sdk";
+import { getSkillWideDefaultDeclaredTools, listTools, parseStepRecipeEntries } from "@linktrend/linklogic-sdk";
 import { notFound } from "next/navigation";
 
 import { getSkillForEditor } from "@/app/(shell)/skills/actions";
 import { SkillWorkspace } from "@/components/skill-workspace";
-import { applyDevFileMocksIfEmpty } from "@/lib/skill-dev-file-mocks";
-import { parseSkillBodyMarkdown } from "@/lib/skill-markdown";
-import { readSkillAdminFlags, readSkillFileRows, readSkillScripts } from "@/lib/skills-admin";
+import { applyDevTableRefAssetMocksIfEmpty } from "@/lib/skill-dev-table-mocks";
+import { getSkillBodyPromptOnly } from "@/lib/skill-markdown";
+import {
+  readSkillAdminFlags,
+  readSkillScripts,
+  type SkillAssetTableRow,
+  type SkillReferenceTableRow,
+} from "@/lib/skills-admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
@@ -28,16 +33,39 @@ export default async function SkillDetailPage(props: { params: Promise<{ id: str
     );
   }
   const catalogToolNames = (toolRows ?? []).map((t) => t.name).sort((a, b) => a.localeCompare(b));
-  const initialDeclaredTools = getDeclaredToolsFromSkill(skill);
+  const initialDeclaredTools = getSkillWideDefaultDeclaredTools(skill);
 
   const flags = readSkillAdminFlags(skill);
-  const parsed = parseSkillBodyMarkdown(skill.body_markdown ?? "");
+  const promptOnly = getSkillBodyPromptOnly(skill.body_markdown ?? "");
   const scripts = readSkillScripts(skill.metadata ?? {});
-  const { assets, references } = readSkillFileRows(skill.metadata ?? {});
-  const { assets: assetsForUi, references: referencesForUi, previewOnlyFileIds } = applyDevFileMocksIfEmpty(
-    assets,
-    references,
+
+  const [{ data: categoryRows }, { data: refRows }, { data: assetRows }] = await Promise.all([
+    supabase.schema("linkaios").from("skill_categories").select("id, title").order("sort_order", { ascending: true }),
+    supabase
+      .schema("linkaios")
+      .from("skill_references")
+      .select("id, label, kind, target, step_ordinal")
+      .eq("skill_id", id)
+      .order("label", { ascending: true }),
+    supabase
+      .schema("linkaios")
+      .from("skill_assets")
+      .select("id, name, storage_uri, byte_size, step_ordinal")
+      .eq("skill_id", id)
+      .order("name", { ascending: true }),
+  ]);
+
+  const categories = (categoryRows ?? []) as { id: string; title: string }[];
+  const referencesRaw = (refRows ?? []) as SkillReferenceTableRow[];
+  const assetsRaw = (assetRows ?? []) as SkillAssetTableRow[];
+  const { assets: assetsForUi, references: referencesForUi, previewOnlyFileIds } = applyDevTableRefAssetMocksIfEmpty(
+    referencesRaw,
+    assetsRaw,
   );
+
+  const initialSteps = parseStepRecipeEntries(skill.step_recipe);
+
+  const initialTags = Array.isArray(skill.tags) ? skill.tags.map((t) => String(t)) : [];
 
   return (
     <SkillWorkspace
@@ -45,17 +73,23 @@ export default async function SkillDetailPage(props: { params: Promise<{ id: str
       skillId={id}
       name={skill.name}
       version={skill.version}
-      category={flags.category}
+      categoryLabel={flags.category}
       description={flags.description}
+      usageTrigger={flags.usageTrigger}
       skillStatus={skill.status}
       initialDeclaredTools={initialDeclaredTools}
       catalogToolNames={catalogToolNames}
-      initialFrontmatterYaml={parsed.frontmatterYaml}
-      initialPromptMarkdown={parsed.promptMarkdown}
+      initialPromptMarkdown={promptOnly}
       initialScripts={scripts}
       initialAssets={assetsForUi}
       initialReferences={referencesForUi}
       previewOnlyFileIds={previewOnlyFileIds}
+      categories={categories}
+      skillCategoryId={skill.category_id ?? null}
+      defaultModel={skill.default_model ?? ""}
+      initialTags={initialTags}
+      skillMode={(skill.skill_mode === "stepped" ? "stepped" : "simple") as "simple" | "stepped"}
+      initialSteps={initialSteps}
     />
   );
 }

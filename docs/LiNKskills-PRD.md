@@ -32,7 +32,7 @@ LiNKskills is the **central, versioned library of governed execution instruction
 ## 3. Principles
 
 1. **Centralization:** Skills are **not** owned as authoritative copies inside worker repos; central store is source of truth for published versions.
-2. **Metadata is machine-readable:** **Declared tools** MUST live in **structured skill metadata** (e.g. YAML frontmatter or first-class JSON fields), stable keys, catalog `name` alignment.
+2. **Metadata is machine-readable:** **Declared tools** MUST live in **authoritative storage** — `linkaios.skills.default_declared_tools` (and mirrored `metadata.declared_tools` / `metadata.linkaios_index` on save). YAML in `body_markdown` is **not** a source of truth after migration; the LiNKskills editor persists **category FK**, **tags**, **default_model**, **usage_trigger**, **description**, and **step_recipe** in columns / `linkaios_admin` metadata, and keeps **body_markdown** as prose-only (YAML is ignored on load and stripped on prompt save).
 3. **Separation of concerns:** LiNKskills defines **what** the skill is and **what tools it declares**; LiNKaios defines **whether** those tools are allowed for org/mission/agent context. This PRD does not duplicate LiNKaios UI requirements — it **depends** on them.
 4. **Catalog-only binding:** Mission allowlists reference **only** tools that exist in `linkaios.tools`.
 5. **No silent escalation:** If runtime or gateway detects a missing allow, it **stops** and surfaces an **approval** path (LiNKaios + Zulip); see companion spec.
@@ -61,15 +61,16 @@ Target navigation under **LiNKskills** (names may match current app labels):
 
 - **Identity:** `name`, monotonically increasing `version` (or equivalent), `status`.
 - **Lifecycle:** `draft` → `approved` → `deprecated` (align with existing schema or extend with explicit `rejected` only if needed for **skill** review, not tool requests).
-- **Body:** Markdown instruction text (SKILL.md-style: optional YAML frontmatter + body).
+- **Body:** Markdown instruction text (**prose only** post-migration; optional legacy YAML is migrated out).
 - **Structured metadata (required keys for v1):**
-  - `declared_tools: string[]` — each entry MUST match `linkaios.tools.name` for tools the skill expects (may be empty).
-  - Human-facing: title/description/category/published flags as already used by LiNKskills admin patterns.
+  - `default_declared_tools` / `declared_tools` — each entry MUST match `linkaios.tools.name` for tools the skill expects. **Draft approval requires at least one declared tool** (skill defaults and/or stepped per-step `declared_tools` union — see retrieval policy).
+  - Human-facing: description, **usage_trigger** (`linkaios_admin`), **category_id** FK, **tags** array, **skill_mode** (`simple` | `stepped`), **step_recipe** JSON for stepped flows.
+  - **References/assets:** `skill_references` and `skill_assets` rows (not metadata blobs) with optional `step_ordinal` (NULL = skill-wide).
 
 ### 5.2 Validation
 
 - On **save** (draft): warn if `declared_tools` contains names **not** in catalog (hard error if product chooses zero-tolerance; default recommendation: **hard error** once catalog is non-empty for those names).
-- On **approve** skill: **hard error** if any `declared_tools` entry is missing from catalog or not **org-approved** for use (exact rule in companion spec).
+- On **approve** skill: **hard error** if the **effective** declared-tool set is empty, or if any entry is missing from catalog or not **org-approved** for use (same rule for simple and stepped; stepped uses the union of defaults and per-step lists — `validateEffectiveDeclaredToolsNonEmpty` + `validateDeclaredToolsForSkillApprove` in the server action).
 
 ### 5.3 Resolution
 
@@ -97,9 +98,10 @@ Target navigation under **LiNKskills** (names may match current app labels):
 These are **product requirements** on `linklogic-sdk`, `bot-runtime`, and types — implementation may evolve if behavior matches intent.
 
 1. **Governance payload** includes effective **allowed tool names** after **intersection** of: org policy, mission policy (if mission present), and any agent/session overlay defined in companion spec.
-2. **Declared tools** from the active skill are **exposed** in payload or side-channel for **workers/gateway** to validate **before** invoking a tool not on the effective list.
-3. **Fail-closed:** If validation cannot be performed (missing data, deny flag), run does not proceed with expanded tools.
-4. **Blocked run signal:** Structured event / HTTP response / message envelope that LiNKaios and Zulip-Gateway can turn into a **deep link** + trace row (companion spec).
+2. **Declared tools** from the active skill are **exposed** in payload or side-channel for **workers/gateway** to validate **before** invoking a tool not on the effective list. For stepped skills, the SDK **unions** skill-wide defaults with per-step `declared_tools` before intersecting with policy (see `getDeclaredToolsFromSkill`).
+3. **Layer 3 execution:** workers that need markdown body and child rows call **`POST /api/skills/execution`** with a service bearer (`BOT_SKILLS_API_SECRET` or `BOT_BRAIN_API_SECRET`); governance stays slim.
+4. **Fail-closed:** If validation cannot be performed (missing data, deny flag), run does not proceed with expanded tools.
+5. **Blocked run signal:** Structured event / HTTP response / message envelope that LiNKaios and Zulip-Gateway can turn into a **deep link** + trace row (companion spec).
 
 ---
 
@@ -116,7 +118,7 @@ The LiNKskills product is **not** fully usable without:
 
 ## 9. Acceptance criteria (LiNKskills scope only)
 
-1. Operator can create/edit a skill with **declared_tools** in metadata; invalid names are blocked per §5.2.
+1. Operator can create/edit a skill with **default_declared_tools** / structured metadata; invalid names are blocked per §5.2; semantic discovery is available when embeddings and `GEMINI_API_KEY` are configured.
 2. Operator can manage **draft** tools in catalog; cannot delete **approved** tools; can archive approved tools.
 3. Skill catalog and tool catalog remain **inspectable** under LiNKskills with correct RLS for command-centre roles.
 4. SDK/runtime consumes **declared_tools** + **effective allowlist** per §7 (verified by integration tests or smoke scripts as project standards require).

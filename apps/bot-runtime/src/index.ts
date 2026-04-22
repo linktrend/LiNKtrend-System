@@ -4,12 +4,13 @@ import {
   buildLinktrendGovernancePayload,
   closeWorkerSession,
   ensureWorkerAgent,
+  fetchSkillExecutionPackageFromLiNKaios,
   openWorkerSession,
   pulseWorkerSession,
   recordTrace,
 } from "@linktrend/linklogic-sdk";
 import { log } from "@linktrend/observability";
-import { loadEnv } from "@linktrend/shared-config";
+import { botRuntimeOpenClawTimeoutMs, loadEnv } from "@linktrend/shared-config";
 
 import { postGovernanceToOpenClaw } from "./openclaw-handoff.js";
 
@@ -47,7 +48,7 @@ async function main() {
   const skillName = env.BOT_RUNTIME_SKILL_NAME ?? "bootstrap";
 
   try {
-    const governance = await buildLinktrendGovernancePayload(env, {
+    const { payload: governance } = await buildLinktrendGovernancePayload(env, {
       correlationId: sessionId,
       skillName,
       missionId: env.BOT_RUNTIME_MISSION_ID ?? null,
@@ -71,6 +72,40 @@ async function main() {
       });
     } catch {
       /* best-effort */
+    }
+
+    const baseUrl = env.LINKTREND_PUBLIC_BASE_URL?.trim();
+    const skillsSecret = (env.BOT_SKILLS_API_SECRET ?? env.BOT_BRAIN_API_SECRET)?.trim();
+    if (baseUrl && skillsSecret) {
+      const layer3 = await fetchSkillExecutionPackageFromLiNKaios({
+        baseUrl,
+        bearerSecret: skillsSecret,
+        skillName,
+        timeoutMs: botRuntimeOpenClawTimeoutMs(env),
+      });
+      log(layer3.ok ? "info" : "warn", "layer3 skill execution fetch", {
+        service: "bot-runtime",
+        skillName,
+        ok: layer3.ok,
+        ...(layer3.ok ? { hasBody: typeof layer3.data === "object" && layer3.data != null } : { message: layer3.message }),
+      });
+      try {
+        await recordTrace(env, {
+          eventType: layer3.ok ? "bot_runtime.skill_execution_ok" : "bot_runtime.skill_execution_error",
+          payload: {
+            sessionId,
+            skillName,
+            ...(layer3.ok ? { keys: typeof layer3.data === "object" && layer3.data ? Object.keys(layer3.data as object).slice(0, 12) : [] } : { message: layer3.message.slice(0, 400) }),
+          },
+        });
+      } catch {
+        /* best-effort */
+      }
+    } else {
+      log("info", "layer3 skill execution skipped (set LINKTREND_PUBLIC_BASE_URL and BOT_SKILLS_API_SECRET or BOT_BRAIN_API_SECRET)", {
+        service: "bot-runtime",
+        skillName,
+      });
     }
 
     const handoff = await postGovernanceToOpenClaw(env, governance);

@@ -4,6 +4,7 @@ import {
   embedTextGemini,
   retrieveBrainContextForPath,
   type BrainRetrieveContextResult,
+  type BrainRetrieveStage,
   type BrainScope,
 } from "@linktrend/linklogic-sdk";
 import type { SupabaseClient } from "@supabase/supabase-js";
@@ -16,6 +17,7 @@ export async function runBrainRetrievalSandbox(
     query: string;
     missionId?: string;
     agentId?: string;
+    stage?: BrainRetrieveStage;
   },
 ): Promise<BrainRetrieveContextResult> {
   const key = process.env.GEMINI_API_KEY;
@@ -34,5 +36,7 @@ export async function runBrainRetrievalSandbox(
     query: params.query,
     topK: 6,
     embedQuery,
+    /** Default avoids returning chunk bodies unless callers opt in (Ask overrides via `b_stage`). */
+    stage: params.stage ?? "index_cards",
   });
 }
