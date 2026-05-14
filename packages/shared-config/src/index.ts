@@ -96,6 +96,11 @@ const envSchema = z.object({
    * Unset or `0` = production behaviour (no merged demo rows).
    */
   LINKAIOS_UI_MOCKS: z.string().optional(),
+  /**
+   * OpenRouter API key for LinkBot reasoning (DECISIONS.md D-06).
+   * Optional for MVO — if not set, LinkBot operates in stub mode for testing.
+   */
+  OPENROUTER_API_KEY: optionalNonEmpty(),
 });
 
 export type Env = z.infer<typeof envSchema>;

@@ -1,0 +1,26 @@
+---
+description: Service-boundary rules for the LiNKtrend ecosystem.
+alwaysApply: true
+---
+
+# Ecosystem Boundaries
+
+LiNKaios is the organizational execution control plane. It owns tenant/plugin/work/role/bot orchestration, UI, dashboards, work contracts, routing, approvals, and system-level governance.
+
+LiNKbrain is the institutional memory and learning plane. It owns the event ledger, memory objects, audit union, context assembly, retrieval, and benchmark/learning pipelines.
+
+LinkSkills is the capability governance plane. It owns capability catalog, capability leases, side-effect permissions, approvals, run ledger, idempotency, kill switches, and skill certification.
+
+LiNKautowork is the deterministic workflow execution plane. It owns n8n gateway, workflow templates, workflow runs, deterministic execution audit, and workflow promotion candidates.
+
+LinkBot is the role-bound AI employee runtime shell. It owns persona/session/reasoning, but does not own canonical memory, canonical skills, secrets, deterministic workflows, or final audit.
+
+No service should absorb another service's responsibility.
+
+When in doubt, route through contracts:
+
+- memory/context/audit → LiNKbrain
+- capability/action permission → LinkSkills
+- deterministic workflow → LiNKautowork
+- reasoning/session/channel → LinkBot
+- tenant/work/plugin/dashboard → LiNKaios

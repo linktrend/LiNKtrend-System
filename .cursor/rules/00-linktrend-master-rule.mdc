@@ -1,0 +1,27 @@
+---
+description: Master operating rule for LiNKtrend AI Agent Ecosystem development.
+alwaysApply: true
+---
+
+# LiNKtrend Ecosystem Master Rule
+
+Cursor is the architecture and integration IDE for the LiNKtrend AI Agent Ecosystem. Codex, Antigravity, Gemini/Kimi, and other agents are bounded workers operating through `.ai-swarm/` work packets.
+
+Repository files, Git history, `.ai-swarm/` documents, and committed implementation files are the source of truth. Do not rely on chat memory, IDE memory, or unstated assumptions.
+
+Before coding, read in this order:
+
+1. `.cursor/rules/`
+2. `.ai-swarm/ARCHITECT_REVIEW_REPORT.md` if present
+3. `.ai-swarm/MASTER_PLAN.md`
+4. `.ai-swarm/ARCHITECTURE_RULES.md`
+5. `.ai-swarm/CONTRACTS_MVO.md`
+6. `.ai-swarm/REPO_INVENTORY.md`
+7. `.ai-swarm/DECISIONS.md`
+8. the active `.ai-swarm/WORK_PACKETS/*.md`
+
+If these files do not exist, create `.ai-swarm/` first. Do not implement application code before the command center exists.
+
+The first MVO is the LinkSites / WebsiteFactory lead-to-preview-site flow.
+
+The development posture is reuse-first: inspect active and archived repos before creating new implementation.

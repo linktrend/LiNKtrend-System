@@ -1,0 +1,26 @@
+---
+description: Reuse-first development workflow for existing LiNKtrend repos.
+alwaysApply: true
+---
+
+# Reuse-First Workflow
+
+This project is not greenfield.
+
+Before creating new code, search active and archived repos for existing implementations.
+
+Known reuse anchors:
+
+- `LiNKtrend-System` for LiNKaios web/kernel routes
+- `LiNKskills/services/logic-engine` for LinkSkills
+- `LiNKautowork` for n8n gateway and audit patterns
+- `Archive/LiNKaios/packages/linkbrain` for LinkBrain schemas/migrations
+- `LiNKsites` for Payload CMS and site templates
+- `LiNKapps` for UI/design system patterns
+- `LiNKbot-core` and `Archive/LiNKopenclaw` for LinkBot/OpenClaw runtime
+
+If existing code is useful, wire or adapt it.
+
+If existing code is unusable, document why in `.ai-swarm/DECISIONS.md` before rebuilding.
+
+Do not preserve architectural debt merely because code exists.

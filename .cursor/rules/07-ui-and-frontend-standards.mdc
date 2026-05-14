@@ -1,0 +1,25 @@
+---
+description: UI and frontend standards for LiNKaios and vertical plugin development.
+alwaysApply: false
+---
+
+# UI And Frontend Standards
+
+Use existing LiNKaios routes and components before creating new UI.
+
+Prefer shadcn/ui, Tailwind, existing `packages/ui`, and reusable patterns from `LiNKapps/packages/ui` / `@starter/ui` where appropriate.
+
+Do not rebuild the design system during the MVO.
+
+MVO UI requirements are functional traceability and operator clarity, not pixel-perfect polish.
+
+The dashboard should make the lead-to-preview-site flow visible:
+
+- lead
+- bot
+- capability lease/run
+- LiNKautowork workflow
+- LiNKbrain event/audit
+- preview site
+- CRM/Plane status
+- errors/blockers

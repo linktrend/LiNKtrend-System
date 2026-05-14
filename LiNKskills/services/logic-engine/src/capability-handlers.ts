@@ -1,0 +1,210 @@
+/**
+ * LinkSkills MVO capability handlers.
+ *
+ * Implements §7 capability backends:
+ * - crm.upsert (stub backend: local Postgres tables)
+ * - plane.project.create (stub backend: local Postgres tables)
+ * - plane.task.create (stub backend: local Postgres tables)
+ * - preview.publish (stub backend: static/local preview)
+ *
+ * These handlers are called by executeLease() after lease validation.
+ * They return the result that will be recorded in lease_execution_results.
+ */
+
+import type { SupabaseClient } from "@supabase/supabase-js";
+import type {
+  CrmUpsertArgs,
+  CrmUpsertResult,
+  PlaneProjectCreateArgs,
+  PlaneProjectCreateResult,
+  PlaneTaskCreateArgs,
+  PlaneTaskCreateResult,
+  PreviewPublishArgs,
+  PreviewPublishResult,
+} from "@linktrend/linklogic-sdk";
+import type { CapabilityContext } from "./types.js";
+
+/**
+ * CRM Upsert handler (§7.1, INT-020).
+ *
+ * Stub backend: writes to mvo_crm_contacts and mvo_crm_records tables.
+ * Idempotent per (tenant_id, lead_id).
+ */
+export async function handleCrmUpsert(
+  client: SupabaseClient,
+  args: CrmUpsertArgs,
+  context: CapabilityContext,
+): Promise<CrmUpsertResult> {
+  // Hash PII for the stub (no plaintext email/phone at rest)
+  const emailHash = args.contact_email
+    ? await hashWithSalt(args.contact_email, args.tenant_id)
+    : null;
+  const phoneHash = args.contact_phone
+    ? await hashWithSalt(args.contact_phone, args.tenant_id)
+    : null;
+
+  // Upsert contact (idempotent on email_hash or phone_hash)
+  const { data: contact, error: contactError } = await client
+    .schema("linkskills")
+    .rpc("upsert_crm_contact", {
+      p_tenant_id: args.tenant_id,
+      p_business_name: args.business_name,
+      p_email_hash: emailHash,
+      p_phone_hash: phoneHash,
+    });
+
+  if (contactError) {
+    throw new Error(`CRM contact upsert failed: ${contactError.message}`);
+  }
+
+  const contactId = Array.isArray(contact) ? contact[0]?.contact_id : contact?.contact_id;
+  if (!contactId) {
+    throw new Error("CRM contact upsert returned no contact_id");
+  }
+
+  // Upsert record (idempotent on tenant_id + lead_id)
+  const { data: record, error: recordError } = await client
+    .schema("linkskills")
+    .rpc("upsert_crm_record", {
+      p_tenant_id: args.tenant_id,
+      p_lead_id: args.lead_id,
+      p_contact_id: contactId,
+      p_industry: args.industry,
+      p_external_ids: args.external_ids ?? {},
+      p_lease_id: context.lease_id,
+    });
+
+  if (recordError) {
+    throw new Error(`CRM record upsert failed: ${recordError.message}`);
+  }
+
+  const recordRow = Array.isArray(record) ? record[0] : record;
+
+  return {
+    crm_record_id: recordRow?.crm_record_id ?? "",
+    created: Boolean(recordRow?.created),
+  };
+}
+
+/**
+ * Plane Project Create handler (§7.2, INT-021).
+ *
+ * Stub backend: writes to mvo_projects table.
+ * Idempotent per (tenant_id, lead_id).
+ */
+export async function handlePlaneProjectCreate(
+  client: SupabaseClient,
+  args: PlaneProjectCreateArgs,
+  context: CapabilityContext,
+): Promise<PlaneProjectCreateResult> {
+  const { data, error } = await client
+    .schema("linkskills")
+    .rpc("create_plane_project", {
+      p_tenant_id: args.tenant_id,
+      p_lead_id: args.lead_id,
+      p_project_name: args.project_name,
+      p_owner_actor_id: args.owner_actor_id,
+      p_lease_id: context.lease_id,
+    });
+
+  if (error) {
+    throw new Error(`Plane project creation failed: ${error.message}`);
+  }
+
+  const row = Array.isArray(data) ? data[0] : data;
+
+  return {
+    project_id: row?.project_id ?? "",
+    created: Boolean(row?.created),
+  };
+}
+
+/**
+ * Plane Task Create handler (§7.3, INT-021).
+ *
+ * Stub backend: writes to mvo_tasks table.
+ * Idempotent per (project_id, title_normalized).
+ */
+export async function handlePlaneTaskCreate(
+  client: SupabaseClient,
+  args: PlaneTaskCreateArgs,
+  context: CapabilityContext,
+): Promise<PlaneTaskCreateResult> {
+  const { data, error } = await client
+    .schema("linkskills")
+    .rpc("create_plane_task", {
+      p_project_id: args.project_id,
+      p_title: args.title,
+      p_description: args.description ?? null,
+      p_assignee_actor_id: args.assignee_actor_id ?? null,
+      p_lease_id: context.lease_id,
+    });
+
+  if (error) {
+    throw new Error(`Plane task creation failed: ${error.message}`);
+  }
+
+  const row = Array.isArray(data) ? data[0] : data;
+
+  return {
+    task_id: row?.task_id ?? "",
+    created: Boolean(row?.created),
+  };
+}
+
+/**
+ * Preview Publish handler (§7.4, INT-022).
+ *
+ * Stub backend: delegates to LiNKautowork workflow.
+ * The actual rendering and serving is handled by LiNKautowork;
+ * this handler just validates the lease and returns the preview URL.
+ */
+export async function handlePreviewPublish(
+  _client: SupabaseClient,
+  args: PreviewPublishArgs,
+  context: CapabilityContext,
+): Promise<PreviewPublishResult> {
+  // For MVO, the preview is generated by LiNKautowork workflow
+  // and served by apps/linkaios-web. This handler returns the
+  // expected URL pattern that LiNKautowork will register.
+
+  const previewUrl = `${args.preview_route_prefix}/${args.tenant_id}/${args.run_id}`;
+  const artifactRef = `preview:${args.tenant_id}:${args.run_id}`;
+
+  // Note: In the full implementation, this would trigger the
+  // autowork.websitefactory.preview_serve workflow. For MVO,
+  // we return the expected URL and let the workflow populate
+  // the actual rendered bundle.
+
+  return {
+    preview_url: previewUrl,
+    preview_artifact_ref: artifactRef,
+    // No expiration for MVO static previews
+  };
+}
+
+/**
+ * Get the appropriate handler for a capability.
+ */
+export function getCapabilityHandler(capability_id: string) {
+  const handlers: Record<string, (client: SupabaseClient, args: unknown, context: CapabilityContext) => Promise<Record<string, unknown>>> = {
+    "crm.upsert": handleCrmUpsert as unknown as (client: SupabaseClient, args: unknown, context: CapabilityContext) => Promise<Record<string, unknown>>,
+    "plane.project.create": handlePlaneProjectCreate as unknown as (client: SupabaseClient, args: unknown, context: CapabilityContext) => Promise<Record<string, unknown>>,
+    "plane.task.create": handlePlaneTaskCreate as unknown as (client: SupabaseClient, args: unknown, context: CapabilityContext) => Promise<Record<string, unknown>>,
+    "preview.publish": handlePreviewPublish as unknown as (client: SupabaseClient, args: unknown, context: CapabilityContext) => Promise<Record<string, unknown>>,
+  };
+
+  return handlers[capability_id] ?? null;
+}
+
+/**
+ * Simple hash function for PII hashing in stub backend.
+ * In production, this would use a proper HMAC with tenant-scoped salt.
+ */
+async function hashWithSalt(value: string, salt: string): Promise<string> {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(`${salt}:${value}`);
+  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
+}

@@ -1,0 +1,617 @@
+/**
+ * MVO cross-service contract types.
+ *
+ * Canonical source of truth: `.ai-swarm/CONTRACTS_MVO.md`.
+ *
+ * Field names below are PINNED. Implementation agents (LiNKaios kernel,
+ * LinkBot, LinkSkills, LiNKautowork, LiNKbrain, WebsiteFactory plugin) MUST
+ * import from `@linktrend/linklogic-sdk` rather than redefining parallel
+ * names.
+ *
+ * Section numbers in comments refer to sections of `CONTRACTS_MVO.md`.
+ */
+
+import { z } from "zod";
+
+/* -------------------------------------------------------------------------- */
+/* §1.2 Plane + failure mode primitives                                       */
+/* -------------------------------------------------------------------------- */
+
+export const PlaneSchema = z.enum([
+  "linkaios",
+  "linkbot",
+  "linkskills",
+  "linkautowork",
+  "linkbrain",
+]);
+export type Plane = z.infer<typeof PlaneSchema>;
+
+export const FailureModeSchema = z.enum([
+  "retryable",
+  "abort_run",
+  "require_approval",
+]);
+export type FailureMode = z.infer<typeof FailureModeSchema>;
+
+/* -------------------------------------------------------------------------- */
+/* §1.2 PluginManifest                                                        */
+/* -------------------------------------------------------------------------- */
+
+export const PluginManifestStageSchema = z.object({
+  stage_id: z.string().min(1),
+  display_name: z.string().min(1),
+  responsible_plane: PlaneSchema,
+  inputs: z.array(z.string()),
+  outputs: z.array(z.string()),
+  failure_mode: FailureModeSchema,
+});
+export type PluginManifestStage = z.infer<typeof PluginManifestStageSchema>;
+
+export const PluginManifestSchema = z.object({
+  plugin_id: z.string().min(1),
+  plugin_name: z.string().min(1),
+  version: z.string().min(1),
+  purpose: z.string().min(1),
+
+  public_surfaces: z.object({
+    work_request_types: z.array(z.string()),
+    ui_panels: z.array(z.string()),
+    read_views: z.array(z.string()),
+  }),
+
+  stages: z.array(PluginManifestStageSchema).min(1),
+
+  config_surfaces: z.array(z.string()),
+  required_capabilities: z.array(z.string()),
+  required_workflow_hooks: z.array(z.string()),
+  required_audit_events: z.array(z.string()),
+  preview_output_shape: z.record(z.string(), z.string()),
+  non_goals: z.array(z.string()),
+});
+export type PluginManifest = z.infer<typeof PluginManifestSchema>;
+
+/* -------------------------------------------------------------------------- */
+/* §3 Lead intake                                                             */
+/* -------------------------------------------------------------------------- */
+
+// RFC5322-lite; full RFC enforcement is enforced server-side. This guards
+// against malformed structural input at the SDK boundary.
+const EmailSchema = z.string().email();
+// E.164: leading +, 1..15 digits, no leading zero on country code.
+const E164Schema = z
+  .string()
+  .regex(/^\+[1-9]\d{1,14}$/, "must be E.164");
+
+const ExternalIdsSchema = z
+  .record(z.string().regex(/^[a-z][a-z0-9_]{1,40}$/), z.string())
+  .optional();
+
+export const LeadInputSchema = z.object({
+  tenant_id: z.string().min(1),
+  source: z.enum(["manual", "csv_import", "stub"]),
+  business_name: z
+    .string()
+    .min(1)
+    .max(200)
+    .transform((v) => v.trim())
+    .refine((v) => v.length > 0, "business_name required after trim"),
+  industry: z
+    .string()
+    .min(1)
+    .max(120)
+    .transform((v) => v.trim())
+    .refine((v) => v.length > 0, "industry required after trim"),
+  industry_taxonomy_id: z.string().min(1).optional(),
+  contact: z
+    .object({
+      name: z.string().max(200).optional(),
+      email: EmailSchema.optional(),
+      phone: E164Schema.optional(),
+    })
+    .optional(),
+  location: z
+    .object({
+      city: z.string().optional(),
+      region: z.string().optional(),
+      country: z.string().optional(),
+    })
+    .optional(),
+  notes: z.string().max(2000).optional(),
+  external_ids: ExternalIdsSchema,
+  client_idempotency_key: z.string().min(1).optional(),
+});
+export type LeadInput = z.infer<typeof LeadInputSchema>;
+
+/* -------------------------------------------------------------------------- */
+/* §4 Work / Run lifecycle                                                    */
+/* -------------------------------------------------------------------------- */
+
+export const ActorKindSchema = z.enum(["user", "system", "bot"]);
+export type ActorKind = z.infer<typeof ActorKindSchema>;
+
+export const WorkRequestSchema = z.object({
+  work_request_id: z.string().uuid(),
+  tenant_id: z.string().min(1),
+  plugin_id: z.string().min(1),
+  work_request_type: z.string().min(1),
+  payload: z.unknown(),
+  requested_by: z.object({
+    actor_kind: ActorKindSchema,
+    actor_id: z.string().min(1),
+  }),
+  created_at: z.string().datetime(),
+  idempotency_key: z.string().min(1),
+});
+export type WorkRequest = z.infer<typeof WorkRequestSchema>;
+
+export const RunStatusSchema = z.enum([
+  "pending",
+  "running",
+  "succeeded",
+  "partial",
+  "failed",
+  "awaiting_approval",
+  "cancelled",
+]);
+export type RunStatus = z.infer<typeof RunStatusSchema>;
+
+export const StageStatusSchema = z.enum([
+  "pending",
+  "dispatched",
+  "running",
+  "succeeded",
+  "failed",
+  "awaiting_approval",
+  "skipped",
+]);
+export type StageStatus = z.infer<typeof StageStatusSchema>;
+
+/* -------------------------------------------------------------------------- */
+/* §5 Failure taxonomy                                                        */
+/* -------------------------------------------------------------------------- */
+
+// Canonical initial set per §5.4. Agents may add codes; never rename.
+export const FailureCodeSchema = z.enum([
+  "LEAD_INPUT_INVALID",
+  "LEAD_INPUT_TOO_LONG",
+  "LEAD_TENANT_INACTIVE",
+  "LEAD_DUPLICATE_WITHIN_WINDOW",
+  "MANIFEST_INVALID",
+  "MANIFEST_CAPABILITY_UNKNOWN",
+  "MANIFEST_WORKFLOW_UNKNOWN",
+  "MANIFEST_AUDIT_EVENT_UNKNOWN",
+  "LEASE_REQUEST_INVALID",
+  "LEASE_DENIED",
+  "LEASE_EXPIRED",
+  "LEASE_KILL_SWITCH",
+  "LEASE_IDEMPOTENCY_CONFLICT",
+  "WORKFLOW_NOT_FOUND",
+  "WORKFLOW_TIMEOUT",
+  "WORKFLOW_STEP_FAILED",
+  "WORKFLOW_COMPENSATED",
+  "MODEL_PROVIDER_ERROR",
+  "MODEL_TIMEOUT",
+  "MODEL_OUTPUT_INVALID",
+  "MODEL_QUOTA_EXCEEDED",
+  "POLICY_REQUIRES_APPROVAL",
+  "APPROVAL_REJECTED",
+  "APPROVAL_TIMEOUT",
+  "STAGE_SKIPPED_BY_POLICY",
+  "KERNEL_DISPATCH_FAILED",
+  "KERNEL_PERSISTENCE_FAILED",
+]);
+export type FailureCode = z.infer<typeof FailureCodeSchema>;
+
+export const FailureReportSchema = z.object({
+  // Accept canonical codes plus any future-added code string (agents MAY add).
+  code: z.string().min(1),
+  plane: PlaneSchema,
+  message: z.string().min(1),
+  retryable: z.boolean(),
+  approval_required: z.boolean().optional(),
+  details: z.record(z.string(), z.unknown()).optional(),
+  caused_by: z
+    .object({
+      ref_kind: z.enum(["lease", "workflow_run", "audit_event", "model_run"]),
+      ref_id: z.string().min(1),
+    })
+    .optional(),
+  occurred_at: z.string().datetime(),
+});
+export type FailureReport = z.infer<typeof FailureReportSchema>;
+
+export const StageSchema = z.object({
+  stage_id: z.string().min(1),
+  run_id: z.string().uuid(),
+  responsible_plane: PlaneSchema,
+  status: StageStatusSchema,
+  attempt: z.number().int().min(1),
+  inputs_snapshot: z.record(z.string(), z.unknown()),
+  outputs: z.record(z.string(), z.unknown()).optional(),
+  started_at: z.string().datetime().optional(),
+  ended_at: z.string().datetime().optional(),
+  refs: z.object({
+    lease_ids: z.array(z.string()).optional(),
+    workflow_run_ids: z.array(z.string()).optional(),
+    audit_event_ids: z.array(z.string()).optional(),
+    model_run_id: z.string().optional(),
+  }),
+  failure: FailureReportSchema.optional(),
+});
+export type Stage = z.infer<typeof StageSchema>;
+
+export const RunSchema = z.object({
+  run_id: z.string().uuid(),
+  work_request_id: z.string().uuid(),
+  tenant_id: z.string().min(1),
+  plugin_id: z.string().min(1),
+  status: RunStatusSchema,
+  started_at: z.string().datetime(),
+  ended_at: z.string().datetime().optional(),
+  stages: z.array(StageSchema),
+  outputs: z.record(z.string(), z.unknown()),
+  failure: FailureReportSchema.optional(),
+});
+export type Run = z.infer<typeof RunSchema>;
+
+/* -------------------------------------------------------------------------- */
+/* §6.1 LiNKaios ↔ LinkBot                                                    */
+/* -------------------------------------------------------------------------- */
+
+export const ReasoningKindSchema = z.enum([
+  "lead_evaluation",
+  "template_selection",
+  "copy_generation",
+  "media_placement",
+]);
+export type ReasoningKind = z.infer<typeof ReasoningKindSchema>;
+
+export const BotReasonRequestSchema = z.object({
+  tenant_id: z.string().min(1),
+  run_id: z.string().uuid(),
+  stage_id: z.string().min(1),
+  reasoning_kind: ReasoningKindSchema,
+  inputs: z.record(z.string(), z.unknown()),
+  model_routing_profile: z.string().min(1),
+  pii_policy: z.literal("strip_contact"),
+});
+export type BotReasonRequest = z.infer<typeof BotReasonRequestSchema>;
+
+export const BotReasonResultSchema = z.object({
+  outputs: z.record(z.string(), z.unknown()),
+  model_run_id: z.string().min(1),
+  tokens_in: z.number().int().min(0),
+  tokens_out: z.number().int().min(0),
+  failure: FailureReportSchema.optional(),
+});
+export type BotReasonResult = z.infer<typeof BotReasonResultSchema>;
+
+/* -------------------------------------------------------------------------- */
+/* §6.2 LiNKaios ↔ LinkSkills                                                 */
+/* -------------------------------------------------------------------------- */
+
+export const LeaseActorKindSchema = z.enum(["plugin", "bot", "user"]);
+export type LeaseActorKind = z.infer<typeof LeaseActorKindSchema>;
+
+export const LeaseRequestSchema = z.object({
+  tenant_id: z.string().min(1),
+  run_id: z.string().uuid(),
+  stage_id: z.string().min(1),
+  capability: z.string().min(1),
+  arguments: z.record(z.string(), z.unknown()),
+  idempotency_key: z.string().min(1),
+  actor: z.object({
+    actor_kind: LeaseActorKindSchema,
+    actor_id: z.string().min(1),
+  }),
+});
+export type LeaseRequest = z.infer<typeof LeaseRequestSchema>;
+
+export const LeaseDecisionStatusSchema = z.enum([
+  "granted",
+  "denied",
+  "requires_approval",
+]);
+export type LeaseDecisionStatus = z.infer<typeof LeaseDecisionStatusSchema>;
+
+export const KillSwitchStateSchema = z.enum(["open", "tripped"]);
+export type KillSwitchState = z.infer<typeof KillSwitchStateSchema>;
+
+export const LeaseDecisionSchema = z.object({
+  lease_id: z.string().min(1),
+  status: LeaseDecisionStatusSchema,
+  reason: z.string().optional(),
+  expires_at: z.string().datetime().optional(),
+  kill_switch_state: KillSwitchStateSchema,
+  failure: FailureReportSchema.optional(),
+});
+export type LeaseDecision = z.infer<typeof LeaseDecisionSchema>;
+
+export const LeaseExecuteRequestSchema = z.object({
+  lease_id: z.string().min(1),
+  idempotency_key: z.string().min(1),
+});
+export type LeaseExecuteRequest = z.infer<typeof LeaseExecuteRequestSchema>;
+
+export const LeaseExecuteResultSchema = z.object({
+  lease_id: z.string().min(1),
+  capability: z.string().min(1),
+  result: z.record(z.string(), z.unknown()),
+  ledger_entry_id: z.string().min(1),
+  audit_event_id: z.string().min(1),
+  failure: FailureReportSchema.optional(),
+});
+export type LeaseExecuteResult = z.infer<typeof LeaseExecuteResultSchema>;
+
+/* -------------------------------------------------------------------------- */
+/* §6.3 All planes → LiNKbrain audit envelope                                 */
+/* -------------------------------------------------------------------------- */
+
+export const AuditActorKindSchema = z.enum([
+  "kernel",
+  "plugin",
+  "bot",
+  "user",
+  "system",
+]);
+export type AuditActorKind = z.infer<typeof AuditActorKindSchema>;
+
+// Canonical initial action vocabulary per §6.3.1. Agents MAY add via a
+// decision row, never rename. Validated as a string at the boundary so future
+// additions do not require an SDK release.
+export const AUDIT_ACTIONS = [
+  "run.started",
+  "run.completed",
+  "run.failed",
+  "run.cancelled",
+  "stage.started",
+  "stage.completed",
+  "stage.failed",
+  "stage.awaiting_approval",
+  "stage.skipped",
+  "lease.requested",
+  "lease.granted",
+  "lease.denied",
+  "lease.executed",
+  "lease.expired",
+  "lease.revoked",
+  "workflow.invoked",
+  "workflow.completed",
+  "workflow.failed",
+  "workflow.compensated",
+  "preview.published",
+  "crm.upserted",
+  "plane.project.created",
+  "plane.task.created",
+  "approval.requested",
+  "approval.granted",
+  "approval.rejected",
+  "approval.timed_out",
+] as const;
+export type AuditAction = (typeof AUDIT_ACTIONS)[number];
+
+export const AuditEventSubjectSchema = z.object({
+  run_id: z.string().optional(),
+  stage_id: z.string().optional(),
+  lease_id: z.string().optional(),
+  workflow_run_id: z.string().optional(),
+  capability: z.string().optional(),
+  plugin_id: z.string().optional(),
+  lead_id: z.string().optional(),
+  preview_url: z.string().optional(),
+  preview_artifact_ref: z.string().optional(),
+  crm_record_id: z.string().optional(),
+  project_id: z.string().optional(),
+  task_id: z.string().optional(),
+});
+export type AuditEventSubject = z.infer<typeof AuditEventSubjectSchema>;
+
+export const AuditEventSchema = z.object({
+  event_id: z.string().uuid(),
+  ts: z.string().datetime(),
+  tenant_id: z.string().min(1),
+  plane: PlaneSchema,
+  actor: z.object({
+    actor_kind: AuditActorKindSchema,
+    actor_id: z.string().min(1),
+  }),
+  // Envelope basics: action and subject are REQUIRED (§12.6).
+  action: z.string().min(1),
+  subject: AuditEventSubjectSchema,
+  refs: z
+    .object({
+      caused_by_event_id: z.string().optional(),
+      parent_event_id: z.string().optional(),
+    })
+    .optional(),
+  payload: z.record(z.string(), z.unknown()),
+  schema_version: z.literal("1"),
+});
+export type AuditEvent = z.infer<typeof AuditEventSchema>;
+
+export const AuditWriteResultSchema = z.object({
+  event_id: z.string().uuid(),
+  persisted_at: z.string().datetime(),
+  failure: FailureReportSchema.optional(),
+});
+export type AuditWriteResult = z.infer<typeof AuditWriteResultSchema>;
+
+/* -------------------------------------------------------------------------- */
+/* §6.4 LiNKaios ↔ LiNKautowork                                               */
+/* -------------------------------------------------------------------------- */
+
+export const WorkflowInvokeRequestSchema = z.object({
+  tenant_id: z.string().min(1),
+  run_id: z.string().uuid(),
+  stage_id: z.string().min(1),
+  workflow_handle: z.string().min(1),
+  inputs: z.record(z.string(), z.unknown()),
+  lease_id: z.string().optional(),
+  idempotency_key: z.string().min(1),
+});
+export type WorkflowInvokeRequest = z.infer<typeof WorkflowInvokeRequestSchema>;
+
+export const WorkflowRunStatusSchema = z.enum([
+  "succeeded",
+  "failed",
+  "compensated",
+]);
+export type WorkflowRunStatus = z.infer<typeof WorkflowRunStatusSchema>;
+
+export const WorkflowInvokeResultSchema = z.object({
+  workflow_run_id: z.string().min(1),
+  status: WorkflowRunStatusSchema,
+  outputs: z.record(z.string(), z.unknown()).optional(),
+  audit_event_ids: z.array(z.string()),
+  failure: FailureReportSchema.optional(),
+});
+export type WorkflowInvokeResult = z.infer<typeof WorkflowInvokeResultSchema>;
+
+/* -------------------------------------------------------------------------- */
+/* §7 LinkSkills capabilities (args + results)                                */
+/* -------------------------------------------------------------------------- */
+
+// §7.1 crm.upsert
+export const CrmUpsertArgsSchema = z.object({
+  tenant_id: z.string().min(1),
+  lead_id: z.string().min(1),
+  business_name: z.string().min(1),
+  industry: z.string().min(1),
+  contact_email: EmailSchema.optional(),
+  contact_phone: E164Schema.optional(),
+  external_ids: ExternalIdsSchema,
+});
+export type CrmUpsertArgs = z.infer<typeof CrmUpsertArgsSchema>;
+
+export const CrmUpsertResultSchema = z.object({
+  crm_record_id: z.string().min(1),
+  created: z.boolean(),
+});
+export type CrmUpsertResult = z.infer<typeof CrmUpsertResultSchema>;
+
+// §7.2 plane.project.create
+export const PlaneProjectCreateArgsSchema = z.object({
+  tenant_id: z.string().min(1),
+  lead_id: z.string().min(1),
+  project_name: z.string().min(1),
+  owner_actor_id: z.string().min(1),
+});
+export type PlaneProjectCreateArgs = z.infer<typeof PlaneProjectCreateArgsSchema>;
+
+export const PlaneProjectCreateResultSchema = z.object({
+  project_id: z.string().min(1),
+  created: z.boolean(),
+});
+export type PlaneProjectCreateResult = z.infer<
+  typeof PlaneProjectCreateResultSchema
+>;
+
+// §7.3 plane.task.create
+export const PlaneTaskCreateArgsSchema = z.object({
+  tenant_id: z.string().min(1),
+  project_id: z.string().min(1),
+  title: z.string().min(1),
+  description: z.string().optional(),
+  assignee_actor_id: z.string().optional(),
+});
+export type PlaneTaskCreateArgs = z.infer<typeof PlaneTaskCreateArgsSchema>;
+
+export const PlaneTaskCreateResultSchema = z.object({
+  task_id: z.string().min(1),
+  created: z.boolean(),
+});
+export type PlaneTaskCreateResult = z.infer<typeof PlaneTaskCreateResultSchema>;
+
+// §2 render_spec (needed as an argument to preview.publish)
+export const CopyBundleSchema = z.object({
+  blocks: z.array(
+    z.object({
+      block_id: z.string().min(1),
+      text: z.record(z.string(), z.string()),
+    }),
+  ),
+  locale: z.string().min(1),
+});
+export type CopyBundle = z.infer<typeof CopyBundleSchema>;
+
+export const MediaPlanSchema = z.object({
+  placements: z.array(
+    z.object({
+      block_id: z.string().min(1),
+      asset_ref: z.string().min(1),
+      kind: z.enum(["placeholder", "stock"]),
+    }),
+  ),
+});
+export type MediaPlan = z.infer<typeof MediaPlanSchema>;
+
+export const ThemeOverridesSchema = z.record(z.string(), z.unknown());
+export type ThemeOverrides = z.infer<typeof ThemeOverridesSchema>;
+
+export const RenderSpecSchema = z.object({
+  template_id: z.string().min(1),
+  copy_bundle: CopyBundleSchema,
+  media_plan: MediaPlanSchema,
+  theme: ThemeOverridesSchema,
+});
+export type RenderSpec = z.infer<typeof RenderSpecSchema>;
+
+// §7.4 preview.publish
+export const PreviewPublishArgsSchema = z.object({
+  tenant_id: z.string().min(1),
+  run_id: z.string().uuid(),
+  render_spec: RenderSpecSchema,
+  preview_route_prefix: z.string().min(1),
+});
+export type PreviewPublishArgs = z.infer<typeof PreviewPublishArgsSchema>;
+
+export const PreviewPublishResultSchema = z.object({
+  preview_url: z.string().min(1),
+  preview_artifact_ref: z.string().min(1),
+  expires_at: z.string().datetime().optional(),
+});
+export type PreviewPublishResult = z.infer<typeof PreviewPublishResultSchema>;
+
+/* -------------------------------------------------------------------------- */
+/* §9 Preview output                                                          */
+/* -------------------------------------------------------------------------- */
+
+export const PreviewOutputStatusSchema = z.enum([
+  "succeeded",
+  "partial",
+  "failed",
+  "awaiting_approval",
+]);
+export type PreviewOutputStatus = z.infer<typeof PreviewOutputStatusSchema>;
+
+export const PreviewOutputSchema = z.object({
+  run_id: z.string().uuid(),
+  tenant_id: z.string().min(1),
+  plugin_id: z.literal("websitefactory"),
+
+  preview_url: z.string().min(1),
+  preview_artifact_ref: z.string().min(1),
+
+  crm_record_id: z.string().nullable(),
+  project_id: z.string().nullable(),
+  task_id: z.string().nullable(),
+
+  lease_ids: z.array(z.string()),
+  workflow_run_ids: z.array(z.string()),
+  audit_event_ids: z.array(z.string()),
+
+  status: PreviewOutputStatusSchema,
+  finalized_at: z.string().datetime().optional(),
+});
+export type PreviewOutput = z.infer<typeof PreviewOutputSchema>;
+
+/* -------------------------------------------------------------------------- */
+/* §2 data-dictionary refs (kept minimal; runtime shapes belong with owners)  */
+/* -------------------------------------------------------------------------- */
+
+export const LeadRecordRefSchema = z.object({
+  lead_id: z.string().min(1),
+  tenant_id: z.string().min(1),
+  idempotency_key: z.string().min(1),
+});
+export type LeadRecordRef = z.infer<typeof LeadRecordRefSchema>;

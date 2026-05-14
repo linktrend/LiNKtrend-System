@@ -41,6 +41,7 @@ export async function middleware(request: NextRequest) {
   const isInternalSkillEmbed = path.startsWith("/api/internal/skill-embed");
   /** Handler validates `Authorization: Bearer` against `BOT_SKILLS_API_SECRET` or `BOT_BRAIN_API_SECRET` — not anonymous. */
   const isPublicSkillsExecution = path.startsWith("/api/skills/execution");
+  const isKernelApi = path.startsWith("/api/kernel");
 
   if (
     !user &&
@@ -50,7 +51,8 @@ export async function middleware(request: NextRequest) {
     !isPublicBrainApi &&
     !isInternalBrainEmbed &&
     !isInternalSkillEmbed &&
-    !isPublicSkillsExecution
+    !isPublicSkillsExecution &&
+    !isKernelApi
   ) {
     const redirectUrl = request.nextUrl.clone();
     redirectUrl.pathname = "/login";

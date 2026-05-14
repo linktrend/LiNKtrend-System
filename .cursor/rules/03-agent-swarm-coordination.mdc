@@ -1,0 +1,30 @@
+---
+description: Coordination rules for Cursor, Codex, Antigravity, and other agents.
+alwaysApply: true
+---
+
+# Agent Swarm Coordination
+
+Agents coordinate through `.ai-swarm/`, not chat memory.
+
+Every agent must read its assigned work packet and update its agent report before stopping.
+
+Each work packet must define:
+
+- objective
+- repo/worktree
+- allowed files
+- prohibited files
+- required context files
+- steps
+- acceptance criteria
+- proof required
+- report file to update
+
+Specialist agents do not merge their own work. The Integrator reviews and merges.
+
+Use separate branches or worktrees for parallel work.
+
+If two agents need to edit the same file, stop and escalate to the Integrator.
+
+All significant decisions go into `.ai-swarm/DECISIONS.md`.
