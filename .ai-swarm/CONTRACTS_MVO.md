@@ -1,12 +1,147 @@
-# MVO contracts — LiNKaios kernel + WebsiteFactory plugin (lead-to-preview-site)
+# MVO contracts — LiNKaios kernel + LinkSites vertical plugin
 
-**Status:** Finalized via WP-004 (2026-05-14). Ready for parallel implementation.
+**Current canonical target:** LinkSites vertical plugin development-mode MVO v2 (see §0.A below).
+**Status:** v2 contract is the active target; the previous v1 `websitefactory.lead_to_preview` static/local proof is retained as historical detail in §§1–13.
 **Owner:** Cursor Architect / Integrator.
-**Binds to:** `ARCHITECTURE_RULES.md`, `DECISIONS.md` D-01..D-08, `INTEGRATION_QUEUE.md` INT-010..INT-022, `LINKAIOS_KERNEL_MANIFEST.md` (WP-003).
+**Binds to:** `ARCHITECTURE_RULES.md`, `DECISIONS.md` D-01..D-08, `INTEGRATION_QUEUE.md`, `LINKAIOS_KERNEL_MANIFEST.md` (WP-003 + v2 addendum), `LINKSITES_VERTICAL_MVO_V2.md`, `PLUGIN_ARCHITECTURE_V2.md`.
 
 ## 0. Scope and reading order
 
-This document pins the **cross-service contracts** required for the first MVO, the **LinkSites / WebsiteFactory lead-to-preview-site** flow. `LiNKtrend-System` is the **LiNKaios control-plane repo**; **WebsiteFactory is the first vertical plugin** exercising the kernel, not the LiNKaios core product.
+This document pins the **cross-service contracts** required for the LinkSites vertical plugin development-mode MVO. `LiNKtrend-System` is the **LiNKaios control-plane repo**; **LinkSites is the first vertical plugin** exercising the kernel, not the LiNKaios core product.
+
+§0.A pins the canonical v2 contract surface that all current implementation packets target. §§1–13 retain the v1 `websitefactory.lead_to_preview` static/local lead-to-preview-site contract as historical reference; agents MUST treat any conflict between v1 §§1–13 and v2 §0.A as resolved in favor of v2.
+
+## 0.A LinkSites vertical plugin development-mode MVO v2 (canonical)
+
+This subsection makes the revised LinkSites development-mode MVO the canonical contract target. The earlier static/local lead-to-preview proof in §§1–13 is no longer the current roadmap target; it is preserved for context and for the parts of the typed kernel/plugin/cross-plane envelope that remain valid (manifest shape §1, run lifecycle §4, failure taxonomy §5, audit envelope §6.3, role-bleed rules §12 in particular).
+
+### 0.A.1 Canonical v2 flow
+
+The LinkSites v2 MVO proves the full website factory workflow in development mode. The canonical end-to-end flow is:
+
+`mock CRM lead -> LinkBot research/enrichment -> template-guided website package -> local generated artifact folder -> Supabase mirror -> LiNKautowork sync to real local Payload CMS -> preview-ready frontend -> deterministic checks -> CRM/mock lead status ready_to_contact`
+
+Plain English: a mock CRM lead exists; a Research/Enrichment LinkBot performs governed public research and enriches context; a Website Builder LinkBot picks a `LiNKsites` master/industry template, writes business-specific copy, plans media, and proposes style changes; generated artifacts are written to a local generated-artifact folder; structured website content and asset refs are written to the Supabase mirror; LiNKautowork syncs Supabase content into the local Payload CMS; the existing/local frontend reads from Payload and shows the preview-ready site; LiNKautowork deterministic checks validate required pages, navigation, content blocks, media references, provenance, Payload sync status, and preview readiness; if checks pass, the mock CRM lead status is set to `ready_to_contact`.
+
+### 0.A.2 Development-mode hard boundaries
+
+The following are out of scope for the v2 MVO and MUST NOT be implemented or wired by any v2 work packet:
+
+- autonomous real lead acquisition (Lead Scout role is declared but disabled).
+- real client outreach (Outreach Bot role is declared but disabled; no draft send, no public email or message send).
+- real VPS deployment, customer domain, DNS, TLS, or production hosting.
+- inventing Payload CMS schemas or Supabase mirror schemas — discovery (WP-042) must locate existing schemas before any wiring or migration work.
+- writing generated artifacts to Git repos.
+
+### 0.A.3 Production artifact direction (forward-looking, not in MVO)
+
+In development mode, generated website artifacts are written to a local generated-artifact folder.
+
+In production, this artifact store becomes cloud cold storage (for example Google Drive or an equivalent durable archive), NOT live hosting. The artifact store is the versioned archive of generated outputs; the live website host is a separate downstream concern outside the v2 MVO scope.
+
+### 0.A.4 Canonical LinkBot roles (v1 LinkSites)
+
+- **Lead Scout Bot** — future role for discovering leads and creating/enriching CRM records. **Declared but disabled** in v2; mock CRM data supplies its output.
+- **Research/Enrichment Bot** — researches the specific lead and comparable businesses, records provenance, prepares research context.
+- **Website Builder Bot** — selects template guidance from `LiNKsites`, writes copy, plans media, proposes style changes, produces the structured website package.
+- **Outreach Bot** — future role for client outreach. **Declared but disabled** in v2; no outreach draft or send for v1.
+
+Quality control starts with deterministic LiNKautowork checks. A dedicated QA Bot is **deferred** until deterministic checks expose a need for judgment review.
+
+### 0.A.5 Required v1 capability plugins
+
+The v2 MVO requires capability plugins (governed connectors) covering:
+
+- **Odoo/CRM shadow-readiness** — local/mock writes for lead status with Odoo readiness/shadow checks behind config.
+- **Payload CMS (local)** — local Payload sync/publish connector; no schema invention.
+- **Supabase mirror/content** — structured website content and asset references; schema copied/adapted from existing source, not invented.
+- **Zulip** — run notifications plus LinkBot/operator work-channel communication.
+- **Public web research** — governed read-only public research with citations/provenance.
+- **Asset generation** — governed generated media (images/video) with provenance and audit.
+- **Plane** — internal execution tasks plus future client/project scaffold; mock/shadow by default.
+
+Each capability plugin contract pack (modes `mock | shadow | live`, lease requirements, idempotency, audit events, allowed callers, failure mapping, non-configuration of target-software business setup) is owned by WP-043 and downstream packets.
+
+### 0.A.6 Site identity
+
+Unless WP-042 discovery contradicts this, site identity is:
+
+- one canonical `site_id` per business/lead record.
+- each generation run creates a versioned `site_generation_run_id` tied to that `site_id`.
+
+Reasoning: avoids creating a new logical site per retry, supports version history, lets future CRM/Odoo and Plane records point to the same site, and supports later production deployment without changing identity.
+
+### 0.A.7 Side-effect routing (v2)
+
+All side effects in the v2 flow MUST flow through LinkSkills capability leases and LiNKautowork deterministic workflows. Specifically:
+
+- **LinkSkills leases** gate every capability-backed side effect: CRM/mock writes, Supabase mirror writes, Payload CMS writes, Zulip notifications, asset generation, public web research, and Plane/project writes. Lease lifecycle, idempotency, kill switches, and run-ledger semantics from §6.2 and §7.5 remain authoritative.
+- **LiNKautowork workflows** own deterministic steps: artifact assembly, Supabase mirror sync, Payload sync, deterministic checks, and CRM status promotion to `ready_to_contact`. Each workflow accepts a `lease_id` when it performs a capability-gated action and references that lease in audit (§6.4).
+- **LiNKbrain audit envelope** (§6.3, D-08) remains the single audit/event surface. Per-service ad hoc logging is not a substitute. New workflow and capability action types may be added per §6.3.1's "agents may add via decision row, never rename" rule.
+- **LinkBot** continues to obey §6.1 boundaries: no direct memory writes, no direct lease issuance, no deterministic step execution, PII stripped from model prompts.
+
+### 0.A.8 Schema-related deferrals (discovery-gated)
+
+The following details are **explicitly deferred to WP-042 discovery** and MUST NOT be invented by any v2 contract or implementation packet:
+
+- the concrete master/industry template location inside `/Users/linktrend/Projects/LiNKsites` (including whether it lives under `LiNKsites/apps/web-master`, an `apps/cms` Payload collection, or elsewhere).
+- the current Payload CMS schema (collections, fields, relationships, locale strategy).
+- whether the Supabase mirror schema already exists, where it lives, and what tables/columns it defines.
+- the local Payload CMS boot sequence and configuration.
+- which existing frontend reads from Payload to render the preview-ready site.
+
+If WP-042 discovery returns a result that contradicts §0.A.1–§0.A.7 (for example, the existing site identity model is `business_id`/`project_id` rather than `site_id`/`site_generation_run_id`), the discovery result wins and this section is updated in the follow-up packet before implementation begins.
+
+### 0.A.9 Mode model
+
+Per `PLUGIN_ARCHITECTURE_V2.md`, every vertical and capability plugin distinguishes:
+
+- **development mode** — local or mock side effects, local artifact storage, local services where possible. **Default for the v2 MVO.**
+- **shadow mode** — validates real external connectivity/readiness without production writes.
+- **live mode** — real external side effects, enabled only through explicit config and LinkSkills governance. **Not used in the v2 MVO.**
+
+### 0.A.10 Acceptance posture (v2)
+
+A v2 LinkSites MVO run is considered successful when, in development mode:
+
+1. A mock CRM lead is intake-ready and contains enough business facts to drive research.
+2. Research/Enrichment Bot produces an enrichment record with provenance citations.
+3. Website Builder Bot produces a structured website package referencing a discovered `LiNKsites` template.
+4. Generated artifacts (copy, media plan, style proposals, generated media with provenance) are written to the local generated-artifact folder.
+5. Structured content + asset refs are written to the Supabase mirror through a LinkSkills lease.
+6. LiNKautowork sync writes content into the local Payload CMS through a LinkSkills lease.
+7. The existing/local frontend renders the preview-ready site from Payload.
+8. Deterministic LiNKautowork checks pass against the required-pages/navigation/content/media/provenance/sync/preview criteria.
+9. CRM/mock lead status is promoted to `ready_to_contact` through a LinkSkills lease.
+10. Zulip notifications and Plane execution-tracking writes occur in mock/shadow mode with full lease + audit trail.
+
+Every step above MUST produce: a LinkSkills lease (for side-effecting steps), a LiNKbrain audit event chain (§§6.3, 8), and a LiNKautowork workflow run reference (for deterministic steps), all visible from the LiNKaios trace/status surface. A v2 run that lacks any of audit/lease/memory/trace for a step that performed work is **unacceptable** per `.cursor/rules/04-mvo-scope-and-stubbing.mdc`.
+
+### 0.A.11 Relationship to §§1–13 (historical v1 contract)
+
+§§1–13 below were authored for the v1 `websitefactory.lead_to_preview` static/local preview flow finalized in WP-004 (2026-05-14). They remain useful as the typed source-of-truth for:
+
+- the kernel ↔ plugin manifest contract surface (§1).
+- the data dictionary's reusable types (§2): `lead_input`, `lead_record_ref`, `template_id`, `copy_bundle`, `media_plan`, `lease_ids`, `workflow_run_ids`, `audit_event_ids`, `run_id`.
+- lead intake schema, validation, idempotency, and PII rules (§3).
+- `WorkRequest` / `Run` / `Stage` lifecycle and retry policy (§4).
+- `FailureReport` taxonomy and canonical error codes (§5).
+- cross-plane envelopes for LinkBot (§6.1), LinkSkills (§6.2), LiNKbrain (§6.3, D-08), and LiNKautowork (§6.4).
+- capability common rules (§7.5) and minimum audit-event sets per outcome (§8).
+- role-bleed rules per plane and per plugin (§12).
+
+The following §§1–13 elements are **historical and superseded by §0.A**:
+
+- the `websitefactory.lead_to_preview` work-request type and the 10-stage trace in §10 as the canonical demo target.
+- §7.1–§7.4 capability instances (`crm.upsert`, `plane.project.create`, `plane.task.create`, `preview.publish`) as the **complete** required-capability set. They remain valid v1 capabilities and v2 may still use a `crm.upsert`-shaped capability for mock CRM status updates; however the v2 capability surface is broader and is owned by WP-043 (Supabase mirror, Payload, Zulip, web research, asset generation, Odoo readiness, Plane shadow).
+- §9 `PreviewOutput` as the **sole** canonical output. The v2 output shape (preview-ready Payload-backed site + deterministic checks + `ready_to_contact` promotion) is owned by WP-041 follow-up and WP-042 discovery; it MUST NOT be invented ahead of discovery.
+- §11 STUB blocks (INT-020/INT-021/INT-022) as the **current** stub set. The v2 stub posture is mock/shadow per capability plugin (see `INTEGRATION_QUEUE.md` LinkSites v2 section and §0.A.5 above).
+
+Old v1 proof language elsewhere in §§1–13 should be read as "historical v1 example" rather than "current roadmap target." Implementation packets must bind to §0.A first and to §§1–13 only for the elements explicitly retained above.
+
+---
+
+> **Historical reference (v1).** §§1–13 below describe the v1 `websitefactory.lead_to_preview` static/local proof. Read with §0.A above; the canonical current target is the LinkSites v2 development-mode flow.
 
 > "LiNKaios coordinates the ecosystem but must not absorb the responsibilities of LiNKbrain, LinkSkills, LiNKautowork, or LinkBot." — `ARCHITECTURE_RULES.md`
 

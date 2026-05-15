@@ -1,5 +1,58 @@
 # Agent Report: LiNKaios Agent
 
+## WP-041 — LinkSites vertical contract v2 (2026-05-15)
+
+**Status:** COMPLETE (docs-only, no implementation code).
+
+### Scope
+
+Make the revised LinkSites development-mode MVO the canonical contract target in source-of-truth docs and reaffirm kernel non-ownership under v2.
+
+### Files changed
+
+- `.ai-swarm/CONTRACTS_MVO.md` — added §0.A LinkSites v2 canonical section (flow, hard boundaries, production artifact direction, canonical LinkBot roles, required v1 capability plugins, site identity, side-effect routing, schema-related deferrals, mode model, acceptance posture, and v1 §§1–13 historical-relationship statement). Marked top-of-file status and v1 §§1–13 as historical reference.
+- `.ai-swarm/LINKAIOS_KERNEL_MANIFEST.md` — added §0.A v2 addendum (v2 work-request and stages, disabled LinkBot roles for Lead Scout and Outreach, required capabilities, deferred concrete manifest pending WP-042, kernel non-ownership reaffirmed under v2, trace/status surface obligations). Marked §4 WebsiteFactory manifest as historical v1 reference.
+- `.ai-swarm/INTEGRATION_QUEUE.md` — added "LinkSites v2 capability integrations" section (INT-040..INT-049) plus explicit "out of scope for v2" list. Marked v1 stubbed-integrations section as historical.
+- `.ai-swarm/AGENT_COORDINATION.md` — appended WP-041 entry to Latest Updates.
+- `.ai-swarm/AGENT_REPORTS/linkaios-agent.md` — this entry.
+- `.ai-swarm/AGENT_REPORTS/integration-agent.md` — WP-041 cross-reference entry for v2 integration rows.
+
+### Commands run
+
+```bash
+git fetch origin
+git switch development
+git pull --ff-only origin development
+git switch -c dev/codex/WP-041-linksites-vertical-contract-v2
+```
+
+No SDK/TypeScript/Zod files were modified; therefore no package tests were run. SDK contract files (`packages/linklogic-sdk/src/contracts-mvo.ts` and `contracts-mvo.test.ts`) were intentionally left unchanged: the v2 design explicitly defers Payload/Supabase schema details to WP-042 discovery, and v2 hard boundaries forbid inventing schemas. Adding v2-shaped TypeScript types ahead of discovery would violate `.ai-swarm/LINKSITES_VERTICAL_MVO_V2.md` "Discovery Requirements" and the WP-041 prompt's hard boundary against inventing Payload or Supabase schemas. A follow-up packet will pin v2 wire-format types after WP-042 returns.
+
+### Proof of compliance with hard boundaries
+
+- No real lead acquisition path added. Lead Scout role declared as disabled in v2 docs only.
+- No real client outreach path added. Outreach Bot role declared as disabled in v2 docs only.
+- No real VPS deployment, customer domain, DNS, TLS, or production hosting touched. Cloud cold storage (Google Drive or equivalent) is documented as forward-looking production artifact direction with no MVO implementation row.
+- No Payload CMS schema invented. INT-041 explicitly defers schema discovery to WP-042.
+- No Supabase mirror schema invented. INT-042 explicitly defers schema discovery to WP-042.
+- No implementation code authored under `apps/`, `packages/`, `services/`, or `LiNKsites/`. No target-app business configuration added.
+- No outreach send path added in code or config.
+
+### Tests / proof
+
+Docs-only change set. No code, schemas, or migrations introduced; no package tests required. Verification is by inspection of the five docs above and the diff on this branch.
+
+### Blockers / questions
+
+None for this packet. v2 implementation cannot proceed until WP-042 returns concrete answers about: existing master/industry template location in `/Users/linktrend/Projects/LiNKsites`, existing Payload CMS schema, existence/location of Supabase mirror schema, local Payload boot sequence, and the existing frontend that reads from Payload for preview display.
+
+### Final branch + commit SHA
+
+- Branch: `dev/codex/WP-041-linksites-vertical-contract-v2`
+- Commit SHA: recorded by integrator after `git commit && git push`. (Captured in commit footer; see `git log -1 dev/codex/WP-041-linksites-vertical-contract-v2 --format=%H` once pushed.)
+
+---
+
 ## Assigned Work Packet
 
 **WP-011 — WebsiteFactory plugin declaration and stage glue** (completed 2026-05-14).

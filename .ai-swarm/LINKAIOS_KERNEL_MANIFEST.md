@@ -1,8 +1,47 @@
-# LiNKaios kernel/plugin manifest (WP-003)
+# LiNKaios kernel/plugin manifest (WP-003 + LinkSites v2 addendum)
 
-**Status:** Draft accepted as input to WP-004 contracts.
-**Owner:** linkaios-agent. Review: Architect/Integrator.
-**Scope:** Minimum LiNKaios kernel + plugin contract needed to run the WebsiteFactory lead-to-preview-site MVO without role bleed.
+**Current canonical target:** LinkSites vertical plugin development-mode MVO v2 (see §0.A below and `LINKSITES_VERTICAL_MVO_V2.md`).
+**Status:** v1 WebsiteFactory `lead_to_preview` manifest in §§4–11 is retained as historical reference for the kernel/plugin shape (§§1–3) and the per-stage plane-ownership pattern (§7). The §4 `websitefactory.lead_to_preview` instance is no longer the active roadmap target.
+**Owner:** linkaios-agent (kernel), Architect/Integrator (contract surface).
+**Scope:** LiNKaios kernel + vertical-plugin contract that supports the LinkSites v2 development-mode MVO without role bleed. Kernel shape §§1–3 below is unchanged by v2.
+
+## 0.A LinkSites vertical plugin v2 — kernel-side delta
+
+LinkSites v1 (`websitefactory`, §4) is superseded as the canonical demo target by the LinkSites v2 development-mode flow. The kernel responsibilities §§1–2, plugin manifest shape §3, role-bleed map §7, and plane-ownership-vs-plugin-declaration split §8 remain authoritative and unchanged. Only the §4 concrete instance is historical.
+
+The v2 LinkSites vertical plugin will, in its own forthcoming manifest (owned by WP-041 follow-up + WP-042 discovery):
+
+- declare a v2 work-request type (e.g. `linksites.lead_to_preview_site` or equivalent; final slug pinned post-discovery).
+- declare new stages corresponding to research/enrichment, website-package generation, local artifact write, Supabase mirror write, Payload sync, frontend preview readiness, deterministic checks, and CRM `ready_to_contact` promotion.
+- declare disabled-but-present LinkBot roles for Lead Scout and Outreach.
+- declare required capabilities covering Odoo/CRM shadow-readiness, Payload CMS, Supabase mirror, Zulip, public web research, asset generation, and Plane (mock/shadow by default). See `INTEGRATION_QUEUE.md` LinkSites v2 section.
+- declare required workflow hooks for: local-artifact assembly, Supabase mirror sync, Payload sync, deterministic checks, and CRM status promotion. Concrete handles are pinned by WP-045.
+- declare required audit events extending §6.3.1 with v2 action types (added via decision rows, never renamed).
+- declare site identity as one canonical `site_id` per business/lead plus versioned `site_generation_run_id`, unless WP-042 discovery contradicts this.
+- declare non-goals matching `LINKSITES_VERTICAL_MVO_V2.md` §"Out of scope for this MVO": no autonomous real lead acquisition, no real client outreach, no real VPS deployment / customer domain / DNS / TLS / production hosting, no Payload/Supabase schema invention, no generated artifacts in Git, no public outreach send.
+
+The concrete §4-shaped manifest instance for LinkSites v2 MUST NOT be written ahead of WP-042 discovery; doing so violates `LINKSITES_VERTICAL_MVO_V2.md` §"Discovery Requirements" and the v2 hard boundary against inventing Payload or Supabase schemas. §4 below remains the historical v1 reference.
+
+### 0.A.1 Kernel non-ownership reaffirmed under v2
+
+Under v2 the kernel still MUST NOT:
+
+- own artifact generation, Payload sync, Supabase mirror writes, deterministic checks, or CRM promotion logic — those belong to LiNKautowork workflows declared by the v2 LinkSites plugin and gated by LinkSkills leases.
+- hold canonical memory for research/enrichment outputs — those go through the LiNKbrain audit envelope (§6.3 / D-08).
+- run LLM reasoning for research, copy, media planning, or style proposals — those belong to LinkBot roles declared by the plugin.
+
+### 0.A.2 Trace/status surface obligations under v2
+
+The kernel trace/status surface MUST be able to render a v2 run by joining (id-only) refs to:
+
+- LinkSkills leases for each capability-backed side effect (CRM/mock write, Supabase mirror write, Payload write, Zulip notification, asset generation, web research, Plane mock/shadow write, CRM `ready_to_contact` promotion).
+- LiNKautowork workflow runs for each deterministic step (artifact assembly, Supabase sync, Payload sync, deterministic checks, status promotion).
+- LiNKbrain audit events for run/stage/lease/workflow/output transitions.
+- Plane (mock/shadow) execution-tracking refs where present.
+
+The kernel does not invent v2 trace content; it joins refs from the plugin's declared stages. The §§1, 4, 5, 6 surfaces of the LiNKaios kernel and `INTEGRATION_QUEUE.md` integration-visibility column are unchanged.
+
+---
 
 ## 0. Framing
 
@@ -70,7 +109,10 @@ Every LiNKaios plugin (WebsiteFactory, future verticals) declares a manifest wit
 - **`preview_output_shape`** — what the kernel will surface to operators as "the result" (URL, artifact refs, lease ids, audit ids).
 - **`non_goals[]`** — things this plugin explicitly does not do in the current version.
 
-## 4. WebsiteFactory plugin manifest (concrete instance)
+## 4. WebsiteFactory plugin manifest (concrete instance — historical v1 reference)
+
+> §4 is retained as the historical v1 manifest for the static/local `websitefactory.lead_to_preview` proof. It illustrates the §3 manifest shape with real values. The current canonical target is the LinkSites v2 plugin (§0.A); v2's concrete manifest is deferred to the post-discovery follow-up packet.
+
 
 ```yaml
 plugin_id: websitefactory

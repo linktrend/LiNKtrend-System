@@ -1,5 +1,38 @@
 # Agent Report: Integration Agent (WP-012)
 
+## WP-041 — LinkSites vertical contract v2 (cross-reference) (2026-05-15)
+
+**Status:** COMPLETE for integration-queue updates (docs-only).
+
+### Scope (integration side)
+
+- Recorded the LinkSites v2 canonical capability integration set in `INTEGRATION_QUEUE.md` under a new "LinkSites v2 capability integrations" section: INT-040 Odoo/CRM shadow-readiness, INT-041 Payload CMS local, INT-042 Supabase mirror, INT-043 Zulip, INT-044 public web research, INT-045 asset generation, INT-046 Plane mock/shadow, INT-047 local generated-artifact folder, INT-048 deterministic checks (LiNKautowork), INT-049 frontend preview reader.
+- Marked v1 stub rows INT-020/INT-021/INT-022 as historical reference for the lead-to-preview proof; they are not the active v2 stub set.
+- Recorded explicit "out of scope for v2" guardrail items: real lead acquisition, real client outreach, real VPS deployment / customer domains / DNS / TLS / production hosting, and the cloud cold storage production backend (forward-looking only).
+- Defaults preserve no remote writes: all v2 capabilities default to `mock` for writes, with `shadow` only used for readiness checks against real providers. Builds on prior shadow-readiness work (Chatwoot WP-037, Plane WP-038) without enabling live writes.
+
+### Files changed
+
+- `.ai-swarm/INTEGRATION_QUEUE.md` — added v2 section and "out of scope" list; marked v1 stubbed-integrations section as historical.
+- `.ai-swarm/AGENT_REPORTS/integration-agent.md` — this entry.
+
+### Commands run
+
+None for this docs-only update. No code or env touched; no tests required.
+
+### Proof of compliance with hard boundaries
+
+- No outbound real writes added to Chatwoot, Odoo, Plane, Payload, Supabase, Zulip, or any external provider.
+- No new env-derived secrets added.
+- No Payload or Supabase schema introduced; both are explicitly deferred to WP-042 discovery in the v2 rows.
+- No VPS deployment, hosted preview, DNS, or TLS work added; INT-033 remains the post-MVO row for hosted preview/publish.
+
+### Blockers / questions
+
+None. v2 capability contract packs (modes, lease shapes, idempotency, audit event types, allowed callers, failure mapping, target-software non-configuration) are owned by WP-043 and remain to be authored. Concrete Payload/Supabase wiring rows depend on WP-042 discovery output.
+
+---
+
 ## WP-037 — Chatwoot readiness telemetry and timeout config (2026-05-15)
 
 **Status:** COMPLETE
