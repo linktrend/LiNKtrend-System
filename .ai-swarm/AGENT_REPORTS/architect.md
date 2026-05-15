@@ -2,7 +2,82 @@
 
 ## Assigned Work Packet
 
-`WP-004-mvo-contracts.md` (completed 2026-05-14). Previous: `WP-002-day-1-decision-freeze.md` (completed 2026-05-14).
+`WP-040-plugin-architecture-contract-v2.md` (completed 2026-05-15). Previous: `WP-005-linklogic-sdk-types.md` (completed 2026-05-14), `WP-004-mvo-contracts.md` (completed 2026-05-14), `WP-002-day-1-decision-freeze.md` (completed 2026-05-14).
+
+## WP-040 — Plugin architecture v2 contract (2026-05-15)
+
+**Status:** Complete. The shared plugin architecture contract is now first-class in the repo source of truth. Vertical plugins, capability plugins, LinkBot role attachments, LinkSkills permissions/skills, LiNKautowork hooks, LiNKbrain audit/memory events, mode model, and stop-and-ask are pinned in both the prose contract and the SDK schema.
+
+### Files Changed (WP-040)
+
+- `.ai-swarm/CONTRACTS_MVO.md`
+  - Title and §0 rewritten: contract now binds the LiNKaios kernel + plugin architecture v2; WebsiteFactory framed as the first concrete vertical instance.
+  - Added §1.0.1 plugin kinds (vertical vs capability), §1.0.2 mode model (`development` / `shadow` / `live`), §1.0.3 LinkBot role attachment model, §1.0.4 stop-and-ask rule.
+  - Extended §1.2 `PluginManifest` TypeScript shape with `plugin_kind`, `modes_supported`, `required_linkbot_roles[]`, and a `capability` block (`CapabilityPluginSurface`). Legacy-compat rules retained for v1 manifests.
+  - Extended §1.3 manifest validation rules: empty stages on verticals, missing capability block on capability plugins, invalid callers, unknown modes, role attachments referencing undeclared capabilities/audit events, capability `not_configured[]` empty.
+  - §1.4 reframed as "LinkSites / WebsiteFactory manifest declaration (concrete vertical instance)" with v1↔v2 mapping.
+  - §12.4 LinkSkills role-bleed rewritten to make permissions + skills first-class and forbid leases in undeclared modes.
+  - Added §12.7 stop-and-ask review-gate.
+- `.ai-swarm/LINKAIOS_KERNEL_MANIFEST.md`
+  - §0 framing updated for vertical vs capability plugin kinds.
+  - §3 split into shared / vertical-only / capability-only required fields.
+  - §4 YAML annotated with `plugin_kind`, `modes_supported`, and v1↔v2 carry-over note.
+- `packages/linklogic-sdk/src/contracts-mvo.ts`
+  - Added `PluginKindSchema`, `PluginModeSchema`, `LinkBotRoleAttachmentSchema`, `CapabilityPluginCallerSchema`, `CapabilityPluginSurfaceSchema`.
+  - Extended `PluginManifestSchema` with optional `plugin_kind`, `modes_supported`, `required_linkbot_roles`, and `capability`. Used `.superRefine` to enforce v2 cross-field rules without breaking v1 manifests.
+- `packages/linklogic-sdk/src/contracts-mvo.test.ts`
+  - Added 7 v2 manifest tests: v2 vertical accepts, role attachment must reference declared capability, capability manifest accepts, capability with stages rejected, capability without `capability` block rejected, capability with empty `not_configured` rejected. All test cases land in the existing `PluginManifestSchema` describe block.
+- `packages/linklogic-sdk/src/index.ts`
+  - Re-exported new v2 schemas and inferred types (`PluginKind`, `PluginMode`, `LinkBotRoleAttachment`, `CapabilityPluginCaller`, `CapabilityPluginSurface`).
+- `.ai-swarm/DECISIONS.md`
+  - Added decision row D-09 ("Plugin architecture v2").
+- `.ai-swarm/AGENT_COORDINATION.md`
+  - Latest Updates entry for WP-040.
+
+No application implementation behavior was changed. No Payload/Odoo/Zulip/Plane/VPS internals were touched. No target-app business schemas were introduced.
+
+### Commands Run
+
+- `git fetch origin && git switch development && git pull --ff-only origin development`
+- `git switch -c dev/codex/WP-040-plugin-architecture-contract-v2`
+- `pnpm --filter @linktrend/linklogic-sdk typecheck` → clean (no errors).
+- `pnpm --filter @linktrend/linklogic-sdk test -- contracts-mvo` → 11 files / 80 tests passed; `src/contracts-mvo.test.ts (38 tests)` includes the 7 new v2 manifest cases.
+
+### Proof
+
+```
+Test Files  11 passed (11)
+     Tests  80 passed (80)
+  Duration  1.02s
+```
+
+Acceptance verification against WP-040:
+
+- [x] Contract docs distinguish vertical plugins, capability plugins, core platform services, and LinkBots (`CONTRACTS_MVO.md` §1.0.1; `LINKAIOS_KERNEL_MANIFEST.md` §0).
+- [x] No document implies capability plugins own target-app business setup (`CONTRACTS_MVO.md` §1.0.1, §1.0.4, §12.7; manifest §3.3 `not_configured[]` required-non-empty).
+- [x] Existing WebsiteFactory-specific language reframed as the concrete vertical instance (`CONTRACTS_MVO.md` §0, §1.4; manifest §4 header + YAML annotations); v1 manifests remain valid (legacy-compat rules in §1.2).
+- [x] Mode semantics `development` / `shadow` / `live` declared at the contract layer (§1.0.2) and enforced via `PluginModeSchema` + capability `mode_flags`.
+- [x] Stop-and-ask language present (§1.0.4 + §12.7 review-gate) and enforced via `CapabilityPluginSurfaceSchema.not_configured.min(1)`.
+- [x] LinkSkills described as granting permissions **and** skills (§12.4; manifest §3.2/§3.3).
+- [x] Shared TypeScript/Zod contracts updated to represent v2 manifest shape; contract tests pass.
+
+### Proof that no implementation code or target-app business schema was changed
+
+- `git status --short` shows changes only under `.ai-swarm/`, `packages/linklogic-sdk/src/`, and `.ai-swarm/AGENT_REPORTS/architect.md`. No edits to `apps/`, `services/`, `LiNKsites/`, `LiNKautowork/`, `LiNKbot-core/`, `LiNKskills/`, or any Payload/Odoo/Zulip/Plane configuration.
+- SDK changes are schema-only additions (new optional fields + new schemas + cross-field refinements). No runtime behavior was introduced. Typecheck and tests confirm zero behavior regressions in dependent packages compiled by this SDK.
+
+### Blockers / Questions
+
+None. The v2 contract is additive over v1 and downstream packets WP-041..WP-045 can bind to the new schemas directly.
+
+### Final branch + commit
+
+- Branch: `dev/codex/WP-040-plugin-architecture-contract-v2`
+- Commit SHA: see git log post-commit (recorded in `AGENT_COORDINATION.md` Latest Updates after push).
+
+---
+
+## Prior status (pre-WP-040) — WP-004 / WP-005
 
 ## Current Status
 

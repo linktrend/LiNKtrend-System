@@ -1,12 +1,19 @@
-# MVO contracts — LiNKaios kernel + WebsiteFactory plugin (lead-to-preview-site)
+# MVO contracts — LiNKaios kernel + plugin architecture v2
 
-**Status:** Finalized via WP-004 (2026-05-14). Ready for parallel implementation.
+**Status:** Plugin architecture v2 contract (WP-040, 2026-05-15). Supersedes the WebsiteFactory-only framing from WP-004; the original v1 WebsiteFactory binding is retained as a concrete vertical-plugin instance.
 **Owner:** Cursor Architect / Integrator.
-**Binds to:** `ARCHITECTURE_RULES.md`, `DECISIONS.md` D-01..D-08, `INTEGRATION_QUEUE.md` INT-010..INT-022, `LINKAIOS_KERNEL_MANIFEST.md` (WP-003).
+**Binds to:** `ARCHITECTURE_RULES.md`, `.cursor/rules/01-ecosystem-boundaries.mdc`, `PLUGIN_ARCHITECTURE_V2.md`, `LINKSITES_VERTICAL_MVO_V2.md`, `DECISIONS.md` D-01..D-08 plus the v2 framing decision row, `INTEGRATION_QUEUE.md` INT-010..INT-022, `LINKAIOS_KERNEL_MANIFEST.md` (WP-003).
 
 ## 0. Scope and reading order
 
-This document pins the **cross-service contracts** required for the first MVO, the **LinkSites / WebsiteFactory lead-to-preview-site** flow. `LiNKtrend-System` is the **LiNKaios control-plane repo**; **WebsiteFactory is the first vertical plugin** exercising the kernel, not the LiNKaios core product.
+This document pins the **cross-service contracts** for the LiNKaios kernel plus its plugin ecosystem.
+
+`LiNKtrend-System` is the **LiNKaios control-plane repo**. Plugins divide into two kinds:
+
+- **Vertical plugins** (business/product machines) declare what work needs to happen and which planes execute it. LinkSites (WebsiteFactory), LEXOS Litigation, Linktrend Media, Linkapps, Linktrend Development, and Linktrend Admin are vertical plugin families.
+- **Capability plugins** (reusable governed connectors) provide auth, mode, idempotency, and audit hooks for external tools and software. Examples include Odoo/CRM, Zulip, Payload CMS, Plane, Postiz, Supabase mirror sync, governed public web research, and asset generation.
+
+The first MVO exercises this contract through the **LinkSites vertical plugin v2** (`websitefactory.lead_to_preview`) plus the capability plugins it requires. WebsiteFactory references in §1.4, §10, and §11 are the **concrete v1 instance** — section names and shapes apply to every future vertical/capability plugin.
 
 > "LiNKaios coordinates the ecosystem but must not absorb the responsibilities of LiNKbrain, LinkSkills, LiNKautowork, or LinkBot." — `ARCHITECTURE_RULES.md`
 
@@ -16,7 +23,51 @@ Implementation agents should treat sections 1–10 as **typed contracts**, secti
 
 ---
 
-## 1. LiNKaios kernel ↔ plugin contract surface
+## 1. Plugin architecture v2 — plugin kinds, mode model, role attachments
+
+The kernel/plugin contract surface in §1.5–§1.7 is shared by **all** plugins, but the kernel distinguishes plugin kinds at load time.
+
+### 1.0.1 Plugin kinds
+
+- **Core platform services** — `linkaios`, `linkskills`, `linkautowork`, `linkbrain`, `linkbot`. These are not plugins. Plugins MUST NOT absorb their responsibilities (see §12 and `.cursor/rules/01-ecosystem-boundaries.mdc`).
+- **Vertical plugin** (`plugin_kind: "vertical"`) — declares work request types, ordered workflow stages, required LinkBot roles, required capability plugins, required LinkSkills permissions/skills, required LiNKautowork workflow hooks, required LiNKbrain audit/memory events, LiNKaios UI panels/read views, owned data objects, and per-mode behavior. Examples: LinkSites/WebsiteFactory, LEXOS Litigation, Linktrend Media, Linkapps, Linktrend Development, Linktrend Admin.
+- **Capability plugin** (`plugin_kind: "capability"`) — declares a governed connection to one piece of software/tooling: capability id, target software, allowed operations, auth/tenant config, mode flags, LinkSkills lease requirements, idempotency rules, audit events, allowed callers, failure mapping, and what it explicitly does **not** configure inside the target software. Capability plugins prepare the connector surface only; they MUST NOT invent the target software's internal business setup (Odoo charts of accounts, Payload schemas, CRM stages, content models, etc.). If a schema or configuration already exists in another repo, agents MUST discover/copy/adapt rather than recreate.
+
+Verticals say what work needs to happen. Capabilities provide the tools. LinkSkills grants permissions and skills. LiNKautowork runs deterministic steps. LinkBots reason. LiNKbrain remembers. LiNKaios coordinates.
+
+### 1.0.2 Mode model (development / shadow / live)
+
+Every vertical and capability plugin MUST declare which modes it supports and behave correctly in each:
+
+- **`development`** — local or mock side effects, local artifact storage, local services where possible. Default for MVO. Capability plugin backends may run as in-process stubs (e.g. INT-020/INT-021/INT-022 in §11) provided the lease + audit + memory + trace artifacts are still produced.
+- **`shadow`** — validates real external connectivity, auth, and idempotency without performing production writes. Reads are permitted; writes are dry-run or echoed to an audit-only sink. A shadow run MUST emit the same audit envelope shape as a live run, with `payload.mode: "shadow"`.
+- **`live`** — real external side effects against the target software. Enabled only when (a) the tenant config explicitly opts in, (b) LinkSkills grants a non-revoked lease for the capability, and (c) the kill switch is `open`. Live runs MUST emit `payload.mode: "live"`.
+
+The plugin manifest's `modes_supported` field declares the supported modes; the run-time mode is selected per `(tenant_id, plugin_id, capability)` by LiNKaios config and surfaced in the trace view. A capability plugin that declares only `development` MUST NOT be invoked in `shadow` or `live` regardless of operator override.
+
+### 1.0.3 LinkBot role attachment model
+
+LinkBots attach to vertical-plugin stages through **declared roles**. A role declaration belongs to the vertical plugin manifest (or to a shared role pack), and pins:
+
+- role purpose
+- inputs and outputs (typed names from §2)
+- allowed capability plugins (subset of the vertical's `required_capabilities`)
+- allowed LinkSkills permissions/skills
+- model and tool policy (model routing profile, max tokens, tool catalog subset)
+- audit events the role emits
+- development-mode restrictions (e.g. outreach drafts only, no send)
+
+LinkBots remain thin runtime workers: they do not own canonical memory, permissions, deterministic workflow state, or integration secrets (§12.3).
+
+### 1.0.4 Stop-and-ask rule
+
+If an agent does not know the intended workflow for a vertical plugin, capability plugin, or vertical/capability combination, it MUST stop and ask before implementing. Agents MUST NOT invent business workflows, software schemas, charts of accounts, CRM stages, Payload content models, Odoo records, or similar domain configuration based on assumptions. When a target software already has schemas/configs in another repo, copy/adapt them rather than rebuilding.
+
+This rule is enforced in §12.7 as a review-gate.
+
+## 1.5 LiNKaios kernel ↔ plugin contract surface
+
+The remainder of §1 applies to every plugin kind. Vertical-only and capability-only obligations are flagged inline.
 
 ### 1.1 Kernel responsibilities (owned)
 
@@ -36,12 +87,46 @@ The kernel rejects any plugin whose manifest fails this shape at load time.
 ```ts
 type Plane = "linkaios" | "linkbot" | "linkskills" | "linkautowork" | "linkbrain";
 type FailureMode = "retryable" | "abort_run" | "require_approval";
+type PluginKind = "vertical" | "capability";
+type PluginMode = "development" | "shadow" | "live";
+
+interface LinkBotRoleAttachment {
+  role_id: string;                   // e.g. "research_enrichment_bot"
+  purpose: string;
+  inputs: string[];                  // §2 typed names
+  outputs: string[];
+  allowed_capabilities: string[];    // subset of required_capabilities
+  allowed_skills: string[];          // LinkSkills skills + permissions the role may use
+  model_policy: {
+    model_routing_profile: string;   // resolved by LiNKaios (D-06)
+    tools?: string[];                // optional tool-catalog subset
+  };
+  audit_events: string[];            // subset of required_audit_events
+  development_restrictions?: string[]; // e.g. "outreach_draft_only"
+}
+
+interface CapabilityPluginSurface {
+  capability_id: string;             // e.g. "crm.upsert", "payload.publish"
+  target_software: string;           // e.g. "odoo", "payload_cms"
+  allowed_operations: string[];      // bounded list; lease-gated
+  auth_requirements: string[];       // config keys; secrets live in LinkSkills
+  mode_flags: PluginMode[];          // subset of "development" | "shadow" | "live"
+  lease_requirements: string[];      // LinkSkills permission/skill ids
+  idempotency_rules: string;         // human-readable rule, e.g. "(tenant_id,lead_id)"
+  audit_events: string[];            // subset of §6.3.1
+  allowed_callers: Array<"linkaios" | "vertical_plugin" | "linkbot" | "linkautowork">;
+  failure_mapping: Record<string, string>; // backend code → §5.4 code
+  not_configured: string[];          // explicit list of target-software internals the capability does NOT configure
+}
 
 interface PluginManifest {
   plugin_id: string;            // slug, e.g. "websitefactory"
+  plugin_kind: PluginKind;      // "vertical" | "capability" (v2). Default "vertical" for legacy manifests.
   plugin_name: string;
   version: string;              // semver of the manifest
   purpose: string;
+
+  modes_supported: PluginMode[];   // §1.0.2 — at minimum ["development"]
 
   public_surfaces: {
     work_request_types: string[];   // e.g. ["websitefactory.lead_to_preview"]
@@ -49,6 +134,7 @@ interface PluginManifest {
     read_views: string[];
   };
 
+  // Vertical-plugin fields (required when plugin_kind="vertical")
   stages: Array<{
     stage_id: string;
     display_name: string;
@@ -58,14 +144,24 @@ interface PluginManifest {
     failure_mode: FailureMode;
   }>;
 
-  config_surfaces: string[];        // tenant-scoped config keys
-  required_capabilities: string[];  // LinkSkills capability ids
-  required_workflow_hooks: string[];// LiNKautowork workflow handles
-  required_audit_events: string[];  // LiNKbrain audit event types (subset of §6.3)
-  preview_output_shape: Record<string, string>; // declared field → type
+  config_surfaces: string[];          // tenant-scoped config keys
+  required_capabilities: string[];    // capability plugin ids (vertical) / empty for capability plugins
+  required_workflow_hooks: string[];  // LiNKautowork workflow handles
+  required_audit_events: string[];    // LiNKbrain audit event types (subset of §6.3)
+  required_linkbot_roles?: LinkBotRoleAttachment[]; // vertical plugins only
+  preview_output_shape: Record<string, string>; // declared field → type (verticals that surface a preview)
   non_goals: string[];
+
+  // Capability-plugin field (required when plugin_kind="capability")
+  capability?: CapabilityPluginSurface;
 }
 ```
+
+Notes for v2 compatibility:
+
+- `plugin_kind` and `modes_supported` MAY be omitted by legacy v1 manifests; the kernel SHOULD treat the manifest as `plugin_kind="vertical"` and `modes_supported=["development"]` and emit a deprecation warning. New manifests MUST declare both.
+- A vertical plugin MUST have at least one stage; a capability plugin SHOULD declare `stages: []` if its surface is purely a connector and MUST declare its operations through the `capability` block.
+- `required_linkbot_roles` is verbose by design: the kernel surfaces role attachments in the trace view so operators see which LinkBot played which stage.
 
 ### 1.3 Manifest validation at load
 
@@ -77,10 +173,16 @@ The kernel rejects the manifest if any of the following hold; agents must surfac
 - `required_audit_events` references an event type not in §6.3.
 - Any stage with `failure_mode="require_approval"` whose `responsible_plane` is not `linkskills` or `linkaios` (only those planes own the approval surface).
 - Plugin attempts to declare an audit sink other than LiNKbrain, or a secrets surface other than LinkSkills.
+- `plugin_kind="vertical"` and `stages.length === 0`.
+- `plugin_kind="capability"` and `capability` block is missing or `capability.mode_flags` is empty.
+- `capability.allowed_callers` includes a value other than `linkaios | vertical_plugin | linkbot | linkautowork`.
+- `modes_supported` contains a mode not in `{development, shadow, live}`, or is empty.
+- A vertical plugin declares a `required_linkbot_roles[i].allowed_capabilities` value not present in its own `required_capabilities`, or a `required_linkbot_roles[i].audit_events` value not in `required_audit_events`.
+- A capability plugin's `not_configured` list is empty (capability plugins MUST explicitly state what they do not configure inside the target software — §1.0.4 stop-and-ask enforcement).
 
-### 1.4 WebsiteFactory manifest declaration (concrete instance)
+### 1.4 LinkSites / WebsiteFactory manifest declaration (concrete vertical instance)
 
-Pinned in `LINKAIOS_KERNEL_MANIFEST.md` §4. WP-004 binds the manifest fields to types above; the YAML in WP-003 is the canonical instance and is loaded as-is at boot.
+Pinned in `LINKAIOS_KERNEL_MANIFEST.md` §4. WP-004 binds the manifest fields to types above; the YAML in WP-003 is the canonical v1 instance and is loaded as-is at boot. The LinkSites vertical MVO v2 (see `LINKSITES_VERTICAL_MVO_V2.md` and WP-041) extends this manifest with `plugin_kind: "vertical"`, `modes_supported: ["development"]`, the LinkBot role attachments declared in WP-044, and the capability plugins enumerated in WP-043. v2 fields are additive; the v1 manifest remains valid under the legacy-compat rules in §1.2.
 
 ---
 
@@ -743,13 +845,18 @@ Reviewers MUST reject any implementation that violates the rules in this section
 - Execute deterministic workflow steps (delegate to LiNKautowork).
 - Receive PII fields outside `pii_policy="strip_contact"` for MVO.
 
-### 12.4 LinkSkills — MUST NOT
+### 12.4 LinkSkills — MUST and MUST NOT
+
+LinkSkills owns the **capability catalog, permissions, and skills**: capability ids and their argument/result schemas; the set of skills a role/bot may invoke; the lease lifecycle (request → grant → execute); idempotency, kill switches, certification metadata, and the run ledger. Permissions and skills are both first-class — a role declaration in §1.0.3 binds to LinkSkills entries, and a capability plugin in §1.0.1 declares its `lease_requirements` against the same registry.
+
+LinkSkills MUST NOT:
 
 - Hold long-term memory or learning state (delegate to LiNKbrain).
 - Execute deterministic workflows beyond capability backends (LiNKautowork executes the workflow body).
 - Run LLM reasoning (delegate to LinkBot).
 - Approve its own leases — approval routing belongs to the LiNKaios kernel approvals surface.
 - Skip emitting `lease.executed` to LiNKbrain when the side effect occurred (even on partial failure).
+- Allow a capability plugin to perform side effects in modes (`shadow`, `live`) the plugin manifest did not declare in `modes_supported`.
 
 ### 12.5 LiNKautowork — MUST NOT
 
@@ -765,6 +872,16 @@ Reviewers MUST reject any implementation that violates the rules in this section
 - Make routing or approval decisions.
 - Mutate `Run` or `Stage` state.
 - Accept audit events without a `tenant_id`, `plane`, `action`, and `subject` — events failing the envelope (§6.3) are rejected with `MANIFEST_AUDIT_EVENT_UNKNOWN` semantics.
+
+### 12.7 Stop-and-ask review-gate (cross-cutting)
+
+Reviewers MUST reject any change that invents target-software business configuration without explicit approval. Specifically:
+
+- A capability plugin PR that adds Odoo charts of accounts, Payload content models, CRM stages, Plane workflows/states, Zulip stream structure, or any target-software internal schema is rejected unless the source-of-truth repo + commit are cited in the PR.
+- A vertical-plugin PR that hardcodes a business workflow not present in `PLUGIN_ARCHITECTURE_V2.md`, `LINKSITES_VERTICAL_MVO_V2.md`, or an explicit approved work packet is rejected. The author MUST stop and ask before implementing.
+- An agent that does not know the intended workflow for a vertical/capability combination MUST record the question in its agent report and not guess.
+
+This rule binds to `.cursor/rules/01-ecosystem-boundaries.mdc` and `PLUGIN_ARCHITECTURE_V2.md` §"Stop-And-Ask Rule".
 
 ---
 

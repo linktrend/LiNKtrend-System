@@ -34,6 +34,55 @@ export const FailureModeSchema = z.enum([
 export type FailureMode = z.infer<typeof FailureModeSchema>;
 
 /* -------------------------------------------------------------------------- */
+/* §1.0 Plugin architecture v2 — plugin kind, mode model, role attachments    */
+/* -------------------------------------------------------------------------- */
+
+export const PluginKindSchema = z.enum(["vertical", "capability"]);
+export type PluginKind = z.infer<typeof PluginKindSchema>;
+
+export const PluginModeSchema = z.enum(["development", "shadow", "live"]);
+export type PluginMode = z.infer<typeof PluginModeSchema>;
+
+export const LinkBotRoleAttachmentSchema = z.object({
+  role_id: z.string().min(1),
+  purpose: z.string().min(1),
+  inputs: z.array(z.string()),
+  outputs: z.array(z.string()),
+  allowed_capabilities: z.array(z.string()),
+  allowed_skills: z.array(z.string()),
+  model_policy: z.object({
+    model_routing_profile: z.string().min(1),
+    tools: z.array(z.string()).optional(),
+  }),
+  audit_events: z.array(z.string()),
+  development_restrictions: z.array(z.string()).optional(),
+});
+export type LinkBotRoleAttachment = z.infer<typeof LinkBotRoleAttachmentSchema>;
+
+export const CapabilityPluginCallerSchema = z.enum([
+  "linkaios",
+  "vertical_plugin",
+  "linkbot",
+  "linkautowork",
+]);
+export type CapabilityPluginCaller = z.infer<typeof CapabilityPluginCallerSchema>;
+
+export const CapabilityPluginSurfaceSchema = z.object({
+  capability_id: z.string().min(1),
+  target_software: z.string().min(1),
+  allowed_operations: z.array(z.string()).min(1),
+  auth_requirements: z.array(z.string()),
+  mode_flags: z.array(PluginModeSchema).min(1),
+  lease_requirements: z.array(z.string()),
+  idempotency_rules: z.string().min(1),
+  audit_events: z.array(z.string()),
+  allowed_callers: z.array(CapabilityPluginCallerSchema).min(1),
+  failure_mapping: z.record(z.string(), z.string()),
+  not_configured: z.array(z.string()).min(1),
+});
+export type CapabilityPluginSurface = z.infer<typeof CapabilityPluginSurfaceSchema>;
+
+/* -------------------------------------------------------------------------- */
 /* §1.2 PluginManifest                                                        */
 /* -------------------------------------------------------------------------- */
 
@@ -47,27 +96,99 @@ export const PluginManifestStageSchema = z.object({
 });
 export type PluginManifestStage = z.infer<typeof PluginManifestStageSchema>;
 
-export const PluginManifestSchema = z.object({
-  plugin_id: z.string().min(1),
-  plugin_name: z.string().min(1),
-  version: z.string().min(1),
-  purpose: z.string().min(1),
+// v2-aware manifest. New fields (`plugin_kind`, `modes_supported`,
+// `required_linkbot_roles`, `capability`) are OPTIONAL so legacy v1
+// manifests still parse; v2 cross-field rules are enforced via .superRefine.
+export const PluginManifestSchema = z
+  .object({
+    plugin_id: z.string().min(1),
+    plugin_kind: PluginKindSchema.optional(),
+    plugin_name: z.string().min(1),
+    version: z.string().min(1),
+    purpose: z.string().min(1),
 
-  public_surfaces: z.object({
-    work_request_types: z.array(z.string()),
-    ui_panels: z.array(z.string()),
-    read_views: z.array(z.string()),
-  }),
+    modes_supported: z.array(PluginModeSchema).min(1).optional(),
 
-  stages: z.array(PluginManifestStageSchema).min(1),
+    public_surfaces: z.object({
+      work_request_types: z.array(z.string()),
+      ui_panels: z.array(z.string()),
+      read_views: z.array(z.string()),
+    }),
 
-  config_surfaces: z.array(z.string()),
-  required_capabilities: z.array(z.string()),
-  required_workflow_hooks: z.array(z.string()),
-  required_audit_events: z.array(z.string()),
-  preview_output_shape: z.record(z.string(), z.string()),
-  non_goals: z.array(z.string()),
-});
+    stages: z.array(PluginManifestStageSchema),
+
+    config_surfaces: z.array(z.string()),
+    required_capabilities: z.array(z.string()),
+    required_workflow_hooks: z.array(z.string()),
+    required_audit_events: z.array(z.string()),
+    required_linkbot_roles: z.array(LinkBotRoleAttachmentSchema).optional(),
+    preview_output_shape: z.record(z.string(), z.string()),
+    non_goals: z.array(z.string()),
+
+    capability: CapabilityPluginSurfaceSchema.optional(),
+  })
+  .superRefine((m, ctx) => {
+    // Legacy v1: when plugin_kind is omitted, treat as vertical.
+    const kind = m.plugin_kind ?? "vertical";
+
+    if (kind === "vertical" && m.stages.length === 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["stages"],
+        message: "vertical plugins must declare at least one stage",
+      });
+    }
+
+    if (kind === "capability") {
+      if (!m.capability) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["capability"],
+          message: "capability plugins must declare a `capability` block",
+        });
+      }
+      if (m.stages.length > 0) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["stages"],
+          message: "capability plugins must not declare stages",
+        });
+      }
+      if (m.required_linkbot_roles && m.required_linkbot_roles.length > 0) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["required_linkbot_roles"],
+          message: "capability plugins must not declare LinkBot role attachments",
+        });
+      }
+    }
+
+    // Role attachments must reference declared capabilities + audit events.
+    if (m.required_linkbot_roles) {
+      const caps = new Set(m.required_capabilities);
+      const audits = new Set(m.required_audit_events);
+      m.required_linkbot_roles.forEach((role, i) => {
+        for (const c of role.allowed_capabilities) {
+          if (!caps.has(c)) {
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom,
+              path: ["required_linkbot_roles", i, "allowed_capabilities"],
+              message: `role allows capability "${c}" not in required_capabilities`,
+            });
+          }
+        }
+        for (const a of role.audit_events) {
+          if (!audits.has(a)) {
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom,
+              path: ["required_linkbot_roles", i, "audit_events"],
+              message: `role emits audit "${a}" not in required_audit_events`,
+            });
+          }
+        }
+      });
+    }
+  });
 export type PluginManifest = z.infer<typeof PluginManifestSchema>;
 
 /* -------------------------------------------------------------------------- */

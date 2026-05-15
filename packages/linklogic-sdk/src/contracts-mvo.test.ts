@@ -157,6 +157,132 @@ describe("PluginManifestSchema", () => {
     };
     expect(PluginManifestSchema.safeParse(bad).success).toBe(false);
   });
+
+  it("accepts a v2 vertical manifest with kind, modes, and role attachments", () => {
+    const v2 = {
+      ...manifest,
+      plugin_kind: "vertical" as const,
+      modes_supported: ["development" as const],
+      required_capabilities: ["crm.upsert"],
+      required_audit_events: ["stage.completed"],
+      required_linkbot_roles: [
+        {
+          role_id: "research_enrichment_bot",
+          purpose: "research and enrich a lead",
+          inputs: ["lead_record_ref"],
+          outputs: ["lead_evaluation"],
+          allowed_capabilities: ["crm.upsert"],
+          allowed_skills: ["public_web_research"],
+          model_policy: { model_routing_profile: "default" },
+          audit_events: ["stage.completed"],
+        },
+      ],
+    };
+    expect(PluginManifestSchema.safeParse(v2).success).toBe(true);
+  });
+
+  it("rejects role attachment referencing undeclared capability", () => {
+    const bad = {
+      ...manifest,
+      plugin_kind: "vertical" as const,
+      modes_supported: ["development" as const],
+      required_audit_events: ["stage.completed"],
+      required_linkbot_roles: [
+        {
+          role_id: "rogue",
+          purpose: "x",
+          inputs: [],
+          outputs: [],
+          allowed_capabilities: ["unknown.capability"],
+          allowed_skills: [],
+          model_policy: { model_routing_profile: "default" },
+          audit_events: ["stage.completed"],
+        },
+      ],
+    };
+    expect(PluginManifestSchema.safeParse(bad).success).toBe(false);
+  });
+
+  it("accepts a v2 capability plugin manifest", () => {
+    const cap = {
+      ...manifest,
+      plugin_id: "odoo_crm",
+      plugin_kind: "capability" as const,
+      modes_supported: ["development" as const, "shadow" as const],
+      stages: [],
+      required_capabilities: [],
+      capability: {
+        capability_id: "crm.upsert",
+        target_software: "odoo",
+        allowed_operations: ["upsert_lead"],
+        auth_requirements: ["odoo_base_url", "odoo_api_key"],
+        mode_flags: ["development", "shadow"],
+        lease_requirements: ["crm.write"],
+        idempotency_rules: "(tenant_id, lead_id)",
+        audit_events: ["lease.executed", "crm.upserted"],
+        allowed_callers: ["vertical_plugin"],
+        failure_mapping: { TIMEOUT: "INTEGRATION_TIMEOUT" },
+        not_configured: [
+          "odoo chart of accounts",
+          "odoo crm stages",
+          "odoo email templates",
+        ],
+      },
+    };
+    expect(PluginManifestSchema.safeParse(cap).success).toBe(true);
+  });
+
+  it("rejects capability plugin with stages declared", () => {
+    const bad = {
+      ...manifest,
+      plugin_kind: "capability" as const,
+      capability: {
+        capability_id: "crm.upsert",
+        target_software: "odoo",
+        allowed_operations: ["upsert_lead"],
+        auth_requirements: [],
+        mode_flags: ["development"],
+        lease_requirements: [],
+        idempotency_rules: "(tenant_id, lead_id)",
+        audit_events: [],
+        allowed_callers: ["vertical_plugin"],
+        failure_mapping: {},
+        not_configured: ["odoo internals"],
+      },
+    };
+    expect(PluginManifestSchema.safeParse(bad).success).toBe(false);
+  });
+
+  it("rejects capability plugin missing capability block", () => {
+    const bad = {
+      ...manifest,
+      plugin_kind: "capability" as const,
+      stages: [],
+    };
+    expect(PluginManifestSchema.safeParse(bad).success).toBe(false);
+  });
+
+  it("rejects capability plugin with empty not_configured", () => {
+    const bad = {
+      ...manifest,
+      plugin_kind: "capability" as const,
+      stages: [],
+      capability: {
+        capability_id: "crm.upsert",
+        target_software: "odoo",
+        allowed_operations: ["upsert_lead"],
+        auth_requirements: [],
+        mode_flags: ["development"],
+        lease_requirements: [],
+        idempotency_rules: "(tenant_id, lead_id)",
+        audit_events: [],
+        allowed_callers: ["vertical_plugin"],
+        failure_mapping: {},
+        not_configured: [],
+      },
+    };
+    expect(PluginManifestSchema.safeParse(bad).success).toBe(false);
+  });
 });
 
 describe("FailureReportSchema", () => {

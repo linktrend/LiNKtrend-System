@@ -1,14 +1,19 @@
-# LiNKaios kernel/plugin manifest (WP-003)
+# LiNKaios kernel/plugin manifest (WP-003 + WP-040 v2)
 
-**Status:** Draft accepted as input to WP-004 contracts.
+**Status:** WP-003 + WP-040 plugin architecture v2 (2026-05-15). Vertical/capability plugin distinction and mode semantics added.
 **Owner:** linkaios-agent. Review: Architect/Integrator.
-**Scope:** Minimum LiNKaios kernel + plugin contract needed to run the WebsiteFactory lead-to-preview-site MVO without role bleed.
+**Scope:** Minimum LiNKaios kernel + plugin contract needed to run vertical plugins (LinkSites/WebsiteFactory v1, LinkSites v2 per `LINKSITES_VERTICAL_MVO_V2.md`, and future verticals) against governed capability plugins without role bleed.
 
 ## 0. Framing
 
-`LiNKtrend-System` is the **LiNKaios control-plane repo**. The product being proved here is the **LiNKaios core/kernel + plugin contract**. **WebsiteFactory is not the core product**; it is the **first vertical plugin** used to exercise tenant/plugin registration, work/run orchestration, status/trace surfaces, approvals/routing, and integration visibility.
+`LiNKtrend-System` is the **LiNKaios control-plane repo**. The product being proved here is the **LiNKaios core/kernel + plugin contract**.
 
-If a future plugin (e.g. LEXOS, sales-outreach) replaces WebsiteFactory, the LiNKaios kernel below must remain unchanged.
+The plugin ecosystem has two kinds (see `PLUGIN_ARCHITECTURE_V2.md` and `CONTRACTS_MVO.md` §1.0.1):
+
+- **Vertical plugins** — business/product machines that declare ordered stages, required LinkBot roles, required capability plugins, required LinkSkills permissions/skills, required LiNKautowork workflow hooks, required LiNKbrain audit/memory events, LiNKaios UI panels, and per-mode behavior. Examples: LinkSites/WebsiteFactory, LEXOS Litigation, Linktrend Media, Linkapps, Linktrend Development, Linktrend Admin.
+- **Capability plugins** — reusable governed connectors that prepare communication and governance surfaces for an external piece of software. Examples: Odoo/CRM, Zulip, Payload CMS, Plane, Postiz, Supabase mirror sync, public web research, asset generation. They MUST NOT invent target-software business configuration (§3.2 and `CONTRACTS_MVO.md` §1.0.4 stop-and-ask).
+
+LinkSites/WebsiteFactory is the **first concrete vertical plugin** used to exercise tenant/plugin registration, work/run orchestration, status/trace surfaces, approvals/routing, mode model, and integration visibility. If a future vertical plugin (e.g. LEXOS, sales-outreach) replaces it, the LiNKaios kernel below must remain unchanged.
 
 ## 1. LiNKaios kernel — owned responsibilities
 
@@ -49,33 +54,62 @@ If a feature request implies the kernel should "just do X" for the MVO, it must 
 
 ## 3. Plugin manifest — required shape
 
-Every LiNKaios plugin (WebsiteFactory, future verticals) declares a manifest with these fields. WP-004 will encode this as a typed contract; here it is described in prose so WP-004 has stable names to bind to.
+Every LiNKaios plugin declares a manifest with these fields. The typed contract is pinned in `CONTRACTS_MVO.md` §1.2 and exported from `@linktrend/linklogic-sdk` (`PluginManifestSchema`).
+
+### 3.1 Shared fields (vertical + capability)
 
 - **`plugin_id`** — stable slug, e.g. `websitefactory`. Used in URLs, audit, lease scope.
+- **`plugin_kind`** — `"vertical" | "capability"` (v2). Default `"vertical"` for legacy v1 manifests.
 - **`plugin_name`** — human label, e.g. `LinkSites / WebsiteFactory`.
 - **`version`** — semver of the manifest, not the underlying code.
 - **`purpose`** — one paragraph describing the plugin's job.
+- **`modes_supported[]`** — subset of `{development, shadow, live}` (§4 of `PLUGIN_ARCHITECTURE_V2.md`). At minimum `["development"]`.
 - **`public_surfaces`** — what the plugin exposes back to LiNKaios:
-  - `work_request_types[]` — the work intents the plugin accepts.
+  - `work_request_types[]` — the work intents the plugin accepts (verticals; capability plugins typically empty).
   - `ui_panels[]` — named panels embedded in `apps/linkaios-web` (intake form, trace detail, preview view). UI lives in `LiNKapps/packages/ui` shadcn components.
   - `read_views[]` — read-only views the kernel may render for operators (e.g. preview iframe).
-- **`stages[]`** — ordered list of stages. Each stage declares:
-  - `stage_id`, `display_name`, `responsible_plane` ∈ `{linkbot, linkskills, linkautowork, linkbrain, linkaios}`.
-  - `inputs`, `outputs` (typed names; WP-004 will pin schemas).
-  - `failure_mode` — `retryable | abort_run | require_approval`.
-- **`config_surfaces[]`** — tenant-scoped config keys the plugin reads (e.g. default template id, brand palette source). Kernel stores; plugin reads.
-- **`required_capabilities[]`** — LinkSkills capability names this plugin will request leases for.
-- **`required_workflow_hooks[]`** — LiNKautowork workflow handles this plugin will invoke.
+- **`config_surfaces[]`** — tenant-scoped config keys the plugin reads. Kernel stores; plugin reads. Secrets live in LinkSkills, not in config.
 - **`required_audit_events[]`** — LiNKbrain audit event types this plugin emits (matches D-08 envelope).
-- **`preview_output_shape`** — what the kernel will surface to operators as "the result" (URL, artifact refs, lease ids, audit ids).
 - **`non_goals[]`** — things this plugin explicitly does not do in the current version.
 
-## 4. WebsiteFactory plugin manifest (concrete instance)
+### 3.2 Vertical plugin fields (required when `plugin_kind="vertical"`)
+
+- **`stages[]`** — ordered list of stages. Each stage declares:
+  - `stage_id`, `display_name`, `responsible_plane` ∈ `{linkbot, linkskills, linkautowork, linkbrain, linkaios}`.
+  - `inputs`, `outputs` (typed names from `CONTRACTS_MVO.md` §2).
+  - `failure_mode` — `retryable | abort_run | require_approval`.
+- **`required_capabilities[]`** — capability plugin ids this vertical will request leases for.
+- **`required_workflow_hooks[]`** — LiNKautowork workflow handles this vertical will invoke.
+- **`required_linkbot_roles[]`** — LinkBot role attachments for stages whose `responsible_plane = linkbot`. Each role declares purpose, inputs/outputs, allowed capabilities (subset of `required_capabilities`), allowed LinkSkills permissions/skills, model/tool policy, audit events, and development-mode restrictions.
+- **`preview_output_shape`** — what the kernel surfaces to operators as "the result" (URL, artifact refs, lease ids, audit ids). Optional for verticals that do not surface a preview artifact.
+
+### 3.3 Capability plugin fields (required when `plugin_kind="capability"`)
+
+- **`capability`** block:
+  - `capability_id` — e.g. `crm.upsert`, `payload.publish`.
+  - `target_software` — the external tool being connected.
+  - `allowed_operations[]` — bounded list of operations (lease-gated).
+  - `auth_requirements[]` — config keys (secrets resolved via LinkSkills).
+  - `mode_flags[]` — subset of `{development, shadow, live}`. LinkSkills MUST refuse leases in a mode not listed.
+  - `lease_requirements[]` — LinkSkills permission/skill ids needed to grant a lease.
+  - `idempotency_rules` — human-readable rule, e.g. "`(tenant_id, lead_id)`".
+  - `audit_events[]` — subset of `CONTRACTS_MVO.md` §6.3.1.
+  - `allowed_callers[]` — subset of `{linkaios, vertical_plugin, linkbot, linkautowork}`.
+  - `failure_mapping{}` — backend error code → canonical `CONTRACTS_MVO.md` §5.4 code.
+  - `not_configured[]` — explicit list of target-software internals the capability does **not** configure (charts of accounts, Payload schemas, CRM stages, etc.). Required and non-empty; enforces the stop-and-ask rule.
+
+Capability plugins MUST NOT declare `stages[]` or `required_linkbot_roles[]`.
+
+## 4. LinkSites / WebsiteFactory plugin manifest (concrete vertical instance)
+
+The YAML below is the v1 manifest loaded at boot. The LinkSites vertical MVO v2 (`LINKSITES_VERTICAL_MVO_V2.md`, WP-041) extends this manifest with `plugin_kind`, `modes_supported`, `required_linkbot_roles[]`, and an updated `required_capabilities[]` list covering the Odoo/CRM, Payload, Supabase mirror, Zulip, public web research, asset generation, and Plane capability plugins. The v2 fields are additive; v1 remains valid under the legacy-compat rules in `CONTRACTS_MVO.md` §1.2.
 
 ```yaml
 plugin_id: websitefactory
+plugin_kind: vertical                 # v2; legacy v1 manifests omit this and default to "vertical"
 plugin_name: LinkSites / WebsiteFactory
 version: 0.1.0-mvo
+modes_supported: [development]        # v2; v1 ran development-only
 purpose: >
   Take an SMB lead, evaluate it, select an industry template, generate
   business-specific copy, place placeholder imagery, adjust look-and-feel
