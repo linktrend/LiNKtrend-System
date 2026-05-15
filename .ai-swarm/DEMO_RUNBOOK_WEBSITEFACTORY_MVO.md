@@ -105,3 +105,13 @@ Also confirm terminal `run.status` is `succeeded` for full demo proof.
 - [ ] `pnpm --filter @linktrend/linkaios-web dev`
 - [ ] `LINKAIOS_ENABLE_MVO_SERVICE_BYPASS=true pnpm test:mvo:e2e`
 - [ ] `curl -H "Authorization: Bearer $BOT_KERNEL_API_SECRET" http://localhost:3000/api/kernel/run/<run_id>/trace`
+
+## 6) WP-052 LinkSites v2 harness proof/blocker snapshot (2026-05-15)
+
+- Command:
+  - `LINKAIOS_ENABLE_MVO_SERVICE_BYPASS=true pnpm test:mvo:e2e`
+- Observed output:
+  - `1. Submitting Work Request...`
+  - `[KERNEL_DISPATCH_FAILED] fetch failed`
+- Interpretation:
+  - Harness is wired and executing, but local kernel API was unreachable for the first work-request call at runtime.
