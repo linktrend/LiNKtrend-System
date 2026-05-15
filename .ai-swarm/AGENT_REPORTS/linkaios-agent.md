@@ -304,3 +304,51 @@ Hand off to **WP-013 (E2E demo harness)**:
    - Kernel does not duplicate plugin logic
    - Plugin does not duplicate kernel logic
    - Each plane owns its responsibilities
+## WP-042 — LinkSites template and Payload discovery (2026-05-15)
+
+### Scope
+Executed WP-042 discovery-only packet against `/Users/linktrend/Projects/LiNKsites` to de-risk v2 contract follow-ups that were explicitly blocked on locating existing template/CMS/schema surfaces.
+
+### Discovery outcome (for LinkAIOS follow-up packets)
+
+- Canonical master template path confirmed:
+  - `/Users/linktrend/Projects/LiNKsites/apps/web-master`
+  - template module registry: `src/templates/registry.ts`
+  - current registered module: `src/templates/marketing-smb-v1.ts`
+- Payload CMS model exists and should be reused, not reinvented:
+  - `/Users/linktrend/Projects/LiNKsites/apps/cms/src/payload.config.ts`
+  - `/Users/linktrend/Projects/LiNKsites/apps/cms/src/collections/*`
+  - `/Users/linktrend/Projects/LiNKsites/apps/cms/src/blocks/*`
+- Supabase mirror/schema clues are already present:
+  - `/Users/linktrend/Projects/LiNKsites/supabase/migrations/20260331_000001_lsites_init.sql`
+  - `/Users/linktrend/Projects/LiNKsites/supabase/schemas/lsites_core.schema.json`
+  - `/Users/linktrend/Projects/LiNKsites/supabase/schemas/cms-mapping.json`
+  - sync scripts in `/Users/linktrend/Projects/LiNKsites/apps/cms/scripts/`
+- Preview frontend reading from Payload is implemented in:
+  - `/Users/linktrend/Projects/LiNKsites/apps/web-master/src/lib/payload-client.ts`
+  - `/Users/linktrend/Projects/LiNKsites/apps/web-master/src/app/[lang]/[[...slug]]/page.tsx`
+
+### Packet artifact
+
+- Added `.ai-swarm/LINKSITES_TEMPLATE_PAYLOAD_DISCOVERY.md` with facts, assumptions, blockers, and command-level proof.
+
+### Commands run
+
+```bash
+git fetch origin
+git switch development
+git pull --ff-only origin development
+git switch -c dev/codex/WP-042-linksites-template-payload-discovery
+rg --files /Users/linktrend/Projects/LiNKsites
+rg -n "payload|collection|supabase|template|preview|web-master" /Users/linktrend/Projects/LiNKsites -g '!**/node_modules/**'
+sed -n '1,260p' /Users/linktrend/Projects/LiNKsites/apps/cms/src/payload.config.ts
+sed -n '1,220p' /Users/linktrend/Projects/LiNKsites/apps/web-master/src/templates/registry.ts
+sed -n '1,260p' /Users/linktrend/Projects/LiNKsites/apps/web-master/src/app/'[lang]'/'[[...slug]]'/page.tsx
+sed -n '1,220p' /Users/linktrend/Projects/LiNKsites/supabase/schemas/cms-mapping.json
+git -C /Users/linktrend/Projects/LiNKsites status --short
+```
+
+### Blockers / questions
+
+- No blocker for discovery completion.
+- Remaining design question for follow-up packet: whether industry variants stay seed-driven under one registered template module or need separate registered template modules now.
