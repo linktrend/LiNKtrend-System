@@ -38,7 +38,7 @@ Extend LinkSkills capability catalog and lease request behavior for LinkSites v2
     - idempotent replay (`is_existing: true`)
     - live-mode refusal (`LEASE_DENIED`) for write capabilities
 
-- `services/migrations/025_linkskills_linksites_capability_catalog.sql` (new)
+- `services/migrations/029_linkskills_linksites_capability_catalog.sql` (new; Integrator renumbered from `025_*` to avoid migration index collision)
   - Added/updated `linkskills.capability_catalog` seed entries for all seven LinkSites v2 capability IDs (connector-only catalog surface; no target-app business setup).
 
 - `.ai-swarm/AGENT_REPORTS/linkskills-agent.md`
@@ -67,6 +67,10 @@ pnpm --filter @linktrend/linkskills-logic-engine typecheck
 - `pnpm --filter @linktrend/linkskills-logic-engine typecheck`
   - Result: PASS
   - `tsc -p tsconfig.json --noEmit` completed without errors.
+- Integrator post-merge verification on `development`:
+  - `pnpm --filter @linktrend/linklogic-sdk test -- contracts-mvo` => PASS (11 files, 86 tests)
+  - `pnpm --filter @linktrend/linkskills-logic-engine test` => PASS (2 files, 45 tests)
+  - `pnpm --filter @linktrend/linkskills-logic-engine typecheck` => PASS
 
 ## Risks / Notes
 
@@ -80,7 +84,7 @@ None.
 ## Final Branch and Commit
 
 - Branch: `dev/codex/WP-047-linkskills-linksites-capability-catalog`
-- Commit SHA: `pending`
+- Commit SHA: `2e95b63` (plus Integrator follow-up commits on `development`)
 
 ## Assigned Work Packet
 
