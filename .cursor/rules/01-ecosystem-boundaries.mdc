@@ -17,7 +17,7 @@ LinkBot is the role-bound AI employee runtime shell. It owns persona/session/rea
 
 No service should absorb another service's responsibility.
 
-Vertical plugins describe business workflows. Capability plugins provide reusable software/tool connections. LinkBots perform judgment work. LiNKautowork performs deterministic automation. LinkSkills grants permission. LiNKbrain remembers. LiNKaios coordinates.
+Vertical plugins describe business workflows. Capability plugins provide reusable software/tool connections. LinkBots perform judgment work. LiNKautowork performs deterministic automation. LinkSkills grants permissions and skills. LiNKbrain remembers. LiNKaios coordinates.
 
 If an agent does not know the intended workflow for a vertical plugin, capability workflow, or vertical-capability combination, it must stop and ask before implementing. Do not invent business workflows, software schemas, chart-of-accounts, CRM stages, Payload content models, Odoo records, or similar domain configuration based on assumptions.
 

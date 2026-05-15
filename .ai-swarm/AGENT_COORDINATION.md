@@ -6,7 +6,7 @@ Command center initialized. No implementation work started from this document. T
 
 ## Current MVO Target
 
-**LiNKaios kernel/plugin proof via LinkSites / WebsiteFactory — lead-to-preview-site.** WebsiteFactory is the first vertical plugin example; LiNKaios remains the control-plane kernel. Preview publishing is frozen as static/local for MVO (see `DECISIONS.md` D-03).
+**LinkSites vertical plugin in development mode on the reusable LiNKtrend platform slice.** The current MVO target is mock CRM lead → LinkBot research/content/site build → local generated artifacts → Supabase mirror → LiNKautowork sync to local Payload CMS → preview-ready frontend → deterministic checks → CRM status `ready_to_contact`. Real lead acquisition, real client outreach, and real VPS deployment are disabled for the MVO.
 
 ## Active Agents
 
@@ -40,6 +40,12 @@ Command center initialized. No implementation work started from this document. T
 | WP-012 | `WORK_PACKETS/WP-012-mvo-stub-backends.md` | CRM/Plane/preview stub backends [completed] |
 | WP-013 | `WORK_PACKETS/WP-013-e2e-demo-and-audit-harness.md` | End-to-end demo + audit assertions [completed with proof correction] |
 | WP-014 | `WORK_PACKETS/WP-014-database-runtime-preflight.md` | Database runtime preflight to unblock WP-013 [completed; migrations/runtime unblocked] |
+| WP-040 | `WORK_PACKETS/WP-040-plugin-architecture-contract-v2.md` | Shared vertical/capability plugin architecture contract v2 |
+| WP-041 | `WORK_PACKETS/WP-041-linksites-vertical-contract-v2.md` | LinkSites vertical MVO v2 contract |
+| WP-042 | `WORK_PACKETS/WP-042-linksites-template-payload-discovery.md` | Discover existing LinkSites master template, Payload model, Supabase mirror, and preview frontend |
+| WP-043 | `WORK_PACKETS/WP-043-capability-plugin-contract-pack-v1.md` | Capability plugin contract pack for Odoo/CRM, Payload, Supabase mirror, Zulip, web research, asset generation, Plane |
+| WP-044 | `WORK_PACKETS/WP-044-linkbot-role-contract-pack-v1.md` | LinkSites LinkBot role contract pack |
+| WP-045 | `WORK_PACKETS/WP-045-linkautowork-linksites-workflow-contract.md` | LiNKautowork deterministic workflow contract for LinkSites v2 |
 
 ## Day-1 Decisions To Freeze
 
@@ -117,6 +123,7 @@ Canonical list: `MERGE_QUEUE.md`.
 
 ## Latest Updates
 
+- 2026-05-15 — Revised MVO direction approved. Current target is LinkSites vertical plugin development-mode workflow, not deployment: mock CRM lead, LinkBot research/content/site build, local generated artifacts, Supabase mirror, local Payload CMS sync, preview-ready site, deterministic checks, and CRM `ready_to_contact`. Real lead acquisition, real outreach, and real VPS deployment are disabled. Added source docs `PLUGIN_ARCHITECTURE_V2.md` and `LINKSITES_VERTICAL_MVO_V2.md`, plus WP-040..WP-045 packets.
 - 2026-05-15 — WP-031..WP-034 verification completed by Integrator. Fixed duplicate CRM entries in `.env.example` and normalized DigitalOcean scaffold failure mapping to canonical `INTEGRATION_*` codes. Focused verification passed: `pnpm --filter @linktrend/linklogic-sdk test -- contracts-mvo` (11 files, 74 tests) and `pnpm --filter @linktrend/linkaios-web test -- src/lib/kernel/api-auth.test.ts src/lib/kernel/kernel.test.ts src/lib/kernel/dispatch.test.ts src/lib/kernel/plane-adapter.test.ts` (5 files, 74 tests). Fresh E2E passed with run `6f7e0389-886e-4c27-b61d-6cbb5fd53269`; `preview_url` is now absolute and required audit counts are verified.
 - 2026-05-15 — WP-028..WP-030 discovery conclusions reviewed. WP-028 recommends Chatwoot-first shadow/readiness mode with stub writes retained. WP-029 recommends Plane real path behind explicit mode with external-id mapping before remote writes. WP-030 was corrected to DigitalOcean-first hosted preview discovery while keeping static/local preview active for one more milestone. Next wave should implement provider-agnostic contracts/config first, then shadow/readiness adapters with no external writes by default.
 - 2026-05-15 — User confirmed hosted preview/deployment target is DigitalOcean, not Vercel. Integrator corrected planning source-of-truth: D-03, INT-022/INT-033, repo inventory, and WP-017 now frame post-MVO hosted preview/publish around DigitalOcean plus Payload/LinkSites while preserving the MVO static/local fallback. Prior Vercel-specific roadmap language is superseded.

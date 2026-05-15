@@ -26,3 +26,11 @@ Record **Accepted**, **Stubbed**, or **Deferred** decisions with enough context 
 Decision: GitHub is the source of truth across all top-level GitHub repos under `/Users/linktrend/Projects`.
 
 Stable branches are `main`, `staging`, and `development`. Work must begin on short-lived branches and promote through `development -> staging -> main`. Fork mirrors may sync from upstream into the `linktrend/*` fork `development` branch only; they must never open PRs or push changes to the original upstream repository.
+
+## LinkSites MVO v2 Direction
+
+Decision: The current MVO target is the LinkSites vertical plugin running in development mode on the reusable LiNKtrend platform slice.
+
+The MVO flow is mock CRM lead -> LinkBot research/enrichment -> template-guided website package -> local generated artifact folder -> Supabase mirror -> LiNKautowork sync to real local Payload CMS -> preview-ready frontend -> deterministic checks -> CRM/mock lead status `ready_to_contact`.
+
+Real lead acquisition, real client outreach, and real VPS deployment are disabled. Generated artifacts use a local folder in development and will use cloud cold storage, such as Google Drive or equivalent, in production. Payload and Supabase schemas must be discovered/copied/adapted from existing source-of-truth repos, not invented.
