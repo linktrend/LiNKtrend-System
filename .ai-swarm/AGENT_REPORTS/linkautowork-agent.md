@@ -238,3 +238,79 @@ sed -n '740,940p' .ai-swarm/CONTRACTS_MVO.md
 
 - Branch: `dev/codex/WP-045-linkautowork-linksites-workflow-contract`
 - Commit SHA: `b68f919` (Integrator recovery commit on `development`)
+
+---
+
+## WP-048 — LiNKautowork LinkSites workflow scaffold (2026-05-15)
+
+### Objective
+
+Implement development-mode deterministic scaffolds for LinkSites v2 workflow handles from `.ai-swarm/CONTRACTS_MVO.md` §0.A.10.1, with lease gating for write handles and idempotent replay behavior.
+
+### Files Changed
+
+- `LiNKautowork/gateway/src/workflows/linksites-v2.ts`
+- `LiNKautowork/gateway/src/workflows/linksites-v2.test.ts`
+- `LiNKautowork/gateway/src/workflows/index.ts`
+- `LiNKautowork/gateway/src/index.ts`
+- `.ai-swarm/AGENT_REPORTS/linkautowork-agent.md`
+
+### What Was Implemented
+
+- Added workflow handlers for:
+  - `autowork.linksites.artifact_write_local` (development-only local artifact write scaffold)
+  - `autowork.linksites.supabase_mirror_upsert` (lease-required mirror upsert scaffold)
+  - `autowork.linksites.payload_sync_local` (lease-required local Payload sync scaffold)
+  - `autowork.linksites.preview_readiness_check` (deterministic readiness report scaffold)
+  - `autowork.linksites.crm_ready_to_contact_mark` (lease-required ready-to-contact status scaffold)
+- Registered all five handles in gateway bootstrap.
+- Preserved deterministic replay semantics via workflow-runner idempotency cache (same idempotency key returns exact cached `WorkflowInvokeResult`, including `workflow_run_id`).
+- Enforced fail-closed lease gating through `requires_lease` registration on write handles.
+
+### Commands Run
+
+```bash
+git fetch origin
+git switch development
+git pull --ff-only origin development
+git switch -c dev/codex/WP-048-linkautowork-linksites-workflow-scaffold
+pnpm --filter @linktrend/autowork-gateway test
+git status --short
+```
+
+### Validation / Proof
+
+Test command:
+
+```bash
+pnpm --filter @linktrend/autowork-gateway test
+```
+
+Result summary:
+
+- `src/workflows/linksites-v2.test.ts`: 3 passed
+- `src/workflows/websitefactory.test.ts`: 10 passed
+- Total: 13 passed, 0 failed
+
+WP-048 coverage in tests includes:
+
+- Happy path across all five LinkSites handles.
+- Replay/idempotency check (`workflow_run_id` preserved on repeated call with same idempotency key).
+- Missing lease failure for side-effecting write handle.
+- Readiness failure output (`checks_passed=false`) when required gate inputs are missing.
+
+### Boundaries / Safety
+
+- No VPS/DigitalOcean deployment behavior added.
+- No real provider calls (Payload Cloud/Odoo/Plane/Zulip/external asset providers) added.
+- No Payload or Supabase schema invention added.
+- Write handles require lease and fail closed when lease is absent.
+
+### Blockers
+
+None.
+
+### Branch / Commit
+
+- Branch: `dev/codex/WP-048-linkautowork-linksites-workflow-scaffold`
+- Commit SHA: pending local commit for this packet.
