@@ -128,6 +128,7 @@ export function getMvoCapabilityIds(): string[] {
     "cap.research.public_web",
     "cap.asset.generation",
     "cap.plane.execution_tracking",
+    "cap.postiz.distribution",
   ];
 }
 

@@ -301,6 +301,14 @@ interface GenericLinksitesV2Args {
   [key: string]: unknown;
 }
 
+interface PostizDistributionArgs {
+  mode?: "mock" | "shadow" | "live";
+  operation: "connectivity.probe" | "draft.create_mock" | "schedule.mock" | "status.read";
+  run_id?: string;
+  stage_id?: string;
+  distribution_id?: string;
+}
+
 function ensureNoLiveWrites(capabilityId: string, mode: "mock" | "shadow" | "live"): void {
   if (mode === "live") {
     throw new CapabilityExecutionError(
@@ -425,6 +433,57 @@ export async function handleCapPlaneExecutionTracking(
   };
 }
 
+export async function handleCapPostizDistribution(
+  _client: SupabaseClient,
+  args: PostizDistributionArgs,
+  context: CapabilityContext,
+): Promise<Record<string, unknown>> {
+  const mode = getMode(args);
+  const operation = args.operation;
+
+  if (mode === "live") {
+    throw new CapabilityExecutionError(
+      "LEASE_DENIED",
+      "Live Postiz distribution is disabled until Linktrend Media workflow approval",
+    );
+  }
+
+  if (operation === "connectivity.probe") {
+    return {
+      operation,
+      mode: mode === "shadow" ? "shadow" : "mock",
+      status: "readiness_checked",
+      readiness_ref: `postiz-readiness:${context.tenant_id}:${context.run_id}:${context.stage_id}`,
+      checked_at: new Date().toISOString(),
+    };
+  }
+
+  if (operation === "status.read") {
+    return {
+      operation,
+      mode: mode === "shadow" ? "shadow" : "mock",
+      status: "status_read_mock",
+      distribution_status: "draft_only",
+      distribution_ref: args.distribution_id ?? `postiz-dist:${context.lease_id}`,
+    };
+  }
+
+  if (mode === "shadow") {
+    throw new CapabilityExecutionError(
+      "LEASE_DENIED",
+      `Operation "${operation}" is mock-only in development mode`,
+    );
+  }
+
+  return {
+    operation,
+    mode: "mock",
+    status: operation === "draft.create_mock" ? "draft_created_mock" : "scheduled_mock",
+    distribution_ref: `postiz-mock:${context.tenant_id}:${args.run_id ?? context.run_id}:${args.stage_id ?? context.stage_id}`,
+    idempotency_ref: `${context.run_id}:${context.stage_id}:${operation}`,
+  };
+}
+
 /**
  * Get the appropriate handler for a capability.
  */
@@ -441,6 +500,7 @@ export function getCapabilityHandler(capability_id: string) {
     "cap.research.public_web": handleCapResearchPublicWeb as unknown as (client: SupabaseClient, args: unknown, context: CapabilityContext) => Promise<Record<string, unknown>>,
     "cap.asset.generation": handleCapAssetGeneration as unknown as (client: SupabaseClient, args: unknown, context: CapabilityContext) => Promise<Record<string, unknown>>,
     "cap.plane.execution_tracking": handleCapPlaneExecutionTracking as unknown as (client: SupabaseClient, args: unknown, context: CapabilityContext) => Promise<Record<string, unknown>>,
+    "cap.postiz.distribution": handleCapPostizDistribution as unknown as (client: SupabaseClient, args: unknown, context: CapabilityContext) => Promise<Record<string, unknown>>,
   };
 
   return handlers[capability_id] ?? null;

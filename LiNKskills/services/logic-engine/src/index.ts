@@ -77,6 +77,7 @@ export {
   handleCapResearchPublicWeb,
   handleCapAssetGeneration,
   handleCapPlaneExecutionTracking,
+  handleCapPostizDistribution,
   handleZulipRunMessaging,
   getCapabilityHandler,
 } from "./capability-handlers.js";
