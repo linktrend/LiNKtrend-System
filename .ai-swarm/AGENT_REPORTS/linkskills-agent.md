@@ -2,6 +2,88 @@
 
 ## Assigned Work Packet
 
+**WP-047 — LinkSkills LinkSites capability catalog**  
+**Status:** COMPLETE  
+**Date:** 2026-05-15
+
+## Objective
+
+Extend LinkSkills capability catalog and lease request behavior for LinkSites v2 capability plugins with safe-mode defaults, while keeping live external writes disabled by default.
+
+## Files Changed
+
+- `LiNKskills/services/logic-engine/src/capability-catalog.ts`
+  - Extended MVO capability list to include:
+    - `cap.crm.odoo_shadow`
+    - `cap.payload.local_sync`
+    - `cap.supabase.mirror_content`
+    - `cap.zulip.run_messaging`
+    - `cap.research.public_web`
+    - `cap.asset.generation`
+    - `cap.plane.execution_tracking`
+  - Added LinkSites v2 helpers:
+    - `getLinksitesV2CapabilityIds()`
+    - `isLinksitesV2Capability()`
+    - `isWriteCapableLinksitesV2Capability()`
+
+- `LiNKskills/services/logic-engine/src/lease-lifecycle.ts`
+  - Added live-mode refusal guard in `requestLease()`:
+    - If `arguments.mode === "live"` and capability is side-effecting LinkSites v2 capability, deny with `LEASE_DENIED`.
+    - Keeps write-capable capabilities mock/shadow-safe by default.
+
+- `LiNKskills/services/logic-engine/src/lease-lifecycle.linksites-v2.test.ts` (new)
+  - Added executable tests for:
+    - lease request in safe mode
+    - kill-switch denial (`LEASE_KILL_SWITCH`)
+    - idempotent replay (`is_existing: true`)
+    - live-mode refusal (`LEASE_DENIED`) for write capabilities
+
+- `services/migrations/025_linkskills_linksites_capability_catalog.sql` (new)
+  - Added/updated `linkskills.capability_catalog` seed entries for all seven LinkSites v2 capability IDs (connector-only catalog surface; no target-app business setup).
+
+- `.ai-swarm/AGENT_REPORTS/linkskills-agent.md`
+  - Added this WP-047 completion section.
+
+## Commands Run
+
+```bash
+git fetch origin
+git switch development
+git pull --ff-only origin development
+git switch -c dev/codex/WP-047-linkskills-linksites-capability-catalog
+
+pnpm --filter @linktrend/linkskills-logic-engine test
+pnpm --filter @linktrend/linkskills-logic-engine typecheck
+```
+
+## Validation Results
+
+- `pnpm --filter @linktrend/linkskills-logic-engine test`
+  - Result: PASS
+  - `Test Files 2 passed`
+  - `Tests 45 passed (45)`
+  - Includes new `src/lease-lifecycle.linksites-v2.test.ts` (4 tests).
+
+- `pnpm --filter @linktrend/linkskills-logic-engine typecheck`
+  - Result: PASS
+  - `tsc -p tsconfig.json --noEmit` completed without errors.
+
+## Risks / Notes
+
+- `args_schema` remains metadata-only in current logic-engine flow (no JSON schema runtime enforcement yet). Live-mode write refusal is enforced in `requestLease()` for write-capable LinkSites v2 capabilities.
+- No real external writes were added or enabled.
+
+## Blockers
+
+None.
+
+## Final Branch and Commit
+
+- Branch: `dev/codex/WP-047-linkskills-linksites-capability-catalog`
+- Commit SHA: `pending`
+
+## Assigned Work Packet
+
 **WP-043 — Capability plugin contract pack v1**  
 **Status:** COMPLETE  
 **Date:** 2026-05-15

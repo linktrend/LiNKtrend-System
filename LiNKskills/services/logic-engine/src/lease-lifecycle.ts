@@ -20,7 +20,11 @@ import type {
   FailureReport,
 } from "@linktrend/linklogic-sdk";
 import { isKillSwitchTripped } from "./kill-switch.js";
-import { getCapabilityPolicy, capabilityExists } from "./capability-catalog.js";
+import {
+  getCapabilityPolicy,
+  capabilityExists,
+  isWriteCapableLinksitesV2Capability,
+} from "./capability-catalog.js";
 import type { LeaseRequestResult, LeaseLedgerRow, LeaseStatus } from "./types.js";
 import { emitLeaseRequested, emitLeaseGranted, emitLeaseDenied, emitLeaseExecuted, emitCapabilityOutput } from "./audit-events.js";
 
@@ -45,6 +49,28 @@ export async function requestLease(
       code: "MANIFEST_CAPABILITY_UNKNOWN",
       plane: "linkskills",
       message: `Capability "${request.capability}" not found in catalog`,
+      retryable: false,
+      occurred_at: new Date().toISOString(),
+    };
+    return {
+      lease_id: "",
+      status: "denied",
+      is_existing: false,
+      kill_switch_state: "open",
+      failure,
+    };
+  }
+
+  // LinkSites v2: live-mode writes are disabled by default in MVO.
+  // Read-only capabilities remain eligible for shadow/live-equivalent reads.
+  const requestedMode = typeof request.arguments?.mode === "string"
+    ? String(request.arguments.mode).toLowerCase()
+    : "";
+  if (requestedMode === "live" && isWriteCapableLinksitesV2Capability(request.capability)) {
+    const failure: FailureReport = {
+      code: "LEASE_DENIED",
+      plane: "linkskills",
+      message: `Live mode is disabled by default for capability "${request.capability}"`,
       retryable: false,
       occurred_at: new Date().toISOString(),
     };
