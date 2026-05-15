@@ -1,3 +1,46 @@
+# LinkBot Agent Report — WP-062
+
+**Agent:** LinkBot Agent
+**Work Packet:** WP-062 — LinkBot adapter plan
+**Date:** 2026-05-15
+**Status:** COMPLETE
+
+---
+
+## Objective
+
+Define the adapter plan connecting LinkBot to LiNKaios dispatch, LinkSkills lease-governed capabilities, LiNKbrain audit envelope, LiNKautowork deterministic handoff, and Zulip messaging policy.
+
+---
+
+## Files Changed
+
+- `.ai-swarm/LINKBOT_ADAPTER_PLAN.md` (new)
+- `.ai-swarm/WORK_PACKETS/WP-063-linkaios-ingress-fail-closed-governance-adapter.md` (new)
+- `.ai-swarm/WORK_PACKETS/WP-064-linkskills-lease-projection-and-bot-runtime-adapter.md` (new)
+- `.ai-swarm/WORK_PACKETS/WP-065-linkbrain-audit-envelope-mapping-for-linkbot-flow.md` (new)
+- `.ai-swarm/WORK_PACKETS/WP-066-linkautowork-deterministic-handoff-orchestration.md` (new)
+- `.ai-swarm/WORK_PACKETS/WP-067-zulip-run-messaging-governance-adapter.md` (new)
+- `.ai-swarm/AGENT_REPORTS/linkbot-agent.md` (this update)
+
+---
+
+## Validation
+
+- Planning/documentation only. No runtime code changes.
+- No tests executed for WP-062.
+
+---
+
+## Branch and Commit
+
+- **Branch:** `dev/codex/WP-062-linkbot-linkaios-linkskills-zulip-adapter-plan`
+- **Commit SHA:** pending
+
+---
+
+## Historical Report Content Preserved
+
 # LinkBot Agent Report — WP-061
 
 **Agent:** LinkBot Agent
