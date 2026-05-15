@@ -23,6 +23,7 @@ All entries default to **development mode** (local/mock side effects with full L
 | INT-047 | Local generated-artifact folder | durable local store for generated website artifacts (copy, media plan, generated media with provenance, style proposals) | `mock` (local only) | local filesystem writes only | WP-042 discovery → WP-045 | In production, replaced by cloud cold storage (e.g. Google Drive). Not a live host. |
 | INT-048 | Deterministic checks (LiNKautowork) | validate required pages, navigation, content blocks, media references, provenance, Payload sync status, preview readiness | n/a (deterministic) | none beyond reads | WP-045 + linkautowork-agent | Gates promotion of mock CRM lead to `ready_to_contact`. |
 | INT-049 | Frontend preview reader | existing/local frontend that reads from local Payload and renders the preview-ready site | n/a (read-only) | none | WP-042 discovery | Discover which frontend already serves preview reads before adding any new component. |
+| INT-051 | Postiz distribution (future Linktrend Media) | governed marketing distribution readiness with draft/schedule/status mock surfaces and connectivity probes | `mock` for draft/schedule; `shadow` for readiness/status | no live social publish; no real Postiz channel/account/campaign writes | WP-055 + linkskills-agent | Contract scaffolded in `CONTRACTS_MVO.md` §0.A.5.1 (`cap.postiz.distribution`). Keep live publishing disabled until Linktrend Media vertical workflow is defined. |
 
 ### Out of scope for LinkSites v2 (do not add as active rows)
 

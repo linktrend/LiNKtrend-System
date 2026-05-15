@@ -1,5 +1,112 @@
 ## Assigned Work Packet
 
+**WP-055 — Postiz distribution capability scaffold**
+**Status:** COMPLETE
+**Date:** 2026-05-15
+
+## Objective
+
+Scaffold a LinkSkills-governed Postiz distribution capability surface with mock/shadow-safe operations only, explicitly blocking live publishing until a Linktrend Media vertical workflow is defined.
+
+## Search Evidence
+
+Repository evidence gathered before edits:
+
+- `.ai-swarm/PLUGIN_ARCHITECTURE_V2.md` — capability plugin governance model includes Postiz as a connector class.
+- `.ai-swarm/CONTRACTS_MVO.md` — canonical capability contract pack section for modes, leases, idempotency, and failure mapping.
+- `.ai-swarm/INTEGRATION_QUEUE.md` — canonical v2 integration tracking surface.
+- `LiNKskills/services/logic-engine/src/capability-handlers.ts` — existing mock/shadow scaffold patterns for other capabilities.
+- `.ai-swarm/REPO_GIT_POLICY_ROLLOUT.md` — existing external repo reference `link-postiz-app` noted for future upstream alignment.
+
+## Files Changed
+
+- `LiNKskills/services/logic-engine/src/capability-handlers.ts`
+  - Added `handleCapPostizDistribution` scaffold for:
+    - `connectivity.probe`
+    - `draft.create_mock`
+    - `schedule.mock`
+    - `status.read`
+  - Enforced hard boundary:
+    - `mode=live` always denied (`LEASE_DENIED`)
+    - `draft.create_mock` and `schedule.mock` are mock-only (shadow denied)
+  - Registered `cap.postiz.distribution` in `getCapabilityHandler`.
+
+- `LiNKskills/services/logic-engine/src/capability-handlers.postiz.test.ts` (new)
+  - Added focused tests for:
+    - shadow connectivity probe success
+    - mock draft creation success
+    - live-mode rejection
+    - shadow scheduling rejection
+
+- `LiNKskills/services/logic-engine/src/audit-events.ts`
+  - Added output action mapping:
+    - `cap.postiz.distribution` -> `postiz.distribution.mocked`
+
+- `LiNKskills/services/logic-engine/src/capability-catalog.ts`
+  - Added `cap.postiz.distribution` to `getMvoCapabilityIds()` for governance-plane discovery.
+
+- `LiNKskills/services/logic-engine/src/index.ts`
+  - Exported `handleCapPostizDistribution`.
+
+- `.env.example`
+  - Added non-secret placeholders:
+    - `POSTIZ_DISTRIBUTION_MODE=mock`
+    - `POSTIZ_WORKSPACE_REF=`
+    - `POSTIZ_DRAFT_CHANNEL_SET=`
+
+- `.ai-swarm/CONTRACTS_MVO.md`
+  - Added `cap.postiz.distribution` row to §0.A.5.1 with operations, mode boundaries, auth/config surface, idempotency, lease requirements, audit events, allowed callers, canonical failure mapping, and explicit non-ownership.
+  - Added enforcement rule that Postiz must remain mock/shadow-safe until Linktrend Media vertical publish governance is defined.
+
+- `.ai-swarm/INTEGRATION_QUEUE.md`
+  - Added `INT-051` for Postiz distribution scaffold in development-mode posture.
+
+## Commands Run
+
+```bash
+pwd && ls -la
+rg --files | rg -n 'README|AGENTS\\.md|AGENT_PROMPTS|WP-055|CURSOR|CODEX|WORK_PACKET|docs'
+ls -la .ai-swarm/AGENT_PROMPTS
+sed -n '1,220p' README.md
+sed -n '1,260p' .ai-swarm/AGENT_PROMPTS/README.md
+sed -n '1,260p' .ai-swarm/AGENT_PROMPTS/WP-055-postiz-distribution-capability-scaffold.prompt.md
+sed -n '1,260p' .cursor/rules/05-security-cost-and-side-effects.mdc
+sed -n '1,260p' .ai-swarm/PLUGIN_ARCHITECTURE_V2.md
+sed -n '1,260p' .ai-swarm/CONTRACTS_MVO.md
+sed -n '1,260p' .ai-swarm/WORK_PACKETS/WP-055-postiz-distribution-capability-scaffold.md
+sed -n '1,260p' .ai-swarm/INTEGRATION_QUEUE.md
+rg -n "postiz|Postiz|distribution capability|capability scaffold|agent report|WP-054|WP-053" .ai-swarm LiNKskills apps/linkaios-web/src .env.example
+git fetch origin && git switch development && git pull --ff-only origin development && git switch -c dev/codex/WP-055-postiz-distribution-capability-scaffold
+pnpm --filter @linktrend/linkskills-logic-engine test -- src/capability-handlers.postiz.test.ts src/capability-handlers.zulip.test.ts
+pnpm --filter @linktrend/linkskills-logic-engine test
+```
+
+## Validation Results
+
+- `pnpm --filter @linktrend/linkskills-logic-engine test -- src/capability-handlers.postiz.test.ts src/capability-handlers.zulip.test.ts`
+  - PASS
+- `pnpm --filter @linktrend/linkskills-logic-engine test`
+  - PASS
+
+## Hard-Boundary Compliance
+
+- No live social post publishing path added.
+- No real Postiz account/channel/campaign configuration added.
+- No secrets committed; only non-secret env placeholders were added.
+- Capability remains lease-governed and fail-closed for live mode.
+
+## Risks / Blockers
+
+- Postiz behavior is connector-surface scaffold only; real transport/provider adapter work remains future and must follow Linktrend Media vertical workflow contracts.
+- `cap.postiz.distribution` output action currently uses one generalized mocked action; operation-specific audit action expansion may be desirable later.
+
+## Final Branch and Commit
+
+- Branch: `dev/codex/WP-055-postiz-distribution-capability-scaffold`
+- Commit SHA: `PENDING`
+
+## Assigned Work Packet
+
 **WP-053 — Zulip communication capability scaffold**
 **Status:** COMPLETE
 **Date:** 2026-05-15
