@@ -41,7 +41,16 @@ export async function middleware(request: NextRequest) {
   const isInternalSkillEmbed = path.startsWith("/api/internal/skill-embed");
   /** Handler validates `Authorization: Bearer` against `BOT_SKILLS_API_SECRET` or `BOT_BRAIN_API_SECRET` — not anonymous. */
   const isPublicSkillsExecution = path.startsWith("/api/skills/execution");
-  const isKernelApi = path.startsWith("/api/kernel");
+  const kernelServiceSecret = process.env.BOT_KERNEL_API_SECRET?.trim();
+  const isKernelServiceBypassEnabled =
+    process.env.LINKAIOS_ENABLE_MVO_SERVICE_BYPASS === "1" ||
+    process.env.LINKAIOS_ENABLE_MVO_SERVICE_BYPASS === "true";
+  const authHeader = request.headers.get("authorization");
+  const isKernelServiceAuthorized =
+    isKernelServiceBypassEnabled &&
+    Boolean(kernelServiceSecret) &&
+    authHeader === `Bearer ${kernelServiceSecret}`;
+  const isKernelApiBypass = path.startsWith("/api/kernel") && isKernelServiceAuthorized;
 
   if (
     !user &&
@@ -52,7 +61,7 @@ export async function middleware(request: NextRequest) {
     !isInternalBrainEmbed &&
     !isInternalSkillEmbed &&
     !isPublicSkillsExecution &&
-    !isKernelApi
+    !isKernelApiBypass
   ) {
     const redirectUrl = request.nextUrl.clone();
     redirectUrl.pathname = "/login";

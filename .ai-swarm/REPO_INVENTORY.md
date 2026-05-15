@@ -36,7 +36,7 @@ Single place to summarize **what exists in this repository**, **what is reusable
 
 - **Database:** Supabase (Postgres + Auth + RLS).
 - **Migrations:** Managed in `LiNKtrend-System/services/migrations`.
-- **Hosting:** Vercel (frontend) and Docker/Podman (runtimes).
+- **Hosting:** DigitalOcean is the user-confirmed deployment target; Docker/Podman remain runtime packaging references.
 
 ### Known legacy or archived code paths
 

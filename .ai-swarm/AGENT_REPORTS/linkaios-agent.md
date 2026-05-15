@@ -145,7 +145,7 @@ pnpm --filter @linktrend/linkaios-web test -- --run
 ✓ Contract Compliance > stage names match CONTRACTS_MVO.md §10
 ✓ Contract Compliance > output names match CONTRACTS_MVO.md §2 data dictionary
 ✓ Contract Compliance > preview output shape matches CONTRACTS_MVO.md §9
-✓ Contract Compliance > D-03: uses static/local preview (not Vercel/Payload)
+✓ Contract Compliance > D-03: uses static/local preview (not DigitalOcean/Payload)
 ✓ Plugin Registration > exports correct plugin constants
 ✓ Plugin Registration > can be initialized with manifest and handlers
 ```

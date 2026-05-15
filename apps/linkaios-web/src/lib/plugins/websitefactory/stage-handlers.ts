@@ -30,7 +30,6 @@ import {
   requestLinkSkillsLease,
   executeLinkSkillsLease,
   dispatchToLinkAutowork,
-  writeStageAuditEvent,
 } from "@/lib/kernel/dispatch";
 import type { DispatchContext, DispatchResult } from "@/lib/kernel/types";
 import {
@@ -67,13 +66,7 @@ export interface StageContext {
 export async function executeWebsiteFactoryStage(
   ctx: StageContext,
 ): Promise<DispatchResult> {
-  const { stage, dispatchCtx } = ctx;
-
-  // Write stage.started audit event
-  await writeStageAuditEvent(ctx.env, dispatchCtx, "stage.started", {
-    stage_id: stage.stage_id,
-    responsible_plane: stage.responsible_plane,
-  });
+  const { stage } = ctx;
 
   try {
     switch (stage.responsible_plane) {
@@ -252,13 +245,7 @@ async function executeWorkflowStage(ctx: StageContext): Promise<DispatchResult> 
  * This is the final stage that persists run closure.
  */
 async function executeRecordRunStage(ctx: StageContext): Promise<DispatchResult> {
-  const { run, dispatchCtx } = ctx;
-
-  // Write final stage.completed audit event
-  await writeStageAuditEvent(ctx.env, dispatchCtx, "stage.completed", {
-    stage_id: ctx.stage.stage_id,
-    final_outputs_keys: Object.keys(run.outputs || {}),
-  });
+  const { run } = ctx;
 
   // Return success - LiNKbrain persistence is handled by kernel
   return {

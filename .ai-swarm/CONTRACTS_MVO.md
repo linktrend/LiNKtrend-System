@@ -288,6 +288,7 @@ Every `FailureReport` MUST also be emitted as a LiNKbrain audit event of type `s
 - `LEASE_REQUEST_INVALID`, `LEASE_DENIED`, `LEASE_EXPIRED`, `LEASE_KILL_SWITCH`, `LEASE_IDEMPOTENCY_CONFLICT`.
 - `WORKFLOW_NOT_FOUND`, `WORKFLOW_TIMEOUT`, `WORKFLOW_STEP_FAILED`, `WORKFLOW_COMPENSATED`.
 - `MODEL_PROVIDER_ERROR`, `MODEL_TIMEOUT`, `MODEL_OUTPUT_INVALID`, `MODEL_QUOTA_EXCEEDED`.
+- `INTEGRATION_UNAVAILABLE`, `INTEGRATION_AUTH_FAILED`, `INTEGRATION_TIMEOUT`.
 - `POLICY_REQUIRES_APPROVAL`, `APPROVAL_REJECTED`, `APPROVAL_TIMEOUT`.
 - `STAGE_SKIPPED_BY_POLICY`, `KERNEL_DISPATCH_FAILED`, `KERNEL_PERSISTENCE_FAILED`.
 
@@ -698,7 +699,7 @@ STUB: Static/local preview publishing
   - Capability preview.publish gates the publish step; lease lifecycle runs per §6.2 with approval gate.
   - Audit event preview.published carries subject.preview_url, subject.preview_artifact_ref, run_id.
 - Limitation:
-  - No Vercel deploy preview, no DNS, no TLS issuance (route is on the existing apps/linkaios-web host).
+  - No DigitalOcean-hosted preview publish, no DNS, no TLS issuance (route is on the existing apps/linkaios-web host).
   - No Payload CMS publish path.
   - No CDN/cache invalidation; previews are best-effort and may be garbage-collected after a TTL
     (default 14 days for MVO; not contractually guaranteed).

@@ -38,8 +38,8 @@ Command center initialized. No implementation work started from this document. T
 | WP-010 | `WORK_PACKETS/WP-010-linkaios-kernel-orchestration.md` | LiNKaios kernel orchestration [completed] |
 | WP-011 | `WORK_PACKETS/WP-011-websitefactory-plugin-glue.md` | WebsiteFactory plugin declaration + glue [completed] |
 | WP-012 | `WORK_PACKETS/WP-012-mvo-stub-backends.md` | CRM/Plane/preview stub backends [completed] |
-| WP-013 | `WORK_PACKETS/WP-013-e2e-demo-and-audit-harness.md` | End-to-end demo + audit assertions [blocked by database runtime] |
-| WP-014 | `WORK_PACKETS/WP-014-database-runtime-preflight.md` | Database runtime preflight to unblock WP-013 [partial; env correction required] |
+| WP-013 | `WORK_PACKETS/WP-013-e2e-demo-and-audit-harness.md` | End-to-end demo + audit assertions [completed with proof correction] |
+| WP-014 | `WORK_PACKETS/WP-014-database-runtime-preflight.md` | Database runtime preflight to unblock WP-013 [completed; migrations/runtime unblocked] |
 
 ## Day-1 Decisions To Freeze
 
@@ -101,11 +101,15 @@ Wave 4:
 
 ## Blockers
 
-- WP-013 remains blocked after WP-014 reruns. Pooler connectivity is fixed, but migrations needed a SQL patch in `027_preview_artifact_storage.sql`, and Supabase API settings do not expose `linkaios_kernel`, `linkskills`, or `linkbrain`, which the MVO runtime needs for RPC calls.
+- None for WP-020..WP-022 after integrator audit-ref aggregation fix and fresh E2E proof.
 
 ## Integration Queue
 
 Canonical list: `INTEGRATION_QUEUE.md`.
+
+## Operator Runbook
+
+- WebsiteFactory MVO demo/operator handoff: `DEMO_RUNBOOK_WEBSITEFACTORY_MVO.md` (WP-018)
 
 ## Merge Queue
 
@@ -113,6 +117,17 @@ Canonical list: `MERGE_QUEUE.md`.
 
 ## Latest Updates
 
+- 2026-05-15 — WP-031..WP-034 verification completed by Integrator. Fixed duplicate CRM entries in `.env.example` and normalized DigitalOcean scaffold failure mapping to canonical `INTEGRATION_*` codes. Focused verification passed: `pnpm --filter @linktrend/linklogic-sdk test -- contracts-mvo` (11 files, 74 tests) and `pnpm --filter @linktrend/linkaios-web test -- src/lib/kernel/api-auth.test.ts src/lib/kernel/kernel.test.ts src/lib/kernel/dispatch.test.ts src/lib/kernel/plane-adapter.test.ts` (5 files, 74 tests). Fresh E2E passed with run `6f7e0389-886e-4c27-b61d-6cbb5fd53269`; `preview_url` is now absolute and required audit counts are verified.
+- 2026-05-15 — WP-028..WP-030 discovery conclusions reviewed. WP-028 recommends Chatwoot-first shadow/readiness mode with stub writes retained. WP-029 recommends Plane real path behind explicit mode with external-id mapping before remote writes. WP-030 was corrected to DigitalOcean-first hosted preview discovery while keeping static/local preview active for one more milestone. Next wave should implement provider-agnostic contracts/config first, then shadow/readiness adapters with no external writes by default.
+- 2026-05-15 — User confirmed hosted preview/deployment target is DigitalOcean, not Vercel. Integrator corrected planning source-of-truth: D-03, INT-022/INT-033, repo inventory, and WP-017 now frame post-MVO hosted preview/publish around DigitalOcean plus Payload/LinkSites while preserving the MVO static/local fallback. Prior Vercel-specific roadmap language is superseded.
+- 2026-05-15 — WP-024 security review initially found SEC-001: same-tenant users could cross-access sibling runs/approvals via tenant-history fallback. Integrator patched `canAccessKernelScope()` so run/approval scopes require direct ownership unless service/operator-allowlisted, filtered ordinary-user approval listing, and added regression tests. Verification passed: `pnpm --filter @linktrend/linkaios-web test -- src/lib/kernel/api-auth.test.ts src/lib/kernel/kernel.test.ts` (3 files, 70 tests) and fresh E2E run `63d6e532-4aaa-40da-952c-25d83fb244b9` passed.
+- 2026-05-15 — WP-023 final integration review completed with fresh run `9af1216f-4719-4191-94ef-fdf2b8b699f8` passing `LINKAIOS_ENABLE_MVO_SERVICE_BYPASS=true pnpm test:mvo:e2e`. Merge queue remains ready with no active WP-020..WP-022 blockers.
+- 2026-05-15 — Integrator closed the WP-022 audit aggregation blocker. `executeLinkSkillsLease()` now returns all output-level audit refs, `executeStage()` persists multiple audit refs per stage through `linkaios_kernel.add_stage_refs`, and fresh run `260f42aa-b2cc-415e-b89a-a0d619b8de85` passed `LINKAIOS_ENABLE_MVO_SERVICE_BYPASS=true pnpm test:mvo:e2e`. Verified required preview-output audit counts: `run.started`, `crm.upserted`, `plane.project.created`, `plane.task.created`, `preview.published`, and `run.completed` all x1. Focused verification also passed: `pnpm --filter @linktrend/linkaios-web test -- src/lib/kernel/api-auth.test.ts src/lib/kernel/kernel.test.ts` (3 files, 68 tests).
+- 2026-05-15 — WP-022 fresh post-hardening MVO E2E reproof rerun completed with fresh run `80b889b6-c62d-4fe2-a8db-61970077e32d` (distinct from `119d7a1c-f3bf-4621-80a9-083291fe293d`). `preview_output.status` is `succeeded`, `preview_artifact_ref` is populated, and `lease_ids`/`workflow_run_ids` are non-empty. This run exposed a missing `plane.project.created` ref in `preview_output.audit_event_ids`; this blocker was later closed by the integrator fix and passing rerun `260f42aa-b2cc-415e-b89a-a0d619b8de85` noted above.
+- 2026-05-15 — Integrator review of completed WP-015..WP-019 found merge/sign-off blockers. Focused unit verification passed after auth hardening, but final E2E proof must be rerun. Before merge: add tenant/run/approval authorization checks for kernel APIs, prove/patch output-level audit events and `PreviewOutput.audit_event_ids`, and rerun `pnpm test:mvo:e2e` successfully on a fresh run.
+- 2026-05-15 — WP-015..WP-019 post-MVO wave reviewed by Integrator. Follow-up fixes applied: kernel work-request route now derives `requested_by` from resolved actor instead of request body, middleware service pass-through requires `LINKAIOS_ENABLE_MVO_SERVICE_BYPASS`, `.env.example` documents kernel auth flags, and demo runbook uses `pnpm test:mvo:e2e`. Verification: `pnpm --filter @linktrend/linkaios-web test -- src/lib/kernel/api-auth.test.ts src/lib/kernel/kernel.test.ts` passed (3 files, 62 tests). Note: future post-MVO work packet files use `WP-015`..`WP-019` numbering for integration cutovers, while stabilization notes in the report also used WP-015..WP-018 labels; avoid reusing those labels in future prompts without filename context.
+- 2026-05-15 — WP-013 final proof correction completed by Codex and reviewed by Integrator. Run `119d7a1c-f3bf-4621-80a9-083291fe293d` has verified non-empty `lease_ids`, `workflow_run_ids`, `audit_event_ids`, populated `preview_artifact_ref`, and final `succeeded` status against the real database runtime. Patch reviewed: `getRunTrace()` now assigns `run.stages = stages` before preview-output aggregation. Verification: `pnpm --filter @linktrend/linkaios-web test -- src/lib/kernel/kernel.test.ts` passed (2 files, 55 tests).
+- 2026-05-15 — Antigravity reported WP-013 completed with run `119d7a1c-f3bf-4621-80a9-083291fe293d`, preview URL, approval flow, CRM/project/task refs, and schema-aware runtime fixes. Integrator review found a proof gap: final trace snapshot shows empty `lease_ids`, `workflow_run_ids`, and `audit_event_ids`, which conflicts with WP-013 acceptance criteria and `CONTRACTS_MVO.md` §§8-10. Do a final proof/fix pass before marking MVO E2E complete.
 - 2026-05-14 — WP-014 rerun after exposing `linkaios_kernel` showed `test_brain_rpc_path()` now resolves but both paths fail with ambiguous `event_id`. Integrator patched `023_linkbrain_audit_envelope.sql` to use `ON CONFLICT ON CONSTRAINT audit_events_pkey`. Also corrected stale preflight/report wording from `write_audit_event_safe` to deployed wrapper `write_brain_audit_event`. Next: rerun migrations and `test_brain_rpc_path()`.
 - 2026-05-14 — WP-014 rerun reached `027_preview_artifact_storage.sql` and failed with PostgreSQL `42P13`. Integrator patched `linkaios.upsert_preview_artifact()` by removing the early default on `p_plugin_id`. Supabase REST preflight also confirmed `linkaios_kernel` is not exposed (`PGRST106`); exposed schemas are currently `public`, `graphql_public`, `linkaios`, `prism`, `bot_runtime`, and `gateway`. Next: rerun migrations, then expose required internal schemas or add exposed wrappers before WP-013.
 - 2026-05-14 — WP-014 rerun moved past host connectivity: Supabase pooler is reachable. Integrator patched a SQL typo in `025_linkaios_kernel_orchestration.sql` (`add_run_refs()` stray token) and corrected the audit RPC preflight guidance to call `test_brain_rpc_path()` through the `linkaios_kernel` schema rather than `public`. Next: rerun `pnpm db:migrate`, then schema-aware audit RPC preflight, then WP-013 if both pass.

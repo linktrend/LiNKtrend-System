@@ -284,9 +284,13 @@ export async function createRun(
   };
 
   // Write run.started audit event
-  await writeRunAuditEvent(env, run.tenant_id, run.run_id, "run.started", {
+  const runStartedAudit = await writeRunAuditEvent(env, run.tenant_id, run.run_id, "run.started", {
     plugin_id: run.plugin_id,
     work_request_type: workRequest.work_request_type,
+  });
+  await supabase.schema("linkaios_kernel").rpc("add_run_refs", {
+    p_run_id: run.run_id,
+    p_audit_event_id: runStartedAudit.event_id,
   });
 
   return { run, isExisting: false };
@@ -426,7 +430,7 @@ async function executeStage(
   await writeStageAuditEvent(env, ctx, "stage.started", {
     attempt: stage.attempt,
     failure_mode: manifestStage.failure_mode,
-  });
+  }, stage.responsible_plane);
 
   let result: DispatchResult;
 
@@ -481,21 +485,33 @@ async function executeStage(
     });
 
     // Add trace refs
-    if (result.lease_id || result.workflow_run_id || result.audit_event_id) {
+    const auditEventIds = [
+      ...(result.audit_event_ids || []),
+      ...(result.audit_event_id ? [result.audit_event_id] : []),
+    ].filter((eventId, index, all) => eventId && all.indexOf(eventId) === index);
+
+    if (result.lease_id || result.workflow_run_id || auditEventIds.length > 0) {
       await supabase.schema("linkaios_kernel").rpc("add_stage_refs", {
         p_run_id: run.run_id,
         p_stage_id: stage.stage_id,
         p_lease_id: result.lease_id,
         p_workflow_run_id: result.workflow_run_id,
-        p_audit_event_id: result.audit_event_id,
+        p_audit_event_id: auditEventIds[0],
         p_model_run_id: result.model_run_id,
       });
+      for (const auditEventId of auditEventIds.slice(1)) {
+        await supabase.schema("linkaios_kernel").rpc("add_stage_refs", {
+          p_run_id: run.run_id,
+          p_stage_id: stage.stage_id,
+          p_audit_event_id: auditEventId,
+        });
+      }
     }
 
     // Write stage.completed audit event
     await writeStageAuditEvent(env, ctx, "stage.completed", {
       outputs_keys: result.outputs ? Object.keys(result.outputs) : [],
-    });
+    }, stage.responsible_plane);
   } else if (result.requires_approval) {
     // Approval required
     await supabase.schema("linkaios_kernel").rpc("upsert_stage", {
@@ -523,7 +539,7 @@ async function executeStage(
     await writeStageAuditEvent(env, ctx, "stage.awaiting_approval", {
       capability,
       lease_id: result.lease_id,
-    });
+    }, stage.responsible_plane);
   } else {
     // Failed
     await supabase.schema("linkaios_kernel").rpc("upsert_stage", {
@@ -538,7 +554,7 @@ async function executeStage(
     await writeStageAuditEvent(env, ctx, "stage.failed", {
       failure_code: result.failure?.code,
       failure_message: result.failure?.message,
-    });
+    }, stage.responsible_plane);
   }
 
   return result;
@@ -754,9 +770,13 @@ export async function executeRun(
         run.status = "failed";
 
         // Write run.failed audit event
-        await writeRunAuditEvent(env, run.tenant_id, runId, "run.failed", {
+        const runFailedAudit = await writeRunAuditEvent(env, run.tenant_id, runId, "run.failed", {
           failing_stage_id: stage.stage_id,
           failure_code: result?.failure?.code,
+        });
+        await supabase.schema("linkaios_kernel").rpc("add_run_refs", {
+          p_run_id: runId,
+          p_audit_event_id: runFailedAudit.event_id,
         });
 
         return run;
@@ -774,6 +794,14 @@ export async function executeRun(
         p_run_id: runId,
         p_status: "failed",
         p_failure_json: result?.failure as Record<string, unknown>,
+      });
+      const runFailedAudit = await writeRunAuditEvent(env, run.tenant_id, runId, "run.failed", {
+        failing_stage_id: stage.stage_id,
+        failure_code: result?.failure?.code,
+      });
+      await supabase.schema("linkaios_kernel").rpc("add_run_refs", {
+        p_run_id: runId,
+        p_audit_event_id: runFailedAudit.event_id,
       });
       run.status = "failed";
       return run;
@@ -800,9 +828,13 @@ export async function executeRun(
   });
 
   // Write run.completed audit event
-  await writeRunAuditEvent(env, run.tenant_id, runId, "run.completed", {
+  const runCompletedAudit = await writeRunAuditEvent(env, run.tenant_id, runId, "run.completed", {
     plugin_id: run.plugin_id,
     final_outputs_keys: Object.keys(accumulatedOutputs),
+  });
+  await supabase.schema("linkaios_kernel").rpc("add_run_refs", {
+    p_run_id: runId,
+    p_audit_event_id: runCompletedAudit.event_id,
   });
 
   run.status = "succeeded";
@@ -851,6 +883,10 @@ export async function getRunTrace(
     stages: [],
     outputs: (Array.isArray(runData) ? runData[0] : runData)?.outputs_json as Record<string, unknown>,
   };
+  run.outputs = {
+    ...(run.outputs || {}),
+    _run_audit_event_ids: (Array.isArray(runData) ? runData[0] : runData)?.audit_event_ids as string[] | undefined,
+  };
 
   // Build stages
   const stages: Stage[] = ((stagesData || []) as Array<Record<string, unknown>>).map((s) => ({
@@ -869,6 +905,9 @@ export async function getRunTrace(
     },
   }));
 
+  // Keep run-level stage refs available for buildPreviewOutput() aggregation.
+  run.stages = stages;
+
   return {
     run,
     stages,
@@ -881,6 +920,9 @@ export async function getRunTrace(
  */
 export function buildPreviewOutput(run: Run): PreviewOutput {
   const out = run.outputs || {};
+  const runAuditEventIds = Array.isArray(out._run_audit_event_ids) ? out._run_audit_event_ids : [];
+  const stageAuditEventIds = run.stages.flatMap((s) => s.refs?.audit_event_ids || []);
+  const auditEventIds = Array.from(new Set([...runAuditEventIds, ...stageAuditEventIds]));
 
   return {
     run_id: run.run_id,
@@ -893,7 +935,7 @@ export function buildPreviewOutput(run: Run): PreviewOutput {
     task_id: (out.task_id as string) || null,
     lease_ids: run.stages.flatMap((s) => s.refs?.lease_ids || []),
     workflow_run_ids: run.stages.flatMap((s) => s.refs?.workflow_run_ids || []),
-    audit_event_ids: run.stages.flatMap((s) => s.refs?.audit_event_ids || []),
+    audit_event_ids: auditEventIds,
     status: run.status === "partial" ? "partial" : run.status === "awaiting_approval" ? "awaiting_approval" : run.status === "succeeded" ? "succeeded" : "failed",
     finalized_at: run.ended_at,
   };

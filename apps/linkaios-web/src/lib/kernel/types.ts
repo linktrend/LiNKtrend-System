@@ -116,6 +116,7 @@ export interface DispatchResult {
   lease_id?: string;
   workflow_run_id?: string;
   audit_event_id?: string;
+  audit_event_ids?: string[];
   model_run_id?: string;
   // Approval required flag
   requires_approval?: boolean;

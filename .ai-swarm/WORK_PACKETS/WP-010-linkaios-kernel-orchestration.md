@@ -74,4 +74,4 @@ Implement the minimum LiNKaios kernel orchestration for tenant/plugin registrati
 
 ## Out of scope
 
-Writing the WebsiteFactory plugin implementation, building full UI polish, implementing external planes, real CRM/Plane/Vercel integrations, redesigning the WP-006 audit ledger.
+Writing the WebsiteFactory plugin implementation, building full UI polish, implementing external planes, real CRM/Plane/DigitalOcean integrations, redesigning the WP-006 audit ledger.

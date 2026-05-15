@@ -8,7 +8,8 @@
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",
-    "db:migrate": "node services/migrations/run.mjs"
+    "db:migrate": "node services/migrations/run.mjs",
+    "test:mvo:e2e": "node --experimental-strip-types scripts/run-e2e.ts"
   },
   "devDependencies": {
     "dotenv": "^16.5.0",

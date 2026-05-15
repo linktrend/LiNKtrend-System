@@ -206,7 +206,7 @@ preview_output_shape:
 
 non_goals:
   - Full Payload CMS publish path
-  - Vercel deploy previews
+  - DigitalOcean-hosted preview publishing
   - Real Chatwoot/Odoo CRM writes
   - Real Plane API project/task creation
   - LEXOS/legal vertical work

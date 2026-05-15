@@ -27,13 +27,245 @@ import {
   type WorkflowInvokeRequest,
   type WorkflowInvokeResult,
   type FailureReport,
+  type FailureCode,
 } from "@linktrend/linklogic-sdk";
+import { log } from "@linktrend/observability";
 import type { DispatchContext, DispatchResult } from "./types";
 import type { Env } from "@linktrend/shared-config";
+import { createPlaneAdapter, PlaneReadinessError } from "./plane-adapter";
 
 // Retry config
 const DEFAULT_RETRY_ATTEMPTS = 3;
 export const RETRY_DELAY_MS = [1000, 4000, 16000]; // exponential backoff per CONTRACTS_MVO.md §4.6
+const CHATWOOT_READINESS_TIMEOUT_MS_DEFAULT = 5000;
+const CHATWOOT_READINESS_TIMEOUT_MS_MAX = 60_000;
+const DIGITALOCEAN_READINESS_TIMEOUT_MS = 5000;
+export type PreviewPublishMode = "static" | "digitalocean";
+
+interface PreviewPublishResult {
+  success: boolean;
+  outputs?: Record<string, unknown>;
+  failure?: FailureReport;
+}
+
+interface PreviewPublishAdapter {
+  mode: PreviewPublishMode;
+  publish: () => Promise<PreviewPublishResult>;
+}
+
+function parseEnvBool(raw: string | undefined): boolean {
+  if (!raw) return false;
+  const normalized = raw.trim().toLowerCase();
+  return normalized === "1" || normalized === "true" || normalized === "yes";
+}
+
+function resolvePreviewBaseUrl(env: Env): string {
+  const configured = env.LINKTREND_PUBLIC_BASE_URL?.trim();
+  if (!configured) return "http://localhost:3000";
+  return configured;
+}
+
+function buildAbsolutePreviewUrl(env: Env, tenantId: string, runId: string): string {
+  const path = `/preview/${tenantId}/${runId}`;
+  const base = resolvePreviewBaseUrl(env);
+  try {
+    return new URL(path, base.endsWith("/") ? base : `${base}/`).toString();
+  } catch {
+    return `http://localhost:3000${path}`;
+  }
+}
+
+export function resolvePreviewPublishMode(env: Env): PreviewPublishMode {
+  return env.PREVIEW_PUBLISH_MODE === "digitalocean" ? "digitalocean" : "static";
+}
+
+export function resolveChatwootReadinessTimeoutMs(env: Env): number {
+  const raw = env.CHATWOOT_READINESS_TIMEOUT_MS;
+  if (!raw || raw.trim() === "") return CHATWOOT_READINESS_TIMEOUT_MS_DEFAULT;
+  const n = Number(raw.trim());
+  if (!Number.isFinite(n) || n < 1) return CHATWOOT_READINESS_TIMEOUT_MS_DEFAULT;
+  return Math.min(Math.floor(n), CHATWOOT_READINESS_TIMEOUT_MS_MAX);
+}
+
+type ChatwootReadinessOutcome =
+  | "ready"
+  | "auth_failed"
+  | "endpoint_unavailable"
+  | "timeout"
+  | "request_failed"
+  | "config_missing";
+
+function sanitizeUrlOrigin(raw: string | undefined): string | null {
+  if (!raw) return null;
+  try {
+    return new URL(raw).origin;
+  } catch {
+    return null;
+  }
+}
+
+export function buildChatwootReadinessTracePayload(args: {
+  env: Env;
+  outcome: ChatwootReadinessOutcome;
+  success: boolean;
+  timeout_ms: number;
+  duration_ms: number;
+  http_status?: number;
+  error_name?: string;
+}): Record<string, unknown> {
+  return {
+    integration: "chatwoot",
+    provider: args.env.CRM_PROVIDER ?? "stub",
+    mode: args.env.CRM_MODE ?? "stub_write",
+    outcome: args.outcome,
+    success: args.success,
+    http_status: args.http_status ?? null,
+    timeout_ms: args.timeout_ms,
+    duration_ms: args.duration_ms,
+    base_url_origin: sanitizeUrlOrigin(args.env.CHATWOOT_BASE_URL),
+    account_id_configured: Boolean(args.env.CHATWOOT_ACCOUNT_ID),
+    token_configured: Boolean(args.env.CHATWOOT_API_ACCESS_TOKEN),
+    error_name: args.error_name ?? null,
+  };
+}
+
+function buildDigitalOceanPreviewValidationFailure(env: Env): FailureReport | null {
+  if (!parseEnvBool(env.PREVIEW_PUBLISH_DIGITALOCEAN_ENABLED)) {
+    return integrationFailure(
+      "INTEGRATION_UNAVAILABLE",
+      "DigitalOcean preview publish mode is configured but explicitly disabled",
+    );
+  }
+
+  const missing: string[] = [];
+  if (!env.DIGITALOCEAN_ACCESS_TOKEN) missing.push("DIGITALOCEAN_ACCESS_TOKEN");
+  if (!env.DIGITALOCEAN_APP_ID) missing.push("DIGITALOCEAN_APP_ID");
+  if (!env.DIGITALOCEAN_PREVIEW_BASE_URL) missing.push("DIGITALOCEAN_PREVIEW_BASE_URL");
+
+  if (missing.length > 0) {
+    return integrationFailure(
+      "INTEGRATION_AUTH_FAILED",
+      `Missing DigitalOcean preview configuration: ${missing.join(", ")}`,
+    );
+  }
+
+  return null;
+}
+
+function buildDigitalOceanPreviewUrl(env: Env, tenantId: string, runId: string): string {
+  const base = env.DIGITALOCEAN_PREVIEW_BASE_URL ?? resolvePreviewBaseUrl(env);
+  const path = `/preview/${tenantId}/${runId}`;
+  try {
+    return new URL(path, base.endsWith("/") ? base : `${base}/`).toString();
+  } catch {
+    return buildAbsolutePreviewUrl(env, tenantId, runId);
+  }
+}
+
+async function validateDigitalOceanReadiness(
+  env: Env,
+): Promise<{ success: true } | { success: false; failure: FailureReport }> {
+  const token = env.DIGITALOCEAN_ACCESS_TOKEN;
+  const appId = env.DIGITALOCEAN_APP_ID;
+  if (!token || !appId) {
+    return {
+      success: false,
+      failure: integrationFailure(
+        "INTEGRATION_AUTH_FAILED",
+        "Missing DigitalOcean readiness configuration",
+      ),
+    };
+  }
+
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), DIGITALOCEAN_READINESS_TIMEOUT_MS);
+
+  try {
+    const response = await fetch(`https://api.digitalocean.com/v2/apps/${encodeURIComponent(appId)}`, {
+      method: "GET",
+      headers: {
+        authorization: `Bearer ${token}`,
+        "content-type": "application/json",
+      },
+      signal: controller.signal,
+    });
+
+    if (response.ok) return { success: true };
+
+    if (response.status === 401 || response.status === 403) {
+      return {
+        success: false,
+        failure: integrationFailure(
+          "INTEGRATION_AUTH_FAILED",
+          `DigitalOcean auth failed (${response.status})`,
+        ),
+      };
+    }
+
+    return {
+      success: false,
+      failure: integrationFailure(
+        "INTEGRATION_UNAVAILABLE",
+        `DigitalOcean readiness endpoint unavailable (${response.status})`,
+      ),
+    };
+  } catch (error) {
+    if (error instanceof Error && error.name === "AbortError") {
+      return {
+        success: false,
+        failure: integrationFailure("INTEGRATION_TIMEOUT", "DigitalOcean readiness check timed out"),
+      };
+    }
+
+    return {
+      success: false,
+      failure: integrationFailure("INTEGRATION_UNAVAILABLE", "DigitalOcean readiness check failed"),
+    };
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+export function buildPreviewPublishAdapter(
+  env: Env,
+  ctx: DispatchContext,
+): PreviewPublishAdapter {
+  const mode = resolvePreviewPublishMode(env);
+
+  if (mode === "digitalocean") {
+    return {
+      mode,
+      publish: async () => {
+        const validationFailure = buildDigitalOceanPreviewValidationFailure(env);
+        if (validationFailure) {
+          return { success: false, failure: validationFailure };
+        }
+        const readiness = await validateDigitalOceanReadiness(env);
+        if (!readiness.success) {
+          return { success: false, failure: readiness.failure };
+        }
+        return {
+          success: true,
+          outputs: {
+            preview_url: buildDigitalOceanPreviewUrl(env, ctx.tenant_id, ctx.run_id),
+            preview_artifact_ref: `storage://previews/${ctx.run_id}.zip`,
+          },
+        };
+      },
+    };
+  }
+
+  return {
+    mode: "static",
+    publish: async () => ({
+      success: true,
+      outputs: {
+        preview_url: buildAbsolutePreviewUrl(env, ctx.tenant_id, ctx.run_id),
+        preview_artifact_ref: `storage://previews/${ctx.run_id}.zip`,
+      },
+    }),
+  };
+}
 
 /**
  * Dispatch to LinkBot for reasoning stages.
@@ -62,19 +294,10 @@ export async function dispatchToLinkBot(
     tokens_out: 250,
   };
 
-  // Write audit event for stage.completed via LinkBrain
-  const auditResult = await writeStageAuditEvent(env, ctx, "stage.completed", {
-    model_run_id: mockResult.model_run_id,
-    tokens_in: mockResult.tokens_in,
-    tokens_out: mockResult.tokens_out,
-    reasoning_kind: request.reasoning_kind,
-  });
-
   return {
     success: true,
     outputs: mockResult.outputs,
     model_run_id: mockResult.model_run_id,
-    audit_event_id: auditResult.event_id,
   };
 }
 
@@ -167,7 +390,7 @@ export async function requestLinkSkillsLease(
   await writeStageAuditEvent(env, ctx, "lease.requested", {
     capability: request.capability,
     lease_id: leaseId,
-  });
+  }, "linkskills");
 
   if (status === "denied" || killSwitch === "tripped") {
     const failure: FailureReport = {
@@ -182,7 +405,7 @@ export async function requestLinkSkillsLease(
       capability: request.capability,
       lease_id: leaseId,
       reason: failure.message,
-    });
+    }, "linkskills");
 
     return { success: false, failure, lease_id: leaseId };
   }
@@ -193,7 +416,7 @@ export async function requestLinkSkillsLease(
       capability: request.capability,
       lease_id: leaseId,
       requires_approval: true,
-    });
+    }, "linkskills");
 
     return {
       success: false, // Not yet executed
@@ -206,7 +429,7 @@ export async function requestLinkSkillsLease(
   await writeStageAuditEvent(env, ctx, "lease.granted", {
     capability: request.capability,
     lease_id: leaseId,
-  });
+  }, "linkskills");
 
   return { success: true, lease_id: leaseId };
 }
@@ -219,19 +442,53 @@ export async function executeLinkSkillsLease(
   ctx: DispatchContext,
   request: LeaseExecuteRequest,
 ): Promise<DispatchResult> {
+  const capability = request.idempotency_key.split(':')[2];
+
+  if (capability === "crm.upsert") {
+    const readiness = await validateCrmReadiness(env);
+    if (!readiness.success) {
+      return {
+        success: false,
+        failure: readiness.failure,
+      };
+    }
+  }
+
   const supabase = createSupabaseServiceClient(env);
 
-  const capability = request.idempotency_key.split(':')[2];
   let mockResult: Record<string, unknown> = {};
   if (capability === "preview.publish") {
-    mockResult = {
-      preview_url: `/preview/${ctx.tenant_id}/${ctx.run_id}`,
-      preview_artifact_ref: `storage://previews/${ctx.run_id}.zip`,
-    };
+    const previewAdapter = buildPreviewPublishAdapter(env, ctx);
+    const publishResult = await previewAdapter.publish();
+    if (!publishResult.success) {
+      return { success: false, failure: publishResult.failure };
+    }
+    mockResult = publishResult.outputs || {};
   } else if (capability === "crm.upsert") {
     mockResult = { crm_record_id: `crm-${Date.now()}` };
   } else if (capability === "plane.project.create") {
-    mockResult = { project_id: `proj-${Date.now()}`, task_id: `task-${Date.now()}` };
+    try {
+      const planeAdapter = createPlaneAdapter(env);
+      // WP-033: live mode remains local stub; shadow_readiness performs read-only checks.
+      const planeResult = await planeAdapter.provisionProjectAndWorkItem({
+        tenant_id: ctx.tenant_id,
+        lead_id: "",
+        project_name: "",
+        work_item_title: "",
+      });
+      mockResult = {
+        project_id: planeResult.project_id,
+        task_id: planeResult.task_id,
+      };
+    } catch (error) {
+      if (error instanceof PlaneReadinessError) {
+        return {
+          success: false,
+          failure: integrationFailure(error.failureCode, error.message),
+        };
+      }
+      throw error;
+    }
   }
 
   const { data, error } = await supabase.schema("linkskills").rpc("record_execution", {
@@ -262,12 +519,175 @@ export async function executeLinkSkillsLease(
   await writeStageAuditEvent(env, ctx, "lease.executed", {
     lease_id: request.lease_id,
     is_duplicate: isDuplicate,
-  });
+  }, "linkskills");
+
+  const outputAuditEventIds = await writeCapabilityOutputAuditEvents(
+    env,
+    ctx,
+    capability,
+    execResult || {},
+  );
 
   return {
     success: true,
     outputs: execResult,
+    audit_event_id: outputAuditEventIds.at(-1),
+    audit_event_ids: outputAuditEventIds,
   };
+}
+
+async function validateCrmReadiness(
+  env: Env,
+): Promise<{ success: true } | { success: false; failure: FailureReport }> {
+  const provider = env.CRM_PROVIDER ?? "stub";
+  const mode = env.CRM_MODE ?? "stub_write";
+
+  if (provider !== "chatwoot" || mode !== "shadow_readiness") {
+    return { success: true };
+  }
+
+  const baseUrl = env.CHATWOOT_BASE_URL;
+  const accountId = env.CHATWOOT_ACCOUNT_ID;
+  const token = env.CHATWOOT_API_ACCESS_TOKEN;
+  const timeoutMs = resolveChatwootReadinessTimeoutMs(env);
+  const startedAt = Date.now();
+  const emitReadinessTrace = (args: {
+    outcome: ChatwootReadinessOutcome;
+    success: boolean;
+    http_status?: number;
+    error_name?: string;
+  }) => {
+    log(args.success ? "info" : "warn", "chatwoot.readiness", {
+      service: "linkaios-web",
+      ...buildChatwootReadinessTracePayload({
+        env,
+        outcome: args.outcome,
+        success: args.success,
+        timeout_ms: timeoutMs,
+        duration_ms: Date.now() - startedAt,
+        http_status: args.http_status,
+        error_name: args.error_name,
+      }),
+    });
+  };
+  if (!baseUrl || !accountId || !token) {
+    emitReadinessTrace({ outcome: "config_missing", success: false });
+    return {
+      success: false,
+      failure: integrationFailure("INTEGRATION_AUTH_FAILED", "Missing Chatwoot CRM readiness configuration"),
+    };
+  }
+
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    const trimmedBaseUrl = baseUrl.replace(/\/+$/, "");
+    const response = await fetch(`${trimmedBaseUrl}/api/v1/accounts/${encodeURIComponent(accountId)}`, {
+      method: "GET",
+      headers: {
+        api_access_token: token,
+        "content-type": "application/json",
+      },
+      signal: controller.signal,
+    });
+
+    if (response.ok) {
+      emitReadinessTrace({ outcome: "ready", success: true, http_status: response.status });
+      return { success: true };
+    }
+
+    if (response.status === 401 || response.status === 403) {
+      emitReadinessTrace({ outcome: "auth_failed", success: false, http_status: response.status });
+      return {
+        success: false,
+        failure: integrationFailure("INTEGRATION_AUTH_FAILED", `Chatwoot auth failed (${response.status})`),
+      };
+    }
+
+    emitReadinessTrace({ outcome: "endpoint_unavailable", success: false, http_status: response.status });
+    return {
+      success: false,
+      failure: integrationFailure("INTEGRATION_UNAVAILABLE", `Chatwoot readiness endpoint unavailable (${response.status})`),
+    };
+  } catch (error) {
+    if (error instanceof Error && error.name === "AbortError") {
+      emitReadinessTrace({ outcome: "timeout", success: false, error_name: error.name });
+      return {
+        success: false,
+        failure: integrationFailure("INTEGRATION_TIMEOUT", "Chatwoot readiness check timed out"),
+      };
+    }
+
+    emitReadinessTrace({
+      outcome: "request_failed",
+      success: false,
+      error_name: error instanceof Error ? error.name : "UnknownError",
+    });
+    return {
+      success: false,
+      failure: integrationFailure("INTEGRATION_UNAVAILABLE", "Chatwoot readiness check failed"),
+    };
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+type IntegrationFailureCode =
+  | Extract<FailureCode, "INTEGRATION_UNAVAILABLE">
+  | Extract<FailureCode, "INTEGRATION_AUTH_FAILED">
+  | Extract<FailureCode, "INTEGRATION_TIMEOUT">;
+
+function integrationFailure(code: IntegrationFailureCode, message: string): FailureReport {
+  return {
+    code,
+    plane: "linkskills",
+    message,
+    retryable: code !== "INTEGRATION_AUTH_FAILED",
+    occurred_at: new Date().toISOString(),
+  };
+}
+
+async function writeCapabilityOutputAuditEvents(
+  env: Env,
+  ctx: DispatchContext,
+  capability: string,
+  outputs: Record<string, unknown>,
+): Promise<string[]> {
+  const eventIds: string[] = [];
+
+  const write = async (action: string, payload: Record<string, unknown>) => {
+    const result = await writeStageAuditEvent(env, ctx, action, payload, "linkskills");
+    eventIds.push(result.event_id);
+  };
+
+  if (capability === "crm.upsert") {
+    await write("crm.upserted", {
+      crm_record_id: outputs.crm_record_id,
+    });
+    return eventIds;
+  }
+
+  if (capability === "plane.project.create") {
+    await write("plane.project.created", {
+      project_id: outputs.project_id,
+    });
+    await write("plane.task.created", {
+      task_id: outputs.task_id,
+      project_id: outputs.project_id,
+    });
+    return eventIds;
+  }
+
+  if (capability === "preview.publish") {
+    await write("preview.published", {
+      preview_url: outputs.preview_url,
+      preview_artifact_ref: outputs.preview_artifact_ref,
+    });
+    return eventIds;
+  }
+
+  return eventIds;
 }
 
 /**
@@ -294,7 +714,7 @@ export async function dispatchToLinkAutowork(
   await writeStageAuditEvent(env, ctx, "workflow.invoked", {
     workflow_handle: request.workflow_handle,
     workflow_run_id: workflowRunId,
-  });
+  }, "linkautowork");
 
   // Mock success
   const mockOutputs: Record<string, unknown> =
@@ -302,7 +722,7 @@ export async function dispatchToLinkAutowork(
       ? { render_spec: request.inputs }
       : request.workflow_handle === "autowork.websitefactory.preview_serve"
         ? {
-            preview_url: `/preview/${ctx.tenant_id}/${ctx.run_id}`,
+            preview_url: buildAbsolutePreviewUrl(env, ctx.tenant_id, ctx.run_id),
             preview_artifact_ref: `storage://previews/${ctx.run_id}.zip`,
           }
         : {};
@@ -310,7 +730,7 @@ export async function dispatchToLinkAutowork(
   await writeStageAuditEvent(env, ctx, "workflow.completed", {
     workflow_handle: request.workflow_handle,
     workflow_run_id: workflowRunId,
-  });
+  }, "linkautowork");
 
   return {
     success: true,
@@ -328,12 +748,13 @@ export async function writeStageAuditEvent(
   ctx: DispatchContext,
   action: string,
   payload: Record<string, unknown> = {},
+  plane: AuditEvent["plane"] = "linkaios",
 ): Promise<AuditWriteResult> {
   const event: AuditEvent = {
     event_id: crypto.randomUUID(),
     ts: new Date().toISOString(),
     tenant_id: ctx.tenant_id,
-    plane: "linkaios",
+    plane,
     actor: {
       actor_kind: "kernel",
       actor_id: "linkaios.kernel",

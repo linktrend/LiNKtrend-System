@@ -26,7 +26,7 @@ Implement the WebsiteFactory plugin declaration and stage-handler glue that lets
 - LinkSkills lease implementation
 - LiNKautowork workflow bodies
 - LiNKbrain audit persistence
-- Full Payload CMS publish, Vercel deploy, DNS, outbound email
+- Full Payload CMS publish, DigitalOcean deploy, DNS, outbound email
 
 ## Dependencies
 

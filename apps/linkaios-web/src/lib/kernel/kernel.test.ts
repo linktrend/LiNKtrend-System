@@ -352,6 +352,42 @@ describe("buildPreviewOutput", () => {
       else expect(output.status).toBe("failed");
     }
   });
+
+  it("includes run-level audit refs alongside stage refs", () => {
+    const run: Run = {
+      run_id: "r-123",
+      work_request_id: "wr-456",
+      tenant_id: "t-789",
+      plugin_id: "websitefactory",
+      status: "succeeded",
+      started_at: "2026-05-14T12:00:00Z",
+      stages: [
+        {
+          stage_id: "preview_publish",
+          run_id: "r-123",
+          responsible_plane: "linkskills",
+          status: "succeeded",
+          attempt: 1,
+          inputs_snapshot: {},
+          refs: {
+            audit_event_ids: ["audit-output-preview"],
+          },
+        },
+      ],
+      outputs: {
+        preview_url: "https://preview.example.com/p/r-123",
+        preview_artifact_ref: "storage://previews/r-123.zip",
+        _run_audit_event_ids: ["audit-run-started", "audit-run-completed"],
+      },
+    };
+
+    const output = buildPreviewOutput(run);
+    expect(output.audit_event_ids).toEqual([
+      "audit-run-started",
+      "audit-run-completed",
+      "audit-output-preview",
+    ]);
+  });
 });
 
 // ============================================================================

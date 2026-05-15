@@ -22,7 +22,7 @@ Verify the full WebsiteFactory lead-to-preview MVO through LiNKaios and assert t
 
 - Core feature implementation except tiny testability fixes approved by the Integrator
 - Secrets or real customer data
-- Real outbound CRM/Plane/Vercel calls
+- Real outbound CRM/Plane/DigitalOcean calls
 - LEXOS/legal vertical work
 
 ## Dependencies

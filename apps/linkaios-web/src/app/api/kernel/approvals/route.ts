@@ -8,6 +8,7 @@
 
 import { NextResponse } from "next/server";
 import { listPendingApprovals, decideApproval, ApprovalError } from "@/lib/kernel";
+import { canAccessKernelScope, isKernelOperatorActor, resolveKernelActor } from "@/lib/kernel/api-auth";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 
 function getEnv() {
@@ -24,19 +25,58 @@ function getEnv() {
 export async function GET(req: Request) {
   const env = getEnv();
 
-  // Auth check
-  const authHeader = req.headers.get("authorization");
-  const isService = authHeader === `Bearer ${process.env.BOT_KERNEL_API_SECRET}`;
-
-  if (!isService) {
-    const supabase = getSupabaseAdmin();
-    const { data: { user }, error: authError } = await supabase.auth.getUser(
-      authHeader?.replace("Bearer ", "") || ""
-    );
-
-    if (authError || !user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+  const supabase = getSupabaseAdmin();
+  const kernelAccessDeps = {
+    getRunScope: async (runId: string) => {
+      const { data: run } = await supabase
+        .schema("linkaios_kernel").from("runs")
+        .select("tenant_id, work_request_id")
+        .eq("run_id", runId)
+        .maybeSingle();
+      if (!run?.work_request_id) return null;
+      const { data: workRequest } = await supabase
+        .schema("linkaios_kernel").from("work_requests")
+        .select("requested_by_actor_id")
+        .eq("work_request_id", run.work_request_id as string)
+        .maybeSingle();
+      if (!workRequest?.requested_by_actor_id || !run.tenant_id) return null;
+      return {
+        tenantId: run.tenant_id as string,
+        requestedByActorId: workRequest.requested_by_actor_id as string,
+      };
+    },
+    getApprovalScope: async (approvalId: string) => {
+      const { data } = await supabase
+        .schema("linkaios_kernel").from("approvals")
+        .select("run_id, tenant_id, requested_by_actor_id")
+        .eq("approval_id", approvalId)
+        .maybeSingle();
+      if (!data?.run_id || !data?.tenant_id || !data?.requested_by_actor_id) return null;
+      return {
+        runId: data.run_id as string,
+        tenantId: data.tenant_id as string,
+        requestedByActorId: data.requested_by_actor_id as string,
+      };
+    },
+    userOwnsTenantScope: async (actorId: string, tenantId: string) => {
+      const { data } = await supabase
+        .schema("linkaios_kernel").from("work_requests")
+        .select("work_request_id")
+        .eq("tenant_id", tenantId)
+        .eq("requested_by_actor_id", actorId)
+        .limit(1);
+      return Array.isArray(data) && data.length > 0;
+    },
+  };
+  const actor = await resolveKernelActor(req, {
+    getUserByAccessToken: async (accessToken) => {
+      const { data: { user }, error } = await supabase.auth.getUser(accessToken);
+      if (error || !user) return null;
+      return { id: user.id };
+    },
+  });
+  if (!actor) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   // Get tenant_id from query
@@ -49,12 +89,18 @@ export async function GET(req: Request) {
       { status: 400 }
     );
   }
+  if (!isKernelOperatorActor(actor) && !(await canAccessKernelScope(actor, { kind: "tenant", tenantId }, kernelAccessDeps))) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
 
   try {
     const approvals = await listPendingApprovals(env, tenantId);
+    const visibleApprovals = isKernelOperatorActor(actor)
+      ? approvals
+      : approvals.filter((approval) => approval.requested_by_actor_id === actor.actorId);
 
     return NextResponse.json({
-      approvals: approvals.map((a) => ({
+      approvals: visibleApprovals.map((a) => ({
         approval_id: a.approval_id,
         run_id: a.run_id,
         stage_id: a.stage_id,
@@ -80,21 +126,58 @@ export async function GET(req: Request) {
 export async function POST(req: Request) {
   const env = getEnv();
 
-  // Auth check
-  const authHeader = req.headers.get("authorization");
-  const isService = authHeader === `Bearer ${process.env.BOT_KERNEL_API_SECRET}`;
-
-  let userId = "service";
-  if (!isService) {
-    const supabase = getSupabaseAdmin();
-    const { data: { user }, error: authError } = await supabase.auth.getUser(
-      authHeader?.replace("Bearer ", "") || ""
-    );
-
-    if (authError || !user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-    userId = user.id;
+  const supabase = getSupabaseAdmin();
+  const kernelAccessDeps = {
+    getRunScope: async (runId: string) => {
+      const { data: run } = await supabase
+        .schema("linkaios_kernel").from("runs")
+        .select("tenant_id, work_request_id")
+        .eq("run_id", runId)
+        .maybeSingle();
+      if (!run?.work_request_id) return null;
+      const { data: workRequest } = await supabase
+        .schema("linkaios_kernel").from("work_requests")
+        .select("requested_by_actor_id")
+        .eq("work_request_id", run.work_request_id as string)
+        .maybeSingle();
+      if (!workRequest?.requested_by_actor_id || !run.tenant_id) return null;
+      return {
+        tenantId: run.tenant_id as string,
+        requestedByActorId: workRequest.requested_by_actor_id as string,
+      };
+    },
+    getApprovalScope: async (approvalId: string) => {
+      const { data } = await supabase
+        .schema("linkaios_kernel").from("approvals")
+        .select("run_id, tenant_id, requested_by_actor_id")
+        .eq("approval_id", approvalId)
+        .maybeSingle();
+      if (!data?.run_id || !data?.tenant_id || !data?.requested_by_actor_id) return null;
+      return {
+        runId: data.run_id as string,
+        tenantId: data.tenant_id as string,
+        requestedByActorId: data.requested_by_actor_id as string,
+      };
+    },
+    userOwnsTenantScope: async (actorId: string, tenantId: string) => {
+      const { data } = await supabase
+        .schema("linkaios_kernel").from("work_requests")
+        .select("work_request_id")
+        .eq("tenant_id", tenantId)
+        .eq("requested_by_actor_id", actorId)
+        .limit(1);
+      return Array.isArray(data) && data.length > 0;
+    },
+  };
+  const actor = await resolveKernelActor(req, {
+    getUserByAccessToken: async (accessToken) => {
+      const { data: { user }, error } = await supabase.auth.getUser(accessToken);
+      if (error || !user) return null;
+      return { id: user.id };
+    },
+  });
+  if (!actor) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const url = new URL(req.url);
@@ -105,6 +188,9 @@ export async function POST(req: Request) {
       { error: "Missing approval_id query parameter" },
       { status: 400 }
     );
+  }
+  if (!(await canAccessKernelScope(actor, { kind: "approval", approvalId }, kernelAccessDeps))) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
   // Parse body
@@ -128,7 +214,7 @@ export async function POST(req: Request) {
     const approval = await decideApproval(env, {
       approval_id: approvalId,
       decision,
-      decided_by_actor_id: userId,
+      decided_by_actor_id: actor.actorId,
       reason,
     });
 

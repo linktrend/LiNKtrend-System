@@ -25,7 +25,7 @@ Wire the MVO LinkSkills capability lease lifecycle for `crm.upsert`, `plane.proj
 - LiNKbrain schema/writer except calling the agreed `brain.audit.write` surface
 - LiNKautowork workflow bodies
 - LinkBot reasoning code
-- Secrets or real external CRM/Plane/Vercel clients
+- Secrets or real external CRM/Plane/DigitalOcean clients
 
 ## Dependencies
 

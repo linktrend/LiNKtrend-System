@@ -170,4 +170,4 @@ const result = await invokeWorkflow(request, { writeAuditEvent });
 | Failure paths include `workflow.failed` event_id in `audit_event_ids` | ✓ Tested |
 | Compensation behavior is explicit for partial render/serve failures | ✓ Implemented, tested |
 | No reasoning, capability policy, or LiNKaios orchestration implemented | ✓ Verified |
-| No real Vercel/Payload publishing | ✓ Verified (static/local stub) |
+| No real DigitalOcean/Payload publishing | ✓ Verified (static/local stub) |

@@ -25,7 +25,7 @@ Implement deterministic LiNKautowork workflow handles for WebsiteFactory renderi
 - LinkSkills lease implementation except consuming provided `lease_id`
 - LinkBot reasoning code
 - LiNKbrain schema/writer except emitting agreed audit events
-- Real Vercel/Payload publishing, DNS, TLS, external hosting clients
+- Real DigitalOcean/Payload publishing, DNS, TLS, external hosting clients
 
 ## Dependencies
 
@@ -57,4 +57,4 @@ Implement deterministic LiNKautowork workflow handles for WebsiteFactory renderi
 
 ## Out of scope
 
-LLM copy generation, LinkSkills policy, LiNKaios route implementation, real Vercel/Payload publishing.
+LLM copy generation, LinkSkills policy, LiNKaios route implementation, real DigitalOcean/Payload publishing.

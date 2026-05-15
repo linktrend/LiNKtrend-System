@@ -27,7 +27,7 @@ Reconcile and validate the MVO stub backends after WP-007, then add any missing 
 
 - Real Chatwoot/Odoo clients
 - Real Plane API clients
-- Vercel/Payload publish integrations
+- DigitalOcean/Payload publish integrations
 - LinkBot reasoning
 - LiNKautowork workflow bodies except agreed storage handoff interfaces
 - Secrets, env files, deployment config
@@ -74,4 +74,4 @@ Reconcile and validate the MVO stub backends after WP-007, then add any missing 
 
 ## Out of scope
 
-Real CRM/Plane/Vercel/Payload integration, UI, LinkBot reasoning, n8n workflow implementation.
+Real CRM/Plane/DigitalOcean/Payload integration, UI, LinkBot reasoning, n8n workflow implementation.

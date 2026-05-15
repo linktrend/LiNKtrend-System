@@ -4,6 +4,7 @@ import {
   AuditEventSchema,
   BotReasonRequestSchema,
   CrmUpsertArgsSchema,
+  FailureCodeSchema,
   FailureReportSchema,
   LeadInputSchema,
   LeaseRequestSchema,
@@ -159,6 +160,16 @@ describe("PluginManifestSchema", () => {
 });
 
 describe("FailureReportSchema", () => {
+  it("accepts canonical integration failure codes", () => {
+    for (const code of [
+      "INTEGRATION_UNAVAILABLE",
+      "INTEGRATION_AUTH_FAILED",
+      "INTEGRATION_TIMEOUT",
+    ]) {
+      expect(FailureCodeSchema.safeParse(code).success).toBe(true);
+    }
+  });
+
   it("accepts a canonical retryable failure", () => {
     expect(
       FailureReportSchema.safeParse({

@@ -13,7 +13,7 @@ LiNKtrend-System is the LiNKaios control-plane repo. WebsiteFactory is not the c
 3. Document **inputs** (lead record shape or stub equivalent) and **outputs** (preview URL, run id, artifacts, audit references, etc.) as types or schemas in prose.
 4. Map each stage of the plugin to the responsible **plane** (LiNKaios for coordination/status, LiNKautowork for deterministic steps, LinkSkills for gated side effects, LiNKbrain for audit/learn events, LinkBot for thin reasoning/delegation only).
 5. Explicitly distinguish what **LiNKaios core owns**, what the **WebsiteFactory plugin declares**, and what each external plane owns.
-6. List **non-goals** for MVO (features explicitly deferred), including full Payload publishing, Vercel deploy previews, real CRM/Plane integrations, and LEXOS/legal vertical work.
+6. List **non-goals** for MVO (features explicitly deferred), including full Payload publishing, DigitalOcean-hosted preview publishing, real CRM/Plane integrations, and LEXOS/legal vertical work.
 7. Identify **integration points** that require queue entries (`INTEGRATION_QUEUE.md`) and tag each as planned, stubbed, or deferred based on `DECISIONS.md`.
 
 ## Acceptance criteria

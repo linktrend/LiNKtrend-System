@@ -11,6 +11,7 @@ import {
   createRun,
   LeadValidationError,
 } from "@/lib/kernel";
+import { canAccessKernelScope, resolveKernelActor } from "@/lib/kernel/api-auth";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 
 function getEnv() {
@@ -23,19 +24,29 @@ function getEnv() {
 export async function POST(req: Request) {
   const env = getEnv();
 
-  // Auth check - require service role or authenticated user
-  const authHeader = req.headers.get("authorization");
-  const isService = authHeader === `Bearer ${process.env.BOT_KERNEL_API_SECRET}`;
-
-  if (!isService) {
-    // Check user auth via supabase session
-    const supabase = getSupabaseAdmin();
-    const { data: { user }, error: authError } = await supabase.auth.getUser(
-      authHeader?.replace("Bearer ", "") || ""
-    );
-    if (authError || !user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+  const supabase = getSupabaseAdmin();
+  const kernelAccessDeps = {
+    getRunScope: async () => null,
+    getApprovalScope: async () => null,
+    userOwnsTenantScope: async (actorId: string, tenantId: string) => {
+      const { data } = await supabase
+        .schema("linkaios_kernel").from("work_requests")
+        .select("work_request_id")
+        .eq("tenant_id", tenantId)
+        .eq("requested_by_actor_id", actorId)
+        .limit(1);
+      return Array.isArray(data) && data.length > 0;
+    },
+  };
+  const actor = await resolveKernelActor(req, {
+    getUserByAccessToken: async (accessToken) => {
+      const { data: { user }, error } = await supabase.auth.getUser(accessToken);
+      if (error || !user) return null;
+      return { id: user.id };
+    },
+  });
+  if (!actor) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   // Parse body
@@ -47,20 +58,35 @@ export async function POST(req: Request) {
     );
   }
 
-  const { lead_input, requested_by } = body;
+  const { lead_input } = body;
   if (!lead_input || typeof lead_input !== "object") {
     return NextResponse.json(
       { error: "Missing lead_input" },
       { status: 400 }
     );
   }
+  const tenantId = typeof lead_input.tenant_id === "string" ? lead_input.tenant_id : null;
+  if (!tenantId) {
+    return NextResponse.json(
+      { error: "Missing lead_input.tenant_id" },
+      { status: 400 }
+    );
+  }
+  if (!(await canAccessKernelScope(actor, { kind: "tenant", tenantId }, kernelAccessDeps))) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
+  const requestedBy =
+    actor.kind === "service"
+      ? { actor_kind: "system" as const, actor_id: actor.actorId }
+      : { actor_kind: "user" as const, actor_id: actor.actorId };
 
   try {
     // Intake work request
     const { workRequest, leadRecord, isExisting } = await intakeLeadWorkRequest(
       env,
       lead_input,
-      requested_by || { actor_kind: "user", actor_id: "anonymous" }
+      requestedBy
     );
 
     // Create run from work request
