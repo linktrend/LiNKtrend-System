@@ -24,6 +24,61 @@ import type {
 } from "@linktrend/linklogic-sdk";
 import type { CapabilityContext } from "./types.js";
 
+export class CapabilityExecutionError extends Error {
+  code: string;
+  retryable: boolean;
+
+  constructor(code: string, message: string, retryable = false) {
+    super(message);
+    this.code = code;
+    this.retryable = retryable;
+  }
+}
+
+interface ZulipRunMessagingArgs {
+  mode?: "mock" | "shadow" | "live";
+  operation: "run.notify" | "channel.message.mock_send" | "connectivity.probe";
+  run_id?: string;
+  stage_id?: string;
+  message_purpose?: string;
+  to?: {
+    stream?: string;
+    topic?: string;
+    operator_channel?: string;
+    bot_channel?: string;
+  };
+  message?: {
+    content?: string;
+    kind?: "operator" | "bot_to_bot" | "run_status";
+  };
+}
+
+interface ZulipRunMessagingResult extends Record<string, unknown> {
+  operation: "run.notify" | "channel.message.mock_send" | "connectivity.probe";
+  mode: "mock" | "shadow";
+  status: "queued_mock" | "readiness_checked";
+  message_ref?: string;
+  connectivity?: {
+    ok: boolean;
+    checked_at: string;
+    reason: "shadow_probe_placeholder";
+  };
+}
+
+function getMode(args: { mode?: string }): "mock" | "shadow" | "live" {
+  if (args.mode === "shadow" || args.mode === "live" || args.mode === "mock") {
+    return args.mode;
+  }
+  return "mock";
+}
+
+function requireString(value: unknown, key: string): string {
+  if (typeof value !== "string" || value.trim().length === 0) {
+    throw new CapabilityExecutionError("LEASE_REQUEST_INVALID", `Missing required argument "${key}"`);
+  }
+  return value;
+}
+
 /**
  * CRM Upsert handler (§7.1, INT-020).
  *
@@ -184,6 +239,193 @@ export async function handlePreviewPublish(
 }
 
 /**
+ * Zulip run messaging handler (§0.A.5.1, INT-043).
+ *
+ * Development defaults:
+ * - outbound send operations are mock-only
+ * - connectivity checks may run in shadow mode as readiness placeholders
+ * - live mode is blocked
+ */
+export async function handleZulipRunMessaging(
+  _client: SupabaseClient,
+  args: ZulipRunMessagingArgs,
+  context: CapabilityContext,
+): Promise<ZulipRunMessagingResult> {
+  const operation = args.operation;
+  const requestedMode = args.mode ?? "mock";
+
+  if (requestedMode === "live") {
+    throw new CapabilityExecutionError(
+      "LEASE_DENIED",
+      "Live Zulip messaging is disabled in development mode",
+    );
+  }
+
+  if (operation === "connectivity.probe") {
+    const mode: "mock" | "shadow" = requestedMode === "shadow" ? "shadow" : "mock";
+    return {
+      operation,
+      mode,
+      status: "readiness_checked",
+      connectivity: {
+        ok: true,
+        checked_at: new Date().toISOString(),
+        reason: "shadow_probe_placeholder",
+      },
+    };
+  }
+
+  // Outbound sends remain mock-only for v2 MVO.
+  if (requestedMode === "shadow") {
+    throw new CapabilityExecutionError(
+      "LEASE_DENIED",
+      `Operation "${operation}" is mock-only in development mode`,
+    );
+  }
+
+  const runRef = args.run_id ?? context.run_id;
+  const stageRef = args.stage_id ?? context.stage_id;
+  const purpose = args.message_purpose ?? "run_status";
+
+  return {
+    operation,
+    mode: "mock",
+    status: "queued_mock",
+    message_ref: `zulip-mock:${context.tenant_id}:${runRef}:${stageRef}:${purpose}`,
+  };
+}
+
+interface GenericLinksitesV2Args {
+  mode?: "mock" | "shadow" | "live";
+  operation?: string;
+  [key: string]: unknown;
+}
+
+function ensureNoLiveWrites(capabilityId: string, mode: "mock" | "shadow" | "live"): void {
+  if (mode === "live") {
+    throw new CapabilityExecutionError(
+      "LEASE_DENIED",
+      `Live mode is disabled by default for capability "${capabilityId}"`,
+    );
+  }
+}
+
+export async function handleCapCrmOdooShadow(
+  _client: SupabaseClient,
+  args: GenericLinksitesV2Args,
+  context: CapabilityContext,
+): Promise<Record<string, unknown>> {
+  const mode = getMode(args);
+  const operation = requireString(args.operation, "operation");
+
+  if (operation === "odoo.readiness.probe") {
+    return {
+      operation,
+      mode: mode === "live" ? "shadow" : mode,
+      status: "readiness_checked",
+      readiness_ref: `odoo-readiness:${context.tenant_id}:${context.run_id}:${context.stage_id}`,
+      checked_at: new Date().toISOString(),
+    };
+  }
+
+  ensureNoLiveWrites("cap.crm.odoo_shadow", mode);
+  return {
+    operation,
+    mode,
+    status: "updated_mock",
+    crm_record_id: `crm-mock:${context.tenant_id}:${context.run_id}:${context.stage_id}`,
+    lead_status: "ready_to_contact",
+  };
+}
+
+export async function handleCapPayloadLocalSync(
+  _client: SupabaseClient,
+  args: GenericLinksitesV2Args,
+  context: CapabilityContext,
+): Promise<Record<string, unknown>> {
+  const mode = getMode(args);
+  ensureNoLiveWrites("cap.payload.local_sync", mode);
+  return {
+    operation: requireString(args.operation, "operation"),
+    mode,
+    status: "synced_mock",
+    payload_sync_ref: `payload-sync:${context.tenant_id}:${context.run_id}:${context.stage_id}`,
+  };
+}
+
+export async function handleCapSupabaseMirrorContent(
+  _client: SupabaseClient,
+  args: GenericLinksitesV2Args,
+  context: CapabilityContext,
+): Promise<Record<string, unknown>> {
+  const mode = getMode(args);
+  ensureNoLiveWrites("cap.supabase.mirror_content", mode);
+  return {
+    operation: requireString(args.operation, "operation"),
+    mode,
+    status: "upserted_mock",
+    mirror_write_ref: `mirror-write:${context.tenant_id}:${context.run_id}:${context.stage_id}`,
+    mirror_revision_ref: `mirror-revision:${context.lease_id}`,
+  };
+}
+
+export async function handleCapResearchPublicWeb(
+  _client: SupabaseClient,
+  args: GenericLinksitesV2Args,
+  context: CapabilityContext,
+): Promise<Record<string, unknown>> {
+  return {
+    operation: requireString(args.operation, "operation"),
+    mode: getMode(args) === "live" ? "shadow" : getMode(args),
+    status: "fetched_mock",
+    query_ref: `research-query:${context.tenant_id}:${context.run_id}:${context.stage_id}`,
+    citations_ref: `research-citations:${context.lease_id}`,
+  };
+}
+
+export async function handleCapAssetGeneration(
+  _client: SupabaseClient,
+  args: GenericLinksitesV2Args,
+  context: CapabilityContext,
+): Promise<Record<string, unknown>> {
+  const mode = getMode(args);
+  ensureNoLiveWrites("cap.asset.generation", mode);
+  return {
+    operation: requireString(args.operation, "operation"),
+    mode,
+    status: "generated_mock",
+    asset_ref: `asset:${context.tenant_id}:${context.run_id}:${context.stage_id}`,
+    provenance_ref: `asset-provenance:${context.lease_id}`,
+  };
+}
+
+export async function handleCapPlaneExecutionTracking(
+  _client: SupabaseClient,
+  args: GenericLinksitesV2Args,
+  context: CapabilityContext,
+): Promise<Record<string, unknown>> {
+  const mode = getMode(args);
+  const operation = requireString(args.operation, "operation");
+
+  if (operation === "readiness.probe") {
+    return {
+      operation,
+      mode: mode === "live" ? "shadow" : mode,
+      status: "readiness_checked",
+      plane_ref: `plane-readiness:${context.tenant_id}:${context.run_id}:${context.stage_id}`,
+    };
+  }
+
+  ensureNoLiveWrites("cap.plane.execution_tracking", mode);
+  return {
+    operation,
+    mode,
+    status: "upserted_mock",
+    plane_ref: `plane-write:${context.tenant_id}:${context.run_id}:${context.stage_id}`,
+  };
+}
+
+/**
  * Get the appropriate handler for a capability.
  */
 export function getCapabilityHandler(capability_id: string) {
@@ -192,6 +434,13 @@ export function getCapabilityHandler(capability_id: string) {
     "plane.project.create": handlePlaneProjectCreate as unknown as (client: SupabaseClient, args: unknown, context: CapabilityContext) => Promise<Record<string, unknown>>,
     "plane.task.create": handlePlaneTaskCreate as unknown as (client: SupabaseClient, args: unknown, context: CapabilityContext) => Promise<Record<string, unknown>>,
     "preview.publish": handlePreviewPublish as unknown as (client: SupabaseClient, args: unknown, context: CapabilityContext) => Promise<Record<string, unknown>>,
+    "cap.crm.odoo_shadow": handleCapCrmOdooShadow as unknown as (client: SupabaseClient, args: unknown, context: CapabilityContext) => Promise<Record<string, unknown>>,
+    "cap.payload.local_sync": handleCapPayloadLocalSync as unknown as (client: SupabaseClient, args: unknown, context: CapabilityContext) => Promise<Record<string, unknown>>,
+    "cap.supabase.mirror_content": handleCapSupabaseMirrorContent as unknown as (client: SupabaseClient, args: unknown, context: CapabilityContext) => Promise<Record<string, unknown>>,
+    "cap.zulip.run_messaging": handleZulipRunMessaging as unknown as (client: SupabaseClient, args: unknown, context: CapabilityContext) => Promise<Record<string, unknown>>,
+    "cap.research.public_web": handleCapResearchPublicWeb as unknown as (client: SupabaseClient, args: unknown, context: CapabilityContext) => Promise<Record<string, unknown>>,
+    "cap.asset.generation": handleCapAssetGeneration as unknown as (client: SupabaseClient, args: unknown, context: CapabilityContext) => Promise<Record<string, unknown>>,
+    "cap.plane.execution_tracking": handleCapPlaneExecutionTracking as unknown as (client: SupabaseClient, args: unknown, context: CapabilityContext) => Promise<Record<string, unknown>>,
   };
 
   return handlers[capability_id] ?? null;

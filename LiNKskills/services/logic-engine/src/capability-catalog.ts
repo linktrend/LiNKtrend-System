@@ -121,6 +121,7 @@ export function getMvoCapabilityIds(): string[] {
     "plane.task.create",
     "preview.publish",
     "cap.crm.odoo_shadow",
+    "cap.accounting.odoo_shadow",
     "cap.payload.local_sync",
     "cap.supabase.mirror_content",
     "cap.zulip.run_messaging",
@@ -169,4 +170,14 @@ export function isWriteCapableLinksitesV2Capability(capability_id: string): bool
     "cap.asset.generation",
     "cap.plane.execution_tracking",
   ].includes(capability_id);
+}
+
+/**
+ * Odoo capability family IDs (permission-separated).
+ */
+export function getOdooCapabilityFamilyIds(): string[] {
+  return [
+    "cap.crm.odoo_shadow",
+    "cap.accounting.odoo_shadow",
+  ];
 }
