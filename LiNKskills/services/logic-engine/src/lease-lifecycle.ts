@@ -25,6 +25,7 @@ import {
   capabilityExists,
   isWriteCapableLinksitesV2Capability,
 } from "./capability-catalog.js";
+import { CapabilityExecutionError } from "./capability-handlers.js";
 import type { LeaseRequestResult, LeaseLedgerRow, LeaseStatus } from "./types.js";
 import { emitLeaseRequested, emitLeaseGranted, emitLeaseDenied, emitLeaseExecuted, emitCapabilityOutput } from "./audit-events.js";
 
@@ -576,12 +577,15 @@ export async function executeLease(
 
     return executeResult;
   } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
+    const capabilityError = err instanceof CapabilityExecutionError
+      ? err
+      : null;
+    const msg = capabilityError?.message ?? (err instanceof Error ? err.message : String(err));
     const failure: FailureReport = {
-      code: "WORKFLOW_STEP_FAILED",
+      code: capabilityError?.code ?? "WORKFLOW_STEP_FAILED",
       plane: "linkskills",
       message: `Capability execution failed: ${msg}`,
-      retryable: true,
+      retryable: capabilityError?.retryable ?? true,
       occurred_at: new Date().toISOString(),
     };
 

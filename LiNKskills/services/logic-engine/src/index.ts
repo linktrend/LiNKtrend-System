@@ -66,10 +66,18 @@ export {
 
 // Capability handlers
 export {
+  CapabilityExecutionError,
   handleCrmUpsert,
   handlePlaneProjectCreate,
   handlePlaneTaskCreate,
   handlePreviewPublish,
+  handleCapCrmOdooShadow,
+  handleCapPayloadLocalSync,
+  handleCapSupabaseMirrorContent,
+  handleCapResearchPublicWeb,
+  handleCapAssetGeneration,
+  handleCapPlaneExecutionTracking,
+  handleZulipRunMessaging,
   getCapabilityHandler,
 } from "./capability-handlers.js";
 

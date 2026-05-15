@@ -1,3 +1,98 @@
+## Assigned Work Packet
+
+**WP-053 — Zulip communication capability scaffold**
+**Status:** COMPLETE
+**Date:** 2026-05-15
+
+## Objective
+
+Scaffold the LinkSkills-governed Zulip communication capability surface for LinkBot/operator and bot-to-bot messaging in development mode, with no live outbound sends and explicit mock/shadow behavior.
+
+## Search Evidence (existing bridge reuse)
+
+Repository evidence discovered before implementation:
+
+- `apps/zulip-gateway/src/gateway-dispatch.ts` — existing inbound webhook bridge and `gateway.zulip_message_links` upsert path.
+- `apps/zulip-gateway/src/resolve-mission-id.ts` — mission routing from Zulip stream IDs.
+- `apps/zulip-gateway/src/zulip-payload.ts` and tests — existing Zulip payload extraction utilities.
+- `services/migrations/ALL_IN_ONE.sql` — existing `gateway.zulip_message_links` and stream routing persistence.
+- `LiNKskills/services/logic-engine/src/capability-catalog.ts` — `cap.zulip.run_messaging` already listed in LinkSites v2 capability IDs.
+
+This WP reuses those findings and adds only the missing capability-execution scaffold in the existing LinkSkills logic engine.
+
+## Files Changed
+
+- `LiNKskills/services/logic-engine/src/capability-handlers.ts`
+  - Added `handleZulipRunMessaging` scaffold for `cap.zulip.run_messaging` operations:
+    - `run.notify` (mock-only queued result)
+    - `channel.message.mock_send` (mock-only queued result)
+    - `connectivity.probe` (mock or shadow readiness placeholder)
+  - Enforced hard boundary: `mode=live` throws; no real send path implemented.
+  - Registered `cap.zulip.run_messaging` in `getCapabilityHandler`.
+
+- `LiNKskills/services/logic-engine/src/capability-handlers.zulip.test.ts`
+  - Added focused tests covering:
+    - mock queued run notification
+    - shadow connectivity probe
+    - live-mode rejection
+    - shadow outbound-operation rejection
+
+- `LiNKskills/services/logic-engine/src/index.ts`
+  - Exported `handleZulipRunMessaging`.
+
+- `LiNKskills/services/logic-engine/src/audit-events.ts`
+  - Added capability output action mapping for `cap.zulip.run_messaging` → `zulip.notification.queued`.
+
+- `.env.example`
+  - Added non-secret placeholder config for scaffold mode/topic surface:
+    - `ZULIP_RUN_MESSAGING_MODE=mock`
+    - `ZULIP_RUN_STREAM=`
+    - `ZULIP_RUN_TOPIC_TEMPLATE=run:{run_id}`
+
+## Commands Run
+
+```bash
+pwd && ls -la
+rg --files -g 'README*' -g 'AGENTS.md' -g '**/*codex*' -g '**/*cursor*' -g 'docs/**'
+ls -la .ai-swarm/AGENT_PROMPTS && ls -la .ai-swarm
+sed -n '1,220p' README.md
+sed -n '1,220p' .ai-swarm/ARCHITECTURE_RULES.md
+sed -n '1,260p' .ai-swarm/AGENT_PROMPTS/WP-053-zulip-communication-capability-scaffold.prompt.md
+sed -n '1,220p' .cursor/rules/01-ecosystem-boundaries.mdc
+sed -n '1,260p' .cursor/rules/05-security-cost-and-side-effects.mdc
+sed -n '1,260p' .ai-swarm/WORK_PACKETS/WP-053-zulip-communication-capability-scaffold.md
+sed -n '1,240p' .ai-swarm/INTEGRATION_QUEUE.md
+sed -n '1,260p' .ai-swarm/CONTRACTS_MVO.md
+git fetch origin && git switch development && git pull --ff-only origin development && git switch -c dev/codex/WP-053-zulip-communication-capability-scaffold
+rg -n "zulip|Zulip|openclaw|OpenClaw|run.notify|channel\.message|connectivity\.probe" -S
+sed -n '1,320p' LiNKskills/services/logic-engine/src/capability-handlers.ts
+sed -n '1,240p' .env.example
+pnpm --filter @linktrend/linkskills-logic-engine test
+```
+
+## Validation Results
+
+- `pnpm --filter @linktrend/linkskills-logic-engine test`
+  - PASS: 3 files, 49 tests total.
+  - New suite `capability-handlers.zulip.test.ts`: 4 passing tests.
+
+## Hard-Boundary Compliance
+
+- No live outbound Zulip sends implemented.
+- No credentials/tokens/domains hardcoded.
+- No final stream taxonomy introduced beyond run/topic placeholder surface.
+- Existing bridge artifacts were referenced and reused as baseline context.
+
+## Risks / Blockers
+
+- The scaffold currently returns mock/shadow placeholders only; real transport wiring to a Zulip provider adapter remains future integration work and must stay lease-governed.
+- Capability-output action is currently generalized (`zulip.notification.queued`); if operation-specific audit action granularity is required later, audit mapping should key by operation as well as capability.
+
+## Final Branch and Commit
+
+- Branch: `dev/codex/WP-053-zulip-communication-capability-scaffold`
+- Commit SHA: `dbfa4a9` (Integrator recovery branch)
+
 # Agent Report: LinkSkills Agent (WP-007)
 
 ## Assigned Work Packet
@@ -310,3 +405,66 @@ WP-007 is complete. The lease lifecycle is ready for integration with:
 - WP-013 (E2E Demo) - integration tests can now exercise full lease lifecycle
 
 The capability catalog, kill switches, and stub backends are in place. WP-012 (integration-agent) may extend the stub RPCs if additional fields are needed for the demo.
+
+## Assigned Work Packet
+
+**WP-050 — LinkSkills v2 capability execution handlers**
+**Status:** COMPLETE
+**Date:** 2026-05-15
+
+## Objective
+
+Implement mock/shadow-safe execution handlers for the seven LinkSites v2 capabilities, preserve lease/idempotency/kill-switch behavior, and return canonical failure codes for policy and input failures.
+
+## Files Changed
+
+- `LiNKskills/services/logic-engine/src/capability-handlers.ts`
+  - Added handler coverage for all LinkSites v2 capability IDs:
+    - `cap.crm.odoo_shadow`
+    - `cap.payload.local_sync`
+    - `cap.supabase.mirror_content`
+    - `cap.zulip.run_messaging`
+    - `cap.research.public_web`
+    - `cap.asset.generation`
+    - `cap.plane.execution_tracking`
+  - Added mock/shadow-safe stub results with deterministic refs.
+  - Enforced write-capable live-mode refusal (`LEASE_DENIED`) by default.
+  - Added `CapabilityExecutionError` + argument validation helper for canonical failure mapping.
+
+- `LiNKskills/services/logic-engine/src/lease-lifecycle.ts`
+  - Updated `executeLease()` catch handling to preserve capability-handler canonical failure codes (e.g., `LEASE_DENIED`, `LEASE_REQUEST_INVALID`) instead of collapsing to `WORKFLOW_STEP_FAILED`.
+
+- `LiNKskills/services/logic-engine/src/index.ts`
+  - Exported new LinkSites v2 capability handlers and `CapabilityExecutionError`.
+
+- `LiNKskills/services/logic-engine/src/lease-execute.linksites-v2.test.ts` (new)
+  - Added tests for:
+    - idempotent replay on executed lease
+    - live-mode refusal mapping to `LEASE_DENIED`
+    - missing required arguments mapping to `LEASE_REQUEST_INVALID`
+
+## Commands Run
+
+```bash
+pnpm --filter @linktrend/linkskills-logic-engine test
+pnpm --filter @linktrend/linkskills-logic-engine typecheck
+```
+
+## Validation Results
+
+- `pnpm --filter @linktrend/linkskills-logic-engine test`
+  - PASS: `Test Files 4 passed`, `Tests 52 passed (52)`
+  - Includes new suite: `src/lease-execute.linksites-v2.test.ts` (3 tests).
+
+- `pnpm --filter @linktrend/linkskills-logic-engine typecheck`
+  - PASS: `tsc -p tsconfig.json --noEmit` completed without errors.
+
+## Risks / Blockers
+
+- Current handlers intentionally return governed mock/shadow placeholder refs only; no provider transport is wired.
+- Output payload shape for these v2 capabilities remains minimal by design and may need tightening once downstream packets pin concrete result schemas.
+
+## Branch and Commit
+
+- Branch: `dev/codex/recover-WP050-WP053-WP054-linkskills-capabilities` (Integrator recovery branch)
+- Commit SHA: `dbfa4a9` (Integrator recovery branch)

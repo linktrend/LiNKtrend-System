@@ -203,6 +203,7 @@ export function buildCapabilityOutputEvent(
     "plane.project.create": "plane.project.created",
     "plane.task.create": "plane.task.created",
     "preview.publish": "preview.published",
+    "cap.zulip.run_messaging": "zulip.notification.queued",
   };
 
   const action = actionMap[request.capability] ?? `${request.capability}.completed`;
