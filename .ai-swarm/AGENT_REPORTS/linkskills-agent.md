@@ -71,11 +71,12 @@ No package code or schema/runtime TypeScript/Zod contracts were changed in `pack
 ## Blockers / Open Questions
 
 - WP-042 discovery must confirm existing Payload and Supabase mirror schema sources before any implementation packet wires concrete field mappings.
+- Integrator review normalized WP-043 failure mappings to existing `CONTRACTS_MVO.md` §5.4 canonical codes before merge to `development`.
 
 ## Final Branch and Commit
 
 - Branch: `dev/codex/WP-043-capability-plugin-contract-pack-v1`
-- Commit SHA: _pending commit_
+- Commit SHA: `88ce4bb` plus Integrator follow-up on `development`
 
 ## Assigned Work Packet
 
