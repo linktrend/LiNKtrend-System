@@ -314,3 +314,122 @@ None.
 
 - Branch: `dev/codex/WP-048-linkautowork-linksites-workflow-scaffold`
 - Commit SHA: `104726d`
+
+---
+
+## WP-059 — LiNKautowork Completion Plan and Runtime Hardening (2026-05-15)
+
+### Objective
+
+Define what "finished enough" means for LiNKautowork as the deterministic automation plane, and generate execution-ready hardening packets for runtime readiness.
+
+### Evidence Gathered
+
+Analyzed `LiNKautowork/gateway/**` implementation:
+
+| Component | Files | State |
+|-----------|-------|-------|
+| Workflow registry | `workflow-runner.ts` | In-memory Map, 7 workflows registered |
+| Idempotency | `workflow-runner.ts` | In-memory cache (MVO stub) |
+| Audit emitter | `audit-emitter.ts` | 4 events: invoked, completed, failed, compensated |
+| Retry logic | `workflow-runner.ts` | None (single attempt) |
+| n8n integration | — | Not connected |
+| LinkSites v2 workflows | `linksites-v2.ts` | Stub implementations with Map stores |
+| Health/metrics | — | None |
+| Tests | `*.test.ts` | 13 tests passing |
+
+**7 Registered Workflow Handles:**
+1. `autowork.websitefactory.render`
+2. `autowork.websitefactory.preview_serve`
+3. `autowork.linksites.artifact_write_local`
+4. `autowork.linksites.supabase_mirror_upsert`
+5. `autowork.linksites.payload_sync_local`
+6. `autowork.linksites.preview_readiness_check`
+7. `autowork.linksites.crm_ready_to_contact_mark`
+
+### Gap Analysis
+
+| # | Gap | Severity | Location | Mitigation |
+|---|-----|----------|----------|------------|
+| G1 | In-memory idempotency | High | `workflow-runner.ts:25` | WP-060: Persistent store |
+| G2 | No retry/backoff | High | `workflow-runner.ts:138-201` | WP-061: Exponential backoff |
+| G3 | n8n not connected | Medium | — | WP-062: n8n dev gateway |
+| G4 | Stub LinkSites v2 workflows | Medium | `linksites-v2.ts` | WP-063: Real capability calls |
+| G5 | No health/metrics | Medium | — | WP-064: Health + Prometheus |
+| G6 | No operator controls | Low | — | WP-065: Pause/resume/cancel |
+| G7 | No workflow promotion | Low | — | WP-066: Template registry |
+
+### Files Created
+
+| File | Purpose |
+|------|---------|
+| `.ai-swarm/LINKAUTOWORK_COMPLETION_PLAN.md` | Completion definition, gap analysis, dependency graph |
+| `.ai-swarm/WORK_PACKETS/WP-060-persistent-idempotency.md` | Persistent idempotency store packet |
+| `.ai-swarm/WORK_PACKETS/WP-061-retry-backoff.md` | Retry with exponential backoff packet |
+| `.ai-swarm/WORK_PACKETS/WP-062-n8n-dev-gateway.md` | n8n development gateway integration packet |
+| `.ai-swarm/WORK_PACKETS/WP-063-real-capability-calls.md` | Real Supabase/Payload integration packet |
+| `.ai-swarm/WORK_PACKETS/WP-064-health-metrics.md` | Health checks and metrics packet |
+| `.ai-swarm/WORK_PACKETS/WP-065-operator-controls.md` | Operator control plane packet |
+| `.ai-swarm/WORK_PACKETS/WP-066-template-registry.md` | Workflow template registry packet |
+
+### Decisions Recorded
+
+| # | Decision | Rationale |
+|---|----------|-----------|
+| D-059-1 | In-memory idempotency acceptable as MVO stub | Per `CONTRACTS_MVO.md` §0.A.2 development mode |
+| D-059-2 | Retry is **required** for MVO | Single transient failure failing entire run is unacceptable |
+| D-059-3 | n8n deferred to WP-062 | Can run in-process for MVO demo |
+| D-059-4 | Real Payload/Supabase calls deferred to WP-063 | Requires WP-042 discovery first |
+| D-059-5 | 7 parallel work packets created | Each gap independently deliverable |
+
+### Dependency Graph
+
+```
+WP-060, WP-061, WP-062, WP-064 ─┬──→ WP-063, WP-066 (Wave 2)
+                                │
+                                └──→ WP-065 (Wave 3)
+```
+
+**Wave 1 (parallel, no dependencies):** WP-060, WP-061, WP-062, WP-064
+**Wave 2:** WP-063 (needs discovery), WP-066 (needs WP-062)
+**Wave 3:** WP-065 (needs WP-064)
+
+### Blockers
+
+None for planning phase. WP-063 execution requires:
+- WP-042 discovery completion (schema)
+- WP-043 capability plugins (Supabase/Payload clients)
+
+### Commands Run
+
+```bash
+git fetch origin
+git switch development
+git pull --ff-only origin development
+git switch -c dev/codex/WP-059-linkautowork-completion-plan-runtime-hardening
+
+# Analyzed 12 gateway source files
+# Created completion plan and 7 follow-up packets
+```
+
+### Proof
+
+**Completion plan written:** `.ai-swarm/LINKAUTOWORK_COMPLETION_PLAN.md`
+- Defines "finished enough" for LiNKautowork
+- Evidence-based gap analysis
+- 7 execution-ready work packets
+- Dependency graph for parallel execution
+
+**Follow-up packets created:**
+- WP-060: Persistent Idempotency Store
+- WP-061: Retry with Exponential Backoff
+- WP-062: n8n Dev Gateway Integration
+- WP-063: Real Capability Plugin Integration
+- WP-064: Health Checks and Observability
+- WP-065: Operator Control Plane
+- WP-066: Workflow Template Registry
+
+### Branch / Commit
+
+- Branch: `dev/codex/WP-059-linkautowork-completion-plan-runtime-hardening`
+- Commit: `docs: define LiNKautowork completion plan`
