@@ -2,6 +2,83 @@
 
 ## Assigned Work Packet
 
+**WP-043 — Capability plugin contract pack v1**  
+**Status:** COMPLETE  
+**Date:** 2026-05-15
+
+## Objective
+
+Define connector-only capability plugin contracts for LinkSites v1 capabilities: Odoo/CRM shadow-readiness, Payload CMS, Supabase mirror/content, Zulip, public web research, asset generation, and Plane, including modes, auth/config surface, idempotency, LinkSkills lease requirements, audit events, allowed callers, failure mapping, and explicit non-ownership.
+
+## Files Changed
+
+- `.ai-swarm/CONTRACTS_MVO.md`
+  - Added `§0.A.5.1 Capability plugin contract pack v1 (connector-only)`.
+  - Added generic contract shape and seven per-capability contract rows:
+    - `cap.crm.odoo_shadow`
+    - `cap.payload.local_sync`
+    - `cap.supabase.mirror_content`
+    - `cap.zulip.run_messaging`
+    - `cap.research.public_web`
+    - `cap.asset.generation`
+    - `cap.plane.execution_tracking`
+  - Added enforcement rules: `mock/shadow` defaults, lease/idempotency requirements, and connector-only non-ownership boundary.
+
+- `.ai-swarm/INTEGRATION_QUEUE.md`
+  - Updated INT-040..INT-046 notes to point to `CONTRACTS_MVO.md` `§0.A.5.1` canonical contract IDs.
+  - Kept all rows in development-mode mock/shadow posture; no live writes by default.
+
+- `.ai-swarm/AGENT_REPORTS/linkskills-agent.md`
+  - Added this WP-043 completion report section.
+
+## Commands Run
+
+```bash
+pwd; ls -la
+rg --files -g 'README*' -g 'AGENTS.md' -g '*AGENT*' -g '*CODEx*' -g '*Cursor*' -g '*.md' . | head -n 200
+sed -n '1,220p' README.md
+sed -n '1,220p' docs/README.md
+sed -n '1,260p' .ai-swarm/AGENT_PROMPTS/WP-043-capability-plugin-contract-pack-v1.prompt.md
+sed -n '1,260p' .cursor/rules/00-linktrend-master-rule.mdc
+sed -n '1,260p' .cursor/rules/01-ecosystem-boundaries.mdc
+sed -n '1,260p' .cursor/rules/03-agent-swarm-coordination.mdc
+sed -n '1,320p' .ai-swarm/PLUGIN_ARCHITECTURE_V2.md
+sed -n '1,320p' .ai-swarm/LINKSITES_VERTICAL_MVO_V2.md
+sed -n '1,320p' .ai-swarm/WORK_PACKETS/WP-043-capability-plugin-contract-pack-v1.md
+sed -n '1,320p' .ai-swarm/CONTRACTS_MVO.md
+sed -n '1,320p' .ai-swarm/INTEGRATION_QUEUE.md
+sed -n '1,260p' .ai-swarm/AGENT_REPORTS/linkskills-agent.md
+git fetch origin && git switch development && git pull --ff-only origin development && git switch -c dev/codex/WP-043-capability-plugin-contract-pack-v1
+rg -n "capability plugin|Capability plugin|INT-04|Odoo|Payload|Supabase mirror|Zulip|asset generation|public web research|Plane" .ai-swarm/CONTRACTS_MVO.md .ai-swarm/INTEGRATION_QUEUE.md
+nl -ba .ai-swarm/CONTRACTS_MVO.md | sed -n '48,170p'
+git status --short
+git diff -- .ai-swarm/CONTRACTS_MVO.md .ai-swarm/INTEGRATION_QUEUE.md .ai-swarm/AGENT_REPORTS/linkskills-agent.md
+```
+
+## Tests Run
+
+No package code or schema/runtime TypeScript/Zod contracts were changed in `packages/linklogic-sdk`; only documentation/contracts in `.ai-swarm/` were updated. Therefore no package test run was required for this packet.
+
+## Proof of Boundary Compliance
+
+- No Odoo chart of accounts, accounting rules, CRM stage/taxonomy, or business data setup were defined.
+- No Payload schema was created.
+- No Supabase mirror schema was invented before WP-042 discovery.
+- No Zulip stream taxonomy beyond run-message connector surface was introduced.
+- No live external writes were enabled by default; all capability contracts default to `mock` or `shadow`.
+- Contract scope remains connector/governance-only: operation IDs, auth/config surfaces, lease requirements, idempotency, audit events, caller boundaries, and failure mappings.
+
+## Blockers / Open Questions
+
+- WP-042 discovery must confirm existing Payload and Supabase mirror schema sources before any implementation packet wires concrete field mappings.
+
+## Final Branch and Commit
+
+- Branch: `dev/codex/WP-043-capability-plugin-contract-pack-v1`
+- Commit SHA: _pending commit_
+
+## Assigned Work Packet
+
 **WP-007 — LinkSkills lease lifecycle**  
 **Status:** COMPLETE  
 **Date:** 2026-05-14
