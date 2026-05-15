@@ -35,6 +35,11 @@ export {
   WEBSITE_FACTORY_RENDER_DISPLAY_NAME,
   WEBSITE_FACTORY_SERVE_HANDLE,
   WEBSITE_FACTORY_SERVE_DISPLAY_NAME,
+  LINKSITES_ARTIFACT_WRITE_LOCAL_HANDLE,
+  LINKSITES_SUPABASE_MIRROR_UPSERT_HANDLE,
+  LINKSITES_PAYLOAD_SYNC_LOCAL_HANDLE,
+  LINKSITES_PREVIEW_READINESS_CHECK_HANDLE,
+  LINKSITES_CRM_READY_TO_CONTACT_MARK_HANDLE,
   // Store accessors (for testing/integration)
   getRenderedArtifact,
   renderArtifactStore,
@@ -42,6 +47,7 @@ export {
   listServedPreviews,
   getPreviewHtml,
   previewServedRoutes,
+  clearLinksitesStores,
 } from "./workflows/index.js";
 
 export type {
