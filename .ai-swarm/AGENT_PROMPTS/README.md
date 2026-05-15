@@ -4,6 +4,18 @@ Use these files as stable prompt payloads for external agents.
 
 After an agent finishes and the Integrator has reviewed/merged its branch, the corresponding prompt file may be deleted.
 
+## Required Clean Worktree Block
+
+Every new large-wave prompt must include this requirement in its branch workflow:
+
+```text
+Use a separate clean worktree/checkout for this packet. Do not run this packet in a shared dirty repo folder.
+
+1. Verify the starting checkout is clean with `git status --short --branch`.
+2. If unrelated dirty files exist, stop before editing and report the blocker.
+3. Create or use a packet-specific branch/worktree before making changes.
+```
+
 ## One-Line Agent Commands
 
 ```text

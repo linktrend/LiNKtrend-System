@@ -27,6 +27,8 @@ Use separate branches or worktrees for parallel work.
 
 For large waves, branches alone are not enough. Any wave with three or more concurrent agents, or any agents likely to touch overlapping repo areas, MUST use isolated worktrees or separate clean checkouts. Each agent must verify `git status --short --branch` is clean before starting. If an agent sees unrelated dirty files, it must stop before editing and report the blocker.
 
+Every prompt file for a large wave MUST include an explicit clean-worktree launch block. The block must instruct the agent to create/use a packet-specific checkout or worktree, verify clean status before editing, and stop if unrelated dirty files exist. Do not rely on chat instructions for this; the prompt file itself must contain the isolation requirement.
+
 If two agents need to edit the same file, stop and escalate to the Integrator.
 
 All significant decisions go into `.ai-swarm/DECISIONS.md`.
@@ -49,7 +51,7 @@ Stable branches are `main`, `staging`, and `development`. Work starts on short-l
 After the user and Integrator define a work stage through brainstorming, Q&A, and approval, execution should follow this default loop:
 
 1. When the user says `execute`, the Integrator writes prompt files for all work packets needed to complete the approved stage, normally under `.ai-swarm/AGENT_PROMPTS/`.
-2. Each prompt file must include branch instructions, source-of-truth context, allowed/prohibited files, proof requirements, report updates, and commit/push instructions.
+2. Each prompt file must include branch/worktree instructions, clean-status verification, source-of-truth context, allowed/prohibited files, proof requirements, report updates, and commit/push instructions.
 3. The Integrator gives the user launch waves with model/tool guidance, for example: `WP-042 (Codex)`, `WP-043 (Codex)`, `WP-044 (Codex)`, `WP-045 (Codex)`, plus one-line copy/paste commands.
 4. The user launches the agents. When the user says `Done`, the Integrator fetches branches, reviews each agent's work, verifies proof, fixes or amends integration issues, updates future prompt files if needed, merges approved packet branches through `development`, and gives the next wave.
 5. Repeat wave by wave until the approved stage is complete.
