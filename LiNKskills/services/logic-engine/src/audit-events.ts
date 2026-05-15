@@ -204,6 +204,7 @@ export function buildCapabilityOutputEvent(
     "plane.task.create": "plane.task.created",
     "preview.publish": "preview.published",
     "cap.zulip.run_messaging": "zulip.notification.queued",
+    "cap.postiz.distribution": "postiz.distribution.mocked",
   };
 
   const action = actionMap[request.capability] ?? `${request.capability}.completed`;
