@@ -160,7 +160,7 @@ export async function invokeWorkflow(
     const finalResult: WorkflowInvokeResult = {
       workflow_run_id,
       status,
-      outputs: result.outputs,
+      outputs: result.outputs as Record<string, unknown>,
       audit_event_ids: result.audit_event_ids,
     };
 
