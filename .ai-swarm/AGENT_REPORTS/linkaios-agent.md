@@ -357,3 +357,54 @@ git -C /Users/linktrend/Projects/LiNKsites status --short
 
 - Branch: `dev/codex/WP-042-linksites-template-payload-discovery`
 - Commit: `36ab2c7`
+
+## WP-046 — LinkSites v2 SDK contracts (2026-05-15)
+
+### Files changed
+
+- `packages/linklogic-sdk/src/contracts-mvo.ts`
+- `packages/linklogic-sdk/src/contracts-mvo.test.ts`
+- `packages/linklogic-sdk/src/index.ts`
+- `.ai-swarm/CONTRACTS_MVO.md`
+- `.ai-swarm/AGENT_REPORTS/linkaios-agent.md`
+
+### What was added
+
+- Added LinkSites v2-focused SDK schemas/types for:
+  - canonical discovered template id
+  - canonical LinkBot role ids
+  - canonical LinkSites capability plugin ids
+  - canonical LiNKautowork workflow handles
+  - pinned WP-042 discovered source refs
+  - site/generation refs
+  - preview readiness summary with development/local-only guardrails and consistency checks
+- Exported all new schemas/types via `packages/linklogic-sdk/src/index.ts`.
+- Added focused tests proving valid v2 payloads pass and invented refs/ids or non-development (`live`) cases fail.
+- Updated `CONTRACTS_MVO.md` §0.A.11 with WP-046 SDK pinning note.
+
+### Commands run
+
+```bash
+git fetch origin
+git switch development
+git pull --ff-only origin development
+git switch -c dev/codex/WP-046-linksites-v2-sdk-contracts
+pnpm --filter @linktrend/linklogic-sdk test
+```
+
+### Proof / validation results
+
+- `pnpm --filter @linktrend/linklogic-sdk test` passed.
+- Output summary:
+  - `Test Files 11 passed (11)`
+  - `Tests 86 passed (86)`
+  - includes `src/contracts-mvo.test.ts (44 tests)` passing with new WP-046 cases.
+
+### Blockers
+
+- None.
+
+### Branch / commit
+
+- Branch: `dev/codex/WP-046-linksites-v2-sdk-contracts`
+- Commit: `PENDING_COMMIT_SHA`

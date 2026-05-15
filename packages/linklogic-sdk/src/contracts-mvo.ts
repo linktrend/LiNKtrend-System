@@ -739,3 +739,127 @@ export const LeadRecordRefSchema = z.object({
   idempotency_key: z.string().min(1),
 });
 export type LeadRecordRef = z.infer<typeof LeadRecordRefSchema>;
+
+/* -------------------------------------------------------------------------- */
+/* §0.A LinkSites v2 focused SDK contracts (WP-046)                           */
+/* -------------------------------------------------------------------------- */
+
+// WP-042 discovered template registry currently resolves to marketing-smb-v1.
+export const LinkSitesV2TemplateIdSchema = z.literal("marketing-smb-v1");
+export type LinkSitesV2TemplateId = z.infer<typeof LinkSitesV2TemplateIdSchema>;
+
+export const LinkSitesV2RoleIdSchema = z.enum([
+  "lead_scout_bot",
+  "research_enrichment_bot",
+  "website_builder_bot",
+  "outreach_bot",
+]);
+export type LinkSitesV2RoleId = z.infer<typeof LinkSitesV2RoleIdSchema>;
+
+export const LinkSitesV2CapabilityPluginIdSchema = z.enum([
+  "cap.crm.odoo_shadow",
+  "cap.payload.local_sync",
+  "cap.supabase.mirror_content",
+  "cap.zulip.run_messaging",
+  "cap.research.public_web",
+  "cap.asset.generation",
+  "cap.plane.execution_tracking",
+]);
+export type LinkSitesV2CapabilityPluginId = z.infer<
+  typeof LinkSitesV2CapabilityPluginIdSchema
+>;
+
+export const LinkSitesV2WorkflowHandleSchema = z.enum([
+  "autowork.linksites.artifact_write_local",
+  "autowork.linksites.supabase_mirror_upsert",
+  "autowork.linksites.payload_sync_local",
+  "autowork.linksites.preview_readiness_check",
+  "autowork.linksites.crm_ready_to_contact_mark",
+]);
+export type LinkSitesV2WorkflowHandle = z.infer<
+  typeof LinkSitesV2WorkflowHandleSchema
+>;
+
+// Discovered source refs are pinned to prevent schema invention.
+export const LinkSitesV2DiscoveredRefsSchema = z.object({
+  template_registry_ref: z.literal(
+    "/Users/linktrend/Projects/LiNKsites/apps/web-master/src/templates/registry.ts",
+  ),
+  template_module_ref: z.literal(
+    "/Users/linktrend/Projects/LiNKsites/apps/web-master/src/templates/marketing-smb-v1.ts",
+  ),
+  payload_config_ref: z.literal(
+    "/Users/linktrend/Projects/LiNKsites/apps/cms/src/payload.config.ts",
+  ),
+  supabase_schema_ref: z.literal(
+    "/Users/linktrend/Projects/LiNKsites/supabase/schemas/lsites_core.schema.json",
+  ),
+  supabase_cms_mapping_ref: z.literal(
+    "/Users/linktrend/Projects/LiNKsites/supabase/schemas/cms-mapping.json",
+  ),
+  payload_reader_ref: z.literal(
+    "/Users/linktrend/Projects/LiNKsites/apps/web-master/src/lib/payload-client.ts",
+  ),
+});
+export type LinkSitesV2DiscoveredRefs = z.infer<
+  typeof LinkSitesV2DiscoveredRefsSchema
+>;
+
+export const LinkSitesV2SiteGenerationRefSchema = z.object({
+  site_id: z.string().min(1),
+  site_generation_run_id: z.string().min(1),
+});
+export type LinkSitesV2SiteGenerationRef = z.infer<
+  typeof LinkSitesV2SiteGenerationRefSchema
+>;
+
+export const LinkSitesV2PreviewReadinessStatusSchema = z.enum([
+  "ready_to_contact",
+  "not_ready",
+]);
+export type LinkSitesV2PreviewReadinessStatus = z.infer<
+  typeof LinkSitesV2PreviewReadinessStatusSchema
+>;
+
+export const LinkSitesV2PreviewReadinessSummarySchema = z
+  .object({
+    tenant_id: z.string().min(1),
+    run_id: z.string().uuid(),
+    lead_id: z.string().min(1),
+    generation: LinkSitesV2SiteGenerationRefSchema,
+    template_id: LinkSitesV2TemplateIdSchema,
+    checks_passed: z.boolean(),
+    failed_checks: z.array(z.string()),
+    preview_readiness_status: LinkSitesV2PreviewReadinessStatusSchema,
+    // v2 MVO is explicitly development-only and local side-effect scoped.
+    execution_mode: z.literal("development"),
+    generated_artifact_root_kind: z.literal("local"),
+  })
+  .superRefine((v, ctx) => {
+    if (v.checks_passed && v.failed_checks.length > 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["failed_checks"],
+        message: "failed_checks must be empty when checks_passed is true",
+      });
+    }
+    if (v.checks_passed && v.preview_readiness_status !== "ready_to_contact") {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["preview_readiness_status"],
+        message:
+          "preview_readiness_status must be ready_to_contact when checks_passed is true",
+      });
+    }
+    if (!v.checks_passed && v.preview_readiness_status !== "not_ready") {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["preview_readiness_status"],
+        message:
+          "preview_readiness_status must be not_ready when checks_passed is false",
+      });
+    }
+  });
+export type LinkSitesV2PreviewReadinessSummary = z.infer<
+  typeof LinkSitesV2PreviewReadinessSummarySchema
+>;

@@ -251,6 +251,7 @@ Contract rules for the five handles above:
 
 - the kernel ↔ plugin manifest contract surface (§1).
 - the data dictionary's reusable types (§2): `lead_input`, `lead_record_ref`, `template_id`, `copy_bundle`, `media_plan`, `lease_ids`, `workflow_run_ids`, `audit_event_ids`, `run_id`.
+- WP-046 SDK pins additional LinkSites v2-focused enums/refs in `packages/linklogic-sdk`: canonical role ids (`lead_scout_bot`, `research_enrichment_bot`, `website_builder_bot`, `outreach_bot`), capability plugin ids (`cap.crm.odoo_shadow`, `cap.payload.local_sync`, `cap.supabase.mirror_content`, `cap.zulip.run_messaging`, `cap.research.public_web`, `cap.asset.generation`, `cap.plane.execution_tracking`), workflow handles (`autowork.linksites.artifact_write_local`, `autowork.linksites.supabase_mirror_upsert`, `autowork.linksites.payload_sync_local`, `autowork.linksites.preview_readiness_check`, `autowork.linksites.crm_ready_to_contact_mark`), discovered WP-042 source refs, and development/local-only preview-readiness summary constraints.
 - lead intake schema, validation, idempotency, and PII rules (§3).
 - `WorkRequest` / `Run` / `Stage` lifecycle and retry policy (§4).
 - `FailureReport` taxonomy and canonical error codes (§5).
