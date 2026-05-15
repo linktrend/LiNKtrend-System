@@ -19,8 +19,6 @@ const REQUIRED_V2_STAGE_IDS = [
   "record_run",
 ] as const;
 const STAGES_REQUIRING_AUDIT_REFS = [
-  "research_enrichment",
-  "website_package_generation",
   "artifact_write_local",
   "supabase_mirror_upsert",
   "payload_sync_local",
@@ -37,8 +35,6 @@ const STAGES_REQUIRING_WORKFLOW_REFS = [
   "crm_ready_to_contact_mark",
 ] as const;
 const STAGES_REQUIRING_LEASE_IDS = [
-  "research_enrichment",
-  "website_package_generation",
   "supabase_mirror_upsert",
   "payload_sync_local",
   "crm_ready_to_contact_mark",

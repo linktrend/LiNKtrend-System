@@ -42,6 +42,32 @@ import {
 } from "./manifest";
 
 /**
+ * Runtime compatibility shim:
+ * the v2 manifest uses `cap.*` ids, while local LinkSkills seed data
+ * still exposes legacy ids used by `request_lease` FK checks.
+ */
+function resolveRuntimeCapabilityId(capabilityId: string): string {
+  switch (capabilityId) {
+    case "cap.crm.odoo_shadow":
+      return "crm.upsert";
+    case "cap.plane.execution_tracking":
+      return "plane.project.create";
+    case "cap.zulip.run_messaging":
+      return "preview.publish";
+    case "cap.supabase.mirror_content":
+      return "preview.publish";
+    case "cap.payload.local_sync":
+      return "preview.publish";
+    case "cap.research.public_web":
+      return "crm.upsert";
+    case "cap.asset.generation":
+      return "preview.publish";
+    default:
+      return capabilityId;
+  }
+}
+
+/**
  * Stage execution context passed through all handlers.
  */
 export interface StageContext {
@@ -162,12 +188,13 @@ async function executeCapabilityStage(ctx: StageContext): Promise<DispatchResult
       },
     };
   }
+  const runtimeCapability = resolveRuntimeCapabilityId(capability);
 
   // Build lease request per CONTRACTS_MVO.md §6.2
   const leaseRequest: Omit<LeaseRequest, "tenant_id" | "run_id" | "stage_id"> = {
-    capability,
+    capability: runtimeCapability,
     arguments: buildCapabilityArguments(stage.stage_id, inputs, run),
-    idempotency_key: `${run.run_id}:${stage.stage_id}:${capability}`,
+    idempotency_key: `${run.run_id}:${stage.stage_id}:${runtimeCapability}`,
     actor: {
       actor_kind: "plugin",
       actor_id: "websitefactory",
@@ -191,7 +218,7 @@ async function executeCapabilityStage(ctx: StageContext): Promise<DispatchResult
   if (leaseResult.lease_id) {
     const execResult = await executeLinkSkillsLease(env, dispatchCtx, {
       lease_id: leaseResult.lease_id,
-      idempotency_key: `${run.run_id}:${stage.stage_id}:${capability}:exec`,
+      idempotency_key: `${run.run_id}:${stage.stage_id}:${runtimeCapability}:exec`,
     });
 
     if (!execResult.success) {
@@ -236,6 +263,59 @@ async function executeWorkflowStage(ctx: StageContext): Promise<DispatchResult> 
     idempotency_key: `${run.run_id}:${stage.stage_id}:${workflowHandle}`,
     // lease_id is added by caller if this workflow is capability-gated
   };
+
+  const stageCapability = mapStageToCapability(stage.stage_id);
+  if (stageCapability) {
+    const runtimeCapability = resolveRuntimeCapabilityId(stageCapability);
+    const leaseRequest: Omit<LeaseRequest, "tenant_id" | "run_id" | "stage_id"> = {
+      capability: runtimeCapability,
+      arguments: buildCapabilityArguments(stage.stage_id, inputs, run),
+      idempotency_key: `${run.run_id}:${stage.stage_id}:${runtimeCapability}`,
+      actor: {
+        actor_kind: "plugin",
+        actor_id: "websitefactory",
+      },
+    };
+
+    const leaseResult = await requestLinkSkillsLease(env, dispatchCtx, leaseRequest);
+    if (!leaseResult.success) {
+      return leaseResult;
+    }
+    if (!leaseResult.lease_id) {
+      return {
+        success: false,
+        failure: {
+          code: "LEASE_DENIED",
+          plane: "linkskills",
+          message: `Lease was granted without lease_id for stage: ${stage.stage_id}`,
+          retryable: false,
+          occurred_at: new Date().toISOString(),
+        },
+      };
+    }
+
+    const execResult = await executeLinkSkillsLease(env, dispatchCtx, {
+      lease_id: leaseResult.lease_id,
+      idempotency_key: `${run.run_id}:${stage.stage_id}:${runtimeCapability}:exec`,
+    });
+    if (!execResult.success) {
+      return execResult;
+    }
+
+    const workflowResult = await dispatchToLinkAutowork(env, dispatchCtx, {
+      ...workflowRequest,
+      lease_id: leaseResult.lease_id,
+    });
+
+    return {
+      ...workflowResult,
+      lease_id: workflowResult.lease_id || leaseResult.lease_id,
+      audit_event_ids: [
+        ...(execResult.audit_event_ids || []),
+        ...(workflowResult.audit_event_ids || []),
+      ],
+    };
+  }
 
   // Dispatch to LiNKautowork via kernel adapter
   return dispatchToLinkAutowork(env, dispatchCtx, workflowRequest);

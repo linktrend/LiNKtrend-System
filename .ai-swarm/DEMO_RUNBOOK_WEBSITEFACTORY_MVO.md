@@ -106,12 +106,15 @@ Also confirm terminal `run.status` is `succeeded` for full demo proof.
 - [ ] `LINKAIOS_ENABLE_MVO_SERVICE_BYPASS=true pnpm test:mvo:e2e`
 - [ ] `curl -H "Authorization: Bearer $BOT_KERNEL_API_SECRET" http://localhost:3000/api/kernel/run/<run_id>/trace`
 
-## 6) WP-052 LinkSites v2 harness proof/blocker snapshot (2026-05-15)
+## 6) WP-052 LinkSites v2 harness proof snapshot (2026-05-15)
 
 - Command:
   - `LINKAIOS_ENABLE_MVO_SERVICE_BYPASS=true pnpm test:mvo:e2e`
 - Observed output:
-  - `1. Submitting Work Request...`
-  - `[KERNEL_DISPATCH_FAILED] fetch failed`
-- Interpretation:
-  - Harness is wired and executing, but local kernel API was unreachable for the first work-request call at runtime.
+  - `✅ Created run: d0cc222f-2cf7-4c65-b924-b929f1f1d867`
+  - `⏳ Execute returned status: succeeded`
+  - `4. Assertions passed`
+  - `required_v2_stages_verified: 11`
+  - `crm_ready_to_contact_verified: true`
+- Notes:
+  - Harness now proves development-mode v2 flow end-to-end with trace refs and `ready_to_contact`.
