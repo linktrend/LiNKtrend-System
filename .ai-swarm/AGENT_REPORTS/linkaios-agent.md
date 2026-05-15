@@ -407,4 +407,4 @@ pnpm --filter @linktrend/linklogic-sdk test
 ### Branch / commit
 
 - Branch: `dev/codex/WP-046-linksites-v2-sdk-contracts`
-- Commit: `PENDING_COMMIT_SHA`
+- Commit: `faf9dd8`
