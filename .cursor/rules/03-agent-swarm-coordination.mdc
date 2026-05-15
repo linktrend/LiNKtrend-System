@@ -41,3 +41,21 @@ Stable branches are `main`, `staging`, and `development`. Work starts on short-l
 - work branch -> `development`
 - `development` -> `staging`
 - `staging` -> `main`
+
+## Wave-Based Execution Workflow
+
+After the user and Integrator define a work stage through brainstorming, Q&A, and approval, execution should follow this default loop:
+
+1. When the user says `execute`, the Integrator writes prompt files for all work packets needed to complete the approved stage, normally under `.ai-swarm/AGENT_PROMPTS/`.
+2. Each prompt file must include branch instructions, source-of-truth context, allowed/prohibited files, proof requirements, report updates, and commit/push instructions.
+3. The Integrator gives the user launch waves with model/tool guidance, for example: `WP-042 (Codex)`, `WP-043 (Codex)`, `WP-044 (Codex)`, `WP-045 (Codex)`, plus one-line copy/paste commands.
+4. The user launches the agents. When the user says `Done`, the Integrator fetches branches, reviews each agent's work, verifies proof, fixes or amends integration issues, updates future prompt files if needed, merges approved packet branches through `development`, and gives the next wave.
+5. Repeat wave by wave until the approved stage is complete.
+6. When the stage is complete, the Integrator proposes the next development stage, asks clarifying questions until requirements are clear, obtains user approval, then returns to this execution loop.
+
+Default model/tool guidance:
+
+- Cursor/Architect for source-of-truth contracts, integration review, conflict resolution, and cross-packet decisions.
+- Codex for implementation or documentation packets on isolated branches.
+- Antigravity for browser/UI/E2E validation.
+- Lower-cost long-context models such as Kimi or Gemini for discovery, summarization, and non-critical repo archaeology when appropriate.
