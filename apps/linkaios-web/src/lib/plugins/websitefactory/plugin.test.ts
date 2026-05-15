@@ -58,14 +58,20 @@ describe("WebsiteFactory Plugin Manifest", () => {
     expect(manifest.public_surfaces.read_views).toContain("run_detail");
 
     // Required capabilities
-    expect(manifest.required_capabilities).toContain("crm.upsert");
-    expect(manifest.required_capabilities).toContain("plane.project.create");
-    expect(manifest.required_capabilities).toContain("plane.task.create");
-    expect(manifest.required_capabilities).toContain("preview.publish");
+    expect(manifest.required_capabilities).toContain("cap.crm.odoo_shadow");
+    expect(manifest.required_capabilities).toContain("cap.payload.local_sync");
+    expect(manifest.required_capabilities).toContain("cap.supabase.mirror_content");
+    expect(manifest.required_capabilities).toContain("cap.zulip.run_messaging");
+    expect(manifest.required_capabilities).toContain("cap.research.public_web");
+    expect(manifest.required_capabilities).toContain("cap.asset.generation");
+    expect(manifest.required_capabilities).toContain("cap.plane.execution_tracking");
 
     // Required workflows
-    expect(manifest.required_workflow_hooks).toContain("autowork.websitefactory.render");
-    expect(manifest.required_workflow_hooks).toContain("autowork.websitefactory.preview_serve");
+    expect(manifest.required_workflow_hooks).toContain("autowork.linksites.artifact_write_local");
+    expect(manifest.required_workflow_hooks).toContain("autowork.linksites.supabase_mirror_upsert");
+    expect(manifest.required_workflow_hooks).toContain("autowork.linksites.payload_sync_local");
+    expect(manifest.required_workflow_hooks).toContain("autowork.linksites.preview_readiness_check");
+    expect(manifest.required_workflow_hooks).toContain("autowork.linksites.crm_ready_to_contact_mark");
 
     // Required audit events
     expect(manifest.required_audit_events).toContain("run.started");
@@ -75,43 +81,45 @@ describe("WebsiteFactory Plugin Manifest", () => {
 
     // Preview output shape
     expect(manifest.preview_output_shape).toBeDefined();
-    expect(manifest.preview_output_shape.preview_url).toBe("string");
+    expect(manifest.preview_output_shape.preview_url).toBe("string | null");
     expect(manifest.preview_output_shape.status).toContain("succeeded");
   });
 
-  it("declares the 10 WebsiteFactory stages per §10 stage trace", () => {
+  it("declares the 11 LinkSites v2 stages per §10 stage trace", () => {
     const manifest = getWebsiteFactoryManifest();
-    expect(manifest.stages).toHaveLength(10);
+    expect(manifest.stages).toHaveLength(11);
 
     const stageIds = manifest.stages.map((s) => s.stage_id);
     expect(stageIds).toContain("lead_intake");
-    expect(stageIds).toContain("lead_evaluation");
-    expect(stageIds).toContain("template_selection");
-    expect(stageIds).toContain("copy_generation");
-    expect(stageIds).toContain("media_placement");
-    expect(stageIds).toContain("look_and_feel");
-    expect(stageIds).toContain("crm_upsert");
-    expect(stageIds).toContain("plane_project_create");
-    expect(stageIds).toContain("preview_publish");
-    expect(stageIds).toContain("record_run");
+    expect(stageIds).toContain("research_enrichment");
+    expect(stageIds).toContain("website_package_generation");
+    expect(stageIds).toContain("artifact_write_local");
+    expect(stageIds).toContain("supabase_mirror_upsert");
+    expect(stageIds).toContain("payload_sync_local");
+    expect(stageIds).toContain("preview_readiness_check");
+    expect(stageIds).toContain("crm_ready_to_contact_mark");
+    expect(stageIds).toContain("plane_execution_tracking");
+    expect(stageIds).toContain("zulip_run_notify");
+        expect(stageIds).toContain("record_run");
   });
 
   it("maps stages to correct responsible planes per §7", () => {
     const manifest = getWebsiteFactoryManifest();
 
     // Reasoning stages → LinkBot
-    expect(getStageDefinition("lead_evaluation")?.responsible_plane).toBe("linkbot");
-    expect(getStageDefinition("template_selection")?.responsible_plane).toBe("linkbot");
-    expect(getStageDefinition("copy_generation")?.responsible_plane).toBe("linkbot");
-    expect(getStageDefinition("media_placement")?.responsible_plane).toBe("linkbot");
+    expect(getStageDefinition("research_enrichment")?.responsible_plane).toBe("linkbot");
+    expect(getStageDefinition("website_package_generation")?.responsible_plane).toBe("linkbot");
 
     // Deterministic workflow → LiNKautowork
-    expect(getStageDefinition("look_and_feel")?.responsible_plane).toBe("linkautowork");
+    expect(getStageDefinition("artifact_write_local")?.responsible_plane).toBe("linkautowork");
+    expect(getStageDefinition("supabase_mirror_upsert")?.responsible_plane).toBe("linkautowork");
+    expect(getStageDefinition("payload_sync_local")?.responsible_plane).toBe("linkautowork");
+    expect(getStageDefinition("preview_readiness_check")?.responsible_plane).toBe("linkautowork");
+    expect(getStageDefinition("crm_ready_to_contact_mark")?.responsible_plane).toBe("linkautowork");
 
     // Capability-gated side effects → LinkSkills
-    expect(getStageDefinition("crm_upsert")?.responsible_plane).toBe("linkskills");
-    expect(getStageDefinition("plane_project_create")?.responsible_plane).toBe("linkskills");
-    expect(getStageDefinition("preview_publish")?.responsible_plane).toBe("linkskills");
+    expect(getStageDefinition("plane_execution_tracking")?.responsible_plane).toBe("linkskills");
+    expect(getStageDefinition("zulip_run_notify")?.responsible_plane).toBe("linkskills");
 
     // Audit closure → LiNKbrain
     expect(getStageDefinition("record_run")?.responsible_plane).toBe("linkbrain");
@@ -121,9 +129,8 @@ describe("WebsiteFactory Plugin Manifest", () => {
     const manifest = getWebsiteFactoryManifest();
 
     const capabilityStages = [
-      "crm_upsert",
-      "plane_project_create",
-      "preview_publish",
+      "plane_execution_tracking",
+      "zulip_run_notify",
     ];
 
     for (const stageId of capabilityStages) {
@@ -135,71 +142,67 @@ describe("WebsiteFactory Plugin Manifest", () => {
   it("includes expected non-goals", () => {
     const manifest = getWebsiteFactoryManifest();
 
-    expect(manifest.non_goals).toContain("Full Payload CMS publish path");
-    expect(manifest.non_goals).toContain("Vercel deploy previews");
-    expect(manifest.non_goals).toContain("Real Chatwoot/Odoo CRM writes");
+    expect(manifest.non_goals).toContain("Real production Payload CMS writes");
+    expect(manifest.non_goals).toContain("Production hosting/deployment");
+    expect(manifest.non_goals).toContain("Real Odoo CRM writes in live mode");
     expect(manifest.non_goals).toContain("LEXOS/legal vertical work");
   });
 });
 
 describe("Stage Type Helpers", () => {
   it("correctly identifies reasoning stages", () => {
-    expect(isReasoningStage("lead_evaluation")).toBe(true);
-    expect(isReasoningStage("template_selection")).toBe(true);
-    expect(isReasoningStage("copy_generation")).toBe(true);
-    expect(isReasoningStage("media_placement")).toBe(true);
-    expect(isReasoningStage("look_and_feel")).toBe(false);
-    expect(isReasoningStage("crm_upsert")).toBe(false);
+    expect(isReasoningStage("research_enrichment")).toBe(true);
+    expect(isReasoningStage("website_package_generation")).toBe(true);
+    expect(isReasoningStage("artifact_write_local")).toBe(false);
+    expect(isReasoningStage("plane_execution_tracking")).toBe(false);
   });
 
   it("correctly identifies capability stages", () => {
-    expect(isCapabilityStage("crm_upsert")).toBe(true);
-    expect(isCapabilityStage("plane_project_create")).toBe(true);
-    expect(isCapabilityStage("preview_publish")).toBe(true);
-    expect(isCapabilityStage("lead_evaluation")).toBe(false);
-    expect(isCapabilityStage("look_and_feel")).toBe(false);
+    expect(isCapabilityStage("research_enrichment")).toBe(true);
+    expect(isCapabilityStage("supabase_mirror_upsert")).toBe(true);
+    expect(isCapabilityStage("payload_sync_local")).toBe(true);
+    expect(isCapabilityStage("zulip_run_notify")).toBe(true);
+    expect(isCapabilityStage("lead_intake")).toBe(false);
   });
 
   it("correctly identifies workflow stages", () => {
-    expect(isWorkflowStage("look_and_feel")).toBe(true);
-    expect(isWorkflowStage("preview_publish")).toBe(true);
-    expect(isWorkflowStage("lead_evaluation")).toBe(false);
-    expect(isWorkflowStage("crm_upsert")).toBe(false);
+    expect(isWorkflowStage("artifact_write_local")).toBe(true);
+    expect(isWorkflowStage("crm_ready_to_contact_mark")).toBe(true);
+    expect(isWorkflowStage("research_enrichment")).toBe(false);
+    expect(isWorkflowStage("zulip_run_notify")).toBe(false);
   });
 
   it("correctly maps stages to capabilities", () => {
-    expect(mapStageToCapability("crm_upsert")).toBe("crm.upsert");
-    expect(mapStageToCapability("plane_project_create")).toBe("plane.project.create");
-    expect(mapStageToCapability("preview_publish")).toBe("preview.publish");
-    expect(mapStageToCapability("lead_evaluation")).toBeNull();
+    expect(mapStageToCapability("research_enrichment")).toBe("cap.research.public_web");
+    expect(mapStageToCapability("payload_sync_local")).toBe("cap.payload.local_sync");
+    expect(mapStageToCapability("crm_ready_to_contact_mark")).toBe("cap.crm.odoo_shadow");
+    expect(mapStageToCapability("artifact_write_local")).toBeNull();
   });
 
   it("correctly maps stages to workflow handles", () => {
-    expect(mapStageToWorkflowHandle("look_and_feel")).toBe("autowork.websitefactory.render");
-    expect(mapStageToWorkflowHandle("preview_publish")).toBe("autowork.websitefactory.preview_serve");
-    expect(mapStageToWorkflowHandle("lead_evaluation")).toBeNull();
+    expect(mapStageToWorkflowHandle("artifact_write_local")).toBe("autowork.linksites.artifact_write_local");
+    expect(mapStageToWorkflowHandle("preview_readiness_check")).toBe("autowork.linksites.preview_readiness_check");
+    expect(mapStageToWorkflowHandle("research_enrichment")).toBeNull();
   });
 
   it("correctly maps stages to reasoning kinds", () => {
-    expect(mapStageToReasoningKind("lead_evaluation")).toBe("lead_evaluation");
-    expect(mapStageToReasoningKind("template_selection")).toBe("template_selection");
-    expect(mapStageToReasoningKind("copy_generation")).toBe("copy_generation");
-    expect(mapStageToReasoningKind("media_placement")).toBe("media_placement");
-    expect(mapStageToReasoningKind("look_and_feel")).toBeNull();
+    expect(mapStageToReasoningKind("research_enrichment")).toBe("research_enrichment");
+    expect(mapStageToReasoningKind("website_package_generation")).toBe("website_package_generation");
+    expect(mapStageToReasoningKind("artifact_write_local")).toBeNull();
   });
 });
 
 describe("Stage Execution Config", () => {
   it("identifies require_approval stages correctly", () => {
-    const crmStage = getStageDefinition("crm_upsert")!;
+    const crmStage = getStageDefinition("plane_execution_tracking")!;
     expect(stageRequiresApproval(crmStage)).toBe(true);
 
-    const evalStage = getStageDefinition("lead_evaluation")!;
+    const evalStage = getStageDefinition("research_enrichment")!;
     expect(stageRequiresApproval(evalStage)).toBe(false);
   });
 
   it("returns correct retry config per failure_mode", () => {
-    const retryableStage = getStageDefinition("lead_evaluation")!;
+    const retryableStage = getStageDefinition("research_enrichment")!;
     expect(getStageRetryConfig(retryableStage)).toEqual({
       maxRetries: 3,
       retryable: true,
@@ -211,7 +214,7 @@ describe("Stage Execution Config", () => {
       retryable: false,
     });
 
-    const approvalStage = getStageDefinition("crm_upsert")!;
+    const approvalStage = getStageDefinition("zulip_run_notify")!;
     expect(getStageRetryConfig(approvalStage)).toEqual({
       maxRetries: 0,
       retryable: false,
@@ -240,9 +243,9 @@ describe("Preview Panel", () => {
 
     const stages: Stage[] = [
       {
-        stage_id: "preview_publish",
+        stage_id: "preview_readiness_check",
         run_id: "run-123",
-        responsible_plane: "linkskills",
+        responsible_plane: "linkautowork",
         status: "succeeded",
         attempt: 1,
         inputs_snapshot: {},
@@ -410,14 +413,15 @@ describe("Contract Compliance", () => {
     // Verify exact stage list from §10 stage trace
     const expectedStages = [
       "lead_intake",
-      "lead_evaluation",
-      "template_selection",
-      "copy_generation",
-      "media_placement",
-      "look_and_feel",
-      "crm_upsert",
-      "plane_project_create",
-      "preview_publish",
+      "research_enrichment",
+      "website_package_generation",
+      "artifact_write_local",
+      "supabase_mirror_upsert",
+      "payload_sync_local",
+      "preview_readiness_check",
+      "crm_ready_to_contact_mark",
+      "plane_execution_tracking",
+      "zulip_run_notify",
       "record_run",
     ];
 
@@ -433,16 +437,17 @@ describe("Contract Compliance", () => {
     const allOutputs = manifest.stages.flatMap((s) => s.outputs);
 
     expect(allOutputs).toContain("lead_record_ref");
-    expect(allOutputs).toContain("lead_evaluation");
-    expect(allOutputs).toContain("template_id");
-    expect(allOutputs).toContain("copy_bundle");
-    expect(allOutputs).toContain("media_plan");
-    expect(allOutputs).toContain("render_spec");
+    expect(allOutputs).toContain("lead_research_bundle");
+    expect(allOutputs).toContain("website_package");
+    expect(allOutputs).toContain("artifact_ref");
+    expect(allOutputs).toContain("mirror_write_ref");
+    expect(allOutputs).toContain("payload_sync_ref");
+    expect(allOutputs).toContain("checks_passed");
     expect(allOutputs).toContain("crm_record_id");
     expect(allOutputs).toContain("project_id");
     expect(allOutputs).toContain("task_id");
-    expect(allOutputs).toContain("preview_url");
-    expect(allOutputs).toContain("preview_artifact_ref");
+    expect(allOutputs).toContain("preview_readiness_status");
+    expect(allOutputs).toContain("message_id");
   });
 
   it("preview output shape matches CONTRACTS_MVO.md §9", () => {
@@ -451,8 +456,8 @@ describe("Contract Compliance", () => {
 
     expect(shape.run_id).toBe("string");
     expect(shape.tenant_id).toBe("string");
-    expect(shape.preview_url).toBe("string");
-    expect(shape.preview_artifact_ref).toBe("string");
+    expect(shape.preview_url).toBe("string | null");
+    expect(shape.preview_artifact_ref).toBe("string | null");
     expect(shape.crm_record_id).toContain("null");
     expect(shape.project_id).toContain("null");
     expect(shape.task_id).toContain("null");
@@ -470,8 +475,8 @@ describe("Contract Compliance", () => {
     expect(manifest.config_surfaces).toContain("preview_route_prefix");
 
     // Non-goals confirm no Vercel/Payload
-    expect(manifest.non_goals).toContain("Vercel deploy previews");
-    expect(manifest.non_goals).toContain("Full Payload CMS publish path");
+    expect(manifest.non_goals).toContain("Production hosting/deployment");
+    expect(manifest.non_goals).toContain("Real production Payload CMS writes");
   });
 });
 

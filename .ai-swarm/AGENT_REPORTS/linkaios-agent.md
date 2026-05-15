@@ -1,5 +1,70 @@
 # Agent Report: LiNKaios Agent
 
+## WP-049 — LinkSites kernel v2 stage wiring (2026-05-15)
+
+**Status:** COMPLETE (kernel/plugin stage wiring + tests).
+
+### Scope
+
+Wire the LinkSites v2 stage plan into LiNKaios WebsiteFactory plugin manifest/helpers, keep kernel as coordinator, and prove canonical v2 capability/workflow mappings with focused tests.
+
+### Files changed
+
+- `apps/linkaios-web/src/lib/plugins/websitefactory/manifest.ts`
+  - Replaced v1 stage plan with LinkSites v2 stage plan (`research_enrichment`, `website_package_generation`, `artifact_write_local`, `supabase_mirror_upsert`, `payload_sync_local`, `preview_readiness_check`, `crm_ready_to_contact_mark`, `plane_execution_tracking`, `zulip_run_notify`, `record_run`).
+  - Updated required v2 capability plugin IDs and LiNKautowork workflow handles.
+  - Updated stage-type helpers and stage→capability/workflow/reasoning mappings to canonical v2 IDs.
+- `apps/linkaios-web/src/lib/plugins/websitefactory/stage-handlers.ts`
+  - Updated stage comments and capability/workflow argument builders to match v2 stage IDs.
+- `apps/linkaios-web/src/lib/kernel/dispatch.ts`
+  - Added reasoning-output support for v2 reasoning kinds (`research_enrichment`, `website_package_generation`) in mock dispatch.
+- `apps/linkaios-web/src/lib/kernel/manifest-loader.ts`
+  - Switched loader to source manifest from plugin module (`getWebsiteFactoryManifest`) so kernel and plugin stay aligned.
+- `apps/linkaios-web/src/lib/plugins/websitefactory/plugin.test.ts`
+  - Updated manifest/mapping assertions to LinkSites v2 stage IDs, capability IDs, workflow handles, and output expectations.
+- `apps/linkaios-web/src/lib/kernel/kernel.test.ts`
+  - Updated kernel manifest/mapping assertions to LinkSites v2 stage plan and helper mappings.
+- `.ai-swarm/AGENT_REPORTS/linkaios-agent.md`
+  - Added this WP-049 report.
+
+### Commands run
+
+```bash
+git fetch origin
+git switch development
+git pull --ff-only origin development
+git switch -c dev/codex/WP-049-linksites-kernel-v2-stage-wiring
+
+pnpm --filter @linktrend/linkaios-web test -- --run \
+  apps/linkaios-web/src/lib/plugins/websitefactory/plugin.test.ts \
+  apps/linkaios-web/src/lib/kernel/kernel.test.ts
+```
+
+### Validation / proof
+
+- Test result: `5 passed` test files, `85 passed` tests.
+- Targeted proof includes:
+  - v2 stage ordering and plane assignments.
+  - v2 stage→capability mappings (`cap.crm.odoo_shadow`, `cap.payload.local_sync`, `cap.supabase.mirror_content`, `cap.zulip.run_messaging`, `cap.research.public_web`, `cap.asset.generation`, `cap.plane.execution_tracking`).
+  - v2 stage→workflow mappings (`autowork.linksites.artifact_write_local`, `autowork.linksites.supabase_mirror_upsert`, `autowork.linksites.payload_sync_local`, `autowork.linksites.preview_readiness_check`, `autowork.linksites.crm_ready_to_contact_mark`).
+  - role-boundary checks remain intact (kernel coordinator, plugin declarative glue only).
+
+### Hard-boundary compliance
+
+- No edits in `/Users/linktrend/Projects/LiNKsites`.
+- No live external writes added.
+- No target software schema invention.
+- No LinkSkills/LiNKautowork responsibility redefinition in kernel.
+
+### Blockers / risks
+
+- `apps/linkaios-web/src/lib/kernel/manifest-loader.ts` still contains an older in-file manifest constant; runtime now uses plugin manifest directly, so behavior is correct. Residual cleanup risk is low but this duplicate constant should be removed in a follow-up hygiene pass.
+
+### Final branch + commit SHA
+
+- Branch: `dev/codex/WP-049-linksites-kernel-v2-stage-wiring`
+- Commit SHA: `2b82d37` (Integrator recovery branch)
+
 ## WP-041 — LinkSites vertical contract v2 (2026-05-15)
 
 **Status:** COMPLETE (docs-only, no implementation code).
