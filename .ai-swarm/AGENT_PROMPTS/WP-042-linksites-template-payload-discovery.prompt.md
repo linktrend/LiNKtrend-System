@@ -6,7 +6,7 @@ Execute work packet `.ai-swarm/WORK_PACKETS/WP-042-linksites-template-payload-di
 
 ## Current baseline
 
-WP-040 and WP-041 are integrated into `origin/development`. Branch from the latest `origin/development`, not from either packet branch. Your discovery must treat plugin architecture v2 and LinkSites vertical MVO v2 as the current source of truth.
+WP-040, WP-041, WP-044, and WP-045 are integrated into `origin/development`. Branch from the latest `origin/development`, not from any packet branch. Your discovery must treat plugin architecture v2, LinkSites vertical MVO v2, LinkBot role contracts, and LiNKautowork workflow contracts as the current source of truth.
 
 ## Branch workflow
 

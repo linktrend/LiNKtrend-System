@@ -6,7 +6,7 @@ Execute work packet `.ai-swarm/WORK_PACKETS/WP-043-capability-plugin-contract-pa
 
 ## Current baseline
 
-WP-040 and WP-041 are integrated into `origin/development`. Branch from the latest `origin/development`, not from either packet branch. Use the plugin architecture v2 SDK/docs from WP-040 and the LinkSites vertical MVO v2 contract from WP-041 as the current source of truth.
+WP-040, WP-041, WP-044, and WP-045 are integrated into `origin/development`. Branch from the latest `origin/development`, not from any packet branch. Use plugin architecture v2, LinkSites vertical MVO v2, LinkBot role contracts, and LiNKautowork workflow contracts as the current source of truth.
 
 ## Branch workflow
 
