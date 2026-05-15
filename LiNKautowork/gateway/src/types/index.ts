@@ -22,6 +22,7 @@ export interface WebsiteFactoryRenderInputs {
  * Outputs for autowork.websitefactory.render workflow.
  */
 export interface WebsiteFactoryRenderOutputs {
+  [key: string]: unknown;
   preview_artifact_ref: string;
   render_stats: {
     template_id: string;
@@ -44,6 +45,7 @@ export interface WebsiteFactoryPreviewServeInputs {
  * Outputs for autowork.websitefactory.preview_serve workflow.
  */
 export interface WebsiteFactoryPreviewServeOutputs {
+  [key: string]: unknown;
   preview_url: string;
   preview_artifact_ref: string;
   serve_route: string;
@@ -80,7 +82,10 @@ export interface WorkflowContext {
 /**
  * Workflow handler signature.
  */
-export type WorkflowHandler<TInputs = unknown, TOutputs = unknown> = (
+export type WorkflowHandler<
+  TInputs = unknown,
+  TOutputs extends Record<string, unknown> = Record<string, unknown>,
+> = (
   request: WorkflowInvokeRequest,
   context: WorkflowContext,
 ) => Promise<{
