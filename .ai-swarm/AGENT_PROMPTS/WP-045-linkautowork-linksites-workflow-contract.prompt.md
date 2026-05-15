@@ -4,6 +4,10 @@ You are working in `/Users/linktrend/Projects/LiNKtrend-System`.
 
 Execute work packet `.ai-swarm/WORK_PACKETS/WP-045-linkautowork-linksites-workflow-contract.md`.
 
+## Current baseline
+
+WP-040 and WP-041 are integrated into `origin/development`. Branch from the latest `origin/development`, not from either packet branch. Use the plugin architecture v2 SDK/docs from WP-040 and the LinkSites vertical MVO v2 contract from WP-041 as the current source of truth.
+
 ## Branch workflow
 
 1. Start from latest `development`:

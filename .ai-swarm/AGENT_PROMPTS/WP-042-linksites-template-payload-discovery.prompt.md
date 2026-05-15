@@ -4,6 +4,10 @@ You are working in `/Users/linktrend/Projects/LiNKtrend-System` and must also in
 
 Execute work packet `.ai-swarm/WORK_PACKETS/WP-042-linksites-template-payload-discovery.md`.
 
+## Current baseline
+
+WP-040 and WP-041 are integrated into `origin/development`. Branch from the latest `origin/development`, not from either packet branch. Your discovery must treat plugin architecture v2 and LinkSites vertical MVO v2 as the current source of truth.
+
 ## Branch workflow
 
 1. In `/Users/linktrend/Projects/LiNKtrend-System`, start from latest `development`:
