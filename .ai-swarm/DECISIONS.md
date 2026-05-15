@@ -20,3 +20,9 @@ Record **Accepted**, **Stubbed**, or **Deferred** decisions with enough context 
 1. Add or edit a row; set **Date** when the status moves out of **Pending**.
 2. Link proof (PR, commit, or agent report section) in **Reason** or a footnote row if the table gets wide.
 3. Mirror high-signal outcomes in `AGENT_COORDINATION.md` → **Decisions Made**.
+
+## Repo Git Policy Rollout
+
+Decision: GitHub is the source of truth across all top-level GitHub repos under `/Users/linktrend/Projects`.
+
+Stable branches are `main`, `staging`, and `development`. Work must begin on short-lived branches and promote through `development -> staging -> main`. Fork mirrors may sync from upstream into the `linktrend/*` fork `development` branch only; they must never open PRs or push changes to the original upstream repository.
