@@ -4,6 +4,34 @@ Track **external or cross-repo integrations** that are required, optional, stubb
 
 Use this file so agents do not hide integration debt inside code comments only.
 
+> **Current canonical target:** LinkSites vertical plugin development-mode MVO v2 (see `LINKSITES_VERTICAL_MVO_V2.md`, `CONTRACTS_MVO.md` §0.A). The v1 `websitefactory.lead_to_preview` static/local rows (INT-020/INT-021/INT-022) are retained as **historical reference for the lead-to-preview proof**; they are NOT the active v2 stub set. The v2 stub posture is per-capability mode (`mock | shadow | live`) recorded in the "LinkSites v2 capability integrations" section below.
+
+## LinkSites v2 capability integrations (canonical, development-mode)
+
+All entries default to **development mode** (local/mock side effects with full LinkSkills lease + LiNKbrain audit + LiNKaios trace visibility per `CONTRACTS_MVO.md` §0.A.7 and §0.A.9). No row in this section permits real client outreach, real VPS deployment, real lead acquisition, or invention of Payload/Supabase schemas. Concrete IDs are reserved (`INT-040`..`INT-049`); detailed contract packs are owned by WP-043.
+
+| ID | Capability / Integration | LinkSites v2 use | Mode default | Side effects in dev | Discovery / contract owner | Notes |
+|----|--------------------------|------------------|--------------|--------------------|----------------------------|-------|
+| INT-040 | Odoo / CRM (shadow-readiness) | mock CRM lead read; lead status updates including `ready_to_contact`; readiness probes for Odoo without writes | `mock` for writes; `shadow` for readiness | local/mock writes only; no Odoo POST/PATCH/PUT/DELETE | WP-043 + integration-agent | Builds on existing Chatwoot shadow-readiness work (see WP-037). No business setup inside Odoo. |
+| INT-041 | Payload CMS (local) | sync structured website content from Supabase mirror into local Payload; serve preview-ready frontend | `mock` (local Payload only) | local Payload writes only via LinkSkills lease | WP-042 discovery → WP-043 | **MUST NOT invent Payload schemas.** Discover existing schema first. |
+| INT-042 | Supabase mirror / content | persist structured website content + asset references; mirror update layer between artifact folder and Payload | `mock` (local/dev Supabase project) | mirror writes via LinkSkills lease | WP-042 discovery → WP-043 | **MUST NOT invent mirror schema.** Discover existing schema first. |
+| INT-043 | Zulip | run notifications + LinkBot/operator work-channel messages | `mock` for outbound; `shadow` for connectivity | no real outbound messages by default; mock-only in dev | WP-043 | Lease-gated; no public message send in v2. |
+| INT-044 | Public web research | governed read-only public research with citations/provenance for Research/Enrichment Bot | `mock` allowed; `shadow` for live providers | read-only fetches only; provenance recorded | WP-043 + linkbot-agent | No write-to-target side effects. PII rules per `CONTRACTS_MVO.md` §3.4 still apply to LinkBot inputs. |
+| INT-045 | Asset generation | governed generated images/video for media plan, with provenance and audit | `mock` (local placeholders) by default; provider-backed paths gated | media files written to local artifact folder only | WP-043 + linkbot-agent | Each generation lease-gated; provenance and audit required. |
+| INT-046 | Plane (project/task) | internal execution tracking + future client/project scaffold | `mock | shadow` by default | local writes only in dev; readiness against real Plane permitted in shadow | WP-043 + integration-agent | Builds on WP-038 Plane read-only readiness adapter. No remote writes in v2. |
+| INT-047 | Local generated-artifact folder | durable local store for generated website artifacts (copy, media plan, generated media with provenance, style proposals) | `mock` (local only) | local filesystem writes only | WP-042 discovery → WP-045 | In production, replaced by cloud cold storage (e.g. Google Drive). Not a live host. |
+| INT-048 | Deterministic checks (LiNKautowork) | validate required pages, navigation, content blocks, media references, provenance, Payload sync status, preview readiness | n/a (deterministic) | none beyond reads | WP-045 + linkautowork-agent | Gates promotion of mock CRM lead to `ready_to_contact`. |
+| INT-049 | Frontend preview reader | existing/local frontend that reads from local Payload and renders the preview-ready site | n/a (read-only) | none | WP-042 discovery | Discover which frontend already serves preview reads before adding any new component. |
+
+### Out of scope for LinkSites v2 (do not add as active rows)
+
+- Real lead acquisition pipelines (any provider).
+- Real client outreach (email, message, call). Outreach Bot role is declared but disabled.
+- Real VPS deployment, customer domains, DNS, TLS, production hosting. Hosted preview/publish work remains tracked under post-MVO row INT-033.
+- Cloud cold storage backend for production artifacts. Forward-looking only; no v2 implementation row.
+
+
+
 ## Queue template
 
 | ID | Integration | Needed for | Owner agent | Status | Notes / link |
@@ -22,7 +50,10 @@ Use this file so agents do not hide integration debt inside code comments only.
 | INT-015 | LiNKautowork n8n gateway | Deterministic step orchestration in MVO flow | linkautowork-agent | Planned | Reuse `LiNKautowork/gateway/`. |
 | INT-016 | LinkBot (OpenClaw via LiNKbot-core) | Lead evaluation, template selection, copy gen | linkbot-agent | Planned | See `DECISIONS.md` D-04. Driven by `apps/bot-runtime` adapter. |
 
-## Stubbed integrations
+## Stubbed integrations (historical v1 — lead-to-preview proof)
+
+> The three rows below were authored for the v1 `websitefactory.lead_to_preview` static/local proof. They are retained as historical reference; the v2 stub posture is recorded in the "LinkSites v2 capability integrations" section above.
+
 
 | ID | Integration | Stub behavior | MVO acceptance criteria | Decision link |
 |----|-------------|---------------|--------------------------|---------------|
