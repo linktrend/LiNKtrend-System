@@ -120,6 +120,13 @@ export function getMvoCapabilityIds(): string[] {
     "plane.project.create",
     "plane.task.create",
     "preview.publish",
+    "cap.crm.odoo_shadow",
+    "cap.payload.local_sync",
+    "cap.supabase.mirror_content",
+    "cap.zulip.run_messaging",
+    "cap.research.public_web",
+    "cap.asset.generation",
+    "cap.plane.execution_tracking",
   ];
 }
 
@@ -128,4 +135,38 @@ export function getMvoCapabilityIds(): string[] {
  */
 export function isMvoCapability(capability_id: string): boolean {
   return getMvoCapabilityIds().includes(capability_id);
+}
+
+/**
+ * LinkSites v2 capability IDs (§0.A.5.1).
+ */
+export function getLinksitesV2CapabilityIds(): string[] {
+  return [
+    "cap.crm.odoo_shadow",
+    "cap.payload.local_sync",
+    "cap.supabase.mirror_content",
+    "cap.zulip.run_messaging",
+    "cap.research.public_web",
+    "cap.asset.generation",
+    "cap.plane.execution_tracking",
+  ];
+}
+
+export function isLinksitesV2Capability(capability_id: string): boolean {
+  return getLinksitesV2CapabilityIds().includes(capability_id);
+}
+
+/**
+ * Side-effecting LinkSites v2 capabilities.
+ * `cap.research.public_web` is intentionally excluded (read-only).
+ */
+export function isWriteCapableLinksitesV2Capability(capability_id: string): boolean {
+  return [
+    "cap.crm.odoo_shadow",
+    "cap.payload.local_sync",
+    "cap.supabase.mirror_content",
+    "cap.zulip.run_messaging",
+    "cap.asset.generation",
+    "cap.plane.execution_tracking",
+  ].includes(capability_id);
 }
