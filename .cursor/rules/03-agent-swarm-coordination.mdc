@@ -28,3 +28,16 @@ Use separate branches or worktrees for parallel work.
 If two agents need to edit the same file, stop and escalate to the Integrator.
 
 All significant decisions go into `.ai-swarm/DECISIONS.md`.
+
+GitHub is the source of truth. At the end of every Cursor, Codex, Antigravity, or other agent work packet:
+
+- commit the completed work on the packet branch
+- push the packet branch to GitHub
+- integrate through `development` before promoting to `staging` or `main`
+- record the branch, commit SHA, commands run, and proof in the relevant agent report
+
+Stable branches are `main`, `staging`, and `development`. Work starts on short-lived branches or worktrees. Promotion flow is:
+
+- work branch -> `development`
+- `development` -> `staging`
+- `staging` -> `main`
