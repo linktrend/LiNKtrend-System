@@ -311,35 +311,32 @@ function generateMockReasoningOutputs(
 ): Record<string, unknown> {
   switch (reasoningKind) {
     case "lead_evaluation":
+    case "research_enrichment":
       return {
-        lead_evaluation: {
+        lead_research_bundle: {
           score: 75,
           segment: "smb_services",
-          rationale: "Professional services business with clear value proposition",
+          rationale: "Public research completed with provenance-ready references",
           model_run_id: `eval-${Date.now()}`,
         },
       };
-    case "template_selection":
+    case "website_package_generation":
       return {
-        template_id: "agency_v2",
-      };
-    case "copy_generation":
-      return {
-        copy_bundle: {
-          blocks: [
-            { block_id: "hero", text: { headline: "Your Success Starts Here", subhead: "Professional services tailored for you" } },
-            { block_id: "about", text: { title: "About Us", body: "We deliver excellence in every project." } },
-          ],
-          locale: "en-US",
-        },
-      };
-    case "media_placement":
-      return {
-        media_plan: {
-          placements: [
-            { block_id: "hero", asset_ref: "placeholder://hero-bg", kind: "placeholder" },
-            { block_id: "about", asset_ref: "stock://team-photo", kind: "stock" },
-          ],
+        website_package: {
+          template_id: "marketing-smb-v1",
+          copy_bundle: {
+            blocks: [
+              { block_id: "hero", text: { headline: "Your Success Starts Here", subhead: "Professional services tailored for you" } },
+              { block_id: "about", text: { title: "About Us", body: "We deliver excellence in every project." } },
+            ],
+            locale: "en-US",
+          },
+          media_plan: {
+            placements: [
+              { block_id: "hero", asset_ref: "placeholder://hero-bg", kind: "placeholder" },
+              { block_id: "about", asset_ref: "stock://team-photo", kind: "stock" },
+            ],
+          },
         },
       };
     default:
@@ -708,13 +705,39 @@ export async function dispatchToLinkAutowork(
 
   // MVO: LiNKautowork dispatch is a stub
   // Real implementation calls n8n gateway via HTTP
-
+  const leaseRequiredHandles = new Set([
+    "autowork.linksites.supabase_mirror_upsert",
+    "autowork.linksites.payload_sync_local",
+    "autowork.linksites.crm_ready_to_contact_mark",
+  ]);
   const workflowRunId = `wf-${Date.now()}`;
 
-  await writeStageAuditEvent(env, ctx, "workflow.invoked", {
+  const invokedAudit = await writeStageAuditEvent(env, ctx, "workflow.invoked", {
     workflow_handle: request.workflow_handle,
     workflow_run_id: workflowRunId,
   }, "linkautowork");
+
+  if (leaseRequiredHandles.has(request.workflow_handle) && !request.lease_id) {
+    const failedAudit = await writeStageAuditEvent(env, ctx, "workflow.failed", {
+      workflow_handle: request.workflow_handle,
+      workflow_run_id: workflowRunId,
+      failure_code: "LEASE_DENIED",
+      failure_message: `${request.workflow_handle} requires lease_id`,
+    }, "linkautowork");
+
+    return {
+      success: false,
+      failure: {
+        code: "LEASE_DENIED",
+        plane: "linkautowork",
+        message: `${request.workflow_handle} requires lease_id`,
+        retryable: false,
+        occurred_at: new Date().toISOString(),
+      },
+      workflow_run_id: workflowRunId,
+      audit_event_ids: [invokedAudit.event_id, failedAudit.event_id],
+    };
+  }
 
   // Mock success
   const mockOutputs: Record<string, unknown> =
@@ -725,9 +748,44 @@ export async function dispatchToLinkAutowork(
             preview_url: buildAbsolutePreviewUrl(env, ctx.tenant_id, ctx.run_id),
             preview_artifact_ref: `storage://previews/${ctx.run_id}.zip`,
           }
+        : request.workflow_handle === "autowork.linksites.artifact_write_local"
+          ? {
+              artifact_ref: `artifact_local:${ctx.tenant_id}:${ctx.run_id}`,
+              artifact_manifest_ref: `artifact_local:${ctx.tenant_id}:${ctx.run_id}:manifest`,
+              artifact_root_path:
+                (request.inputs.artifact_root_path as string | undefined) || "/tmp/linksites-artifacts",
+              written_files_count: 3,
+              artifact_digest: `digest:${ctx.run_id}`,
+            }
+          : request.workflow_handle === "autowork.linksites.supabase_mirror_upsert"
+            ? {
+                mirror_write_ref: `supabase_mirror:${ctx.tenant_id}:${ctx.run_id}`,
+                mirror_revision_ref: `supabase_mirror:${ctx.tenant_id}:${ctx.run_id}:${request.idempotency_key}`,
+                upserted_records_count: 4,
+                mirror_digest: `digest:${ctx.run_id}`,
+              }
+            : request.workflow_handle === "autowork.linksites.payload_sync_local"
+              ? {
+                  payload_sync_ref: `payload_sync:${ctx.tenant_id}:${ctx.run_id}`,
+                  payload_document_refs: ["payload:home", "payload:about", "payload:contact"],
+                  payload_sync_status: "succeeded",
+                }
+              : request.workflow_handle === "autowork.linksites.preview_readiness_check"
+                ? {
+                    checks_passed: true,
+                    check_report_ref: `readiness_report:${ctx.tenant_id}:${ctx.run_id}`,
+                    failed_checks: [],
+                    preview_readiness_status: "ready",
+                  }
+                : request.workflow_handle === "autowork.linksites.crm_ready_to_contact_mark"
+                  ? {
+                      crm_record_id: `crm_record:${ctx.tenant_id}:${ctx.run_id}`,
+                      lead_status: "ready_to_contact",
+                      status_updated_at: new Date().toISOString(),
+                    }
         : {};
 
-  await writeStageAuditEvent(env, ctx, "workflow.completed", {
+  const completedAudit = await writeStageAuditEvent(env, ctx, "workflow.completed", {
     workflow_handle: request.workflow_handle,
     workflow_run_id: workflowRunId,
   }, "linkautowork");
@@ -736,6 +794,7 @@ export async function dispatchToLinkAutowork(
     success: true,
     outputs: mockOutputs,
     workflow_run_id: workflowRunId,
+    audit_event_ids: [invokedAudit.event_id, completedAudit.event_id],
   };
 }
 

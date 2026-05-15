@@ -1,5 +1,53 @@
 # Agent Report: Integration Agent (WP-012)
 
+## WP-051 — Kernel to LiNKautowork v2 handle integration (2026-05-15)
+
+**Status:** COMPLETE
+
+### Scope
+
+- `apps/linkaios-web/src/lib/kernel/dispatch.ts`
+- `apps/linkaios-web/src/lib/kernel/dispatch.test.ts`
+- `.ai-swarm/AGENT_REPORTS/integration-agent.md`
+
+### Implementation Summary
+
+1. Extended kernel LiNKautowork dispatch wiring to support all five LinkSites v2 handles:
+   - `autowork.linksites.artifact_write_local`
+   - `autowork.linksites.supabase_mirror_upsert`
+   - `autowork.linksites.payload_sync_local`
+   - `autowork.linksites.preview_readiness_check`
+   - `autowork.linksites.crm_ready_to_contact_mark`
+2. Enforced fail-closed lease gating for side-effecting write handles in kernel dispatch:
+   - `supabase_mirror_upsert`
+   - `payload_sync_local`
+   - `crm_ready_to_contact_mark`
+3. Persist-ready trace refs are now returned by dispatch:
+   - `workflow_run_id`
+   - `audit_event_ids` for invoked/completed and invoked/failed paths
+4. Added focused dispatch tests for:
+   - v2 handle invocation
+   - missing lease failure
+   - successful lease-gated handle invocation
+
+### Commands Run
+
+```bash
+pnpm --filter @linktrend/linkaios-web test -- src/lib/kernel/dispatch.test.ts src/lib/kernel/kernel.test.ts
+pnpm --filter @linktrend/linkaios-web test -- src/lib/kernel/dispatch.test.ts
+pnpm --filter @linktrend/linkaios-web exec vitest run src/lib/kernel/dispatch.test.ts -t "dispatchToLinkAutowork linksites v2 wiring"
+```
+
+### Validation Results
+
+- Targeted WP-051 tests: PASS (`dispatchToLinkAutowork linksites v2 wiring`, 3 passed).
+- Broader Linkaios kernel test command currently fails due pre-existing WebsiteFactory plugin test drift unrelated to this packet (manifest/stage mapping assertions expecting older WebsiteFactory shape).
+
+### Risks / Blockers
+
+- Existing failing WebsiteFactory plugin/kernel tests in this branch limit full-suite green proof for the generic kernel command path.
+- WP-051 integration path is covered by targeted passing tests, but resolving the broader pre-existing test drift is out of this packet scope.
+
 ## WP-041 — LinkSites vertical contract v2 (cross-reference) (2026-05-15)
 
 **Status:** COMPLETE for integration-queue updates (docs-only).
