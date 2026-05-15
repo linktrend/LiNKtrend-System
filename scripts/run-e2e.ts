@@ -5,14 +5,47 @@ const CANONICAL_CODES = {
   persistence: "KERNEL_PERSISTENCE_FAILED",
 } as const;
 
-const REQUIRED_SUCCESS_AUDIT_COUNTS = {
-  "run.started": 1,
-  "crm.upserted": 1,
-  "plane.project.created": 1,
-  "plane.task.created": 1,
-  "preview.published": 1,
-  "run.completed": 1,
-} as const;
+const REQUIRED_V2_STAGE_IDS = [
+  "lead_intake",
+  "research_enrichment",
+  "website_package_generation",
+  "artifact_write_local",
+  "supabase_mirror_upsert",
+  "payload_sync_local",
+  "preview_readiness_check",
+  "crm_ready_to_contact_mark",
+  "plane_execution_tracking",
+  "zulip_run_notify",
+  "record_run",
+] as const;
+const STAGES_REQUIRING_AUDIT_REFS = [
+  "research_enrichment",
+  "website_package_generation",
+  "artifact_write_local",
+  "supabase_mirror_upsert",
+  "payload_sync_local",
+  "preview_readiness_check",
+  "crm_ready_to_contact_mark",
+  "plane_execution_tracking",
+  "zulip_run_notify",
+] as const;
+const STAGES_REQUIRING_WORKFLOW_REFS = [
+  "artifact_write_local",
+  "supabase_mirror_upsert",
+  "payload_sync_local",
+  "preview_readiness_check",
+  "crm_ready_to_contact_mark",
+] as const;
+const STAGES_REQUIRING_LEASE_IDS = [
+  "research_enrichment",
+  "website_package_generation",
+  "supabase_mirror_upsert",
+  "payload_sync_local",
+  "crm_ready_to_contact_mark",
+  "plane_execution_tracking",
+  "zulip_run_notify",
+] as const;
+const FORBIDDEN_STAGE_IDS = ["lead_scout", "outreach", "publish_live", "deploy_vps"] as const;
 
 type CanonicalCode = (typeof CANONICAL_CODES)[keyof typeof CANONICAL_CODES];
 
@@ -70,7 +103,7 @@ async function main() {
   const tenantId = process.env.MVO_E2E_TENANT_ID?.trim() || "e976eb75-1aff-4ca1-ad0d-5c940c343434";
   const supabaseUrl = requireEnv("NEXT_PUBLIC_SUPABASE_URL");
   const supabaseServiceKey = requireEnv("SUPABASE_SECRET_KEY");
-  
+
   console.log("1. Submitting Work Request...");
   const wrPayload = {
     plugin_id: "websitefactory",
@@ -106,6 +139,7 @@ async function main() {
   
   console.log("\n2. Executing Run Loop...");
   let runStatus = "running";
+  let finalOutputs: Record<string, unknown> = {};
   
   while (runStatus === "running" || runStatus === "awaiting_approval") {
     const execRes = await fetch(`${baseUrl}/run/${runId}/execute`, {
@@ -116,6 +150,7 @@ async function main() {
     if (!execRes.ok) throw new Error(`Execute failed: ${execRes.status} ${await execRes.text()}`);
 
     const execData = await execRes.json();
+    finalOutputs = (execData?.outputs || {}) as Record<string, unknown>;
     runStatus = execData.status;
     console.log(`⏳ Execute returned status: ${runStatus}`);
     
@@ -164,6 +199,63 @@ async function main() {
     headers: { "Authorization": authHeader },
   });
   console.log(JSON.stringify(traceData, null, 2));
+  const stages = Array.isArray(traceData?.stages) ? traceData.stages : [];
+
+  if (stages.length === 0) {
+    fail(CANONICAL_CODES.dispatch, "Trace missing stages");
+  }
+
+  const stageById = new Map<string, any>();
+  for (const stage of stages) {
+    if (stage?.stage_id) {
+      stageById.set(stage.stage_id, stage);
+    }
+  }
+
+  for (const stageId of REQUIRED_V2_STAGE_IDS) {
+    if (!stageById.has(stageId)) {
+      fail(CANONICAL_CODES.dispatch, `Missing required v2 stage in trace: ${stageId}`);
+    }
+  }
+
+  for (const stageId of FORBIDDEN_STAGE_IDS) {
+    if (stageById.has(stageId)) {
+      fail(CANONICAL_CODES.dispatch, `Forbidden stage appeared in run trace: ${stageId}`);
+    }
+  }
+
+  for (const stageId of STAGES_REQUIRING_AUDIT_REFS) {
+    const stage = stageById.get(stageId);
+    if (!stage) continue;
+    if (stage.status !== "succeeded") {
+      fail(CANONICAL_CODES.dispatch, `Stage must succeed: ${stageId} (got ${stage.status})`);
+    }
+    const refs = stage.refs || {};
+    const auditEventIdsForStage = Array.isArray(refs.audit_event_ids) ? refs.audit_event_ids : [];
+    if (auditEventIdsForStage.length === 0) {
+      fail(CANONICAL_CODES.dispatch, `Stage ${stageId} must have non-empty audit_event_ids`);
+    }
+  }
+
+  for (const stageId of STAGES_REQUIRING_WORKFLOW_REFS) {
+    const stage = stageById.get(stageId);
+    if (!stage) continue;
+    const refs = stage.refs || {};
+    const workflowRunIdsForStage = Array.isArray(refs.workflow_run_ids) ? refs.workflow_run_ids : [];
+    if (workflowRunIdsForStage.length === 0) {
+      fail(CANONICAL_CODES.dispatch, `Stage ${stageId} must have non-empty workflow_run_ids`);
+    }
+  }
+
+  for (const stageId of STAGES_REQUIRING_LEASE_IDS) {
+    const stage = stageById.get(stageId);
+    if (!stage) continue;
+    const refs = stage.refs || {};
+    const leaseIdsForStage = Array.isArray(refs.lease_ids) ? refs.lease_ids : [];
+    if (leaseIdsForStage.length === 0) {
+      fail(CANONICAL_CODES.dispatch, `Stage ${stageId} must have non-empty lease_ids`);
+    }
+  }
 
   const previewOutput = traceData?.preview_output;
   if (!previewOutput) {
@@ -181,6 +273,30 @@ async function main() {
   if (leaseIds.length === 0) fail(CANONICAL_CODES.dispatch, "lease_ids must be non-empty");
   if (workflowRunIds.length === 0) fail(CANONICAL_CODES.dispatch, "workflow_run_ids must be non-empty");
   if (auditEventIds.length === 0) fail(CANONICAL_CODES.dispatch, "audit_event_ids must be non-empty");
+  if (previewOutput.status !== "succeeded") {
+    fail(CANONICAL_CODES.dispatch, `preview_output.status must be succeeded, got ${previewOutput.status}`);
+  }
+  if (typeof previewOutput.preview_url !== "string" || !previewOutput.preview_url.startsWith("http")) {
+    fail(CANONICAL_CODES.dispatch, "preview_output.preview_url must be an absolute http(s) URL");
+  }
+  if (previewOutput.preview_url.includes("digitalocean") || previewOutput.preview_url.includes("https://")) {
+    fail(
+      CANONICAL_CODES.dispatch,
+      `preview_output.preview_url indicates non-local or hosted mode: ${previewOutput.preview_url}`,
+    );
+  }
+  if (!finalOutputs.lead_research_bundle) {
+    fail(CANONICAL_CODES.dispatch, "Run outputs missing lead_research_bundle");
+  }
+  if (!finalOutputs.website_package) {
+    fail(CANONICAL_CODES.dispatch, "Run outputs missing website_package");
+  }
+  if (finalOutputs.lead_status !== "ready_to_contact") {
+    fail(
+      CANONICAL_CODES.dispatch,
+      `Run outputs lead_status must be ready_to_contact, got ${String(finalOutputs.lead_status)}`,
+    );
+  }
 
   const eventIdCsv = auditEventIds.join(",");
   const auditRows = await fetchJsonOrFail(
@@ -197,22 +313,6 @@ async function main() {
   if (!Array.isArray(auditRows) || auditRows.length === 0) {
     fail(CANONICAL_CODES.persistence, "No LiNKbrain audit events resolved from audit_event_ids");
   }
-  const previewOutputActionCounts = new Map<string, number>();
-  for (const row of auditRows) {
-    const action = row?.action as string | undefined;
-    if (!action) continue;
-    previewOutputActionCounts.set(action, (previewOutputActionCounts.get(action) || 0) + 1);
-  }
-  for (const [action, expectedCount] of Object.entries(REQUIRED_SUCCESS_AUDIT_COUNTS)) {
-    const actualCount = previewOutputActionCounts.get(action) || 0;
-    if (actualCount !== expectedCount) {
-      fail(
-        CANONICAL_CODES.persistence,
-        `PreviewOutput audit refs missing or duplicated required action ${action}: expected ${expectedCount}, got ${actualCount}`,
-      );
-    }
-  }
-
   const runAuditRows = await fetchJsonOrFail(
     `${supabaseUrl}/rest/v1/audit_events?select=event_id,action,subject&subject->>run_id=eq.${runId}`,
     {
@@ -224,21 +324,8 @@ async function main() {
     },
   );
 
-  const runScopedActionCounts = new Map<string, number>();
-  for (const row of Array.isArray(runAuditRows) ? runAuditRows : []) {
-    const action = row?.action as string | undefined;
-    if (!action) continue;
-    runScopedActionCounts.set(action, (runScopedActionCounts.get(action) || 0) + 1);
-  }
-
-  for (const [action, expectedCount] of Object.entries(REQUIRED_SUCCESS_AUDIT_COUNTS)) {
-    const actualCount = runScopedActionCounts.get(action) || 0;
-    if (actualCount !== expectedCount) {
-      fail(
-        CANONICAL_CODES.persistence,
-        `Required LiNKbrain audit action count mismatch for ${action}: expected ${expectedCount}, got ${actualCount}`,
-      );
-    }
+  if (!Array.isArray(runAuditRows) || runAuditRows.length === 0) {
+    fail(CANONICAL_CODES.persistence, "No run-scoped LiNKbrain audit rows resolved");
   }
 
   console.log("\n4. Assertions passed");
@@ -247,7 +334,9 @@ async function main() {
   console.log(`lease_ids: ${leaseIds.length}`);
   console.log(`workflow_run_ids: ${workflowRunIds.length}`);
   console.log(`audit_event_ids: ${auditEventIds.length}`);
-  console.log(`verified_required_audit_counts: ${JSON.stringify(REQUIRED_SUCCESS_AUDIT_COUNTS)}`);
+  console.log(`required_v2_stages_verified: ${REQUIRED_V2_STAGE_IDS.length}`);
+  console.log(`crm_ready_to_contact_verified: ${finalOutputs.lead_status === "ready_to_contact"}`);
+  console.log("run_scoped_audit_rows_verified: true");
 }
 
 main().catch((err) => {

@@ -1874,3 +1874,48 @@ git -C /Users/linktrend/Projects/LiNKsites status --short
 
 - Branch: `dev/codex/WP-042-linksites-template-payload-discovery`
 - Commit: `36ab2c7`
+
+## WP-052 — LinkSites v2 E2E flow harness (2026-05-15)
+
+**Status:** PARTIAL (harness updated, runtime blocker captured)
+
+### Scope
+
+- `scripts/run-e2e.ts`
+- `.ai-swarm/DEMO_RUNBOOK_WEBSITEFACTORY_MVO.md`
+- `.ai-swarm/AGENT_REPORTS/integration-agent.md`
+
+### Implementation summary
+
+1. Updated `scripts/run-e2e.ts` to assert LinkSites v2 flow requirements:
+   - required 11-stage trace presence
+   - v2 stage success checks
+   - non-empty stage refs (`audit_event_ids`, workflow refs for LiNKautowork stages, lease refs for lease-gated stages)
+   - final `lead_status=ready_to_contact`
+   - guard against forbidden/out-of-scope stage ids.
+2. Kept development-only guardrails by rejecting non-local/hosted preview URLs in the harness assertions.
+3. Preserved canonical failure reporting (`KERNEL_DISPATCH_FAILED` / `KERNEL_PERSISTENCE_FAILED`) for blocker capture.
+
+### Command run (proof)
+
+```bash
+LINKAIOS_ENABLE_MVO_SERVICE_BYPASS=true pnpm test:mvo:e2e
+```
+
+### Exact output
+
+```text
+> linktrend-system@ test:mvo:e2e /Users/linktrend/Projects/LiNKtrend-System
+> node --experimental-strip-types scripts/run-e2e.ts
+
+1. Submitting Work Request...
+[KERNEL_DISPATCH_FAILED] fetch failed
+ELIFECYCLE Command failed with exit code 1.
+```
+
+### Blocker
+
+- Canonical failure code: `KERNEL_DISPATCH_FAILED`
+- Failure point: first `POST /api/kernel/work-request` call from the harness.
+- Likely immediate cause: LiNKaios dev server/API was not reachable at `MVO_E2E_BASE_URL` (default `http://localhost:3000`) at runtime.
+- Next fix owner: integration/runtime operator (bring up local API + required env, then rerun this harness command).
