@@ -1,3 +1,108 @@
+# LinkBot Agent Report — WP-062
+
+**Agent:** LinkBot Agent
+**Work Packet:** WP-062 — LinkBot to LiNKaios, LinkSkills, LiNKbrain, LiNKautowork, and Zulip adapter plan
+**Date:** 2026-05-15
+**Status:** COMPLETE
+
+---
+
+## Objective
+
+Define an evidence-based adapter plan that keeps LinkBot as a thin runtime shell while connecting it to LiNKaios dispatch, LinkSkills governance, LiNKbrain envelope, LiNKautowork deterministic workflows, and Zulip messaging policy.
+
+---
+
+## Files Changed
+
+- `.ai-swarm/LINKBOT_ADAPTER_PLAN.md` (new)
+- `.ai-swarm/WORK_PACKETS/WP-063-linkaios-ingress-fail-closed-governance-adapter.md` (new)
+- `.ai-swarm/WORK_PACKETS/WP-064-linkskills-lease-projection-and-bot-runtime-adapter.md` (new)
+- `.ai-swarm/WORK_PACKETS/WP-065-linkbrain-audit-envelope-mapping-for-linkbot-flow.md` (new)
+- `.ai-swarm/WORK_PACKETS/WP-066-linkautowork-deterministic-handoff-orchestration.md` (new)
+- `.ai-swarm/WORK_PACKETS/WP-067-zulip-run-messaging-governance-adapter.md` (new)
+- `.ai-swarm/AGENT_REPORTS/linkbot-agent.md` (this update)
+
+No runtime code was implemented in this planning packet.
+
+---
+
+## Commands Run
+
+```bash
+git fetch origin
+git switch development
+git pull --ff-only origin development
+git switch -c dev/codex/WP-062-linkbot-linkaios-linkskills-zulip-adapter-plan
+
+sed -n '1,220p' README.md
+sed -n '1,220p' .ai-swarm/AGENT_PROMPTS/README.md
+sed -n '1,220p' .ai-swarm/AGENT_PROMPTS/WP-062-linkbot-linkaios-linkskills-zulip-adapter-plan.prompt.md
+sed -n '1,260p' .ai-swarm/CONTRACTS_MVO.md
+sed -n '1,260p' .ai-swarm/LINKBOT_CORE_SYNC_READINESS.md
+sed -n '1,320p' .ai-swarm/WORK_PACKETS/WP-062-linkbot-linkaios-linkskills-zulip-adapter-plan.md
+```
+
+---
+
+## Adapter Plan Output
+
+Primary output is in:
+
+- `.ai-swarm/LINKBOT_ADAPTER_PLAN.md`
+
+It defines:
+
+1. LiNKaios dispatch -> LinkBot ingress fail-closed contract
+2. LinkBot -> LinkSkills lease-governed skill/capability call path
+3. LiNKbrain canonical audit envelope mapping ownership
+4. LiNKautowork deterministic handoff boundaries and handles
+5. Zulip run messaging through `cap.zulip.run_messaging` in mock/shadow mode
+6. Ownership split across LiNKbot-core, `apps/bot-runtime`, LiNKaios config, LinkSkills, LiNKbrain, and LiNKautowork
+7. Ordered implementation sequence and follow-up packet references
+
+---
+
+## Follow-up Packets Created
+
+- `WP-063` LiNKaios ingress fail-closed governance adapter
+- `WP-064` LinkSkills lease projection and `apps/bot-runtime` adapter
+- `WP-065` LiNKbrain audit envelope mapping for LinkBot flow
+- `WP-066` LiNKautowork deterministic handoff orchestration
+- `WP-067` Zulip run messaging governance adapter
+
+All packets include scope, prohibited changes, acceptance criteria, and proof requirements.
+
+---
+
+## Validation / Tests
+
+No runtime source code was changed in WP-062; therefore unit/integration test execution was not required for this packet.
+
+Validation performed:
+
+- Confirmed WP-061 readiness evidence and gap list
+- Confirmed adapter plan aligns with `CONTRACTS_MVO.md` lease-gated side-effect and deterministic workflow rules
+- Checked only allowed planning/report files were modified
+
+---
+
+## Risks / Blockers
+
+- Upstream conflict resolution in LiNKbot-core remains a dependency for long-term sync hygiene (tracked in WP-061 follow-ups).
+- Adapter plan assumes WP-061 findings remain accurate; if LiNKbot-core ingress semantics change, WP-063/WP-064 may need contract refresh.
+
+---
+
+## Branch and Commit
+
+- **Branch:** `dev/codex/WP-062-linkbot-linkaios-linkskills-zulip-adapter-plan`
+- **Commit SHA:** pending
+
+---
+
+## Historical Report Content Preserved
+
 # LinkBot Agent Report — WP-061
 
 **Agent:** LinkBot Agent

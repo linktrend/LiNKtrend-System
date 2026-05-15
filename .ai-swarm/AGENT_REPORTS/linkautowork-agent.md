@@ -406,10 +406,31 @@ None for planning phase. WP-063 execution requires:
 git fetch origin
 git switch development
 git pull --ff-only origin development
-git switch -c dev/codex/WP-059-linkautowork-completion-plan-runtime-hardening
+# Note: Work was committed to existing branch dev/codex/WP-052-linksites-v2-e2e-flow-harness
+# (WP-059 branch created but work landed on current branch)
 
 # Analyzed 12 gateway source files
+glob LiNKautowork/gateway/**/*
+read LiNKautowork/gateway/src/index.ts
+read LiNKautowork/gateway/src/types/index.ts
+read LiNKautowork/gateway/src/workflows/index.ts
+read LiNKautowork/gateway/src/lib/workflow-runner.ts
+read LiNKautowork/gateway/src/lib/audit-emitter.ts
+read LiNKautowork/gateway/package.json
+read LiNKautowork/gateway/src/workflows/websitefactory-render.ts
+read LiNKautowork/gateway/src/workflows/websitefactory-preview-serve.ts
+read LiNKautowork/gateway/src/workflows/linksites-v2.ts
+read LiNKautowork/gateway/src/workflows/linksites-v2.test.ts
+read LiNKautowork/gateway/src/workflows/websitefactory.test.ts
+
 # Created completion plan and 7 follow-up packets
+write .ai-swarm/LINKAUTOWORK_COMPLETION_PLAN.md
+write .ai-swarm/WORK_PACKETS/WP-060*.md through WP-066*.md
+
+# Committed and pushed
+git add <WP-059 files>
+git commit -m "docs: define LiNKautowork completion plan"
+git push -u origin dev/codex/WP-052-linksites-v2-e2e-flow-harness
 ```
 
 ### Proof
@@ -431,5 +452,6 @@ git switch -c dev/codex/WP-059-linkautowork-completion-plan-runtime-hardening
 
 ### Branch / Commit
 
-- Branch: `dev/codex/WP-059-linkautowork-completion-plan-runtime-hardening`
-- Commit: `docs: define LiNKautowork completion plan`
+- Branch: `dev/codex/WP-052-linksites-v2-e2e-flow-harness` (WP-059 work committed here)
+- Commit SHA: `13adbef` — `docs: define LiNKautowork completion plan`
+- Pushed: Yes (`git push -u origin` completed)
