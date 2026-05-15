@@ -237,4 +237,4 @@ sed -n '740,940p' .ai-swarm/CONTRACTS_MVO.md
 ### Branch / Commit
 
 - Branch: `dev/codex/WP-045-linkautowork-linksites-workflow-contract`
-- Commit SHA: `2a209cb` (Integrator recovery commit on `development`)
+- Commit SHA: `b68f919` (Integrator recovery commit on `development`)
