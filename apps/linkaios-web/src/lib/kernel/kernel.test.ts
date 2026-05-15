@@ -45,21 +45,22 @@ describe("loadWebsiteFactoryManifest", () => {
     expect(manifest.non_goals).toBeDefined();
   });
 
-  it("declares the 10 WebsiteFactory stages", () => {
+  it("declares the 11 LinkSites v2 stages", () => {
     const manifest = loadWebsiteFactoryManifest();
     const stageIds = manifest.stages.map((s) => s.stage_id);
 
     expect(stageIds).toContain("lead_intake");
-    expect(stageIds).toContain("lead_evaluation");
-    expect(stageIds).toContain("template_selection");
-    expect(stageIds).toContain("copy_generation");
-    expect(stageIds).toContain("media_placement");
-    expect(stageIds).toContain("look_and_feel");
-    expect(stageIds).toContain("crm_upsert");
-    expect(stageIds).toContain("plane_project_create");
-    expect(stageIds).toContain("preview_publish");
-    expect(stageIds).toContain("record_run");
-    expect(stageIds).toHaveLength(10);
+    expect(stageIds).toContain("research_enrichment");
+    expect(stageIds).toContain("website_package_generation");
+    expect(stageIds).toContain("artifact_write_local");
+    expect(stageIds).toContain("supabase_mirror_upsert");
+    expect(stageIds).toContain("payload_sync_local");
+    expect(stageIds).toContain("preview_readiness_check");
+    expect(stageIds).toContain("crm_ready_to_contact_mark");
+    expect(stageIds).toContain("plane_execution_tracking");
+    expect(stageIds).toContain("zulip_run_notify");
+        expect(stageIds).toContain("record_run");
+    expect(stageIds).toHaveLength(11);
   });
 
   it("maps stages to correct responsible planes per §7", () => {
@@ -68,13 +69,13 @@ describe("loadWebsiteFactoryManifest", () => {
     const intake = manifest.stages.find((s) => s.stage_id === "lead_intake");
     expect(intake?.responsible_plane).toBe("linkaios");
 
-    const evalStage = manifest.stages.find((s) => s.stage_id === "lead_evaluation");
+    const evalStage = manifest.stages.find((s) => s.stage_id === "research_enrichment");
     expect(evalStage?.responsible_plane).toBe("linkbot");
 
-    const crm = manifest.stages.find((s) => s.stage_id === "crm_upsert");
+    const crm = manifest.stages.find((s) => s.stage_id === "plane_execution_tracking");
     expect(crm?.responsible_plane).toBe("linkskills");
 
-    const render = manifest.stages.find((s) => s.stage_id === "look_and_feel");
+    const render = manifest.stages.find((s) => s.stage_id === "artifact_write_local");
     expect(render?.responsible_plane).toBe("linkautowork");
 
     const record = manifest.stages.find((s) => s.stage_id === "record_run");
@@ -84,14 +85,13 @@ describe("loadWebsiteFactoryManifest", () => {
   it("declares require_approval for capability-gated stages", () => {
     const manifest = loadWebsiteFactoryManifest();
 
-    const crm = manifest.stages.find((s) => s.stage_id === "crm_upsert");
+    const crm = manifest.stages.find((s) => s.stage_id === "plane_execution_tracking");
     expect(crm?.failure_mode).toBe("require_approval");
 
-    const plane = manifest.stages.find((s) => s.stage_id === "plane_project_create");
+    const plane = manifest.stages.find((s) => s.stage_id === "zulip_run_notify");
     expect(plane?.failure_mode).toBe("require_approval");
 
-    const preview = manifest.stages.find((s) => s.stage_id === "preview_publish");
-    expect(preview?.failure_mode).toBe("require_approval");
+     
   });
 });
 
@@ -253,9 +253,9 @@ describe("buildPreviewOutput", () => {
       ended_at: "2026-05-14T12:05:00Z",
       stages: [
         {
-          stage_id: "preview_publish",
+          stage_id: "preview_readiness_check",
           run_id: "r-123",
-          responsible_plane: "linkskills",
+          responsible_plane: "linkautowork",
           status: "succeeded",
           attempt: 1,
           inputs_snapshot: {},
@@ -363,9 +363,9 @@ describe("buildPreviewOutput", () => {
       started_at: "2026-05-14T12:00:00Z",
       stages: [
         {
-          stage_id: "preview_publish",
+          stage_id: "preview_readiness_check",
           run_id: "r-123",
-          responsible_plane: "linkskills",
+          responsible_plane: "linkautowork",
           status: "succeeded",
           attempt: 1,
           inputs_snapshot: {},
@@ -414,8 +414,8 @@ describe("role bleed guards", () => {
     // Kernel should not own capability policy
     const kernelStages = manifest.stages.filter((s) => s.responsible_plane === "linkaios");
     for (const stage of kernelStages) {
-      expect(stage.stage_id).not.toBe("crm_upsert");
-      expect(stage.stage_id).not.toBe("preview_publish");
+      expect(stage.stage_id).not.toBe("plane_execution_tracking");
+      expect(stage.stage_id).not.toBe("zulip_run_notify");
     }
   });
 
@@ -425,7 +425,7 @@ describe("role bleed guards", () => {
     // Kernel should not execute deterministic workflows
     const kernelStages = manifest.stages.filter((s) => s.responsible_plane === "linkaios");
     for (const stage of kernelStages) {
-      expect(stage.stage_id).not.toBe("look_and_feel");
+      expect(stage.stage_id).not.toBe("artifact_write_local");
       expect(stage.stage_id).not.toBe("render_preview");
     }
   });
@@ -454,9 +454,9 @@ describe("plugin extension point wiring", () => {
     const manifest = getWebsiteFactoryManifest();
 
     expect(manifest.plugin_id).toBe("websitefactory");
-    expect(manifest.stages).toHaveLength(10);
-    expect(manifest.required_capabilities).toContain("crm.upsert");
-    expect(manifest.required_workflow_hooks).toContain("autowork.websitefactory.render");
+    expect(manifest.stages).toHaveLength(11);
+    expect(manifest.required_capabilities).toContain("cap.crm.odoo_shadow");
+    expect(manifest.required_workflow_hooks).toContain("autowork.linksites.artifact_write_local");
   });
 
   it("kernel delegates stage execution to plugin's executeStage", async () => {
@@ -474,19 +474,18 @@ describe("plugin extension point wiring", () => {
     } = await import("@/lib/plugins/websitefactory");
 
     // Verify capability mappings per §7
-    expect(mapStageToCapability("crm_upsert")).toBe("crm.upsert");
-    expect(mapStageToCapability("plane_project_create")).toBe("plane.project.create");
-    expect(mapStageToCapability("preview_publish")).toBe("preview.publish");
+    expect(mapStageToCapability("crm_ready_to_contact_mark")).toBe("cap.crm.odoo_shadow");
+    expect(mapStageToCapability("plane_execution_tracking")).toBe("cap.plane.execution_tracking");
+    expect(mapStageToCapability("zulip_run_notify")).toBe("cap.zulip.run_messaging");
 
     // Verify workflow mappings per §6.4
-    expect(mapStageToWorkflowHandle("look_and_feel")).toBe("autowork.websitefactory.render");
-    expect(mapStageToWorkflowHandle("preview_publish")).toBe("autowork.websitefactory.preview_serve");
+    expect(mapStageToWorkflowHandle("artifact_write_local")).toBe("autowork.linksites.artifact_write_local");
+    expect(mapStageToWorkflowHandle("preview_readiness_check")).toBe("autowork.linksites.preview_readiness_check");
 
     // Verify reasoning mappings per §6.1
-    expect(mapStageToReasoningKind("lead_evaluation")).toBe("lead_evaluation");
-    expect(mapStageToReasoningKind("template_selection")).toBe("template_selection");
-    expect(mapStageToReasoningKind("copy_generation")).toBe("copy_generation");
-    expect(mapStageToReasoningKind("media_placement")).toBe("media_placement");
+    expect(mapStageToReasoningKind("research_enrichment")).toBe("research_enrichment");
+    expect(mapStageToReasoningKind("website_package_generation")).toBe("website_package_generation");
+    expect(mapStageToReasoningKind("artifact_write_local")).toBeNull();
   });
 
   it("kernel does not duplicate plugin stage mappings", () => {

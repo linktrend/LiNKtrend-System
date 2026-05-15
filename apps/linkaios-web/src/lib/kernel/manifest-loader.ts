@@ -16,6 +16,7 @@ import {
   type Plane,
 } from "@linktrend/linklogic-sdk";
 import type { Env } from "@linktrend/shared-config";
+import { getWebsiteFactoryManifest } from "@/lib/plugins/websitefactory";
 
 // WebsiteFactory manifest per LINKAIOS_KERNEL_MANIFEST.md §4
 const WEBSITEFACTORY_MANIFEST: PluginManifest = {
@@ -210,7 +211,7 @@ const APPROVAL_OWNING_PLANES: Plane[] = ["linkaios", "linkskills"];
  * Future: load from database or config system.
  */
 export function loadWebsiteFactoryManifest(): PluginManifest {
-  return WEBSITEFACTORY_MANIFEST;
+  return getWebsiteFactoryManifest();
 }
 
 // Local validation error type (compatible with types.ts interface)

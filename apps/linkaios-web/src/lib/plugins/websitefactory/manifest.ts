@@ -28,67 +28,75 @@ const WEBSITE_FACTORY_STAGES: PluginManifestStage[] = [
     failure_mode: "abort_run" as FailureMode,
   },
   {
-    stage_id: "lead_evaluation",
-    display_name: "Evaluate lead",
+    stage_id: "research_enrichment",
+    display_name: "Research and enrich lead context",
     responsible_plane: "linkbot" as Plane,
     inputs: ["lead_record_ref"],
-    outputs: ["lead_evaluation"],
+    outputs: ["lead_research_bundle"],
     failure_mode: "retryable" as FailureMode,
   },
   {
-    stage_id: "template_selection",
-    display_name: "Select industry template",
+    stage_id: "website_package_generation",
+    display_name: "Generate website package from template guidance",
     responsible_plane: "linkbot" as Plane,
-    inputs: ["lead_evaluation"],
-    outputs: ["template_id"],
+    inputs: ["lead_record_ref", "lead_research_bundle", "template_id"],
+    outputs: ["website_package"],
     failure_mode: "retryable" as FailureMode,
   },
   {
-    stage_id: "copy_generation",
-    display_name: "Generate business copy",
-    responsible_plane: "linkbot" as Plane,
-    inputs: ["lead_record_ref", "template_id"],
-    outputs: ["copy_bundle"],
-    failure_mode: "retryable" as FailureMode,
-  },
-  {
-    stage_id: "media_placement",
-    display_name: "Place images/placeholders",
-    responsible_plane: "linkbot" as Plane,
-    inputs: ["template_id", "copy_bundle"],
-    outputs: ["media_plan"],
-    failure_mode: "retryable" as FailureMode,
-  },
-  {
-    stage_id: "look_and_feel",
-    display_name: "Apply brand look-and-feel",
+    stage_id: "artifact_write_local",
+    display_name: "Write generated artifacts locally",
     responsible_plane: "linkautowork" as Plane,
-    inputs: ["template_id", "copy_bundle", "media_plan"],
-    outputs: ["render_spec"],
+    inputs: ["website_package", "site_id", "site_generation_run_id"],
+    outputs: ["artifact_ref", "artifact_manifest_ref", "artifact_digest"],
     failure_mode: "retryable" as FailureMode,
   },
   {
-    stage_id: "crm_upsert",
-    display_name: "Write CRM record (stub)",
-    responsible_plane: "linkskills" as Plane,
-    inputs: ["lead_record_ref", "lead_evaluation"],
-    outputs: ["crm_record_id"],
-    failure_mode: "require_approval" as FailureMode,
+    stage_id: "supabase_mirror_upsert",
+    display_name: "Upsert content into Supabase mirror",
+    responsible_plane: "linkautowork" as Plane,
+    inputs: ["artifact_ref", "site_id", "site_generation_run_id", "lease_id"],
+    outputs: ["mirror_write_ref", "mirror_revision_ref", "upserted_records_count"],
+    failure_mode: "retryable" as FailureMode,
   },
   {
-    stage_id: "plane_project_create",
-    display_name: "Create project + task (stub)",
+    stage_id: "payload_sync_local",
+    display_name: "Sync mirror content into local Payload",
+    responsible_plane: "linkautowork" as Plane,
+    inputs: ["mirror_write_ref", "site_id", "site_generation_run_id", "lease_id"],
+    outputs: ["payload_sync_ref", "payload_document_refs", "payload_sync_status"],
+    failure_mode: "retryable" as FailureMode,
+  },
+  {
+    stage_id: "preview_readiness_check",
+    display_name: "Run deterministic preview readiness checks",
+    responsible_plane: "linkautowork" as Plane,
+    inputs: ["payload_sync_ref", "preview_url", "site_id", "site_generation_run_id"],
+    outputs: ["checks_passed", "check_report_ref", "preview_readiness_status"],
+    failure_mode: "retryable" as FailureMode,
+  },
+  {
+    stage_id: "crm_ready_to_contact_mark",
+    display_name: "Mark CRM lead ready_to_contact",
+    responsible_plane: "linkautowork" as Plane,
+    inputs: ["lead_record_ref", "checks_passed", "check_report_ref", "lease_id"],
+    outputs: ["crm_record_id", "lead_status", "status_updated_at"],
+    failure_mode: "retryable" as FailureMode,
+  },
+  {
+    stage_id: "plane_execution_tracking",
+    display_name: "Write execution tracking project/task (mock/shadow)",
     responsible_plane: "linkskills" as Plane,
-    inputs: ["lead_record_ref"],
+    inputs: ["lead_record_ref", "site_id", "site_generation_run_id"],
     outputs: ["project_id", "task_id"],
     failure_mode: "require_approval" as FailureMode,
   },
   {
-    stage_id: "preview_publish",
-    display_name: "Publish preview site",
+    stage_id: "zulip_run_notify",
+    display_name: "Send run notifications (mock/shadow)",
     responsible_plane: "linkskills" as Plane,
-    inputs: ["render_spec"],
-    outputs: ["preview_url", "preview_artifact_ref"],
+    inputs: ["run_id", "site_id", "site_generation_run_id"],
+    outputs: ["message_id"],
     failure_mode: "require_approval" as FailureMode,
   },
   {
@@ -103,16 +111,22 @@ const WEBSITE_FACTORY_STAGES: PluginManifestStage[] = [
 
 // Required capabilities per CONTRACTS_MVO.md §7
 const REQUIRED_CAPABILITIES = [
-  "crm.upsert",
-  "plane.project.create",
-  "plane.task.create",
-  "preview.publish",
+  "cap.crm.odoo_shadow",
+  "cap.payload.local_sync",
+  "cap.supabase.mirror_content",
+  "cap.zulip.run_messaging",
+  "cap.research.public_web",
+  "cap.asset.generation",
+  "cap.plane.execution_tracking",
 ];
 
 // Required workflow hooks per CONTRACTS_MVO.md §6.4
 const REQUIRED_WORKFLOW_HOOKS = [
-  "autowork.websitefactory.render",
-  "autowork.websitefactory.preview_serve",
+  "autowork.linksites.artifact_write_local",
+  "autowork.linksites.supabase_mirror_upsert",
+  "autowork.linksites.payload_sync_local",
+  "autowork.linksites.preview_readiness_check",
+  "autowork.linksites.crm_ready_to_contact_mark",
 ];
 
 // Required audit events per CONTRACTS_MVO.md §6.3.1
@@ -160,8 +174,8 @@ export const WEBSITE_FACTORY_MANIFEST: PluginManifest = {
   preview_output_shape: {
     run_id: "string",
     tenant_id: "string",
-    preview_url: "string",
-    preview_artifact_ref: "string",
+    preview_url: "string | null",
+    preview_artifact_ref: "string | null",
     crm_record_id: "string | null",
     project_id: "string | null",
     task_id: "string | null",
@@ -172,10 +186,10 @@ export const WEBSITE_FACTORY_MANIFEST: PluginManifest = {
   },
 
   non_goals: [
-    "Full Payload CMS publish path",
-    "Vercel deploy previews",
-    "Real Chatwoot/Odoo CRM writes",
-    "Real Plane API project/task creation",
+    "Real production Payload CMS writes",
+    "Production hosting/deployment",
+    "Real Odoo CRM writes in live mode",
+    "Real Plane API project/task creation in live mode",
     "LEXOS/legal vertical work",
     "Live image generation (placeholders only for MVO)",
     "Domain provisioning, DNS, TLS",
@@ -205,9 +219,13 @@ export function getStageDefinition(
  */
 export function isCapabilityStage(stageId: string): boolean {
   return [
-    "crm_upsert",
-    "plane_project_create",
-    "preview_publish",
+    "research_enrichment",
+    "website_package_generation",
+    "supabase_mirror_upsert",
+    "payload_sync_local",
+    "crm_ready_to_contact_mark",
+    "plane_execution_tracking",
+    "zulip_run_notify",
   ].includes(stageId);
 }
 
@@ -215,19 +233,20 @@ export function isCapabilityStage(stageId: string): boolean {
  * Check if a stage requires LinkBot reasoning.
  */
 export function isReasoningStage(stageId: string): boolean {
-  return [
-    "lead_evaluation",
-    "template_selection",
-    "copy_generation",
-    "media_placement",
-  ].includes(stageId);
+  return ["research_enrichment", "website_package_generation"].includes(stageId);
 }
 
 /**
  * Check if a stage requires LiNKautowork workflow.
  */
 export function isWorkflowStage(stageId: string): boolean {
-  return ["look_and_feel", "preview_publish"].includes(stageId);
+  return [
+    "artifact_write_local",
+    "supabase_mirror_upsert",
+    "payload_sync_local",
+    "preview_readiness_check",
+    "crm_ready_to_contact_mark",
+  ].includes(stageId);
 }
 
 /**
@@ -235,12 +254,20 @@ export function isWorkflowStage(stageId: string): boolean {
  */
 export function mapStageToCapability(stageId: string): string | null {
   switch (stageId) {
-    case "crm_upsert":
-      return "crm.upsert";
-    case "plane_project_create":
-      return "plane.project.create"; // Also implies plane.task.create
-    case "preview_publish":
-      return "preview.publish";
+    case "research_enrichment":
+      return "cap.research.public_web";
+    case "website_package_generation":
+      return "cap.asset.generation";
+    case "supabase_mirror_upsert":
+      return "cap.supabase.mirror_content";
+    case "payload_sync_local":
+      return "cap.payload.local_sync";
+    case "crm_ready_to_contact_mark":
+      return "cap.crm.odoo_shadow";
+    case "plane_execution_tracking":
+      return "cap.plane.execution_tracking";
+    case "zulip_run_notify":
+      return "cap.zulip.run_messaging";
     default:
       return null;
   }
@@ -251,10 +278,16 @@ export function mapStageToCapability(stageId: string): string | null {
  */
 export function mapStageToWorkflowHandle(stageId: string): string | null {
   switch (stageId) {
-    case "look_and_feel":
-      return "autowork.websitefactory.render";
-    case "preview_publish":
-      return "autowork.websitefactory.preview_serve";
+    case "artifact_write_local":
+      return "autowork.linksites.artifact_write_local";
+    case "supabase_mirror_upsert":
+      return "autowork.linksites.supabase_mirror_upsert";
+    case "payload_sync_local":
+      return "autowork.linksites.payload_sync_local";
+    case "preview_readiness_check":
+      return "autowork.linksites.preview_readiness_check";
+    case "crm_ready_to_contact_mark":
+      return "autowork.linksites.crm_ready_to_contact_mark";
     default:
       return null;
   }
@@ -266,20 +299,14 @@ export function mapStageToWorkflowHandle(stageId: string): string | null {
 export function mapStageToReasoningKind(
   stageId: string,
 ):
-  | "lead_evaluation"
-  | "template_selection"
-  | "copy_generation"
-  | "media_placement"
+  | "research_enrichment"
+  | "website_package_generation"
   | null {
   switch (stageId) {
-    case "lead_evaluation":
-      return "lead_evaluation";
-    case "template_selection":
-      return "template_selection";
-    case "copy_generation":
-      return "copy_generation";
-    case "media_placement":
-      return "media_placement";
+    case "research_enrichment":
+      return "research_enrichment";
+    case "website_package_generation":
+      return "website_package_generation";
     default:
       return null;
   }

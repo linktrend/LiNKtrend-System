@@ -58,9 +58,10 @@ export interface StageContext {
  *
  * Per CONTRACTS_MVO.md §10 stage trace:
  * - lead_intake: kernel (already handled before plugin glue)
- * - lead_evaluation, template_selection, copy_generation, media_placement: LinkBot
- * - look_and_feel: LiNKautowork
- * - crm_upsert, plane_project_create, preview_publish: LinkSkills (capability lease)
+ * - research_enrichment, website_package_generation: LinkBot
+ * - artifact_write_local, supabase_mirror_upsert, payload_sync_local,
+ *   preview_readiness_check, crm_ready_to_contact_mark: LiNKautowork
+ * - plane_execution_tracking, zulip_run_notify: LinkSkills (capability lease)
  * - record_run: LiNKbrain
  */
 export async function executeWebsiteFactoryStage(
@@ -265,32 +266,21 @@ function buildCapabilityArguments(
   run: Run,
 ): Record<string, unknown> {
   switch (stageId) {
-    case "crm_upsert": {
-      const leadRecordRef = inputs.lead_record_ref as Record<string, string> | undefined;
-      const leadEval = inputs.lead_evaluation as Record<string, unknown> | undefined;
-      return {
-        tenant_id: run.tenant_id,
-        lead_id: leadRecordRef?.lead_id || "",
-        business_name: leadRecordRef?.business_name || "",
-        industry: leadEval?.segment || "",
-        // PII fields stripped per CONTRACTS_MVO.md §3.4
-      };
-    }
-    case "plane_project_create": {
+    case "plane_execution_tracking": {
       const leadRecordRef = inputs.lead_record_ref as Record<string, string> | undefined;
       return {
         tenant_id: run.tenant_id,
         lead_id: leadRecordRef?.lead_id || "",
-        project_name: `Website for ${leadRecordRef?.business_name || "Unknown"}`,
-        owner_actor_id: "websitefactory",
+        site_id: inputs.site_id || "",
+        site_generation_run_id: inputs.site_generation_run_id || "",
       };
     }
-    case "preview_publish": {
+    case "zulip_run_notify": {
       return {
         tenant_id: run.tenant_id,
         run_id: run.run_id,
-        render_spec: inputs.render_spec || {},
-        preview_route_prefix: `/preview/${run.tenant_id}/${run.run_id}`,
+        site_id: inputs.site_id || "",
+        site_generation_run_id: inputs.site_generation_run_id || "",
       };
     }
     default:
@@ -307,18 +297,41 @@ function buildWorkflowInputs(
   _run: Run,
 ): Record<string, unknown> {
   switch (stageId) {
-    case "look_and_feel":
-      // Pass through template_id, copy_bundle, media_plan
+    case "artifact_write_local":
       return {
-        template_id: inputs.template_id,
-        copy_bundle: inputs.copy_bundle,
-        media_plan: inputs.media_plan,
-        theme_overrides: {}, // Tenant-scoped theme would come from config
+        site_id: inputs.site_id,
+        site_generation_run_id: inputs.site_generation_run_id,
+        website_package: inputs.website_package,
       };
-    case "preview_publish":
-      // Uses render_spec from look_and_feel output
+    case "supabase_mirror_upsert":
       return {
-        render_spec: inputs.render_spec,
+        site_id: inputs.site_id,
+        site_generation_run_id: inputs.site_generation_run_id,
+        artifact_ref: inputs.artifact_ref,
+        lease_id: inputs.lease_id,
+      };
+    case "payload_sync_local":
+      return {
+        site_id: inputs.site_id,
+        site_generation_run_id: inputs.site_generation_run_id,
+        mirror_write_ref: inputs.mirror_write_ref,
+        lease_id: inputs.lease_id,
+      };
+    case "preview_readiness_check":
+      return {
+        site_id: inputs.site_id,
+        site_generation_run_id: inputs.site_generation_run_id,
+        payload_sync_ref: inputs.payload_sync_ref,
+        preview_url: inputs.preview_url,
+      };
+    case "crm_ready_to_contact_mark":
+      return {
+        lead_record_ref: inputs.lead_record_ref,
+        site_id: inputs.site_id,
+        site_generation_run_id: inputs.site_generation_run_id,
+        checks_passed: inputs.checks_passed,
+        check_report_ref: inputs.check_report_ref,
+        lease_id: inputs.lease_id,
       };
     default:
       return inputs;
