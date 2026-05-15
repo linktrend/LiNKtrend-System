@@ -25,6 +25,8 @@ Specialist agents do not merge their own work. The Integrator reviews and merges
 
 Use separate branches or worktrees for parallel work.
 
+For large waves, branches alone are not enough. Any wave with three or more concurrent agents, or any agents likely to touch overlapping repo areas, MUST use isolated worktrees or separate clean checkouts. Each agent must verify `git status --short --branch` is clean before starting. If an agent sees unrelated dirty files, it must stop before editing and report the blocker.
+
 If two agents need to edit the same file, stop and escalate to the Integrator.
 
 All significant decisions go into `.ai-swarm/DECISIONS.md`.
