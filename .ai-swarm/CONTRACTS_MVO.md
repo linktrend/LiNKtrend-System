@@ -53,6 +53,76 @@ In production, this artifact store becomes cloud cold storage (for example Googl
 
 Quality control starts with deterministic LiNKautowork checks. A dedicated QA Bot is **deferred** until deterministic checks expose a need for judgment review.
 
+### 0.A.4.1 LinkBot role contract pack v1 (WP-044)
+
+The LinkSites v2 vertical plugin MUST declare `required_linkbot_roles[]` entries for the four roles below. This section defines the minimum required role-contract fields and MVO restrictions for each role.
+
+#### `lead_scout_bot` (declared, disabled in MVO)
+
+- **purpose:** Future lead discovery and first-pass qualification for CRM intake.
+- **inputs:** `lead_input` (mock only), optional operator-provided acquisition notes.
+- **outputs:** `lead_record_ref` from mock/local substitution only.
+- **allowed_capabilities:** none in v1 MVO runtime path.
+- **allowed_skills:** none in v1 MVO runtime path.
+- **audit_events:** `role.declared`, `role.skipped`, `role.mock_substitution`.
+- **development_restrictions:**
+  - `disabled_in_mvo`
+  - `mock_input_only`
+  - `no_live_acquisition`
+  - `no_public_scraping`
+- **explicit_non_ownership:**
+  - MUST NOT own canonical memory, capability leases, secrets, deterministic workflow state, final audit, or target-app configuration.
+  - MUST NOT own CRM schema/stage definitions.
+
+#### `research_enrichment_bot`
+
+- **purpose:** Research the lead and comparable businesses; produce a provenance-backed enrichment bundle for downstream website generation.
+- **inputs:** `lead_record_ref`, `lead_input` business facts, optional prior research refs.
+- **outputs:** `lead_research_bundle` (facts + comparable set + provenance citations), optional enriched context refs.
+- **allowed_capabilities:** `public_web_research.read`, `zulip.notify` (run/operator notifications only), `plane.task.write` (mock/shadow only).
+- **allowed_skills:** LinkSkills-governed research/retrieval skills only.
+- **audit_events:** `role.started`, `role.completed`, `research.performed`, `provenance.recorded`, `role.failed`.
+- **development_restrictions:**
+  - `research_read_only`
+  - `provenance_required`
+  - `no_direct_crm_write`
+  - `no_direct_payload_or_supabase_write`
+- **explicit_non_ownership:**
+  - MUST NOT issue capability leases directly.
+  - MUST NOT persist canonical research memory directly to LiNKbrain stores; only emit event/audit refs through declared planes.
+
+#### `website_builder_bot`
+
+- **purpose:** Use discovered `LiNKsites` template(s) as guidance and produce business-specific website package content.
+- **inputs:** `lead_record_ref`, `lead_research_bundle`, discovered `template_id` or equivalent template ref.
+- **outputs:** `website_package` including business-specific copy bundle, media plan, style proposal, and template guidance refs.
+- **allowed_capabilities:** `asset_generation.generate`, `public_web_research.read`, `zulip.notify` (status only).
+- **allowed_skills:** LinkSkills-governed content-generation, style-planning, and packaging skills only.
+- **audit_events:** `role.started`, `role.completed`, `template.guidance.selected`, `website.package.generated`, `provenance.recorded`, `role.failed`.
+- **development_restrictions:**
+  - `template_guidance_not_clone`
+  - `local_artifact_target_only`
+  - `no_direct_publish`
+  - `no_target_schema_invention`
+- **explicit_non_ownership:**
+  - MUST NOT own Payload sync, Supabase mirror persistence, deterministic checks, or CRM status promotion (LiNKautowork + LinkSkills responsibilities).
+
+#### `outreach_bot` (declared, disabled in MVO)
+
+- **purpose:** Future outreach drafting/sending role for post-MVO phases.
+- **inputs:** `lead_record_ref`, `website_package` summary (future).
+- **outputs:** none in v1 MVO; role skip evidence only.
+- **allowed_capabilities:** none in v1 MVO runtime path.
+- **allowed_skills:** none in v1 MVO runtime path.
+- **audit_events:** `role.declared`, `role.skipped`.
+- **development_restrictions:**
+  - `disabled_in_mvo`
+  - `no_outreach_draft`
+  - `no_outreach_send`
+  - `no_external_contact`
+- **explicit_non_ownership:**
+  - MUST NOT own message-channel configuration, send-policy approvals, or communication logs as canonical audit (LiNKaios/LinkSkills/LiNKbrain own these planes).
+
 ### 0.A.5 Required v1 capability plugins
 
 The v2 MVO requires capability plugins (governed connectors) covering:
@@ -121,6 +191,27 @@ A v2 LinkSites MVO run is considered successful when, in development mode:
 10. Zulip notifications and Plane execution-tracking writes occur in mock/shadow mode with full lease + audit trail.
 
 Every step above MUST produce: a LinkSkills lease (for side-effecting steps), a LiNKbrain audit event chain (§§6.3, 8), and a LiNKautowork workflow run reference (for deterministic steps), all visible from the LiNKaios trace/status surface. A v2 run that lacks any of audit/lease/memory/trace for a step that performed work is **unacceptable** per `.cursor/rules/04-mvo-scope-and-stubbing.mdc`.
+
+### 0.A.10.1 LiNKautowork LinkSites v2 deterministic workflow contract pack (WP-045)
+
+The LinkSites v2 development-mode flow requires the following deterministic workflow handles in LiNKautowork:
+
+| Workflow handle | Purpose | Deterministic inputs | Deterministic outputs | Run-ledger refs | Audit events | Lease required |
+|---|---|---|---|---|---|---|
+| `autowork.linksites.artifact_write_local` | Write generated site package to the local development artifact folder only. | `tenant_id`, `run_id`, `site_id`, `site_generation_run_id`, `artifact_bundle_ref`, `artifact_root_path`, `idempotency_key` | `artifact_ref`, `artifact_manifest_ref`, `artifact_root_path`, `written_files_count`, `artifact_digest` | `Stage.refs.workflow_run_ids[]`, `subject.workflow_run_id` | `workflow.invoked`, `workflow.completed` or `workflow.failed` | No |
+| `autowork.linksites.supabase_mirror_upsert` | Upsert discovered/approved mirror records from artifact outputs into Supabase mirror. | `tenant_id`, `run_id`, `site_id`, `site_generation_run_id`, `artifact_ref`, `mirror_payload_ref`, `lease_id`, `idempotency_key` | `mirror_write_ref`, `mirror_revision_ref`, `upserted_records_count`, `mirror_digest` | `Stage.refs.workflow_run_ids[]`, `Stage.refs.lease_ids[]`, LinkSkills `ledger_entry_id` | `workflow.invoked`, `workflow.completed` or `workflow.failed` | Yes (`lease_id` required) |
+| `autowork.linksites.payload_sync_local` | Sync mirror-backed content into local Payload CMS for preview. | `tenant_id`, `run_id`, `site_id`, `site_generation_run_id`, `mirror_write_ref`, `payload_target_ref`, `lease_id`, `idempotency_key` | `payload_sync_ref`, `payload_document_refs`, `payload_sync_status` | `Stage.refs.workflow_run_ids[]`, `Stage.refs.lease_ids[]`, LinkSkills `ledger_entry_id` | `workflow.invoked`, `workflow.completed` or `workflow.failed` | Yes (`lease_id` required) |
+| `autowork.linksites.preview_readiness_check` | Run deterministic quality gates against the preview-ready site. | `tenant_id`, `run_id`, `site_id`, `site_generation_run_id`, `payload_sync_ref`, `preview_url`, `required_pages`, `required_navigation_items`, `required_content_blocks`, `required_media_refs`, `idempotency_key` | `checks_passed`, `check_report_ref`, `failed_checks[]`, `preview_readiness_status` | `Stage.refs.workflow_run_ids[]`, `subject.workflow_run_id` | `workflow.invoked`, `workflow.completed` or `workflow.failed` | No |
+| `autowork.linksites.crm_ready_to_contact_mark` | Set CRM/mock lead status to `ready_to_contact` only after readiness checks pass. | `tenant_id`, `run_id`, `lead_id`, `site_id`, `site_generation_run_id`, `checks_passed`, `check_report_ref`, `lease_id`, `idempotency_key` | `crm_record_id`, `lead_status`, `status_updated_at` | `Stage.refs.workflow_run_ids[]`, `Stage.refs.lease_ids[]`, LinkSkills `ledger_entry_id` | `workflow.invoked`, `workflow.completed` or `workflow.failed` | Yes (`lease_id` required) |
+
+Contract rules for the five handles above:
+
+- **Idempotency rule:** `idempotency_key` MUST be `${run_id}:${stage_id}:${workflow_handle}` and repeat invocation MUST return the original `workflow_run_id` and outputs without duplicating side effects.
+- **Retry rule:** max 3 attempts for `retryable` failures with exponential backoff `1s, 4s, 16s`; no retry for policy-denied lease failures.
+- **Failure mapping:** capability and workflow errors map to §5.4 codes only: `WORKFLOW_NOT_FOUND`, `WORKFLOW_STEP_FAILED`, `WORKFLOW_TIMEOUT`, `WORKFLOW_COMPENSATED`, `INTEGRATION_UNAVAILABLE`, `INTEGRATION_AUTH_FAILED`, `INTEGRATION_TIMEOUT`, `LEASE_DENIED`, `LEASE_EXPIRED`, `LEASE_KILL_SWITCH`, `LEASE_IDEMPOTENCY_CONFLICT`, `POLICY_REQUIRES_APPROVAL`.
+- **Lease gate rule:** every side-effecting write (`supabase_mirror_upsert`, `payload_sync_local`, `crm_ready_to_contact_mark`) MUST fail closed when `lease_id` is absent, invalid, expired, denied, or kill-switched.
+- **Development storage rule:** `artifact_write_local` is development-mode local filesystem behavior only. Production cold storage (for example Google Drive/equivalent durable archive) is future direction and not implemented in this packet.
+- **Preview readiness minimums:** `preview_readiness_check` MUST fail if any required page, navigation item, content block, media reference, provenance reference, Payload sync status, or preview availability check fails.
 
 ### 0.A.11 Relationship to §§1–13 (historical v1 contract)
 

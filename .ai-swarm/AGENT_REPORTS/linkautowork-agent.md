@@ -171,3 +171,70 @@ const result = await invokeWorkflow(request, { writeAuditEvent });
 | Compensation behavior is explicit for partial render/serve failures | ✓ Implemented, tested |
 | No reasoning, capability policy, or LiNKaios orchestration implemented | ✓ Verified |
 | No real DigitalOcean/Payload publishing | ✓ Verified (static/local stub) |
+
+---
+
+## WP-045 — LinkSites workflow contract pack (2026-05-15)
+
+### Objective
+
+Define the LinkSites v2 LiNKautowork deterministic workflow contract pack (artifact write, Supabase mirror update, Payload sync, preview readiness checks, CRM `ready_to_contact` status update) in the MVO contracts without implementing live workflows.
+
+### Files Changed
+
+- `.ai-swarm/CONTRACTS_MVO.md`
+- `.ai-swarm/INTEGRATION_QUEUE.md`
+- `.ai-swarm/AGENT_REPORTS/linkautowork-agent.md`
+
+### Commands Run
+
+```bash
+ls -la
+rg --files | rg -i 'README|AGENTS\\.md|CODEX|CURSOR|WORK.?PACKET|docs|\\.md$'
+sed -n '1,220p' README.md
+sed -n '1,220p' docs/README.md
+sed -n '1,260p' docs/ecosystem/development-plan/10_Agent_Operating_Rules_v2.md
+sed -n '1,260p' .cursor/rules/00-linktrend-master-rule.mdc
+sed -n '1,260p' .cursor/rules/01-ecosystem-boundaries.mdc
+sed -n '1,260p' .cursor/rules/03-agent-swarm-coordination.mdc
+sed -n '1,260p' .ai-swarm/MASTER_PLAN.md
+sed -n '1,260p' .ai-swarm/ARCHITECTURE_RULES.md
+sed -n '1,260p' .ai-swarm/DECISIONS.md
+sed -n '1,320p' .ai-swarm/WORK_PACKETS/WP-045-linkautowork-linksites-workflow-contract.md
+sed -n '1,260p' .ai-swarm/AGENT_PROMPTS/WP-045-linkautowork-linksites-workflow-contract.prompt.md
+sed -n '1,320p' .ai-swarm/LINKSITES_VERTICAL_MVO_V2.md
+sed -n '1,320p' .ai-swarm/PLUGIN_ARCHITECTURE_V2.md
+sed -n '1,360p' .ai-swarm/CONTRACTS_MVO.md
+sed -n '1,240p' .ai-swarm/INTEGRATION_QUEUE.md
+sed -n '1,260p' .ai-swarm/AGENT_REPORTS/linkautowork-agent.md
+git status --short --branch
+git fetch origin
+git switch development
+git pull --ff-only origin development
+git switch -c dev/codex/WP-045-linkautowork-linksites-workflow-contract
+rg -n "workflow handle|required_workflow_hooks|autowork\\.|LiNKautowork|deterministic checks|ready_to_contact|retry|idempotency|failure mapping" .ai-swarm/CONTRACTS_MVO.md
+sed -n '740,940p' .ai-swarm/CONTRACTS_MVO.md
+```
+
+### Validation / Tests
+
+- Contract/docs-only packet; no TypeScript/Zod code paths changed.
+- No package tests required by packet acceptance criteria because `packages/linklogic-sdk` was not modified.
+
+### Proof Of Boundaries
+
+- No VPS deployment path added.
+- No live n8n or live workflow implementation added.
+- No real outreach path added.
+- No Payload or Supabase schema invention added.
+- Side-effecting workflow handles explicitly require LinkSkills leases in the contract.
+- Local artifact write is explicitly development-only with production cold storage marked as future direction.
+
+### Blockers / Questions
+
+- `.ai-swarm/ARCHITECT_REVIEW_REPORT.md` was referenced by rules but is not present in this repo snapshot; proceeded using available current `.ai-swarm` source-of-truth files.
+
+### Branch / Commit
+
+- Branch: `dev/codex/WP-045-linkautowork-linksites-workflow-contract`
+- Commit SHA: `2a209cb` (Integrator recovery commit on `development`)

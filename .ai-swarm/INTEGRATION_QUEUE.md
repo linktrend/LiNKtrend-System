@@ -30,6 +30,22 @@ All entries default to **development mode** (local/mock side effects with full L
 - Real VPS deployment, customer domains, DNS, TLS, production hosting. Hosted preview/publish work remains tracked under post-MVO row INT-033.
 - Cloud cold storage backend for production artifacts. Forward-looking only; no v2 implementation row.
 
+### WP-045 deterministic workflow-handle mapping (LinkSites v2)
+
+The LinkSites v2 deterministic workflow contract pack is documented in `CONTRACTS_MVO.md` §0.A.10.1 with the following handles:
+
+- `autowork.linksites.artifact_write_local`
+- `autowork.linksites.supabase_mirror_upsert`
+- `autowork.linksites.payload_sync_local`
+- `autowork.linksites.preview_readiness_check`
+- `autowork.linksites.crm_ready_to_contact_mark`
+
+Notes:
+
+- Side-effecting handles are lease-gated through LinkSkills (`supabase_mirror_upsert`, `payload_sync_local`, `crm_ready_to_contact_mark`).
+- `artifact_write_local` is development-only local storage behavior.
+- Production cloud cold storage remains post-MVO direction and is not implemented here.
+
 
 
 ## Queue template

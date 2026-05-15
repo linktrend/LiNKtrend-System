@@ -1,3 +1,105 @@
+# LinkBot Agent Report — WP-044
+
+**Agent:** LinkBot Agent
+**Work Packet:** WP-044 — LinkBot role contract pack v1
+**Date:** 2026-05-15
+**Status:** COMPLETE
+
+---
+
+## Objective
+
+Define LinkSites LinkBot role contracts (Lead Scout, Research/Enrichment, Website Builder, Outreach) for the v2 MVO without implementing runtime prompts or behavior.
+
+---
+
+## Files Changed
+
+- `.ai-swarm/CONTRACTS_MVO.md`
+- `.ai-swarm/LINKAIOS_KERNEL_MANIFEST.md`
+- `.ai-swarm/AGENT_REPORTS/linkbot-agent.md`
+
+No runtime code, capability plugin code, or connector implementation files were changed.
+
+---
+
+## Commands Run
+
+```bash
+git fetch origin
+git switch development
+git pull --ff-only origin development
+git switch -c dev/codex/WP-044-linkbot-role-contract-pack-v1
+sed -n '1,260p' .cursor/rules/00-linktrend-master-rule.mdc
+sed -n '1,260p' .cursor/rules/01-ecosystem-boundaries.mdc
+sed -n '1,300p' .cursor/rules/03-agent-swarm-coordination.mdc
+sed -n '1,320p' .ai-swarm/LINKSITES_VERTICAL_MVO_V2.md
+sed -n '1,320p' .ai-swarm/PLUGIN_ARCHITECTURE_V2.md
+sed -n '1,320p' .ai-swarm/WORK_PACKETS/WP-044-linkbot-role-contract-pack-v1.md
+sed -n '1,360p' .ai-swarm/CONTRACTS_MVO.md
+sed -n '1,360p' .ai-swarm/LINKAIOS_KERNEL_MANIFEST.md
+```
+
+---
+
+## Contract Output Summary
+
+Added LinkBot role contract pack v1 definitions with required fields for all four roles:
+
+- `lead_scout_bot` (declared, disabled in MVO)
+- `research_enrichment_bot` (enabled)
+- `website_builder_bot` (enabled)
+- `outreach_bot` (declared, disabled in MVO)
+
+For each role, contracts now define:
+
+- role id
+- purpose
+- inputs
+- outputs
+- allowed capabilities
+- allowed skills
+- audit events
+- development-mode restrictions
+- explicit non-ownership boundaries
+
+---
+
+## Proof: No Live Lead Acquisition or Outreach Added
+
+- Lead Scout role is explicitly marked `disabled_in_mvo`, `mock_input_only`, `no_live_acquisition`, and `no_public_scraping`.
+- Outreach role is explicitly marked `disabled_in_mvo`, `no_outreach_draft`, `no_outreach_send`, and `no_external_contact`.
+- No runtime files (`apps/bot-runtime/**`) were modified.
+- No capability plugin runtime wiring was added for acquisition or outreach.
+
+---
+
+## Validation / Tests
+
+No TypeScript or Zod contract files under `packages/linklogic-sdk` were changed in this packet, so package tests were not required.
+
+Validation performed:
+
+- Contract docs reviewed against WP-044 required outputs and hard boundaries.
+- File scope checked against WP-044 allowed/prohibited file list.
+
+---
+
+## Blockers / Questions
+
+None.
+
+---
+
+## Branch and Commit
+
+- **Branch:** `dev/codex/WP-044-linkbot-role-contract-pack-v1`
+- **Commit SHA:** `2a209cb` (Integrator recovery commit on `development`)
+
+---
+
+## Historical Report Content Preserved
+
 # LinkBot Agent Report — WP-009
 
 **Agent:** LinkBot Agent  

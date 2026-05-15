@@ -22,6 +22,28 @@ The v2 LinkSites vertical plugin will, in its own forthcoming manifest (owned by
 
 The concrete §4-shaped manifest instance for LinkSites v2 MUST NOT be written ahead of WP-042 discovery; doing so violates `LINKSITES_VERTICAL_MVO_V2.md` §"Discovery Requirements" and the v2 hard boundary against inventing Payload or Supabase schemas. §4 below remains the historical v1 reference.
 
+### 0.A.3 LinkBot role contract pack v1 declaration (WP-044)
+
+For LinkSites v2, the plugin-level `required_linkbot_roles[]` MUST include exactly four declared role contracts:
+
+- `lead_scout_bot` (declared but disabled in MVO)
+- `research_enrichment_bot`
+- `website_builder_bot`
+- `outreach_bot` (declared but disabled in MVO)
+
+Kernel validation expectations for this pack:
+
+- Each role contract MUST declare: `role_id`, `purpose`, `inputs`, `outputs`, `allowed_capabilities`, `allowed_skills`, `audit_events`, and `development_restrictions`.
+- Disabled roles (`lead_scout_bot`, `outreach_bot`) MUST declare explicit `development_restrictions` containing disabled/mock behavior and MUST emit skip audit evidence rather than performing side effects.
+- Enabled roles MUST use only governed capabilities and skills declared by the LinkSites vertical plugin; they MUST NOT embed connector internals (Zulip/Odoo/Payload/Plane target-app configuration) into LinkBot role logic.
+- Each role contract MUST include explicit non-ownership language matching §2 and `CONTRACTS_MVO.md` §0.A.4.1:
+  - no canonical memory ownership.
+  - no capability lease issuance ownership.
+  - no secrets ownership.
+  - no deterministic workflow state ownership.
+  - no final audit ownership.
+  - no target-app configuration ownership.
+
 ### 0.A.1 Kernel non-ownership reaffirmed under v2
 
 Under v2 the kernel still MUST NOT:
