@@ -1767,3 +1767,57 @@ pnpm --filter @linktrend/linkaios-web test -- src/lib/kernel/kernel.test.ts src/
 
 - Plane adapter `live` and `shadow_readiness` modes are intentionally scaffold-only in WP-033; remote API calls and external error/rate handling remain for cutover WP.
 - Mapping upsert conflict policy currently allows remapping IDs on repeat key writes; finalize immutability policy before remote cutover if strict one-way mapping is required.
+## WP-042 — LinkSites template and Payload discovery (2026-05-15)
+
+### Scope
+Read-only discovery in `/Users/linktrend/Projects/LiNKsites` to identify existing master template, Payload CMS model, Supabase mirror/schema clues, and preview frontend data path. No implementation code or schema invention.
+
+### Deliverables
+
+- Added `.ai-swarm/LINKSITES_TEMPLATE_PAYLOAD_DISCOVERY.md` with:
+  - exact template paths
+  - Payload collection/model paths
+  - Supabase schema/mapping/sync paths
+  - frontend preview read paths
+  - local boot/env assumptions
+  - facts vs assumptions, blockers, command log, and read-only proof
+
+### Commands run
+
+```bash
+git fetch origin
+git switch development
+git pull --ff-only origin development
+git switch -c dev/codex/WP-042-linksites-template-payload-discovery
+
+ls -la /Users/linktrend/Projects/LiNKsites
+rg --files /Users/linktrend/Projects/LiNKsites
+rg -n "payload|collection|slug|supabase|preview|web-master|template|industry|block|cms|payload.config|buildConfig|generated" /Users/linktrend/Projects/LiNKsites -g '!**/node_modules/**'
+sed -n '1,260p' /Users/linktrend/Projects/LiNKsites/apps/cms/src/payload.config.ts
+sed -n '1,220p' /Users/linktrend/Projects/LiNKsites/apps/web-master/src/templates/registry.ts
+sed -n '1,220p' /Users/linktrend/Projects/LiNKsites/apps/web-master/src/templates/marketing-smb-v1.ts
+sed -n '1,260p' /Users/linktrend/Projects/LiNKsites/apps/web-master/src/app/'[lang]'/'[[...slug]]'/page.tsx
+sed -n '1,220p' /Users/linktrend/Projects/LiNKsites/supabase/schemas/cms-mapping.json
+sed -n '1,220p' /Users/linktrend/Projects/LiNKsites/supabase/migrations/20260331_000001_lsites_init.sql
+git -C /Users/linktrend/Projects/LiNKsites status --short
+```
+
+### Known facts
+
+- Master template: `LiNKsites/apps/web-master` (`src/templates/registry.ts`, `src/templates/marketing-smb-v1.ts`).
+- Payload model is already implemented in `LiNKsites/apps/cms/src/payload.config.ts` + `src/collections/*`.
+- Supabase mirror clues are concrete under `LiNKsites/supabase/` (`lsites_core` migration + schemas + `cms-mapping.json`) with sync scripts in `apps/cms/scripts/`.
+- Preview frontend reads Payload via `apps/web-master/src/lib/payload-client.ts` and repository callers in route `src/app/[lang]/[[...slug]]/page.tsx`.
+
+### Assumptions
+
+- `marketing-smb-v1` is the currently active default template module; additional industry variants are not currently registered in `src/templates/registry.ts`.
+
+### Blockers / questions
+
+- No discovery blocker.
+- Follow-up packets should confirm whether to keep single-template default + seeded variants or add additional explicit template modules before v2 automation wiring.
+
+### Read-only proof
+
+- `git -C /Users/linktrend/Projects/LiNKsites status --short` showed no modifications in the `LiNKsites` repository during WP-042.
