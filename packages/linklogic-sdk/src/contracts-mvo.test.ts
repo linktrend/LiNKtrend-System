@@ -8,6 +8,12 @@ import {
   FailureReportSchema,
   LeadInputSchema,
   LeaseRequestSchema,
+  LinkSitesV2CapabilityPluginIdSchema,
+  LinkSitesV2DiscoveredRefsSchema,
+  LinkSitesV2PreviewReadinessSummarySchema,
+  LinkSitesV2RoleIdSchema,
+  LinkSitesV2TemplateIdSchema,
+  LinkSitesV2WorkflowHandleSchema,
   PlaneSchema,
   PluginManifestSchema,
   PreviewOutputSchema,
@@ -506,6 +512,139 @@ describe("PreviewOutputSchema", () => {
         workflow_run_ids: [],
         audit_event_ids: [],
         status: "succeeded",
+      }).success,
+    ).toBe(false);
+  });
+});
+
+describe("LinkSites v2 focused schemas (WP-046)", () => {
+  it("accepts only discovered template id", () => {
+    expect(LinkSitesV2TemplateIdSchema.safeParse("marketing-smb-v1").success).toBe(
+      true,
+    );
+    expect(LinkSitesV2TemplateIdSchema.safeParse("custom-template").success).toBe(
+      false,
+    );
+  });
+
+  it("accepts canonical v2 role ids and rejects unknown ids", () => {
+    expect(LinkSitesV2RoleIdSchema.safeParse("website_builder_bot").success).toBe(
+      true,
+    );
+    expect(LinkSitesV2RoleIdSchema.safeParse("qa_bot").success).toBe(false);
+  });
+
+  it("accepts canonical v2 capability plugin ids and rejects invented ids", () => {
+    expect(
+      LinkSitesV2CapabilityPluginIdSchema.safeParse("cap.payload.local_sync")
+        .success,
+    ).toBe(true);
+    expect(
+      LinkSitesV2CapabilityPluginIdSchema.safeParse("cap.payload.remote_live_sync")
+        .success,
+    ).toBe(false);
+  });
+
+  it("accepts canonical v2 workflow handles and rejects unknown handles", () => {
+    expect(
+      LinkSitesV2WorkflowHandleSchema.safeParse(
+        "autowork.linksites.preview_readiness_check",
+      ).success,
+    ).toBe(true);
+    expect(
+      LinkSitesV2WorkflowHandleSchema.safeParse("autowork.linksites.publish_live")
+        .success,
+    ).toBe(false);
+  });
+
+  it("rejects invented discovered refs", () => {
+    expect(
+      LinkSitesV2DiscoveredRefsSchema.safeParse({
+        template_registry_ref:
+          "/Users/linktrend/Projects/LiNKsites/apps/web-master/src/templates/registry.ts",
+        template_module_ref:
+          "/Users/linktrend/Projects/LiNKsites/apps/web-master/src/templates/marketing-smb-v1.ts",
+        payload_config_ref:
+          "/Users/linktrend/Projects/LiNKsites/apps/cms/src/payload.config.ts",
+        supabase_schema_ref:
+          "/Users/linktrend/Projects/LiNKsites/supabase/schemas/lsites_core.schema.json",
+        supabase_cms_mapping_ref:
+          "/Users/linktrend/Projects/LiNKsites/supabase/schemas/cms-mapping.json",
+        payload_reader_ref:
+          "/Users/linktrend/Projects/LiNKsites/apps/web-master/src/lib/payload-client.ts",
+      }).success,
+    ).toBe(true);
+
+    expect(
+      LinkSitesV2DiscoveredRefsSchema.safeParse({
+        template_registry_ref:
+          "/Users/linktrend/Projects/LiNKsites/apps/web-master/src/templates/registry.ts",
+        template_module_ref:
+          "/Users/linktrend/Projects/LiNKsites/apps/web-master/src/templates/marketing-smb-v2.ts",
+        payload_config_ref:
+          "/Users/linktrend/Projects/LiNKsites/apps/cms/src/payload.config.ts",
+        supabase_schema_ref:
+          "/Users/linktrend/Projects/LiNKsites/supabase/schemas/lsites_core.schema.json",
+        supabase_cms_mapping_ref:
+          "/Users/linktrend/Projects/LiNKsites/supabase/schemas/cms-mapping.json",
+        payload_reader_ref:
+          "/Users/linktrend/Projects/LiNKsites/apps/web-master/src/lib/payload-client.ts",
+      }).success,
+    ).toBe(false);
+  });
+
+  it("enforces development/local preview-readiness summary and status consistency", () => {
+    expect(
+      LinkSitesV2PreviewReadinessSummarySchema.safeParse({
+        tenant_id: "t-1",
+        run_id: RUN_ID,
+        lead_id: "lead-1",
+        generation: {
+          site_id: "site-1",
+          site_generation_run_id: "gen-1",
+        },
+        template_id: "marketing-smb-v1",
+        checks_passed: true,
+        failed_checks: [],
+        preview_readiness_status: "ready_to_contact",
+        execution_mode: "development",
+        generated_artifact_root_kind: "local",
+      }).success,
+    ).toBe(true);
+
+    expect(
+      LinkSitesV2PreviewReadinessSummarySchema.safeParse({
+        tenant_id: "t-1",
+        run_id: RUN_ID,
+        lead_id: "lead-1",
+        generation: {
+          site_id: "site-1",
+          site_generation_run_id: "gen-1",
+        },
+        template_id: "marketing-smb-v1",
+        checks_passed: true,
+        failed_checks: [],
+        preview_readiness_status: "ready_to_contact",
+        execution_mode: "live",
+        generated_artifact_root_kind: "local",
+      }).success,
+    ).toBe(false);
+
+    expect(
+      LinkSitesV2PreviewReadinessSummarySchema.safeParse({
+        tenant_id: "t-1",
+        run_id: RUN_ID,
+        lead_id: "lead-1",
+        generation: {
+          site_id: "site-1",
+          site_generation_run_id: "gen-1",
+        },
+        template_id: "marketing-smb-v1",
+        checks_passed: false,
+        failed_checks: ["missing navigation"],
+        preview_readiness_status: "ready_to_contact",
+        execution_mode: "development",
+        generated_artifact_root_kind: "local",
       }).success,
     ).toBe(false);
   });
