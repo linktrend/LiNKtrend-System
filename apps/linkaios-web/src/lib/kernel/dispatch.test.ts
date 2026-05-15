@@ -1,12 +1,24 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import type { Env } from "@linktrend/shared-config";
 import type { DispatchContext } from "./types";
 import {
   buildChatwootReadinessTracePayload,
+  dispatchToLinkAutowork,
   buildPreviewPublishAdapter,
   resolveChatwootReadinessTimeoutMs,
   resolvePreviewPublishMode,
 } from "./dispatch";
+
+vi.mock("@linktrend/linklogic-sdk", async () => {
+  const actual = await vi.importActual<typeof import("@linktrend/linklogic-sdk")>("@linktrend/linklogic-sdk");
+  return {
+    ...actual,
+    writeBrainAuditEvent: vi.fn(async (_env, event) => ({
+      event_id: event.event_id,
+      persisted: true,
+    })),
+  };
+});
 
 const ctx: DispatchContext = {
   tenant_id: "tenant-1",
@@ -152,5 +164,48 @@ describe("chatwoot readiness trace payload", () => {
       account_id_configured: true,
       http_status: 401,
     });
+  });
+});
+
+describe("dispatchToLinkAutowork linksites v2 wiring", () => {
+  it("invokes non-lease linksites handle and returns workflow + audit refs", async () => {
+    const result = await dispatchToLinkAutowork(envWith({}), ctx, {
+      workflow_handle: "autowork.linksites.artifact_write_local",
+      inputs: {
+        artifact_root_path: "/tmp/linksites-artifacts",
+      },
+      idempotency_key: "run-1:artifact_write_local:autowork.linksites.artifact_write_local",
+    });
+
+    expect(result.success).toBe(true);
+    expect(result.workflow_run_id).toMatch(/^wf-/);
+    expect(result.audit_event_ids?.length).toBe(2);
+    expect(result.outputs?.artifact_ref).toBeDefined();
+  });
+
+  it("fails closed for lease-gated linksites write handles when lease_id is missing", async () => {
+    const result = await dispatchToLinkAutowork(envWith({}), ctx, {
+      workflow_handle: "autowork.linksites.supabase_mirror_upsert",
+      inputs: {},
+      idempotency_key: "run-1:supabase_mirror_upsert:autowork.linksites.supabase_mirror_upsert",
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.failure?.code).toBe("LEASE_DENIED");
+    expect(result.audit_event_ids?.length).toBe(2);
+  });
+
+  it("allows lease-gated linksites write handles when lease_id is provided", async () => {
+    const result = await dispatchToLinkAutowork(envWith({}), ctx, {
+      workflow_handle: "autowork.linksites.crm_ready_to_contact_mark",
+      inputs: {},
+      idempotency_key: "run-1:crm_ready_to_contact_mark:autowork.linksites.crm_ready_to_contact_mark",
+      lease_id: "lease-1",
+    });
+
+    expect(result.success).toBe(true);
+    expect(result.outputs?.lead_status).toBe("ready_to_contact");
+    expect(result.workflow_run_id).toMatch(/^wf-/);
+    expect(result.audit_event_ids?.length).toBe(2);
   });
 });
