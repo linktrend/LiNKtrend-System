@@ -1,5 +1,47 @@
 ## Assigned Work Packet
 
+**WP-060 — LinkSkills completion plan and governance service hardening**
+**Status:** COMPLETE (recovered by Integrator with unique follow-up packet numbers)
+**Date:** 2026-05-15
+
+## Objective
+
+Define the completion path for LinkSkills as both the permission/control plane and the governed skills service for LinkBots, preserving Golden Template, progressive discovery, progressive execution, validation, and catalog governance.
+
+## Files Changed
+
+- `.ai-swarm/LINKSKILLS_COMPLETION_PLAN.md`
+- `.ai-swarm/DECISIONS.md`
+- `.ai-swarm/WORK_PACKETS/WP-075-linkskills-database-schema.md`
+- `.ai-swarm/WORK_PACKETS/WP-076-linkskills-capability-catalog-api.md`
+- `.ai-swarm/WORK_PACKETS/WP-077-linkskills-lease-lifecycle.md`
+- `.ai-swarm/WORK_PACKETS/WP-078-linkskills-kill-switch.md`
+- `.ai-swarm/WORK_PACKETS/WP-079-linkskills-golden-template.md`
+- `.ai-swarm/WORK_PACKETS/WP-080-linkskills-progressive-disclosure.md`
+- `.ai-swarm/WORK_PACKETS/WP-081-linkskills-integration-tests.md`
+- `.ai-swarm/AGENT_REPORTS/linkskills-agent.md`
+
+## Integrator Notes
+
+- Original WP-060 output used WP-061..WP-067 for follow-up packets, which collided with active LinkBot adapter packet numbers.
+- Integrator preserved the plan and renumbered LinkSkills follow-up packets to WP-075..WP-081.
+- The branch's destructive rewrite of historical `linkskills-agent.md` was not accepted; this section was appended instead.
+
+## Proof
+
+- Planning/documentation packet; no runtime code changed.
+- Source evidence came from `/Users/linktrend/Projects/LiNKskills` docs and Golden Template / skill-architect materials.
+
+## Branch and Commit
+
+- Source branch: `dev/codex/WP-060-linkskills-completion-plan-governance-service-hardening`
+- Source commit: `44569ad`
+- Integrated on `development` by the Integrator.
+
+---
+
+## Assigned Work Packet
+
 **WP-055 — Postiz distribution capability scaffold**
 **Status:** COMPLETE
 **Date:** 2026-05-15
