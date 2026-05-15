@@ -49,7 +49,7 @@ None for this packet. v2 implementation cannot proceed until WP-042 returns conc
 ### Final branch + commit SHA
 
 - Branch: `dev/codex/WP-041-linksites-vertical-contract-v2`
-- Commit SHA: recorded by integrator after `git commit && git push`. (Captured in commit footer; see `git log -1 dev/codex/WP-041-linksites-vertical-contract-v2 --format=%H` once pushed.)
+- Commit SHA: `04e77e90d856c6e045614fa081070fc83274712d`
 
 ---
 
