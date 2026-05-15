@@ -352,3 +352,8 @@ git -C /Users/linktrend/Projects/LiNKsites status --short
 
 - No blocker for discovery completion.
 - Remaining design question for follow-up packet: whether industry variants stay seed-driven under one registered template module or need separate registered template modules now.
+
+### Final branch / commit
+
+- Branch: `dev/codex/WP-042-linksites-template-payload-discovery`
+- Commit: `36ab2c7`

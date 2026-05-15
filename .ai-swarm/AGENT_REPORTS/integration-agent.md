@@ -1821,3 +1821,8 @@ git -C /Users/linktrend/Projects/LiNKsites status --short
 ### Read-only proof
 
 - `git -C /Users/linktrend/Projects/LiNKsites status --short` showed no modifications in the `LiNKsites` repository during WP-042.
+
+### Final branch / commit
+
+- Branch: `dev/codex/WP-042-linksites-template-payload-discovery`
+- Commit: `36ab2c7`
