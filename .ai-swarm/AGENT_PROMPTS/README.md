@@ -13,4 +13,7 @@ WP-042 Execute the prompt in file WP-042-linksites-template-payload-discovery.pr
 WP-043 Execute the prompt in file WP-043-capability-plugin-contract-pack-v1.prompt.md located in .ai-swarm/AGENT_PROMPTS/.
 WP-044 Execute the prompt in file WP-044-linkbot-role-contract-pack-v1.prompt.md located in .ai-swarm/AGENT_PROMPTS/.
 WP-045 Execute the prompt in file WP-045-linkautowork-linksites-workflow-contract.prompt.md located in .ai-swarm/AGENT_PROMPTS/.
+WP-046 Execute the prompt in file WP-046-linksites-v2-sdk-contracts.prompt.md located in .ai-swarm/AGENT_PROMPTS/.
+WP-047 Execute the prompt in file WP-047-linkskills-linksites-capability-catalog.prompt.md located in .ai-swarm/AGENT_PROMPTS/.
+WP-048 Execute the prompt in file WP-048-linkautowork-linksites-workflow-scaffold.prompt.md located in .ai-swarm/AGENT_PROMPTS/.
 ```
