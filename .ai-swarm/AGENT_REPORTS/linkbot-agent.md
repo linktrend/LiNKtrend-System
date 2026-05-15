@@ -1,3 +1,108 @@
+# LinkBot Agent Report — WP-061
+
+**Agent:** LinkBot Agent
+**Work Packet:** WP-061 — LiNKbot-core upstream sync and integration readiness
+**Date:** 2026-05-15
+**Status:** COMPLETE (sync blocked by conflicts; readiness report delivered)
+
+---
+
+## Objective
+
+Sync and discover `/Users/linktrend/Projects/LiNKbot-core` against upstream, then document what remains for LiNKaios, LinkSkills, LiNKbrain, LiNKautowork, and Zulip integration.
+
+---
+
+## Files Changed
+
+- `.ai-swarm/LINKBOT_CORE_SYNC_READINESS.md` (new)
+- `.ai-swarm/AGENT_REPORTS/linkbot-agent.md` (this update)
+
+No target repo files were modified or committed.
+
+---
+
+## Commands Run
+
+```bash
+# clean coordination relaunch
+git -C /Users/linktrend/Projects/LiNKtrend-System fetch origin
+git -C /Users/linktrend/Projects/LiNKtrend-System worktree add -b dev/codex/WP-061-linkbot-core-upstream-sync-integration-readiness-relaunch /Users/linktrend/Projects/LiNKtrend-System-wp061 origin/development
+
+# target repo proof and sync trial
+git -C /Users/linktrend/Projects/LiNKbot-core remote -v
+git -C /Users/linktrend/Projects/LiNKbot-core status --short --branch
+git -C /Users/linktrend/Projects/LiNKbot-core fetch upstream --prune
+git -C /Users/linktrend/Projects/LiNKbot-core fetch origin --prune
+git -C /Users/linktrend/Projects/LiNKbot-core rev-list --left-right --count upstream/main...HEAD
+git -C /Users/linktrend/Projects/LiNKbot-core merge --no-commit --no-ff upstream/main
+git -C /Users/linktrend/Projects/LiNKbot-core merge --abort
+
+# integration-surface discovery
+sed -n '1,220p' /Users/linktrend/Projects/LiNKbot-core/docs/linktrend-governance.md
+sed -n '1,220p' /Users/linktrend/Projects/LiNKbot-core/src/linktrend/governance.ts
+sed -n '1,220p' /Users/linktrend/Projects/LiNKbot-core/src/gateway/protocol/schema/agent.ts
+sed -n '340,440p' /Users/linktrend/Projects/LiNKbot-core/src/gateway/server-methods/agent.ts
+sed -n '1,220p' /Users/linktrend/Projects/LiNKbot-core/.github/workflows/upstream-sync.yml
+```
+
+---
+
+## Upstream Sync Result
+
+- Sync is **not safely auto-completable** in this packet because `merge upstream/main` raises broad conflicts.
+- Conflicts include many `.github/workflows/*` modify/delete collisions and code content conflicts in:
+  - `src/agents/command/types.ts`
+  - `src/agents/pi-embedded-runner/run.ts`
+  - `src/config/types.openclaw.ts`
+  - `src/gateway/server-methods/agent.ts`
+- Merge was aborted; target branch returned clean.
+
+---
+
+## Integration Readiness Output
+
+Detailed findings and next packet recommendations are documented in:
+
+- `.ai-swarm/LINKBOT_CORE_SYNC_READINESS.md`
+
+Summary:
+
+- Governance ingress and payload forwarding are already implemented.
+- Lifecycle signals and approved-tool narrowing (`toolsAllow`) are present.
+- Remaining gaps are cross-plane: fail-closed policy rollout, lease-governed capability projection, LiNKbrain audit mapping, LiNKautowork deterministic handoff orchestration, and Zulip governance adapter wiring.
+
+---
+
+## Validation / Tests
+
+No target-repo code changes were committed, so test/typecheck execution was not required for WP-061.
+
+Validation performed:
+
+- git remote/branch/status proof captured before/after sync trial
+- upstream fetch + merge trial + abort proof captured
+- source-file evidence for runtime/ingress/governance surfaces captured
+
+---
+
+## Blockers / Risks
+
+- **Primary blocker:** high-conflict upstream merge surface (workflow deletions in fork vs upstream workflow modifications).
+- **Risk:** recurring manual conflict cost unless fork sync policy is narrowed or workflow policy is reconciled.
+
+---
+
+## Branch and Commit
+
+- **Coordination branch:** `dev/codex/WP-061-linkbot-core-upstream-sync-integration-readiness-relaunch`
+- **Target branch inspected:** `dev/codex/WP-061-linkbot-core-upstream-sync-integration-readiness`
+- **Target code commit:** none in WP-061
+
+---
+
+## Historical Report Content Preserved
+
 # LinkBot Agent Report — WP-044
 
 **Agent:** LinkBot Agent
