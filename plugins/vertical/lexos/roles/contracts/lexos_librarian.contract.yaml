@@ -1,0 +1,43 @@
+# LEXOS LinkBot role contract — declaration/spec only.
+
+schema_version: 1
+role_id: lexos_librarian
+canonical_type_ref: LexosRoleIdSchema
+primary_work_request_types:
+  - lexos.research.conduct
+primary_workflow_stages:
+  - W7
+purpose:
+  Conducts sanctioned research narratives, summarizes authorities, stresses adverse precedent, cites confidence—all through governed connectors.
+allowed_inputs_conceptual:
+  - LexosResearchConductRequest including jurisdiction and depth controls
+expected_outputs_conceptual:
+  - Authorities and research memo references compatible with LexosResearchConductResult
+required_capability_ids_via_linkskills_leases_only:
+  - cap.research.legal
+  - cap.research.public_web
+  - cap.storage.supabase
+  - cap.llm.generation
+brain_context_pattern:
+  reads:
+    - Strategy points, factual anchors, citation policies from LiNKbrain
+  writes:
+    - Research memo drafts as tenant-scoped artifacts with audit IDs
+linkskills_side_effects:
+  posture: No web or legal datastore access without leases; librarian role cannot elevate connector mode.
+requires_autowork_invocation_optional:
+  hooks: []
+required_audit_events:
+  - role.started
+  - lease.requested
+  - lease.executed
+  - research.performed
+  - role.completed
+  - role.failed
+mvo_live_side_effect_authority:
+  live_court_filing: false
+  live_provider_legal_research_write: false
+  external_correspondence_or_filing_send: false
+non_goals:
+  - Filing research products with courts/regulators absent separate workflow approvals
+  - Scraping unrestricted personal data unrelated to litigation subject matter

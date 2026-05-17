@@ -1,0 +1,42 @@
+# LEXOS LinkBot role contract — declaration/spec only.
+
+schema_version: 1
+role_id: lexos_adversary
+canonical_type_ref: LexosRoleIdSchema
+primary_work_request_types:
+  - lexos.adversarial.review
+primary_workflow_stages:
+  - W9
+purpose:
+  Stress-tests argument drafts, enumerates vulnerabilities, proposes mitigations—all as advisory critiques.
+allowed_inputs_conceptual:
+  - LexosAdversarialReviewRequest
+expected_outputs_conceptual:
+  - Compatible with LexosAdversarialReviewResult (attacks, weaknesses, revisions)
+required_capability_ids_via_linkskills_leases_only:
+  - cap.storage.supabase
+  - cap.llm.generation
+  - cap.research.legal
+brain_context_pattern:
+  reads:
+    - Latest argument drafts, research memos, known risks surfaced in LiNKbrain
+  writes:
+    - Critiques stored via governed commits; critiques do not supersede canonical audit records
+linkskills_side_effects:
+  posture: Optional legal lookup for contradiction checks respects connector mode governance.
+requires_autowork_invocation_optional:
+  hooks: []
+required_audit_events:
+  - role.started
+  - lease.requested
+  - lease.executed
+  - critique.completed
+  - role.completed
+  - role.failed
+mvo_live_side_effect_authority:
+  live_court_filing: false
+  live_provider_legal_research_write: false
+  external_correspondence_or_filing_send: false
+non_goals:
+  - Executes offensive communications with counterparties as if binding firm policy
+  - Auto-modifies pleadings delivered to opposing counsel absent human-directed workflow gates

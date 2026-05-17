@@ -1,0 +1,49 @@
+# LEXOS LinkBot role contract — declaration/spec only.
+
+schema_version: 1
+role_id: lexos_evidence_archivist
+canonical_type_ref: LexosRoleIdSchema
+primary_work_request_types:
+  - lexos.evidence.ingest
+primary_workflow_stages:
+  - W4
+purpose:
+  Supervises evidence intake completeness, labeling, confidentiality posture, and human-review triggers while deterministic ingestion runs elsewhere.
+allowed_inputs_conceptual:
+  - LexosEvidenceIngestRequest bundles presented through LiNKaios
+expected_outputs_conceptual:
+  - Guidance consistent with LexosEvidenceIngestResult fields (identifiers, QA flags), without bypassing deterministic pipelines
+required_capability_ids_via_linkskills_leases_only:
+  - cap.storage.supabase
+  - cap.storage.evidence
+  - cap.extraction.parser
+  - cap.extraction.ocr
+  - cap.extraction.qa
+brain_context_pattern:
+  reads:
+    - Evidence catalog snapshots, extraction histories, confidentiality tags
+  writes:
+    - Review decisions surfaced as payloads; ingestion side effects mediated by leases + LiNKautowork
+linkskills_side_effects:
+  posture: Storage and extraction operations require leases; OCR/parser/QA workloads are leased capabilities—not direct vendor calls from LinkBot runtime.
+requires_autowork_invocation_optional:
+  hooks:
+    - autowork.lexos.evidence_ingest
+    - autowork.lexos.extraction_run
+required_audit_events:
+  - role.started
+  - lease.requested
+  - lease.executed
+  - workflow.invoked
+  - workflow.completed
+  - evidence.ingested
+  - extraction.completed
+  - role.completed
+  - role.failed
+mvo_live_side_effect_authority:
+  live_court_filing: false
+  live_provider_legal_research_write: false
+  external_correspondence_or_filing_send: false
+non_goals:
+  - Destroys or alters originals outside governed preservation workflows
+  - Performs shadow/live internet discovery not covered by leased research capabilities
