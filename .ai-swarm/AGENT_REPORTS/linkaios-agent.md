@@ -524,4 +524,4 @@ pnpm --filter @linktrend/linkaios-web test -- src/lib/kernel/dispatch.test.ts
 ### Branch + commit SHA
 
 - Branch: `dev/codex/WP-063-linkaios-ingress-fail-closed-governance-adapter`
-- Commit SHA: pending
+- Commit SHA: fca20ed
