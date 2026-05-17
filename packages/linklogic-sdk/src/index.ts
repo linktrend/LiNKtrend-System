@@ -389,10 +389,12 @@ export {
   isAuthorizedForScope,
   MemoryEpisodeSchema,
   MemoryFactSchema,
-  MemoryObjectStateSchema,
-  MemoryObjectTypeSchema,
   MemoryProcedureSchema,
   ScopeLatticeSchema,
+} from "./context-assembly.js";
+export {
+  MemoryObjectStateSchema as ContextMemoryObjectStateSchema,
+  MemoryObjectTypeSchema as ContextMemoryObjectTypeSchema,
 } from "./context-assembly.js";
 export type {
   ContextAssemblyErrorCode,
@@ -402,11 +404,13 @@ export type {
   MemoryEpisode,
   MemoryFact,
   MemoryObject,
-  MemoryObjectState,
-  MemoryObjectType,
   MemoryProcedure,
   MemoryStore,
   ScopeLattice,
+} from "./context-assembly.js";
+export type {
+  MemoryObjectState as ContextMemoryObjectState,
+  MemoryObjectType as ContextMemoryObjectType,
 } from "./context-assembly.js";
 
 // Progressive disclosure types (WP-080)

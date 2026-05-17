@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
 
+const RUN_ID = "11111111-1111-4111-8111-111111111111";
+const RESEARCH_BUNDLE_ID_1 = "22222222-2222-4222-8222-222222222222";
+const RESEARCH_BUNDLE_ID_2 = "33333333-3333-4333-8333-333333333333";
+const EPISODE_ID_1 = "44444444-4444-4444-8444-444444444444";
+const EPISODE_ID_2 = "55555555-5555-4555-8555-555555555555";
+
 import {
   buildEpisodeSummaryPayload,
   buildLeadMemoryPayload,
@@ -172,10 +178,10 @@ describe("LeadMemoryPayloadSchema", () => {
         total_episodes: 10,
         current_status: "ready_to_contact" as const,
       },
-      related_research_bundle_ids: ["rb-1", "rb-2"],
-      related_episode_ids: ["ep-1", "ep-2"],
+      related_research_bundle_ids: [RESEARCH_BUNDLE_ID_1, RESEARCH_BUNDLE_ID_2],
+      related_episode_ids: [EPISODE_ID_1, EPISODE_ID_2],
       summary_text: "Acme Corp is a manufacturing company in Detroit",
-      source_run_id: "run-123",
+      source_run_id: RUN_ID,
       source_plugin_id: "websitefactory",
     };
     expect(LeadMemoryPayloadSchema.safeParse(payload).success).toBe(true);
@@ -275,7 +281,7 @@ describe("ResearchBundlePayloadSchema", () => {
           accessed_at: "2026-05-14T12:00:00Z",
         },
       ],
-      source_run_id: "run-123",
+      source_run_id: RUN_ID,
     };
     expect(ResearchBundlePayloadSchema.safeParse(payload).success).toBe(true);
   });
@@ -289,7 +295,7 @@ describe("ResearchBundlePayloadSchema", () => {
       research_scope: "business_profile" as const,
       findings_summary: "Summary",
       citations: [],
-      source_run_id: "run-123",
+      source_run_id: RUN_ID,
     };
     expect(ResearchBundlePayloadSchema.safeParse(payload).success).toBe(false);
   });
@@ -327,7 +333,7 @@ describe("ResearchBundlePayloadSchema", () => {
         },
       ],
       research_duration_ms: 5000,
-      source_run_id: "run-123",
+      source_run_id: RUN_ID,
       source_plugin_id: "websitefactory",
       source_role_id: "research_enrichment_bot",
     };
@@ -493,14 +499,14 @@ describe("MemoryObjectEnvelopeSchema", () => {
             accessed_at: "2026-05-14T12:00:00Z",
           },
         ],
-        source_run_id: "run-123",
+        source_run_id: RUN_ID,
       },
       state: "active" as const,
       confidence: 0.95,
       created_at: "2026-05-14T12:00:00Z",
       updated_at: "2026-05-14T12:00:00Z",
       source_plane: "linkbot" as const,
-      run_id: "run-123",
+      run_id: RUN_ID,
       plugin_id: "websitefactory",
       role_id: "research_enrichment_bot",
     };

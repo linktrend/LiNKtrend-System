@@ -19,9 +19,9 @@ import {
   isAuthorizedForScope,
   type ContextAssemblyResult,
   type ContextRequest,
+  type ContextMemoryObjectState,
+  type ContextMemoryObjectType,
   type MemoryObject,
-  type MemoryObjectState,
-  type MemoryObjectType,
   type MemoryStore,
   type ScopeLattice,
 } from "@linktrend/linklogic-sdk";
@@ -163,8 +163,8 @@ class InMemoryMemoryStore implements MemoryStore {
 
   async queryByMetadata(filters: {
     scope: ScopeLattice;
-    types?: MemoryObjectType[];
-    states?: MemoryObjectState[];
+    types?: ContextMemoryObjectType[];
+    states?: ContextMemoryObjectState[];
     created_after?: string;
     limit: number;
   }): Promise<MemoryObject[]> {
@@ -202,7 +202,7 @@ class InMemoryMemoryStore implements MemoryStore {
   async queryByKeyword(filters: {
     scope: ScopeLattice;
     query: string;
-    types?: MemoryObjectType[];
+    types?: ContextMemoryObjectType[];
     limit: number;
   }): Promise<MemoryObject[]> {
     const queryLower = filters.query.toLowerCase();
@@ -253,8 +253,8 @@ class SupabaseMemoryStore implements MemoryStore {
 
   async queryByMetadata(filters: {
     scope: ScopeLattice;
-    types?: MemoryObjectType[];
-    states?: MemoryObjectState[];
+    types?: ContextMemoryObjectType[];
+    states?: ContextMemoryObjectState[];
     created_after?: string;
     limit: number;
   }): Promise<MemoryObject[]> {
@@ -267,7 +267,7 @@ class SupabaseMemoryStore implements MemoryStore {
   async queryByKeyword(filters: {
     scope: ScopeLattice;
     query: string;
-    types?: MemoryObjectType[];
+    types?: ContextMemoryObjectType[];
     limit: number;
   }): Promise<MemoryObject[]> {
     // TODO (WP-087): Implement via RPC with Postgres FTS
@@ -278,7 +278,7 @@ class SupabaseMemoryStore implements MemoryStore {
   async queryByVector(filters: {
     scope: ScopeLattice;
     embedding: number[];
-    types?: MemoryObjectType[];
+    types?: ContextMemoryObjectType[];
     limit: number;
     min_similarity?: number;
   }): Promise<Array<{ object: MemoryObject; similarity: number }>> {

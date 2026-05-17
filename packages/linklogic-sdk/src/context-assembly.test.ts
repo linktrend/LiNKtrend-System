@@ -8,6 +8,8 @@ import {
   MemoryObjectTypeSchema,
   ScopeLatticeSchema,
   type MemoryObject,
+  type MemoryObjectState,
+  type MemoryObjectType,
   type MemoryStore,
   type ScopeLattice,
 } from "./context-assembly.js";
@@ -151,25 +153,25 @@ function createMockMemoryObject(
   overrides: Partial<MemoryObject> & { id: string; tenant_id: string },
 ): MemoryObject {
   const now = new Date().toISOString();
+  const { scope: overrideScope, ...restOverrides } = overrides;
   // Build scope carefully to ensure tenant_id is always present
   // Include role_id to match the default requester's scope
   const scope: ScopeLattice = {
     tenant_id: overrides.tenant_id,
     plugin_id: "websitefactory",
     role_id: "research_enrichment_bot",
-    ...overrides.scope,
+    ...overrideScope,
   };
   return {
     type: "research_bundle",
-    scope,
     state: "active",
     payload: {},
     provenance_event_ids: [],
     confidence: 0.9,
     created_at: now,
     updated_at: now,
-    ...overrides,
-    scope, // Re-apply scope to ensure it's not overridden by overrides.scope
+    ...restOverrides,
+    scope,
   } as MemoryObject;
 }
 
