@@ -603,3 +603,48 @@ None for WP-087 scope. Foundation schemas are complete and ready for integration
 ## Commit SHA
 
 `424f8914b34395a0dd3da91220c3c768ba1db1da`
+
+---
+
+# WP-088 LiNKbrain Context Assembler - Agent Report
+
+**Agent:** Cursor Kimi K2.5  
+**Work Packet:** WP-088-linkbrain-context-assembler  
+**Branch:** `dev/cursor/WP-088-linkbrain-context-assembler`  
+**Date:** 2026-05-17  
+**Status:** Complete
+
+## Summary
+
+Implemented the LiNKbrain Context Assembler foundation providing typed request/response contracts and a retrieval service with scope-lattice enforcement. The implementation uses SDK/service interfaces and in-memory tests so it does not create a duplicate memory migration.
+
+## Files Changed
+
+| File | Change |
+|------|--------|
+| `packages/linklogic-sdk/src/context-assembly.ts` | Core context assembly contracts, `MemoryStore` interface, and `assembleContext` |
+| `packages/linklogic-sdk/src/context-assembly.test.ts` | Tests for scope lattice, in-memory store, and context assembly |
+| `packages/linklogic-sdk/src/index.ts` | Context assembly exports |
+| `apps/linkaios-web/src/lib/kernel/context-assembler.ts` | Kernel context assembler service and bot helpers |
+| `apps/linkaios-web/src/lib/kernel/context-assembler.test.ts` | Kernel-level context assembly tests |
+
+## Proof
+
+```bash
+pnpm --filter @linktrend/linklogic-sdk test -- src/context-assembly.test.ts
+# 89 tests passed
+
+pnpm --filter @linktrend/linkaios-web test -- src/lib/kernel/context-assembler.test.ts
+# 19 tests passed
+```
+
+## Hard Boundaries Verified
+
+- Cross-tenant access fails closed.
+- No external vector DB dependency was added.
+- No duplicate memory migration was created.
+- Scope lattice enforcement covers tenant, plugin, and role boundaries.
+
+## Commit SHA
+
+`904372d`

@@ -362,6 +362,36 @@ export type {
   CapabilityOperation,
 } from "./types/capability.js";
 
+// LiNKbrain Context Assembly (WP-088)
+export {
+  assembleContext,
+  ContextAssemblyErrorCodeSchema,
+  ContextAssemblyResultSchema,
+  ContextBundleSchema,
+  ContextRequestSchema,
+  isAuthorizedForScope,
+  MemoryEpisodeSchema,
+  MemoryFactSchema,
+  MemoryObjectStateSchema,
+  MemoryObjectTypeSchema,
+  MemoryProcedureSchema,
+  ScopeLatticeSchema,
+} from "./context-assembly.js";
+export type {
+  ContextAssemblyErrorCode,
+  ContextAssemblyResult,
+  ContextBundle,
+  ContextRequest,
+  MemoryEpisode,
+  MemoryFact,
+  MemoryObject,
+  MemoryObjectState,
+  MemoryObjectType,
+  MemoryProcedure,
+  MemoryStore,
+  ScopeLattice,
+} from "./context-assembly.js";
+
 // Progressive disclosure types (WP-080)
 export {
   DisclosureScopeSchema,
