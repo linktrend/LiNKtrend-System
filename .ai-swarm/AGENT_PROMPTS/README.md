@@ -43,7 +43,12 @@ WP-060 Execute the prompt in file WP-060-linkskills-completion-plan-governance-s
 WP-061 Execute the prompt in file WP-061-linkbot-core-upstream-sync-integration-readiness.prompt.md located in .ai-swarm/AGENT_PROMPTS/.
 WP-062 Execute the prompt in file WP-062-linkbot-linkaios-linkskills-zulip-adapter-plan.prompt.md located in .ai-swarm/AGENT_PROMPTS/.
 WP-063 Execute the prompt in file WP-063-linkaios-ingress-fail-closed-governance-adapter.prompt.md located in .ai-swarm/AGENT_PROMPTS/.
+WP-064 Execute the prompt in file WP-064-linkskills-lease-projection-and-bot-runtime-adapter.prompt.md located in .ai-swarm/AGENT_PROMPTS/.
+WP-065 Execute the prompt in file WP-065-linkbrain-audit-envelope-mapping-for-linkbot-flow.prompt.md located in .ai-swarm/AGENT_PROMPTS/.
 WP-069 Execute the prompt in file WP-069-linkautowork-retry-backoff.prompt.md located in .ai-swarm/AGENT_PROMPTS/.
+WP-070 Execute the prompt in file WP-070-linkautowork-n8n-dev-gateway.prompt.md located in .ai-swarm/AGENT_PROMPTS/.
+WP-072 Execute the prompt in file WP-072-linkautowork-health-metrics.prompt.md located in .ai-swarm/AGENT_PROMPTS/.
 WP-075 Execute the prompt in file WP-075-linkskills-database-schema.prompt.md located in .ai-swarm/AGENT_PROMPTS/.
+WP-076 Execute the prompt in file WP-076-linkskills-capability-catalog-api.prompt.md located in .ai-swarm/AGENT_PROMPTS/.
 WP-079 Execute the prompt in file WP-079-linkskills-golden-template.prompt.md located in .ai-swarm/AGENT_PROMPTS/.
 ```
