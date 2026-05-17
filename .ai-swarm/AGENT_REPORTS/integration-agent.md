@@ -1941,3 +1941,116 @@ required_v2_stages_verified: 11
 crm_ready_to_contact_verified: true
 run_scoped_audit_rows_verified: true
 ```
+
+---
+
+## WP-085 — LiNKapps Vertical Plugin Conversion Plan (2026-05-17)
+
+**Status:** COMPLETE
+
+### Scope
+
+Create `.ai-swarm/LINKAPPS_VERTICAL_PLUGIN_CONVERSION_PLAN.md` and follow-up packets for converting LiNKapps into the App Factory vertical plugin without moving code yet.
+
+### Files Changed
+
+- `.ai-swarm/LINKAPPS_VERTICAL_PLUGIN_CONVERSION_PLAN.md` (new)
+- `.ai-swarm/WORK_PACKETS/WP-086-linkapps-plugin-manifest.md` (new)
+- `.ai-swarm/WORK_PACKETS/WP-087-linkapps-squad-orchestration.md` (new)
+- `.ai-swarm/WORK_PACKETS/WP-088-linkapps-capability-requirements.md` (new)
+
+### Implementation Summary
+
+1. **LiNKapps Vertical Plugin Definition**
+   - Defined `plugin_id: linkapps.app_factory`
+   - Declared 4 work request types: `blueprint_to_app`, `prd_to_repo`, `squad_execution`, `spinoff_prep`
+   - Mapped 7-phase venture lifecycle to ecosystem planes
+
+2. **Phase 5 Technical Implementation Breakdown**
+   - Stage 5.1: squad_formation (LinkBot orchestrator)
+   - Stage 5.2: repo_generation (LiNKautowork create_repo)
+   - Stage 5.3: service_provisioning (LiNKautowork provision_services)
+   - Stage 5.4: ai_implementation (LinkBot squad)
+   - Stage 5.5: quality_validation (LiNKautowork release_readiness)
+   - Stage 5.6: deployment (LiNKautowork deploy)
+   - Stage 5.7: handoff_pack (LiNKautowork compile_handoff)
+
+3. **LinkBot Role Definitions**
+   - Mapped 10+ squad roles from `LiNKapps/.agent/agents/`
+   - Defined role contract shapes per `CONTRACTS_MVO.md` §1.0.3
+   - Added 3 additional roles for full venture lifecycle
+
+4. **LiNKautowork Workflow Hooks**
+   - Defined 6 workflow handles for app factory operations
+   - Specified input/output schemas with idempotency rules
+
+5. **LinkSkills Capability Requirements**
+   - Enumerated 7 required capability plugins
+   - Followed capability plugin contract pack v1 format
+
+6. **LiNKbrain Memory & Audit**
+   - Defined 9 audit event types for venture lifecycle
+   - Specified 5 memory object types with retention
+
+7. **LiNKaios UI Panels**
+   - Listed 7 required UI panels
+   - Defined 3 read views
+
+8. **Architecture Boundaries**
+   - Documented "MUST NOT" responsibilities
+   - Separated Linktrend Development pod from LiNKapps vertical
+
+9. **Follow-Up Packets Created**
+   - WP-086: Plugin Manifest Definition
+   - WP-087: Squad Orchestration Design
+   - WP-088: Capability Requirements Spec
+   - WP-089-092: Future implementation packets
+
+### Files Inspected (LiNKapps)
+
+| Path | Purpose |
+|------|---------|
+| `LiNKapps/scripts/create-app-repo.sh` | App generation entry point |
+| `LiNKapps/scripts/release-readiness.sh` | Quality gates |
+| `LiNKapps/.agent/ARCHITECTURE.md` | Agent ecosystem design |
+| `LiNKapps/.agent/agents/*.md` | 20 agent definitions |
+| `LiNKapps/.agent/workflows/*.md` | 11 slash commands |
+| `LiNKapps/docs/00_OPERATOR_LIBRARY/` | Governance docs |
+
+### Commands Run
+
+```bash
+cd /Users/linktrend/Projects/LiNKtrend-System
+git fetch origin --prune
+git worktree add ../LiNKtrend-System-WP-085 -b dev/cursor/WP-085-linkapps-vertical-plugin-conversion-plan origin/development
+cd ../LiNKtrend-System-WP-085
+git status --short --branch
+ls /Users/linktrend/Projects/LiNKapps/docs/
+ls /Users/linktrend/Projects/LiNKapps/.agent/
+ls /Users/linktrend/Projects/LiNKapps/scripts/
+cat /Users/linktrend/Projects/LiNKapps/scripts/create-app-repo.sh
+cat /Users/linktrend/Projects/LiNKapps/scripts/release-readiness.sh
+cat /Users/linktrend/Projects/LiNKapps/.agent/ARCHITECTURE.md
+```
+
+### Proof of Clean Worktree
+
+```
+## dev/cursor/WP-085-linkapps-vertical-plugin-conversion-plan...origin/development
+```
+
+No unrelated dirty files. Clean worktree verified before editing.
+
+### Blockers / Questions
+
+None. Planning complete. User decisions required for:
+1. Mobile app generation in MVO scope (default: No)
+2. Custom templates in MVO (default: No)
+3. E-commerce/Stripe billing in MVO (default: Yes)
+4. Multi-tenant SaaS vs single-tenant (default: Single-tenant)
+
+### Next Steps
+
+1. User review of `LINKAPPS_VERTICAL_PLUGIN_CONVERSION_PLAN.md`
+2. WP-086 when user approves and prioritizes LiNKapps vertical
+
