@@ -887,3 +887,56 @@ pnpm --filter @linktrend/autowork-gateway test -- src/workflows/linksites-v2.tes
 
 - Branch: `dev/codex/WP-071-linkautowork-real-capability-calls`
 - Commit SHA: pending in this packet run
+
+## WP-090 — LinkSites local artifact storage (2026-05-17)
+
+### Objective
+
+Complete `autowork.linksites.artifact_write_local` so it persists deterministic local artifact files in development mode instead of only recording an in-memory stub.
+
+### Files Changed
+
+- `LiNKautowork/gateway/src/lib/linksites-artifact-writer.ts` (new)
+- `LiNKautowork/gateway/src/workflows/linksites-v2.ts`
+- `LiNKautowork/gateway/src/workflows/linksites-v2.test.ts`
+- `.ai-swarm/AGENT_REPORTS/linkautowork-agent.md`
+
+### Commands Run
+
+```bash
+git status --short --branch
+git fetch origin --prune
+git worktree add ../LiNKtrend-System-WP-090 -b dev/codex/WP-090-linksites-autowork-artifact-storage origin/development
+sed -n '1,260p' .ai-swarm/AGENT_PROMPTS/WP-090-linksites-autowork-artifact-storage.prompt.md
+sed -n '1,260p' .ai-swarm/WORK_PACKETS/WP-090-linksites-autowork-artifact-storage.md
+sed -n '1,280p' LiNKautowork/gateway/src/workflows/linksites-v2.ts
+sed -n '1,320p' LiNKautowork/gateway/src/workflows/linksites-v2.test.ts
+pnpm --filter @linktrend/autowork-gateway test -- src/workflows/linksites-v2.test.ts
+```
+
+### Validation / Tests
+
+- Focused workflow proof:
+  - `pnpm --filter @linktrend/autowork-gateway test -- src/workflows/linksites-v2.test.ts`
+- Result: pass (`9` files, `42` tests), including `src/workflows/linksites-v2.test.ts` (`4` tests).
+- Added/updated proof assertions:
+  - Artifact workflow writes a real `manifest.json` under deterministic tenant/run/site/generation path.
+  - Manifest contains tenant/run/site ids, `artifact_bundle_ref`, `artifact_digest`, `created_at`, and file list.
+  - Invalid (non-absolute) `artifact_root_path` fails safely with `WORKFLOW_STEP_FAILED`.
+
+### Behavior Notes
+
+- `artifact_write_local` now writes a local deterministic bundle in development mode:
+  - `artifact-bundle-ref.txt`
+  - `manifest.json`
+- Path safety checks block invalid root inputs (non-absolute roots and unsafe root normalization outcomes).
+- Existing workflow idempotency behavior remains unchanged; replay returns cached result from the workflow runner.
+
+### Blockers
+
+- None.
+
+### Branch / Commit
+
+- Branch: `dev/codex/WP-090-linksites-autowork-artifact-storage`
+- Commit SHA: pending in this packet run
