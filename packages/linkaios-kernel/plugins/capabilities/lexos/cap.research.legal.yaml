@@ -1,0 +1,83 @@
+---
+manifest_version: '1.0'
+plugin_kind: capability
+kind_version: semantic
+capability_id: cap.research.legal
+
+target_software:
+  product: Legal Research API Aggregator (commercial research corpora / citator gateways)
+  role_description: Read-only lookups for authorities, citations, jurisdiction signals feeding LEXOS strategists/librarians (W6–W7).
+
+allowed_operations:
+  - id: authority.search
+    lease_permission: research.legal.search_authority
+    writes_side_effect: false
+    description: Bounded query against licensed opinion / statute corpuses routed through LinkSkills.
+  - id: citation.verify
+    lease_permission: research.legal.verify_citation
+    writes_side_effect: false
+    description: Canonicalize cite strings and reconcile against corpus metadata when available.
+  - id: jurisdiction.check
+    lease_permission: research.legal.verify_jurisdiction
+    writes_side_effect: false
+    description: Surface doctrinal applicability hints as structured metadata (no adjudication).
+
+auth_requirements:
+  note: API tokens only via refs; quotas enforced by LinkSkills.
+  tenant_config_refs:
+    - legal_research.provider_ref
+    - legal_research.portfolio_or_seat_slug
+    - legal_research.credential_ref
+  jurisdiction_scope_hints_allowed: true
+
+mode_flags:
+  mvo_modes:
+    - shadow
+
+lease_requirements:
+  linkskills_permissions_hint:
+    - research.legal.search_authority
+    - research.legal.verify_citation
+    - research.legal.verify_jurisdiction
+  mandatory_lease_claims:
+    - tenant_id
+    - run_id_or_work_request_id
+    - research_topic_fingerprint_optional
+    - subscription_profile_slug
+
+idempotency_rules:
+  key_components:
+    - tenant_id
+    - corpus_scope_descriptor
+    - normalized_query_digest
+    - operation_id
+    - initiating_run_id
+  collision_policy: Within stable corpus version token, replay returns reference to prior deterministic snapshot handle.
+
+audit_events:
+  minimum_outcomes:
+    - capability.requested
+    - capability.executed
+    - research.legal.query.performed
+    - research.citation.normalized
+    - capability.failed
+
+allowed_callers:
+  - vertical_plugin
+  - linkbot
+  - linkautowork
+
+failure_mapping:
+  INTEGRATION_UNAVAILABLE: Provider outage or quota exhaustion (read readiness state only — shadow-tier expectation).
+  INTEGRATION_AUTH_FAILED: Subscription mismatched versus declared portfolio slug under tenant.
+  INTEGRATION_TIMEOUT: Query deadline exceeded versus LinkSkills policy.
+  LEASE_DENIED: Jurisdiction barred by tenant policy envelope or barred matter class.
+  LEASE_EXPIRED: Lease TTL insufficient for iterative cite verification loop budgeting.
+  LEASE_KILL_SWITCH: Legal research aggregator globally/offboarded tenants disabled.
+  LEASE_REQUEST_INVALID: Malformed cite string unreachable by canonicalization pipeline limits.
+  LEASE_IDEMPOTENCY_CONFLICT: Conflicting deterministic snapshots flagged for materially identical normalized_query_digest when corpus versioning diverged concurrently.
+
+not_configured:
+  - Law firm substantive research strategy authoring (delegated to LEXOS LinkBots and human operators).
+  - Full-text corpuses beyond licensed connector surfaces for the tenant bundle.
+  - Court filing integrations or PACER equivalents (orthogonal capability IDs required if activated later).

@@ -1,0 +1,79 @@
+---
+manifest_version: '1.0'
+plugin_kind: capability
+kind_version: semantic
+capability_id: cap.extraction.qa
+
+target_software:
+  product: QA Comparator (dual-source cross-check tooling)
+  role_description: Cross-check OCR vs parser pathways; emit quality flags feeding LEXOS archivist dashboards.
+
+allowed_operations:
+  - id: extraction.compare
+    lease_permission: extraction.qa.compare
+    writes_side_effect: false
+    description: Produce diff metrics between heterogeneous extraction payloads for same canonical page scope.
+  - id: quality.assess
+    lease_permission: extraction.qa.assess_quality
+    writes_side_effect: false
+    description: Produce composite quality envelope for LEXOS ingestion rules (no automatic legal conclusions).
+  - id: flag.generate
+    lease_permission: extraction.qa.generate_flags
+    writes_side_effect: false
+    description: Structured flags for escalation without mutating originals or LEXOS adjudication ledger.
+
+auth_requirements:
+  note: Only capability registration handles appear here — runtime attaches secrets via refs.
+  tenant_config_refs:
+    - qa.policy_profile_slug
+    - qa.provider_or_rulepack_ref
+  requires_linkskills_registration: true
+
+mode_flags:
+  mvo_modes:
+    - development
+
+lease_requirements:
+  linkskills_permissions_hint:
+    - extraction.qa.compare
+    - extraction.qa.assess_quality
+    - extraction.qa.generate_flags
+  mandatory_lease_claims:
+    - tenant_id
+    - run_id_or_work_request_id
+    - input_fingerprint_set_for_upstream_extractions
+
+idempotency_rules:
+  key_components:
+    - tenant_id
+    - qa_policy_profile_slug
+    - stable_scope_of_comparison_digest
+    - initiating_run_id
+  collision_policy: When identical fingerprints already resolved in replay window, return referential QA outcome fingerprint.
+
+audit_events:
+  minimum_outcomes:
+    - capability.requested
+    - capability.executed
+    - extraction.qa.compared
+    - extraction.qa.flags.emitted
+    - capability.failed
+
+allowed_callers:
+  - vertical_plugin
+  - linkbot
+  - linkautowork
+
+failure_mapping:
+  INTEGRATION_UNAVAILABLE: Comparator engine degraded or prerequisite extractions unreachable.
+  INTEGRATION_AUTH_FAILED: QA policy artifact missing or inaccessible under tenant scope.
+  INTEGRATION_TIMEOUT: Comparison budget exceeded versus LinkSkills bound.
+  LEASE_DENIED: Mandatory upstream extraction artifacts withheld by policy tier.
+  LEASE_EXPIRED: Lease shorter than deterministic comparison window estimation.
+  LEASE_KILL_SWITCH: QA capability halted globally or per tenant sandbox.
+  LEASE_REQUEST_INVALID: Non-comparable payloads (length mismatch unresolved by policy shim).
+  LEASE_IDEMPOTENCY_CONFLICT: Concurrent QA invocations flagged inconsistent baseline snapshots.
+
+not_configured:
+  - LEXOS escalation workflow decisions on whether to redo extraction (delegated to LEXOS workflows + approvals).
+  - Court-admissibility final certification (beyond neutral mechanical metrics).
