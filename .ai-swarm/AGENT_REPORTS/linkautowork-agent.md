@@ -1026,3 +1026,94 @@ None.
 
 - Branch: `dev/cursor/WP-091-linksites-supabase-payload-sync`
 - Commit SHA: pending in this packet run
+
+---
+
+## WP-092 — LinkSites Preview Readiness and CRM Mark Hardening (2026-05-17)
+
+### Objective
+
+Harden the existing `autowork.linksites.preview_readiness_check` and `autowork.linksites.crm_ready_to_contact_mark` handlers for deterministic readiness checking and fail-closed CRM promotion.
+
+### Files Changed
+
+| File | Change |
+|------|--------|
+| `LiNKautowork/gateway/src/workflows/linksites-v2.ts` | Hardened `createPreviewReadinessCheckHandler` with fail-closed behavior, input validation, and provenance checks. Hardened `createCrmReadyToContactMarkHandler` with strict lease requirement and `checks_passed` validation. |
+| `LiNKautowork/gateway/src/lib/payload-client.ts` | Enhanced `checkReadiness` to query Payload collections and verify required pages, navigation, content blocks, and media refs exist. |
+| `LiNKautowork/gateway/src/workflows/linksites-v2.test.ts` | Added 7 new tests for fail-closed behavior including missing inputs, no requirements, missing lease, invalid checks_passed values, invalid report ref format, and success case. |
+| `LiNKautowork/gateway/src/lib/linksites-v2.integration.test.ts` | Updated integration tests to verify new Payload query behavior for readiness checks. |
+
+### Commands Run
+
+```bash
+git fetch origin --prune
+git worktree add ../LiNKtrend-System-WP-092 -b dev/cursor/WP-092-linksites-frontend-preview-check origin/development
+cd ../LiNKtrend-System-WP-092
+git status --short --branch
+pnpm install
+pnpm --filter @linktrend/autowork-gateway test -- src/workflows/linksites-v2.test.ts src/lib/linksites-v2.integration.test.ts
+```
+
+### Validation / Tests
+
+Test command:
+```bash
+pnpm --filter @linktrend/autowork-gateway test -- src/workflows/linksites-v2.test.ts src/lib/linksites-v2.integration.test.ts
+```
+
+Results:
+- `src/workflows/linksites-v2.test.ts`: 12 tests passed
+- `src/lib/linksites-v2.integration.test.ts`: 3 tests passed
+- Total: 51 tests passed across 9 test files
+
+New coverage includes:
+- Preview readiness check fails when no requirements specified (fail-closed)
+- Preview readiness check fails when required inputs missing
+- Preview readiness check emits both `preview.readiness.checked` and `preview.readiness.failed` events when checks fail
+- CRM mark fails when `lease_id` missing
+- CRM mark fails when `checks_passed` is `false`
+- CRM mark fails when `checks_passed` is not explicitly boolean `true`
+- CRM mark fails when `check_report_ref` format is invalid
+- CRM mark succeeds with valid inputs and `checks_passed: true`
+
+### Required Behavior Implemented
+
+| Requirement | Status |
+|-------------|--------|
+| `preview_readiness_check` accepts deterministic expected pages/navigation/content/media/provenance inputs | ✓ |
+| Returns `checks_passed`, `failed_checks[]`, `check_report_ref`, readiness status | ✓ |
+| Dev fallback fails when required checks are absent (fail-closed) | ✓ |
+| `crm_ready_to_contact_mark` requires `lease_id` | ✓ |
+| `crm_ready_to_contact_mark` fails if `checks_passed` is false | ✓ |
+| Readiness audit events emitted for checked/failed outcomes | ✓ |
+| Existing workflow idempotency preserved | ✓ |
+
+### Discovery-Bound Readiness Mapping
+
+The hardened `preview_readiness_check` handler maps to the discovered LinkSites frontend/Payload path:
+
+| Check | Payload Collection | Field |
+|-------|-------------------|-------|
+| Required pages | `pages` | `slug` |
+| Navigation items | `navigation` | `items` (via pages presence) |
+| Content blocks | `pages` | `blocks` layout |
+| Media refs | `media` | `id` |
+| Provenance | Audit trail via `expected_provenance_refs` input |
+
+### Boundaries
+
+- No custom UI implemented.
+- No modifications to `/Users/linktrend/Projects/LiNKsites`.
+- No production credentials used.
+- LinkSkills `lease_id` requirements remain strict (fail-closed).
+- No artifact, Supabase mirror, or Payload sync handlers modified except to keep shared tests passing.
+
+### Blockers
+
+None.
+
+### Branch / Commit
+
+- Branch: `dev/cursor/WP-092-linksites-frontend-preview-check`
+- Commit SHA: pending commit

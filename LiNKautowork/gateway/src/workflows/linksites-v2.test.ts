@@ -132,10 +132,15 @@ describe("LiNKautowork LinkSites v2 Workflows", () => {
       };
 
       const readinessResult = await invokeWorkflow(readinessRequest, { writeAuditEvent: auditWriter.write });
+      // In dev mode without Payload configured, readiness check returns fail-closed (checks_passed: false)
       expect(readinessResult.status).toBe("succeeded");
-      expect(readinessResult.outputs?.checks_passed).toBe(true);
+      expect(readinessResult.outputs?.checks_passed).toBe(false);
+      expect(readinessResult.outputs?.dev_fallback).toBe(true);
+      expect(readinessResult.outputs?.preview_readiness_status).toBe("failed");
       expect(auditWriter.getEvents().some((event) => event.action === "preview.readiness.checked")).toBe(true);
+      expect(auditWriter.getEvents().some((event) => event.action === "preview.readiness.failed")).toBe(true);
 
+      // CRM mark should fail because checks_passed is false (fail-closed behavior)
       const crmRequest: WorkflowInvokeRequest = {
       tenant_id: "tenant-1",
       run_id: "run-1",
@@ -153,8 +158,9 @@ describe("LiNKautowork LinkSites v2 Workflows", () => {
       };
 
       const crmResult = await invokeWorkflow(crmRequest, { writeAuditEvent: auditWriter.write });
-      expect(crmResult.status).toBe("succeeded");
-      expect(crmResult.outputs?.lead_status).toBe("ready_to_contact");
+      expect(crmResult.status).toBe("failed");
+      expect(crmResult.failure?.code).toBe("WORKFLOW_STEP_FAILED");
+      expect(crmResult.failure?.message).toContain("checks_passed");
     } finally {
       await rm(artifactRootPath, { recursive: true, force: true });
     }
@@ -254,5 +260,166 @@ describe("LiNKautowork LinkSites v2 Workflows", () => {
     } finally {
       await rm(artifactRootPath, { recursive: true, force: true });
     }
+  });
+
+  it("fails preview_readiness_check when no requirements are specified", async () => {
+    const request: WorkflowInvokeRequest = {
+      tenant_id: "tenant-1",
+      run_id: "run-1",
+      stage_id: "readiness_check",
+      workflow_handle: LINKSITES_PREVIEW_READINESS_CHECK_HANDLE,
+      inputs: {
+        site_id: "site-1",
+        site_generation_run_id: "gen-1",
+        payload_sync_ref: "payload_sync:1",
+        preview_url: "/preview/tenant-1/run-1/index.html",
+        required_pages: [],
+        required_navigation_items: [],
+        required_content_blocks: [],
+        required_media_refs: [],
+      },
+      idempotency_key: "readiness-no-reqs",
+    };
+
+    const result = await invokeWorkflow(request, { writeAuditEvent: auditWriter.write });
+    expect(result.status).toBe("failed");
+    expect(result.failure?.code).toBe("WORKFLOW_STEP_FAILED");
+    expect(result.failure?.message).toContain("No readiness requirements specified");
+  });
+
+  it("fails preview_readiness_check when required inputs are missing", async () => {
+    const request: WorkflowInvokeRequest = {
+      tenant_id: "tenant-1",
+      run_id: "run-1",
+      stage_id: "readiness_check",
+      workflow_handle: LINKSITES_PREVIEW_READINESS_CHECK_HANDLE,
+      inputs: {
+        site_id: "site-1",
+        site_generation_run_id: "gen-1",
+        required_pages: ["home"],
+      },
+      idempotency_key: "readiness-missing-inputs",
+    };
+
+    const result = await invokeWorkflow(request, { writeAuditEvent: auditWriter.write });
+    expect(result.status).toBe("failed");
+    expect(result.failure?.code).toBe("WORKFLOW_STEP_FAILED");
+    expect(result.failure?.message).toContain("payload_sync_ref");
+  });
+
+  it("fails crm_ready_to_contact_mark when lease_id is missing", async () => {
+    const request: WorkflowInvokeRequest = {
+      tenant_id: "tenant-1",
+      run_id: "run-1",
+      stage_id: "crm_mark",
+      workflow_handle: LINKSITES_CRM_READY_TO_CONTACT_MARK_HANDLE,
+      inputs: {
+        lead_id: "lead-1",
+        site_id: "site-1",
+        site_generation_run_id: "gen-1",
+        checks_passed: true,
+        check_report_ref: "readiness_report:tenant-1:run-1:key",
+      },
+      idempotency_key: "crm-missing-lease",
+    };
+
+    const result = await invokeWorkflow(request, { writeAuditEvent: auditWriter.write });
+    expect(result.status).toBe("failed");
+    expect(result.failure?.code).toBe("LEASE_REQUEST_INVALID");
+  });
+
+  it("fails crm_ready_to_contact_mark when checks_passed is not true", async () => {
+    const request: WorkflowInvokeRequest = {
+      tenant_id: "tenant-1",
+      run_id: "run-1",
+      stage_id: "crm_mark",
+      workflow_handle: LINKSITES_CRM_READY_TO_CONTACT_MARK_HANDLE,
+      lease_id: "lease-crm-1",
+      inputs: {
+        lead_id: "lead-1",
+        site_id: "site-1",
+        site_generation_run_id: "gen-1",
+        checks_passed: false,
+        check_report_ref: "readiness_report:tenant-1:run-1:key",
+      },
+      idempotency_key: "crm-checks-failed",
+    };
+
+    const result = await invokeWorkflow(request, { writeAuditEvent: auditWriter.write });
+    expect(result.status).toBe("failed");
+    expect(result.failure?.code).toBe("WORKFLOW_STEP_FAILED");
+    expect(result.failure?.message).toContain("checks_passed");
+  });
+
+  it("fails crm_ready_to_contact_mark when checks_passed is not explicitly boolean true", async () => {
+    const request: WorkflowInvokeRequest = {
+      tenant_id: "tenant-1",
+      run_id: "run-1",
+      stage_id: "crm_mark",
+      workflow_handle: LINKSITES_CRM_READY_TO_CONTACT_MARK_HANDLE,
+      lease_id: "lease-crm-1",
+      inputs: {
+        lead_id: "lead-1",
+        site_id: "site-1",
+        site_generation_run_id: "gen-1",
+        checks_passed: "true", // string instead of boolean
+        check_report_ref: "readiness_report:tenant-1:run-1:key",
+      },
+      idempotency_key: "crm-checks-string",
+    };
+
+    const result = await invokeWorkflow(request, { writeAuditEvent: auditWriter.write });
+    expect(result.status).toBe("failed");
+    expect(result.failure?.code).toBe("WORKFLOW_STEP_FAILED");
+    expect(result.failure?.message).toContain("checks_passed");
+  });
+
+  it("fails crm_ready_to_contact_mark when check_report_ref format is invalid", async () => {
+    const request: WorkflowInvokeRequest = {
+      tenant_id: "tenant-1",
+      run_id: "run-1",
+      stage_id: "crm_mark",
+      workflow_handle: LINKSITES_CRM_READY_TO_CONTACT_MARK_HANDLE,
+      lease_id: "lease-crm-1",
+      inputs: {
+        lead_id: "lead-1",
+        site_id: "site-1",
+        site_generation_run_id: "gen-1",
+        checks_passed: true,
+        check_report_ref: "invalid-format-ref",
+      },
+      idempotency_key: "crm-invalid-ref",
+    };
+
+    const result = await invokeWorkflow(request, { writeAuditEvent: auditWriter.write });
+    expect(result.status).toBe("failed");
+    expect(result.failure?.code).toBe("WORKFLOW_STEP_FAILED");
+    expect(result.failure?.message).toContain("check_report_ref");
+  });
+
+  it("succeeds crm_ready_to_contact_mark with valid inputs and true checks_passed", async () => {
+    const request: WorkflowInvokeRequest = {
+      tenant_id: "tenant-1",
+      run_id: "run-1",
+      stage_id: "crm_mark",
+      workflow_handle: LINKSITES_CRM_READY_TO_CONTACT_MARK_HANDLE,
+      lease_id: "lease-crm-1",
+      inputs: {
+        lead_id: "lead-1",
+        site_id: "site-1",
+        site_generation_run_id: "gen-1",
+        checks_passed: true,
+        check_report_ref: "readiness_report:tenant-1:run-1:key",
+        payload_sync_ref: "payload_sync:tenant-1:site-1:gen-1",
+      },
+      idempotency_key: "crm-success",
+    };
+
+    const result = await invokeWorkflow(request, { writeAuditEvent: auditWriter.write });
+    expect(result.status).toBe("succeeded");
+    expect(result.outputs?.lead_status).toBe("ready_to_contact");
+    expect(result.outputs?.crm_record_id).toContain("lead-1");
+    expect(result.outputs?.check_report_ref).toBe("readiness_report:tenant-1:run-1:key");
+    expect(result.outputs?.site_id).toBe("site-1");
   });
 });
