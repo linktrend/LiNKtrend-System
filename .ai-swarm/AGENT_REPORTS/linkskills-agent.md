@@ -1131,4 +1131,4 @@ NEVER included by default:
 ## Branch and Commit
 
 - Branch: `dev/cursor/WP-080-linkskills-progressive-disclosure`
-- Commit SHA: PENDING (awaiting final commit)
+- Commit SHA: `1748db1`
