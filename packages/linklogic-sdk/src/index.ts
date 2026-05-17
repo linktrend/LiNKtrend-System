@@ -320,3 +320,28 @@ export type {
   CapabilityMode,
   CapabilityOperation,
 } from "./types/capability.js";
+
+// Progressive disclosure types (WP-080)
+export {
+  DisclosureScopeSchema,
+  ExecutionModeSchema,
+  DisclosureTokenPayloadSchema,
+  SkillFragmentTypeSchema,
+  DisclosureIssueRequestSchema,
+} from "./types/disclosure.js";
+export type {
+  DisclosureAuditRecord,
+  DisclosureErrorCode,
+  DisclosureIssueRequest,
+  DisclosureIssueResult,
+  DisclosureManifest,
+  DisclosureScope,
+  DisclosureStoreEntry,
+  DisclosureToken,
+  DisclosureTokenPayload,
+  DisclosureValidationRequest,
+  DisclosureValidationResult,
+  ExecutionMode,
+  SkillFragment,
+  SkillFragmentType,
+} from "./types/disclosure.js";
