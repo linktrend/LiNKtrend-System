@@ -85,4 +85,16 @@ WP-111 Kimi: Execute the prompt in file WP-111-linkapps-linkbrain-event-schema.p
 WP-112 Composer: Execute the prompt in file WP-112-linkapps-capability-plugin-contracts.prompt.md located in .ai-swarm/AGENT_PROMPTS/.
 WP-113 Kimi: Execute the prompt in file WP-113-linksites-e2e-after-hardening.prompt.md located in .ai-swarm/AGENT_PROMPTS/.
 WP-114 Composer: Execute the prompt in file WP-114-linkskills-cross-vertical-catalog-seeds.prompt.md located in .ai-swarm/AGENT_PROMPTS/.
+WP-115 Kimi: Execute the prompt in file WP-115-linkaios-vertical-plugin-route-registration.prompt.md located in .ai-swarm/AGENT_PROMPTS/.
+WP-116 Kimi: Execute the prompt in file WP-116-linkbrain-cross-vertical-trace-dashboard-schema.prompt.md located in .ai-swarm/AGENT_PROMPTS/.
+WP-117 Kimi: Execute the prompt in file WP-117-linkskills-manifest-validation-cli.prompt.md located in .ai-swarm/AGENT_PROMPTS/.
+WP-118 Kimi: Execute the prompt in file WP-118-linkautowork-run-control-integration.prompt.md located in .ai-swarm/AGENT_PROMPTS/.
+WP-119 Kimi: Execute the prompt in file WP-119-linkbot-zulip-notification-adapter.prompt.md located in .ai-swarm/AGENT_PROMPTS/.
+WP-120 Composer: Execute the prompt in file WP-120-linksites-local-proof-runbook-and-preflight.prompt.md located in .ai-swarm/AGENT_PROMPTS/.
+WP-121 Kimi: Execute the prompt in file WP-121-lexos-server-query-mutation-scaffold.prompt.md located in .ai-swarm/AGENT_PROMPTS/.
+WP-122 Kimi: Execute the prompt in file WP-122-lexos-ui-workspace-scaffold.prompt.md located in .ai-swarm/AGENT_PROMPTS/.
+WP-123 Kimi: Execute the prompt in file WP-123-linkapps-sidebar-and-trace-integration.prompt.md located in .ai-swarm/AGENT_PROMPTS/.
+WP-124 Composer: Execute the prompt in file WP-124-cross-system-mvo-readiness-scorecard.prompt.md located in .ai-swarm/AGENT_PROMPTS/.
+WP-125 Kimi: Execute the prompt in file WP-125-linkskills-lease-ledger-test-pack.prompt.md located in .ai-swarm/AGENT_PROMPTS/.
+WP-126 Composer: Execute the prompt in file WP-126-linkbot-role-pack-validation.prompt.md located in .ai-swarm/AGENT_PROMPTS/.
 ```
