@@ -64,6 +64,19 @@ export {
   validateDeclaredToolsForSkillApprove,
 } from "./declared-tools.js";
 export { getToolById, listTools } from "./tools-catalog.js";
+export { buildSkillCatalogEntry, loadGoldenTemplate, scaffoldSkill, validateSkillManifest } from "./validation/skill.js";
+export type {
+  ScaffoldOptions,
+  ScaffoldResult,
+  SkillCatalogEntry,
+  SkillEngineRequirements,
+  SkillFrontmatter,
+  SkillManifest,
+  SkillPersistence,
+  SkillToolingPolicy,
+  ValidationIssue,
+  ValidationResult,
+} from "./types/skill.js";
 
 export {
   ensureRuntimeBlockedRequest,
