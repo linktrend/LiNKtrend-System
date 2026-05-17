@@ -2038,3 +2038,39 @@ ls -la /Users/linktrend/Projects/LiNKtrend-LEXOS/src/
 ### Blockers
 
 None. Ready for Integrator review and follow-up packet assignment.
+
+---
+
+## WP-085 — LiNKapps Vertical Plugin Conversion Plan (2026-05-17)
+
+**Status:** COMPLETE
+
+### Scope
+
+Create `.ai-swarm/LINKAPPS_VERTICAL_PLUGIN_CONVERSION_PLAN.md` and follow-up packets for converting LiNKapps into the App Factory vertical plugin without moving code yet.
+
+### Files Changed
+
+- `.ai-swarm/LINKAPPS_VERTICAL_PLUGIN_CONVERSION_PLAN.md` (new)
+- `.ai-swarm/WORK_PACKETS/WP-086-linkapps-plugin-manifest.md` (new)
+- `.ai-swarm/WORK_PACKETS/WP-087-linkapps-squad-orchestration.md` (new)
+- `.ai-swarm/WORK_PACKETS/WP-088-linkapps-capability-requirements.md` (new)
+
+### Implementation Summary
+
+1. Defined `plugin_id: linkapps.app_factory` and the App Factory work request types.
+2. Mapped the 7-phase venture lifecycle to ecosystem planes.
+3. Separated LiNKapps vertical concerns from Linktrend Development pod concerns.
+4. Identified follow-up implementation packets and user decisions.
+
+### Files Inspected
+
+- `/Users/linktrend/Projects/LiNKapps/scripts/create-app-repo.sh`
+- `/Users/linktrend/Projects/LiNKapps/scripts/release-readiness.sh`
+- `/Users/linktrend/Projects/LiNKapps/.agent/ARCHITECTURE.md`
+- `/Users/linktrend/Projects/LiNKapps/.agent/agents/`
+- `/Users/linktrend/Projects/LiNKapps/.agent/workflows/`
+
+### Blockers / Questions
+
+Planning complete. User decisions remain for mobile app generation, custom templates, Stripe/e-commerce scope, and single-tenant versus multi-tenant app defaults.
