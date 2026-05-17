@@ -31,6 +31,16 @@ function requireSafeArtifactRoot(input: string): { ok: true; rootPath: string } 
   return { ok: true, rootPath: resolved };
 }
 
+function requireSafePathSegment(label: string, input: string): { ok: true } | { ok: false; reason: string } {
+  if (input.trim().length === 0) {
+    return { ok: false, reason: `${label} must be non-empty` };
+  }
+  if (input.includes("\u0000") || input.includes("/") || input.includes("\\") || input === "." || input === "..") {
+    return { ok: false, reason: `${label} must be a safe path segment` };
+  }
+  return { ok: true };
+}
+
 function buildDeterministicPaths(rootPath: string, tenantId: string, runId: string, siteId: string, siteGenerationRunId: string) {
   const artifactDir = path.join(
     rootPath,
@@ -73,6 +83,17 @@ export async function writeLinksitesArtifactBundle(params: {
   const safeRoot = requireSafeArtifactRoot(params.artifact_root_path);
   if (!safeRoot.ok) {
     return { ok: false, reason: safeRoot.reason };
+  }
+  for (const [label, value] of [
+    ["tenant_id", params.tenant_id],
+    ["run_id", params.run_id],
+    ["site_id", params.site_id],
+    ["site_generation_run_id", params.site_generation_run_id],
+  ] as const) {
+    const safeSegment = requireSafePathSegment(label, value);
+    if (!safeSegment.ok) {
+      return { ok: false, reason: safeSegment.reason };
+    }
   }
 
   const paths = buildDeterministicPaths(

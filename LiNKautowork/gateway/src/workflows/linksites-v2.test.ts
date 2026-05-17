@@ -229,4 +229,30 @@ describe("LiNKautowork LinkSites v2 Workflows", () => {
     expect(result.failure?.code).toBe("WORKFLOW_STEP_FAILED");
     expect(result.failure?.message).toContain("artifact_root_path");
   });
+
+  it("fails safely when artifact path identifiers contain traversal", async () => {
+    const artifactRootPath = await mkdtemp(path.join(os.tmpdir(), "linksites-artifacts-"));
+    const request: WorkflowInvokeRequest = {
+      tenant_id: "tenant-1",
+      run_id: "run-1",
+      stage_id: "artifact_write",
+      workflow_handle: LINKSITES_ARTIFACT_WRITE_LOCAL_HANDLE,
+      inputs: {
+        site_id: "../escaped-site",
+        site_generation_run_id: "gen-1",
+        artifact_bundle_ref: "bundle:1",
+        artifact_root_path: artifactRootPath,
+      },
+      idempotency_key: "artifact-invalid-segment",
+    };
+
+    try {
+      const result = await invokeWorkflow(request, { writeAuditEvent: auditWriter.write });
+      expect(result.status).toBe("failed");
+      expect(result.failure?.code).toBe("WORKFLOW_STEP_FAILED");
+      expect(result.failure?.message).toContain("site_id");
+    } finally {
+      await rm(artifactRootPath, { recursive: true, force: true });
+    }
+  });
 });

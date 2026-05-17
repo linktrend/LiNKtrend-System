@@ -79,7 +79,7 @@ git rev-parse HEAD
 
 Declared the Phase 5 App Factory vertical per `LINKAPPS_VERTICAL_PLUGIN_CONVERSION_PLAN.md` (linked work packet WP-085) and `CONTRACTS_MVO.md` §1.2: phases 5.1–5.7 stages, fourteen `required_linkbot_roles`, required capability IDs, LiNKautowork handles, audit events, LiNKaios UI/read surfaces, preview output shape, and explicit `non_goals`. YAML only — no loader wiring.
 
-**Branch:** `dev/cursor/WP-106-linkapps-plugin-manifest`  
+**Branch:** `dev/cursor/WP-106-linkapps-plugin-manifest`
 **Commit:** `0363d76c0b8dfb53c0383e98b5dae6d4e9ada593`
 
 ### Commands run
