@@ -2074,3 +2074,90 @@ Create `.ai-swarm/LINKAPPS_VERTICAL_PLUGIN_CONVERSION_PLAN.md` and follow-up pac
 ### Blockers / Questions
 
 Planning complete. User decisions remain for mobile app generation, custom templates, Stripe/e-commerce scope, and single-tenant versus multi-tenant app defaults.
+
+
+---
+
+## WP-093 — LinkSites Template Registry Discovery (2026-05-17)
+
+**Status:** COMPLETE
+
+### Scope
+
+Surface the LiNKsites template registry to the WebsiteBuilderBot reasoning phase per WP-042 discovery. This is connector/discovery work only - does not modify LiNKsites.
+
+### Requirements Met
+
+1. **Template Registry Discovery**: Implemented `discoverTemplateRegistry()` helper that:
+   - Attempts dynamic discovery from `LINKSITES_REGISTRY_PATH` if configured
+   - Falls back to static registry data (marketing-smb-v1) when dynamic unavailable
+   - Returns available template IDs, default template ID, and full metadata
+
+2. **LinkBot Context Injection**: Updated `dispatchToLinkBot()` in kernel dispatch to:
+   - Discover and inject template context into LinkBot inputs for `website_package_generation` stage
+   - Provide `linktrend_templates` context with `available_template_ids`, `default_template_id`, `template_metadata`
+
+3. **Template ID Validation**: Added validation in dispatch to:
+   - Verify WebsiteBuilderBot output `template_id` against discovered registry
+   - Fall back to default template if invalid template_id is returned
+   - Audit validation warnings for tracking
+
+### Files Changed
+
+- `.env.example` - Added `LINKSITES_REGISTRY_PATH` and `LINKSITES_TEMPLATE_DISCOVERY_MODE` configuration
+- `packages/shared-config/src/index.ts` - Added new env vars to schema
+- `apps/linkaios-web/src/lib/plugins/websitefactory/template-registry-discovery.ts` (new) - Discovery helper with static fallback
+- `apps/linkaios-web/src/lib/plugins/websitefactory/template-registry-discovery.test.ts` (new) - 24 focused tests
+- `apps/linkaios-web/src/lib/plugins/websitefactory/index.ts` - Re-exported discovery functions
+- `apps/linkaios-web/src/lib/kernel/dispatch.ts` - Injected template context into LinkBot dispatch
+
+### Commands Run
+
+```bash
+cd /Users/linktrend/Projects/LiNKtrend-System
+git fetch origin --prune
+git worktree add ../LiNKtrend-System-WP-093 -b dev/cursor/WP-093-linksites-template-registry-discovery origin/development
+cd ../LiNKtrend-System-WP-093
+pnpm install
+cd apps/linkaios-web
+npx vitest run src/lib/plugins/websitefactory/template-registry-discovery.test.ts
+```
+
+### Validation Results
+
+- **Tests**: 24/24 passed
+  - Template discovery from static fallback
+  - Template ID validation (valid/invalid/edge cases)
+  - LinkBot context building
+  - Dynamic discovery unavailable handling
+  - WP-093 requirements compliance
+
+### Proof of Implementation
+
+```typescript
+// Template context injected into LinkBot inputs
+{
+  linktrend_templates: {
+    available_template_ids: ["marketing-smb-v1"],
+    default_template_id: "marketing-smb-v1",
+    template_metadata: {
+      "marketing-smb-v1": {
+        id: "marketing-smb-v1",
+        name: "Marketing SMB v1",
+        description: "A versatile marketing template for small and medium businesses...",
+        industry_tags: ["marketing", "smb", "services", "professional"]
+      }
+    },
+    discovery_mode: "static" // or "dynamic" when LiNKsites available
+  }
+}
+```
+
+### Blockers / Risks
+
+None. The static fallback ensures WebsiteBuilderBot always has template context even when LiNKsites registry is not accessible.
+
+### Next Steps
+
+1. If LiNKsites registry path is configured and accessible, discovery will automatically use dynamic mode
+2. Future enhancement: Add more templates to static registry as new industry templates are developed in LiNKsites

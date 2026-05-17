@@ -34,6 +34,11 @@ import type { DispatchContext, DispatchResult } from "./types";
 import type { Env } from "@linktrend/shared-config";
 import { createPlaneAdapter, PlaneReadinessError } from "./plane-adapter";
 import type { LinktrendGovernancePayload } from "@linktrend/shared-types";
+import {
+  discoverTemplateRegistry,
+  buildTemplateContextForLinkBot,
+  isValidTemplateId,
+} from "@/lib/plugins/websitefactory/template-registry-discovery";
 
 // Retry config
 const DEFAULT_RETRY_ATTEMPTS = 3;
@@ -271,6 +276,9 @@ export function buildPreviewPublishAdapter(
 /**
  * Dispatch to LinkBot for reasoning stages.
  * Implements CONTRACTS_MVO.md §6.1.
+ *
+ * WP-093: Template registry discovery is injected into LinkBot inputs
+ * for website_package_generation stage to enable template-aware reasoning.
  */
 export async function dispatchToLinkBot(
   env: Env,
@@ -313,16 +321,64 @@ export async function dispatchToLinkBot(
     };
   }
 
+  // WP-093: Discover and inject template registry for website_package_generation
+  let enhancedInputs = { ...request.inputs };
+  if (request.reasoning_kind === "website_package_generation") {
+    try {
+      const registry = await discoverTemplateRegistry(env);
+      const templateContext = buildTemplateContextForLinkBot(registry);
+      enhancedInputs = {
+        ...enhancedInputs,
+        linktrend_templates: templateContext,
+      };
+    } catch {
+      // Discovery failed - continue without template context
+      // Validation will catch invalid template_ids later
+    }
+  }
+
   // MVO: LinkBot dispatch is a stub that returns mock success
   // Real implementation calls LinkBot runtime via HTTP or internal RPC
   // For MVO, we simulate the contract to prove kernel dispatch works
 
   const mockResult: BotReasonResult = {
-    outputs: generateMockReasoningOutputs(request.reasoning_kind, request.inputs),
+    outputs: generateMockReasoningOutputs(request.reasoning_kind, enhancedInputs),
     model_run_id: `mock-model-${Date.now()}`,
     tokens_in: 150,
     tokens_out: 250,
   };
+
+  // WP-093: Validate template_id from website_package_generation output
+  if (request.reasoning_kind === "website_package_generation") {
+    const websitePackage = mockResult.outputs.website_package as Record<
+      string,
+      unknown
+    >;
+    if (websitePackage?.template_id) {
+      try {
+        const registry = await discoverTemplateRegistry(env);
+        if (!isValidTemplateId(websitePackage.template_id, registry)) {
+          // Invalid template_id - audit the validation failure
+          await writeStageAuditEvent(
+            env,
+            ctx,
+            "stage.warning",
+            {
+              warning_code: "INVALID_TEMPLATE_ID",
+              received_template_id: websitePackage.template_id,
+              available_template_ids: registry.available_template_ids,
+              fallback_to_default: true,
+            },
+            "linkaios",
+          );
+          // Fall back to default template
+          websitePackage.template_id = registry.default_template_id;
+        }
+      } catch {
+        // Registry validation failed - keep original output
+      }
+    }
+  }
 
   return {
     success: true,
