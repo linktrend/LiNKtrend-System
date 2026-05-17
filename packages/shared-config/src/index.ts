@@ -135,6 +135,10 @@ const envSchema = z.object({
   PREVIEW_PUBLISH_DIGITALOCEAN_ENABLED: z.string().optional(),
   /** Hosted DigitalOcean preview base URL, e.g. https://preview.example.com */
   DIGITALOCEAN_PREVIEW_BASE_URL: optionalNonEmpty(),
+  /** LinkSites template registry path for dynamic discovery (WP-093). */
+  LINKSITES_REGISTRY_PATH: optionalNonEmpty(),
+  /** LinkSites template discovery mode: dynamic | static (default dynamic). */
+  LINKSITES_TEMPLATE_DISCOVERY_MODE: z.enum(["dynamic", "static"]).optional(),
 });
 
 export type Env = z.infer<typeof envSchema>;

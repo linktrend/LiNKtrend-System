@@ -47,6 +47,15 @@ import {
   formatTraceRefsForDisplay,
 } from "./preview-panel";
 
+import {
+  discoverTemplateRegistry,
+  isValidTemplateId,
+  getTemplateMetadata,
+  buildTemplateContextForLinkBot,
+  getDefaultTemplateId,
+  createMockRegistry,
+} from "./template-registry-discovery";
+
 // Re-export manifest items
 export {
   WEBSITE_FACTORY_MANIFEST,
@@ -91,6 +100,22 @@ export type {
   PreviewPanelView,
   PreviewPanelConfig,
 } from "./preview-panel";
+
+// Re-export template registry discovery (WP-093)
+export {
+  discoverTemplateRegistry,
+  isValidTemplateId,
+  getTemplateMetadata,
+  buildTemplateContextForLinkBot,
+  getDefaultTemplateId,
+  createMockRegistry,
+};
+
+export type {
+  TemplateId,
+  TemplateMetadata,
+  TemplateRegistryDiscoveryResult,
+} from "./template-registry-discovery";
 
 /**
  * Plugin metadata for kernel registration.
