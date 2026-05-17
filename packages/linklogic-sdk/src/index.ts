@@ -190,6 +190,47 @@ export {
 } from "./brain-audit.js";
 export type { AuditEnvelopeRejection } from "./brain-audit.js";
 
+// Memory Object schemas and writer (WP-087)
+export {
+  buildEpisodeSummaryPayload,
+  buildLeadMemoryPayload,
+  buildResearchBundlePayload,
+  EpisodeStageSummarySchema,
+  EpisodeSummaryPayloadSchema,
+  getMemoriesByLead,
+  getMemoriesByRun,
+  LeadMemoryEngagementSchema,
+  LeadMemoryFactsSchema,
+  LeadMemoryPayloadSchema,
+  MemoryObjectEnvelopeSchema,
+  MemoryObjectScopeSchema,
+  MemoryObjectStateSchema,
+  MemoryObjectTypeSchema,
+  ResearchBundlePayloadSchema,
+  ResearchCitationSchema,
+  ComparableBusinessSchema,
+  updateMemoryObjectState,
+  writeMemoryObject,
+} from "./brain-memory.js";
+export type {
+  ComparableBusiness,
+  EpisodeStageSummary,
+  EpisodeSummaryPayload,
+  LeadMemoryEngagement,
+  LeadMemoryFacts,
+  LeadMemoryPayload,
+  MemoryObjectEnvelope,
+  MemoryObjectScope,
+  MemoryObjectState,
+  MemoryObjectType,
+  MemoryQueryResult,
+  MemoryWriteResult,
+  ResearchBundlePayload,
+  ResearchCitation,
+  UpdateMemoryStateOptions,
+  WriteMemoryObjectOptions,
+} from "./brain-memory.js";
+
 // MVO cross-service contract schemas + types. Canonical source:
 // `.ai-swarm/CONTRACTS_MVO.md`. Pinned by WP-005.
 export {
