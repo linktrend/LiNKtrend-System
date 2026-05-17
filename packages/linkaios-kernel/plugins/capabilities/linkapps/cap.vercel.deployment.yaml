@@ -1,0 +1,125 @@
+---
+# Declaration-only capability plugin manifest — LiNKapps Vercel deployment connector surface (record/mock-first).
+# Sources: LINKAPPS_CAPABILITY_REQUIREMENTS.md §2.4, §3, §4; CONTRACTS_MVO.md §0.A.5.1.
+manifest_version: '1.0'
+plugin_kind: capability
+kind_version: semantic
+capability_id: cap.vercel.deployment
+vertical_family: linkapps.app_factory
+
+target_software:
+  product: Vercel
+  role_description: >-
+    Local build artifact recording, mock preview URLs, project link stubs — CDN live publish is future-only and opt-in.
+
+default_execution_mode: mock
+live_execution_policy:
+  status: disabled_by_default
+  requires_tenant_opt_in: true
+  requires_distinct_lease_policies: true
+
+allowed_operations:
+  - id: build.local_record
+    lease_permissions:
+      - vercel.project.record
+      - vercel.deploy.record
+    writes_side_effect: true
+    mode_routing:
+      mock: allowed
+      shadow: not_offered
+      live: future_requires_opt_in
+  - id: deploy.trigger_mock
+    lease_permissions:
+      - vercel.deploy
+    writes_side_effect: true
+    mode_routing:
+      mock: allowed
+      shadow: not_offered
+      live: future_requires_opt_in
+  - id: project.link_stub
+    lease_permissions:
+      - vercel.project.create
+    writes_side_effect: true
+    mode_routing:
+      mock: allowed
+      shadow: not_offered
+      live: future_requires_opt_in
+  - id: domain.configure_future
+    lease_permissions:
+      - vercel.domain.configure
+    writes_side_effect: true
+    mode_routing:
+      mock: not_offered
+      shadow: not_offered
+      live: future_only
+
+auth_requirements:
+  note: Declare handles only — never embed secrets in manifests or repo.
+  tenant_config_refs:
+    - vercel.team_ref
+    - vercel.token_ref
+    - vercel.project_naming_rules_ref
+  requires_linkskills_registration: true
+
+mode_flags:
+  mvo_modes:
+    - development
+  supported_capability_modes:
+    - mock
+    - shadow
+    - live
+  cdn_live_publish:
+    default: disabled
+    premature_live_flag: routes_to_LEASE_DENIED
+
+lease_requirements:
+  linkskills_permissions_hint:
+    - vercel.project.record
+    - vercel.deploy
+    - vercel.project.create
+    - vercel.domain.configure
+    - vercel.deploy.record
+  mandatory_lease_claims:
+    - tenant_id
+    - run_id_or_work_request_id
+    - lease_id
+    - idempotency_key
+    - originating_stage_id
+
+idempotency_rules:
+  template: "${tenant_id}:${run_id}:${stage_id}:${capability_id}:${operation}:${stable_scope_segment}"
+  stable_scope_segment_by_operation:
+    build.local_record: "web_build_bundle_digest"
+    deploy.trigger_mock: "preview_subject_hash"
+    project.link_stub: "vercel_slug_candidate"
+    domain.configure_future: "domain_candidate_normalized"
+  collision_policy: >-
+    Replay identical key returns original outcome; divergent args → LEASE_IDEMPOTENCY_CONFLICT.
+
+audit_events:
+  minimum_outcomes:
+    - capability.requested
+    - capability.executed
+    - linkapps.deployed
+    - capability.failed
+
+allowed_callers:
+  - linkautowork
+  - vertical_plugin
+
+failure_mapping:
+  LEASE_REQUEST_INVALID: Malformed deploy profile or slug policy violation.
+  INTEGRATION_AUTH_FAILED: Token invalid or team mismatch.
+  INTEGRATION_UNAVAILABLE: Provider outage or DNS upstream.
+  INTEGRATION_TIMEOUT: Deploy API deadline exceeded.
+  LEASE_DENIED: Live CDN flag while MVO requires mock/record-only path.
+  MANIFEST_INVALID: Naming rules ref missing or inconsistent.
+  LEASE_IDEMPOTENCY_CONFLICT: Same key, divergent bundle digest vs prior record.
+
+kill_switch_registration:
+  scope: capability_kill_switch
+  optional_operation_subscope: true
+
+not_configured:
+  - Vercel org membership governance, SAML/SCIM enterprise enrollment.
+  - Firewall rules (enterprise-only), bespoke edge middleware packages, observability baselines.
