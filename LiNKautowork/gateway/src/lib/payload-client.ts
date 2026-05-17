@@ -83,14 +83,11 @@ export function createPayloadSyncClient(deps?: {
 
     async checkReadiness(payloadSyncRef, requirements) {
       const failedChecks: string[] = [];
-      if (requirements.requiredPages.length === 0) failedChecks.push("required_pages");
-      if (requirements.requiredNavigationItems.length === 0) failedChecks.push("required_navigation_items");
-      if (requirements.requiredContentBlocks.length === 0) failedChecks.push("required_content_blocks");
-      if (requirements.requiredMediaRefs.length === 0) failedChecks.push("required_media_refs");
 
+      // When configured, query Payload to verify content exists
       const response = await fetchImpl(
         buildUrl(
-          `/api/${readinessCollection}?where[payloadSyncRef][equals]=${encodeURIComponent(payloadSyncRef)}&limit=1`,
+          `/api/${readinessCollection}?where[payloadSyncRef][equals]=${encodeURIComponent(payloadSyncRef)}&limit=100`,
         ),
         {
           method: "GET",
@@ -98,6 +95,43 @@ export function createPayloadSyncClient(deps?: {
         },
       );
       await assertOk(response, "readiness-check");
+
+      // Parse response and validate required content exists
+      const responseData = await response.json().catch(() => ({ docs: [] })) as { docs: Array<{ slug?: string; title?: string; _slug?: string }> };
+      const docs = responseData.docs || [];
+
+      // Check required pages exist in Payload
+      for (const page of requirements.requiredPages) {
+        const found = docs.some(doc =>
+          doc.slug === page ||
+          doc._slug === page ||
+          doc.title?.toLowerCase().includes(page.toLowerCase()),
+        );
+        if (!found) {
+          failedChecks.push(`missing_page:${page}`);
+        }
+      }
+
+      // For navigation items, content blocks, and media - we verify they are specified
+      // Full integration would check these against specific Payload collections/blocks
+      // MVO: deterministic check that requirements were specified and Payload has content
+      if (requirements.requiredNavigationItems.length > 0 && docs.length === 0) {
+        failedChecks.push("navigation_items:no_content");
+      }
+      if (requirements.requiredContentBlocks.length > 0 && docs.length === 0) {
+        failedChecks.push("content_blocks:no_content");
+      }
+      if (requirements.requiredMediaRefs.length > 0) {
+        // Media refs would be checked against the media collection
+        // MVO: presence check only
+        const mediaResponse = await fetchImpl(
+          buildUrl(`/api/media?limit=1`),
+          { method: "GET", headers: headers() },
+        );
+        if (!mediaResponse.ok) {
+          failedChecks.push("media_refs:unavailable");
+        }
+      }
 
       return {
         checksPassed: failedChecks.length === 0,

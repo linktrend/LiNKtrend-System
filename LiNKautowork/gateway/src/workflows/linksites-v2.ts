@@ -311,9 +311,26 @@ export function createPreviewReadinessCheckHandler(
       const requiredNavigationItems = asStringArray(request, "required_navigation_items");
       const requiredContentBlocks = asStringArray(request, "required_content_blocks");
       const requiredMediaRefs = asStringArray(request, "required_media_refs");
+      const expectedProvenanceRefs = asStringArray(request, "expected_provenance_refs");
 
+      // Fail-closed: required inputs must be present
       if (!payloadSyncRef || !previewUrl) {
-        return { failure: fail("WORKFLOW_STEP_FAILED", "Missing required preview_readiness_check inputs") };
+        return { failure: fail("WORKFLOW_STEP_FAILED", "Missing required preview_readiness_check inputs: payload_sync_ref and preview_url are required") };
+      }
+
+      // Fail-closed: at least one check requirement must be specified
+      const hasAnyRequirements = requiredPages.length > 0 ||
+        requiredNavigationItems.length > 0 ||
+        requiredContentBlocks.length > 0 ||
+        requiredMediaRefs.length > 0;
+
+      if (!hasAnyRequirements) {
+        return {
+          failure: fail(
+            "WORKFLOW_STEP_FAILED",
+            "No readiness requirements specified. At least one of required_pages, required_navigation_items, required_content_blocks, or required_media_refs must be provided.",
+          ),
+        };
       }
 
       try {
@@ -324,29 +341,57 @@ export function createPreviewReadinessCheckHandler(
           requiredMediaRefs,
         });
 
-        const status = readiness.checksPassed ? "ready" : "failed";
+        // Merge in provenance check if expected refs were provided
+        const allFailedChecks = [...readiness.failedChecks];
+        if (expectedProvenanceRefs.length > 0) {
+          // In a full implementation, verify provenance refs exist in audit trail
+          // For MVO: deterministic check that provenance was specified
+          const provenanceCheckPassed = expectedProvenanceRefs.every(ref => ref.length > 0);
+          if (!provenanceCheckPassed) {
+            allFailedChecks.push("provenance_refs_invalid");
+          }
+        }
+
+        const checksPassed = readiness.checksPassed && allFailedChecks.length === 0;
+        const status = checksPassed ? "ready" : "failed";
+
         return {
           outputs: {
-            checks_passed: readiness.checksPassed,
+            checks_passed: checksPassed,
             check_report_ref: `readiness_report:${request.tenant_id}:${request.run_id}:${request.idempotency_key}`,
-            failed_checks: readiness.failedChecks,
+            failed_checks: allFailedChecks,
             preview_readiness_status: status,
+            checked_at: new Date().toISOString(),
+            checked_items: {
+              pages_count: requiredPages.length,
+              navigation_items_count: requiredNavigationItems.length,
+              content_blocks_count: requiredContentBlocks.length,
+              media_refs_count: requiredMediaRefs.length,
+              provenance_refs_count: expectedProvenanceRefs.length,
+            },
           },
         };
       } catch (error) {
         const reason = error instanceof Error ? error.message : "unknown error";
         if (reason.includes("not configured for development mode")) {
-          const failedChecks: string[] = [];
-          if (requiredPages.length === 0) failedChecks.push("required_pages");
-          if (requiredNavigationItems.length === 0) failedChecks.push("required_navigation_items");
-          if (requiredContentBlocks.length === 0) failedChecks.push("required_content_blocks");
-          if (requiredMediaRefs.length === 0) failedChecks.push("required_media_refs");
+          // Development fallback: fail-closed when services not configured
+          // Only succeed if explicit requirements were provided (checked above)
+          // Return deterministic failure indicating checks could not be performed
           return {
             outputs: {
-              checks_passed: failedChecks.length === 0,
+              checks_passed: false,
               check_report_ref: `readiness_report:${request.tenant_id}:${request.run_id}:${request.idempotency_key}`,
-              failed_checks: failedChecks,
-              preview_readiness_status: failedChecks.length === 0 ? "ready" : "failed",
+              failed_checks: ["payload_service_not_configured"],
+              preview_readiness_status: "failed",
+              checked_at: new Date().toISOString(),
+              dev_fallback: true,
+              checked_items: {
+                pages_count: requiredPages.length,
+                navigation_items_count: requiredNavigationItems.length,
+                content_blocks_count: requiredContentBlocks.length,
+                media_refs_count: requiredMediaRefs.length,
+                provenance_refs_count: expectedProvenanceRefs.length,
+              },
             },
           };
         }
@@ -358,6 +403,8 @@ export function createPreviewReadinessCheckHandler(
         };
       }
     });
+
+    // Emit audit events for checked/failed outcomes
     if ("outputs" in result) {
       const checksPassed = result.outputs.checks_passed === true;
       const parentEventId = result.audit_event_ids[result.audit_event_ids.length - 1] ?? result.audit_event_ids[0];
@@ -386,6 +433,7 @@ export function createPreviewReadinessCheckHandler(
 export function createCrmReadyToContactMarkHandler(auditEmitter: AuditEmitter): WorkflowHandler {
   return async (request, context) => {
     return withAudit(request, context.workflow_run_id, auditEmitter, async () => {
+      // Strict lease requirement - fail closed
       const leaseCheck = requireLeaseId(request);
       if (!leaseCheck.ok) return { failure: leaseCheck.failure };
 
@@ -394,13 +442,32 @@ export function createCrmReadyToContactMarkHandler(auditEmitter: AuditEmitter): 
       const siteGenerationRunId = asString(request, "site_generation_run_id");
       const checksPassed = readInput(request, "checks_passed") === true;
       const checkReportRef = asString(request, "check_report_ref");
+      const payloadSyncRef = asString(request, "payload_sync_ref");
 
+      // Validate all required inputs present
       if (!leadId || !siteId || !siteGenerationRunId || !checkReportRef) {
-        return { failure: fail("WORKFLOW_STEP_FAILED", "Missing required crm_ready_to_contact_mark inputs") };
+        return { failure: fail("WORKFLOW_STEP_FAILED", "Missing required crm_ready_to_contact_mark inputs: lead_id, site_id, site_generation_run_id, and check_report_ref are required") };
       }
 
-      if (!checksPassed) {
-        return { failure: fail("WORKFLOW_STEP_FAILED", "Cannot mark CRM lead ready_to_contact when checks_passed is false") };
+      // Strict validation: checks_passed must be explicitly true (boolean)
+      const checksPassedInput = readInput(request, "checks_passed");
+      if (checksPassedInput !== true) {
+        return {
+          failure: fail(
+            "WORKFLOW_STEP_FAILED",
+            `Cannot mark CRM lead ready_to_contact when checks_passed is not true. Received: ${JSON.stringify(checksPassedInput)}`,
+          ),
+        };
+      }
+
+      // Verify the check report ref format (deterministic validation)
+      if (!checkReportRef.startsWith("readiness_report:")) {
+        return {
+          failure: fail(
+            "WORKFLOW_STEP_FAILED",
+            "Invalid check_report_ref format. Expected readiness_report:<tenant>:<run>:<idempotency_key>",
+          ),
+        };
       }
 
       const statusUpdatedAt = new Date().toISOString();
@@ -411,6 +478,11 @@ export function createCrmReadyToContactMarkHandler(auditEmitter: AuditEmitter): 
         lead_status: "ready_to_contact",
         status_updated_at: statusUpdatedAt,
         lease_id: leaseCheck.leaseId,
+        site_id: siteId,
+        site_generation_run_id: siteGenerationRunId,
+        check_report_ref: checkReportRef,
+        payload_sync_ref: payloadSyncRef ?? null,
+        marked_by_workflow: context.workflow_run_id,
       });
 
       return {
@@ -418,6 +490,9 @@ export function createCrmReadyToContactMarkHandler(auditEmitter: AuditEmitter): 
           crm_record_id: crmRecordId,
           lead_status: "ready_to_contact",
           status_updated_at: statusUpdatedAt,
+          site_id: siteId,
+          site_generation_run_id: siteGenerationRunId,
+          check_report_ref: checkReportRef,
         },
       };
     });
