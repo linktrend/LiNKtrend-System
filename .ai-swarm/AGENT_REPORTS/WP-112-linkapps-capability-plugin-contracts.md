@@ -54,7 +54,7 @@ live_execution_policy:
 ## Branch / commit
 
 - **Branch:** `dev/cursor/WP-112-linkapps-capability-plugin-contracts`
-- **Commit:** `c012de9`
+- **Commit (branch tip):** `4890a1b` (manifests and primary deliverable in `c012de9`, report SHA follow-up)
 
 ## Blockers
 
