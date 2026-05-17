@@ -492,3 +492,88 @@ pnpm --filter @linktrend/autowork-gateway typecheck
 ### Blockers
 
 - Workspace typecheck/build failures are pre-existing and out-of-scope for this packet.
+
+---
+
+## WP-070 — LiNKautowork n8n Dev Gateway Integration (2026-05-17)
+
+### Objective
+
+Add development-mode n8n gateway scaffolding (local Docker compose, n8n client, webhook handler, n8n dispatch path, mocked tests) without changing production behavior.
+
+### Files Changed
+
+- `LiNKautowork/docker-compose.n8n.yml` (new)
+- `LiNKautowork/gateway/src/lib/n8n-client.ts` (new)
+- `LiNKautowork/gateway/src/lib/n8n-webhook-handler.ts` (new)
+- `LiNKautowork/gateway/src/workflows/n8n-executor.ts` (new)
+- `LiNKautowork/gateway/src/lib/n8n-client.test.ts` (new)
+- `LiNKautowork/gateway/src/lib/workflow-runner.ts` (modified)
+- `LiNKautowork/gateway/src/index.ts` (modified exports)
+- `.ai-swarm/AGENT_REPORTS/linkautowork-agent.md` (updated)
+
+### Implementation Summary
+
+- Added local-only Docker Compose scaffold for n8n (`5678`) with basic auth defaults for development.
+- Implemented `N8nHttpClient` with methods:
+  - `importWorkflow(templateJson)`
+  - `activateWorkflow(workflowId)`
+  - `executeWorkflow(workflowId, payload)`
+  - `checkHealth()`
+- Added `N8nWebhookRegistry` for async callback path registration/dispatch.
+- Added `SAMPLE_N8N_WORKFLOW_TEMPLATE` and `executeViaN8n()` helper in `n8n-executor.ts`.
+- Updated `invokeWorkflow()` mode behavior:
+  - `AUTOWORK_MODE=n8n` => dispatches to n8n client execution path.
+  - any other value/missing => preserves existing in-process handler + retry/backoff behavior.
+- Kept retry policy (`1s,4s,16s`, max 3 attempts) intact.
+
+### Commands Run
+
+```bash
+git status --short --branch
+git fetch origin --prune
+git worktree add ../LiNKtrend-System-WP-070 -b dev/codex/WP-070-linkautowork-n8n-dev-gateway origin/development
+cd ../LiNKtrend-System-WP-070
+git status --short --branch
+
+# Required reading
+sed -n '1,240p' .cursor/rules/00-linktrend-master-rule.mdc
+sed -n '1,240p' .cursor/rules/01-ecosystem-boundaries.mdc
+sed -n '1,260p' .cursor/rules/03-agent-swarm-coordination.mdc
+sed -n '1,260p' .ai-swarm/LINKAUTOWORK_COMPLETION_PLAN.md
+sed -n '1,260p' .ai-swarm/CONTRACTS_MVO.md
+sed -n '1,320p' .ai-swarm/WORK_PACKETS/WP-070-linkautowork-n8n-dev-gateway.md
+sed -n '1,320p' LiNKautowork/gateway/src/lib/workflow-runner.ts
+
+# Validation
+pnpm install
+pnpm --filter @linktrend/autowork-gateway test
+pnpm --filter @linktrend/autowork-gateway typecheck
+pnpm --filter @linktrend/linklogic-sdk build
+pnpm --filter @linktrend/autowork-gateway typecheck
+```
+
+### Validation / Proof
+
+- `pnpm --filter @linktrend/autowork-gateway test` passed:
+  - `src/lib/n8n-client.test.ts` (3 tests)
+  - `src/lib/retry-policy.test.ts` (6 tests)
+  - `src/workflows/linksites-v2.test.ts` (3 tests)
+  - `src/workflows/websitefactory.test.ts` (10 tests)
+  - Total: 22/22 tests passing.
+- Mocked n8n proof includes:
+  - workflow import/execute flow through mocked `fetch`
+  - `AUTOWORK_MODE=n8n` dispatch through `invokeWorkflow`
+  - webhook callback registration and handling behavior.
+
+### Blockers / Gaps
+
+- Docker runtime proof (`docker ps`) not executed in this packet run; implementation includes `docker-compose.n8n.yml` and mocked test proof as allowed fallback.
+- Workspace typecheck is blocked by pre-existing package linkage/type resolution issues outside WP-070 scope:
+  - unresolved modules in `packages/linklogic-sdk` (e.g., `@linktrend/shared-config`, `@linktrend/db`, `@linktrend/shared-types`)
+  - existing implicit-any/typing errors in `packages/linklogic-sdk` and `LiNKautowork/gateway` baseline files.
+
+### Branch / Commit
+
+- Branch: `dev/codex/WP-070-linkautowork-n8n-dev-gateway`
+- Commit SHA: pending local commit
