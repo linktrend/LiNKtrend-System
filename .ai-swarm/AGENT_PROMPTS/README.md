@@ -77,4 +77,12 @@ WP-103 Execute the prompt in file WP-103-lexos-capability-manifests.prompt.md lo
 WP-106 Execute the prompt in file WP-106-linkapps-plugin-manifest.prompt.md located in .ai-swarm/AGENT_PROMPTS/.
 WP-107 Execute the prompt in file WP-107-linkapps-squad-orchestration.prompt.md located in .ai-swarm/AGENT_PROMPTS/.
 WP-108 Execute the prompt in file WP-108-linkapps-capability-requirements.prompt.md located in .ai-swarm/AGENT_PROMPTS/.
+WP-104 Execute the prompt in file WP-104-lexos-linkbot-role-contracts.prompt.md located in .ai-swarm/AGENT_PROMPTS/.
+WP-105 Execute the prompt in file WP-105-lexos-autowork-workflow-hooks.prompt.md located in .ai-swarm/AGENT_PROMPTS/.
+WP-109 Execute the prompt in file WP-109-linkapps-autowork-workflow-pack.prompt.md located in .ai-swarm/AGENT_PROMPTS/.
+WP-110 Execute the prompt in file WP-110-linkapps-ui-panel-design.prompt.md located in .ai-swarm/AGENT_PROMPTS/.
+WP-111 Execute the prompt in file WP-111-linkapps-linkbrain-event-schema.prompt.md located in .ai-swarm/AGENT_PROMPTS/.
+WP-112 Execute the prompt in file WP-112-linkapps-capability-plugin-contracts.prompt.md located in .ai-swarm/AGENT_PROMPTS/.
+WP-113 Execute the prompt in file WP-113-linksites-e2e-after-hardening.prompt.md located in .ai-swarm/AGENT_PROMPTS/.
+WP-114 Execute the prompt in file WP-114-linkskills-cross-vertical-catalog-seeds.prompt.md located in .ai-swarm/AGENT_PROMPTS/.
 ```
