@@ -3,6 +3,7 @@ import type { WorkflowInvokeRequest } from "@linktrend/linklogic-sdk";
 import type { AuditEmitter } from "../lib/audit-emitter.js";
 import { createPayloadSyncClient, type PayloadSyncClient } from "../lib/payload-client.js";
 import { createSupabaseMirrorClient, type SupabaseMirrorClient } from "../lib/supabase-client.js";
+import { writeLinksitesArtifactBundle } from "../lib/linksites-artifact-writer.js";
 import type { WorkflowHandler } from "../types/index.js";
 
 export const ARTIFACT_WRITE_LOCAL_HANDLE = "autowork.linksites.artifact_write_local";
@@ -104,26 +105,38 @@ export function createArtifactWriteLocalHandler(auditEmitter: AuditEmitter): Wor
         return { failure: fail("WORKFLOW_STEP_FAILED", "Missing required artifact_write_local inputs") };
       }
 
-      const artifactRef = `artifact_local:${request.tenant_id}:${siteId}:${siteGenerationRunId}:${request.idempotency_key}`;
-      const artifactManifestRef = `${artifactRef}:manifest`;
-      const writtenFilesCount = 3;
-      const artifactDigest = digest({ artifactRef, artifactBundleRef, artifactRootPath });
-
-      artifactWrites.set(artifactRef, {
-        artifact_ref: artifactRef,
-        artifact_manifest_ref: artifactManifestRef,
+      const writeResult = await writeLinksitesArtifactBundle({
+        tenant_id: request.tenant_id,
+        run_id: request.run_id,
+        site_id: siteId,
+        site_generation_run_id: siteGenerationRunId,
+        artifact_bundle_ref: artifactBundleRef,
         artifact_root_path: artifactRootPath,
-        written_files_count: writtenFilesCount,
-        artifact_digest: artifactDigest,
+      });
+      if (!writeResult.ok) {
+        return {
+          failure: fail(
+            "WORKFLOW_STEP_FAILED",
+            `artifact_write_local failed: ${writeResult.reason}`,
+          ),
+        };
+      }
+
+      artifactWrites.set(writeResult.artifact_ref, {
+        artifact_ref: writeResult.artifact_ref,
+        artifact_manifest_ref: writeResult.artifact_manifest_ref,
+        artifact_root_path: writeResult.artifact_root_path,
+        written_files_count: writeResult.written_files_count,
+        artifact_digest: writeResult.artifact_digest,
       });
 
       return {
         outputs: {
-          artifact_ref: artifactRef,
-          artifact_manifest_ref: artifactManifestRef,
-          artifact_root_path: artifactRootPath,
-          written_files_count: writtenFilesCount,
-          artifact_digest: artifactDigest,
+          artifact_ref: writeResult.artifact_ref,
+          artifact_manifest_ref: writeResult.artifact_manifest_ref,
+          artifact_root_path: writeResult.artifact_root_path,
+          written_files_count: writeResult.written_files_count,
+          artifact_digest: writeResult.artifact_digest,
         },
       };
     });
