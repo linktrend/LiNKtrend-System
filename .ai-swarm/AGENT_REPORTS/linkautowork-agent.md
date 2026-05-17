@@ -492,3 +492,71 @@ pnpm --filter @linktrend/autowork-gateway typecheck
 ### Blockers
 
 - Workspace typecheck/build failures are pre-existing and out-of-scope for this packet.
+
+---
+
+## WP-072 — LiNKautowork health metrics (2026-05-17)
+
+### Objective
+
+Add LiNKautowork health and Prometheus-compatible metrics primitives for operational visibility without introducing external monitoring dependencies or modifying workflow handlers/audit behavior.
+
+### Files Changed
+
+- `LiNKautowork/gateway/src/lib/health.ts` (new)
+- `LiNKautowork/gateway/src/lib/metrics.ts` (new)
+- `LiNKautowork/gateway/src/lib/health.test.ts` (new)
+- `LiNKautowork/gateway/src/index.ts` (exports for health/metrics primitives)
+- `.ai-swarm/AGENT_REPORTS/linkautowork-agent.md` (this report update)
+
+### Commands Run
+
+```bash
+git fetch origin --prune
+git worktree add ../LiNKtrend-System-WP-072 -b dev/codex/WP-072-linkautowork-health-metrics origin/development
+git status --short --branch
+sed -n '1,220p' .ai-swarm/AGENT_PROMPTS/WP-072-linkautowork-health-metrics.prompt.md
+sed -n '1,240p' .cursor/rules/03-agent-swarm-coordination.mdc
+sed -n '1,260p' .ai-swarm/LINKAUTOWORK_COMPLETION_PLAN.md
+sed -n '1,260p' .ai-swarm/WORK_PACKETS/WP-072-linkautowork-health-metrics.md
+sed -n '1,260p' LiNKautowork/gateway/src/index.ts
+sed -n '1,300p' LiNKautowork/gateway/src/lib/workflow-runner.ts
+pnpm install
+pnpm --filter @linktrend/autowork-gateway test
+pnpm --filter @linktrend/autowork-gateway typecheck
+pnpm --filter @linktrend/linklogic-sdk build
+```
+
+### Proof / Validation
+
+`pnpm --filter @linktrend/autowork-gateway test`:
+
+- `✓ src/lib/retry-policy.test.ts (6 tests)`
+- `✓ src/lib/health.test.ts (3 tests)`
+- `✓ src/workflows/websitefactory.test.ts (10 tests)`
+- `✓ src/workflows/linksites-v2.test.ts (3 tests)`
+- `Test Files 4 passed (4)`
+- `Tests 22 passed (22)`
+
+Health output proof is covered by `src/lib/health.test.ts` with assertions for:
+- status + dependency checks
+- workflow registration count
+- timestamp shape
+
+Prometheus metrics proof is covered by `src/lib/health.test.ts` with assertions for:
+- counter lines (`autowork_workflow_invocations_total`)
+- histogram lines (`autowork_workflow_latency_ms_*`)
+- p50/p95/p99 quantile lines
+- running-run gauge (`autowork_running_runs`)
+
+### Blockers
+
+- Workspace typecheck/build dependency graph is currently unresolved in this snapshot:
+  - `pnpm --filter @linktrend/autowork-gateway typecheck` fails due to unresolved workspace package typings (for example `@linktrend/linklogic-sdk` not resolvable in current TS graph).
+  - `pnpm --filter @linktrend/linklogic-sdk build` fails due to unresolved workspace package typings (`@linktrend/shared-config`, `@linktrend/db`, `@linktrend/shared-types`, etc.).
+- This blocker is pre-existing and outside WP-072 allowed-file scope.
+
+### Branch / Commit
+
+- Branch: `dev/codex/WP-072-linkautowork-health-metrics`
+- Commit SHA: pending (to be filled after commit)
