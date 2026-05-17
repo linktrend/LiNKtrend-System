@@ -1200,7 +1200,14 @@ Define precise LiNKapps (`linkapps.app_factory`) capability lease requirements: 
 
 ## Commands Run
 
-*(Recorded after git operations in this WP-108 worktree.)*
+```bash
+git fetch origin --prune           # ran from LiNKtrend-System main checkout
+git worktree add ../LiNKtrend-System-WP-108 -b dev/cursor/WP-108-linkapps-capability-requirements origin/development
+cd /Users/linktrend/Projects/LiNKtrend-System-WP-108 && git status --short --branch
+git add .ai-swarm/LINKAPPS_CAPABILITY_REQUIREMENTS.md .ai-swarm/AGENT_REPORTS/linkskills-agent.md
+git commit -m "docs: define LiNKapps capability requirements"
+git push -u origin dev/cursor/WP-108-linkapps-capability-requirements
+```
 
 ## Proof
 
@@ -1213,7 +1220,7 @@ Define precise LiNKapps (`linkapps.app_factory`) capability lease requirements: 
 ## Final Branch and Commit
 
 - Branch: `dev/cursor/WP-108-linkapps-capability-requirements`
-- Commit SHA: *after commit*
+- Commit SHA: `4947c71`
 
 ## Blockers
 
