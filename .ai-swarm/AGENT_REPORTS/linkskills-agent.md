@@ -617,3 +617,55 @@ pnpm --filter @linktrend/linkskills-logic-engine typecheck
 
 - Branch: `dev/codex/recover-WP050-WP053-WP054-linkskills-capabilities` (Integrator recovery branch)
 - Commit SHA: `dbfa4a9` (Integrator recovery branch)
+
+## Assigned Work Packet
+
+**WP-079 — LinkSkills golden template SDK**
+**Status:** COMPLETE
+**Date:** 2026-05-17
+
+## Objective
+
+Preserve the LinkSkills Golden Template and add an SDK-level skill manifest validation plus scaffolding surface for governed LinkBot skill usage.
+
+## Files Changed
+
+- `packages/linklogic-sdk/templates/skill-golden.md`
+- `packages/linklogic-sdk/src/types/skill.ts`
+- `packages/linklogic-sdk/src/validation/skill.ts`
+- `packages/linklogic-sdk/src/validation/skill.test.ts`
+- `packages/linklogic-sdk/src/index.ts`
+- `.ai-swarm/AGENT_REPORTS/linkskills-agent.md`
+
+## Commands Run
+
+```bash
+git fetch origin --prune
+git worktree add ../LiNKtrend-System-WP-079 -b dev/codex/WP-079-linkskills-golden-template origin/development
+pnpm install
+pnpm --filter @linktrend/linklogic-sdk test -- src/validation/skill.test.ts
+pnpm --filter @linktrend/linklogic-sdk exec vitest run src/validation/skill.test.ts
+pnpm --filter @linktrend/linklogic-sdk typecheck
+```
+
+## Validation / Proof
+
+- `pnpm --filter @linktrend/linklogic-sdk exec vitest run src/validation/skill.test.ts`
+  - PASS (`4` tests)
+  - Covers:
+    - valid frontmatter parsing
+    - invalid manifest rejection
+    - scaffold output structure and replacements
+    - skill catalog entry generation for run-scoped disclosure contract
+- Golden template copied to `packages/linklogic-sdk/templates/skill-golden.md` and version metadata adapted for SDK usage.
+
+## Blockers / Risks
+
+- Packet references `packages/linkskills-core/src/skills/`, but `packages/linkskills-core` does not exist on current `development` base; implementation was completed in `packages/linklogic-sdk` only.
+- Package-level `typecheck` currently fails due existing workspace import-resolution issues for `@linktrend/shared-config`, `@linktrend/shared-types`, `@linktrend/db`, and `@linktrend/observability` in unrelated existing files.
+- The package `test` script runs broad suite; several unrelated suites fail due the same workspace resolution baseline.
+
+## Branch and Commit
+
+- Branch: `dev/codex/WP-079-linkskills-golden-template`
+- Commit SHA: `PENDING`
