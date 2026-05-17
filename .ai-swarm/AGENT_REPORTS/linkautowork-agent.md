@@ -645,3 +645,64 @@ Prometheus metrics proof is covered by `src/lib/health.test.ts` with assertions 
 
 - Branch: `dev/codex/WP-072-linkautowork-health-metrics`
 - Commit SHA: `a43e3c7`
+
+## WP-068 — LiNKautowork persistent idempotency (2026-05-17)
+
+### Objective
+
+Replace the in-memory LiNKautowork idempotency cache with a persistent-store abstraction and a development-safe implementation that preserves existing retry and workflow behavior.
+
+### Files Changed
+
+- `LiNKautowork/gateway/src/lib/idempotency-store.ts` (new persistent-store interface + memory/file implementations)
+- `LiNKautowork/gateway/src/lib/workflow-runner.ts` (replaced direct Map cache usage with `IdempotencyStore` abstraction)
+- `LiNKautowork/gateway/src/lib/idempotency-store.test.ts` (new tests including restart simulation)
+- `LiNKautowork/gateway/src/index.ts` (exported idempotency-store testing setter)
+- `packages/db/schema/autowork/0001_idempotency.sql` (new schema file for Postgres wiring)
+- `.ai-swarm/AGENT_REPORTS/linkautowork-agent.md` (this update)
+
+### Commands Run
+
+```bash
+git fetch origin --prune
+git worktree add ../LiNKtrend-System-WP-068 -b dev/codex/WP-068-linkautowork-persistent-idempotency origin/development
+git status --short --branch
+
+# Required reading
+sed -n '1,220p' .cursor/rules/00-linktrend-master-rule.mdc
+sed -n '1,240p' .cursor/rules/01-ecosystem-boundaries.mdc
+sed -n '1,240p' .cursor/rules/03-agent-swarm-coordination.mdc
+sed -n '1,260p' .ai-swarm/LINKAUTOWORK_COMPLETION_PLAN.md
+sed -n '1,260p' .ai-swarm/CONTRACTS_MVO.md
+sed -n '1,260p' .ai-swarm/WORK_PACKETS/WP-068-linkautowork-persistent-idempotency.md
+sed -n '1,260p' LiNKautowork/gateway/src/lib/workflow-runner.ts
+sed -n '1,260p' LiNKautowork/gateway/src/lib/retry-policy.ts
+sed -n '1,260p' LiNKautowork/gateway/src/lib/health.ts
+
+# Validation
+pnpm install
+pnpm --filter @linktrend/autowork-gateway test
+```
+
+### Proof / Validation
+
+- `pnpm --filter @linktrend/autowork-gateway test` passed:
+  - `src/lib/idempotency-store.test.ts` (2 tests)
+  - `src/lib/retry-policy.test.ts` (6 tests)
+  - `src/lib/health.test.ts` (3 tests)
+  - `src/lib/n8n-client.test.ts` (3 tests)
+  - `src/workflows/linksites-v2.test.ts` (3 tests)
+  - `src/workflows/websitefactory.test.ts` (10 tests)
+  - Total: `27/27` tests passing.
+- Restart simulation proof is covered by:
+  - `✓ returns cached result after simulated restart`
+
+### Blockers / Gaps
+
+- Existing `@linktrend/db` package currently exposes Supabase clients only; no shared Postgres migration runtime is present in this branch snapshot.
+- Packet fallback applied per prompt boundaries: implemented a clean idempotency-store interface plus development-safe file-backed persistence and tests, and added a Postgres schema file for future DB wiring.
+
+### Branch / Commit
+
+- Branch: `dev/codex/WP-068-linkautowork-persistent-idempotency`
+- Commit SHA: recorded in this packet handoff after commit

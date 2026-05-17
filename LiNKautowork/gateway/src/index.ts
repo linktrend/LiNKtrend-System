@@ -22,6 +22,7 @@ export {
   unregisterWorkflow,
   checkN8nHealth,
   setN8nClientForTesting,
+  setIdempotencyStoreForTesting,
 } from "./lib/workflow-runner.js";
 
 export {
