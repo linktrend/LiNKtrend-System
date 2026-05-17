@@ -52,7 +52,7 @@ None.
 ## Branch and Commit
 
 - **Branch:** `dev/cursor/WP-107-linkapps-squad-orchestration`
-- **Commit SHA:** `e3bce4bd35a3b0883902444623330264db583092`
+- **Commit SHA:** `c7e4c10e9cd959ecceac477dd8a31247b184c745` (branch tip; primary spec commit `e3bce4bd35a3b0883902444623330264db583092`)
 
 ---
 
