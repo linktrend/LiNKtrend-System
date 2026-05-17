@@ -124,3 +124,12 @@ export {
   emitLeaseExecuted,
   emitCapabilityOutput,
 } from "./audit-events.js";
+
+// Progressive disclosure (WP-080)
+export {
+  issueDisclosure,
+  validateDisclosureToken,
+  isTokenRevoked,
+  revokeDisclosure,
+  listDisclosuresForRun,
+} from "./disclosure.js";

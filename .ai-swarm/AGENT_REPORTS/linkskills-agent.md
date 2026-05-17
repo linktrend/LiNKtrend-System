@@ -979,3 +979,156 @@ pnpm --filter @linktrend/linklogic-sdk typecheck
 
 - Branch: `dev/codex/WP-078-linkskills-kill-switch`
 - Commit SHA: `40e57c1`
+
+---
+
+## Assigned Work Packet
+
+**WP-080 — LinkSkills progressive disclosure service**
+**Status:** COMPLETE
+**Date:** 2026-05-17
+
+## Objective
+
+Implement a progressive disclosure service for governed LinkBot skill usage, providing run-scoped disclosure token generation and fragment delivery with IP protection.
+
+## Repo Reality Note
+
+- `packages/linkskills-core` does not exist on `origin/development`.
+- Per prompt instruction, implementation was completed in existing packages:
+  - `LiNKskills/services/logic-engine` (disclosure service implementation)
+  - `packages/linklogic-sdk` (disclosure types)
+
+## Files Changed
+
+### SDK Types (packages/linklogic-sdk)
+- `src/types/disclosure.ts` (new)
+  - Added `ExecutionMode` enum (managed, hybrid, client_side)
+  - Added `DisclosureScope` enum (tenant, capability, run, step)
+  - Added `DisclosureTokenPayload` interface with JWT-like structure
+  - Added `DisclosureToken` interface
+  - Added `SkillFragmentType` enum with fragment categories
+  - Added `SkillFragment` interface
+  - Added `DisclosureManifest` interface
+  - Added `DisclosureIssueRequest` schema
+  - Added `DisclosureIssueResult` interface
+  - Added `DisclosureValidationRequest/Result` interfaces
+  - Added `DisclosureAuditRecord` interface
+  - Added `DisclosureStoreEntry` interface
+
+- `src/index.ts`
+  - Exported disclosure types and schemas
+
+### LinkSkills Logic Engine (LiNKskills/services/logic-engine)
+- `src/disclosure.ts` (new)
+  - `issueDisclosure()` - POST /v1/disclosures/issue implementation
+  - `validateDisclosureToken()` - Token validation with signature, expiry, scope checks
+  - `isTokenRevoked()` - Check if token has been revoked
+  - `revokeDisclosure()` - Revoke a disclosure token
+  - `listDisclosuresForRun()` - List disclosures for audit/troubleshooting
+  - Token signing with HS256 (development-safe, production should use RS256/Ed25519)
+  - Lease integration: lease required for step/run scope
+  - Manifest generation with minimal fragments only
+  - Fragment selection logic: decision_tree always, phase_instructions for step/run,
+    contracts for non-tenant, tool_specs for hybrid/client_side
+  - IP protection: full source, examples, old_patterns NEVER included by default
+  - Disclosure audit logging with fragment scope (not content)
+
+- `src/index.ts`
+  - Exported disclosure functions
+
+- `src/disclosure.test.ts` (new)
+  - Token generation and signing tests
+  - Token validation tests (valid signature, invalid signature, malformed)
+  - Token expiry tests (expired token rejection, valid token acceptance)
+  - Token scope validation tests (tenant, run, stage constraints)
+  - Disclosure request validation tests (lease required for step/run scope)
+  - Manifest fragment selection tests (decision tree always included, full source excluded)
+  - Execution mode coverage tests (managed, hybrid, client_side)
+  - Audit event structure tests (fragment scope logged, not content)
+
+## Commands Run
+
+```bash
+git fetch origin --prune
+git worktree add ../LiNKtrend-System-WP-080 -b dev/cursor/WP-080-linkskills-progressive-disclosure origin/development
+cd ../LiNKtrend-System-WP-080
+pnpm install
+pnpm --filter @linktrend/linkskills-logic-engine test -- src/disclosure.test.ts
+pnpm --filter @linktrend/linkskills-logic-engine test
+```
+
+## Validation / Proof
+
+- `pnpm --filter @linktrend/linkskills-logic-engine test -- src/disclosure.test.ts`
+  - PASS
+  - `8` test files, `85` tests passed (includes new WP-080 tests)
+  - Token generation/validation tests pass
+  - Expiry validation tests pass
+  - Scope validation tests pass
+  - Manifest fragment selection tests pass
+
+- `pnpm --filter @linktrend/linkskills-logic-engine test`
+  - PASS
+  - `8` test files, `85` tests passed
+
+## Implementation Highlights
+
+### Token Structure (JWT-like)
+- `iss`: "linkskills" (issuer)
+- `sub`: run_id + stage_id
+- `jti`: Unique token ID
+- `iat`: Issued at timestamp
+- `exp`: Expiry timestamp (5-30 min TTL)
+- `tenant_id`, `capability_id`, `run_id`, `stage_id`: Scope binding
+- `step_scope`: tenant | capability | run | step
+- `mode`: managed | hybrid | client_side
+- `allowed_tools`: Constrained tool list
+- `lease_id`: Associated lease (if applicable)
+
+### Progressive Disclosure Fragments
+Always included:
+- `decision_tree`: Fail-fast execution rules
+
+Included based on scope:
+- `phase_instructions`: Current phase guidance (step/run scope)
+- `contracts`: Input/output/state schemas (non-tenant scope)
+- `tool_specs`: Tool specifications (hybrid/client_side mode)
+
+NEVER included by default:
+- `full_source`: Complete SKILL.md
+- `examples`: Example workflows
+- `old_patterns`: Deprecated patterns reference
+
+### Lease Integration
+- `step` scope: Requires active lease
+- `run` scope: Requires active lease
+- `capability` scope: No lease required
+- `tenant` scope: No lease required
+
+### IP Protection
+- Full skill source never disclosed by default
+- Only minimal required fragments based on current execution step
+- Content hashes provided for integrity verification
+- Audit logs track fragment scope, not content
+
+## Blockers / Risks
+
+- Token signing uses HS256 for development simplicity. Production should use RS256 or Ed25519 with proper key rotation infrastructure.
+- `disclosure_audit_log` table assumed to exist; actual database migration not included in this packet.
+- Real skill catalog integration is stubbed; production implementation should query actual skill bindings.
+
+## Acceptance Criteria
+
+- [x] Disclosure tokens are signed and time-limited
+- [x] Token scope: tenant + capability + run + step
+- [x] Run-scoped manifest includes minimal required fragments
+- [x] Full skill source never disclosed by default
+- [x] Disclosure issuance requires active lease for step/run scope
+- [x] Audit event `disclosure.issued` structure defined
+- [x] Token validation works end-to-end
+
+## Branch and Commit
+
+- Branch: `dev/cursor/WP-080-linkskills-progressive-disclosure`
+- Commit SHA: PENDING (awaiting final commit)
