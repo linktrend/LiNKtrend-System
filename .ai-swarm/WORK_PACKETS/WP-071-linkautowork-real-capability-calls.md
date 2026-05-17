@@ -1,4 +1,4 @@
-# WP-063 - Real Capability Plugin Integration
+# WP-071 - LiNKautowork Real Capability Plugin Integration
 
 ## Objective
 
@@ -7,7 +7,7 @@ Replace stub LinkSites v2 workflows with real Supabase and Payload CMS calls.
 ## Repo / Branch
 
 - Repo: `/Users/linktrend/Projects/LiNKtrend-System`
-- Branch: `dev/codex/WP-063-real-capability-calls`
+- Branch: `dev/codex/WP-071-linkautowork-real-capability-calls`
 - Base: `development`
 
 ## Allowed Files

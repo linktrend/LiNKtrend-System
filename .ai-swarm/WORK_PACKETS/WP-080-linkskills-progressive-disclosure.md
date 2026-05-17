@@ -1,4 +1,4 @@
-# WP-066 - LinkSkills Progressive Disclosure Service
+# WP-080 - LinkSkills Progressive Disclosure Service
 
 ## Objective
 
@@ -7,7 +7,7 @@ Implement run-scoped disclosure token generation and fragment delivery for LinkB
 ## Repo / branch
 
 - Repo: `/Users/linktrend/Projects/LiNKtrend-System`
-- Branch: `dev/codex/WP-066-linkskills-progressive-disclosure`
+- Branch: `dev/codex/WP-080-linkskills-progressive-disclosure`
 - Base: `development`
 
 ## Allowed files
@@ -28,8 +28,8 @@ Implement run-scoped disclosure token generation and fragment delivery for LinkB
 
 - `.ai-swarm/LINKSKILLS_COMPLETION_PLAN.md` §4.7
 - PRD_LINKSKILLS_LOGIC_ENGINE §12 (progressive disclosure)
-- WP-063 (lease lifecycle)
-- WP-065 (Golden Template)
+- WP-077 (lease lifecycle)
+- WP-079 (Golden Template)
 
 ## Steps
 
@@ -56,7 +56,7 @@ Implement run-scoped disclosure token generation and fragment delivery for LinkB
 
 4. Implement disclosure issuance endpoint:
    - `POST /v1/disclosures/issue`
-   - Requires active lease (WP-063 integration)
+   - Requires active lease (WP-077 integration)
    - Returns disclosure token + manifest
    - Log issuance to audit
 
@@ -95,8 +95,8 @@ Implement run-scoped disclosure token generation and fragment delivery for LinkB
 
 ## Blockers
 
-- WP-063 (lease lifecycle) must complete
-- WP-065 (Golden Template) for fragment selection
+- WP-077 (lease lifecycle) must complete
+- WP-079 (Golden Template) for fragment selection
 - Signing key infrastructure decision
 
 ## Notes

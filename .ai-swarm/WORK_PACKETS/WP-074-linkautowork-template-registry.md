@@ -1,4 +1,4 @@
-# WP-066 - Workflow Template Registry
+# WP-074 - LiNKautowork Workflow Template Registry
 
 ## Objective
 
@@ -7,8 +7,8 @@ Externalize workflow definitions from code to configurable JSON templates.
 ## Repo / Branch
 
 - Repo: `/Users/linktrend/Projects/LiNKtrend-System`
-- Branch: `dev/codex/WP-066-template-registry`
-- Base: `dev/codex/WP-062-n8n-dev-gateway`
+- Branch: `dev/codex/WP-074-linkautowork-template-registry`
+- Base: `development`
 
 ## Allowed Files
 
@@ -31,7 +31,7 @@ Externalize workflow definitions from code to configurable JSON templates.
 ## Required Context
 
 - `LiNKautowork/gateway/src/workflows/index.ts` (current bootstrap)
-- WP-062 n8n integration (template loading from n8n)
+- WP-070 n8n integration (template loading from n8n)
 - n8n workflow JSON format
 
 ## Technical Requirements
@@ -149,7 +149,7 @@ curl -X POST /api/templates/autowork.websitefactory.render/promote \
 
 ## Blockers
 
-- WP-062 (n8n integration) — for n8n template loading
+- WP-070 (n8n integration) — for n8n template loading
 
 ## Related
 

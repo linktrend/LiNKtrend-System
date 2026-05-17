@@ -1,4 +1,4 @@
-# WP-064 - Health Checks and Observability
+# WP-072 - LiNKautowork Health Checks and Observability
 
 ## Objective
 
@@ -7,7 +7,7 @@ Add health endpoint and metrics for operational visibility into LiNKautowork.
 ## Repo / Branch
 
 - Repo: `/Users/linktrend/Projects/LiNKtrend-System`
-- Branch: `dev/codex/WP-064-health-metrics`
+- Branch: `dev/codex/WP-072-linkautowork-health-metrics`
 - Base: `development`
 
 ## Allowed Files
@@ -40,7 +40,7 @@ interface HealthCheck {
     checks: {
       database: { status: 'ok' | 'error'; latencyMs: number };
       idempotencyStore: { status: 'ok' | 'error' };
-      // WP-062: n8n?: { status: 'ok' | 'error' };
+      // WP-070: n8n?: { status: 'ok' | 'error' };
     };
     workflowsRegistered: number;
     timestamp: string;
@@ -128,4 +128,4 @@ None
 ## Related
 
 - `LINKAUTOWORK_COMPLETION_PLAN.md` Gap G5
-- WP-065 (Operator Controls) depends on health checks
+- WP-073 (Operator Controls) depends on health checks

@@ -1,4 +1,4 @@
-# WP-062 - LinkSkills Capability Catalog API
+# WP-076 - LinkSkills Capability Catalog API
 
 ## Objective
 
@@ -7,7 +7,7 @@ Implement capability registry CRUD and discovery endpoints matching `CapabilityP
 ## Repo / branch
 
 - Repo: `/Users/linktrend/Projects/LiNKtrend-System`
-- Branch: `dev/codex/WP-062-linkskills-capability-catalog-api`
+- Branch: `dev/codex/WP-076-linkskills-capability-catalog-api`
 - Base: `development`
 
 ## Allowed files
@@ -22,14 +22,14 @@ Implement capability registry CRUD and discovery endpoints matching `CapabilityP
 
 - Old repo implementation (`LiNKskills/services/logic-engine/`)
 - LiNKaios kernel code (use contracts only)
-- LinkSkills lease implementation (WP-063)
+- LinkSkills lease implementation (WP-077)
 
 ## Required context
 
 - `.ai-swarm/LINKSKILLS_COMPLETION_PLAN.md` §4.1
 - `.ai-swarm/CONTRACTS_MVO.md` §1.2 (CapabilityPluginSurface)
 - `.ai-swarm/CONTRACTS_MVO.md` §0.A.5 (v1 capability contracts)
-- WP-061 schema (capabilities table)
+- WP-075 schema (capabilities table)
 
 ## Steps
 
@@ -87,7 +87,7 @@ Implement capability registry CRUD and discovery endpoints matching `CapabilityP
 
 ## Blockers
 
-- WP-061 must complete (database schema)
+- WP-075 must complete (database schema)
 - WP-005 (linklogic-sdk types) should be available
 
 ## Notes

@@ -1,4 +1,4 @@
-# WP-061 - Retry with Exponential Backoff
+# WP-069 - LiNKautowork Retry with Exponential Backoff
 
 ## Objective
 
@@ -7,7 +7,7 @@ Implement retry logic per CONTRACTS_MVO.md §0.A.10.1: exponential backoff (1s, 
 ## Repo / Branch
 
 - Repo: `/Users/linktrend/Projects/LiNKtrend-System`
-- Branch: `dev/codex/WP-061-retry-backoff`
+- Branch: `dev/codex/WP-069-linkautowork-retry-backoff`
 - Base: `development`
 
 ## Allowed Files
@@ -18,7 +18,7 @@ Implement retry logic per CONTRACTS_MVO.md §0.A.10.1: exponential backoff (1s, 
 
 ## Prohibited Files
 
-- Do not modify idempotency store implementation (WP-060 owns that)
+- Do not modify idempotency store implementation (WP-068 owns that)
 - Do not change audit emitter
 
 ## Required Context

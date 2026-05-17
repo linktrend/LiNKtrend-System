@@ -1,4 +1,4 @@
-# WP-065 - Operator Control Plane
+# WP-073 - LiNKautowork Operator Control Plane
 
 ## Objective
 
@@ -7,8 +7,8 @@ Allow operators to pause, cancel, and monitor workflow runs through LiNKaios UI.
 ## Repo / Branch
 
 - Repo: `/Users/linktrend/Projects/LiNKtrend-System`
-- Branch: `dev/codex/WP-065-operator-controls`
-- Base: `dev/codex/WP-064-health-metrics`
+- Branch: `dev/codex/WP-073-linkautowork-operator-controls`
+- Base: `development`
 
 ## Allowed Files
 
@@ -30,7 +30,7 @@ Allow operators to pause, cancel, and monitor workflow runs through LiNKaios UI.
 ## Required Context
 
 - `CONTRACTS_MVO.md` §4.4 (run cancellation)
-- WP-064 health metrics
+- WP-072 health metrics
 - LiNKaios plugin UI panel patterns
 
 ## Technical Requirements
@@ -121,7 +121,7 @@ interface RunController {
 
 ## Blockers
 
-- WP-064 (Health Metrics) — provides foundation
+- WP-072 (Health Metrics) — provides foundation
 - LiNKaios kernel API for panel registration
 
 ## Related

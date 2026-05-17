@@ -1,4 +1,4 @@
-# WP-065 - LinkSkills Golden Template and Skill SDK
+# WP-079 - LinkSkills Golden Template and Skill SDK
 
 ## Objective
 
@@ -7,7 +7,7 @@ Copy Golden Template from old repo and create skill validation SDK for LinkBot s
 ## Repo / branch
 
 - Repo: `/Users/linktrend/Projects/LiNKtrend-System`
-- Branch: `dev/codex/WP-065-linkskills-golden-template`
+- Branch: `dev/codex/WP-079-linkskills-golden-template`
 - Base: `development`
 
 ## Allowed files
@@ -67,7 +67,7 @@ Copy Golden Template from old repo and create skill validation SDK for LinkBot s
 6. Document progressive disclosure:
    - Public contract layer specification
    - Runtime disclosure layer for LinkBots
-   - Token structure (defer signing to WP-066)
+   - Token structure (defer signing to WP-080)
 
 ## Acceptance criteria
 
@@ -86,11 +86,11 @@ Copy Golden Template from old repo and create skill validation SDK for LinkBot s
 
 ## Blockers
 
-- None - can proceed in parallel with WP-061
+- None - can proceed in parallel with WP-075
 
 ## Notes
 
 - Golden Template is authoring guidance, not runtime code
 - LinkBots consume skills through progressive disclosure, not full source
-- Coordinate with WP-066 for disclosure token integration
+- Coordinate with WP-080 for disclosure token integration
 - `skill-architect` is reference only for how skills are created

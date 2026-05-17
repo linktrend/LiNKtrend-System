@@ -1,4 +1,4 @@
-# WP-060 - Persistent Idempotency Store
+# WP-068 - LiNKautowork Persistent Idempotency Store
 
 ## Objective
 
@@ -7,8 +7,8 @@ Replace in-memory idempotency cache with persistent storage to survive process r
 ## Repo / Branch
 
 - Repo: `/Users/linktrend/Projects/LiNKtrend-System`
-- Branch: `dev/codex/WP-060-persistent-idempotency`
-- Base: `dev/codex/WP-059-linkautowork-completion-plan-runtime-hardening`
+- Branch: `dev/codex/WP-068-linkautowork-persistent-idempotency`
+- Base: `development`
 
 ## Allowed Files
 

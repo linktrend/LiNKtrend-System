@@ -1,4 +1,4 @@
-# WP-063 - LinkSkills Lease Lifecycle Implementation
+# WP-077 - LinkSkills Lease Lifecycle Implementation
 
 ## Objective
 
@@ -7,7 +7,7 @@ Implement complete lease request → decision → execute → record flow per CO
 ## Repo / branch
 
 - Repo: `/Users/linktrend/Projects/LiNKtrend-System`
-- Branch: `dev/codex/WP-063-linkskills-lease-lifecycle`
+- Branch: `dev/codex/WP-077-linkskills-lease-lifecycle`
 - Base: `development`
 
 ## Allowed files
@@ -30,7 +30,7 @@ Implement complete lease request → decision → execute → record flow per CO
 - `.ai-swarm/LINKSKILLS_COMPLETION_PLAN.md` §4.2, 4.3
 - `.ai-swarm/CONTRACTS_MVO.md` §6.2 (complete lease lifecycle)
 - `/Users/linktrend/Projects/LiNKskills/SOP_MACHINE_MVO_CLASS_A.md` §7 (idempotency)
-- WP-061 (schema), WP-062 (catalog)
+- WP-075 (schema), WP-076 (catalog)
 
 ## Steps
 
@@ -42,7 +42,7 @@ Implement complete lease request → decision → execute → record flow per CO
 
 2. Implement `skills.lease.request`:
    - Validate capability exists (call catalog API)
-   - Check kill switch state (WP-064 integration)
+   - Check kill switch state (WP-078 integration)
    - Validate idempotency key format: `${run_id}:${stage_id}:${capability}`
    - Check if lease already exists for idempotency key
    - Return `LeaseDecision` with `granted|denied|requires_approval`
@@ -101,9 +101,9 @@ Implement complete lease request → decision → execute → record flow per CO
 
 ## Blockers
 
-- WP-061 (schema) must complete
-- WP-062 (catalog) must complete
-- WP-064 (kill switch) should be available for integration
+- WP-075 (schema) must complete
+- WP-076 (catalog) must complete
+- WP-078 (kill switch) should be available for integration
 
 ## Notes
 

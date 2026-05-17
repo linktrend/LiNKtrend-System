@@ -1,4 +1,4 @@
-# WP-061 - LinkSkills Database Schema and Migrations
+# WP-075 - LinkSkills Database Schema and Migrations
 
 ## Objective
 
@@ -7,7 +7,7 @@ Create LiNKbrain database tables for LinkSkills capability catalog, lease ledger
 ## Repo / branch
 
 - Repo: `/Users/linktrend/Projects/LiNKtrend-System`
-- Branch: `dev/codex/WP-061-linkskills-database-schema`
+- Branch: `dev/codex/WP-075-linkskills-database-schema`
 - Base: `development`
 
 ## Allowed files

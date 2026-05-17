@@ -1,4 +1,4 @@
-# WP-067 - LinkSkills Integration Test Harness
+# WP-081 - LinkSkills Integration Test Harness
 
 ## Objective
 
@@ -7,7 +7,7 @@ End-to-end test harness for capability lease flows, idempotency, kill switches, 
 ## Repo / branch
 
 - Repo: `/Users/linktrend/Projects/LiNKtrend-System`
-- Branch: `dev/codex/WP-067-linkskills-integration-tests`
+- Branch: `dev/codex/WP-081-linkskills-integration-tests`
 - Base: `development`
 
 ## Allowed files
@@ -26,7 +26,7 @@ End-to-end test harness for capability lease flows, idempotency, kill switches, 
 
 - `.ai-swarm/LINKSKILLS_COMPLETION_PLAN.md` §4
 - `.ai-swarm/CONTRACTS_MVO.md` §6.2, §8 (audit requirements)
-- WP-061 through WP-066 (all components under test)
+- WP-075 through WP-080 (all components under test)
 
 ## Steps
 
@@ -92,8 +92,8 @@ End-to-end test harness for capability lease flows, idempotency, kill switches, 
 
 ## Blockers
 
-- WP-061 through WP-066 must complete
-- Mock capability backend needs WP-062 catalog
+- WP-075 through WP-080 must complete
+- Mock capability backend needs WP-076 catalog
 - Audit verification needs LiNKbrain test instance
 
 ## Notes

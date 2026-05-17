@@ -1,4 +1,4 @@
-# WP-064 - LinkSkills Kill Switch and Safety Controls
+# WP-078 - LinkSkills Kill Switch and Safety Controls
 
 ## Objective
 
@@ -7,7 +7,7 @@ Implement kill switch state management, automated triggers, and admin override p
 ## Repo / branch
 
 - Repo: `/Users/linktrend/Projects/LiNKtrend-System`
-- Branch: `dev/codex/WP-064-linkskills-kill-switch`
+- Branch: `dev/codex/WP-078-linkskills-kill-switch`
 - Base: `development`
 
 ## Allowed files
@@ -30,7 +30,7 @@ Implement kill switch state management, automated triggers, and admin override p
 - `.ai-swarm/LINKSKILLS_COMPLETION_PLAN.md` §4.4
 - `/Users/linktrend/Projects/LiNKskills/SOP_MVO_CLASS_A.md` §10
 - `/Users/linktrend/Projects/LiNKskills/SOP_MACHINE_MVO_CLASS_A.md` §9
-- WP-061 (kill_switches table)
+- WP-075 (kill_switches table)
 
 ## Steps
 
@@ -48,7 +48,7 @@ Implement kill switch state management, automated triggers, and admin override p
 
 3. Implement kill switch check service:
    - `checkKillSwitch(tenant_id, capability)` - returns state
-   - Called by lease request (WP-063)
+   - Called by lease request (WP-077)
    - If tripped, lease request returns `denied` with `LEASE_KILL_SWITCH`
 
 4. Implement automated triggers:
@@ -101,7 +101,7 @@ Implement kill switch state management, automated triggers, and admin override p
 
 ## Blockers
 
-- WP-061 (kill_switches table) must complete
+- WP-075 (kill_switches table) must complete
 - Cost monitoring requires billing integration (coordinate with LiNKbrain)
 
 ## Notes
@@ -109,4 +109,4 @@ Implement kill switch state management, automated triggers, and admin override p
 - Thresholds from SOP_MVO_CLASS_A are starting points
 - Actual thresholds may be tuned based on operational data
 - Level 3 rollback is scaffolding only for MVO
-- Coordinate with WP-063 for lease integration
+- Coordinate with WP-077 for lease integration

@@ -1,4 +1,4 @@
-# WP-062 - n8n Dev Gateway Integration
+# WP-070 - LiNKautowork n8n Dev Gateway Integration
 
 ## Objective
 
@@ -7,7 +7,7 @@ Connect LiNKautowork to n8n for external workflow template execution in developm
 ## Repo / Branch
 
 - Repo: `/Users/linktrend/Projects/LiNKtrend-System`
-- Branch: `dev/codex/WP-062-n8n-dev-gateway`
+- Branch: `dev/codex/WP-070-linkautowork-n8n-dev-gateway`
 - Base: `development`
 
 ## Allowed Files
@@ -125,4 +125,4 @@ In `workflow-runner.ts`, add a mode check:
 ## Related
 
 - `LINKAUTOWORK_COMPLETION_PLAN.md` Gap G3
-- WP-066 (Template Registry) depends on this
+- WP-074 (Template Registry) depends on this
