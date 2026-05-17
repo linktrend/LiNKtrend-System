@@ -818,3 +818,79 @@ pnpm --filter @linktrend/linklogic-sdk typecheck
 
 - Branch: `dev/codex/WP-076-linkskills-capability-catalog-api`
 - Commit SHA: `PENDING`
+
+## Assigned Work Packet
+
+**WP-077 — LinkSkills lease lifecycle implementation**  
+**Status:** COMPLETE  
+**Date:** 2026-05-17
+
+## Objective
+
+Implement lease lifecycle hardening for LinkSkills in current repo reality (`LiNKskills/services/logic-engine`) with canonical idempotency handling, execution replay/conflict behavior, lease expiry/revocation helpers, and proof tests.
+
+## Repo Reality Decision
+
+- `packages/linkskills-core` does not exist in this repo.
+- Implementation was completed in `LiNKskills/services/logic-engine` per prompt guidance.
+
+## Files Changed
+
+- `LiNKskills/services/logic-engine/src/lease-lifecycle.ts`
+  - Added canonical idempotency-key format enforcement for lease requests.
+  - Switched lease reads from `lease_ledger` to `lease_requests` to align with WP-075 schema.
+  - Added execute-path idempotency cache pre-check (`new|replay|conflict`) before side effects.
+  - Added replay return path for already executed leases.
+  - Allowed execution statuses `granted|requires_approval` and preserved expiry handling.
+  - Added `expireLeases()` and `revokeLease()` lifecycle helpers.
+- `LiNKskills/services/logic-engine/src/idempotency.ts` (new)
+  - Added idempotency key builder/validator.
+  - Added deterministic payload hash.
+  - Added `checkIdempotency()` and `storeIdempotencyResult()` against `linkskills.idempotency_cache` with 24h TTL semantics.
+- `LiNKskills/services/logic-engine/src/idempotency.test.ts` (new)
+  - Added tests for key format validation, hash determinism, replay behavior, and conflict behavior.
+- `LiNKskills/services/logic-engine/src/lease-lifecycle.linksites-v2.test.ts`
+  - Updated fixtures to canonical idempotency-key pattern.
+  - Added explicit negative test for non-canonical idempotency key rejection.
+- `LiNKskills/services/logic-engine/src/index.ts`
+  - Exported new lifecycle/idempotency functions.
+
+## Commands Run
+
+```bash
+git status --short --branch
+git remote -v
+git fetch origin --prune
+git worktree add ../LiNKtrend-System-WP-077 -b dev/codex/WP-077-linkskills-lease-lifecycle origin/development
+sed -n '1,220p' .cursor/rules/00-linktrend-master-rule.mdc
+sed -n '1,220p' .cursor/rules/01-ecosystem-boundaries.mdc
+sed -n '1,220p' .cursor/rules/03-agent-swarm-coordination.mdc
+sed -n '1,260p' .ai-swarm/LINKSKILLS_COMPLETION_PLAN.md
+sed -n '1,260p' .ai-swarm/CONTRACTS_MVO.md
+sed -n '1,260p' services/migrations/030_linkskills_database_foundation.sql
+sed -n '1,260p' LiNKskills/services/logic-engine/src/capability-catalog-api.ts
+sed -n '1,260p' /Users/linktrend/Projects/LiNKskills/SOP_MACHINE_MVO_CLASS_A.md
+pnpm install
+pnpm --filter @linktrend/linkskills-logic-engine typecheck
+pnpm --filter @linktrend/linkskills-logic-engine test -- src/idempotency.test.ts src/lease-lifecycle.linksites-v2.test.ts src/lease-execute.linksites-v2.test.ts
+pnpm --filter @linktrend/linkskills-logic-engine test
+```
+
+## Validation / Proof
+
+- `pnpm --filter @linktrend/linkskills-logic-engine test -- src/idempotency.test.ts src/lease-lifecycle.linksites-v2.test.ts src/lease-execute.linksites-v2.test.ts`
+  - PASS (`7 files`, `66 tests` total in package run context)
+- `pnpm --filter @linktrend/linkskills-logic-engine test`
+  - PASS (`7 files`, `66 tests`)
+- `pnpm --filter @linktrend/linkskills-logic-engine typecheck`
+  - FAIL in this repo baseline due unresolved workspace module typings (`@linktrend/shared-config`, `@linktrend/linklogic-sdk`) in this package context; not introduced by WP-077 changes.
+
+## Risks / Blockers
+
+- Typecheck baseline for this package is currently unresolved due workspace import resolution; runtime tests pass.
+- Expiry/revocation helpers are implemented at service layer, but scheduler/webhook wiring remains out of scope for this packet.
+
+## Branch and Commit
+
+- Branch: `dev/codex/WP-077-linkskills-lease-lifecycle`
+- Commit SHA: `PENDING`

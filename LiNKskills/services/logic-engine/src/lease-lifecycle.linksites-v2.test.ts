@@ -48,7 +48,7 @@ function baseRequest(overrides?: Partial<LeaseRequest>): LeaseRequest {
     stage_id: "stage-1",
     capability: "cap.research.public_web",
     arguments: { mode: "shadow", query: "test" },
-    idempotency_key: "idem-1",
+    idempotency_key: "22222222-2222-2222-2222-222222222222:stage-1:cap.research.public_web",
     actor: { actor_kind: "plugin", actor_id: "linksites" },
     ...overrides,
   };
@@ -108,7 +108,13 @@ describe("LinkSites v2 lease request behavior", () => {
       return null;
     });
 
-    const result = await requestLease(client, mockEnv, baseRequest({ idempotency_key: "same-idem-key" }));
+    const result = await requestLease(
+      client,
+      mockEnv,
+      baseRequest({
+        idempotency_key: "22222222-2222-2222-2222-222222222222:stage-1:cap.research.public_web",
+      }),
+    );
     expect(result.is_existing).toBe(true);
     expect(result.lease_id).toBe("lease-3");
     expect(result.status).toBe("granted");
@@ -128,11 +134,29 @@ describe("LinkSites v2 lease request behavior", () => {
       baseRequest({
         capability: "cap.supabase.mirror_content",
         arguments: { mode: "live", site_id: "site-1", site_generation_run_id: "run-1" },
+        idempotency_key: "22222222-2222-2222-2222-222222222222:stage-1:cap.supabase.mirror_content",
       }),
     );
 
     expect(result.status).toBe("denied");
     expect(result.failure?.code).toBe("LEASE_DENIED");
     expect(result.failure?.message).toContain("Live mode is disabled by default");
+  });
+
+  it("rejects non-canonical idempotency key format", async () => {
+    vi.mocked(capabilityExists).mockResolvedValue(true);
+    vi.mocked(isWriteCapableLinksitesV2Capability).mockReturnValue(false);
+
+    const client = createMockClient(() => null);
+    const result = await requestLease(
+      client,
+      mockEnv,
+      baseRequest({
+        idempotency_key: "not-canonical",
+      }),
+    );
+
+    expect(result.status).toBe("denied");
+    expect(result.failure?.code).toBe("LEASE_REQUEST_INVALID");
   });
 });
