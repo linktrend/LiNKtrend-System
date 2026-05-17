@@ -1180,3 +1180,45 @@ pnpm --filter @linktrend/linkskills-logic-engine test
 
 - Branch: `dev/cursor/WP-081-linkskills-integration-tests`
 - Commit SHA: `8afd21f1750fe25c82bc1d79a82d14382467da68`
+
+---
+
+## Assigned Work Packet
+
+**WP-108 — LiNKapps Capability Requirements Spec**  
+**Status:** COMPLETE  
+**Date:** 2026-05-17
+
+## Objective
+
+Define precise LiNKapps (`linkapps.app_factory`) capability lease requirements: capability matrix (operation × mode × lease), §0.A.5.1-shaped contract rows for all seven CONNECTORS in scope, idempotency key patterns per operation, §5.4 failure mapping, kill-switch requirements, explicit `not_configured` exclusions, MVO mock/shadow posture with live as future-only.
+
+## Files Changed
+
+- `.ai-swarm/LINKAPPS_CAPABILITY_REQUIREMENTS.md` *(new)* — master matrix, canonical contract-pack table rows, §4–§8 governance sections.
+- `.ai-swarm/AGENT_REPORTS/linkskills-agent.md` *(this appendix)*.
+
+## Commands Run
+
+*(Recorded after git operations in this WP-108 worktree.)*
+
+## Proof
+
+- `LINKAPPS_CAPABILITY_REQUIREMENTS.md` duplicates the **§0.A.5.1 column set** (`Capability plugin` through `Explicit non-ownership`) for each of `cap.github.repo_management`, `cap.supabase.provisioning`, `cap.stripe.product_management`, `cap.vercel.deployment`, `cap.eas.build`, `cap.plane.execution_tracking`, `cap.zulip.run_messaging`.
+- **Capability matrix §2:** every enumerated operation lists mock/shadow/live posture plus lease SKU placeholders.
+- **§4:** idempotency `stable_scope_segment` row covers every operation enumerated in §2 **and/or** the canonical contract-row operation lists for Zulip connectivity.
+- **§5–§7:** bounded §5.4 failure vocabulary, killswitch bullets, explicit `not_configured` exclusions per connector.
+- **Context used:** `.ai-swarm/LINKAPPS_VERTICAL_PLUGIN_CONVERSION_PLAN.md` §5, `.ai-swarm/PLUGIN_ARCHITECTURE_V2.md`, `.ai-swarm/CONTRACTS_MVO.md` §0.A.5.1 + §5.4, `/Users/linktrend/Projects/LiNKapps/scripts/create-app-repo.sh`, `/Users/linktrend/Projects/LiNKapps/scripts/release-readiness.sh`, `plugins/vertical/linkapps/manifest.yaml`.
+
+## Final Branch and Commit
+
+- Branch: `dev/cursor/WP-108-linkapps-capability-requirements`
+- Commit SHA: *after commit*
+
+## Blockers
+
+None.
+
+## Next Step
+
+- WP-112 (integration-agent): register capability backends + unify lease SKU granularity with WP-076 catalog seeds where needed.
