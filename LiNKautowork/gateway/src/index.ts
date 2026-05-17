@@ -46,6 +46,13 @@ export {
 } from "./lib/metrics.js";
 
 export {
+  getRunController,
+  getMutableRunControllerForTesting,
+  type RunController,
+  type QueueStatus,
+} from "./lib/run-controller.js";
+
+export {
   // WebsiteFactory workflow bootstrap
   bootstrapWebsiteFactoryWorkflows,
   WEBSITE_FACTORY_RENDER_HANDLE,
