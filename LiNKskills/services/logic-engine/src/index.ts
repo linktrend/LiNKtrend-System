@@ -38,10 +38,20 @@ export {
   grantLease,
   denyLease,
   requireApproval,
+  expireLeases,
+  revokeLease,
   getLease,
   getLeaseByIdempotencyKey,
   listLeasesForRun,
 } from "./lease-lifecycle.js";
+
+export {
+  buildLeaseIdempotencyKey,
+  isValidLeaseIdempotencyKey,
+  hashPayload,
+  checkIdempotency,
+  storeIdempotencyResult,
+} from "./idempotency.js";
 
 // Kill switches
 export {

@@ -28,6 +28,11 @@ import {
 import { CapabilityExecutionError } from "./capability-handlers.js";
 import type { LeaseRequestResult, LeaseLedgerRow, LeaseStatus } from "./types.js";
 import { emitLeaseRequested, emitLeaseGranted, emitLeaseDenied, emitLeaseExecuted, emitCapabilityOutput } from "./audit-events.js";
+import {
+  checkIdempotency,
+  isValidLeaseIdempotencyKey,
+  storeIdempotencyResult,
+} from "./idempotency.js";
 
 const DEFAULT_LEASE_TTL_SECONDS = 300;  // 5 minutes
 
@@ -43,6 +48,23 @@ export async function requestLease(
   env: Env,
   request: LeaseRequest,
 ): Promise<LeaseRequestResult> {
+  if (!isValidLeaseIdempotencyKey(request.idempotency_key, request.run_id, request.stage_id, request.capability)) {
+    const failure: FailureReport = {
+      code: "LEASE_REQUEST_INVALID",
+      plane: "linkskills",
+      message: "idempotency_key must match ${run_id}:${stage_id}:${capability}",
+      retryable: false,
+      occurred_at: new Date().toISOString(),
+    };
+    return {
+      lease_id: "",
+      status: "denied",
+      is_existing: false,
+      kill_switch_state: "open",
+      failure,
+    };
+  }
+
   // Validate capability exists
   const exists = await capabilityExists(client, request.capability);
   if (!exists) {
@@ -300,7 +322,7 @@ export async function getLease(
 ): Promise<{ data: LeaseLedgerRow | null; error: Error | null }> {
   const { data, error } = await client
     .schema("linkskills")
-    .from("lease_ledger")
+    .from("lease_requests")
     .select("*")
     .eq("lease_id", lease_id)
     .maybeSingle();
@@ -322,7 +344,7 @@ export async function getLeaseByIdempotencyKey(
 ): Promise<{ data: LeaseLedgerRow | null; error: Error | null }> {
   const { data, error } = await client
     .schema("linkskills")
-    .from("lease_ledger")
+    .from("lease_requests")
     .select("*")
     .eq("tenant_id", tenant_id)
     .eq("idempotency_key", idempotency_key)
@@ -344,7 +366,7 @@ export async function listLeasesForRun(
 ): Promise<{ data: LeaseLedgerRow[]; error: Error | null }> {
   const { data, error } = await client
     .schema("linkskills")
-    .from("lease_ledger")
+    .from("lease_requests")
     .select("*")
     .eq("run_id", run_id)
     .order("created_at", { ascending: true });
@@ -390,6 +412,9 @@ export async function executeLease(
       failure,
     };
   }
+  const leaseCapability = (lease as unknown as { capability?: string; capability_id?: string }).capability_id
+    ?? (lease as unknown as { capability?: string }).capability
+    ?? "";
 
   // Validate idempotency key matches
   if (lease.idempotency_key !== request.idempotency_key) {
@@ -402,7 +427,7 @@ export async function executeLease(
     };
     return {
       lease_id: request.lease_id,
-      capability: lease.capability_id,
+      capability: leaseCapability,
       result: {},
       ledger_entry_id: lease.lease_id,
       audit_event_id: lease.audit_event_id ?? "",
@@ -410,35 +435,54 @@ export async function executeLease(
     };
   }
 
-  // Check if already executed (idempotent re-execute returns original result)
-  if (lease.status === "executed" && lease.execution_result) {
-    // Re-emit audit event for idempotency tracking
-    const originalRequest: LeaseRequest = {
-      tenant_id: lease.tenant_id,
-      run_id: lease.run_id,
-      stage_id: lease.stage_id,
-      capability: lease.capability_id,
-      arguments: lease.arguments,
-      idempotency_key: lease.idempotency_key,
-      actor: {
-        actor_kind: lease.actor_kind,
-        actor_id: lease.actor_id,
-      },
-    };
+  const idempotency = await checkIdempotency(
+    client,
+    lease.tenant_id,
+    request.idempotency_key,
+    leaseCapability,
+    lease.arguments,
+  );
 
-    const originalResult: LeaseExecuteResult = {
+  if (idempotency.state === "conflict") {
+    const failure: FailureReport = {
+      code: "LEASE_IDEMPOTENCY_CONFLICT",
+      plane: "linkskills",
+      message: idempotency.reason,
+      retryable: false,
+      occurred_at: new Date().toISOString(),
+    };
+    return {
+      lease_id: request.lease_id,
+      capability: leaseCapability,
+      result: {},
+      ledger_entry_id: lease.lease_id,
+      audit_event_id: "",
+      failure,
+    };
+  }
+
+  if (idempotency.state === "replay") {
+    return {
       lease_id: lease.lease_id,
-      capability: lease.capability_id,
+      capability: leaseCapability,
+      result: idempotency.result,
+      ledger_entry_id: idempotency.ledger_entry_id ?? lease.ledger_entry_id ?? lease.lease_id,
+      audit_event_id: lease.audit_event_id ?? "",
+    };
+  }
+
+  if (lease.status === "executed" && lease.execution_result) {
+    return {
+      lease_id: lease.lease_id,
+      capability: leaseCapability,
       result: lease.execution_result,
       ledger_entry_id: lease.ledger_entry_id ?? lease.lease_id,
       audit_event_id: lease.audit_event_id ?? "",
     };
-
-    return originalResult;
   }
 
   // Check lease is in granted state
-  if (lease.status !== "granted") {
+  if (lease.status !== "granted" && lease.status !== "requires_approval") {
     let failureCode: FailureReport["code"] = "LEASE_DENIED";
     let message = `Lease status is "${lease.status}", expected "granted"`;
 
@@ -457,7 +501,7 @@ export async function executeLease(
 
     return {
       lease_id: request.lease_id,
-      capability: lease.capability_id,
+      capability: leaseCapability,
       result: {},
       ledger_entry_id: lease.lease_id,
       audit_event_id: "",
@@ -470,7 +514,7 @@ export async function executeLease(
     // Update status to expired
     await client
       .schema("linkskills")
-      .from("lease_ledger")
+      .from("lease_requests")
       .update({ status: "expired", updated_at: new Date().toISOString() })
       .eq("lease_id", lease.lease_id);
 
@@ -484,7 +528,7 @@ export async function executeLease(
 
     return {
       lease_id: request.lease_id,
-      capability: lease.capability_id,
+      capability: leaseCapability,
       result: {},
       ledger_entry_id: lease.lease_id,
       audit_event_id: "",
@@ -527,7 +571,7 @@ export async function executeLease(
 
       return {
         lease_id: request.lease_id,
-        capability: lease.capability_id,
+        capability: leaseCapability,
         result,
         ledger_entry_id: lease.lease_id,
         audit_event_id: "",
@@ -541,11 +585,21 @@ export async function executeLease(
     // Build execute result
     const executeResult: LeaseExecuteResult = {
       lease_id: lease.lease_id,
-      capability: lease.capability_id,
+      capability: leaseCapability,
       result,
       ledger_entry_id: lease.lease_id,
       audit_event_id: auditEventId,
     };
+
+    await storeIdempotencyResult(
+      client,
+      lease.tenant_id,
+      lease.idempotency_key,
+      leaseCapability,
+      lease.arguments,
+      result,
+      executeResult.ledger_entry_id,
+    );
 
     // Emit audit events (unless duplicate - already emitted)
     if (!isDuplicate) {
@@ -553,7 +607,7 @@ export async function executeLease(
         tenant_id: lease.tenant_id,
         run_id: lease.run_id,
         stage_id: lease.stage_id,
-        capability: lease.capability_id,
+        capability: leaseCapability,
         arguments: lease.arguments,
         idempotency_key: lease.idempotency_key,
         actor: {
@@ -591,11 +645,43 @@ export async function executeLease(
 
     return {
       lease_id: request.lease_id,
-      capability: lease.capability_id,
+      capability: leaseCapability,
       result: {},
       ledger_entry_id: lease.lease_id,
       audit_event_id: "",
       failure,
     };
   }
+}
+
+export async function expireLeases(
+  client: SupabaseClient,
+  now: Date = new Date(),
+): Promise<number> {
+  const nowIso = now.toISOString();
+  const { data, error } = await client
+    .schema("linkskills")
+    .from("lease_requests")
+    .update({ status: "expired", updated_at: nowIso })
+    .in("status", ["granted", "requires_approval"])
+    .lte("expires_at", nowIso)
+    .select("lease_id");
+
+  if (error) return 0;
+  return Array.isArray(data) ? data.length : 0;
+}
+
+export async function revokeLease(
+  client: SupabaseClient,
+  lease_id: string,
+  reason: string,
+): Promise<boolean> {
+  const { error } = await client
+    .schema("linkskills")
+    .from("lease_requests")
+    .update({ status: "revoked", decision_reason: reason, revoked_at: new Date().toISOString() })
+    .eq("lease_id", lease_id)
+    .in("status", ["requested", "granted", "requires_approval"]);
+
+  return !error;
 }
