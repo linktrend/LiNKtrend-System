@@ -10,7 +10,7 @@ COMPLETE — declaration-only artifacts; **no LinkSkills runtime, no providers, 
 
 Worktree path: `/Users/linktrend/Projects/LiNKtrend-System-WP-114`
 
-**Commits:** Seeds `98bab3d02af69f3978e3866468e1ad205e8fa96a` ('docs: seed cross-vertical capability catalog'). Branch tip `ed24d82ca1fc31bcf1f4628cf90dadd68b59f139` includes report metadata.
+**Commits:** Catalog seed commit `98bab3d02af69f3978e3866468e1ad205e8fa96a` ('docs: seed cross-vertical capability catalog'). Later commits on this branch adjust the agent report only — see \`git log --oneline`.
 
 ## Files changed
 
