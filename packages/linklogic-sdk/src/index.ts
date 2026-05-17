@@ -231,6 +231,23 @@ export type {
   WriteMemoryObjectOptions,
 } from "./brain-memory.js";
 
+// LiNKbrain benchmarking and feedback schemas (WP-089)
+export {
+  BrainBenchmarkAggregateRowSchema,
+  BrainFeedbackActorSubjectSchema,
+  BrainFeedbackRecordPayloadSchema,
+  BrainFeedbackVerdictSchema,
+  parseBrainBenchmarkAggregateRow,
+  parseBrainFeedbackRecordPayload,
+  stripTenantIdentifyingFields,
+} from "./brain-benchmarks.js";
+export type {
+  BrainBenchmarkAggregateRow,
+  BrainFeedbackActorSubject,
+  BrainFeedbackRecordPayload,
+  BrainFeedbackVerdict,
+} from "./brain-benchmarks.js";
+
 // MVO cross-service contract schemas + types. Canonical source:
 // `.ai-swarm/CONTRACTS_MVO.md`. Pinned by WP-005.
 export {

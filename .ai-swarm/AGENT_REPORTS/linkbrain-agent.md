@@ -1,3 +1,51 @@
+# LiNKbrain agent reports
+
+---
+
+## WP-089 — LiNKbrain learning loop & benchmark contracts — Agent Report
+
+**Agent:** Cursor  
+**Prompt:** `.ai-swarm/AGENT_PROMPTS/WP-089-linkbrain-learning-benchmarks.prompt.md`  
+**Branch:** `dev/cursor/WP-089-linkbrain-learning-benchmarks`  
+**Date:** 2026-05-17  
+**Status:** Complete (spec + SDK; no DB aggregation — WP-087 gate)
+
+### Summary
+
+Respected dependency gate: `brain_memory_objects` / WP-087 migrations absent on checked-out base, so work is **benchmarking spec**, **SDK Zod contracts**, **recursive field stripper**, and **Vitest** — no migrations, worker, or dashboard wiring.
+
+### Files changed
+
+- `.ai-swarm/LINKBRAIN_BENCHMARKING_SPEC.md`
+- `packages/linklogic-sdk/src/brain-benchmarks.ts`
+- `packages/linklogic-sdk/src/brain-benchmarks.test.ts`
+- `packages/linklogic-sdk/src/index.ts` (exports)
+- `.ai-swarm/AGENT_REPORTS/linkbrain-agent.md`
+
+### Commands run
+
+```bash
+git fetch origin --prune
+git worktree add /Users/linktrend/Projects/LiNKtrend-System-WP-089 \
+  -b dev/cursor/WP-089-linkbrain-learning-benchmarks origin/development
+pnpm install
+pnpm turbo run build --filter=@linktrend/linklogic-sdk^...
+pnpm --filter @linktrend/linklogic-sdk test
+pnpm --filter @linktrend/linklogic-sdk typecheck
+```
+
+### Proof
+
+- **`LINKBRAIN_BENCHMARKING_SPEC.md`** §4–§5 enumerate allowed vs prohibited benchmark aggregate fields; §8 defines `feedback.record` vs tenant-scoped lifecycle.
+- **Tests:** `@linktrend/linklogic-sdk` Vitest suite 96 passing (includes 6 tests in `brain-benchmarks.test.ts` covering strip logic and schema validation).
+
+### Blockers / follow-ups
+
+- Add `brain_benchmarks` migration + aggregation worker **after WP-087** merges (`brain_memory_objects`).
+- Align formal `DECISIONS.md` entries D-LB-BENCH-01/02 when Integrator prefers.
+
+---
+
 # WP-058 LiNKbrain V2 Audit/Memory Coverage Review - Agent Report
 
 **Agent:** Cursor/Kimi  
