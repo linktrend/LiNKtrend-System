@@ -33,6 +33,20 @@ import {
   CRM_READY_TO_CONTACT_MARK_HANDLE,
 } from "./linksites-v2.js";
 import type { AuditEvent } from "@linktrend/linklogic-sdk";
+import {
+  createRepoHandler,
+  provisionServicesHandler,
+  buildIterationHandler,
+  releaseReadinessHandler,
+  deployHandler,
+  compileHandoffHandler,
+  CREATE_REPO_HANDLE,
+  PROVISION_SERVICES_HANDLE,
+  BUILD_ITERATION_HANDLE,
+  RELEASE_READINESS_HANDLE,
+  DEPLOY_HANDLE,
+  COMPILE_HANDOFF_HANDLE,
+} from "./linkapps.js";
 
 /**
  * Bootstrap all WebsiteFactory workflows.
@@ -105,6 +119,55 @@ export function bootstrapWebsiteFactoryWorkflows(deps: {
     requires_lease: true,
     handler: createCrmReadyToContactMarkHandler(auditEmitter),
   });
+
+  // Register LiNKapps workflow pack (Phase 5 stages)
+  registerWorkflow({
+    handle: CREATE_REPO_HANDLE,
+    display_name: "LiNKapps Create Repository",
+    description: "Stage 5.2: Generate app repository from template (mock mode only)",
+    requires_lease: true,
+    handler: createRepoHandler(auditEmitter),
+  });
+
+  registerWorkflow({
+    handle: PROVISION_SERVICES_HANDLE,
+    display_name: "LiNKapps Provision Services",
+    description: "Stage 5.3: Provision Supabase, Stripe services (mock mode only)",
+    requires_lease: true,
+    handler: provisionServicesHandler(auditEmitter),
+  });
+
+  registerWorkflow({
+    handle: BUILD_ITERATION_HANDLE,
+    display_name: "LiNKapps Build Iteration",
+    description: "Stage 5.4: AI implementation iteration (deterministic, no lease required)",
+    requires_lease: false,
+    handler: buildIterationHandler(auditEmitter),
+  });
+
+  registerWorkflow({
+    handle: RELEASE_READINESS_HANDLE,
+    display_name: "LiNKapps Release Readiness",
+    description: "Stage 5.5: Quality validation and release readiness check",
+    requires_lease: true,
+    handler: releaseReadinessHandler(auditEmitter),
+  });
+
+  registerWorkflow({
+    handle: DEPLOY_HANDLE,
+    display_name: "LiNKapps Deploy",
+    description: "Stage 5.6: Deploy to preview environment (mock mode only)",
+    requires_lease: true,
+    handler: deployHandler(auditEmitter),
+  });
+
+  registerWorkflow({
+    handle: COMPILE_HANDOFF_HANDLE,
+    display_name: "LiNKapps Compile Handoff",
+    description: "Stage 5.7: Compile spinoff handoff package",
+    requires_lease: true,
+    handler: compileHandoffHandler(auditEmitter),
+  });
 }
 
 export {
@@ -133,3 +196,22 @@ export {
 } from "./websitefactory-preview-serve.js";
 
 export { clearLinksitesStores } from "./linksites-v2.js";
+
+// Re-export LiNKapps workflow handles and utilities
+export {
+  CREATE_REPO_HANDLE as LINKAPPS_CREATE_REPO_HANDLE,
+  PROVISION_SERVICES_HANDLE as LINKAPPS_PROVISION_SERVICES_HANDLE,
+  BUILD_ITERATION_HANDLE as LINKAPPS_BUILD_ITERATION_HANDLE,
+  RELEASE_READINESS_HANDLE as LINKAPPS_RELEASE_READINESS_HANDLE,
+  DEPLOY_HANDLE as LINKAPPS_DEPLOY_HANDLE,
+  COMPILE_HANDOFF_HANDLE as LINKAPPS_COMPILE_HANDOFF_HANDLE,
+  getRepoCreation,
+  getServiceProvision,
+  getBuildIteration,
+  getReleaseReadiness,
+  getDeployment,
+  getHandoffPackage,
+  listAllRepoCreations,
+  clearLinkappsStores,
+  getWorkflowHandles as getLinkappsWorkflowHandles,
+} from "./linkapps.js";
