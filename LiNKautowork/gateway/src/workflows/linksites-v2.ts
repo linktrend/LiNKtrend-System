@@ -1,6 +1,8 @@
 import { createHash } from "node:crypto";
 import type { WorkflowInvokeRequest } from "@linktrend/linklogic-sdk";
 import type { AuditEmitter } from "../lib/audit-emitter.js";
+import { createPayloadSyncClient, type PayloadSyncClient } from "../lib/payload-client.js";
+import { createSupabaseMirrorClient, type SupabaseMirrorClient } from "../lib/supabase-client.js";
 import type { WorkflowHandler } from "../types/index.js";
 
 export const ARTIFACT_WRITE_LOCAL_HANDLE = "autowork.linksites.artifact_write_local";
@@ -39,6 +41,18 @@ function fail(
   retryable = false,
 ): { code: string; message: string; retryable: boolean } {
   return { code, message, retryable };
+}
+
+function requireLeaseId(request: WorkflowInvokeRequest):
+  | { ok: true; leaseId: string }
+  | { ok: false; failure: { code: string; message: string; retryable: boolean } } {
+  if (!request.lease_id || request.lease_id.trim().length === 0) {
+    return {
+      ok: false,
+      failure: fail("LEASE_REQUEST_INVALID", "Missing required lease_id for side-effecting workflow"),
+    };
+  }
+  return { ok: true, leaseId: request.lease_id };
 }
 
 async function withAudit(
@@ -116,9 +130,17 @@ export function createArtifactWriteLocalHandler(auditEmitter: AuditEmitter): Wor
   };
 }
 
-export function createSupabaseMirrorUpsertHandler(auditEmitter: AuditEmitter): WorkflowHandler {
+export function createSupabaseMirrorUpsertHandler(
+  auditEmitter: AuditEmitter,
+  deps?: { mirrorClient?: SupabaseMirrorClient },
+): WorkflowHandler {
+  const mirrorClient = deps?.mirrorClient ?? createSupabaseMirrorClient();
+
   return async (request, context) => {
     return withAudit(request, context.workflow_run_id, auditEmitter, async () => {
+      const leaseCheck = requireLeaseId(request);
+      if (!leaseCheck.ok) return { failure: leaseCheck.failure };
+
       const siteId = asString(request, "site_id");
       const siteGenerationRunId = asString(request, "site_generation_run_id");
       const artifactRef = asString(request, "artifact_ref");
@@ -127,33 +149,85 @@ export function createSupabaseMirrorUpsertHandler(auditEmitter: AuditEmitter): W
         return { failure: fail("WORKFLOW_STEP_FAILED", "Missing required supabase_mirror_upsert inputs") };
       }
 
-      const mirrorWriteRef = `supabase_mirror:${request.tenant_id}:${siteId}:${siteGenerationRunId}`;
-      const mirrorRevisionRef = `${mirrorWriteRef}:${request.idempotency_key}`;
-      const mirrorDigest = digest({ mirrorWriteRef, mirrorPayloadRef, artifactRef });
-      const upsertedRecordsCount = 4;
+      try {
+        const siteUpsert = await mirrorClient.upsertSiteContent(
+          request.tenant_id,
+          siteId,
+          siteGenerationRunId,
+          {
+            artifact_ref: artifactRef,
+            mirror_payload_ref: mirrorPayloadRef,
+            run_id: request.run_id,
+          },
+          leaseCheck.leaseId,
+        );
 
-      mirrorWrites.set(mirrorWriteRef, {
-        mirror_write_ref: mirrorWriteRef,
-        mirror_revision_ref: mirrorRevisionRef,
-        upserted_records_count: upsertedRecordsCount,
-        mirror_digest: mirrorDigest,
-      });
+        const assetsResult = await mirrorClient.upsertAssetRefs(
+          request.tenant_id,
+          siteId,
+          [{ ref: artifactRef, kind: "artifact_ref" }],
+          leaseCheck.leaseId,
+        );
 
-      return {
-        outputs: {
-          mirror_write_ref: mirrorWriteRef,
-          mirror_revision_ref: mirrorRevisionRef,
-          upserted_records_count: upsertedRecordsCount,
+        const mirrorDigest = digest({
+          mirror_write_ref: siteUpsert.mirrorWriteRef,
+          mirror_revision_ref: siteUpsert.revisionRef,
+          upserted_records_count: assetsResult.upsertedCount,
+          artifact_ref: artifactRef,
+        });
+
+        mirrorWrites.set(siteUpsert.mirrorWriteRef, {
+          mirror_write_ref: siteUpsert.mirrorWriteRef,
+          mirror_revision_ref: siteUpsert.revisionRef,
+          upserted_records_count: assetsResult.upsertedCount,
           mirror_digest: mirrorDigest,
-        },
-      };
+        });
+
+        return {
+          outputs: {
+            mirror_write_ref: siteUpsert.mirrorWriteRef,
+            mirror_revision_ref: siteUpsert.revisionRef,
+            upserted_records_count: assetsResult.upsertedCount,
+            mirror_digest: mirrorDigest,
+          },
+        };
+      } catch (error) {
+        const reason = error instanceof Error ? error.message : "unknown error";
+        if (reason.includes("not configured for development mode")) {
+          const mirrorWriteRef = `supabase_mirror:${request.tenant_id}:${siteId}:${siteGenerationRunId}`;
+          const mirrorRevisionRef = `${mirrorWriteRef}:${request.idempotency_key}`;
+          const mirrorDigest = digest({ mirrorWriteRef, mirrorPayloadRef, artifactRef });
+          return {
+            outputs: {
+              mirror_write_ref: mirrorWriteRef,
+              mirror_revision_ref: mirrorRevisionRef,
+              upserted_records_count: 1,
+              mirror_digest: mirrorDigest,
+            },
+          };
+        }
+        return {
+          failure: fail(
+            "INTEGRATION_UNAVAILABLE",
+            `Supabase mirror upsert failed: ${reason}`,
+          ),
+        };
+      }
     });
   };
 }
 
-export function createPayloadSyncLocalHandler(auditEmitter: AuditEmitter): WorkflowHandler {
+export function createPayloadSyncLocalHandler(
+  auditEmitter: AuditEmitter,
+  deps?: { payloadClient?: PayloadSyncClient },
+): WorkflowHandler {
+  const payloadClient = deps?.payloadClient ?? createPayloadSyncClient();
+
   return async (request, context) => {
     return withAudit(request, context.workflow_run_id, auditEmitter, async () => {
+      const leaseCheck = requireLeaseId(request);
+      if (!leaseCheck.ok) return { failure: leaseCheck.failure };
+
       const siteId = asString(request, "site_id");
       const siteGenerationRunId = asString(request, "site_generation_run_id");
       const mirrorWriteRef = asString(request, "mirror_write_ref");
@@ -162,31 +236,60 @@ export function createPayloadSyncLocalHandler(auditEmitter: AuditEmitter): Workf
         return { failure: fail("WORKFLOW_STEP_FAILED", "Missing required payload_sync_local inputs") };
       }
 
-      const payloadSyncRef = `payload_sync:${request.tenant_id}:${siteId}:${siteGenerationRunId}`;
-      const payloadDocumentRefs = [
-        `${payloadTargetRef}:home`,
-        `${payloadTargetRef}:about`,
-        `${payloadTargetRef}:contact`,
-      ];
+      try {
+        const sync = await payloadClient.syncFromMirror(
+          mirrorWriteRef,
+          payloadTargetRef,
+          leaseCheck.leaseId,
+        );
 
-      payloadSyncs.set(payloadSyncRef, {
-        payload_sync_ref: payloadSyncRef,
-        payload_document_refs: payloadDocumentRefs,
-        payload_sync_status: "succeeded",
-      });
+        payloadSyncs.set(sync.payloadSyncRef, {
+          payload_sync_ref: sync.payloadSyncRef,
+          payload_document_refs: sync.documentRefs,
+          payload_sync_status: sync.status,
+        });
 
-      return {
-        outputs: {
-          payload_sync_ref: payloadSyncRef,
-          payload_document_refs: payloadDocumentRefs,
-          payload_sync_status: "succeeded",
-        },
-      };
+        return {
+          outputs: {
+            payload_sync_ref: sync.payloadSyncRef,
+            payload_document_refs: sync.documentRefs,
+            payload_sync_status: sync.status,
+          },
+        };
+      } catch (error) {
+        const reason = error instanceof Error ? error.message : "unknown error";
+        if (reason.includes("not configured for development mode")) {
+          const payloadSyncRef = `payload_sync:${request.tenant_id}:${siteId}:${siteGenerationRunId}`;
+          const payloadDocumentRefs = [
+            `${payloadTargetRef}:home`,
+            `${payloadTargetRef}:about`,
+            `${payloadTargetRef}:contact`,
+          ];
+          return {
+            outputs: {
+              payload_sync_ref: payloadSyncRef,
+              payload_document_refs: payloadDocumentRefs,
+              payload_sync_status: "succeeded",
+            },
+          };
+        }
+        return {
+          failure: fail(
+            "INTEGRATION_UNAVAILABLE",
+            `Payload sync failed: ${reason}`,
+          ),
+        };
+      }
     });
   };
 }
 
-export function createPreviewReadinessCheckHandler(auditEmitter: AuditEmitter): WorkflowHandler {
+export function createPreviewReadinessCheckHandler(
+  auditEmitter: AuditEmitter,
+  deps?: { payloadClient?: PayloadSyncClient },
+): WorkflowHandler {
+  const payloadClient = deps?.payloadClient ?? createPayloadSyncClient();
+
   return async (request, context) => {
     return withAudit(request, context.workflow_run_id, auditEmitter, async () => {
       const payloadSyncRef = asString(request, "payload_sync_ref");
@@ -200,31 +303,47 @@ export function createPreviewReadinessCheckHandler(auditEmitter: AuditEmitter): 
         return { failure: fail("WORKFLOW_STEP_FAILED", "Missing required preview_readiness_check inputs") };
       }
 
-      const missingRequirements: string[] = [];
-      if (requiredPages.length === 0) missingRequirements.push("required_pages");
-      if (requiredNavigationItems.length === 0) missingRequirements.push("required_navigation_items");
-      if (requiredContentBlocks.length === 0) missingRequirements.push("required_content_blocks");
-      if (requiredMediaRefs.length === 0) missingRequirements.push("required_media_refs");
+      try {
+        const readiness = await payloadClient.checkReadiness(payloadSyncRef, {
+          requiredPages,
+          requiredNavigationItems,
+          requiredContentBlocks,
+          requiredMediaRefs,
+        });
 
-      if (missingRequirements.length > 0) {
+        const status = readiness.checksPassed ? "ready" : "failed";
         return {
           outputs: {
-            checks_passed: false,
+            checks_passed: readiness.checksPassed,
             check_report_ref: `readiness_report:${request.tenant_id}:${request.run_id}:${request.idempotency_key}`,
-            failed_checks: missingRequirements,
-            preview_readiness_status: "failed",
+            failed_checks: readiness.failedChecks,
+            preview_readiness_status: status,
           },
         };
+      } catch (error) {
+        const reason = error instanceof Error ? error.message : "unknown error";
+        if (reason.includes("not configured for development mode")) {
+          const failedChecks: string[] = [];
+          if (requiredPages.length === 0) failedChecks.push("required_pages");
+          if (requiredNavigationItems.length === 0) failedChecks.push("required_navigation_items");
+          if (requiredContentBlocks.length === 0) failedChecks.push("required_content_blocks");
+          if (requiredMediaRefs.length === 0) failedChecks.push("required_media_refs");
+          return {
+            outputs: {
+              checks_passed: failedChecks.length === 0,
+              check_report_ref: `readiness_report:${request.tenant_id}:${request.run_id}:${request.idempotency_key}`,
+              failed_checks: failedChecks,
+              preview_readiness_status: failedChecks.length === 0 ? "ready" : "failed",
+            },
+          };
+        }
+        return {
+          failure: fail(
+            "INTEGRATION_UNAVAILABLE",
+            `Payload readiness check failed: ${reason}`,
+          ),
+        };
       }
-
-      return {
-        outputs: {
-          checks_passed: true,
-          check_report_ref: `readiness_report:${request.tenant_id}:${request.run_id}:${request.idempotency_key}`,
-          failed_checks: [],
-          preview_readiness_status: "ready",
-        },
-      };
     });
   };
 }
@@ -232,6 +351,9 @@ export function createPreviewReadinessCheckHandler(auditEmitter: AuditEmitter): 
 export function createCrmReadyToContactMarkHandler(auditEmitter: AuditEmitter): WorkflowHandler {
   return async (request, context) => {
     return withAudit(request, context.workflow_run_id, auditEmitter, async () => {
+      const leaseCheck = requireLeaseId(request);
+      if (!leaseCheck.ok) return { failure: leaseCheck.failure };
+
       const leadId = asString(request, "lead_id");
       const siteId = asString(request, "site_id");
       const siteGenerationRunId = asString(request, "site_generation_run_id");
@@ -253,6 +375,7 @@ export function createCrmReadyToContactMarkHandler(auditEmitter: AuditEmitter): 
         crm_record_id: crmRecordId,
         lead_status: "ready_to_contact",
         status_updated_at: statusUpdatedAt,
+        lease_id: leaseCheck.leaseId,
       });
 
       return {
