@@ -1,6 +1,6 @@
 # WP-083 Agent Prompt - LinkSites Completion Plan
 
-Recommended model/tool: Antigravity Gemini 3 Flash or Cursor Gemini 3.1 Pro Low. Do not use Codex.
+Recommended model/tool: Cursor Gemini 3 Flash, Composer, or Cursor Gemini 3.1 Pro Low. Do not use Codex.
 
 Execute `.ai-swarm/WORK_PACKETS/WP-083-linksites-completion-plan-payload-supabase-templates.md`.
 

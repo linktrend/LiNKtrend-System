@@ -63,4 +63,9 @@ WP-082 Execute the prompt in file WP-082-linkbrain-completion-plan-memory-retrie
 WP-083 Execute the prompt in file WP-083-linksites-completion-plan-payload-supabase-templates.prompt.md located in .ai-swarm/AGENT_PROMPTS/.
 WP-084 Execute the prompt in file WP-084-lexos-vertical-plugin-conversion-plan.prompt.md located in .ai-swarm/AGENT_PROMPTS/.
 WP-085 Execute the prompt in file WP-085-linkapps-vertical-plugin-conversion-plan.prompt.md located in .ai-swarm/AGENT_PROMPTS/.
+WP-086 Execute the prompt in file WP-086-linkbrain-audit-ledger-completion.prompt.md located in .ai-swarm/AGENT_PROMPTS/.
+WP-087 Execute the prompt in file WP-087-linkbrain-memory-object-schemas.prompt.md located in .ai-swarm/AGENT_PROMPTS/.
+WP-088 Execute the prompt in file WP-088-linkbrain-context-assembler.prompt.md located in .ai-swarm/AGENT_PROMPTS/.
+WP-089 Execute the prompt in file WP-089-linkbrain-learning-benchmarks.prompt.md located in .ai-swarm/AGENT_PROMPTS/.
+WP-093 Execute the prompt in file WP-093-linksites-template-registry-discovery.prompt.md located in .ai-swarm/AGENT_PROMPTS/.
 ```
