@@ -33,6 +33,7 @@ import { log } from "@linktrend/observability";
 import type { DispatchContext, DispatchResult } from "./types";
 import type { Env } from "@linktrend/shared-config";
 import { createPlaneAdapter, PlaneReadinessError } from "./plane-adapter";
+import type { LinktrendGovernancePayload } from "@linktrend/shared-types";
 
 // Retry config
 const DEFAULT_RETRY_ATTEMPTS = 3;
@@ -276,12 +277,41 @@ export async function dispatchToLinkBot(
   ctx: DispatchContext,
   request: Omit<BotReasonRequest, "tenant_id" | "run_id" | "stage_id">,
 ): Promise<DispatchResult> {
-  const fullRequest: BotReasonRequest = {
+  const _fullRequest: BotReasonRequest = {
     tenant_id: ctx.tenant_id,
     run_id: ctx.run_id,
     stage_id: ctx.stage_id,
     ...request,
   };
+
+  const governance = request.inputs?.linktrendGovernance;
+  const governanceValidation = validateIngressGovernancePayload(governance);
+  if (!governanceValidation.valid) {
+    const failure: FailureReport = {
+      code: "MANIFEST_INVALID",
+      plane: "linkaios",
+      message: `LinkBot governance ingress rejected: ${governanceValidation.reason}`,
+      retryable: false,
+      occurred_at: new Date().toISOString(),
+    };
+    const deniedAudit = await writeStageAuditEvent(
+      env,
+      ctx,
+      "stage.failed",
+      {
+        dispatch_target: "linkbot",
+        reason: "governance_ingress_rejected",
+        failure_code: failure.code,
+        details: governanceValidation.reason,
+      },
+      "linkaios",
+    );
+    return {
+      success: false,
+      failure,
+      audit_event_ids: [deniedAudit.event_id],
+    };
+  }
 
   // MVO: LinkBot dispatch is a stub that returns mock success
   // Real implementation calls LinkBot runtime via HTTP or internal RPC
@@ -299,6 +329,28 @@ export async function dispatchToLinkBot(
     outputs: mockResult.outputs,
     model_run_id: mockResult.model_run_id,
   };
+}
+
+function validateIngressGovernancePayload(payload: unknown): { valid: true } | { valid: false; reason: string } {
+  if (!payload || typeof payload !== "object") {
+    return { valid: false, reason: "missing linktrendGovernance payload" };
+  }
+
+  const p = payload as LinktrendGovernancePayload;
+  if (!p.bootstrap?.traceCorrelationId?.trim()) {
+    return { valid: false, reason: "missing bootstrap.traceCorrelationId" };
+  }
+  if (!["granted", "denied", "pending"].includes(p.bootstrap.authorizationState)) {
+    return { valid: false, reason: "invalid bootstrap.authorizationState" };
+  }
+  if (!Array.isArray(p.approvedTools?.toolNames)) {
+    return { valid: false, reason: "missing approvedTools.toolNames" };
+  }
+  if (p.approvedTools.toolNames.some((name) => typeof name !== "string" || name.trim() === "")) {
+    return { valid: false, reason: "approvedTools.toolNames contains invalid entries" };
+  }
+
+  return { valid: true };
 }
 
 /**

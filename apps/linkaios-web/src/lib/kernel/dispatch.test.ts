@@ -3,11 +3,13 @@ import type { Env } from "@linktrend/shared-config";
 import type { DispatchContext } from "./types";
 import {
   buildChatwootReadinessTracePayload,
+  dispatchToLinkBot,
   dispatchToLinkAutowork,
   buildPreviewPublishAdapter,
   resolveChatwootReadinessTimeoutMs,
   resolvePreviewPublishMode,
 } from "./dispatch";
+import { writeBrainAuditEvent } from "@linktrend/linklogic-sdk";
 
 vi.mock("@linktrend/linklogic-sdk", async () => {
   const actual = await vi.importActual<typeof import("@linktrend/linklogic-sdk")>("@linktrend/linklogic-sdk");
@@ -207,5 +209,73 @@ describe("dispatchToLinkAutowork linksites v2 wiring", () => {
     expect(result.outputs?.lead_status).toBe("ready_to_contact");
     expect(result.workflow_run_id).toMatch(/^wf-/);
     expect(result.audit_event_ids?.length).toBe(2);
+  });
+});
+
+describe("dispatchToLinkBot governance ingress", () => {
+  it("allows dispatch when governance payload includes required fields", async () => {
+    const result = await dispatchToLinkBot(envWith({}), ctx, {
+      reasoning_kind: "lead_evaluation",
+      model_routing_profile: "default",
+      pii_policy: "strip_contact",
+      inputs: {
+        linktrendGovernance: {
+          bootstrap: {
+            traceCorrelationId: "trace-1",
+            authorizationState: "granted",
+          },
+          approvedTools: { toolNames: ["tool.a"] },
+        },
+      },
+    });
+
+    expect(result.success).toBe(true);
+    expect(result.failure).toBeUndefined();
+    expect(result.model_run_id).toMatch(/^mock-model-/);
+  });
+
+  it("fails closed with canonical code when governance payload is missing", async () => {
+    const result = await dispatchToLinkBot(envWith({}), ctx, {
+      reasoning_kind: "lead_evaluation",
+      model_routing_profile: "default",
+      pii_policy: "strip_contact",
+      inputs: {},
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.failure?.code).toBe("MANIFEST_INVALID");
+    expect(result.audit_event_ids?.length).toBe(1);
+    expect(writeBrainAuditEvent).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({
+        action: "stage.failed",
+        payload: expect.objectContaining({
+          dispatch_target: "linkbot",
+          reason: "governance_ingress_rejected",
+          failure_code: "MANIFEST_INVALID",
+        }),
+      }),
+    );
+  });
+
+  it("fails closed when governance payload has invalid approved tools shape", async () => {
+    const result = await dispatchToLinkBot(envWith({}), ctx, {
+      reasoning_kind: "lead_evaluation",
+      model_routing_profile: "default",
+      pii_policy: "strip_contact",
+      inputs: {
+        linktrendGovernance: {
+          bootstrap: {
+            traceCorrelationId: "trace-2",
+            authorizationState: "granted",
+          },
+          approvedTools: { toolNames: [""] },
+        },
+      },
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.failure?.code).toBe("MANIFEST_INVALID");
+    expect(result.audit_event_ids?.length).toBe(1);
   });
 });
