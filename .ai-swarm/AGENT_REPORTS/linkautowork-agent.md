@@ -1116,4 +1116,4 @@ None.
 ### Branch / Commit
 
 - Branch: `dev/cursor/WP-092-linksites-frontend-preview-check`
-- Commit SHA: pending commit
+- Commit SHA: `2a7d290`
