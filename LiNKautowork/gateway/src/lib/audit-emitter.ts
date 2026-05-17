@@ -37,6 +37,18 @@ export interface AuditEmitter {
     reason: string,
     parent_event_id: string,
   ) => Promise<string>;
+  emitPreviewReadinessChecked: (
+    request: WorkflowInvokeRequest,
+    workflow_run_id: string,
+    checksPassed: boolean,
+    parent_event_id: string,
+  ) => Promise<string>;
+  emitPreviewReadinessFailed: (
+    request: WorkflowInvokeRequest,
+    workflow_run_id: string,
+    failedChecks: string[],
+    parent_event_id: string,
+  ) => Promise<string>;
 }
 
 /**
@@ -201,10 +213,82 @@ export function createAuditEmitter(
     return result.event_id;
   }
 
+  async function emitPreviewReadinessChecked(
+    request: WorkflowInvokeRequest,
+    workflow_run_id: string,
+    checksPassed: boolean,
+    parent_event_id: string,
+  ): Promise<string> {
+    const event: AuditEvent = {
+      event_id: randomUUID(),
+      ts: new Date().toISOString(),
+      tenant_id: request.tenant_id,
+      plane: PLANE,
+      actor: {
+        actor_kind: "system",
+        actor_id: `linkautowork.workflow.${request.workflow_handle}`,
+      },
+      action: "preview.readiness.checked",
+      subject: {
+        run_id: request.run_id,
+        stage_id: request.stage_id,
+        workflow_run_id,
+        lease_id: request.lease_id,
+      },
+      refs: {
+        parent_event_id,
+      },
+      payload: {
+        workflow_handle: request.workflow_handle,
+        checks_passed: checksPassed,
+      },
+      schema_version: "1",
+    };
+    const result = await writeEvent(event);
+    return result.event_id;
+  }
+
+  async function emitPreviewReadinessFailed(
+    request: WorkflowInvokeRequest,
+    workflow_run_id: string,
+    failedChecks: string[],
+    parent_event_id: string,
+  ): Promise<string> {
+    const event: AuditEvent = {
+      event_id: randomUUID(),
+      ts: new Date().toISOString(),
+      tenant_id: request.tenant_id,
+      plane: PLANE,
+      actor: {
+        actor_kind: "system",
+        actor_id: `linkautowork.workflow.${request.workflow_handle}`,
+      },
+      action: "preview.readiness.failed",
+      subject: {
+        run_id: request.run_id,
+        stage_id: request.stage_id,
+        workflow_run_id,
+        lease_id: request.lease_id,
+      },
+      refs: {
+        parent_event_id,
+      },
+      payload: {
+        workflow_handle: request.workflow_handle,
+        failed_checks: failedChecks,
+      },
+      schema_version: "1",
+    };
+    const result = await writeEvent(event);
+    return result.event_id;
+  }
+
   return {
     emitInvoked,
     emitCompleted,
     emitFailed,
     emitCompensated,
+    emitPreviewReadinessChecked,
+    emitPreviewReadinessFailed,
   };
 }

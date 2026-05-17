@@ -258,6 +258,63 @@ Implemented canonical LiNKbrain envelope mapping helpers for LinkBot lifecycle s
 
 - `apps/linkaios-web/src/lib/kernel/audit-envelope-mapper.ts`
 - `apps/linkaios-web/src/lib/kernel/audit-envelope-mapper.test.ts`
+
+---
+
+# WP-086 LiNKbrain Audit Ledger Completion - Agent Report
+
+**Agent:** Codex 5.3  
+**Work Packet:** WP-086-linkbrain-audit-ledger-completion  
+**Branch:** `dev/codex/WP-086-linkbrain-audit-ledger-completion`  
+**Date:** 2026-05-17  
+**Status:** Complete
+
+## Summary
+
+Completed canonical audit action coverage for LinkSites v2 by extending the SDK action registry, adding LinkBot role/provenance lifecycle emits, and adding explicit LiNKautowork readiness emits (`preview.readiness.checked` / `preview.readiness.failed`).
+
+## Files Changed
+
+- `packages/linklogic-sdk/src/contracts-mvo.ts`
+- `apps/bot-runtime/src/reasoning-dispatch.ts`
+- `apps/bot-runtime/src/reasoning-dispatch.test.ts`
+- `LiNKautowork/gateway/src/lib/audit-emitter.ts`
+- `LiNKautowork/gateway/src/workflows/linksites-v2.ts`
+- `LiNKautowork/gateway/src/workflows/linksites-v2.test.ts`
+
+## Commands Run
+
+```bash
+cd /Users/linktrend/Projects/LiNKtrend-System
+git fetch origin --prune
+git worktree add ../LiNKtrend-System-WP-086 -b dev/codex/WP-086-linkbrain-audit-ledger-completion origin/development
+cd ../LiNKtrend-System-WP-086
+pnpm install
+pnpm --filter @linktrend/shared-config build
+pnpm --filter @linktrend/shared-types build
+pnpm --filter @linktrend/observability build
+pnpm --filter @linktrend/db build
+pnpm --filter @linktrend/linklogic-sdk build
+pnpm --filter @linktrend/bot-runtime build
+pnpm --filter @linktrend/linklogic-sdk exec vitest run src/brain-audit.test.ts src/contracts-mvo.test.ts
+pnpm --filter @linktrend/bot-runtime exec vitest run src/reasoning-dispatch.test.ts
+pnpm --filter @linktrend/autowork-gateway exec vitest run src/workflows/linksites-v2.test.ts
+```
+
+## Validation Results
+
+- `@linktrend/linklogic-sdk`: `src/brain-audit.test.ts`, `src/contracts-mvo.test.ts` passed.
+- `@linktrend/bot-runtime`: `src/reasoning-dispatch.test.ts` passed.
+- `@linktrend/autowork-gateway`: `src/workflows/linksites-v2.test.ts` passed.
+
+## Risks / Notes
+
+- Audit volume increased for LinkBot reasoning stages due to role-level and provenance events; downstream consumers should expect additional canonical events per stage.
+- Existing `approval.*` subject handling was already present from prior mapping work; no changes were needed in this packet’s allowed file scope.
+
+## Blockers
+
+None.
 - `.ai-swarm/AGENT_REPORTS/linkbrain-agent.md`
 
 ## Mapping Table (Source -> Canonical)

@@ -23,6 +23,7 @@ function createMockAuditWriter() {
     clear: () => {
       events.length = 0;
     },
+    getEvents: () => events.slice(),
   };
 }
 
@@ -116,6 +117,7 @@ describe("LiNKautowork LinkSites v2 Workflows", () => {
     const readinessResult = await invokeWorkflow(readinessRequest, { writeAuditEvent: auditWriter.write });
     expect(readinessResult.status).toBe("succeeded");
     expect(readinessResult.outputs?.checks_passed).toBe(true);
+    expect(auditWriter.getEvents().some((event) => event.action === "preview.readiness.checked")).toBe(true);
 
     const crmRequest: WorkflowInvokeRequest = {
       tenant_id: "tenant-1",
@@ -182,5 +184,8 @@ describe("LiNKautowork LinkSites v2 Workflows", () => {
     expect(result.outputs?.checks_passed).toBe(false);
     expect(result.outputs?.preview_readiness_status).toBe("failed");
     expect((result.outputs?.failed_checks as string[]).length).toBeGreaterThan(0);
+    const actions = auditWriter.getEvents().map((event) => event.action);
+    expect(actions).toContain("preview.readiness.checked");
+    expect(actions).toContain("preview.readiness.failed");
   });
 });

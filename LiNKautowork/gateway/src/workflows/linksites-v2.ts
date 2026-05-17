@@ -291,7 +291,7 @@ export function createPreviewReadinessCheckHandler(
   const payloadClient = deps?.payloadClient ?? createPayloadSyncClient();
 
   return async (request, context) => {
-    return withAudit(request, context.workflow_run_id, auditEmitter, async () => {
+    const result = await withAudit(request, context.workflow_run_id, auditEmitter, async () => {
       const payloadSyncRef = asString(request, "payload_sync_ref");
       const previewUrl = asString(request, "preview_url");
       const requiredPages = asStringArray(request, "required_pages");
@@ -345,6 +345,28 @@ export function createPreviewReadinessCheckHandler(
         };
       }
     });
+    if ("outputs" in result) {
+      const checksPassed = result.outputs.checks_passed === true;
+      const parentEventId = result.audit_event_ids[result.audit_event_ids.length - 1] ?? result.audit_event_ids[0];
+      await auditEmitter.emitPreviewReadinessChecked(
+        request,
+        context.workflow_run_id,
+        checksPassed,
+        parentEventId,
+      );
+      if (!checksPassed) {
+        const failedChecks = Array.isArray(result.outputs.failed_checks)
+          ? result.outputs.failed_checks.filter((item): item is string => typeof item === "string")
+          : [];
+        await auditEmitter.emitPreviewReadinessFailed(
+          request,
+          context.workflow_run_id,
+          failedChecks,
+          parentEventId,
+        );
+      }
+    }
+    return result;
   };
 }
 
