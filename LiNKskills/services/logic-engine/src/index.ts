@@ -63,6 +63,16 @@ export {
   getMvoCapabilityIds,
   isMvoCapability,
 } from "./capability-catalog.js";
+export {
+  getCapabilityApi,
+  getCapabilityPublicContract,
+  listCapabilitiesApi,
+  registerCapability,
+  validateCapabilityModes,
+  validateCapabilityPluginContractPack,
+  validateCapabilityReference,
+  V1_MVO_CAPABILITY_SEEDS,
+} from "./capability-catalog-api.js";
 
 // Capability handlers
 export {

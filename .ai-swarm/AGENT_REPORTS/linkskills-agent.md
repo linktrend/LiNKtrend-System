@@ -728,3 +728,93 @@ pnpm --filter @linktrend/linklogic-sdk typecheck
 
 - Branch: `dev/codex/WP-079-linkskills-golden-template`
 - Commit SHA: `6c22469`
+
+## Assigned Work Packet
+
+**WP-076 — LinkSkills capability catalog API**
+**Status:** COMPLETE
+**Date:** 2026-05-17
+
+## Objective
+
+Implement capability catalog registration/discovery/validation surface aligned to CONTRACTS_MVO and WP-075 schema, seeded with v1 `cap.*` IDs.
+
+## Repo Reality Note
+
+- `packages/linkskills-core` does not exist on `origin/development`.
+- Per prompt instruction, implementation was completed in the existing package:
+  - `LiNKskills/services/logic-engine`
+
+## Files Changed
+
+- `LiNKskills/services/logic-engine/src/capability-catalog-api.ts` (new)
+  - Added registration API surface (`registerCapability`) with manifest + contract-pack validation.
+  - Added discovery API surfaces:
+    - `listCapabilitiesApi` (`mode`, `target_software` filters)
+    - `getCapabilityApi`
+    - `getCapabilityPublicContract`
+  - Added kernel boot-time helpers:
+    - `validateCapabilityReference`
+    - `validateCapabilityModes`
+  - Added `V1_MVO_CAPABILITY_SEEDS` for 8 required v1 capability IDs.
+  - Added contract-pack validator:
+    - required fields
+    - canonical failure-code mapping guard
+    - allowed-caller subset guard
+
+- `LiNKskills/services/logic-engine/src/capability-catalog-api.test.ts` (new)
+  - Added tests for:
+    - registration
+    - invalid manifest rejection
+    - listing + mode filter
+    - capability lookup + public contract projection
+    - reference/mode validation helpers
+
+- `LiNKskills/services/logic-engine/src/capability-catalog.ts`
+  - Switched catalog table reads from `linkskills.capability_catalog` to WP-075 table `linkskills.capabilities`.
+  - Added `mode` and `target_software` list filters.
+
+- `LiNKskills/services/logic-engine/src/types.ts`
+  - Updated `CapabilityCatalogRow` to match WP-075 `linkskills.capabilities` shape.
+
+- `LiNKskills/services/logic-engine/src/index.ts`
+  - Exported new catalog API helpers and seed set.
+
+- `packages/linklogic-sdk/src/types/capability.ts` (new)
+  - Added `CapabilityMode`, `CapabilityOperation`, `CapabilityCatalogEntry`, `CapabilityAllowedCaller`.
+
+- `packages/linklogic-sdk/src/index.ts`
+  - Exported capability types.
+
+## Commands Run
+
+```bash
+git fetch origin --prune
+git worktree add /Users/linktrend/Projects/LiNKtrend-System-WP-076 -b dev/codex/WP-076-linkskills-capability-catalog-api origin/development
+git status --short --branch
+pnpm install
+pnpm --filter @linktrend/linkskills-logic-engine test -- src/capability-catalog-api.test.ts
+pnpm --filter @linktrend/linkskills-logic-engine typecheck
+pnpm --filter @linktrend/linklogic-sdk typecheck
+```
+
+## Validation / Proof
+
+- `pnpm --filter @linktrend/linkskills-logic-engine test -- src/capability-catalog-api.test.ts`
+  - PASS
+  - `6` test files, `61` tests passed (includes new WP-076 suite)
+- New WP-076 test coverage includes:
+  - catalog listing
+  - capability lookup
+  - mode validation
+  - invalid manifest rejection
+
+## Blockers / Risks
+
+- Workspace baseline issue: package-level typecheck remains red due existing unresolved workspace import paths in this repo baseline (`@linktrend/shared-config`, `@linktrend/shared-types`, `@linktrend/db`, `@linktrend/observability`) outside WP-076 scope.
+- `registerCapability` currently treats capability contracts as append-only insert; versioned update semantics remain for a follow-up packet.
+
+## Branch and Commit
+
+- Branch: `dev/codex/WP-076-linkskills-capability-catalog-api`
+- Commit SHA: `PENDING`

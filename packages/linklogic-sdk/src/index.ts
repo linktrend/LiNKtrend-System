@@ -308,3 +308,9 @@ export type {
   WorkflowInvokeResult,
   WorkflowRunStatus,
 } from "./contracts-mvo.js";
+export type {
+  CapabilityAllowedCaller,
+  CapabilityCatalogEntry,
+  CapabilityMode,
+  CapabilityOperation,
+} from "./types/capability.js";

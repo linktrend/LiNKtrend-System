@@ -65,15 +65,19 @@ export interface LeaseLedgerRow {
 
 /** Row from linkskills.capability_catalog */
 export interface CapabilityCatalogRow {
-  id: string;
   capability_id: string;
-  display_name: string;
-  description: string;
+  plugin_kind: "capability";
+  target_software: string;
+  allowed_operations: string[];
+  auth_requirements: string[];
+  mode_flags: Array<"development" | "shadow" | "live">;
+  lease_requirements: string[];
+  idempotency_rules: string;
+  audit_events: string[];
+  allowed_callers: Array<"linkaios" | "vertical_plugin" | "linkbot" | "linkautowork">;
+  failure_mapping: Record<string, string>;
+  not_configured: string[];
   version: number;
-  policy_mode: "require_approval" | "auto_grant" | "deny_all";
-  args_schema: Record<string, unknown>;
-  result_schema: Record<string, unknown>;
-  tenant_scoped: boolean;
   created_at: string;
   updated_at: string;
 }
