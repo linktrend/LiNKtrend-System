@@ -1,0 +1,519 @@
+# LEXOS Litigation vertical plugin — declaration-only manifest (WP-122).
+# Sources: LEXOS_VERTICAL_PLUGIN_CONVERSION_PLAN.md §1–§7, CONTRACTS_MVO.md §1.2–§1.3.
+# Loader integration and machine validation may follow in later packets.
+
+plugin_id: lexos_litigation
+plugin_kind: vertical
+plugin_name: LEXOS Litigation
+version: "1.0.0-mvo"
+purpose: >-
+  Legal case management with evidence-based assertion tracking for litigation matters.
+  Supports W0–W11 litigation workflow stages from intake through output refinement.
+
+modes_supported:
+  - development
+
+public_surfaces:
+  work_request_types:
+    - lexos.intake.new
+    - lexos.matter.create
+    - lexos.story.develop
+    - lexos.evidence.ingest
+    - lexos.assertions.extract
+    - lexos.support.map
+    - lexos.strategy.develop
+    - lexos.research.conduct
+    - lexos.argument.draft
+    - lexos.adversarial.review
+    - lexos.output.generate
+
+  ui_panels:
+    # Matter workspace panels
+    - lexos.matter_overview
+    - lexos.story_workspace
+    - lexos.evidence_workspace
+    - lexos.assertions_workspace
+    - lexos.strategy_workspace
+    - lexos.research_workspace
+    - lexos.argument_workspace
+    - lexos.adversarial_workspace
+    - lexos.output_workspace
+    # Intake and client panels
+    - lexos.intake_workspace
+    - lexos.intake_list
+    - lexos.clients_list
+    - lexos.client_detail
+
+  read_views:
+    - lexos.matters.list
+    - lexos.clients.list
+    - lexos.intake_records.list
+    - lexos.evidence.list
+    - lexos.assertions.list
+
+stages:
+  - stage_id: lexos.w0.intake
+    display_name: "W0 — Client Onboarding"
+    responsible_plane: linkbot
+    inputs:
+      - intake_form
+      - conflict_data
+      - kyc_documents
+    outputs:
+      - intake_record
+      - client_candidate
+      - matter_candidate
+      - conflict_status
+    failure_mode: abort_run
+
+  - stage_id: lexos.w1.client_master
+    display_name: "W1 — Client Master Record"
+    responsible_plane: linkbot
+    inputs:
+      - client_record
+      - promotion_requests
+    outputs:
+      - updated_client_record
+      - client_master_story
+    failure_mode: retryable
+
+  - stage_id: lexos.w2.case_story
+    display_name: "W2 — Case-Client Story"
+    responsible_plane: linkbot
+    inputs:
+      - client_narrative
+      - matter_context
+    outputs:
+      - case_master_story
+      - assertion_list
+      - timeline_events
+      - gaps
+      - vulnerabilities
+    failure_mode: retryable
+
+  - stage_id: lexos.w4.evidence
+    display_name: "W4 — Evidence Intake"
+    responsible_plane: linkautowork
+    inputs:
+      - uploaded_files
+      - evidence_needs_register
+    outputs:
+      - evidence_objects
+      - evidence_extractions
+      - evidence_register
+      - quality_flags
+    failure_mode: retryable
+
+  - stage_id: lexos.w5.support_matrix
+    display_name: "W5 — Support Matrix"
+    responsible_plane: linkbot
+    inputs:
+      - assertion_list
+      - evidence_register
+      - extractions
+    outputs:
+      - support_matrix
+      - supported_facts
+      - unsupported_facts
+      - contradictions
+      - evidence_gaps
+    failure_mode: retryable
+
+  - stage_id: lexos.w6.strategy
+    display_name: "W6 — Strategy Development"
+    responsible_plane: linkbot
+    inputs:
+      - support_matrix
+      - supported_facts
+      - matter_posture
+    outputs:
+      - strategy_memo
+      - strategy_points
+      - research_questions
+      - risks
+    failure_mode: retryable
+
+  - stage_id: lexos.w7.research
+    display_name: "W7 — Legal Research"
+    responsible_plane: linkbot
+    inputs:
+      - research_questions
+      - strategy_points
+      - jurisdiction
+    outputs:
+      - research_memo
+      - legal_authorities
+      - adverse_authority
+      - citation_confidence
+    failure_mode: retryable
+
+  - stage_id: lexos.w8.argument
+    display_name: "W8 — Argument Drafting"
+    responsible_plane: linkbot
+    inputs:
+      - strategy_memo
+      - research_memo
+      - support_matrix
+    outputs:
+      - argument_draft
+      - argument_nodes
+      - evidence_links
+    failure_mode: retryable
+
+  - stage_id: lexos.w9.adversarial
+    display_name: "W9 — Adversarial Review"
+    responsible_plane: linkbot
+    inputs:
+      - argument_draft
+      - support_matrix
+      - research_memo
+    outputs:
+      - adversarial_critique
+      - attack_matrix
+      - weakness_register
+      - revision_checklist
+    failure_mode: retryable
+
+  - stage_id: lexos.w11.output
+    display_name: "W11 — Output Refinement"
+    responsible_plane: linkbot
+    inputs:
+      - argument_draft
+      - adversarial_critique
+      - resolved_issues
+    outputs:
+      - revised_output
+      - final_bundle
+      - caveat_preservation_check
+    failure_mode: retryable
+
+config_surfaces:
+  - lexos.jurisdiction.default
+  - lexos.privilege_model
+  - lexos.evidence_storage_profile
+  - lexos.extraction_provider_profile
+  - lexos.research_api.shadow_mode
+
+required_capabilities:
+  - cap.storage.supabase
+  - cap.storage.evidence
+  - cap.extraction.parser
+  - cap.extraction.ocr
+  - cap.extraction.qa
+  - cap.research.legal
+  - cap.research.public_web
+  - cap.llm.generation
+  - cap.crm.mock
+  - cap.plane.mock
+
+required_workflow_hooks:
+  - autowork.lexos.evidence_ingest
+  - autowork.lexos.extraction_run
+  - autowork.lexos.assertion_sync
+  - autowork.lexos.artifact_generate
+  - autowork.lexos.crm_sync
+
+required_audit_events:
+  - run.started
+  - run.completed
+  - run.failed
+  - stage.started
+  - stage.completed
+  - stage.failed
+  - workflow.invoked
+  - workflow.completed
+  - workflow.failed
+  - lease.requested
+  - lease.granted
+  - lease.executed
+  - lease.denied
+  - role.started
+  - role.completed
+  - role.failed
+  - intake.processed
+  - conflict.checked
+  - client.accepted
+  - story.created
+  - assertions.extracted
+  - evidence.ingested
+  - extraction.completed
+  - support.mapped
+  - contradictions.found
+  - strategy.developed
+  - research.performed
+  - argument.drafted
+  - critique.completed
+  - output.refined
+
+required_linkbot_roles:
+  - role_id: lexos_intake_agent
+    purpose: Process new client/matter intake, conflict check, KYC/CDD
+    inputs:
+      - intake_form
+      - conflict_data
+      - kyc_documents
+    outputs:
+      - intake_record
+      - client_candidate
+      - matter_candidate
+      - conflict_status
+    allowed_capabilities:
+      - cap.storage.supabase
+      - cap.crm.mock
+    allowed_skills:
+      - intake.process
+      - conflict.check
+      - kyc.screen
+    audit_events:
+      - role.started
+      - intake.processed
+      - conflict.checked
+      - role.completed
+      - role.failed
+    development_restrictions:
+      - human_approval_required_for_acceptance
+      - mock_crm_only
+
+  - role_id: lexos_custodian_agent
+    purpose: Maintain client master record, fact promotion
+    inputs:
+      - client_record
+      - promotion_requests
+      - matter_facts
+    outputs:
+      - updated_client_record
+      - client_master_story
+      - promotion_decisions
+    allowed_capabilities:
+      - cap.storage.supabase
+    allowed_skills:
+      - memory.manage
+      - fact.promote
+      - kyc.refresh
+    audit_events:
+      - role.started
+      - memory.updated
+      - promotion.processed
+      - role.completed
+
+  - role_id: lexos_story_architect
+    purpose: Create case master story from client narrative
+    inputs:
+      - client_narrative
+      - matter_context
+      - known_documents
+    outputs:
+      - case_master_story
+      - assertion_list
+      - timeline_events
+      - gaps
+      - vulnerabilities
+    allowed_capabilities:
+      - cap.storage.supabase
+    allowed_skills:
+      - story.develop
+      - assertion.extract
+      - timeline.build
+    audit_events:
+      - role.started
+      - story.created
+      - assertions.extracted
+      - role.completed
+
+  - role_id: lexos_evidence_archivist
+    purpose: Ingest, process, catalog evidence with extraction
+    inputs:
+      - uploaded_files
+      - evidence_needs_register
+      - matter_context
+    outputs:
+      - evidence_objects
+      - evidence_extractions
+      - evidence_register
+      - quality_flags
+    allowed_capabilities:
+      - cap.storage.supabase
+      - cap.extraction.ocr
+      - cap.extraction.parser
+    allowed_skills:
+      - evidence.ingest
+      - extraction.run
+      - qa.validate
+    audit_events:
+      - role.started
+      - evidence.ingested
+      - extraction.completed
+      - qa.completed
+      - role.completed
+
+  - role_id: lexos_analyst
+    purpose: Map assertions to evidence, build support matrix
+    inputs:
+      - assertion_list
+      - evidence_register
+      - extractions
+      - case_story
+    outputs:
+      - support_matrix
+      - supported_facts
+      - unsupported_facts
+      - contradictions
+      - evidence_gaps
+    allowed_capabilities:
+      - cap.storage.supabase
+    allowed_skills:
+      - support.map
+      - contradiction.detect
+      - gap.identify
+    audit_events:
+      - role.started
+      - support.mapped
+      - contradictions.found
+      - role.completed
+
+  - role_id: lexos_strategist
+    purpose: Develop case strategy from supported facts
+    inputs:
+      - support_matrix
+      - supported_facts
+      - matter_posture
+      - jurisdiction
+    outputs:
+      - strategy_memo
+      - strategy_points
+      - research_questions
+      - risks
+    allowed_capabilities:
+      - cap.storage.supabase
+      - cap.research.legal
+    allowed_skills:
+      - strategy.develop
+      - risk.assess
+      - research.plan
+    audit_events:
+      - role.started
+      - strategy.developed
+      - risks.identified
+      - role.completed
+
+  - role_id: lexos_librarian
+    purpose: Conduct legal research, verify citations
+    inputs:
+      - research_questions
+      - strategy_points
+      - jurisdiction
+    outputs:
+      - research_memo
+      - legal_authorities
+      - adverse_authority
+      - citation_confidence
+    allowed_capabilities:
+      - cap.research.legal
+      - cap.research.public_web
+    allowed_skills:
+      - research.conduct
+      - citation.verify
+      - authority.extract
+    audit_events:
+      - role.started
+      - research.performed
+      - citations.verified
+      - role.completed
+
+  - role_id: lexos_advocate
+    purpose: Draft legal arguments from strategy and research
+    inputs:
+      - strategy_memo
+      - research_memo
+      - support_matrix
+      - legal_authorities
+    outputs:
+      - argument_draft
+      - argument_nodes
+      - evidence_links
+      - unsupported_claims
+    allowed_capabilities:
+      - cap.storage.supabase
+      - cap.llm.generation
+    allowed_skills:
+      - argument.draft
+      - citation.insert
+      - node.build
+    audit_events:
+      - role.started
+      - argument.drafted
+      - claims.linked
+      - role.completed
+
+  - role_id: lexos_adversary
+    purpose: Perform adversarial stress-test on argument draft
+    inputs:
+      - argument_draft
+      - support_matrix
+      - research_memo
+      - risks
+    outputs:
+      - adversarial_critique
+      - attack_matrix
+      - weakness_register
+      - revision_checklist
+    allowed_capabilities:
+      - cap.storage.supabase
+      - cap.research.legal
+    allowed_skills:
+      - critique.perform
+      - weakness.identify
+      - severity.score
+    audit_events:
+      - role.started
+      - critique.completed
+      - weaknesses.found
+      - role.completed
+
+  - role_id: lexos_rhetorician
+    purpose: Refine output for persuasion while preserving truth discipline
+    inputs:
+      - argument_draft
+      - adversarial_critique
+      - resolved_issues
+      - visual_artifacts
+    outputs:
+      - revised_output
+      - final_bundle
+      - caveat_preservation_check
+    allowed_capabilities:
+      - cap.storage.supabase
+      - cap.llm.generation
+    allowed_skills:
+      - refine.perform
+      - caveat.check
+      - bundle.prepare
+    audit_events:
+      - role.started
+      - output.refined
+      - caveats.preserved
+      - role.completed
+
+preview_output_shape:
+  run_id: string
+  tenant_id: string
+  matter_id: string
+  client_id: string
+  intake_id: string | null
+  workflow_stage: string
+  stage_status: "one_of[awaiting_input,in_progress,awaiting_approval,completed,failed]"
+  lease_ids: string[]
+  audit_event_ids: string[]
+
+non_goals:
+  - Multi-jurisdiction support in MVO
+  - Real court filing integration (pre-filing only)
+  - Certified transcription/translation (machine outputs only)
+  - Forensic chain-of-custody automation
+  - Production email/calendar integration
+  - Billing/time tracking (accounting vertical responsibility)
+  - Document comparison/diff (deferred)
+  - Advanced visual exhibit production (W10 deferred)
+  - Real-time collaboration (single-user MVO)
+  - Mobile-native apps (web-only MVO)
+  - Live legal research API writes (shadow mode only for MVO)
