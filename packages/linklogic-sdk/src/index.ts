@@ -248,6 +248,41 @@ export type {
   BrainFeedbackVerdict,
 } from "./brain-benchmarks.js";
 
+// Cross-vertical trace dashboard schemas (WP-116)
+export {
+  buildDailyAggregateQuery,
+  buildRecentTracesQuery,
+  CrossVerticalAggregateQuerySchema,
+  CrossVerticalAggregateResultSchema,
+  CrossVerticalTraceAggregateSchema,
+  parseCrossVerticalAggregateQuery,
+  parseCrossVerticalAggregateResult,
+  parseCrossVerticalTraceAggregate,
+  parseTraceQueryFilter,
+  parseTraceQueryResult,
+  parseTraceSummary,
+  StageSlugSchema,
+  stripTenantFieldsFromTrace,
+  TimeBucketUnitSchema,
+  TraceOutcomeSchema,
+  TraceQueryFilterSchema,
+  TraceQueryResultSchema,
+  TraceSummarySchema,
+  VerticalKeySchema,
+} from "./brain-traces.js";
+export type {
+  CrossVerticalAggregateQuery,
+  CrossVerticalAggregateResult,
+  CrossVerticalTraceAggregate,
+  StageSlug,
+  TimeBucketUnit,
+  TraceOutcome,
+  TraceQueryFilter,
+  TraceQueryResult,
+  TraceSummary,
+  VerticalKey,
+} from "./brain-traces.js";
+
 // MVO cross-service contract schemas + types. Canonical source:
 // `.ai-swarm/CONTRACTS_MVO.md`. Pinned by WP-005.
 export {
