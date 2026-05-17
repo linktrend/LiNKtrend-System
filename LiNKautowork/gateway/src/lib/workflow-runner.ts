@@ -26,6 +26,7 @@ import {
   InMemoryIdempotencyStore,
   type IdempotencyStore,
 } from "./idempotency-store.js";
+import { getRunController, getMutableRunControllerForTesting } from "./run-controller.js";
 
 /**
  * Registry of all workflow handlers.
@@ -71,6 +72,7 @@ export async function invokeWorkflow(
 ): Promise<WorkflowInvokeResult> {
   const workflow = workflowRegistry.get(request.workflow_handle);
   const auditEmitter = createAuditEmitter(deps.writeAuditEvent);
+  const runController = getRunController();
 
   if (!workflow) {
     const workflow_run_id = randomUUID();
@@ -130,6 +132,42 @@ export async function invokeWorkflow(
   }
 
   const workflow_run_id = randomUUID();
+  runController.enqueueRun(request.tenant_id, workflow_run_id);
+
+  if (runController.isTenantPaused(request.tenant_id)) {
+    const failure: FailureReport = {
+      code: "LEASE_DENIED",
+      plane: "linkautowork",
+      message: `Tenant ${request.tenant_id} is paused by operator control`,
+      retryable: false,
+      occurred_at: new Date().toISOString(),
+    };
+    runController.markRunFinished(request.tenant_id, workflow_run_id);
+    return {
+      workflow_run_id,
+      status: "failed",
+      audit_event_ids: [],
+      failure,
+    };
+  }
+  if (runController.isRunCancelled(workflow_run_id)) {
+    const failure: FailureReport = {
+      code: "WORKFLOW_COMPENSATED",
+      plane: "linkautowork",
+      message: `Workflow ${workflow_run_id} was cancelled before start`,
+      retryable: false,
+      occurred_at: new Date().toISOString(),
+    };
+    runController.markRunFinished(request.tenant_id, workflow_run_id);
+    return {
+      workflow_run_id,
+      status: "compensated",
+      audit_event_ids: [],
+      failure,
+    };
+  }
+
+  runController.markRunStarted(request.tenant_id, workflow_run_id);
   const retryPolicy = new ExponentialBackoffPolicy();
   const handler = workflow.handler;
   const useN8nMode = process.env.AUTOWORK_MODE === "n8n";
@@ -151,6 +189,31 @@ export async function invokeWorkflow(
       const result = useN8nMode
         ? await executeViaN8n(request, context, getN8nClient())
         : await handler(request, context);
+
+      if (runController.isRunCancelled(workflow_run_id)) {
+        const failure: FailureReport = {
+          code: "WORKFLOW_COMPENSATED",
+          plane: "linkautowork",
+          message: `Workflow ${workflow_run_id} was cancelled by operator control`,
+          retryable: false,
+          occurred_at: new Date().toISOString(),
+        };
+        const finalResult: WorkflowInvokeResult = {
+          workflow_run_id,
+          status: "compensated",
+          audit_event_ids: attemptAuditEventIds,
+          failure,
+        };
+        await idempotencyStore.cacheResult(
+          keyHash,
+          request.tenant_id,
+          request.workflow_handle,
+          workflow_run_id,
+          finalResult,
+        );
+        runController.markRunFinished(request.tenant_id, workflow_run_id);
+        return finalResult;
+      }
 
       if ("failure" in result) {
         attemptAuditEventIds.push(...result.audit_event_ids);
@@ -177,6 +240,7 @@ export async function invokeWorkflow(
             workflow_run_id,
             finalResult,
           );
+          runController.markRunFinished(request.tenant_id, workflow_run_id);
           return finalResult;
         }
 
@@ -200,6 +264,7 @@ export async function invokeWorkflow(
         workflow_run_id,
         finalResult,
       );
+      runController.markRunFinished(request.tenant_id, workflow_run_id);
       return finalResult;
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "Unexpected workflow error";
@@ -237,6 +302,7 @@ export async function invokeWorkflow(
           workflow_run_id,
           finalResult,
         );
+        runController.markRunFinished(request.tenant_id, workflow_run_id);
         return finalResult;
       }
 
@@ -265,6 +331,7 @@ export async function invokeWorkflow(
     workflow_run_id,
     fallbackResult,
   );
+  runController.markRunFinished(request.tenant_id, workflow_run_id);
   return fallbackResult;
 }
 
@@ -298,6 +365,7 @@ export function setIdempotencyStoreForTesting(store: IdempotencyStore): void {
  */
 export function clearWorkflowRegistry(): void {
   workflowRegistry.clear();
+  getMutableRunControllerForTesting().clear();
 }
 
 /**
@@ -324,3 +392,5 @@ function getN8nClient(): N8nClient {
     apiKey: process.env.N8N_API_KEY,
   });
 }
+
+export { getMutableRunControllerForTesting } from "./run-controller.js";

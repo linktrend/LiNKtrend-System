@@ -4,6 +4,7 @@ import { ExponentialBackoffPolicy } from "./retry-policy.js";
 import {
   clearIdempotencyCache,
   clearWorkflowRegistry,
+  getMutableRunControllerForTesting,
   invokeWorkflow,
   registerWorkflow,
 } from "./workflow-runner.js";
@@ -57,6 +58,7 @@ describe("invokeWorkflow retry behavior", () => {
   beforeEach(() => {
     clearIdempotencyCache();
     clearWorkflowRegistry();
+    getMutableRunControllerForTesting().clear();
   });
   afterEach(() => {
     vi.useRealTimers();
@@ -154,5 +156,65 @@ describe("invokeWorkflow retry behavior", () => {
     expect(result.status).toBe("failed");
     expect(result.failure?.code).toBe("LEASE_DENIED");
     expect(attempt).toBe(1);
+  });
+
+  it("queues new runs and fails while tenant is paused", async () => {
+    registerWorkflow({
+      handle: "autowork.test.retry",
+      display_name: "test",
+      description: "test",
+      requires_lease: false,
+      handler: async () => ({
+        outputs: { ok: true },
+        audit_event_ids: ["s1", "s2"],
+      }),
+    });
+
+    const controller = getMutableRunControllerForTesting();
+    controller.pauseTenant("tenant-1");
+    const result = await invokeWorkflow(baseRequest("retry-5"), {
+      writeAuditEvent: createMockAuditWriter().write,
+    });
+
+    expect(result.status).toBe("failed");
+    expect(result.failure?.code).toBe("LEASE_DENIED");
+    expect(controller.getQueueStatus("tenant-1").running).toHaveLength(0);
+    expect(controller.getQueueStatus("tenant-1").queued).toHaveLength(0);
+  });
+
+  it("cancels in-flight run and marks as compensated", async () => {
+    const controller = getMutableRunControllerForTesting();
+    let observedRunId: string | undefined;
+    let releaseHandler: (() => void) | undefined;
+    const handlerGate = new Promise<void>((resolve) => {
+      releaseHandler = resolve;
+    });
+
+    registerWorkflow({
+      handle: "autowork.test.retry",
+      display_name: "test",
+      description: "test",
+      requires_lease: false,
+      handler: async (_request, context) => {
+        observedRunId = context.workflow_run_id;
+        await handlerGate;
+        return {
+          outputs: { ok: true },
+          audit_event_ids: ["s1", "s2"],
+        };
+      },
+    });
+
+    const pending = invokeWorkflow(baseRequest("retry-6"), {
+      writeAuditEvent: createMockAuditWriter().write,
+    });
+
+    await vi.waitFor(() => expect(observedRunId).toBeDefined());
+    controller.cancelRun(observedRunId!);
+    releaseHandler?.();
+    const result = await pending;
+
+    expect(result.status).toBe("compensated");
+    expect(result.failure?.code).toBe("WORKFLOW_COMPENSATED");
   });
 });
