@@ -893,4 +893,89 @@ pnpm --filter @linktrend/linkskills-logic-engine test
 ## Branch and Commit
 
 - Branch: `dev/codex/WP-077-linkskills-lease-lifecycle`
-- Commit SHA: `PENDING`
+- Commit SHA: `c490c4f`
+
+---
+
+## Assigned Work Packet
+
+**WP-078 — LinkSkills kill switch and safety controls**
+**Status:** COMPLETE
+**Date:** 2026-05-17
+
+## Objective
+
+Implement LinkSkills kill-switch safety controls (trip/reset/check + global halt + trigger evaluation) with lease-request integration, scoped to the existing repo reality (`LiNKskills/services/logic-engine`).
+
+## Repo Reality Note
+
+- `packages/linkskills-core` does not exist on `origin/development`.
+- Per prompt instruction, implementation was completed in existing packages:
+  - `LiNKskills/services/logic-engine`
+  - `packages/linklogic-sdk`
+
+## Files Changed
+
+- `packages/linklogic-sdk/src/types/safety.ts` (new)
+  - Added shared safety domain types for WP-078:
+    - `KillSwitchLevel`
+    - `KillSwitchStateV2`
+    - `KillSwitchConfig`
+    - `SafetyTriggerInput`
+- `packages/linklogic-sdk/src/index.ts`
+  - Exported safety types.
+- `LiNKskills/services/logic-engine/src/safety.ts` (new)
+  - Added safety service APIs:
+    - `checkKillSwitch` (capability + global level-2 halt check)
+    - `listSafetyKillSwitches`
+    - `getSafetyKillSwitch`
+    - `tripSafetyKillSwitch`
+    - `resetSafetyKillSwitch`
+    - `evaluateSafetyTriggers`
+  - Added trigger thresholds for runaway cost, burn-rate anomaly, projected month-end anomaly, critical exception spike, invalid signature/replay spike, credential compromise signal, and level-3 rollback scaffold.
+- `LiNKskills/services/logic-engine/src/lease-lifecycle.ts`
+  - Integrated `checkKillSwitch` in lease request flow.
+  - Lease denial now returns `LEASE_KILL_SWITCH` with reason propagated from safety check.
+- `LiNKskills/services/logic-engine/src/index.ts`
+  - Exported WP-078 safety APIs.
+- `LiNKskills/services/logic-engine/src/lease-lifecycle.linksites-v2.test.ts`
+  - Updated mocks from legacy direct kill-switch helper to new `checkKillSwitch` integration.
+- `LiNKskills/services/logic-engine/src/safety.test.ts` (new)
+  - Added WP-078-focused tests.
+- `.ai-swarm/AGENT_REPORTS/linkskills-agent.md`
+  - Appended WP-078 execution report.
+
+## Commands Run
+
+```bash
+git fetch origin --prune
+git worktree add ../LiNKtrend-System-WP-078 -b dev/codex/WP-078-linkskills-kill-switch origin/development
+git status --short --branch
+pnpm install
+pnpm --filter @linktrend/linkskills-logic-engine test -- src/safety.test.ts src/lease-lifecycle.linksites-v2.test.ts
+pnpm --filter @linktrend/linkskills-logic-engine typecheck
+pnpm --filter @linktrend/linklogic-sdk typecheck
+```
+
+## Validation / Proof
+
+- `pnpm --filter @linktrend/linkskills-logic-engine test -- src/safety.test.ts src/lease-lifecycle.linksites-v2.test.ts`
+  - PASS
+  - `7` test files, `65` tests passed
+  - Includes new WP-078 tests and lease integration behavior
+
+- `pnpm --filter @linktrend/linkskills-logic-engine typecheck`
+  - FAIL (workspace baseline module-resolution issues outside WP-078 scope, consistent with prior packets)
+
+- `pnpm --filter @linktrend/linklogic-sdk typecheck`
+  - FAIL (workspace baseline module-resolution issues outside WP-078 scope, consistent with prior packets)
+
+## Blockers / Risks
+
+- Existing workspace baseline still has unresolved package import/typecheck configuration for multiple internal workspaces (`@linktrend/shared-config`, `@linktrend/shared-types`, `@linktrend/db`, `@linktrend/observability`) outside this packet scope.
+- Runtime audit-event emission for `safety.level_2_halt`, `killswitch.tripped`, and `killswitch.reset` remains dependent on integration surfaces beyond this packet's current call paths.
+
+## Branch and Commit
+
+- Branch: `dev/codex/WP-078-linkskills-kill-switch`
+- Commit SHA: `40e57c1`

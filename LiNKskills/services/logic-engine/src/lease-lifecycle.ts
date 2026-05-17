@@ -19,7 +19,7 @@ import type {
   LeaseExecuteResult,
   FailureReport,
 } from "@linktrend/linklogic-sdk";
-import { isKillSwitchTripped } from "./kill-switch.js";
+import { checkKillSwitch } from "./safety.js";
 import {
   getCapabilityPolicy,
   capabilityExists,
@@ -106,8 +106,9 @@ export async function requestLease(
     };
   }
 
-  // Check kill switch before proceeding
-  const killTripped = await isKillSwitchTripped(client, request.capability, request.tenant_id);
+  // Check capability kill switch and global level-2 halt before proceeding.
+  const killCheck = await checkKillSwitch(client, request.tenant_id, request.capability);
+  const killTripped = killCheck.state === "tripped";
 
   // Call RPC to create or return existing lease
   const { data: rpcData, error: rpcError } = await client
@@ -170,12 +171,12 @@ export async function requestLease(
     await emitLeaseRequested(env, lease_id, request, kill_switch_state);
   }
 
-  // If kill switch tripped, emit lease.denied
+  // If kill switch/global halt tripped, emit lease.denied.
   if (killTripped && status === "denied") {
     const failure: FailureReport = {
       code: "LEASE_KILL_SWITCH",
       plane: "linkskills",
-      message: `Kill switch tripped for capability "${request.capability}"`,
+      message: killCheck.reason ?? `Kill switch tripped for capability "${request.capability}"`,
       retryable: false,
       occurred_at: new Date().toISOString(),
     };
