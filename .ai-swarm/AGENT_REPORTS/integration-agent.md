@@ -1941,3 +1941,100 @@ required_v2_stages_verified: 11
 crm_ready_to_contact_verified: true
 run_scoped_audit_rows_verified: true
 ```
+
+---
+
+## WP-084 — LEXOS Vertical Plugin Conversion Plan (2026-05-17)
+
+**Status:** COMPLETE
+
+### Scope
+
+Create `.ai-swarm/LEXOS_VERTICAL_PLUGIN_CONVERSION_PLAN.md` and follow-up packets for converting LEXOS into a LiNKaios vertical plugin without moving code yet.
+
+### Files Changed
+
+- `.ai-swarm/LEXOS_VERTICAL_PLUGIN_CONVERSION_PLAN.md` (new)
+- `.ai-swarm/WORK_PACKETS/WP-085-lexos-schema-core.md` (new)
+- `.ai-swarm/WORK_PACKETS/WP-088-lexos-types-generation.md` (new)
+- `.ai-swarm/WORK_PACKETS/WP-094-lexos-capability-manifests.md` (new)
+
+### Commands Run
+
+```bash
+cd /Users/linktrend/Projects/LiNKtrend-System
+git fetch origin --prune
+git worktree add ../LiNKtrend-System-WP-084 -b dev/cursor/WP-084-lexos-vertical-plugin-conversion-plan origin/development
+cd ../LiNKtrend-System-WP-084
+git status --short --branch
+ls -la /Users/linktrend/Projects/LiNKtrend-LEXOS/
+ls -la /Users/linktrend/Projects/LiNKtrend-LEXOS/docs/lexos-system-spec/
+ls -la /Users/linktrend/Projects/LiNKtrend-LEXOS/src/
+```
+
+### Discovery Summary
+
+| Category | Files/Paths | Lines/Count |
+|----------|-------------|-------------|
+| Database migrations | `supabase/migrations/*.sql` | 22 migration files |
+| Type definitions | `src/types/database.ts` | 2,718 lines |
+| Server mutations | `src/server/*/mutations.ts` | 17 modules |
+| Server queries | `src/server/*/queries.ts` | 17 modules |
+| UI features | `src/features/*/` | 12 workspaces |
+| App routes | `src/app/matters/[matterId]/*` | 12 routes |
+| Workflow spec | `docs/lexos-system-spec/05 *.md` | ~3,800 lines |
+
+### Conversion Plan Summary
+
+1. **Plugin Identity**: `lexos_litigation` vertical plugin, version `1.0.0-mvo`, development mode only
+2. **Work Request Types**: 11 types mapped from W0–W11 workflows
+3. **LinkBot Roles**: 10 roles defined (intake, custodian, story, evidence, analyst, strategist, librarian, advocate, adversary, rhetorician)
+4. **Capability Plugins**: 9 capabilities required (storage, extraction, research, LLM, CRM/Plane stubs)
+5. **LiNKautowork Hooks**: 5 workflow handles defined
+6. **Data Objects**: 21 tables mapped from LEXOS schema
+7. **UI Panels**: 11 LiNKaios panels defined
+
+### User Decisions Required
+
+| Question | Status |
+|----------|--------|
+| Which jurisdiction for MVO? | Open |
+| Plaintiff-side or defense-side priority? | Open |
+| Is W10 (visual exhibits) in MVO? | Open |
+| Extraction provider choice? | Open |
+
+### Follow-Up Packets Created
+
+| Packet | Objective | Priority |
+|--------|-----------|----------|
+| WP-085 | Copy/adapt LEXOS core schema | High |
+| WP-086 | Copy/adapt workflow state tables | High |
+| WP-087 | Copy/adapt artifact tables | Medium |
+| WP-088 | Generate TypeScript types | High |
+| WP-089 | Define work request/response types | High |
+| WP-090 | Adapt server mutations | Medium |
+| WP-091 | Adapt server queries | Medium |
+| WP-092 | Adapt layout components | Medium |
+| WP-093 | Adapt feature workspaces | Low |
+| WP-094 | Create capability manifests | Medium |
+| WP-095 | Create LinkBot role contracts | Medium |
+| WP-096 | Create LiNKautowork workflow hooks | Medium |
+
+### Architecture Boundaries Verified
+
+- ✅ LEXOS does not own tenant registry (LiNKaios owns)
+- ✅ LEXOS does not own capability catalog (LinkSkills owns)
+- ✅ LEXOS does not own event ledger (LiNKbrain owns)
+- ✅ LEXOS does not own deterministic workflow execution (LiNKautowork owns)
+- ✅ LEXOS owns litigation-specific work request types and W0–W11 workflow definitions
+- ✅ LEXOS owns legal-domain data objects (clients, matters, evidence, assertions)
+
+### Proof of No Code Movement
+
+- No modifications made to `/Users/linktrend/Projects/LiNKtrend-LEXOS`
+- `git -C /Users/linktrend/Projects/LiNKtrend-LEXOS status --short` shows clean status
+- Only planning documents created in `.ai-swarm/` and `.ai-swarm/WORK_PACKETS/`
+
+### Blockers
+
+None. Ready for Integrator review and follow-up packet assignment.
