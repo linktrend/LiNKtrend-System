@@ -2405,3 +2405,201 @@ None. Schema adaptation complete. No application code or database application pe
 3. WP-097: Generate TypeScript types from adapted schema
 4. Schema migration to development Supabase when ready
 
+
+---
+
+## WP-097 — LEXOS TypeScript Types Generation (2026-05-17)
+
+**Status:** COMPLETE
+
+### Scope
+
+- `packages/db/src/types/lexos/database.ts` - Database types for all LEXOS tables
+- `packages/linklogic-sdk/src/lexos-contracts.ts` - Zod schemas and work request/response types
+- Update `packages/linklogic-sdk/src/index.ts` - Export LEXOS types from SDK
+- Update `packages/db/package.json` - Add subpath exports for types
+
+### Files Changed
+
+```
+M  packages/db/package.json
+A  packages/db/src/types/lexos/database.ts (30,129 bytes)
+M  packages/linklogic-sdk/src/index.ts
+A  packages/linklogic-sdk/src/lexos-contracts.ts (26,082 bytes)
+```
+
+### Database Types Generated (packages/db/src/types/lexos/database.ts)
+
+**Core Tables:**
+- `LexosUserProfile` / `Insert` / `Update` - App-specific user metadata
+- `LexosIntakeRecord` / `Insert` / `Update` - W0 intake workflow state
+- `LexosIntakeGroup` / `Insert` - Related prospective clients
+- `LexosClientCandidate` / `Insert` - Prospective clients during intake
+- `LexosMatterCandidate` / `Insert` - Candidate matters during intake
+- `LexosIntakeTask` / `Insert` - W0 subagent/manual tasks
+- `LexosClient` / `Insert` / `Update` - Accepted client records
+- `LexosMatter` / `Insert` / `Update` - Legal matters under clients
+
+**Evidence Tables:**
+- `LexosSource` / `Insert` - Source containers for evidence
+- `LexosEvidence` / `Insert` - Canonical evidence objects
+- `LexosEvidenceExtraction` / `Insert` - OCR/text extraction results
+
+**Assertion & Support Tables:**
+- `LexosCaseStory` / `Insert` - W2 case story artifacts
+- `LexosAssertion` / `Insert` - Atomic factual/legal assertions
+- `LexosSupportMatrixItem` / `Insert` - Evidence-to-assertion mappings
+- `LexosRisk` / `Insert` - Legal/factual/evidentiary risks
+
+**Enum Types (25+):**
+- `LexosUserRole`, `LexosUserStatus`, `LexosIntakeStatus`
+- `LexosConflictStatus`, `LexosKycStatus`, `LexosEngagementStatus`
+- `LexosConfidentialityStatus`, `LexosPrivilegeStatus`
+- `LexosPosture`, `LexosMatterStatus`, `LexosWorkflowStage`
+- `LexosTaskStatus`, `LexosEvidenceMediaType`, `LexosProcessingStatus`
+- `LexosExtractionType`, `LexosExtractionQualityStatus`
+- `LexosCaseStoryStatus`, `LexosTruthState`, `LexosSupportState`
+- `LexosAssertionUseStatus`, `LexosRiskSeverity`, `LexosRiskStatus`
+
+**JSON Helper Types:**
+- `LexosContactDetails`, `LexosAdverseParty`, `LexosDeadlineFlag`
+- `LexosQualityFlag`, `LexosTimecodedSegment`, `LexosFrameReference`
+
+**Table Constants:**
+- `LEXOS_TABLES` - Object with all table names
+- `LexosTableName` - Union type of table names
+- `LexosDbRowMap` - Map of table names to row types
+
+### SDK Contract Types (packages/linklogic-sdk/src/lexos-contracts.ts)
+
+**Plugin Constants:**
+- `LEXOS_PLUGIN_ID = "lexos_litigation"`
+- `LEXOS_PLUGIN_NAME = "LEXOS Litigation"`
+- `LEXOS_PLUGIN_VERSION = "1.0.0-mvo"`
+- `LEXOS_WORKFLOW_STAGES` - W0 through W11
+- `LEXOS_STAGE_DISPLAY_NAMES` - Human-readable stage names
+- `LEXOS_ROLE_DISPLAY_NAMES` - Human-readable role names
+
+**Zod Schemas:**
+- `LexosWorkRequestTypeSchema` - 11 work request types
+- `LexosRoleIdSchema` - 10 LinkBot role IDs
+- `LexosCapabilityIdSchema` - 10 capability plugin IDs
+- `LexosWorkflowHandleSchema` - 5 LiNKautowork workflow handles
+- `LexosAuditEventTypeSchema` - Core + LEXOS-specific events
+
+**Work Request/Response Schemas (per CONTRACTS_MVO.md patterns):**
+
+| Request Type | Request Schema | Result Schema |
+|--------------|----------------|---------------|
+| `lexos.intake.new` | `LexosIntakeNewRequestSchema` | `LexosIntakeNewResultSchema` |
+| `lexos.matter.create` | `LexosMatterCreateRequestSchema` | `LexosMatterCreateResultSchema` |
+| `lexos.story.develop` | `LexosStoryDevelopRequestSchema` | `LexosStoryDevelopResultSchema` |
+| `lexos.evidence.ingest` | `LexosEvidenceIngestRequestSchema` | `LexosEvidenceIngestResultSchema` |
+| `lexos.assertions.extract` | `LexosAssertionsExtractRequestSchema` | `LexosAssertionsExtractResultSchema` |
+| `lexos.support.map` | `LexosSupportMapRequestSchema` | `LexosSupportMapResultSchema` |
+| `lexos.strategy.develop` | `LexosStrategyDevelopRequestSchema` | `LexosStrategyDevelopResultSchema` |
+| `lexos.research.conduct` | `LexosResearchConductRequestSchema` | `LexosResearchConductResultSchema` |
+| `lexos.argument.draft` | `LexosArgumentDraftRequestSchema` | `LexosArgumentDraftResultSchema` |
+| `lexos.adversarial.review` | `LexosAdversarialReviewRequestSchema` | `LexosAdversarialReviewResultSchema` |
+| `lexos.output.generate` | `LexosOutputGenerateRequestSchema` | `LexosOutputGenerateResultSchema` |
+
+**Union Types:**
+- `LexosWorkRequestPayloadSchema` - Union of all request schemas
+- `LexosWorkResultSchema` - Union of all result schemas
+
+**Interface Types:**
+- `LexosWorkRequest` - Full work request envelope
+- `LexosMatterRef`, `LexosClientRef`, `LexosIntakeRef` - Domain references
+- `LexosRunOutput` - Analogous to LinkSites PreviewOutput
+
+**Capability Lease Schemas:**
+- `LexosCapabilityLeaseArgsSchema` - Per-capability argument schemas
+
+### SDK Exports (packages/linklogic-sdk/src/index.ts)
+
+All Zod schemas exported (e.g., `LexosIntakeNewRequestSchema`)
+All TypeScript types exported (e.g., `LexosIntakeNewRequest`, `LexosWorkRequestType`)
+
+### Commands Run
+
+```bash
+cd /Users/linktrend/Projects/LiNKtrend-System
+git fetch origin --prune
+git worktree add ../LiNKtrend-System-WP-097 -b dev/cursor/WP-097-lexos-types-generation origin/development
+cd ../LiNKtrend-System-WP-097
+git status --short --branch
+
+# Create types
+mkdir -p packages/db/src/types/lexos
+cat > packages/db/src/types/lexos/database.ts << 'TYPES_EOF'
+# ... database types content (1,911 lines)
+TYPES_EOF
+
+cat > packages/linklogic-sdk/src/lexos-contracts.ts << 'CONTRACTS_EOF'
+# ... contract types content (~650 lines)
+CONTRACTS_EOF
+
+# Update exports
+# ... edit packages/linklogic-sdk/src/index.ts
+# ... edit packages/db/package.json
+
+# Build and verify
+pnpm install
+pnpm build
+pnpm --filter @linktrend/linklogic-sdk test
+
+git add -A
+git commit -m "feat: add LEXOS schema types"
+git push -u origin dev/cursor/WP-097-lexos-types-generation
+```
+
+### Build Output
+
+```
+@linktrend/db:build: cache miss, executing 05dcba9aef5d15b9
+@linktrend/db:build: > tsc -p tsconfig.json
+@linktrend/db:build: ✓ success
+
+@linktrend/linklogic-sdk:build: cache miss, executing 0d557136b2a10d0e
+@linktrend/linklogic-sdk:build: > tsc -p tsconfig.json
+@linktrend/linklogic-sdk:build: ✓ success
+```
+
+### Test Results
+
+```
+✓ src/validation/skill.test.ts (4 tests)
+✓ src/context-assembly.test.ts (33 tests)
+✓ src/contracts-mvo.test.ts (44 tests)
+✓ src/brain-memory.test.ts (40 tests)
+...
+Test Files  15 passed (15)
+Tests       169 passed (169)
+```
+
+### Proof
+
+```bash
+# Type files exist
+ls -la packages/db/src/types/lexos/database.ts
+ls -la packages/linklogic-sdk/src/lexos-contracts.ts
+
+# Types are importable
+head -10 packages/linklogic-sdk/src/index.ts | grep -i lexos
+# exports LEXOS types
+
+# Build artifacts exist
+ls -la packages/db/dist/types/lexos/database.d.ts
+ls -la packages/linklogic-sdk/dist/lexos-contracts.d.ts
+```
+
+### Blockers / Risks
+
+None. All types compile without errors. All 169 SDK tests pass.
+
+### Next Steps
+
+1. WP-098: Define LEXOS-specific integration tests
+2. WP-099: Adapt server mutation patterns to LiNKaios plugin
+3. WP-100: Adapt server query patterns to LiNKaios plugin
+
