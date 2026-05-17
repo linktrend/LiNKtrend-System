@@ -823,3 +823,67 @@ Focused test run output:
 
 - Branch: `dev/codex/WP-074-linkautowork-template-registry`
 - Commit SHA: `e4ef82c`
+
+## WP-071 — LiNKautowork real capability calls (2026-05-17)
+
+### Objective
+
+Replace pure in-memory LinkSites v2 write/readiness stubs with development-mode capability adapters that call Supabase/Payload surfaces when configured, while preserving strict lease gates and deterministic fallback behavior.
+
+### Files Changed
+
+- `LiNKautowork/gateway/src/workflows/linksites-v2.ts`
+- `LiNKautowork/gateway/src/lib/supabase-client.ts` (new)
+- `LiNKautowork/gateway/src/lib/payload-client.ts` (new)
+- `LiNKautowork/gateway/src/lib/linksites-v2.integration.test.ts` (new)
+- `.ai-swarm/AGENT_REPORTS/linkautowork-agent.md`
+
+### Commands Run
+
+```bash
+git status --short --branch
+git fetch origin --prune
+git worktree add ../LiNKtrend-System-WP-071 -b dev/codex/WP-071-linkautowork-real-capability-calls origin/development
+sed -n '1,220p' .ai-swarm/AGENT_PROMPTS/WP-071-linkautowork-real-capability-calls.prompt.md
+sed -n '1,260p' .ai-swarm/WORK_PACKETS/WP-071-linkautowork-real-capability-calls.md
+sed -n '1,260p' .ai-swarm/LINKSITES_TEMPLATE_PAYLOAD_DISCOVERY.md
+sed -n '1,260p' /Users/linktrend/Projects/LiNKsites/supabase/schemas/cms-mapping.json
+pnpm install
+pnpm --filter @linktrend/autowork-gateway test -- src/workflows/linksites-v2.test.ts src/lib/linksites-v2.integration.test.ts
+```
+
+### Validation / Tests
+
+- Focused adapter/workflow proof:
+  - `pnpm --filter @linktrend/autowork-gateway test -- src/workflows/linksites-v2.test.ts src/lib/linksites-v2.integration.test.ts`
+- Result: pass (`9` files, `41` tests).
+- New targeted proof includes:
+  - `src/lib/linksites-v2.integration.test.ts`:
+    - `writes to Supabase mirror tables via REST`
+    - `syncs to Payload and checks readiness`
+
+### Behavior Notes
+
+- `supabase_mirror_upsert` now calls a typed `SupabaseMirrorClient`:
+  - `upsertSiteContent(...)`
+  - `upsertAssetRefs(...)`
+- `payload_sync_local` and `preview_readiness_check` now call a typed `PayloadSyncClient`:
+  - `syncFromMirror(...)`
+  - `checkReadiness(...)`
+- Write handles still fail closed without `lease_id`.
+- If local Supabase/Payload env is not configured, handlers return deterministic development fallback outputs (stub-compatible) instead of hard failure; real calls activate when env is configured.
+
+### Discovery-bound schema usage
+
+- Reused WP-042 discovery evidence from `/Users/linktrend/Projects/LiNKsites/supabase/schemas/cms-mapping.json`.
+- Default table/collection refs are grounded to discovered names (`sites`, `media`, `site-settings`, `pages`) and remain overrideable via env in dev mode.
+
+### Blockers / Gaps
+
+- Real local service proof artifacts requested by WP-071 (Supabase Studio screenshot, Payload Admin screenshot) are not produced in this run because no local Supabase/Payload instances were started/configured in this packet execution environment.
+- Adapter tests are mock-backed transport verification; they prove request/response behavior and workflow wiring, but not live service mutation.
+
+### Branch / Commit
+
+- Branch: `dev/codex/WP-071-linkautowork-real-capability-calls`
+- Commit SHA: pending in this packet run
