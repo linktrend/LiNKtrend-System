@@ -66,6 +66,53 @@ git rev-parse HEAD
 
 ---
 
+## WP-106 — LiNKapps vertical plugin manifest (`linkapps.app_factory`) (2026-05-17)
+
+**Status:** COMPLETE
+
+### Scope
+
+- `plugins/vertical/linkapps/manifest.yaml`
+- `.ai-swarm/AGENT_REPORTS/integration-agent.md`
+
+### Implementation summary
+
+Declared the Phase 5 App Factory vertical per `LINKAPPS_VERTICAL_PLUGIN_CONVERSION_PLAN.md` (linked work packet WP-085) and `CONTRACTS_MVO.md` §1.2: phases 5.1–5.7 stages, fourteen `required_linkbot_roles`, required capability IDs, LiNKautowork handles, audit events, LiNKaios UI/read surfaces, preview output shape, and explicit `non_goals`. YAML only — no loader wiring.
+
+### Commands run
+
+```bash
+ruby -ryaml -e "YAML.load_file('plugins/vertical/linkapps/manifest.yaml')"
+```
+
+(YAML syntax check only.)
+
+### Proof
+
+- Structural self-review against `CONTRACTS_MVO.md` `PluginManifest` shape and `PLUGIN_ARCHITECTURE_V2.md` §1 qualitative checklist (`public_surfaces`, stages, planes, lifecycle ownership).
+- `modes_supported`: `development` only (no shadow/live for MVO), per WP-106 prompt boundaries.
+
+### Schema / validation gaps (expected)
+
+- Repo has no kernel YAML loader for `plugins/**/*.yaml`; this file is authoritative text until WP-112 / kernel registration aligns with `PLUGINManifest` typings in `@linktrend/linklogic-sdk`.
+- `required_audit_events` includes `role.*` and `linkapps.*` verbs extending beyond `CONTRACTS_MVO.md` §6.3.1’s enumerated **initial** `action` set; canonical registration assumes “agents may add via decision row, never rename” (same tension as richer vertical manifests needing registry extension).
+- `required_workflow_hooks` and capability plugin IDs are not validated against LiNKautowork or LinkSkills boot catalogs in this repo (handles not implemented yet).
+
+### Changed files
+
+- `plugins/vertical/linkapps/manifest.yaml` (created)
+- `.ai-swarm/AGENT_REPORTS/integration-agent.md` (this entry)
+
+### Blockers
+
+- None for declaration scope.
+
+### Next step
+
+- WP-109 / WP-108 / WP-112: register workflows, lease matrix, and capability contracts; wire manifest into kernel when implementation packets land.
+
+---
+
 ## WP-051 — Kernel to LiNKautowork v2 handle integration (2026-05-15)
 
 **Status:** COMPLETE
