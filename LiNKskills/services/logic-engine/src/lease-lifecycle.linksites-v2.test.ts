@@ -4,8 +4,8 @@ import type { Env } from "@linktrend/shared-config";
 import type { LeaseRequest } from "@linktrend/linklogic-sdk";
 import { requestLease } from "./lease-lifecycle.js";
 
-vi.mock("./kill-switch.js", () => ({
-  isKillSwitchTripped: vi.fn(),
+vi.mock("./safety.js", () => ({
+  checkKillSwitch: vi.fn(),
 }));
 
 vi.mock("./capability-catalog.js", () => ({
@@ -22,7 +22,7 @@ vi.mock("./audit-events.js", () => ({
   emitCapabilityOutput: vi.fn(),
 }));
 
-import { isKillSwitchTripped } from "./kill-switch.js";
+import { checkKillSwitch } from "./safety.js";
 import {
   capabilityExists,
   getCapabilityPolicy,
@@ -61,7 +61,7 @@ describe("LinkSites v2 lease request behavior", () => {
 
   it("requests a new lease in safe mode and returns requires_approval", async () => {
     vi.mocked(capabilityExists).mockResolvedValue(true);
-    vi.mocked(isKillSwitchTripped).mockResolvedValue(false);
+    vi.mocked(checkKillSwitch).mockResolvedValue({ state: "open", level: 1, reason: null });
     vi.mocked(getCapabilityPolicy).mockResolvedValue("require_approval");
     vi.mocked(isWriteCapableLinksitesV2Capability).mockReturnValue(false);
 
@@ -81,7 +81,7 @@ describe("LinkSites v2 lease request behavior", () => {
 
   it("denies lease when kill switch is tripped", async () => {
     vi.mocked(capabilityExists).mockResolvedValue(true);
-    vi.mocked(isKillSwitchTripped).mockResolvedValue(true);
+    vi.mocked(checkKillSwitch).mockResolvedValue({ state: "tripped", level: 1, reason: "capability tripped" });
     vi.mocked(isWriteCapableLinksitesV2Capability).mockReturnValue(false);
 
     const client = createMockClient((fn) => {
@@ -98,7 +98,7 @@ describe("LinkSites v2 lease request behavior", () => {
 
   it("returns existing lease for idempotent replay", async () => {
     vi.mocked(capabilityExists).mockResolvedValue(true);
-    vi.mocked(isKillSwitchTripped).mockResolvedValue(false);
+    vi.mocked(checkKillSwitch).mockResolvedValue({ state: "open", level: 1, reason: null });
     vi.mocked(isWriteCapableLinksitesV2Capability).mockReturnValue(false);
 
     const client = createMockClient((fn) => {

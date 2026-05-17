@@ -52,6 +52,14 @@ export {
   listKillSwitches,
   getKillSwitch,
 } from "./kill-switch.js";
+export {
+  checkKillSwitch,
+  evaluateSafetyTriggers,
+  getSafetyKillSwitch,
+  listSafetyKillSwitches,
+  resetSafetyKillSwitch,
+  tripSafetyKillSwitch,
+} from "./safety.js";
 
 // Capability catalog
 export {

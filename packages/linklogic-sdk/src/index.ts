@@ -77,6 +77,12 @@ export type {
   ValidationIssue,
   ValidationResult,
 } from "./types/skill.js";
+export type {
+  KillSwitchConfig,
+  KillSwitchLevel,
+  KillSwitchStateV2,
+  SafetyTriggerInput,
+} from "./types/safety.js";
 
 export {
   ensureRuntimeBlockedRequest,
