@@ -17,6 +17,7 @@ import type {
 } from "@linktrend/linklogic-sdk";
 import type { WorkflowContext, WorkflowDefinition } from "../types/index.js";
 import { createAuditEmitter } from "./audit-emitter.js";
+import { ExponentialBackoffPolicy, sleepMs } from "./retry-policy.js";
 
 /**
  * In-memory result cache for idempotency (MVO stub).
@@ -125,79 +126,115 @@ export async function invokeWorkflow(
   }
 
   const workflow_run_id = randomUUID();
-  const context: WorkflowContext = {
-    env: {},
-    tenant_id: request.tenant_id,
-    run_id: request.run_id,
-    stage_id: request.stage_id,
-    workflow_run_id,
-    lease_id: request.lease_id,
-    idempotency_key: request.idempotency_key,
-  };
+  const retryPolicy = new ExponentialBackoffPolicy();
+  const handler = workflow.handler;
+  const attemptAuditEventIds: string[] = [];
 
-  try {
-    const handler = workflow.handler;
-    const result = await handler(request, context);
+  for (let attempt = 1; attempt <= retryPolicy.maxAttempts; attempt += 1) {
+    const context = {
+      env: {},
+      tenant_id: request.tenant_id,
+      run_id: request.run_id,
+      stage_id: request.stage_id,
+      workflow_run_id,
+      lease_id: request.lease_id,
+      idempotency_key: request.idempotency_key,
+      attempt,
+    } as WorkflowContext & { attempt: number };
 
-    if ("failure" in result) {
-      // Handler returned a failure
-      const status: WorkflowRunStatus = "failed";
+    try {
+      const result = await handler(request, context);
+
+      if ("failure" in result) {
+        attemptAuditEventIds.push(...result.audit_event_ids);
+        const failure: FailureReport = {
+          ...result.failure,
+          plane: "linkautowork",
+          occurred_at: new Date().toISOString(),
+        };
+        const shouldRetry = retryPolicy.shouldRetry(failure, attempt);
+        if (!shouldRetry) {
+          const status: WorkflowRunStatus = "failed";
+          const finalResult: WorkflowInvokeResult = {
+            workflow_run_id,
+            status,
+            audit_event_ids: attemptAuditEventIds,
+            failure: attempt >= retryPolicy.maxAttempts
+              ? { ...failure, details: { ...(failure.details ?? {}), retry_exhausted: true } }
+              : failure,
+          };
+          idempotencyCache.set(request.idempotency_key, finalResult);
+          return finalResult;
+        }
+
+        await sleepMs(retryPolicy.getDelayMs(attempt));
+        continue;
+      }
+
+      const status: WorkflowRunStatus = "succeeded";
       const finalResult: WorkflowInvokeResult = {
         workflow_run_id,
         status,
-        audit_event_ids: result.audit_event_ids,
-        failure: result.failure as FailureReport,
+        outputs: result.outputs as Record<string, unknown>,
+        audit_event_ids: attemptAuditEventIds.length > 0
+          ? [...attemptAuditEventIds, ...result.audit_event_ids]
+          : result.audit_event_ids,
+      };
+      idempotencyCache.set(request.idempotency_key, finalResult);
+      return finalResult;
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Unexpected workflow error";
+      const failure: FailureReport = {
+        code: "WORKFLOW_STEP_FAILED",
+        plane: "linkautowork",
+        message: errorMessage,
+        retryable: true,
+        occurred_at: new Date().toISOString(),
       };
 
-      // Cache the failure for idempotency
-      idempotencyCache.set(request.idempotency_key, finalResult);
+      const shouldRetry = retryPolicy.shouldRetry(failure, attempt);
+      if (!shouldRetry) {
+        const auditEmitterInternal = createAuditEmitter(deps.writeAuditEvent);
+        const invokedEventId = await auditEmitterInternal.emitInvoked(request, workflow_run_id);
+        const failedEventId = await auditEmitterInternal.emitFailed(
+          request,
+          workflow_run_id,
+          { code: failure.code, message: failure.message, retryable: failure.retryable },
+          invokedEventId,
+        );
 
-      return finalResult;
+        const finalResult: WorkflowInvokeResult = {
+          workflow_run_id,
+          status: "failed",
+          audit_event_ids: [invokedEventId, failedEventId],
+          failure: attempt >= retryPolicy.maxAttempts
+            ? { ...failure, details: { retry_exhausted: true } }
+            : failure,
+        };
+        idempotencyCache.set(request.idempotency_key, finalResult);
+        return finalResult;
+      }
+
+      await sleepMs(retryPolicy.getDelayMs(attempt));
     }
-
-    // Handler succeeded
-    const status: WorkflowRunStatus = "succeeded";
-    const finalResult: WorkflowInvokeResult = {
-      workflow_run_id,
-      status,
-      outputs: result.outputs as Record<string, unknown>,
-      audit_event_ids: result.audit_event_ids,
-    };
-
-    // Cache the success for idempotency
-    idempotencyCache.set(request.idempotency_key, finalResult);
-
-    return finalResult;
-  } catch (error) {
-    // Unexpected error during handler execution
-    const errorMessage = error instanceof Error ? error.message : "Unexpected workflow error";
-    const failure: FailureReport = {
-      code: "WORKFLOW_STEP_FAILED",
-      plane: "linkautowork",
-      message: errorMessage,
-      retryable: true,
-      occurred_at: new Date().toISOString(),
-    };
-
-    // Emit workflow.failed via audit emitter
-    const auditEmitterInternal = createAuditEmitter(deps.writeAuditEvent);
-    const invokedEventId = await auditEmitterInternal.emitInvoked(request, workflow_run_id);
-    const failedEventId = await auditEmitterInternal.emitFailed(
-      request,
-      workflow_run_id,
-      { code: failure.code, message: failure.message, retryable: failure.retryable },
-      invokedEventId,
-    );
-
-    const finalResult: WorkflowInvokeResult = {
-      workflow_run_id,
-      status: "failed",
-      audit_event_ids: [invokedEventId, failedEventId],
-      failure,
-    };
-
-    return finalResult;
   }
+
+  const exhaustedFailure: FailureReport = {
+    code: "WORKFLOW_STEP_FAILED",
+    plane: "linkautowork",
+    message: "Retry attempts exhausted",
+    retryable: false,
+    details: { retry_exhausted: true },
+    occurred_at: new Date().toISOString(),
+  };
+  const fallbackResult: WorkflowInvokeResult = {
+    workflow_run_id,
+    status: "failed",
+    audit_event_ids: [],
+    failure: exhaustedFailure,
+  };
+  idempotencyCache.set(request.idempotency_key, fallbackResult);
+  return fallbackResult;
 }
 
 // makeErrorResult is no longer used - errors now emit proper audit events inline

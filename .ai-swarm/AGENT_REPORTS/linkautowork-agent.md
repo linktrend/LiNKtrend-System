@@ -433,3 +433,62 @@ git switch -c dev/codex/WP-059-linkautowork-completion-plan-runtime-hardening
 
 - Branch: `dev/codex/WP-059-linkautowork-completion-plan-runtime-hardening`
 - Commit: `docs: define LiNKautowork completion plan`
+
+---
+
+## WP-069 — LiNKautowork retry backoff (2026-05-17)
+
+### Objective
+
+Implement deterministic retry behavior in LiNKautowork workflow invocation with exponential backoff (`1s`, `4s`, `16s`), max 3 attempts, and fail-fast for non-retryable failures.
+
+### Files Changed
+
+- `LiNKautowork/gateway/src/lib/retry-policy.ts` (new)
+- `LiNKautowork/gateway/src/lib/workflow-runner.ts` (modified)
+- `LiNKautowork/gateway/src/lib/retry-policy.test.ts` (new)
+- `.ai-swarm/AGENT_REPORTS/linkautowork-agent.md` (updated)
+
+### Commands Run
+
+```bash
+git fetch origin --prune
+git worktree add ../LiNKtrend-System-WP-069 -b dev/codex/WP-069-linkautowork-retry-backoff origin/development
+git status --short --branch
+pnpm install
+pnpm --filter @linktrend/autowork-gateway test
+pnpm --filter @linktrend/linklogic-sdk build
+pnpm --filter @linktrend/autowork-gateway typecheck
+```
+
+### Validation Results
+
+- `pnpm --filter @linktrend/autowork-gateway test`:
+  - Passed: `3` test files, `19` tests.
+  - Includes new retry coverage:
+    - success on first attempt
+    - success after retry
+    - retry exhaustion after 3 attempts
+    - fail-fast on non-retryable code
+- `pnpm --filter @linktrend/linklogic-sdk build` and `pnpm --filter @linktrend/autowork-gateway typecheck`:
+  - Blocked by pre-existing workspace TypeScript module-resolution errors (`@linktrend/shared-config`, `@linktrend/db`, `@linktrend/shared-types`, etc.) outside WP-069 scope.
+
+### Proof / Notes
+
+- Added `ExponentialBackoffPolicy` with `maxAttempts=3`, `delaysMs=[1000,4000,16000]`, and fail-fast code set:
+  - `WORKFLOW_NOT_FOUND`
+  - `LEASE_DENIED`
+  - `LEASE_KILL_SWITCH`
+  - `LEASE_REQUEST_INVALID`
+- `invokeWorkflow` now retries retryable failures and tracks `attempt` in runtime context (`attempt: 1..3`).
+- Final exhausted failures include `failure.details.retry_exhausted = true`.
+- Idempotency caching behavior preserved for both success and final failure results.
+
+### Branch / Commit
+
+- Branch: `dev/codex/WP-069-linkautowork-retry-backoff`
+- Commit SHA: _pending commit_
+
+### Blockers
+
+- Workspace typecheck/build failures are pre-existing and out-of-scope for this packet.
