@@ -64,15 +64,15 @@ describe("capability-catalog-api", () => {
 
   it("registers a valid capability manifest", async () => {
     const client = new FakeClient([]);
-    const result = await registerCapability(client as never, V1_MVO_CAPABILITY_SEEDS[1]);
+    const result = await registerCapability(client as never, V1_MVO_CAPABILITY_SEEDS[1]!);
     expect(result.error).toBeNull();
     expect(result.data?.capability_id).toBe("cap.accounting.odoo_shadow");
   });
 
   it("rejects invalid manifest when not_configured is empty", async () => {
     const client = new FakeClient([]);
-    const bad = { ...V1_MVO_CAPABILITY_SEEDS[0], not_configured: [] };
-    const result = await registerCapability(client as never, bad);
+    const bad = { ...V1_MVO_CAPABILITY_SEEDS[0], not_configured: [] as [] };
+    const result = await registerCapability(client as never, bad as never);
     expect(result.data).toBeNull();
     expect(result.error?.message).toContain("not_configured must not be empty");
   });

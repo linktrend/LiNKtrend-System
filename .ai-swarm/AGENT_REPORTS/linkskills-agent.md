@@ -979,3 +979,50 @@ pnpm --filter @linktrend/linklogic-sdk typecheck
 
 - Branch: `dev/codex/WP-078-linkskills-kill-switch`
 - Commit SHA: `40e57c1`
+
+---
+
+## Assigned Work Packet
+
+**WP-081 — LinkSkills integration test harness**
+**Status:** COMPLETE
+**Date:** 2026-05-17
+
+## Objective
+
+Integration-style Vitest coverage for LinkSkills logic-engine: catalog-backed lease lifecycle, idempotency (replay/conflict/TTL), kill switches (capability trip + reset + global halt vs in-flight execute), and §6.3-shaped audit envelopes—without a live database or LiNKbrain RPC.
+
+## Files Changed
+
+- `LiNKskills/services/logic-engine/src/integration/supabase-harness.ts` — in-memory Supabase-shaped client (RPC + filtered queries).
+- `LiNKskills/services/logic-engine/src/integration/audit-sink.ts` — captured audit envelopes for assertions.
+- `LiNKskills/services/logic-engine/src/integration/integration-audit-envelopes.ts` — standalone envelope builders (avoids pulling `@linktrend/linklogic-sdk` runtime through Vitest when `dist/` is absent).
+- `LiNKskills/services/logic-engine/src/integration/integration-test-helpers.ts` — tenant/capability fixtures, audit getters, kill-switch helpers.
+- `LiNKskills/services/logic-engine/src/integration/linkskills-integration.test.ts` — suites for lifecycle, kill switch, idempotency, audit PII guardrails.
+- `LiNKskills/services/logic-engine/src/capability-catalog-api.test.ts` — satisfy strict TS on seed lookups (`exactOptionalPropertyTypes`).
+- `.ai-swarm/AGENT_REPORTS/linkskills-agent.md`
+
+## WP packet path note
+
+Work packet listed `packages/linkskills-core/tests/...`; that package does not exist in-repo. Implementation targets `LiNKskills/services/logic-engine/src/integration/` per active logic-engine layout and AGENT_PROMPT.
+
+## Disclosure / WP-080
+
+Progressive-disclosure issuance tests are intentionally omitted here (WP-080 surface); a placeholder test documents that dependency.
+
+## Proof
+
+```bash
+cd /Users/linktrend/Projects/LiNKtrend-System-WP-081
+pnpm install
+pnpm exec turbo run typecheck --filter=@linktrend/linkskills-logic-engine
+pnpm --filter @linktrend/linkskills-logic-engine test
+```
+
+- **Vitest:** `9` files, `83` tests passed (includes `13` new integration tests).
+- **Turbo typecheck:** PASS for `@linktrend/linkskills-logic-engine` after dependency builds.
+- **Coverage:** `@vitest/coverage-v8` is not declared in this package; skipped rather than adding a new devDependency without Integrator approval.
+
+## Branch and Commit
+
+- Branch: `dev/cursor/WP-081-linkskills-integration-tests`
