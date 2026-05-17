@@ -48,6 +48,7 @@ WP-065 Execute the prompt in file WP-065-linkbrain-audit-envelope-mapping-for-li
 WP-068 Execute the prompt in file WP-068-linkautowork-persistent-idempotency.prompt.md located in .ai-swarm/AGENT_PROMPTS/.
 WP-069 Execute the prompt in file WP-069-linkautowork-retry-backoff.prompt.md located in .ai-swarm/AGENT_PROMPTS/.
 WP-070 Execute the prompt in file WP-070-linkautowork-n8n-dev-gateway.prompt.md located in .ai-swarm/AGENT_PROMPTS/.
+WP-071 Execute the prompt in file WP-071-linkautowork-real-capability-calls.prompt.md located in .ai-swarm/AGENT_PROMPTS/.
 WP-072 Execute the prompt in file WP-072-linkautowork-health-metrics.prompt.md located in .ai-swarm/AGENT_PROMPTS/.
 WP-073 Execute the prompt in file WP-073-linkautowork-operator-controls.prompt.md located in .ai-swarm/AGENT_PROMPTS/.
 WP-074 Execute the prompt in file WP-074-linkautowork-template-registry.prompt.md located in .ai-swarm/AGENT_PROMPTS/.
@@ -56,4 +57,10 @@ WP-076 Execute the prompt in file WP-076-linkskills-capability-catalog-api.promp
 WP-077 Execute the prompt in file WP-077-linkskills-lease-lifecycle.prompt.md located in .ai-swarm/AGENT_PROMPTS/.
 WP-078 Execute the prompt in file WP-078-linkskills-kill-switch.prompt.md located in .ai-swarm/AGENT_PROMPTS/.
 WP-079 Execute the prompt in file WP-079-linkskills-golden-template.prompt.md located in .ai-swarm/AGENT_PROMPTS/.
+WP-080 Execute the prompt in file WP-080-linkskills-progressive-disclosure.prompt.md located in .ai-swarm/AGENT_PROMPTS/.
+WP-081 Execute the prompt in file WP-081-linkskills-integration-tests.prompt.md located in .ai-swarm/AGENT_PROMPTS/.
+WP-082 Execute the prompt in file WP-082-linkbrain-completion-plan-memory-retrieval.prompt.md located in .ai-swarm/AGENT_PROMPTS/.
+WP-083 Execute the prompt in file WP-083-linksites-completion-plan-payload-supabase-templates.prompt.md located in .ai-swarm/AGENT_PROMPTS/.
+WP-084 Execute the prompt in file WP-084-lexos-vertical-plugin-conversion-plan.prompt.md located in .ai-swarm/AGENT_PROMPTS/.
+WP-085 Execute the prompt in file WP-085-linkapps-vertical-plugin-conversion-plan.prompt.md located in .ai-swarm/AGENT_PROMPTS/.
 ```
