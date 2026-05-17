@@ -19,7 +19,7 @@ export async function getCapability(
 ): Promise<{ data: CapabilityCatalogRow | null; error: Error | null }> {
   const { data, error } = await client
     .schema("linkskills")
-    .from("capability_catalog")
+    .from("capabilities")
     .select("*")
     .eq("capability_id", capability_id)
     .maybeSingle();
@@ -73,19 +73,23 @@ export async function getCapabilityPolicy(
  */
 export async function listCapabilities(
   client: SupabaseClient,
-  params: { limit?: number; tenant_scoped_only?: boolean } = {},
+  params: { limit?: number; mode?: "development" | "shadow" | "live"; target_software?: string } = {},
 ): Promise<{ data: CapabilityCatalogRow[]; error: Error | null }> {
   const limit = params.limit ?? 100;
 
   let query = client
     .schema("linkskills")
-    .from("capability_catalog")
+    .from("capabilities")
     .select("*")
     .order("capability_id", { ascending: true })
     .limit(limit);
 
-  if (params.tenant_scoped_only) {
-    query = query.eq("tenant_scoped", true);
+  if (params.mode) {
+    query = query.contains("mode_flags", [params.mode]);
+  }
+
+  if (params.target_software) {
+    query = query.eq("target_software", params.target_software);
   }
 
   const { data, error } = await query;
