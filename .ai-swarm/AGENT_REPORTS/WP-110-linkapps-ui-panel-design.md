@@ -55,4 +55,4 @@ cd ../.. && pnpm exec turbo run typecheck --filter=@linktrend/linkaios-web   # f
 
 ## Commit SHA
 
-See **branch tip** after this packet lands (`git log -1 --format=%H` on `dev/cursor/WP-110-linkapps-ui-panel-design`).
+`c59e51c1765b57c9ef8be0a4cc7249222a16992a` (`docs: design LiNKapps UI panels`)
