@@ -54,7 +54,7 @@ live_execution_policy:
 ## Branch / commit
 
 - **Branch:** `dev/cursor/WP-112-linkapps-capability-plugin-contracts`
-- **Commit (branch tip):** `8df4640`
+- **Commit (branch tip):** `25e5c4d`
 
 ## Blockers
 
