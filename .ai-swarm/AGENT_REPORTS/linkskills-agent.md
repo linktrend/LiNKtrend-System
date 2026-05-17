@@ -1220,7 +1220,7 @@ git push -u origin dev/cursor/WP-108-linkapps-capability-requirements
 ## Final Branch and Commit
 
 - Branch: `dev/cursor/WP-108-linkapps-capability-requirements`
-- Commit SHA: `4947c71`
+- Commit SHA(s): **`4947c71`** delivers `LINKAPPS_CAPABILITY_REQUIREMENTS.md`; **`8e0f7a9`** updates this report proof block *(branch tip for WP-108)*.
 
 ## Blockers
 
