@@ -53,8 +53,9 @@ live_execution_policy:
 
 ## Branch / commit
 
-- **Branch:** `dev/cursor/WP-112-linkapps-capability-plugin-contracts`
-- **Commit (branch tip):** `25e5c4d`
+- **Branch (pushed):** `dev/cursor/WP-112-linkapps-capability-plugin-contracts` → `origin`
+- **Primary deliverable commit:** `c012de9` — manifests + `.ai-swarm/LINKAPPS_CAPABILITY_PLUGIN_CONTRACTS.md` + agent report (`docs: add LiNKapps capability contracts`)
+- **History:** subsequent commits are documentation/report touches only; inspect with `git log --oneline dev/cursor/WP-112-linkapps-capability-plugin-contracts`
 
 ## Blockers
 
