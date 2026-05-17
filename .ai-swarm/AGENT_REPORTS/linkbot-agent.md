@@ -1,3 +1,78 @@
+# LinkBot Agent Report — WP-064
+
+**Agent:** LinkBot Agent
+**Work Packet:** WP-064 — LinkSkills lease projection and bot-runtime adapter
+**Date:** 2026-05-17
+**Status:** COMPLETE
+
+---
+
+## Objective
+
+Add a lease-governed LinkSkills adapter flow in `apps/bot-runtime` for skill/capability operations with lease-required + idempotent behavior.
+
+---
+
+## Files Changed
+
+- `apps/bot-runtime/src/linkskills-runtime-adapter.ts` (new)
+- `apps/bot-runtime/src/linkskills-runtime-adapter.test.ts` (new)
+- `apps/bot-runtime/src/index.ts` (export adapter)
+- `.ai-swarm/AGENT_REPORTS/linkbot-agent.md` (this update)
+
+---
+
+## Commands Run
+
+```bash
+git status --short --branch
+git fetch origin --prune
+git worktree add ../LiNKtrend-System-WP-064 -b dev/codex/WP-064-linkskills-lease-projection-and-bot-runtime-adapter origin/development
+sed -n '1,240p' .ai-swarm/AGENT_PROMPTS/WP-064-linkskills-lease-projection-and-bot-runtime-adapter.prompt.md
+sed -n '1,260p' .ai-swarm/WORK_PACKETS/WP-064-linkskills-lease-projection-and-bot-runtime-adapter.md
+rg --files apps/bot-runtime
+rg -n "lease|linkskills|capability|idempot|adapter|linkbot|governance" apps/bot-runtime -S
+pnpm install
+pnpm --filter @linktrend/bot-runtime test
+pnpm --filter @linktrend/linklogic-sdk build
+pnpm --filter @linktrend/bot-runtime exec vitest run src/linkskills-runtime-adapter.test.ts
+pnpm --filter @linktrend/bot-runtime typecheck
+```
+
+---
+
+## Proof / Validation
+
+- Added adapter that enforces:
+  - `lease_id` required for `capability.execute` / `skill.execute`
+  - operation surface derived from governance `approvedTools` (`cap.*` and `skill.*` only)
+  - lease-level operation check
+  - idempotent replay cache with conflict mapping to `LEASE_IDEMPOTENCY_CONFLICT`
+- Unit proof executed:
+  - `pnpm --filter @linktrend/bot-runtime exec vitest run src/linkskills-runtime-adapter.test.ts`
+  - Result: **pass** (`3/3` tests)
+  - Covered required cases: lease-required, deny, idempotent replay.
+
+---
+
+## Blockers / Risks
+
+- Workspace package resolution is currently broken for package-level test/typecheck in this worktree (pre-existing):
+  - `@linktrend/*` workspace modules are not resolved by `tsc`/Vitest across existing bot-runtime suites.
+  - This blocks full package-wide `pnpm --filter @linktrend/bot-runtime test` and `typecheck` from passing in the packet worktree.
+- WP-064 scoped adapter tests pass; broader workspace fix is out of this packet’s allowed scope.
+
+---
+
+## Branch and Commit
+
+- **Branch:** `dev/codex/WP-064-linkskills-lease-projection-and-bot-runtime-adapter`
+- **Commit SHA:** pending
+
+---
+
+## Historical Report Content Preserved
+
 # LinkBot Agent Report — WP-062
 
 **Agent:** LinkBot Agent
