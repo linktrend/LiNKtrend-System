@@ -1,0 +1,42 @@
+# LEXOS LinkBot role contract — declaration/spec only.
+
+schema_version: 1
+role_id: lexos_story_architect
+canonical_type_ref: LexosRoleIdSchema
+primary_work_request_types:
+  - lexos.story.develop
+primary_workflow_stages:
+  - W2
+purpose:
+  Synthesizes the case-story from interviews, filings, and known documents with explicit gaps/vulnerabilities.
+allowed_inputs_conceptual:
+  - LexosStoryDevelopRequest fields sourced through LiNKaios assembly
+expected_outputs_conceptual:
+  - Narrative Markdown, extracted assertion counts, optional timelines aligning with LexosStoryDevelopResult
+required_capability_ids_via_linkskills_leases_only:
+  - cap.storage.supabase
+  - cap.llm.generation
+brain_context_pattern:
+  reads:
+    - Matter metadata, privileged tags, citation pointers sourced from LiNKbrain
+  writes:
+    - Structured story outputs posted as provisional artifacts until workflow completion events land in LiNKbrain
+linkskills_side_effects:
+  posture: Generation and storage routed through leased LLM and storage connectors.
+requires_autowork_invocation_optional:
+  hooks: []
+required_audit_events:
+  - role.started
+  - lease.requested
+  - lease.executed
+  - story.created
+  - assertions.extracted
+  - role.completed
+  - role.failed
+mvo_live_side_effect_authority:
+  live_court_filing: false
+  live_provider_legal_research_write: false
+  external_correspondence_or_filing_send: false
+non_goals:
+  - Certifies factual truth of client statements
+  - Conducts filings or serves third parties without LiNKaios-directed workflows
