@@ -1,0 +1,86 @@
+---
+# Declaration-only capability plugin manifest — governance/readiness surfaces; no bundled implementation.
+manifest_version: '1.0'
+plugin_kind: capability
+kind_version: semantic
+capability_id: cap.storage.evidence
+
+target_software:
+  product: Supabase Storage
+  role_description: Holds original and derivative artifacts for LEXOS evidence workflow (W4) under tenant-scoped buckets.
+
+allowed_operations:
+  - id: evidence.store
+    lease_permission: storage.evidence.write
+    writes_side_effect: true
+    description: Store normalized evidence blobs with catalog metadata envelopes.
+  - id: original.preserve
+    lease_permission: storage.evidence.preserve_original
+    writes_side_effect: true
+    description: Persist immutable originals (hash-addressed); no in-place edits.
+  - id: derivative.store
+    lease_permission: storage.evidence.write_derivative
+    writes_side_effect: true
+    description: Persist derived previews, OCR output, parsed text artifacts linked to originals.
+
+auth_requirements:
+  note: Declare handles only — never embed secrets in manifests or repo.
+  tenant_config_refs:
+    - supabase.project_ref
+    - storage.evidence_bucket_ref
+    - supabase.credential_ref
+  requires_linkskills_registration: true
+
+mode_flags:
+  mvo_modes:
+    - development
+
+lease_requirements:
+  linkskills_permissions_hint:
+    - storage.evidence.write
+    - storage.evidence.preserve_original
+    - storage.evidence.write_derivative
+  mandatory_lease_claims:
+    - tenant_id
+    - run_id_or_work_request_id
+    - matter_scope_ref
+    - originating_stage_id
+
+idempotency_rules:
+  key_components:
+    - tenant_id
+    - matter_identifier
+    - evidence_object_id_or_stable_logical_key
+    - operation_id
+    - content_checksum_or_stable_version_token
+    - initiating_run_id
+  collision_policy: Return prior recorded outcome fingerprint on identical key replay; escalate conflict when checksum diverges under same logical key.
+
+audit_events:
+  minimum_outcomes:
+    - capability.requested
+    - capability.executed
+    - evidence.stored
+    - evidence.original.preservation_recorded
+    - evidence.derivative.linked
+    - capability.failed
+
+allowed_callers:
+  - vertical_plugin
+  - linkbot
+  - linkautowork
+
+failure_mapping:
+  INTEGRATION_UNAVAILABLE: Bucket unreachable, storage outage, TLS/network failure upstream of LinkSkills gateway.
+  INTEGRATION_AUTH_FAILED: Credential ref invalid or RLS/policy rejection at storage boundary when enforced.
+  INTEGRATION_TIMEOUT: Upload/download deadline exceeded during lease window.
+  LEASE_DENIED: Kill switch engaged, quota caps, tenant policy forbids artifact class.
+  LEASE_EXPIRED: Valid lease TTL elapsed before persistence completed.
+  LEASE_KILL_SWITCH: Global or tenant halt on evidence storage tier.
+  LEASE_REQUEST_INVALID: Missing checksum, mismatched scope, malformed evidence envelope.
+  LEASE_IDEMPOTENCY_CONFLICT: Duplicate operation under same logical key with divergent payloads.
+  MANIFEST_INVALID: Bucket or path template not registered for LEXOS tier.
+
+not_configured:
+  - LEXOS-owned evidence taxonomy rows, tagging rules, exhibits ordering, courtroom bundle assembly policy.
+  - Supabase RLS / storage policy authoring for arbitrary production tenancy (connector declares contracts only).
