@@ -473,3 +473,55 @@ pnpm --filter @linktrend/linklogic-sdk test
 
 - Branch: `dev/codex/WP-046-linksites-v2-sdk-contracts`
 - Commit: `faf9dd8`
+
+## WP-063 — LiNKaios ingress fail-closed governance adapter (2026-05-17)
+
+**Status:** COMPLETE (fail-closed governance validation at LinkBot dispatch + tests).
+
+### Files changed
+
+- `apps/linkaios-web/src/lib/kernel/dispatch.ts`
+  - Added strict `linktrendGovernance` ingress validation in `dispatchToLinkBot`.
+  - Enforced fail-closed rejection when governance payload is missing/invalid.
+  - Mapped rejection to canonical failure code `MANIFEST_INVALID`.
+  - Emitted denied dispatch audit event (`stage.failed`) with `governance_ingress_rejected` metadata.
+- `apps/linkaios-web/src/lib/kernel/dispatch.test.ts`
+  - Added coverage for valid governance dispatch success.
+  - Added coverage for missing governance payload fail-closed behavior.
+  - Added coverage for invalid governance payload shape fail-closed behavior.
+- `.ai-swarm/AGENT_REPORTS/linkaios-agent.md`
+  - Added this WP-063 entry.
+
+### Commands run
+
+```bash
+git fetch origin --prune
+git worktree add ../LiNKtrend-System-WP-063 -b dev/codex/WP-063-linkaios-ingress-fail-closed-governance-adapter origin/development
+git -C ../LiNKtrend-System-WP-063 status --short --branch
+
+pnpm install
+pnpm --filter @linktrend/linkaios-web test -- src/lib/kernel/dispatch.test.ts
+pnpm --filter @linktrend/linkaios-web typecheck
+pnpm -r build
+pnpm --filter @linktrend/linkaios-web test -- src/lib/kernel/dispatch.test.ts
+```
+
+### Validation / proof
+
+- `pnpm --filter @linktrend/linkaios-web test -- src/lib/kernel/dispatch.test.ts` passes.
+- `dispatchToLinkBot governance ingress` tests prove:
+  - valid governance dispatch still succeeds,
+  - missing governance payload is rejected fail-closed,
+  - invalid governance payload shape is rejected fail-closed,
+  - rejection uses canonical code `MANIFEST_INVALID`,
+  - denied dispatch audit behavior emits `stage.failed` with governance rejection metadata.
+
+### Blockers / risks
+
+- `pnpm --filter @linktrend/linkaios-web typecheck` fails in this repo baseline with broad pre-existing workspace TypeScript issues unrelated to WP-063.
+- `pnpm -r build` also hits an unrelated existing lint error in `apps/linkaios-web/src/lib/kernel/orchestrator.ts` (`prefer-const`).
+
+### Branch + commit SHA
+
+- Branch: `dev/codex/WP-063-linkaios-ingress-fail-closed-governance-adapter`
+- Commit SHA: pending
