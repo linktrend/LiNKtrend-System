@@ -645,3 +645,62 @@ Prometheus metrics proof is covered by `src/lib/health.test.ts` with assertions 
 
 - Branch: `dev/codex/WP-072-linkautowork-health-metrics`
 - Commit SHA: `a43e3c7`
+
+---
+
+## WP-074 — LiNKautowork Template Registry (2026-05-17)
+
+### Objective
+
+Add an additive, version-aware workflow template registry for LiNKautowork with file/n8n loading, validation, listing, version selection, and environment promotion.
+
+### Files Changed
+
+- `LiNKautowork/gateway/src/lib/template-registry.ts` (new)
+- `LiNKautowork/gateway/src/lib/template-registry.test.ts` (new)
+- `LiNKautowork/templates/schema.json` (new)
+- `LiNKautowork/templates/websitefactory-render.v1.json` (new)
+- `LiNKautowork/templates/websitefactory-render.v2.json` (new)
+- `.ai-swarm/AGENT_REPORTS/linkautowork-agent.md` (updated)
+
+### Commands Run
+
+```bash
+git fetch origin --prune
+git worktree add ../LiNKtrend-System-WP-074 -b dev/codex/WP-074-linkautowork-template-registry origin/development
+git -C ../LiNKtrend-System-WP-074 status --short --branch
+pnpm install
+pnpm --filter @linktrend/autowork-gateway test -- src/lib/template-registry.test.ts
+pnpm --filter @linktrend/autowork-gateway test -- src/lib/n8n-client.test.ts
+```
+
+### Proof
+
+- `TemplateRegistry` added with:
+  - `loadFromFile`, `loadFromN8n`, `loadAllFromDirectory`
+  - `register`, `get`, `list`, `listVersions`, `promote`
+  - strict runtime validation and clear validation errors
+- Versioned templates supported concurrently via `templateVersion` (example `v1`, `v2` for same handle).
+- Environment filtering and promotion verified by tests.
+- n8n template loading path verified through injected n8n loader tests.
+
+Focused test run output:
+
+- `✓ src/lib/template-registry.test.ts (7 tests)`
+- `Test Files 6 passed (6)`
+- `Tests 32 passed (32)`
+
+### Boundaries / Notes
+
+- Additive only: existing workflow handlers were not removed or altered.
+- No workflow contract shape changes.
+- No production automation or production n8n dependency introduced.
+
+### Blockers
+
+- None.
+
+### Branch / Commit
+
+- Branch: `dev/codex/WP-074-linkautowork-template-registry`
+- Commit SHA: recorded in packet handoff after commit/push
