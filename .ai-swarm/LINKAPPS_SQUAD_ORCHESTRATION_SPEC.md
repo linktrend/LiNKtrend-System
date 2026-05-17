@@ -51,7 +51,7 @@ For each Phase 5 substage that requires judgment:
 6. **Persist outputs:** Store **`outputs`** as stage artifacts (refs + typed summaries); emit `linkapps.role.completed` or failure path events.
 7. **Hand off deterministic work:** If substage requires builds/tests/deploy, enqueue LiNKautowork per **`CONTRACTS_MVO.md` §6.4** — LinkBot never runs those workflows directly.
 
-Parallel specialists within one substage (e.g. FE + BE)**:** kernel may issue **multiple `bot.reason` dispatches** with distinct `stage_id` slices (or child stage IDs) only when **file boundaries / role domains** do not overlap; otherwise serialize or split stages to avoid **`INTEGRATION_UNAVAILABLE`**-class contention (same principle as LiNKapps orchestrator domain boundaries).
+**Parallel specialists within one substage (e.g. FE + BE):** kernel may issue **multiple `bot.reason` dispatches** with distinct `stage_id` slices (or child stage IDs) only when **file boundaries / role domains** do not overlap; otherwise serialize or split stages to avoid **`INTEGRATION_UNAVAILABLE`**-class contention (same principle as LiNKapps orchestrator domain boundaries).
 
 ---
 
