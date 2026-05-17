@@ -1,7 +1,7 @@
 # LinkSkills cross-vertical capability catalog (WP-114)
 
-**Status:** declaration-only seeds + reconciliation (no runtime).  
-**Machine-readable seeds:** `packages/linkaios-kernel/plugins/capabilities/catalog/seeds/cross_vertical_catalog.v1.yaml`  
+**Status:** declaration-only seeds + reconciliation (no runtime).
+**Machine-readable seeds:** `packages/linkaios-kernel/plugins/capabilities/catalog/seeds/cross_vertical_catalog.v1.yaml`
 **Loader checklist:** `packages/linkaios-kernel/plugins/capabilities/catalog/LOADER_GUIDANCE.v1.yaml`
 
 ## 1. Capability inventory — by source family

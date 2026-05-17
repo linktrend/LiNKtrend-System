@@ -1,8 +1,8 @@
 # LEXOS LiNKautowork Workflow Hooks
 
-**Work Packet:** WP-105  
-**Status:** Implementation Complete  
-**Date:** 2026-05-17  
+**Work Packet:** WP-105
+**Status:** Implementation Complete
+**Date:** 2026-05-17
 
 ---
 

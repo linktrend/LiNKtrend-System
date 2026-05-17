@@ -1,7 +1,7 @@
 # LiNKapps App Factory — LiNKaios UI panel design
 
-**Status:** Design + static scaffold (WP-110)  
-**Vertical:** `linkapps.app_factory` (`plugins/vertical/linkapps/manifest.yaml`)  
+**Status:** Design + static scaffold (WP-110)
+**Vertical:** `linkapps.app_factory` (`plugins/vertical/linkapps/manifest.yaml`)
 **Audience:** Integrator, frontend agents wiring kernel/plugin surfaces
 
 ---

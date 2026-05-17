@@ -1,10 +1,10 @@
 # WP-109 Agent Report - LiNKapps LiNKautowork Workflow Pack
 
-**Agent:** Cursor Kimi  
-**Work Packet:** WP-109  
-**Date:** 2026-05-17  
-**Branch:** dev/cursor/WP-109-linkapps-autowork-workflow-pack  
-**Base:** origin/development  
+**Agent:** Cursor Kimi
+**Work Packet:** WP-109
+**Date:** 2026-05-17
+**Branch:** dev/cursor/WP-109-linkapps-autowork-workflow-pack
+**Base:** origin/development
 **Commit SHA:** bc48856e41e68121e9c701642825fed4a1227f7c
 
 ---

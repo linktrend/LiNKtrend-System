@@ -1,9 +1,9 @@
 # WP-105 Agent Report - LEXOS LiNKautowork Workflow Hooks
 
-**Agent:** Cursor Kimi  
-**Work Packet:** WP-105  
-**Date:** 2026-05-17  
-**Status:** COMPLETE  
+**Agent:** Cursor Kimi
+**Work Packet:** WP-105
+**Date:** 2026-05-17
+**Status:** COMPLETE
 
 ---
 
@@ -173,8 +173,8 @@ Per `.cursor/rules/04-mvo-scope-and-stubbing.mdc`:
 
 ## Commit Information
 
-**Branch:** `dev/cursor/WP-105-lexos-autowork-workflow-hooks`  
-**Base:** `origin/development`  
+**Branch:** `dev/cursor/WP-105-lexos-autowork-workflow-hooks`
+**Base:** `origin/development`
 **Commit Message:** `feat: add LEXOS workflow hooks`
 
 ---

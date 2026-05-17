@@ -1,8 +1,8 @@
 # LiNKapps LiNKautowork Workflow Pack
 
-**Document:** LINKAPPS_AUTOWORK_WORKFLOW_PACK.md  
-**Work Packet:** WP-109  
-**Date:** 2026-05-17  
+**Document:** LINKAPPS_AUTOWORK_WORKFLOW_PACK.md
+**Work Packet:** WP-109
+**Date:** 2026-05-17
 **Status:** Implementation Complete
 
 ---

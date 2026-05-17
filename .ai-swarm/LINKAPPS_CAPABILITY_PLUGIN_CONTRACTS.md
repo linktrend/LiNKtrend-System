@@ -1,7 +1,7 @@
 # LiNKapps capability plugin contracts (declaration-only)
 
-**Status:** WP-112 — connector contract manifests only; no live providers.  
-**Canonical spec:** `LINKAPPS_CAPABILITY_REQUIREMENTS.md`, `CONTRACTS_MVO.md` §0.A.5.1, `plugins/vertical/linkapps/manifest.yaml`.  
+**Status:** WP-112 — connector contract manifests only; no live providers.
+**Canonical spec:** `LINKAPPS_CAPABILITY_REQUIREMENTS.md`, `CONTRACTS_MVO.md` §0.A.5.1, `plugins/vertical/linkapps/manifest.yaml`.
 **Manifest paths:** `packages/linkaios-kernel/plugins/capabilities/linkapps/*.yaml`
 
 ## Default posture

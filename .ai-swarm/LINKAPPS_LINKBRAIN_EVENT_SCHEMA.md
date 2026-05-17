@@ -1,7 +1,7 @@
 # LiNKapps LiNKbrain Event Schema
 
-**Work packet:** WP-111  
-**Date:** 2026-05-17  
+**Work packet:** WP-111
+**Date:** 2026-05-17
 **Status:** SDK schemas (`@linktrend/linklogic-sdk`)
 
 ---

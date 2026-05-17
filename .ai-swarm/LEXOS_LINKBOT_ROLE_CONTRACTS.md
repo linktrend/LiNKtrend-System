@@ -1,6 +1,6 @@
 # LEXOS LinkBot role contracts
 
-**Status:** Specification / declaration artifacts for MVO scaffolding  
+**Status:** Specification / declaration artifacts for MVO scaffolding
 **Canon:** `packages/linklogic-sdk/src/lexos-contracts.ts` defines `LexosRoleIdSchema` and workflow stages `W0`–`W11`. Contract YAML lives under `plugins/vertical/lexos/roles/contracts/`.
 
 ## Boundary model

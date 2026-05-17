@@ -1,10 +1,10 @@
 # WP-113 Agent Report - LinkSites E2E Harness After Hardening
 
-**Agent:** Cursor Kimi  
-**Work Packet:** WP-113-linksites-e2e-after-hardening  
-**Branch:** `dev/cursor/WP-113-linksites-e2e-after-hardening`  
-**Base:** `origin/development`  
-**Started:** 2026-05-17  
+**Agent:** Cursor Kimi
+**Work Packet:** WP-113-linksites-e2e-after-hardening
+**Branch:** `dev/cursor/WP-113-linksites-e2e-after-hardening`
+**Base:** `origin/development`
+**Started:** 2026-05-17
 **Status:** Complete
 
 ---
