@@ -47,4 +47,4 @@ None.
 ## Commit
 
 - Message: `feat: add LiNKapps brain event schemas`
-- SHA: *(filled after commit)*
+- SHA: `5680e3575865f0381cf0c340ca6a003788cb528a`
