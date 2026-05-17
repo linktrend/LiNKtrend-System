@@ -2277,3 +2277,131 @@ None. The static fallback ensures WebsiteBuilderBot always has template context 
 
 1. If LiNKsites registry path is configured and accessible, discovery will automatically use dynamic mode
 2. Future enhancement: Add more templates to static registry as new industry templates are developed in LiNKsites
+
+---
+
+## WP-094 — LEXOS Core Schema Adaptation (2026-05-17)
+
+**Status:** COMPLETE
+
+### Scope
+
+Copy and adapt LEXOS core identity/evidence/assertion schema (clients, matters, evidence, assertions) into LiNKaios plugin schema files without modifying the source LEXOS repo and without moving real data.
+
+### Requirements Met
+
+1. **Schema Migration Files Created** (3 migrations in `packages/db/migrations/lexos/`):
+   - `001_identity_intake_clients_matters.sql` - User profiles, intake records/groups/candidates, clients, matters (11 tables)
+   - `002_evidence_and_extractions.sql` - Sources, evidence objects, evidence extractions (3 tables)
+   - `003_assertions_support_risks.sql` - Case stories, assertions, support matrix items, risks (4 tables)
+
+2. **Adaptations Applied** (per D-084-C):
+   - All tables have `tenant_id uuid not null` for LiNKaios tenant isolation
+   - All table names prefixed with `lexos_` (e.g., `clients` → `lexos_clients`)
+   - All foreign key references updated to use prefixed table names
+   - RLS policies added for tenant isolation using `app.current_tenant_id` setting
+   - Composite policies for matter/client scoping on sensitive tables
+   - Privilege-aware policies for evidence access control
+
+3. **Schema Documentation Created** (3 schema files in `packages/db/schema/lexos/`):
+   - Summary files documenting current state of each table group
+   - Architecture notes preserved (evidence ≠ extraction separation)
+
+4. **Source Repo Integrity Verified**:
+   - `LiNKtrend-LEXOS/supabase/migrations/` unchanged (git status clean)
+   - No data migration performed (out of scope)
+
+### Files Changed
+
+- `packages/db/migrations/lexos/001_identity_intake_clients_matters.sql` (new) - 18 tables total with indexes and RLS
+- `packages/db/migrations/lexos/002_evidence_and_extractions.sql` (new) - Evidence domain with quality-aware policies
+- `packages/db/migrations/lexos/003_assertions_support_risks.sql` (new) - Assertion/support/risk domain
+- `packages/db/schema/lexos/identity_intake_clients_matters.sql` (new) - Schema documentation
+- `packages/db/schema/lexos/evidence_and_extractions.sql` (new) - Schema documentation
+- `packages/db/schema/lexos/assertions_support_risks.sql` (new) - Schema documentation
+- `.ai-swarm/DECISIONS.md` - Added D-094-A documenting completion
+
+### Commands Run
+
+```bash
+cd /Users/linktrend/Projects/LiNKtrend-System
+git fetch origin --prune
+git worktree add ../LiNKtrend-System-WP-094 -b dev/cursor/WP-094-lexos-schema-core origin/development
+cd ../LiNKtrend-System-WP-094
+git status --short --branch
+mkdir -p packages/db/migrations/lexos packages/db/schema/lexos
+# Created migration and schema files
+git -C /Users/linktrend/Projects/LiNKtrend-LEXOS status --short
+```
+
+### Tables Adapted (18 total)
+
+**Identity/Intake Domain (11 tables):**
+- `lexos_user_profiles` - App-specific user metadata
+- `lexos_intake_records` - W0 intake workflow records
+- `lexos_intake_groups` - Related prospective clients
+- `lexos_client_candidates` - Prospective clients
+- `lexos_matter_candidates` - Candidate matters
+- `lexos_intake_tasks` - W0 subagent/manual tasks
+- `lexos_clients` - Accepted client records
+- `lexos_matters` - Legal matters scoped under clients
+
+**Evidence Domain (3 tables):**
+- `lexos_sources` - Source containers for evidence
+- `lexos_evidence` - Canonical evidence objects (never replaced by extractions)
+- `lexos_evidence_extractions` - Derived extraction artifacts
+
+**Assertion/Support Domain (4 tables):**
+- `lexos_case_stories` - W2 case story artifacts
+- `lexos_assertions` - Atomic factual/legal assertions
+- `lexos_support_matrix_items` - Evidence-to-assertion mapping (W5 core)
+- `lexos_risks` - Legal/factual/evidentiary risks
+
+### RLS Policy Summary
+
+All 18 tables have:
+- `enable row level security`
+- Base `tenant_isolation` policy using `app.current_tenant_id`
+
+Sensitive tables (matters, evidence, extractions, assertions, support_matrix) have additional:
+- `matter_scoped` or `client_scoped` composite policies
+- `privilege_aware` policies for attorney-client privilege filtering
+- `quality_filter` policies for QA-flagged extraction handling
+
+### Proof of Tenant Isolation
+
+```sql
+-- Example table structure showing tenant_id
+CREATE TABLE lexos_matters (
+  id uuid primary key default gen_random_uuid(),
+  tenant_id uuid not null, -- LiNKaios tenant isolation
+  client_id uuid not null references lexos_clients(id),
+  matter_name text not null,
+  -- ... rest of columns
+);
+
+-- Example RLS policy
+CREATE POLICY lexos_matters_tenant_isolation
+  ON lexos_matters
+  FOR ALL
+  USING (tenant_id = (SELECT current_setting('app.current_tenant_id', true)::uuid));
+```
+
+### Source LEXOS Repo Status
+
+```bash
+$ git -C /Users/linktrend/Projects/LiNKtrend-LEXOS status --short
+# (no output - repository unchanged)
+```
+
+### Blockers / Risks
+
+None. Schema adaptation complete. No application code or database application performed (per scope boundaries).
+
+### Next Steps
+
+1. WP-095: Adapt workflow state tables (workflow_states, approval_states)
+2. WP-096: Adapt artifact tables (strategy_memos, research_memos, argument_drafts)
+3. WP-097: Generate TypeScript types from adapted schema
+4. Schema migration to development Supabase when ready
+
