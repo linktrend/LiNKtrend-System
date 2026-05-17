@@ -1220,7 +1220,7 @@ git push -u origin dev/cursor/WP-108-linkapps-capability-requirements
 ## Final Branch and Commit
 
 - Branch: `dev/cursor/WP-108-linkapps-capability-requirements`
-- Commit SHA(s): **`4947c71`** — adds `LINKAPPS_CAPABILITY_REQUIREMENTS.md`. **`b81a0b2`** — branch tip (report proof/metadata).
+- Commit SHA(s): **`4947c71`** introduces `LINKAPPS_CAPABILITY_REQUIREMENTS.md`; subsequent commits on this branch append only `.ai-swarm/AGENT_REPORTS/linkskills-agent.md` WP-108 proof text (consult `git log` on branch for HEAD).
 
 ## Blockers
 
