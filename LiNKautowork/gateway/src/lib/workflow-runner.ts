@@ -20,18 +20,19 @@ import { createAuditEmitter } from "./audit-emitter.js";
 import { ExponentialBackoffPolicy, sleepMs } from "./retry-policy.js";
 import { N8nHttpClient, type N8nClient } from "./n8n-client.js";
 import { executeViaN8n } from "../workflows/n8n-executor.js";
-
-/**
- * In-memory result cache for idempotency (MVO stub).
- * Post-MVO: replace with persistent storage keyed by idempotency_key.
- */
-const idempotencyCache = new Map<string, WorkflowInvokeResult>();
+import {
+  createDefaultIdempotencyStore,
+  hashIdempotencyKey,
+  InMemoryIdempotencyStore,
+  type IdempotencyStore,
+} from "./idempotency-store.js";
 
 /**
  * Registry of all workflow handlers.
  */
 const workflowRegistry = new Map<string, WorkflowDefinition>();
 let n8nClientOverride: N8nClient | undefined;
+let idempotencyStore: IdempotencyStore = createDefaultIdempotencyStore();
 
 /**
  * Register a workflow definition.
@@ -95,8 +96,8 @@ export async function invokeWorkflow(
     };
   }
 
-  // Check idempotency cache
-  const cached = idempotencyCache.get(request.idempotency_key);
+  const keyHash = hashIdempotencyKey(request.idempotency_key);
+  const cached = await idempotencyStore.getCachedResult(keyHash);
   if (cached) {
     // Return exact cached result per idempotency contract
     // The original workflow_run_id must be preserved
@@ -169,7 +170,13 @@ export async function invokeWorkflow(
               ? { ...failure, details: { ...(failure.details ?? {}), retry_exhausted: true } }
               : failure,
           };
-          idempotencyCache.set(request.idempotency_key, finalResult);
+          await idempotencyStore.cacheResult(
+            keyHash,
+            request.tenant_id,
+            request.workflow_handle,
+            workflow_run_id,
+            finalResult,
+          );
           return finalResult;
         }
 
@@ -186,7 +193,13 @@ export async function invokeWorkflow(
           ? [...attemptAuditEventIds, ...result.audit_event_ids]
           : result.audit_event_ids,
       };
-      idempotencyCache.set(request.idempotency_key, finalResult);
+      await idempotencyStore.cacheResult(
+        keyHash,
+        request.tenant_id,
+        request.workflow_handle,
+        workflow_run_id,
+        finalResult,
+      );
       return finalResult;
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "Unexpected workflow error";
@@ -217,7 +230,13 @@ export async function invokeWorkflow(
             ? { ...failure, details: { retry_exhausted: true } }
             : failure,
         };
-        idempotencyCache.set(request.idempotency_key, finalResult);
+        await idempotencyStore.cacheResult(
+          keyHash,
+          request.tenant_id,
+          request.workflow_handle,
+          workflow_run_id,
+          finalResult,
+        );
         return finalResult;
       }
 
@@ -239,7 +258,13 @@ export async function invokeWorkflow(
     audit_event_ids: [],
     failure: exhaustedFailure,
   };
-  idempotencyCache.set(request.idempotency_key, fallbackResult);
+  await idempotencyStore.cacheResult(
+    keyHash,
+    request.tenant_id,
+    request.workflow_handle,
+    workflow_run_id,
+    fallbackResult,
+  );
   return fallbackResult;
 }
 
@@ -249,14 +274,23 @@ export async function invokeWorkflow(
  * Clear the idempotency cache (useful for testing).
  */
 export function clearIdempotencyCache(): void {
-  idempotencyCache.clear();
+  if (idempotencyStore instanceof InMemoryIdempotencyStore) {
+    idempotencyStore.clear();
+  }
 }
 
 /**
  * Get a cached result by idempotency key (useful for testing/debugging).
  */
 export function getCachedResult(idempotencyKey: string): WorkflowInvokeResult | undefined {
-  return idempotencyCache.get(idempotencyKey);
+  if (idempotencyStore instanceof InMemoryIdempotencyStore) {
+    return idempotencyStore.peekByKeyHash(hashIdempotencyKey(idempotencyKey));
+  }
+  return undefined;
+}
+
+export function setIdempotencyStoreForTesting(store: IdempotencyStore): void {
+  idempotencyStore = store;
 }
 
 /**
