@@ -18,6 +18,8 @@ import type {
 import type { WorkflowContext, WorkflowDefinition } from "../types/index.js";
 import { createAuditEmitter } from "./audit-emitter.js";
 import { ExponentialBackoffPolicy, sleepMs } from "./retry-policy.js";
+import { N8nHttpClient, type N8nClient } from "./n8n-client.js";
+import { executeViaN8n } from "../workflows/n8n-executor.js";
 
 /**
  * In-memory result cache for idempotency (MVO stub).
@@ -29,6 +31,7 @@ const idempotencyCache = new Map<string, WorkflowInvokeResult>();
  * Registry of all workflow handlers.
  */
 const workflowRegistry = new Map<string, WorkflowDefinition>();
+let n8nClientOverride: N8nClient | undefined;
 
 /**
  * Register a workflow definition.
@@ -128,6 +131,7 @@ export async function invokeWorkflow(
   const workflow_run_id = randomUUID();
   const retryPolicy = new ExponentialBackoffPolicy();
   const handler = workflow.handler;
+  const useN8nMode = process.env.AUTOWORK_MODE === "n8n";
   const attemptAuditEventIds: string[] = [];
 
   for (let attempt = 1; attempt <= retryPolicy.maxAttempts; attempt += 1) {
@@ -143,7 +147,9 @@ export async function invokeWorkflow(
     } as WorkflowContext & { attempt: number };
 
     try {
-      const result = await handler(request, context);
+      const result = useN8nMode
+        ? await executeViaN8n(request, context, getN8nClient())
+        : await handler(request, context);
 
       if ("failure" in result) {
         attemptAuditEventIds.push(...result.audit_event_ids);
@@ -265,4 +271,22 @@ export function clearWorkflowRegistry(): void {
  */
 export function unregisterWorkflow(handle: string): void {
   workflowRegistry.delete(handle);
+}
+
+export async function checkN8nHealth(): Promise<boolean> {
+  return getN8nClient().checkHealth();
+}
+
+export function setN8nClientForTesting(client: N8nClient | undefined): void {
+  n8nClientOverride = client;
+}
+
+function getN8nClient(): N8nClient {
+  if (n8nClientOverride) {
+    return n8nClientOverride;
+  }
+  return new N8nHttpClient({
+    baseUrl: process.env.N8N_BASE_URL ?? "http://127.0.0.1:5678",
+    apiKey: process.env.N8N_API_KEY,
+  });
 }

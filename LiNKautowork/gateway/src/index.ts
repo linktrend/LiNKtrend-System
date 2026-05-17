@@ -20,6 +20,8 @@ export {
   getCachedResult,
   clearWorkflowRegistry,
   unregisterWorkflow,
+  checkN8nHealth,
+  setN8nClientForTesting,
 } from "./lib/workflow-runner.js";
 
 export {
@@ -49,6 +51,21 @@ export {
   previewServedRoutes,
   clearLinksitesStores,
 } from "./workflows/index.js";
+
+export {
+  N8nHttpClient,
+  type N8nClient,
+} from "./lib/n8n-client.js";
+
+export {
+  N8nWebhookRegistry,
+  type N8nWebhookPayload,
+} from "./lib/n8n-webhook-handler.js";
+
+export {
+  SAMPLE_N8N_WORKFLOW_TEMPLATE,
+  executeViaN8n,
+} from "./workflows/n8n-executor.js";
 
 export type {
   WorkflowContext,
