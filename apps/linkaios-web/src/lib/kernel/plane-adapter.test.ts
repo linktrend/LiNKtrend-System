@@ -76,7 +76,7 @@ describe("plane adapter scaffold", () => {
         project_name: "Project A",
         work_item_title: "Initial work item",
       }),
-    ).rejects.toMatchObject<PlaneReadinessError>({
+    ).rejects.toMatchObject({
       failureCode: "INTEGRATION_AUTH_FAILED",
     });
   });
@@ -102,7 +102,7 @@ describe("plane adapter scaffold", () => {
         project_name: "Project A",
         work_item_title: "Initial work item",
       }),
-    ).rejects.toMatchObject<PlaneReadinessError>({
+    ).rejects.toMatchObject({
       failureCode: "INTEGRATION_TIMEOUT",
     });
   });

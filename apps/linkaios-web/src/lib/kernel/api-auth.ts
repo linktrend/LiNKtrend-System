@@ -1,5 +1,7 @@
 type AuthenticatedUser = { id: string };
 
+type KernelAuthEnv = Record<string, string | undefined>;
+
 export type KernelActor =
   | { kind: "service"; actorId: "mvo-service" }
   | { kind: "user"; actorId: string };
@@ -32,15 +34,15 @@ function getBearerToken(authHeader: string | null): string | null {
   return token;
 }
 
-function hasEnabledServiceBypass(env: NodeJS.ProcessEnv): boolean {
+function hasEnabledServiceBypass(env: KernelAuthEnv): boolean {
   return isTruthy(env.LINKAIOS_ENABLE_MVO_SERVICE_BYPASS);
 }
 
-function hasEnabledUserKernelApi(env: NodeJS.ProcessEnv): boolean {
+function hasEnabledUserKernelApi(env: KernelAuthEnv): boolean {
   return !isTruthy(env.LINKAIOS_DISABLE_MVO_USER_KERNEL_API);
 }
 
-function parseOperatorAllowlist(env: NodeJS.ProcessEnv): Set<string> | null {
+function parseOperatorAllowlist(env: KernelAuthEnv): Set<string> | null {
   const raw = env.LINKAIOS_MVO_KERNEL_OPERATOR_USER_IDS?.trim();
   if (!raw) return null;
   const ids = raw
@@ -50,19 +52,19 @@ function parseOperatorAllowlist(env: NodeJS.ProcessEnv): Set<string> | null {
   return ids.length > 0 ? new Set(ids) : null;
 }
 
-function isUserAllowlisted(actorId: string, env: NodeJS.ProcessEnv): boolean {
+function isUserAllowlisted(actorId: string, env: KernelAuthEnv): boolean {
   const allowlist = parseOperatorAllowlist(env);
   return allowlist ? allowlist.has(actorId) : false;
 }
 
 export function isKernelOperatorActor(
   actor: KernelActor,
-  env: NodeJS.ProcessEnv = process.env
+  env: KernelAuthEnv = process.env
 ): boolean {
   return actor.kind === "service" || isUserAllowlisted(actor.actorId, env);
 }
 
-function isServiceBypassRequest(token: string, env: NodeJS.ProcessEnv): boolean {
+function isServiceBypassRequest(token: string, env: KernelAuthEnv): boolean {
   const secret = env.BOT_KERNEL_API_SECRET?.trim();
   if (!secret || !hasEnabledServiceBypass(env)) return false;
   return token === secret;
@@ -72,7 +74,7 @@ export async function canAccessKernelScope(
   actor: KernelActor,
   scope: KernelAccessScope,
   deps: KernelScopeAccessDeps,
-  env: NodeJS.ProcessEnv = process.env
+  env: KernelAuthEnv = process.env
 ): Promise<boolean> {
   if (actor.kind === "service") return true;
   if (isUserAllowlisted(actor.actorId, env)) return true;
@@ -97,7 +99,7 @@ export async function canAccessKernelScope(
 export async function resolveKernelActor(
   req: Request,
   deps: ResolveKernelActorDeps,
-  env: NodeJS.ProcessEnv = process.env
+  env: KernelAuthEnv = process.env
 ): Promise<KernelActor | null> {
   const token = getBearerToken(req.headers.get("authorization"));
   if (!token) return null;

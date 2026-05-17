@@ -36,7 +36,9 @@ describe("Context Assembler Service", () => {
         { tenant_id: "tenant-2" },
       );
       expect(result.authorized).toBe(false);
-      expect(result.reason).toContain("Cross-tenant access denied");
+      if (!result.authorized) {
+        expect(result.reason).toContain("Cross-tenant access denied");
+      }
     });
 
     it("allows access when scopes match", () => {
@@ -53,7 +55,9 @@ describe("Context Assembler Service", () => {
         { tenant_id: "tenant-1", plugin_id: "other-plugin", role_id: "research_bot" },
       );
       expect(result.authorized).toBe(false);
-      expect(result.reason).toContain("Scope lattice mismatch");
+      if (!result.authorized) {
+        expect(result.reason).toContain("Scope lattice mismatch");
+      }
     });
 
     it("allows access when bot scope is broader than target", () => {

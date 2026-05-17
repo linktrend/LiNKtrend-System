@@ -387,6 +387,8 @@ export const ReasoningKindSchema = z.enum([
   "template_selection",
   "copy_generation",
   "media_placement",
+  "research_enrichment",
+  "website_package_generation",
 ]);
 export type ReasoningKind = z.infer<typeof ReasoningKindSchema>;
 

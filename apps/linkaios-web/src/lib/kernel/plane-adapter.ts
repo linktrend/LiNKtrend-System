@@ -134,7 +134,7 @@ function validateReadinessEnv(env: Env): {
     );
   }
 
-  return { baseUrl, workspaceSlug, apiKey };
+  return { baseUrl: baseUrl!, workspaceSlug: workspaceSlug!, apiKey: apiKey! };
 }
 
 function withTrailingSlash(value: string): string {

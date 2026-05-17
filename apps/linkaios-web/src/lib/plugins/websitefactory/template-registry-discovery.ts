@@ -267,7 +267,12 @@ export function getTemplateMetadata(
  */
 export function buildTemplateContextForLinkBot(
   registry: TemplateRegistryDiscoveryResult,
-): Record<string, unknown> {
+): {
+  available_template_ids: TemplateId[];
+  default_template_id: TemplateId;
+  template_metadata: Record<TemplateId, TemplateMetadata>;
+  discovery_mode: TemplateRegistryDiscoveryResult["discovery_mode"];
+} {
   return {
     available_template_ids: registry.available_template_ids,
     default_template_id: registry.default_template_id,

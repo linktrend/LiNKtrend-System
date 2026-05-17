@@ -1,6 +1,7 @@
 import 'dotenv/config';
 
 const CANONICAL_CODES = {
+  config: "E2E_CONFIG_MISSING",
   dispatch: "KERNEL_DISPATCH_FAILED",
   persistence: "KERNEL_PERSISTENCE_FAILED",
   readiness_failed: "WORKFLOW_STEP_FAILED",
@@ -72,6 +73,10 @@ function parseCanonicalFailure(err: unknown): { code: CanonicalCode; message: st
   const raw = err instanceof Error ? err.message : String(err);
   const msg = raw.toLowerCase();
 
+  if (msg.includes("e2e_config_missing")) {
+    return { code: CANONICAL_CODES.config, message: raw };
+  }
+
   // WP-092: Detect readiness check failures
   if (
     msg.includes("checks_passed is not true") ||
@@ -116,9 +121,24 @@ function parseCanonicalFailure(err: unknown): { code: CanonicalCode; message: st
 function requireEnv(name: string): string {
   const value = process.env[name]?.trim();
   if (!value) {
-    fail(CANONICAL_CODES.dispatch, `Missing required env: ${name}`);
+    fail(CANONICAL_CODES.config, `Missing required env: ${name}`);
   }
   return value;
+}
+
+function validateE2EPreflight(): void {
+  const required = [
+    "BOT_KERNEL_API_SECRET",
+    "NEXT_PUBLIC_SUPABASE_URL",
+    "SUPABASE_SECRET_KEY",
+  ];
+  const missing = required.filter((name) => !process.env[name]?.trim());
+  if (missing.length > 0) {
+    fail(
+      CANONICAL_CODES.config,
+      `Missing required E2E configuration: ${missing.join(", ")}. Use local development credentials only; do not use production secrets.`,
+    );
+  }
 }
 
 async function fetchJsonOrFail(url: string, init?: RequestInit): Promise<any> {
@@ -130,6 +150,8 @@ async function fetchJsonOrFail(url: string, init?: RequestInit): Promise<any> {
 }
 
 async function main() {
+  validateE2EPreflight();
+
   const appBaseUrl = process.env.MVO_E2E_BASE_URL?.trim() || "http://localhost:3000";
   const baseUrl = `${appBaseUrl}/api/kernel`;
   const authHeader = `Bearer ${requireEnv("BOT_KERNEL_API_SECRET")}`;
