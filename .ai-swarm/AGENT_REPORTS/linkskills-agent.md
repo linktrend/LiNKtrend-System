@@ -617,3 +617,60 @@ pnpm --filter @linktrend/linkskills-logic-engine typecheck
 
 - Branch: `dev/codex/recover-WP050-WP053-WP054-linkskills-capabilities` (Integrator recovery branch)
 - Commit SHA: `dbfa4a9` (Integrator recovery branch)
+
+## Assigned Work Packet
+
+**WP-075 — LinkSkills database schema**  
+**Status:** COMPLETE  
+**Date:** 2026-05-17
+
+## Objective
+
+Create LinkSkills database foundation for capability catalog, lease lifecycle, lease execution ledger, idempotency cache, and kill switches with RLS and retention sweep support.
+
+## Files Changed
+
+- `services/migrations/030_linkskills_database_foundation.sql`
+- `.ai-swarm/AGENT_REPORTS/linkskills-agent.md`
+
+## Commands Run
+
+```bash
+git status --short --branch
+git fetch origin --prune
+git worktree add ../LiNKtrend-System-WP-075 -b dev/codex/WP-075-linkskills-database-schema origin/development
+sed -n '1,320p' .ai-swarm/AGENT_PROMPTS/WP-075-linkskills-database-schema.prompt.md
+sed -n '1,300p' .ai-swarm/WORK_PACKETS/WP-075-linkskills-database-schema.md
+sed -n '1,320p' services/migrations/024_linkskills_capability_lease.sql
+cat > services/migrations/030_linkskills_database_foundation.sql <<'SQL' ... SQL
+ls services/migrations | rg '^030_'
+rg -n "CREATE TABLE IF NOT EXISTS linkskills\.(capabilities|lease_requests|lease_ledger_entries|idempotency_cache|kill_switches)|CREATE OR REPLACE FUNCTION linkskills.retention_sweep|ENABLE ROW LEVEL SECURITY" services/migrations/030_linkskills_database_foundation.sql
+```
+
+## Validation Results
+
+- Migration file numbering validated: `030_linkskills_database_foundation.sql` is unique and sequential after `029`.
+- Required schema objects present in migration:
+  - `linkskills.capabilities`
+  - `linkskills.lease_requests`
+  - `linkskills.lease_ledger_entries`
+  - `linkskills.idempotency_cache`
+  - `linkskills.kill_switches`
+  - `linkskills.retention_sweep(...)`
+- RLS enabled for all new LinkSkills foundation tables.
+
+## Notes on Contract Alignment
+
+- Existing repo already contains canonical LinkSkills tables from prior packets (`024_linkskills_capability_lease.sql`, `028`, `029`), including `linkskills.lease_ledger` and `linkskills.capability_catalog`.
+- To avoid breaking existing consumers, WP-075 was implemented additively with new foundation tables instead of mutating or replacing prior canonical tables.
+- FKs target `linkaios_kernel.tenants` and `linkaios_kernel.runs` because these are the current canonical tenant/run tables in this repo.
+
+## Risks / Blockers
+
+- Could not run live `pnpm db:migrate` proof in this packet because no validated `DATABASE_URL` runtime was provided in-session.
+- `services/migrations/ALL_IN_ONE.sql` was intentionally not modified to avoid broad-risk manual merge drift; packet change is in incremental migration path.
+
+## Final Branch and Commit
+
+- Branch: `dev/codex/WP-075-linkskills-database-schema`
+- Commit SHA: `PENDING`
