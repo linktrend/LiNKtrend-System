@@ -1,6 +1,6 @@
 # WP-104 Agent Prompt - LEXOS LinkBot Role Contracts
 
-Recommended model/tool: Cursor Composer or Gemini 3 Flash. Use Kimi only if deeper source tracing is needed. Do not use Codex or Antigravity.
+Use Cursor Composer for this packet. Do not use Kimi, Codex, Gemini, or Antigravity unless the orchestrator changes this assignment.
 
 Execute `.ai-swarm/WORK_PACKETS/WP-104-lexos-linkbot-role-contracts.md`.
 

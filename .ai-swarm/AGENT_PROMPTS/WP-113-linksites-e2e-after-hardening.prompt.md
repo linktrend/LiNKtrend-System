@@ -1,6 +1,6 @@
 # WP-113 Agent Prompt - LinkSites E2E Harness After Hardening
 
-Recommended model/tool: Cursor Kimi or Gemini 3.1 Pro for harness/test work. Use Composer only for runbook-only changes. Do not use Codex or Antigravity.
+Use Cursor Kimi for this packet. Do not use Composer, Codex, Gemini, or Antigravity unless the orchestrator changes this assignment.
 
 Execute `.ai-swarm/WORK_PACKETS/WP-113-linksites-e2e-after-hardening.md`.
 

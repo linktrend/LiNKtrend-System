@@ -1,6 +1,6 @@
 # WP-110 Agent Prompt - LiNKapps UI Panel Design
 
-Recommended model/tool: Cursor Composer for design/spec-first work, or Gemini 3 Flash for light scaffolding. Use Kimi only if substantial React code is needed. Do not use Codex or Antigravity.
+Use Cursor Composer for this packet. Do not use Kimi, Codex, Gemini, or Antigravity unless the orchestrator changes this assignment.
 
 Execute `.ai-swarm/WORK_PACKETS/WP-110-linkapps-ui-panel-design.md`.
 

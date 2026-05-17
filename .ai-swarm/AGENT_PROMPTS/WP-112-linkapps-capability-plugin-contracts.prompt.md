@@ -1,6 +1,6 @@
 # WP-112 Agent Prompt - LiNKapps Capability Plugin Contracts
 
-Recommended model/tool: Cursor Composer or Gemini 3 Flash for manifest/spec work. Use Kimi only if source tracing is needed. Do not use Codex or Antigravity.
+Use Cursor Composer for this packet. Do not use Kimi, Codex, Gemini, or Antigravity unless the orchestrator changes this assignment.
 
 Execute `.ai-swarm/WORK_PACKETS/WP-112-linkapps-capability-plugin-contracts.md`.
 

@@ -1,6 +1,6 @@
 # WP-114 Agent Prompt - LinkSkills Cross-Vertical Capability Catalog Seeds
 
-Recommended model/tool: Cursor Composer or Gemini 3 Flash for inventory/spec work. Use Kimi only if deeper code tracing is needed. Do not use Codex or Antigravity.
+Use Cursor Composer for this packet. Do not use Kimi, Codex, Gemini, or Antigravity unless the orchestrator changes this assignment.
 
 Execute `.ai-swarm/WORK_PACKETS/WP-114-linkskills-cross-vertical-catalog-seeds.md`.
 

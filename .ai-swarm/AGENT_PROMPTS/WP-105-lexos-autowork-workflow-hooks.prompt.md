@@ -1,6 +1,6 @@
 # WP-105 Agent Prompt - LEXOS LiNKautowork Workflow Hooks
 
-Recommended model/tool: Cursor Kimi or Gemini 3.1 Pro for coding. Use Composer only if keeping this to docs/stub mapping. Do not use Antigravity. Do not use Codex unless the orchestrator explicitly allocates the single Codex slot.
+Use Cursor Kimi for this packet. Do not use Composer, Codex, Gemini, or Antigravity unless the orchestrator changes this assignment.
 
 Execute `.ai-swarm/WORK_PACKETS/WP-105-lexos-autowork-workflow-hooks.md`.
 

@@ -1,6 +1,6 @@
 # WP-109 Agent Prompt - LiNKapps LiNKautowork Workflow Pack
 
-Recommended model/tool: Cursor Kimi or Gemini 3.1 Pro for coding. This is the best candidate for the single Codex slot only if the orchestrator explicitly approves spending Codex credits. Do not use Antigravity.
+Use Cursor Kimi for this packet. Do not use Composer, Codex, Gemini, or Antigravity unless the orchestrator changes this assignment.
 
 Execute `.ai-swarm/WORK_PACKETS/WP-109-linkapps-autowork-workflow-pack.md`.
 
