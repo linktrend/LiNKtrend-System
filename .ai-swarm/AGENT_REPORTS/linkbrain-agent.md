@@ -239,3 +239,69 @@ None. This review packet is complete and ready for Integrator review.
 ## Commit SHA
 
 `8971d1e6d6857c1516714df4e15b3f1b846baedc`
+
+---
+
+# WP-065 LiNKbrain Audit Envelope Mapping for LinkBot Flow - Agent Report
+
+**Agent:** Codex  
+**Work Packet:** WP-065-linkbrain-audit-envelope-mapping-for-linkbot-flow  
+**Branch:** `dev/codex/WP-065-linkbrain-audit-envelope-mapping-for-linkbot-flow`  
+**Date:** 2026-05-17  
+**Status:** Complete
+
+## Summary
+
+Implemented canonical LiNKbrain envelope mapping helpers for LinkBot lifecycle signals, LinkSkills capability signals, LiNKautowork workflow signals, and Linktrend governance authorization lifecycle signals. Added focused tests proving mapping normalization and run/stage subject queryability.
+
+## Files Changed
+
+- `apps/linkaios-web/src/lib/kernel/audit-envelope-mapper.ts`
+- `apps/linkaios-web/src/lib/kernel/audit-envelope-mapper.test.ts`
+- `.ai-swarm/AGENT_REPORTS/linkbrain-agent.md`
+
+## Mapping Table (Source -> Canonical)
+
+- `run.dispatched` -> `run.started`
+- `role.started` -> `stage.started`
+- `role.completed` -> `stage.completed`
+- `role.failed` -> `stage.failed`
+- `capability.requested` -> `lease.requested`
+- `capability.executed` -> `lease.executed`
+- `capability.failed` -> `stage.failed`
+- `workflow.invoked` -> `workflow.invoked`
+- `workflow.completed` -> `workflow.completed`
+- `workflow.failed` -> `workflow.failed`
+- `linktrend.gov.authorization.granted` -> `approval.granted`
+- `linktrend.gov.authorization.denied` -> `approval.rejected`
+- `linktrend.gov.authorization.pending` -> `stage.awaiting_approval`
+
+## Commands Run
+
+```bash
+git status --short --branch
+git fetch origin --prune
+git worktree add ../LiNKtrend-System-WP-065 -b dev/codex/WP-065-linkbrain-audit-envelope-mapping-for-linkbot-flow origin/development
+pnpm install
+pnpm build
+pnpm --filter @linktrend/linkaios-web test -- src/lib/kernel/audit-envelope-mapper.test.ts
+```
+
+## Proof
+
+- Mapping helper tests pass and verify normalization for LinkBot, LinkSkills, LiNKautowork, and governance signals.
+- Integration-style mapper write test verifies canonical envelope subject includes both `run_id` and `stage_id` for trace queryability.
+- Focused test command result: all kernel/plugin suites executed by Vitest in this workspace passed, including the new mapper suite.
+
+## Validation Results
+
+- `pnpm --filter @linktrend/linkaios-web test -- src/lib/kernel/audit-envelope-mapper.test.ts` ✅ pass
+- `pnpm build` ⚠️ fails in `@linktrend/linkaios-web` with pre-existing Next.js webpack `node:*` URI handling issue (unrelated to WP-065 mapper changes).
+
+## Blockers
+
+None for WP-065 scope.
+
+## Commit SHA
+
+`PENDING_COMMIT_SHA`
