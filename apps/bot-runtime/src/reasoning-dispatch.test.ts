@@ -185,7 +185,7 @@ describe("handleReasoningDispatch — lead_evaluation", () => {
     expect(typeof evaluation.rationale).toBe("string");
 
     // Verify audit events were emitted
-    expect(writeBrainAuditEvent).toHaveBeenCalledTimes(2);
+    expect(writeBrainAuditEvent).toHaveBeenCalledTimes(6);
     const calls = (writeBrainAuditEvent as unknown as ReturnType<typeof vi.fn>).mock.calls;
 
     // First call: stage.started
@@ -194,10 +194,13 @@ describe("handleReasoningDispatch — lead_evaluation", () => {
     expect(calls[0][1].subject.stage_id).toBe("lead_evaluation_stage");
     expect(calls[0][1].plane).toBe("linkbot");
 
-    // Second call: stage.completed
-    expect(calls[1][1].action).toBe("stage.completed");
-    expect(calls[1][1].payload.reasoning_kind).toBe("lead_evaluation");
-    expect(calls[1][1].payload.output_keys).toContain("lead_evaluation");
+    // Third call: stage.completed
+    expect(calls[2][1].action).toBe("stage.completed");
+    expect(calls[2][1].payload.reasoning_kind).toBe("lead_evaluation");
+    expect(calls[2][1].payload.output_keys).toContain("lead_evaluation");
+    expect(calls[3][1].action).toBe("research.performed");
+    expect(calls[4][1].action).toBe("provenance.recorded");
+    expect(calls[5][1].action).toBe("role.completed");
   });
 
   it("rejects unsupported pii_policy", async () => {
@@ -230,7 +233,7 @@ describe("handleReasoningDispatch — template_selection", () => {
     expect(result.outputs.template_id).toMatch(/^[a-z0-9_]+$/);
 
     // Verify audit events
-    expect(writeBrainAuditEvent).toHaveBeenCalledTimes(2);
+    expect(writeBrainAuditEvent).toHaveBeenCalledTimes(6);
   });
 
   it("uses lead_evaluation from previous stage if provided", async () => {
@@ -283,7 +286,7 @@ describe("handleReasoningDispatch — copy_generation", () => {
     expect(typeof copyBundle.locale).toBe("string");
 
     // Verify audit events
-    expect(writeBrainAuditEvent).toHaveBeenCalledTimes(2);
+    expect(writeBrainAuditEvent).toHaveBeenCalledTimes(6);
   });
 
   it("includes template_id in user prompt when available", async () => {
@@ -330,7 +333,7 @@ describe("handleReasoningDispatch — media_placement", () => {
     }
 
     // Verify audit events
-    expect(writeBrainAuditEvent).toHaveBeenCalledTimes(2);
+    expect(writeBrainAuditEvent).toHaveBeenCalledTimes(6);
   });
 
   it("includes copy_bundle in context when available", async () => {
@@ -378,9 +381,10 @@ describe("handleReasoningDispatch — error handling", () => {
     expect(result.failure?.retryable).toBe(false);
 
     // Verify stage.failed audit event was emitted
-    expect(writeBrainAuditEvent).toHaveBeenCalledTimes(2);
+    expect(writeBrainAuditEvent).toHaveBeenCalledTimes(4);
     const calls = (writeBrainAuditEvent as unknown as ReturnType<typeof vi.fn>).mock.calls;
-    expect(calls[1][1].action).toBe("stage.failed");
+    expect(calls[2][1].action).toBe("stage.failed");
+    expect(calls[3][1].action).toBe("role.failed");
   });
 
   it("returns MODEL_OUTPUT_INVALID for missing required fields", async () => {
@@ -419,7 +423,7 @@ describe("handleReasoningDispatch — error handling", () => {
     expect(result.failure?.retryable).toBe(true);
 
     // Verify stage.failed audit event
-    expect(writeBrainAuditEvent).toHaveBeenCalledTimes(2);
+    expect(writeBrainAuditEvent).toHaveBeenCalledTimes(4);
   });
 
   it("returns MODEL_QUOTA_EXCEEDED for 429 errors", async () => {
@@ -452,7 +456,7 @@ describe("handleReasoningDispatch — error handling", () => {
     expect(result.failure?.retryable).toBe(true);
 
     // Verify stage.failed audit event
-    expect(writeBrainAuditEvent).toHaveBeenCalledTimes(2);
+    expect(writeBrainAuditEvent).toHaveBeenCalledTimes(4);
   });
 });
 
@@ -563,13 +567,13 @@ describe("Audit write semantics (§4.5)", () => {
   it("returns KERNEL_PERSISTENCE_FAILED when stage.completed audit fails", async () => {
     const { writeBrainAuditEvent } = await import("@linktrend/linklogic-sdk");
 
-    // First call (stage.started) succeeds, second (stage.completed) fails
+    // stage.started and role.started succeed, then stage.completed fails
     let callCount = 0;
     (writeBrainAuditEvent as unknown as ReturnType<typeof vi.fn>).mockImplementation(() => {
       callCount++;
-      if (callCount === 1) {
+      if (callCount <= 2) {
         return Promise.resolve({
-          event_id: "started-id",
+          event_id: `ok-${callCount}`,
           persisted_at: new Date().toISOString(),
         });
       }

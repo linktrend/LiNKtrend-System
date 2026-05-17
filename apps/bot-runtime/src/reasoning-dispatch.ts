@@ -11,6 +11,7 @@ import type { Env } from "@linktrend/shared-config";
 import {
   type BotReasonRequest,
   type BotReasonResult,
+  type AuditAction,
   type FailureReport,
   type ReasoningKind,
   type LeadInput,
@@ -409,6 +410,24 @@ type AuditEmitResult =
   | { success: true; event_id: string }
   | { success: false; failure: FailureReport };
 
+function roleForReasoning(kind: ReasoningKind): "research_enrichment_bot" | "website_builder_bot" {
+  return kind === "lead_evaluation" ? "research_enrichment_bot" : "website_builder_bot";
+}
+
+function successActionsForReasoning(kind: ReasoningKind): AuditAction[] {
+  switch (kind) {
+    case "lead_evaluation":
+      return ["research.performed", "provenance.recorded"];
+    case "template_selection":
+      return ["template.guidance.selected", "provenance.recorded"];
+    case "copy_generation":
+    case "media_placement":
+      return ["website.package.generated", "provenance.recorded"];
+    default:
+      return [];
+  }
+}
+
 /**
  * Emit audit event to LiNKbrain via `brain.audit.write`.
  *
@@ -538,6 +557,32 @@ export async function handleReasoningDispatch(
     };
   }
 
+  const roleId = roleForReasoning(request.reasoning_kind);
+  const roleStartedEmit = await emitAuditEvent(env, {
+    tenant_id: request.tenant_id,
+    plane: "linkbot",
+    actor: { actor_kind: "bot", actor_id: "linkbot-reasoning" },
+    action: "role.started",
+    subject: {
+      run_id: request.run_id,
+      stage_id: request.stage_id,
+    },
+    payload: {
+      role_id: roleId,
+      reasoning_kind: request.reasoning_kind,
+    },
+  });
+
+  if (!roleStartedEmit.success) {
+    return {
+      outputs: {},
+      model_run_id: modelRunId,
+      tokens_in: 0,
+      tokens_out: 0,
+      failure: roleStartedEmit.failure,
+    };
+  }
+
   // Build prompts
   const systemPrompt = SYSTEM_PROMPTS[request.reasoning_kind];
   const userPrompt = buildUserPrompt(request.reasoning_kind, strippedInputs);
@@ -566,6 +611,21 @@ export async function handleReasoningDispatch(
       payload: {
         failure: modelResponse.failure,
         reasoning_kind: request.reasoning_kind,
+      },
+    });
+    await emitAuditEvent(env, {
+      tenant_id: request.tenant_id,
+      plane: "linkbot",
+      actor: { actor_kind: "bot", actor_id: "linkbot-reasoning" },
+      action: "role.failed",
+      subject: {
+        run_id: request.run_id,
+        stage_id: request.stage_id,
+      },
+      payload: {
+        role_id: roleId,
+        reasoning_kind: request.reasoning_kind,
+        failure: modelResponse.failure,
       },
     });
 
@@ -598,6 +658,21 @@ export async function handleReasoningDispatch(
       payload: {
         failure,
         reasoning_kind: request.reasoning_kind,
+      },
+    });
+    await emitAuditEvent(env, {
+      tenant_id: request.tenant_id,
+      plane: "linkbot",
+      actor: { actor_kind: "bot", actor_id: "linkbot-reasoning" },
+      action: "role.failed",
+      subject: {
+        run_id: request.run_id,
+        stage_id: request.stage_id,
+      },
+      payload: {
+        role_id: roleId,
+        reasoning_kind: request.reasoning_kind,
+        failure,
       },
     });
 
@@ -639,6 +714,57 @@ export async function handleReasoningDispatch(
       tokens_in: modelResponse.tokensIn,
       tokens_out: modelResponse.tokensOut,
       failure: completedEmit.failure,
+    };
+  }
+
+  for (const action of successActionsForReasoning(request.reasoning_kind)) {
+    const actionEmit = await emitAuditEvent(env, {
+      tenant_id: request.tenant_id,
+      plane: "linkbot",
+      actor: { actor_kind: "bot", actor_id: "linkbot-reasoning" },
+      action,
+      subject: {
+        run_id: request.run_id,
+        stage_id: request.stage_id,
+      },
+      payload: {
+        role_id: roleId,
+        reasoning_kind: request.reasoning_kind,
+      },
+    });
+    if (!actionEmit.success) {
+      return {
+        outputs: parsedOutput,
+        model_run_id: modelRunId,
+        tokens_in: modelResponse.tokensIn,
+        tokens_out: modelResponse.tokensOut,
+        failure: actionEmit.failure,
+      };
+    }
+  }
+
+  const roleCompletedEmit = await emitAuditEvent(env, {
+    tenant_id: request.tenant_id,
+    plane: "linkbot",
+    actor: { actor_kind: "bot", actor_id: "linkbot-reasoning" },
+    action: "role.completed",
+    subject: {
+      run_id: request.run_id,
+      stage_id: request.stage_id,
+    },
+    payload: {
+      role_id: roleId,
+      reasoning_kind: request.reasoning_kind,
+      output_keys: Object.keys(parsedOutput),
+    },
+  });
+  if (!roleCompletedEmit.success) {
+    return {
+      outputs: parsedOutput,
+      model_run_id: modelRunId,
+      tokens_in: modelResponse.tokensIn,
+      tokens_out: modelResponse.tokensOut,
+      failure: roleCompletedEmit.failure,
     };
   }
 
