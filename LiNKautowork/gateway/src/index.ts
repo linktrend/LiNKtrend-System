@@ -31,6 +31,21 @@ export {
 } from "./lib/audit-emitter.js";
 
 export {
+  // Health primitives
+  createHealthCheck,
+  type HealthCheck,
+  type HealthCheckResult,
+  type HealthCheckDependencyResult,
+  type HealthStatus,
+} from "./lib/health.js";
+
+export {
+  // Metrics primitives
+  MetricsCollector,
+  type InvocationStatus,
+} from "./lib/metrics.js";
+
+export {
   // WebsiteFactory workflow bootstrap
   bootstrapWebsiteFactoryWorkflows,
   WEBSITE_FACTORY_RENDER_HANDLE,
