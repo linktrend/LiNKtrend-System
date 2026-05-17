@@ -15,11 +15,14 @@ import { log } from "@linktrend/observability";
 import { botRuntimeOpenClawTimeoutMs, loadEnv } from "@linktrend/shared-config";
 
 import { postGovernanceToOpenClaw } from "./openclaw-handoff.js";
+import { createLinkSkillsRuntimeAdapter, type LeaseProjection, type LinkSkillsOperationRequest } from "./linkskills-runtime-adapter.js";
 import { handleReasoningDispatch, stripContactPii, type ModelCallAdapter } from "./reasoning-dispatch.js";
 
 // Export reasoning dispatch for external callers (LiNKaios kernel integration)
 export { handleReasoningDispatch, stripContactPii };
 export type { BotReasonRequest, BotReasonResult, ModelCallAdapter };
+export { createLinkSkillsRuntimeAdapter };
+export type { LeaseProjection, LinkSkillsOperationRequest };
 
 const HEARTBEAT_MS = 30_000;
 
