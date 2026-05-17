@@ -940,3 +940,89 @@ pnpm --filter @linktrend/autowork-gateway test -- src/workflows/linksites-v2.tes
 
 - Branch: `dev/codex/WP-090-linksites-autowork-artifact-storage`
 - Commit SHA: pending in this packet run
+
+---
+
+## WP-091 — LinkSites Supabase Mirror and Payload Sync Alignment (2026-05-17)
+
+### Objective
+
+Harden the existing `autowork.linksites.supabase_mirror_upsert` and `autowork.linksites.payload_sync_local` handlers so their mapping and lease/idempotency behavior are grounded in the discovered LinkSites Supabase/Payload schema evidence from WP-042.
+
+### Current State Reconciliation
+
+The post-WP-071/WP-090 implementation was reviewed against the discovered schema files:
+
+| Adapter | Default | Source Schema | Status |
+|---------|---------|---------------|--------|
+| Supabase schema | `lsites_core` | `lsites_core.schema.json` → `"schema": "lsites_core"` | ✓ Aligned |
+| Supabase content table | `sites` | `cms-mapping.json` → `"sites": { "table": "sites" }` | ✓ Aligned |
+| Supabase asset table | `media` | `cms-mapping.json` → `"media": { "table": "media" }` | ✓ Aligned |
+| Payload sync collection | `site-settings` | `cms-mapping.json` → `"site-settings": { "table": "site_settings" }` | ✓ Aligned |
+| Payload readiness collection | `pages` | `cms-mapping.json` → `"pages": { "table": "pages" }` | ✓ Aligned |
+
+### Lease and Idempotency Verification
+
+| Handler | Lease Required | Failure Code | Status |
+|---------|----------------|--------------|--------|
+| `supabase_mirror_upsert` | Yes | `LEASE_REQUEST_INVALID` | ✓ Verified |
+| `payload_sync_local` | Yes | `LEASE_REQUEST_INVALID` | ✓ Verified |
+
+- Idempotency behavior preserved through workflow-runner cache (same `idempotency_key` returns exact cached result).
+- Deterministic dev fallback remains intact (returns stub-compatible outputs when env not configured).
+
+### Files Changed
+
+| File | Change |
+|------|--------|
+| `LiNKautowork/gateway/src/lib/linksites-schema-mapping.md` | New documentation tracing adapter defaults to discovered schema files |
+
+### Discovery-Bound Schema Files Referenced
+
+1. `/Users/linktrend/Projects/LiNKsites/supabase/schemas/cms-mapping.json` — Payload collection to `lsites_core` table mapping
+2. `/Users/linktrend/Projects/LiNKsites/supabase/schemas/lsites_core.schema.json` — Core schema definition with column types
+
+### Commands Run
+
+```bash
+git fetch origin --prune
+git worktree add ../LiNKtrend-System-WP-091 -b dev/cursor/WP-091-linksites-supabase-payload-sync origin/development
+cd ../LiNKtrend-System-WP-091
+git status --short --branch
+pnpm install
+pnpm --filter @linktrend/autowork-gateway test -- src/workflows/linksites-v2.test.ts src/lib/linksites-v2.integration.test.ts
+```
+
+### Validation / Tests
+
+Test command:
+```bash
+pnpm --filter @linktrend/autowork-gateway test -- src/workflows/linksites-v2.test.ts src/lib/linksites-v2.integration.test.ts
+```
+
+Results:
+- `src/workflows/linksites-v2.test.ts`: 5 tests passed
+- `src/lib/linksites-v2.integration.test.ts`: 2 tests passed
+- Total: 43 tests passed across 9 test files
+
+Proof includes:
+- Lease requirement enforcement on write handles
+- Schema-aware client defaults (verified via code review against discovery files)
+- Development fallback behavior when services not configured
+- Idempotency preservation through workflow-runner
+
+### Boundaries
+
+- No new Supabase/Payload schemas invented.
+- No modifications to `/Users/linktrend/Projects/LiNKsites`.
+- No production credentials used.
+- LinkSkills `lease_id` requirements remain strict (fail-closed).
+
+### Blockers
+
+None.
+
+### Branch / Commit
+
+- Branch: `dev/cursor/WP-091-linksites-supabase-payload-sync`
+- Commit SHA: pending in this packet run
