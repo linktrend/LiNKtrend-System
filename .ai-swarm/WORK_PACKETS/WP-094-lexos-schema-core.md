@@ -1,4 +1,4 @@
-# WP-085 - LEXOS Core Schema Migration
+# WP-094 - LEXOS Core Schema Migration
 
 ## Objective
 
@@ -7,14 +7,14 @@ Copy and adapt LEXOS core identity and evidence schema (clients, matters, eviden
 ## Repo / Branch
 
 - Repo: `/Users/linktrend/Projects/LiNKtrend-System`
-- Branch: `dev/cursor/WP-085-lexos-schema-core`
+- Branch: `dev/cursor/WP-094-lexos-schema-core`
 - Base: `dev/cursor/WP-084-lexos-vertical-plugin-conversion-plan`
 
 ## Allowed Files
 
 - `packages/linkaios-db/migrations/lexos/*.sql`
 - `packages/linkaios-db/schemas/lexos/*.sql`
-- `.ai-swarm/WORK_PACKETS/WP-085*.md`
+- `.ai-swarm/WORK_PACKETS/WP-094*.md`
 - `.ai-swarm/DECISIONS.md`
 
 ## Prohibited Files

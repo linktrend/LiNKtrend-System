@@ -28,13 +28,13 @@ Once plumbing is complete, ongoing work will scale horizontal capabilities:
 
 Based on the v2 architecture and WP-042 discovery, the following gaps require execution packets:
 
-1. **WP-084: Local Artifact Storage Implementation**
+1. **WP-090: Local Artifact Storage Implementation**
    - **Goal:** Implement `autowork.linksites.artifact_write_local` to save the `WebsiteBuilderBot`'s `website_package` to the local filesystem.
-2. **WP-085: Supabase Mirror Upsert & Payload Sync**
+2. **WP-091: Supabase Mirror Upsert & Payload Sync**
    - **Goal:** Implement the `supabase_mirror_upsert` and `payload_sync_local` workflows based on the schemas found in `cms-mapping.json` and `lsites_core.schema.json`.
-3. **WP-086: Frontend Preview & Deterministic Checks**
+3. **WP-092: Frontend Preview & Deterministic Checks**
    - **Goal:** Implement `autowork.linksites.preview_readiness_check` to validate required pages and content against the live `web-master` local instance.
-4. **WP-087: Template Registry Hookup**
+4. **WP-093: Template Registry Hookup**
    - **Goal:** Surface the templates defined in `LiNKsites/apps/web-master/src/templates/registry.ts` as searchable context for `WebsiteBuilderBot`'s `template_id` selection.
 
 ## Blockers

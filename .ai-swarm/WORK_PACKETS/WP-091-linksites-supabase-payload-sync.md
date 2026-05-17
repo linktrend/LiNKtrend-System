@@ -1,4 +1,4 @@
-# WP-085 - LinkSites Supabase Mirror Upsert & Payload Sync
+# WP-091 - LinkSites Supabase Mirror Upsert & Payload Sync
 
 ## Objective
 Implement the `autowork.linksites.supabase_mirror_upsert` and `autowork.linksites.payload_sync_local` workflows to persist structured content.

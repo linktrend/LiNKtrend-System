@@ -1,4 +1,4 @@
-# WP-084 - LinkSites Local Artifact Storage Implementation
+# WP-090 - LinkSites Local Artifact Storage Implementation
 
 ## Objective
 Implement the `autowork.linksites.artifact_write_local` deterministic workflow in LiNKautowork.

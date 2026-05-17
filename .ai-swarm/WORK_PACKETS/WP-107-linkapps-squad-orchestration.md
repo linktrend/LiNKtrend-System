@@ -1,4 +1,4 @@
-# WP-087 - LiNKapps Squad Orchestration Design
+# WP-107 - LiNKapps Squad Orchestration Design
 
 ## Objective
 
@@ -7,13 +7,13 @@ Define how LiNKaios coordinates multiple LinkBot agents as an autonomous squad f
 ## Repo / branch
 
 - Repo: `/Users/linktrend/Projects/LiNKtrend-System`
-- Branch: `dev/cursor/WP-087-linkapps-squad-orchestration`
+- Branch: `dev/cursor/WP-107-linkapps-squad-orchestration`
 - Base: `development`
 
 ## Allowed files
 
 - `.ai-swarm/LINKAPPS_SQUAD_ORCHESTRATION_SPEC.md`
-- `.ai-swarm/WORK_PACKETS/WP-087*.md`
+- `.ai-swarm/WORK_PACKETS/WP-107*.md`
 - `.ai-swarm/AGENT_REPORTS/linkbot-agent.md`
 
 ## Prohibited files

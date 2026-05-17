@@ -1,4 +1,4 @@
-# WP-094 - LEXOS Capability Plugin Manifests
+# WP-103 - LEXOS Capability Plugin Manifests
 
 ## Objective
 
@@ -7,14 +7,14 @@ Create capability plugin manifests for LEXOS-required capabilities.
 ## Repo / Branch
 
 - Repo: `/Users/linktrend/Projects/LiNKtrend-System`
-- Branch: `dev/cursor/WP-094-lexos-capability-manifests`
+- Branch: `dev/cursor/WP-103-lexos-capability-manifests`
 - Base: `development`
 
 ## Allowed Files
 
 - `packages/linkaios-kernel/plugins/capabilities/lexos/*.yaml`
 - `packages/linkaios-kernel/plugins/capabilities/lexos/*.json`
-- `.ai-swarm/WORK_PACKETS/WP-094*.md`
+- `.ai-swarm/WORK_PACKETS/WP-103*.md`
 - `.ai-swarm/DECISIONS.md`
 
 ## Prohibited Files

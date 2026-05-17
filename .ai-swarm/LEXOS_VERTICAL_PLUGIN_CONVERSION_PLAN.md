@@ -431,44 +431,44 @@ The following work packets are required for safe migration/adaptation:
 
 | Packet | Objective | Priority |
 |--------|-----------|----------|
-| WP-085 | Copy/adapt LEXOS core schema (clients, matters, evidence, assertions) to LiNKaios plugin schema | High |
-| WP-086 | Copy/adapt workflow state tables (intake_records, workflow_states, risks) | High |
-| WP-087 | Copy/adapt artifact tables (case_stories, memos, drafts, critiques, outputs) | Medium |
+| WP-094 | Copy/adapt LEXOS core schema (clients, matters, evidence, assertions) to LiNKaios plugin schema | High |
+| WP-095 | Copy/adapt workflow state tables (intake_records, workflow_states, risks) | High |
+| WP-096 | Copy/adapt artifact tables (case_stories, memos, drafts, critiques, outputs) | Medium |
 
 ### 13.2 Type Definition Packets
 
 | Packet | Objective | Priority |
 |--------|-----------|----------|
-| WP-088 | Generate TypeScript types from adapted schema | High |
-| WP-089 | Define LEXOS-specific work request/response types | High |
+| WP-097 | Generate TypeScript types from adapted schema | High |
+| WP-098 | Define LEXOS-specific work request/response types | High |
 
 ### 13.3 Server Logic Packets
 
 | Packet | Objective | Priority |
 |--------|-----------|----------|
-| WP-090 | Adapt server mutation patterns (W0–W11) to LiNKaios plugin | Medium |
-| WP-091 | Adapt server query patterns to LiNKaios plugin | Medium |
+| WP-099 | Adapt server mutation patterns (W0–W11) to LiNKaios plugin | Medium |
+| WP-100 | Adapt server query patterns to LiNKaios plugin | Medium |
 
 ### 13.4 UI Component Packets
 
 | Packet | Objective | Priority |
 |--------|-----------|----------|
-| WP-092 | Adapt layout components (AppShell, Breadcrumbs, MatterSubnav) | Medium |
-| WP-093 | Adapt feature workspaces (evidence, assertions, support matrix) | Low |
+| WP-101 | Adapt layout components (AppShell, Breadcrumbs, MatterSubnav) | Medium |
+| WP-102 | Adapt feature workspaces (evidence, assertions, support matrix) | Low |
 
 ### 13.5 Integration Packets
 
 | Packet | Objective | Priority |
 |--------|-----------|----------|
-| WP-094 | Create LEXOS capability plugin manifests | Medium |
-| WP-095 | Create LEXOS LinkBot role contracts | Medium |
-| WP-096 | Create LEXOS LiNKautowork workflow hooks | Medium |
+| WP-103 | Create LEXOS capability plugin manifests | Medium |
+| WP-104 | Create LEXOS LinkBot role contracts | Medium |
+| WP-105 | Create LEXOS LiNKautowork workflow hooks | Medium |
 
 ---
 
 ## 14. Migration Strategy
 
-### 14.1 Phase 1: Schema Foundation (WP-085, WP-086, WP-087)
+### 14.1 Phase 1: Schema Foundation (WP-094, WP-095, WP-096)
 
 1. Copy LEXOS migrations to LiNKaios plugin schema location
 2. Adapt table names for plugin namespace (`lexos_*` prefix)
@@ -476,20 +476,20 @@ The following work packets are required for safe migration/adaptation:
 4. Generate TypeScript types
 5. Run migrations in development Supabase
 
-### 14.2 Phase 2: Server Logic (WP-090, WP-091)
+### 14.2 Phase 2: Server Logic (WP-099, WP-100)
 
 1. Adapt mutation patterns to use LinkSkills leases
 2. Adapt query patterns to respect tenant isolation
 3. Add audit event emissions
 4. Stub capability backends (mock mode)
 
-### 14.3 Phase 3: UI Components (WP-092, WP-093)
+### 14.3 Phase 3: UI Components (WP-101, WP-102)
 
 1. Adapt layout components for LiNKaios shell
 2. Create plugin-specific route handlers
 3. Integrate with LiNKaios trace/status views
 
-### 14.4 Phase 4: Integration (WP-094, WP-095, WP-096)
+### 14.4 Phase 4: Integration (WP-103, WP-104, WP-105)
 
 1. Declare capability plugins
 2. Declare LinkBot roles

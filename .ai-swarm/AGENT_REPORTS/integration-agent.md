@@ -1955,9 +1955,9 @@ Create `.ai-swarm/LEXOS_VERTICAL_PLUGIN_CONVERSION_PLAN.md` and follow-up packet
 ### Files Changed
 
 - `.ai-swarm/LEXOS_VERTICAL_PLUGIN_CONVERSION_PLAN.md` (new)
-- `.ai-swarm/WORK_PACKETS/WP-085-lexos-schema-core.md` (new)
-- `.ai-swarm/WORK_PACKETS/WP-088-lexos-types-generation.md` (new)
-- `.ai-swarm/WORK_PACKETS/WP-094-lexos-capability-manifests.md` (new)
+- `.ai-swarm/WORK_PACKETS/WP-094-lexos-schema-core.md` (new)
+- `.ai-swarm/WORK_PACKETS/WP-097-lexos-types-generation.md` (new)
+- `.ai-swarm/WORK_PACKETS/WP-103-lexos-capability-manifests.md` (new)
 
 ### Commands Run
 
@@ -2007,18 +2007,18 @@ ls -la /Users/linktrend/Projects/LiNKtrend-LEXOS/src/
 
 | Packet | Objective | Priority |
 |--------|-----------|----------|
-| WP-085 | Copy/adapt LEXOS core schema | High |
-| WP-086 | Copy/adapt workflow state tables | High |
-| WP-087 | Copy/adapt artifact tables | Medium |
-| WP-088 | Generate TypeScript types | High |
-| WP-089 | Define work request/response types | High |
-| WP-090 | Adapt server mutations | Medium |
-| WP-091 | Adapt server queries | Medium |
-| WP-092 | Adapt layout components | Medium |
-| WP-093 | Adapt feature workspaces | Low |
-| WP-094 | Create capability manifests | Medium |
-| WP-095 | Create LinkBot role contracts | Medium |
-| WP-096 | Create LiNKautowork workflow hooks | Medium |
+| WP-094 | Copy/adapt LEXOS core schema | High |
+| WP-095 | Copy/adapt workflow state tables | High |
+| WP-096 | Copy/adapt artifact tables | Medium |
+| WP-097 | Generate TypeScript types | High |
+| WP-098 | Define work request/response types | High |
+| WP-099 | Adapt server mutations | Medium |
+| WP-100 | Adapt server queries | Medium |
+| WP-101 | Adapt layout components | Medium |
+| WP-102 | Adapt feature workspaces | Low |
+| WP-103 | Create capability manifests | Medium |
+| WP-104 | Create LinkBot role contracts | Medium |
+| WP-105 | Create LiNKautowork workflow hooks | Medium |
 
 ### Architecture Boundaries Verified
 
@@ -2052,9 +2052,9 @@ Create `.ai-swarm/LINKAPPS_VERTICAL_PLUGIN_CONVERSION_PLAN.md` and follow-up pac
 ### Files Changed
 
 - `.ai-swarm/LINKAPPS_VERTICAL_PLUGIN_CONVERSION_PLAN.md` (new)
-- `.ai-swarm/WORK_PACKETS/WP-086-linkapps-plugin-manifest.md` (new)
-- `.ai-swarm/WORK_PACKETS/WP-087-linkapps-squad-orchestration.md` (new)
-- `.ai-swarm/WORK_PACKETS/WP-088-linkapps-capability-requirements.md` (new)
+- `.ai-swarm/WORK_PACKETS/WP-106-linkapps-plugin-manifest.md` (new)
+- `.ai-swarm/WORK_PACKETS/WP-107-linkapps-squad-orchestration.md` (new)
+- `.ai-swarm/WORK_PACKETS/WP-108-linkapps-capability-requirements.md` (new)
 
 ### Implementation Summary
 

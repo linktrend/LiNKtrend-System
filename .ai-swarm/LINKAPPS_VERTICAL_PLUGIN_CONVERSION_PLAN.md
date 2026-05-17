@@ -382,15 +382,15 @@ LiNKtrend-System/
 
 | Packet | Title | Dependencies | Owner |
 |--------|-------|--------------|-------|
-| **WP-086** | LiNKapps Plugin Manifest Definition | WP-085 | linkaios-agent |
-| **WP-087** | LiNKapps Squad Orchestration Design | WP-086 | linkbot-agent |
-| **WP-088** | LiNKapps Capability Requirements Spec | WP-086 | linkskills-agent |
-| **WP-089** | LiNKapps LiNKautowork Workflow Pack | WP-086, WP-088 | linkautowork-agent |
-| **WP-090** | LiNKapps UI Panel Design | WP-086 | frontend-agent |
-| **WP-091** | LiNKapps LiNKbrain Event Schema | WP-086 | linkbrain-agent |
-| **WP-092** | LiNKapps Capability Plugin Contracts | WP-088 | integration-agent |
+| **WP-106** | LiNKapps Plugin Manifest Definition | WP-085 | linkaios-agent |
+| **WP-107** | LiNKapps Squad Orchestration Design | WP-106 | linkbot-agent |
+| **WP-108** | LiNKapps Capability Requirements Spec | WP-106 | linkskills-agent |
+| **WP-109** | LiNKapps LiNKautowork Workflow Pack | WP-106, WP-108 | linkautowork-agent |
+| **WP-110** | LiNKapps UI Panel Design | WP-106 | frontend-agent |
+| **WP-111** | LiNKapps LiNKbrain Event Schema | WP-106 | linkbrain-agent |
+| **WP-112** | LiNKapps Capability Plugin Contracts | WP-108 | integration-agent |
 
-### 10.2 Packet WP-086: LiNKapps Plugin Manifest Definition
+### 10.2 Packet WP-106: LiNKapps Plugin Manifest Definition
 
 **Objective:** Create the concrete plugin manifest for `linkapps.app_factory`.
 
@@ -404,9 +404,9 @@ LiNKtrend-System/
 
 **Allowed Files:**
 - `plugins/vertical/linkapps/manifest.json`
-- `.ai-swarm/WORK_PACKETS/WP-086*.md`
+- `.ai-swarm/WORK_PACKETS/WP-106*.md`
 
-### 10.3 Packet WP-087: LiNKapps Squad Orchestration Design
+### 10.3 Packet WP-107: LiNKapps Squad Orchestration Design
 
 **Objective:** Define how LiNKaios coordinates multiple LinkBot agents as a squad.
 
@@ -422,7 +422,7 @@ LiNKtrend-System/
 - [ ] Artifact sharing mechanism designed
 - [ ] Failure/reassignment policy documented
 
-### 10.4 Packet WP-088: LiNKapps Capability Requirements Spec
+### 10.4 Packet WP-108: LiNKapps Capability Requirements Spec
 
 **Objective:** Define precise capability lease requirements for all LiNKapps operations.
 
@@ -496,7 +496,7 @@ This conversion plan establishes LiNKapps as a first-class LiNKaios vertical plu
 7. **Separates** Linktrend Development pod concerns from LiNKapps vertical concerns
 8. **Proposes** 7 follow-up work packets for implementation
 
-**Next Step:** WP-086 (Plugin Manifest Definition) when the user approves this plan and prioritizes the LiNKapps vertical for implementation.
+**Next Step:** WP-106 (Plugin Manifest Definition) when the user approves this plan and prioritizes the LiNKapps vertical for implementation.
 
 ---
 

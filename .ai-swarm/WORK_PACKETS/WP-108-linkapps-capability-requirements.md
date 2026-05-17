@@ -1,4 +1,4 @@
-# WP-088 - LiNKapps Capability Requirements Spec
+# WP-108 - LiNKapps Capability Requirements Spec
 
 ## Objective
 
@@ -7,13 +7,13 @@ Define precise capability lease requirements for all LiNKapps operations, per ca
 ## Repo / branch
 
 - Repo: `/Users/linktrend/Projects/LiNKtrend-System`
-- Branch: `dev/cursor/WP-088-linkapps-capability-requirements`
+- Branch: `dev/cursor/WP-108-linkapps-capability-requirements`
 - Base: `development`
 
 ## Allowed files
 
 - `.ai-swarm/LINKAPPS_CAPABILITY_REQUIREMENTS.md`
-- `.ai-swarm/WORK_PACKETS/WP-088*.md`
+- `.ai-swarm/WORK_PACKETS/WP-108*.md`
 - `.ai-swarm/AGENT_REPORTS/linkskills-agent.md`
 
 ## Prohibited files

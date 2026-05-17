@@ -1,4 +1,4 @@
-# WP-086 - LiNKapps Plugin Manifest Definition
+# WP-106 - LiNKapps Plugin Manifest Definition
 
 ## Objective
 
@@ -7,13 +7,13 @@ Create the concrete plugin manifest for `linkapps.app_factory` per `PLUGIN_ARCHI
 ## Repo / branch
 
 - Repo: `/Users/linktrend/Projects/LiNKtrend-System`
-- Branch: `dev/cursor/WP-086-linkapps-plugin-manifest`
+- Branch: `dev/cursor/WP-106-linkapps-plugin-manifest`
 - Base: `development`
 
 ## Allowed files
 
 - `plugins/vertical/linkapps/manifest.yaml`
-- `.ai-swarm/WORK_PACKETS/WP-086*.md`
+- `.ai-swarm/WORK_PACKETS/WP-106*.md`
 - `.ai-swarm/AGENT_REPORTS/integration-agent.md`
 
 ## Prohibited files

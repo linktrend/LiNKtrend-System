@@ -1,4 +1,4 @@
-# WP-086 - LinkSites Frontend Preview & Deterministic Checks
+# WP-092 - LinkSites Frontend Preview & Deterministic Checks
 
 ## Objective
 Implement `autowork.linksites.preview_readiness_check` and `autowork.linksites.crm_ready_to_contact_mark`.

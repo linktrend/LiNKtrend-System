@@ -1,4 +1,4 @@
-# WP-087 - LinkSites Template Registry Hookup
+# WP-093 - LinkSites Template Registry Hookup
 
 ## Objective
 Surface the `LiNKsites` master template registry to the `WebsiteBuilderBot` reasoning phase.

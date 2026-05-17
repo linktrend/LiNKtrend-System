@@ -1,4 +1,4 @@
-# WP-088 - LEXOS TypeScript Types Generation
+# WP-097 - LEXOS TypeScript Types Generation
 
 ## Objective
 
@@ -7,14 +7,14 @@ Generate TypeScript types from the adapted LEXOS schema for use in the LiNKaios 
 ## Repo / Branch
 
 - Repo: `/Users/linktrend/Projects/LiNKtrend-System`
-- Branch: `dev/cursor/WP-088-lexos-types-generation`
-- Base: `dev/cursor/WP-085-lexos-schema-core`
+- Branch: `dev/cursor/WP-097-lexos-types-generation`
+- Base: `dev/cursor/WP-094-lexos-schema-core`
 
 ## Allowed Files
 
 - `packages/linklogic-sdk/types/lexos/*.ts`
 - `packages/linkaios-db/types/lexos/*.ts`
-- `.ai-swarm/WORK_PACKETS/WP-088*.md`
+- `.ai-swarm/WORK_PACKETS/WP-097*.md`
 
 ## Prohibited Files
 
@@ -25,7 +25,7 @@ Generate TypeScript types from the adapted LEXOS schema for use in the LiNKaios 
 ## Required Context
 
 - `.ai-swarm/LEXOS_VERTICAL_PLUGIN_CONVERSION_PLAN.md`
-- `WP-085` output (adapted schema)
+- `WP-094` output (adapted schema)
 - `/Users/linktrend/Projects/LiNKtrend-LEXOS/src/types/database.ts`
 
 ## Steps
