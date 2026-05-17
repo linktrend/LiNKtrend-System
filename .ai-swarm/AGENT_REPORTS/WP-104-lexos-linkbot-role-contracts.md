@@ -52,4 +52,4 @@ Integrator merges `dev/cursor/WP-104-lexos-linkbot-role-contracts` into `develop
 
 ## Commit
 
-After this packet lands, record the canonical SHA with `git log -1 --oneline` on `dev/cursor/WP-104-lexos-linkbot-role-contracts`.
+`db95da5` docs: define LEXOS LinkBot role contracts
