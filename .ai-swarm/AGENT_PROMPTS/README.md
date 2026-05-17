@@ -67,5 +67,9 @@ WP-086 Execute the prompt in file WP-086-linkbrain-audit-ledger-completion.promp
 WP-087 Execute the prompt in file WP-087-linkbrain-memory-object-schemas.prompt.md located in .ai-swarm/AGENT_PROMPTS/.
 WP-088 Execute the prompt in file WP-088-linkbrain-context-assembler.prompt.md located in .ai-swarm/AGENT_PROMPTS/.
 WP-089 Execute the prompt in file WP-089-linkbrain-learning-benchmarks.prompt.md located in .ai-swarm/AGENT_PROMPTS/.
+WP-090 Execute the prompt in file WP-090-linksites-autowork-artifact-storage.prompt.md located in .ai-swarm/AGENT_PROMPTS/.
 WP-093 Execute the prompt in file WP-093-linksites-template-registry-discovery.prompt.md located in .ai-swarm/AGENT_PROMPTS/.
+WP-103 Execute the prompt in file WP-103-lexos-capability-manifests.prompt.md located in .ai-swarm/AGENT_PROMPTS/.
+WP-106 Execute the prompt in file WP-106-linkapps-plugin-manifest.prompt.md located in .ai-swarm/AGENT_PROMPTS/.
+WP-107 Execute the prompt in file WP-107-linkapps-squad-orchestration.prompt.md located in .ai-swarm/AGENT_PROMPTS/.
 ```
