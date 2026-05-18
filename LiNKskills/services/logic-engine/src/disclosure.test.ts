@@ -102,9 +102,21 @@ function validateDisclosureToken(
     }
 
     const [header, payload, signature] = parts;
+    if (!header || !payload || !signature) {
+      return {
+        valid: false,
+        error: { code: "TOKEN_MALFORMED", message: "Token parts missing" },
+      };
+    }
 
     // Verify signature
     const secret = env.DISCLOSURE_SIGNING_KEY;
+    if (!secret) {
+      return {
+        valid: false,
+        error: { code: "TOKEN_INVALID_SIGNATURE", message: "Signing key not configured" },
+      };
+    }
     if (!verifySignature(header, payload, signature, secret)) {
       return {
         valid: false,

@@ -139,6 +139,10 @@ const envSchema = z.object({
   LINKSITES_REGISTRY_PATH: optionalNonEmpty(),
   /** LinkSites template discovery mode: dynamic | static (default dynamic). */
   LINKSITES_TEMPLATE_DISCOVERY_MODE: z.enum(["dynamic", "static"]).optional(),
+  /** Signing key for LinkSkills disclosure tokens (development default provided). */
+  DISCLOSURE_SIGNING_KEY: optionalNonEmpty(),
+  /** Fallback signing key for LinkSkills operations. */
+  LINKSKILLS_SIGNING_KEY: optionalNonEmpty(),
 });
 
 export type Env = z.infer<typeof envSchema>;
