@@ -230,8 +230,8 @@ function buildTokenPayload(
     step_scope: request.scope,
     mode: request.mode,
     allowed_tools: allowedTools,
-    allowed_skills: allowedSkills,
-    lease_id: leaseId,
+    allowed_skills: allowedSkills ?? [],
+    ...(leaseId && { lease_id: leaseId }),
   };
 }
 
@@ -270,6 +270,12 @@ export function validateDisclosureToken(
     }
 
     const [header, payload, signature] = parts;
+    if (!header || !payload || !signature) {
+      return {
+        valid: false,
+        error: { code: "TOKEN_MALFORMED", message: "Token parts missing" },
+      };
+    }
 
     // Verify signature
     const secret = getSigningKey(env);
@@ -506,7 +512,7 @@ function buildDisclosureAuditRecord(
       actor_kind: request.actor.actor_kind,
       actor_id: request.actor.actor_id,
     },
-    lease_id: request.lease_id,
+    ...(request.lease_id && { lease_id: request.lease_id }),
   };
 }
 
@@ -545,20 +551,20 @@ export async function issueDisclosure(
 
   // Validate lease if provided
   if (request.lease_id) {
-    const leaseResult = await getLease(client, request.lease_id);
-    if (!leaseResult) {
+    const { data: lease, error: leaseError } = await getLease(client, request.lease_id);
+    if (leaseError || !lease) {
       return {
         success: false,
         failure: {
           code: "DISCLOSURE_LEASE_REQUIRED",
-          message: "Provided lease not found",
+          message: leaseError?.message ?? "Provided lease not found",
           retryable: false,
         },
       };
     }
 
     // Check lease expiry
-    if (leaseResult.expires_at && new Date(leaseResult.expires_at) < new Date()) {
+    if (lease.expires_at && new Date(lease.expires_at) < new Date()) {
       return {
         success: false,
         failure: {
@@ -570,9 +576,9 @@ export async function issueDisclosure(
     }
 
     // Validate lease matches request context
-    if (leaseResult.tenant_id !== request.tenant_id ||
-        leaseResult.run_id !== request.run_id ||
-        leaseResult.capability_id !== request.capability_id) {
+    if (lease.tenant_id !== request.tenant_id ||
+        lease.run_id !== request.run_id ||
+        lease.capability_id !== request.capability_id) {
       return {
         success: false,
         failure: {
