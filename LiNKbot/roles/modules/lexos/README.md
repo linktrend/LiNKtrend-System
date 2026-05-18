@@ -1,50 +1,29 @@
-# LEXOS Litigation Module LiNKbot Roles
+# LEXOS Litigation LiNKbot Roles
 
-Per system-completion-targets.md and LEXOS_VERTICAL_DISCOVERY.md
+Role definitions for the LEXOS Litigation module.
 
-## Purpose
+## Role Overview
 
-LEXOS Litigation runs through its declared W0-W11 workflow spine with:
-- UI surfaces
-- Adapted schemas
-- Deterministic workflow hooks
-- LiNKbot roles
-- LinkSkills connectors
-- LiNKbrain audit/memory events
+| Role ID | Stage | Purpose | Plane |
+|---------|-------|---------|-------|
+| `lexos_intake_agent` | W0 | Process new client/matter intake | LiNKbot |
+| `lexos_custodian_agent` | W1 | Maintain client master record | LiNKbot |
+| `lexos_story_architect` | W2 | Create case master story | LiNKbot |
+| `lexos_evidence_archivist` | W4 | Ingest and catalog evidence | LiNKbot + LiNKautowork |
+| `lexos_analyst` | W5 | Map evidence to assertions | LiNKbot |
+| `lexos_strategist` | W6 | Develop case strategy | LiNKbot |
+| `lexos_librarian` | W7 | Conduct legal research | LiNKbot |
+| `lexos_advocate` | W8 | Draft legal arguments | LiNKbot |
+| `lexos_adversary` | W9 | Perform adversarial critique | LiNKbot |
+| `lexos_rhetorician` | W11 | Refine output for persuasion | LiNKbot |
 
-## Planned Roles (Post-MVO)
+## Role Definitions
 
-### intake_coordinator
-
-Coordinates new matter intake, conflict checks, and initial documentation.
-
-### legal_researcher
-
-Performs legal research, case law analysis, and precedent identification.
-
-### evidence_analyst
-
-Analyzes evidence, extracts assertions, and builds support maps.
-
-### story_developer
-
-Develops case narrative, chronology, and witness storylines.
-
-### strategy_advisor
-
-Advises on legal strategy, adversarial positions, and motion planning.
-
-### document_drafter
-
-Drafts pleadings, motions, briefs, and other legal documents.
-
-### output_producer
-
-Produces final work products, exhibits, and presentation materials.
-
-## Status
-
-LEXOS roles are planned for post-MVO implementation. The litigation module
-requires WP-207 completion before role activation.
-
-See `.ai-swarm/WORK_PACKETS/WP-207-lexos-litigation-mvo.md` for details.
+Each role definition includes:
+- Purpose and responsibilities
+- Allowed modules and capabilities
+- Allowed skills and tools
+- Memory/context rules
+- Model/runtime profile
+- Audit events
+- Channel permissions
