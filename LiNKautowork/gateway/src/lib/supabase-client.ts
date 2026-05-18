@@ -17,7 +17,7 @@ export interface SupabaseMirrorClient {
   ): Promise<{ upsertedCount: number }>;
 }
 
-type FetchLike = (input: URL | RequestInfo, init?: RequestInit) => Promise<Response>;
+type FetchLike = (input: URL | string | Request, init?: RequestInit) => Promise<Response>;
 
 export function createSupabaseMirrorClient(deps?: {
   fetchImpl?: FetchLike;

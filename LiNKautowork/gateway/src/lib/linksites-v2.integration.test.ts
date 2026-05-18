@@ -2,11 +2,11 @@ import { describe, expect, it, vi } from "vitest";
 import { createSupabaseMirrorClient } from "./supabase-client.js";
 import { createPayloadSyncClient } from "./payload-client.js";
 
+type FetchLike = (input: URL | string | Request, init?: RequestInit) => Promise<Response>;
+
 describe("LinkSites v2 capability adapters", () => {
   it("writes to Supabase mirror tables via REST", async () => {
-    const fetchImpl = vi
-      .fn<(input: URL | RequestInfo, init?: RequestInit) => Promise<Response>>()
-      .mockResolvedValue(new Response(null, { status: 201 }));
+    const fetchImpl = vi.fn<Parameters<FetchLike>, ReturnType<FetchLike>>().mockResolvedValue(new Response(null, { status: 201 }));
 
     const client = createSupabaseMirrorClient({
       fetchImpl,
@@ -38,8 +38,7 @@ describe("LinkSites v2 capability adapters", () => {
   });
 
   it("syncs to Payload and checks readiness", async () => {
-    const fetchImpl = vi
-      .fn<(input: URL | RequestInfo, init?: RequestInit) => Promise<Response>>()
+    const fetchImpl = vi.fn<Parameters<FetchLike>, ReturnType<FetchLike>>()
       .mockResolvedValueOnce(new Response(null, { status: 201 })) // sync POST
       .mockResolvedValueOnce(new Response(JSON.stringify({ docs: [{ slug: "home" }] }), { status: 200 })) // pages query
       .mockResolvedValueOnce(new Response(JSON.stringify({ docs: [{ id: "media-1" }] }), { status: 200 })); // media query
@@ -68,8 +67,7 @@ describe("LinkSites v2 capability adapters", () => {
   });
 
   it("detects missing pages in readiness check", async () => {
-    const fetchImpl = vi
-      .fn<(input: URL | RequestInfo, init?: RequestInit) => Promise<Response>>()
+    const fetchImpl = vi.fn<Parameters<FetchLike>, ReturnType<FetchLike>>()
       .mockResolvedValueOnce(new Response(JSON.stringify({ docs: [{ slug: "home" }] }), { status: 200 })) // pages query - missing about, contact
       .mockResolvedValueOnce(new Response(JSON.stringify({ docs: [] }), { status: 200 })); // media query
 

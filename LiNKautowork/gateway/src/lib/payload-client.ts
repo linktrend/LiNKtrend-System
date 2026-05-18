@@ -18,7 +18,7 @@ export interface PayloadSyncClient {
   ): Promise<{ checksPassed: boolean; failedChecks: string[] }>;
 }
 
-type FetchLike = (input: URL | RequestInfo, init?: RequestInit) => Promise<Response>;
+type FetchLike = (input: URL | string | Request, init?: RequestInit) => Promise<Response>;
 
 export function createPayloadSyncClient(deps?: {
   fetchImpl?: FetchLike;
@@ -41,8 +41,8 @@ export function createPayloadSyncClient(deps?: {
     return `${payloadBaseUrl.replace(/\/$/, "")}/${path.replace(/^\//, "")}`;
   }
 
-  function headers(): HeadersInit {
-    const base: HeadersInit = {
+  function headers(): Record<string, string> {
+    const base: Record<string, string> = {
       "Content-Type": "application/json",
       Accept: "application/json",
     };

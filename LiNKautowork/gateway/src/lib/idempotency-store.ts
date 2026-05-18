@@ -9,7 +9,7 @@ type PersistedEntry = {
   tenantId: string;
   workflowHandle: string;
   workflowRunId: string;
-  status: "succeeded" | "failed";
+  status: "succeeded" | "failed" | "compensated";
   result: WorkflowInvokeResult;
   createdAt: string;
   expiresAt: string;
