@@ -20,6 +20,11 @@ const ADVANCED_LINKS: { href: string; title: string; description: string }[] = [
     title: "Data cleanup",
     description: "Automated cleanup worker health and recent activity.",
   },
+  {
+    href: "/devtools/mvo-proof",
+    title: "MVO proof surfaces",
+    description: "Deterministic WebsiteFactory, LEXOS, and LiNKapps proof snapshots for UI/UX testing.",
+  },
 ];
 
 export default async function SettingsAdvancedPage() {
