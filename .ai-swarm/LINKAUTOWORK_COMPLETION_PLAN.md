@@ -261,7 +261,7 @@ The following packets are designed for **parallel execution** where possible.
 
 **Allowed files:**
 - `LiNKautowork/gateway/src/lib/run-controller.ts` (new)
-- `apps/linkaios-web/src/panels/autowork-controls/` (new)
+- `LiNKaios/linkaios-web/src/panels/autowork-controls/` (new)
 
 **Acceptance criteria:**
 - [ ] Pause/resume workflow execution per tenant

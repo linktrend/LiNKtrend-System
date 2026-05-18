@@ -19,9 +19,9 @@ Initial required contracts:
 
 - Tenant
 - Role
-- LinkBot
-- Plugin
-- Capability
+- LiNKbot
+- Module
+- CapabilityConnector
 - CapabilityLease
 - WorkflowRun
 - AuditEvent

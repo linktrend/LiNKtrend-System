@@ -14,8 +14,8 @@ Cross-check **`docs/260414 - LiNKtrend Agentic System PRD.md` §9** for intent; 
 Read:
 
 - `docs/PRISM-Defender-PRD.md` (full)
-- `apps/prism-defender/src/index.ts`, `residue-sweep.ts`, `heartbeat-retention.ts`
-- `apps/bot-runtime/src/index.ts`
+- `LiNKguard/sidecar/linkguard/src/index.ts`, `residue-sweep.ts`, `heartbeat-retention.ts`
+- `LiNKbot/runtime-adapters/openclaw/bot-runtime/src/index.ts`
 - `packages/shared-config/src/index.ts`
 - `services/migrations/004_prism.sql`, `008_rls_and_prism_swept.sql`, `010_operator_roles_rls.sql` (prism policies)
 - `packages/linklogic-sdk/src/trace.ts` (pattern for new `recordPrismSessionEnd` if used)
@@ -40,13 +40,13 @@ Read:
 
 7. **Migrations:** Only if new columns needed; prefer **no migration** if `cleanup_events.action` + `detail` JSON suffice. If you add indexes (e.g. `(action, created_at)`), ship `018_*` + `ALL_IN_ONE.sql` tail update.
 
-8. **Tests:** `apps/prism-defender` or `packages/linklogic-sdk` — Vitest for path canonicalization / deny rules / “would delete” logic (pure functions). Mock `fs` where needed.
+8. **Tests:** `LiNKguard/sidecar/linkguard` or `packages/linklogic-sdk` — Vitest for path canonicalization / deny rules / “would delete” logic (pure functions). Mock `fs` where needed.
 
-9. **Lint:** Replace `echo "no lint"` in `apps/prism-defender/package.json` with real eslint **or** align with monorepo turbo lint pattern used by other apps.
+9. **Lint:** Replace `echo "no lint"` in `LiNKguard/sidecar/linkguard/package.json` with real eslint **or** align with monorepo turbo lint pattern used by other apps.
 
 10. **Verification (must run and report):**
 
-    - `pnpm --filter @linktrend/prism-defender build` (and `test` if added)
+    - `pnpm --filter @linktrend/linkguard build` (and `test` if added)
     - `pnpm --filter @linktrend/linklogic-sdk build && pnpm --filter @linktrend/linklogic-sdk test`
     - `pnpm --filter @linktrend/bot-runtime build` (or package name as in repo)
     - `pnpm --filter @linktrend/linkaios-web typecheck` if UI touched

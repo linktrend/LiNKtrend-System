@@ -122,8 +122,8 @@ ruby -ryaml -e "YAML.load_file('plugins/vertical/linkapps/manifest.yaml')"
 
 ### Scope
 
-- `apps/linkaios-web/src/lib/kernel/dispatch.ts`
-- `apps/linkaios-web/src/lib/kernel/dispatch.test.ts`
+- `LiNKaios/linkaios-web/src/lib/kernel/dispatch.ts`
+- `LiNKaios/linkaios-web/src/lib/kernel/dispatch.test.ts`
 - `.ai-swarm/AGENT_REPORTS/integration-agent.md`
 
 ### Implementation Summary
@@ -203,8 +203,8 @@ None. v2 capability contract packs (modes, lease shapes, idempotency, audit even
 
 ### Scope
 
-- `apps/linkaios-web/src/lib/kernel/dispatch.ts`
-- `apps/linkaios-web/src/lib/kernel/dispatch.test.ts`
+- `LiNKaios/linkaios-web/src/lib/kernel/dispatch.ts`
+- `LiNKaios/linkaios-web/src/lib/kernel/dispatch.test.ts`
 - `packages/shared-config/src/index.ts`
 - `.env.example`
 
@@ -245,9 +245,9 @@ pnpm --filter @linktrend/linkaios-web test -- src/lib/kernel/dispatch.test.ts sr
 
 ### Scope
 
-- `apps/linkaios-web/src/lib/kernel/plane-adapter.ts`
-- `apps/linkaios-web/src/lib/kernel/plane-adapter.test.ts`
-- `apps/linkaios-web/src/lib/kernel/dispatch.ts`
+- `LiNKaios/linkaios-web/src/lib/kernel/plane-adapter.ts`
+- `LiNKaios/linkaios-web/src/lib/kernel/plane-adapter.test.ts`
+- `LiNKaios/linkaios-web/src/lib/kernel/dispatch.ts`
 
 ### Implementation Summary
 
@@ -279,8 +279,8 @@ pnpm --filter @linktrend/linkaios-web test -- src/lib/kernel/dispatch.test.ts sr
 
 ### Scope
 
-- `apps/linkaios-web/src/lib/kernel/dispatch.ts`
-- `apps/linkaios-web/src/lib/kernel/dispatch.test.ts`
+- `LiNKaios/linkaios-web/src/lib/kernel/dispatch.ts`
+- `LiNKaios/linkaios-web/src/lib/kernel/dispatch.test.ts`
 
 ### Implementation Summary
 
@@ -313,8 +313,8 @@ pnpm --filter @linktrend/linkaios-web test -- src/lib/kernel/dispatch.test.ts sr
 
 - `.env.example`
 - `packages/shared-config/src/index.ts`
-- `apps/linkaios-web/src/lib/kernel/dispatch.ts`
-- `apps/linkaios-web/src/lib/kernel/plane-adapter.ts`
+- `LiNKaios/linkaios-web/src/lib/kernel/dispatch.ts`
+- `LiNKaios/linkaios-web/src/lib/kernel/plane-adapter.ts`
 - `services/migrations/028_linkskills_plane_external_mappings.sql`
 - `.ai-swarm/AGENT_REPORTS/security-auditor.md`
 - `.ai-swarm/AGENT_REPORTS/integration-agent.md`
@@ -378,21 +378,21 @@ pnpm --filter @linktrend/linkaios-web test -- src/lib/kernel/dispatch.test.ts sr
 
 - `.env.example`
 - `package.json`
-- `apps/linkaios-web/src/app/api/kernel/approvals/route.ts`
-- `apps/linkaios-web/src/app/api/kernel/run/[runId]/execute/route.ts`
-- `apps/linkaios-web/src/app/api/kernel/run/[runId]/trace/route.ts`
-- `apps/linkaios-web/src/app/api/kernel/work-request/route.ts`
-- `apps/linkaios-web/src/lib/kernel/api-auth.ts`
-- `apps/linkaios-web/src/lib/kernel/api-auth.test.ts`
-- `apps/linkaios-web/src/lib/kernel/dispatch.ts`
-- `apps/linkaios-web/src/lib/kernel/dispatch.test.ts`
-- `apps/linkaios-web/src/lib/kernel/kernel.test.ts`
-- `apps/linkaios-web/src/lib/kernel/orchestrator.ts`
-- `apps/linkaios-web/src/lib/kernel/plane-adapter.ts`
-- `apps/linkaios-web/src/lib/kernel/plane-adapter.test.ts`
-- `apps/linkaios-web/src/lib/kernel/types.ts`
-- `apps/linkaios-web/src/lib/plugins/websitefactory/stage-handlers.ts`
-- `apps/linkaios-web/src/middleware.ts`
+- `LiNKaios/linkaios-web/src/app/api/kernel/approvals/route.ts`
+- `LiNKaios/linkaios-web/src/app/api/kernel/run/[runId]/execute/route.ts`
+- `LiNKaios/linkaios-web/src/app/api/kernel/run/[runId]/trace/route.ts`
+- `LiNKaios/linkaios-web/src/app/api/kernel/work-request/route.ts`
+- `LiNKaios/linkaios-web/src/lib/kernel/api-auth.ts`
+- `LiNKaios/linkaios-web/src/lib/kernel/api-auth.test.ts`
+- `LiNKaios/linkaios-web/src/lib/kernel/dispatch.ts`
+- `LiNKaios/linkaios-web/src/lib/kernel/dispatch.test.ts`
+- `LiNKaios/linkaios-web/src/lib/kernel/kernel.test.ts`
+- `LiNKaios/linkaios-web/src/lib/kernel/orchestrator.ts`
+- `LiNKaios/linkaios-web/src/lib/kernel/plane-adapter.ts`
+- `LiNKaios/linkaios-web/src/lib/kernel/plane-adapter.test.ts`
+- `LiNKaios/linkaios-web/src/lib/kernel/types.ts`
+- `LiNKaios/linkaios-web/src/lib/plugins/websitefactory/stage-handlers.ts`
+- `LiNKaios/linkaios-web/src/middleware.ts`
 - `packages/linklogic-sdk/src/contracts-mvo.ts`
 - `packages/linklogic-sdk/src/contracts-mvo.test.ts`
 - `packages/shared-config/src/index.ts`
@@ -475,8 +475,8 @@ pnpm --filter @linktrend/linkaios-web test -- src/lib/kernel/api-auth.test.ts sr
 
 ### Scope
 
-- `apps/linkaios-web/src/lib/kernel/dispatch.ts`
-- `apps/linkaios-web/src/lib/kernel/dispatch.test.ts`
+- `LiNKaios/linkaios-web/src/lib/kernel/dispatch.ts`
+- `LiNKaios/linkaios-web/src/lib/kernel/dispatch.test.ts`
 - `packages/shared-config/src/index.ts`
 - `.env.example`
 
@@ -523,7 +523,7 @@ Implemented the requested foundation changes without enabling external writes:
 - `packages/linklogic-sdk/src/contracts-mvo.ts`
 - `packages/linklogic-sdk/src/contracts-mvo.test.ts`
 - `packages/shared-config/src/index.ts`
-- `apps/linkaios-web/src/lib/kernel/dispatch.ts`
+- `LiNKaios/linkaios-web/src/lib/kernel/dispatch.ts`
 - `.env.example`
 
 ### Notes
@@ -572,7 +572,7 @@ LINKAIOS_ENABLE_MVO_SERVICE_BYPASS=true pnpm test:mvo:e2e
 - `.ai-swarm/WORK_PACKETS/WP-017-preview-publishing-upgrade-digitalocean-payload.md`
 - `.ai-swarm/CONTRACTS_MVO.md`
 - `.ai-swarm/DEMO_RUNBOOK_WEBSITEFACTORY_MVO.md`
-- `apps/linkaios-web/src/lib/kernel/dispatch.ts`
+- `LiNKaios/linkaios-web/src/lib/kernel/dispatch.ts`
 - `scripts/run-e2e.ts`
 
 ### Recommendation (Safest Path)
@@ -634,14 +634,14 @@ rg -n "WP-017|preview_artifact_ref|preview_url|DigitalOcean|Payload|LinkSites|pr
   .ai-swarm/WORK_PACKETS/WP-017-preview-publishing-upgrade-digitalocean-payload.md \
   .ai-swarm/CONTRACTS_MVO.md \
   .ai-swarm/DEMO_RUNBOOK_WEBSITEFACTORY_MVO.md \
-  apps/linkaios-web/src/lib/kernel/dispatch.ts \
+  LiNKaios/linkaios-web/src/lib/kernel/dispatch.ts \
   scripts/run-e2e.ts
 sed -n '1,240p' .ai-swarm/WORK_PACKETS/WP-017-preview-publishing-upgrade-digitalocean-payload.md
 sed -n '1,260p' .ai-swarm/CONTRACTS_MVO.md
 sed -n '500,760p' .ai-swarm/CONTRACTS_MVO.md
 sed -n '1,260p' .ai-swarm/DEMO_RUNBOOK_WEBSITEFACTORY_MVO.md
-sed -n '1,260p' apps/linkaios-web/src/lib/kernel/dispatch.ts
-sed -n '240,460p' apps/linkaios-web/src/lib/kernel/dispatch.ts
+sed -n '1,260p' LiNKaios/linkaios-web/src/lib/kernel/dispatch.ts
+sed -n '240,460p' LiNKaios/linkaios-web/src/lib/kernel/dispatch.ts
 sed -n '1,260p' scripts/run-e2e.ts
 ```
 
@@ -684,20 +684,20 @@ sed -n '1,260p' scripts/run-e2e.ts
 ### 2) Changed File Grouping
 
 #### runtime/kernel
-- `apps/linkaios-web/src/lib/kernel/api-auth.ts`
-- `apps/linkaios-web/src/lib/kernel/dispatch.ts`
-- `apps/linkaios-web/src/lib/kernel/orchestrator.ts`
-- `apps/linkaios-web/src/lib/kernel/types.ts`
-- `apps/linkaios-web/src/app/api/kernel/approvals/route.ts`
-- `apps/linkaios-web/src/app/api/kernel/run/[runId]/execute/route.ts`
-- `apps/linkaios-web/src/app/api/kernel/run/[runId]/trace/route.ts`
-- `apps/linkaios-web/src/app/api/kernel/work-request/route.ts`
-- `apps/linkaios-web/src/lib/plugins/websitefactory/stage-handlers.ts`
-- `apps/linkaios-web/src/middleware.ts`
+- `LiNKaios/linkaios-web/src/lib/kernel/api-auth.ts`
+- `LiNKaios/linkaios-web/src/lib/kernel/dispatch.ts`
+- `LiNKaios/linkaios-web/src/lib/kernel/orchestrator.ts`
+- `LiNKaios/linkaios-web/src/lib/kernel/types.ts`
+- `LiNKaios/linkaios-web/src/app/api/kernel/approvals/route.ts`
+- `LiNKaios/linkaios-web/src/app/api/kernel/run/[runId]/execute/route.ts`
+- `LiNKaios/linkaios-web/src/app/api/kernel/run/[runId]/trace/route.ts`
+- `LiNKaios/linkaios-web/src/app/api/kernel/work-request/route.ts`
+- `LiNKaios/linkaios-web/src/lib/plugins/websitefactory/stage-handlers.ts`
+- `LiNKaios/linkaios-web/src/middleware.ts`
 
 #### tests/e2e
-- `apps/linkaios-web/src/lib/kernel/api-auth.test.ts`
-- `apps/linkaios-web/src/lib/kernel/kernel.test.ts`
+- `LiNKaios/linkaios-web/src/lib/kernel/api-auth.test.ts`
+- `LiNKaios/linkaios-web/src/lib/kernel/kernel.test.ts`
 - `scripts/run-e2e.ts`
 
 #### swarm docs/reports
@@ -724,7 +724,7 @@ sed -n '1,260p' scripts/run-e2e.ts
 ### 4) PR Packaging Recommendation
 
 - Recommend **split into two PRs**:
-  1. Runtime + tests (`apps/linkaios-web/**`, `scripts/run-e2e.ts`, `.env.example`, `package.json`)
+  1. Runtime + tests (`LiNKaios/linkaios-web/**`, `scripts/run-e2e.ts`, `.env.example`, `package.json`)
   2. Swarm/report/roadmap docs (`.ai-swarm/**`)
 - Rationale: runtime diff is security-sensitive and test-backed; docs/roadmap churn is large and can obscure code review.
 
@@ -794,7 +794,7 @@ pnpm --filter @linktrend/linkaios-web test -- src/lib/kernel/api-auth.test.ts sr
 - Kernel API auth/authz wiring (`api-auth.ts`, kernel API routes, middleware bypass gate)
 - E2E bypass defaults and service-secret handling
 - `PreviewOutput.audit_event_ids` conformance to `CONTRACTS_MVO.md` §§8-10
-- Cross-plane role attribution across LiNKaios / LiNKbrain / LinkSkills / LiNKautowork / LinkBot
+- Cross-plane role attribution across LiNKaios / LiNKbrain / LinkSkills / LiNKautowork / LiNKbot
 - Merge-blocking regression risks after WP-020/WP-021/WP-022
 
 ### Findings
@@ -802,13 +802,13 @@ pnpm --filter @linktrend/linkaios-web test -- src/lib/kernel/api-auth.test.ts sr
 1. **WP-020 closure confirmed:** kernel routes enforce actor resolution + scope authorization checks for tenant/run/approval access.
 2. **WP-021/WP-022 closure confirmed:** required preview-output audit action counts validate on a fresh run.
 3. **Patched regression risk:** retry-exhausted failure path now emits and persists `run.failed` audit refs.
-4. **Patched role attribution gap:** LinkBot/LinkSkills/LiNKautowork audit events now stamp the correct `plane`; duplicate plugin/kernel stage lifecycle audit writes removed.
+4. **Patched role attribution gap:** LiNKbot/LinkSkills/LiNKautowork audit events now stamp the correct `plane`; duplicate plugin/kernel stage lifecycle audit writes removed.
 
 ### Files Changed
 
-- `apps/linkaios-web/src/lib/kernel/orchestrator.ts`
-- `apps/linkaios-web/src/lib/kernel/dispatch.ts`
-- `apps/linkaios-web/src/lib/plugins/websitefactory/stage-handlers.ts`
+- `LiNKaios/linkaios-web/src/lib/kernel/orchestrator.ts`
+- `LiNKaios/linkaios-web/src/lib/kernel/dispatch.ts`
+- `LiNKaios/linkaios-web/src/lib/plugins/websitefactory/stage-handlers.ts`
 
 ### Commands Run
 
@@ -1272,14 +1272,14 @@ The prior WP-013 snapshot showed empty `lease_ids`, `workflow_run_ids`, and `aud
 - `linkaios_kernel.stages` contains refs for this run:
   - lease refs on `crm_upsert`, `plane_project_create`, `preview_publish`
   - workflow ref on `look_and_feel`
-  - audit refs on LinkBot stages
+  - audit refs on LiNKbot stages
 - `linkskills.lease_ledger` has 3 executed leases for this run.
 - `linkbrain.audit_events` has 47 events for this run (`subject.run_id` match), including workflow and lease lifecycle events.
 - `linkaios_kernel.runs.outputs_json.preview_artifact_ref` is populated.
 
 ### Minimal patch applied
 
-- File: `apps/linkaios-web/src/lib/kernel/orchestrator.ts`
+- File: `LiNKaios/linkaios-web/src/lib/kernel/orchestrator.ts`
 - Function: `getRunTrace(...)`
 - Change: assign `run.stages = stages` before returning so `buildPreviewOutput(run)` can flatten refs from actual stage data.
 - No schema/table/contract changes.
@@ -1332,13 +1332,13 @@ Hardened WP-013 testability shims around kernel auth so MVO E2E remains runnable
 
 ### Files changed
 
-- `apps/linkaios-web/src/lib/kernel/api-auth.ts`
-- `apps/linkaios-web/src/lib/kernel/api-auth.test.ts`
-- `apps/linkaios-web/src/app/api/kernel/work-request/route.ts`
-- `apps/linkaios-web/src/app/api/kernel/approvals/route.ts`
-- `apps/linkaios-web/src/app/api/kernel/run/[runId]/execute/route.ts`
-- `apps/linkaios-web/src/app/api/kernel/run/[runId]/trace/route.ts`
-- `apps/linkaios-web/src/middleware.ts`
+- `LiNKaios/linkaios-web/src/lib/kernel/api-auth.ts`
+- `LiNKaios/linkaios-web/src/lib/kernel/api-auth.test.ts`
+- `LiNKaios/linkaios-web/src/app/api/kernel/work-request/route.ts`
+- `LiNKaios/linkaios-web/src/app/api/kernel/approvals/route.ts`
+- `LiNKaios/linkaios-web/src/app/api/kernel/run/[runId]/execute/route.ts`
+- `LiNKaios/linkaios-web/src/app/api/kernel/run/[runId]/trace/route.ts`
+- `LiNKaios/linkaios-web/src/middleware.ts`
 
 ### What changed
 
@@ -1393,9 +1393,9 @@ Result:
 
 ### Integrator follow-up fixes
 
-- `apps/linkaios-web/src/app/api/kernel/work-request/route.ts`
+- `LiNKaios/linkaios-web/src/app/api/kernel/work-request/route.ts`
   - Ignores caller-provided `requested_by` and derives the actor from `resolveKernelActor()` to avoid request-body actor spoofing.
-- `apps/linkaios-web/src/middleware.ts`
+- `LiNKaios/linkaios-web/src/middleware.ts`
   - Middleware service pass-through now also requires `LINKAIOS_ENABLE_MVO_SERVICE_BYPASS=true` or `1`, matching route-handler auth semantics.
 - `.env.example`
   - Documents `LINKAIOS_ENABLE_MVO_SERVICE_BYPASS`, `LINKAIOS_MVO_KERNEL_OPERATOR_USER_IDS`, and `LINKAIOS_DISABLE_MVO_USER_KERNEL_API`.
@@ -1428,9 +1428,9 @@ Historical review gate (superseded by WP-022/WP-023 passing proof):
 - `.ai-swarm/CONTRACTS_MVO.md` (§§8-10, §12)
 - `.ai-swarm/DECISIONS.md`
 - `git diff` and `git diff --stat`
-- `apps/linkaios-web/src/lib/kernel/**`
-- `apps/linkaios-web/src/app/api/kernel/**`
-- `apps/linkaios-web/src/middleware.ts` (change check)
+- `LiNKaios/linkaios-web/src/lib/kernel/**`
+- `LiNKaios/linkaios-web/src/app/api/kernel/**`
+- `LiNKaios/linkaios-web/src/middleware.ts` (change check)
 - `services/migrations/023_linkbrain_audit_envelope.sql`
 - `services/migrations/025_linkaios_kernel_orchestration.sql`
 - `services/migrations/026_linkbrain_rpc_wrapper.sql`
@@ -1443,13 +1443,13 @@ Current working tree delta:
 ```text
  .ai-swarm/AGENT_COORDINATION.md                  |  8 +--
  .ai-swarm/AGENT_REPORTS/integration-agent.md     | 68 +++++++++++++++++++++++-
- apps/linkaios-web/src/lib/kernel/orchestrator.ts |  3 ++
+ LiNKaios/linkaios-web/src/lib/kernel/orchestrator.ts |  3 ++
  3 files changed, 75 insertions(+), 4 deletions(-)
 ```
 
 Direct kernel/runtime code delta in this review window:
 
-- `apps/linkaios-web/src/lib/kernel/orchestrator.ts`
+- `LiNKaios/linkaios-web/src/lib/kernel/orchestrator.ts`
   - `getRunTrace(...)` now assigns `run.stages = stages` before `buildPreviewOutput(run)` aggregation.
 
 ### 1) Files changed since WP-013/WP-014 fixes
@@ -1458,12 +1458,12 @@ Using the current stabilization baseline (`4db91d0`) plus uncommitted updates in
 
 - `.ai-swarm/AGENT_COORDINATION.md`
 - `.ai-swarm/AGENT_REPORTS/integration-agent.md`
-- `apps/linkaios-web/src/lib/kernel/orchestrator.ts`
+- `LiNKaios/linkaios-web/src/lib/kernel/orchestrator.ts`
 
 No current diff in:
 
-- `apps/linkaios-web/src/app/api/kernel/**`
-- `apps/linkaios-web/src/middleware.ts`
+- `LiNKaios/linkaios-web/src/app/api/kernel/**`
+- `LiNKaios/linkaios-web/src/middleware.ts`
 - `services/migrations/023_linkbrain_audit_envelope.sql`
 - `services/migrations/025_linkaios_kernel_orchestration.sql`
 - `services/migrations/026_linkbrain_rpc_wrapper.sql`
@@ -1471,7 +1471,7 @@ No current diff in:
 
 ### 2) Risk classification (file-by-file)
 
-- `apps/linkaios-web/src/lib/kernel/orchestrator.ts`
+- `LiNKaios/linkaios-web/src/lib/kernel/orchestrator.ts`
   - Classification: **production-safe**
   - Why: minimal, deterministic fix restoring contract-expected ref flattening; no API/schema/permission surface change.
 - `.ai-swarm/AGENT_COORDINATION.md`
@@ -1538,8 +1538,8 @@ Recommended packets before merge:
 
 - `.ai-swarm/CONTRACTS_MVO.md` §§8-10
 - `.ai-swarm/AGENT_REPORTS/integration-agent.md`
-- `apps/linkaios-web/src/lib/kernel/orchestrator.ts`
-- `apps/linkaios-web/src/lib/kernel/dispatch.ts`
+- `LiNKaios/linkaios-web/src/lib/kernel/orchestrator.ts`
+- `LiNKaios/linkaios-web/src/lib/kernel/dispatch.ts`
 - `scripts/run-e2e.ts`
 
 ### Minimal patch summary
@@ -1580,8 +1580,8 @@ After running `scripts/run-e2e.ts` with a fresh idempotency key:
    - Query by `event_id in (preview_output.audit_event_ids...)` and verify exact required action counts.
    - Query by `subject->>run_id = {run_id}` and verify exact required action counts.
 3. Runtime source proof:
-   - Output-level events emitted from `apps/linkaios-web/src/lib/kernel/dispatch.ts` lease execution flow.
-   - Run-level events persisted from `apps/linkaios-web/src/lib/kernel/orchestrator.ts` run lifecycle flow.
+   - Output-level events emitted from `LiNKaios/linkaios-web/src/lib/kernel/dispatch.ts` lease execution flow.
+   - Run-level events persisted from `LiNKaios/linkaios-web/src/lib/kernel/orchestrator.ts` run lifecycle flow.
 
 ## WP-020 — Kernel API tenant/run/approval authorization (2026-05-15)
 
@@ -1589,12 +1589,12 @@ After running `scripts/run-e2e.ts` with a fresh idempotency key:
 Implemented minimal authorization hardening for `/api/kernel` routes so user-token callers are not only authenticated but also authorized for tenant/run/approval scope.
 
 ### Files changed
-- `apps/linkaios-web/src/lib/kernel/api-auth.ts`
-- `apps/linkaios-web/src/lib/kernel/api-auth.test.ts`
-- `apps/linkaios-web/src/app/api/kernel/approvals/route.ts`
-- `apps/linkaios-web/src/app/api/kernel/run/[runId]/execute/route.ts`
-- `apps/linkaios-web/src/app/api/kernel/run/[runId]/trace/route.ts`
-- `apps/linkaios-web/src/app/api/kernel/work-request/route.ts`
+- `LiNKaios/linkaios-web/src/lib/kernel/api-auth.ts`
+- `LiNKaios/linkaios-web/src/lib/kernel/api-auth.test.ts`
+- `LiNKaios/linkaios-web/src/app/api/kernel/approvals/route.ts`
+- `LiNKaios/linkaios-web/src/app/api/kernel/run/[runId]/execute/route.ts`
+- `LiNKaios/linkaios-web/src/app/api/kernel/run/[runId]/trace/route.ts`
+- `LiNKaios/linkaios-web/src/app/api/kernel/work-request/route.ts`
 - `.ai-swarm/AGENT_REPORTS/integration-agent.md`
 
 ### What changed
@@ -1643,7 +1643,7 @@ Command passed:
 - `.ai-swarm/WORK_PACKETS/WP-016-real-plane-integration-cutover.md`
 - `.ai-swarm/CONTRACTS_MVO.md`
 - `.ai-swarm/INTEGRATION_QUEUE.md`
-- `apps/linkaios-web/src/lib/kernel/dispatch.ts`
+- `LiNKaios/linkaios-web/src/lib/kernel/dispatch.ts`
 - `services/migrations/024_linkskills_capability_lease.sql`
 
 ### Conclusions (smallest safe cutover, no external writes yet)
@@ -1703,11 +1703,11 @@ Command passed:
 - kill switch tripped: `LEASE_KILL_SWITCH` (existing behavior unchanged)
 
 ### Files expected to change in implementation
-- `apps/linkaios-web/src/lib/kernel/dispatch.ts`
-- `apps/linkaios-web/src/lib/plugins/websitefactory/stage-handlers.ts`
+- `LiNKaios/linkaios-web/src/lib/kernel/dispatch.ts`
+- `LiNKaios/linkaios-web/src/lib/plugins/websitefactory/stage-handlers.ts`
 - `services/migrations/024_linkskills_capability_lease.sql`
 - `packages/shared-config/src/index.ts`
-- likely new adapter/test files under `apps/linkaios-web/src/lib/kernel/*`
+- likely new adapter/test files under `LiNKaios/linkaios-web/src/lib/kernel/*`
 
 ### Commands run
 - `sed -n` reads on requested packet/contracts/queue/kernel/migration files
@@ -1731,7 +1731,7 @@ Reviewed:
 - `.ai-swarm/WORK_PACKETS/WP-015-real-crm-integration-cutover.md`
 - `.ai-swarm/CONTRACTS_MVO.md`
 - `.ai-swarm/INTEGRATION_QUEUE.md`
-- `apps/linkaios-web/src/lib/kernel/dispatch.ts`
+- `LiNKaios/linkaios-web/src/lib/kernel/dispatch.ts`
 - `services/migrations/024_linkskills_capability_lease.sql`
 
 ### Recommendation
@@ -1761,7 +1761,7 @@ Readiness endpoint checks (read-only):
 ### Exact files that would change (next packet)
 Minimal expected file set:
 
-- `apps/linkaios-web/src/lib/kernel/dispatch.ts`
+- `LiNKaios/linkaios-web/src/lib/kernel/dispatch.ts`
 - `packages/shared-config/src/index.ts`
 - `.env.example`
 - `packages/linklogic-sdk/src/contracts-mvo.ts`
@@ -1819,7 +1819,7 @@ Required in next packet:
 Implemented a read-only Chatwoot readiness adapter behind env flags for `crm.upsert` execution, preserving stub as default and preserving existing kernel result/audit contracts.
 
 ### Changes made
-- `apps/linkaios-web/src/lib/kernel/dispatch.ts`
+- `LiNKaios/linkaios-web/src/lib/kernel/dispatch.ts`
   - Added CRM readiness gate in `executeLinkSkillsLease` for `crm.upsert`.
   - Behavior:
     - default path unchanged (`CRM_PROVIDER` unset or `stub`, `CRM_MODE` unset or `stub_write`) => existing stub execution.
@@ -1832,7 +1832,7 @@ Implemented a read-only Chatwoot readiness adapter behind env flags for `crm.ups
     - other fetch/network/HTTP failures => `INTEGRATION_UNAVAILABLE`
   - `crm.upsert` output shape and audit event write path unchanged on success.
 
-- `apps/linkaios-web/src/lib/kernel/dispatch.test.ts` (new)
+- `LiNKaios/linkaios-web/src/lib/kernel/dispatch.test.ts` (new)
   - Added unit tests covering:
     - stub-default behavior (no readiness fetch)
     - missing config mapping
@@ -1876,7 +1876,7 @@ pnpm --filter @linktrend/linkaios-web test -- src/lib/kernel/dispatch.test.ts sr
 - `.ai-swarm/AGENT_REPORTS/integration-agent.md` (WP-029/WP context)
 - `.ai-swarm/WORK_PACKETS/WP-016-real-plane-integration-cutover.md`
 - `services/migrations/024_linkskills_capability_lease.sql`
-- `apps/linkaios-web/src/lib/kernel/dispatch.ts`
+- `LiNKaios/linkaios-web/src/lib/kernel/dispatch.ts`
 
 ### Changes Implemented
 
@@ -1889,16 +1889,16 @@ pnpm --filter @linktrend/linkaios-web test -- src/lib/kernel/dispatch.test.ts sr
      - `linkskills.upsert_plane_project_mapping(uuid, text, text)`
      - `linkskills.upsert_plane_work_item_mapping(text, text, text)`
 2. Added Plane adapter scaffold in kernel:
-   - `apps/linkaios-web/src/lib/kernel/plane-adapter.ts`
+   - `LiNKaios/linkaios-web/src/lib/kernel/plane-adapter.ts`
    - Introduced adapter interface and mode resolver with default `stub` behavior.
 3. Wired scaffold in dispatch without enabling remote writes:
-   - `apps/linkaios-web/src/lib/kernel/dispatch.ts`
+   - `LiNKaios/linkaios-web/src/lib/kernel/dispatch.ts`
    - `plane.project.create` path now goes through adapter scaffold but still returns local stub IDs.
 4. Added env surface for future cutover mode selection:
    - `packages/shared-config/src/index.ts`
    - `LINKSKILLS_PLANE_MODE` enum: `stub | shadow_readiness | live` (default remains stub when unset).
 5. Added focused unit validation:
-   - `apps/linkaios-web/src/lib/kernel/plane-adapter.test.ts`
+   - `LiNKaios/linkaios-web/src/lib/kernel/plane-adapter.test.ts`
    - Confirms default stub mode and safe non-writing behavior even when mode is set to `live` (scaffold phase).
 
 ### Contract/Audit Compatibility
@@ -1913,7 +1913,7 @@ pnpm --filter @linktrend/linkaios-web test -- src/lib/kernel/dispatch.test.ts sr
 sed -n '1,240p' .ai-swarm/AGENT_REPORTS/integration-agent.md
 sed -n '1,260p' .ai-swarm/WORK_PACKETS/WP-016-real-plane-integration-cutover.md
 sed -n '1,240p' services/migrations/024_linkskills_capability_lease.sql
-sed -n '1,300p' apps/linkaios-web/src/lib/kernel/dispatch.ts
+sed -n '1,300p' LiNKaios/linkaios-web/src/lib/kernel/dispatch.ts
 rg -n "LINKSKILLS_PLANE_MODE|plane\.project\.create|plane\.task\.create|work item|work-item|mvo_projects|mvo_tasks|record_execution|request_lease" apps services packages -g '!**/node_modules/**'
 pnpm --filter @linktrend/linkaios-web test -- src/lib/kernel/kernel.test.ts src/lib/kernel/plane-adapter.test.ts
 ```
@@ -2036,7 +2036,7 @@ ELIFECYCLE Command failed with exit code 1.
   - message: `insert or update on table "lease_ledger" violates foreign key constraint "lease_ledger_capability_id_fkey"`
 - Root cause: runtime requested v2 `cap.*` capability ids while local LinkSkills capability catalog still had legacy ids only.
 - Fix applied:
-  - Added runtime capability-id compatibility mapping in `apps/linkaios-web/src/lib/plugins/websitefactory/stage-handlers.ts`.
+  - Added runtime capability-id compatibility mapping in `LiNKaios/linkaios-web/src/lib/plugins/websitefactory/stage-handlers.ts`.
   - Added lease acquisition/execution for capability-mapped LiNKautowork workflow stages before workflow dispatch, then passed `lease_id` into workflow invocation.
   - Adjusted E2E ref assertions to require lease refs for lease-gated stages and audit/workflow refs for stages that currently emit them.
 
@@ -2104,7 +2104,7 @@ ls -la /Users/linktrend/Projects/LiNKtrend-LEXOS/src/
 
 1. **Plugin Identity**: `lexos_litigation` vertical plugin, version `1.0.0-mvo`, development mode only
 2. **Work Request Types**: 11 types mapped from W0–W11 workflows
-3. **LinkBot Roles**: 10 roles defined (intake, custodian, story, evidence, analyst, strategist, librarian, advocate, adversary, rhetorician)
+3. **LiNKbot Roles**: 10 roles defined (intake, custodian, story, evidence, analyst, strategist, librarian, advocate, adversary, rhetorician)
 4. **Capability Plugins**: 9 capabilities required (storage, extraction, research, LLM, CRM/Plane stubs)
 5. **LiNKautowork Hooks**: 5 workflow handles defined
 6. **Data Objects**: 21 tables mapped from LEXOS schema
@@ -2133,7 +2133,7 @@ ls -la /Users/linktrend/Projects/LiNKtrend-LEXOS/src/
 | WP-101 | Adapt layout components | Medium |
 | WP-102 | Adapt feature workspaces | Low |
 | WP-103 | Create capability manifests | Medium |
-| WP-104 | Create LinkBot role contracts | Medium |
+| WP-104 | Create LiNKbot role contracts | Medium |
 | WP-105 | Create LiNKautowork workflow hooks | Medium |
 
 ### Architecture Boundaries Verified
@@ -2209,8 +2209,8 @@ Surface the LiNKsites template registry to the WebsiteBuilderBot reasoning phase
    - Falls back to static registry data (marketing-smb-v1) when dynamic unavailable
    - Returns available template IDs, default template ID, and full metadata
 
-2. **LinkBot Context Injection**: Updated `dispatchToLinkBot()` in kernel dispatch to:
-   - Discover and inject template context into LinkBot inputs for `website_package_generation` stage
+2. **LiNKbot Context Injection**: Updated `dispatchToLiNKbot()` in kernel dispatch to:
+   - Discover and inject template context into LiNKbot inputs for `website_package_generation` stage
    - Provide `linktrend_templates` context with `available_template_ids`, `default_template_id`, `template_metadata`
 
 3. **Template ID Validation**: Added validation in dispatch to:
@@ -2222,10 +2222,10 @@ Surface the LiNKsites template registry to the WebsiteBuilderBot reasoning phase
 
 - `.env.example` - Added `LINKSITES_REGISTRY_PATH` and `LINKSITES_TEMPLATE_DISCOVERY_MODE` configuration
 - `packages/shared-config/src/index.ts` - Added new env vars to schema
-- `apps/linkaios-web/src/lib/plugins/websitefactory/template-registry-discovery.ts` (new) - Discovery helper with static fallback
-- `apps/linkaios-web/src/lib/plugins/websitefactory/template-registry-discovery.test.ts` (new) - 24 focused tests
-- `apps/linkaios-web/src/lib/plugins/websitefactory/index.ts` - Re-exported discovery functions
-- `apps/linkaios-web/src/lib/kernel/dispatch.ts` - Injected template context into LinkBot dispatch
+- `LiNKaios/linkaios-web/src/lib/plugins/websitefactory/template-registry-discovery.ts` (new) - Discovery helper with static fallback
+- `LiNKaios/linkaios-web/src/lib/plugins/websitefactory/template-registry-discovery.test.ts` (new) - 24 focused tests
+- `LiNKaios/linkaios-web/src/lib/plugins/websitefactory/index.ts` - Re-exported discovery functions
+- `LiNKaios/linkaios-web/src/lib/kernel/dispatch.ts` - Injected template context into LiNKbot dispatch
 
 ### Commands Run
 
@@ -2235,7 +2235,7 @@ git fetch origin --prune
 git worktree add ../LiNKtrend-System-WP-093 -b dev/cursor/WP-093-linksites-template-registry-discovery origin/development
 cd ../LiNKtrend-System-WP-093
 pnpm install
-cd apps/linkaios-web
+cd LiNKaios/linkaios-web
 npx vitest run src/lib/plugins/websitefactory/template-registry-discovery.test.ts
 ```
 
@@ -2244,14 +2244,14 @@ npx vitest run src/lib/plugins/websitefactory/template-registry-discovery.test.t
 - **Tests**: 24/24 passed
   - Template discovery from static fallback
   - Template ID validation (valid/invalid/edge cases)
-  - LinkBot context building
+  - LiNKbot context building
   - Dynamic discovery unavailable handling
   - WP-093 requirements compliance
 
 ### Proof of Implementation
 
 ```typescript
-// Template context injected into LinkBot inputs
+// Template context injected into LiNKbot inputs
 {
   linktrend_templates: {
     available_template_ids: ["marketing-smb-v1"],
@@ -2482,7 +2482,7 @@ A  packages/linklogic-sdk/src/lexos-contracts.ts (26,082 bytes)
 
 **Zod Schemas:**
 - `LexosWorkRequestTypeSchema` - 11 work request types
-- `LexosRoleIdSchema` - 10 LinkBot role IDs
+- `LexosRoleIdSchema` - 10 LiNKbot role IDs
 - `LexosCapabilityIdSchema` - 10 capability plugin IDs
 - `LexosWorkflowHandleSchema` - 5 LiNKautowork workflow handles
 - `LexosAuditEventTypeSchema` - Core + LEXOS-specific events

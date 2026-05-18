@@ -22,7 +22,7 @@ Once plumbing is complete, ongoing work will scale horizontal capabilities:
 
 - Creating new industry templates in `/Users/linktrend/Projects/LiNKsites/apps/web-master/src/templates/` beyond `marketing-smb-v1`.
 - Enhancing Payload content blocks and React components to support richer designs.
-- Improving LinkBot reasoning prompts for better copy and media placement.
+- Improving LiNKbot reasoning prompts for better copy and media placement.
 
 ## Concrete Gaps & Follow-up Packets
 

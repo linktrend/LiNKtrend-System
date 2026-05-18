@@ -4,7 +4,9 @@
 
 The LiNKtrend AI agent ecosystem is best understood as an operating system for small and medium-sized businesses that want AI employees, automations, memory, skills, and business tools working together as one coordinated system. The ecosystem is not a chatbot. It is not merely a collection of AI agents. It is not an n8n automation library. It is a coordinated business execution architecture.
 
-The ecosystem has five main systems. LiNKaios is the operating system and control plane. LinkBot is the AI employee runtime layer. LiNKbrain is the institutional memory and learning layer. LinkSkills is the capability and permission layer. LiNKautowork is the deterministic automation layer. These systems are intentionally separate because each has a different job. They interact through contracts, APIs, events, and shared tenant identity.
+Current repo ownership and completion targets are defined in `docs/architecture/repo-architecture-target.md` and `docs/architecture/system-completion-targets.md`.
+
+The ecosystem has five main systems. LiNKaios is the operating system and control plane. LiNKbot is the AI employee runtime layer. LiNKbrain is the institutional memory and learning layer. LinkSkills is the capability and permission layer. LiNKautowork is the deterministic automation layer. These systems are intentionally separate because each has a different job. They interact through contracts, APIs, events, and shared tenant identity.
 
 The central design principle is simple: agents should reason only where reasoning is needed; deterministic workflows should handle repeatable work; skills should be governed before use; memory should be institutional rather than trapped inside individual agent sessions; and LiNKaios should coordinate the whole system through tenant, role, workflow, policy, and audit contracts.
 
@@ -14,7 +16,7 @@ Assume a small business called BrightLocal Studio. It is a five-person digital m
 
 BrightLocal buys the WebsiteFactory/Marketing Agency package powered by LiNKaios. In practical terms, the owner receives a hosted workspace. That workspace includes a business dashboard, AI employees, workflows, automations, memory, approved capabilities, and integrations to their external tools. The owner does not need to know whether the system uses OpenClaw, Agent Zero, n8n, Postgres, Odoo, QuickBooks, MCP, or OpenTelemetry. The product promise is that AI work gets done safely and the business improves over time.
 
-The client request arrives: “We need a landing page, an SEO audit, and three social posts for our new restaurant.” LiNKaios creates a new project. The installed vertical plugin recognizes this as a marketing/website project and assigns it to the Studio Manager LinkBot. The Studio Manager Bot asks LiNKbrain what the business already knows about this client, this industry, previous restaurant websites, and useful benchmarks from other unregulated SMBs. LiNKbrain returns a scoped context bundle, not a dump of all memory. The bot now has the minimum useful context.
+The client request arrives: “We need a landing page, an SEO audit, and three social posts for our new restaurant.” LiNKaios creates a new project. The installed module recognizes this as a marketing/website project and assigns it to the Studio Manager LiNKbot. The Studio Manager Bot asks LiNKbrain what the business already knows about this client, this industry, previous restaurant websites, and useful benchmarks from other unregulated SMBs. LiNKbrain returns a scoped context bundle, not a dump of all memory. The bot now has the minimum useful context.
 
 The bot decides that it needs an SEO audit, a content plan, and a draft proposal. It cannot simply use arbitrary tools. It requests capability leases from LinkSkills. LinkSkills checks whether the Studio Manager role is allowed to request those capabilities, whether the tenant has the correct plan, whether the capability is certified, whether the action is read-only or externally visible, whether human approval is required, and what the cost cap is. For the SEO audit, LinkSkills grants permission. For publishing social posts, LinkSkills marks the action as requiring approval.
 
@@ -28,7 +30,7 @@ That is the operating loop. The AI employee handles judgment. LinkSkills governs
 
 LiNKaios is the control plane. It knows the tenant, the installed business package, the roles, the bots, the workflows, the enabled capabilities, the selected adapters, the approvals, the costs, and the dashboard state. It is the operating system because it coordinates the others, not because it performs every task internally.
 
-LinkBot is the AI employee layer. A LinkBot is a role-bound runtime instance. It has a persona, a role, a tenant, a plugin, memory scopes, capability scopes, model routing, and cost caps. A LinkBot may run on OpenClaw, Agent Zero, LangGraph, or another future runtime, but the rest of the ecosystem should not depend on a specific runtime. OpenClaw is a good first shell for managerial and communication-heavy roles. Agent Zero is better for terminal, code, and execution roles. The architectural target is adapter-driven runtime independence.
+LiNKbot is the AI employee layer. A LiNKbot is a role-bound runtime instance. It has a persona, a role, a tenant, a plugin, memory scopes, capability scopes, model routing, and cost caps. A LiNKbot may run on OpenClaw, Agent Zero, LangGraph, or another future runtime, but the rest of the ecosystem should not depend on a specific runtime. OpenClaw is a good first shell for managerial and communication-heavy roles. Agent Zero is better for terminal, code, and execution roles. The architectural target is adapter-driven runtime independence.
 
 LiNKbrain is the memory and institutional learning plane. It receives raw execution events and produces memory objects, lessons, incidents, benchmarks, context bundles, and cross-tenant collective intelligence where permitted. It is not merely vector search. Its source of truth is the event ledger. Memory objects are derived and can be regenerated, corrected, expired, or invalidated.
 
@@ -38,17 +40,17 @@ LiNKautowork is the deterministic execution plane. It is built initially on n8n 
 
 ## How The Systems Interact
 
-A typical execution starts in LiNKaios. A user, webhook, schedule, message, or business event creates work. LiNKaios resolves the tenant, the installed vertical plugin, the workflow, the project, and the responsible role. It may assign the work to a LinkBot, trigger LiNKautowork directly, or request a capability from LinkSkills.
+A typical execution starts in LiNKaios. A user, webhook, schedule, message, or business event creates work. LiNKaios resolves the tenant, the installed module, the workflow, the project, and the responsible role. It may assign the work to a LiNKbot, trigger LiNKautowork directly, or request a capability from LinkSkills.
 
-If a LinkBot is involved, the bot asks LiNKbrain for context. LiNKbrain assembles a context bundle based on tenant, workflow, role, data classification, authorization, memory scope, freshness, and token budget. The bot then reasons over the task. If it needs an action, it asks LinkSkills for a capability lease. LinkSkills checks policy and either denies, grants, or requires approval. If the action maps to a deterministic workflow, LinkSkills or LiNKaios routes it to LiNKautowork. LiNKautowork executes it and emits events. If the action requires agent execution, the LinkBot or another runtime performs it under the lease. All meaningful events are written to LiNKbrain and visible through LiNKaios audit/traces.
+If a LiNKbot is involved, the bot asks LiNKbrain for context. LiNKbrain assembles a context bundle based on tenant, workflow, role, data classification, authorization, memory scope, freshness, and token budget. The bot then reasons over the task. If it needs an action, it asks LinkSkills for a capability lease. LinkSkills checks policy and either denies, grants, or requires approval. If the action maps to a deterministic workflow, LinkSkills or LiNKaios routes it to LiNKautowork. LiNKautowork executes it and emits events. If the action requires agent execution, the LiNKbot or another runtime performs it under the lease. All meaningful events are written to LiNKbrain and visible through LiNKaios audit/traces.
 
-The important point is that no component should secretly bypass the others. LinkBots do not keep canonical memory. LiNKautowork does not decide high-judgment policy. LinkSkills does not become the long-term memory system. LiNKbrain does not execute actions. LiNKaios coordinates and displays, but it does not absorb the peer services.
+The important point is that no component should secretly bypass the others. LiNKbot do not keep canonical memory. LiNKautowork does not decide high-judgment policy. LinkSkills does not become the long-term memory system. LiNKbrain does not execute actions. LiNKaios coordinates and displays, but it does not absorb the peer services.
 
 ## Packaging
 
-The customer-facing product should be packaged as vertical business bundles. A WebsiteFactory package might include Website Scout Bot, Studio Manager Bot, SEO Analyst Bot, website audit workflow, DNS check automation, proposal skill, deployment checklist, Odoo or QuickBooks invoicing capability, CRM integration, dashboard, and memory objects relevant to website operations. A Marketing Agency package might include campaign workflows, content drafting skills, social scheduling automations, CRM integration, reporting templates, and content performance memory.
+The customer-facing product should be packaged as tenant-enabled modules. A WebsiteFactory package might include Website Scout Bot, Studio Manager Bot, SEO Analyst Bot, website audit workflow, DNS check automation, proposal skill, deployment checklist, Odoo or QuickBooks invoicing connector, CRM integration, dashboard, and memory objects relevant to website operations. A Marketing Agency package might include campaign workflows, content drafting skills, social scheduling automations, CRM integration, reporting templates, and content performance memory.
 
-Internally, these packages are made from vertical plugins, capability plugin choices, LinkBots, LinkSkills capabilities, LiNKautowork templates, and LiNKbrain memory schemas. Externally, the SMB should see a package that runs a business function.
+Internally, these packages are made from modules, capability connector choices, LiNKbot roles, LinkSkills capabilities, LiNKautowork templates, and LiNKbrain memory schemas. Externally, the SMB should see a package that runs a business function.
 
 The system can also support editions. The LinkTrend Edition is the internal proof-of-work bundle. It installs VentureStudio, WebsiteFactory, MediaProduction, Ecommerce, and core capability adapters such as Odoo, Paperless, Plane, Zulip, Postiz, Listmonk, Chatwoot, Metabase, and Shopify integration when ready. The same core code should run external tenants, with different plugin and capability choices.
 
@@ -62,9 +64,9 @@ The design should avoid unnecessary forking of open-source systems. Fork only wh
 
 ## Repo Strategy
 
-The recommended repo strategy is one LiNKaios monorepo plus separate peer service repos.
+The current repo strategy is one control repo, `LiNKtrend-System`, with external forked software and future independently deployable peer services referenced through contracts and connectors.
 
-The LiNKaios monorepo contains the web kernel, dashboard, shared UI, plugin runtime, vertical plugin definitions, capability plugin definitions, tenant models, shared contracts, SDK clients, and integration stubs. It is the main office building.
+The LiNKtrend-System repo contains the web kernel, dashboard, shared UI, module definitions, capability connector definitions, tenant models, shared contracts, SDK clients, runtime adapters, gateway packages, and integration stubs. It is the main office building.
 
 LiNKbrain is a separate repo because memory, event processing, context assembly, retrieval, and learning have their own schema, workers, and scaling profile.
 
@@ -78,18 +80,18 @@ A later `linkcontracts` repo may be created when schemas stabilize, but early co
 
 ## Monetization Logic
 
-The ecosystem can be sold as a full vertical package or separately. The full package has the strongest moat. Independent products are possible: LiNKautowork as managed AI-ready automation, LinkSkills as governed capability control for AI agents, LiNKbrain as institutional memory, and LinkBots as role-bound AI employees. LiNKaios is the highest-value bundle because it combines all of them with business-specific packaging.
+The ecosystem can be sold as a full vertical package or separately. The full package has the strongest moat. Independent products are possible: LiNKautowork as managed AI-ready automation, LinkSkills as governed capability control for AI agents, LiNKbrain as institutional memory, and LiNKbot as role-bound AI employees. LiNKaios is the highest-value bundle because it combines all of them with business-specific packaging.
 
-The monetization points include platform subscription, vertical plugin subscription, per-LinkBot pricing, premium role packs, capability usage, workflow template packs, managed automation, custom workflow build fees, memory subscription, benchmark intelligence, audit/compliance module, private deployment fees, connector fees, AI usage markup, onboarding fees, white-label licensing, marketplace revenue share, support/SLA, and internal venture-studio efficiency gains.
+The monetization points include platform subscription, module subscription, per-LiNKbot pricing, premium role packs, capability usage, workflow template packs, managed automation, custom workflow build fees, memory subscription, benchmark intelligence, audit/compliance module, private deployment fees, connector fees, AI usage markup, onboarding fees, white-label licensing, marketplace revenue share, support/SLA, and internal venture-studio efficiency gains.
 
 ## The Main Engineering Risk
 
 The main engineering risk is overbuilding. The system should not try to launch ten verticals, a marketplace, every agent runtime, a full ontology layer, and enterprise deployment at once. The correct first proof is one narrow vertical, probably WebsiteFactory/LinkSites, because it has repeatable workflows, measurable ROI, low regulatory risk, and strong automation potential.
 
-The first production loop should prove that a LinkBot can receive work, request memory, obtain a skill lease, delegate routine execution to LiNKautowork, produce an audited result, and cause LiNKbrain to learn from the outcome. Once that loop works, the platform can expand.
+The first production loop should prove that a LiNKbot can receive work, request memory, obtain a skill lease, delegate routine execution to LiNKautowork, produce an audited result, and cause LiNKbrain to learn from the outcome. Once that loop works, the platform can expand.
 
 ## Final Picture
 
-LiNKaios is the operating system. LinkBots are the AI employees. LinkSkills is the security desk for capabilities. LiNKautowork is the automation machine. LiNKbrain is the memory and records room. External open-source systems are the business tools. The SMB buys a working business package, not individual technical pieces.
+LiNKaios is the operating system. LiNKbot are the AI employees. LinkSkills is the security desk for capabilities. LiNKautowork is the automation machine. LiNKbrain is the memory and records room. External open-source systems are the business tools. The SMB buys a working business package, not individual technical pieces.
 
 The long-term moat is that the system converts repeated AI work into governed deterministic workflows, records every outcome, certifies capabilities, improves through institutional memory, and exposes it all through one business operating surface.

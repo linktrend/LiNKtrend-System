@@ -1,7 +1,7 @@
 # PRISM-Defender — Product Requirements (PRD)
 
 **Status:** Draft (2026-04-15).  
-**Scope:** `apps/prism-defender` and its **contracts** with `apps/bot-runtime`, Supabase `prism.*`, shared config, observability, and **minimal** LiNKaios visibility.  
+**Scope:** `LiNKguard/sidecar/linkguard` and its **contracts** with `LiNKbot/runtime-adapters/openclaw/bot-runtime`, Supabase `prism.*`, shared config, observability, and **minimal** LiNKaios visibility.  
 **Parent context:** Monorepo PRD §9 (`docs/260414 - LiNKtrend Agentic System PRD.md`) remains the north star; **this document defines a shippable v1 milestone** (“defensive sidecar ready”) that materially advances §9 without overclaiming (no “magical invisibility”).
 
 **Out of scope for v1:** Kernel-level syscall filtering, mandatory co-tenancy with OpenClaw inside the fork, cross-host orchestration when worker and PRISM run on different machines without a shared contract, antivirus engines, full command-centre analytics product.
@@ -82,7 +82,7 @@ Add these to `packages/shared-config` with safe parsing and defaults documented 
 
 **Ordering:** Emit `worker_session_end` **before** `closeWorkerSession` (await insert best-effort; failure should log but not block session close indefinitely—use timeout or fire-and-forget with trace).
 
-**Implementation location:** Prefer a small helper in `@linktrend/linklogic-sdk` (e.g. `recordPrismSessionEnd`) using `createSupabaseServiceClient`, called from `apps/bot-runtime`, to avoid duplicating Supabase wiring.
+**Implementation location:** Prefer a small helper in `@linktrend/linklogic-sdk` (e.g. `recordPrismSessionEnd`) using `createSupabaseServiceClient`, called from `LiNKbot/runtime-adapters/openclaw/bot-runtime`, to avoid duplicating Supabase wiring.
 
 **Note:** PRISM sidecar does not have to consume this row in v1 if sweep already drives FS cleanup; the row exists for **correlation and future realtime**. Document in §10.
 

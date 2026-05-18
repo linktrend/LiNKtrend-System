@@ -6,7 +6,7 @@ You wire the institutional memory and audit plane for the MVO.
 
 ## Responsibilities
 
-- Reuse archived LinkBrain migrations where appropriate.
+- Reuse archived LiNKbrain migrations where appropriate.
 - Implement minimal event/audit receiver.
 - Implement memory candidate write.
 - Implement context assembly stub.

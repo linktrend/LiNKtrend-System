@@ -1,6 +1,6 @@
-# LinkBot Agent Report — WP-107
+# LiNKbot Agent Report — WP-107
 
-**Agent:** LinkBot Agent  
+**Agent:** LiNKbot Agent  
 **Work Packet:** WP-107 — LiNKapps squad orchestration design  
 **Date:** 2026-05-17  
 **Status:** COMPLETE  
@@ -9,7 +9,7 @@
 
 ## Objective
 
-Define how LiNKaios coordinates multiple LinkBot roles as a governed LiNKapps implementation squad (Phase 5), as specification only.
+Define how LiNKaios coordinates multiple LiNKbot roles as a governed LiNKapps implementation squad (Phase 5), as specification only.
 
 ---
 
@@ -58,9 +58,9 @@ None.
 
 ## Historical Report Content Preserved
 
-# LinkBot Agent Report — WP-064
+# LiNKbot Agent Report — WP-064
 
-**Agent:** LinkBot Agent
+**Agent:** LiNKbot Agent
 **Work Packet:** WP-064 — LinkSkills lease projection and bot-runtime adapter
 **Date:** 2026-05-17
 **Status:** COMPLETE
@@ -69,15 +69,15 @@ None.
 
 ## Objective
 
-Add a lease-governed LinkSkills adapter flow in `apps/bot-runtime` for skill/capability operations with lease-required + idempotent behavior.
+Add a lease-governed LinkSkills adapter flow in `LiNKbot/runtime-adapters/openclaw/bot-runtime` for skill/capability operations with lease-required + idempotent behavior.
 
 ---
 
 ## Files Changed
 
-- `apps/bot-runtime/src/linkskills-runtime-adapter.ts` (new)
-- `apps/bot-runtime/src/linkskills-runtime-adapter.test.ts` (new)
-- `apps/bot-runtime/src/index.ts` (export adapter)
+- `LiNKbot/runtime-adapters/openclaw/bot-runtime/src/linkskills-runtime-adapter.ts` (new)
+- `LiNKbot/runtime-adapters/openclaw/bot-runtime/src/linkskills-runtime-adapter.test.ts` (new)
+- `LiNKbot/runtime-adapters/openclaw/bot-runtime/src/index.ts` (export adapter)
 - `.ai-swarm/AGENT_REPORTS/linkbot-agent.md` (this update)
 
 ---
@@ -90,8 +90,8 @@ git fetch origin --prune
 git worktree add ../LiNKtrend-System-WP-064 -b dev/codex/WP-064-linkskills-lease-projection-and-bot-runtime-adapter origin/development
 sed -n '1,240p' .ai-swarm/AGENT_PROMPTS/WP-064-linkskills-lease-projection-and-bot-runtime-adapter.prompt.md
 sed -n '1,260p' .ai-swarm/WORK_PACKETS/WP-064-linkskills-lease-projection-and-bot-runtime-adapter.md
-rg --files apps/bot-runtime
-rg -n "lease|linkskills|capability|idempot|adapter|linkbot|governance" apps/bot-runtime -S
+rg --files LiNKbot/runtime-adapters/openclaw/bot-runtime
+rg -n "lease|linkskills|capability|idempot|adapter|linkbot|governance" LiNKbot/runtime-adapters/openclaw/bot-runtime -S
 pnpm install
 pnpm --filter @linktrend/bot-runtime test
 pnpm --filter @linktrend/linklogic-sdk build
@@ -133,10 +133,10 @@ pnpm --filter @linktrend/bot-runtime typecheck
 
 ## Historical Report Content Preserved
 
-# LinkBot Agent Report — WP-062
+# LiNKbot Agent Report — WP-062
 
-**Agent:** LinkBot Agent
-**Work Packet:** WP-062 — LinkBot adapter plan
+**Agent:** LiNKbot Agent
+**Work Packet:** WP-062 — LiNKbot adapter plan
 **Date:** 2026-05-15
 **Status:** COMPLETE
 
@@ -144,7 +144,7 @@ pnpm --filter @linktrend/bot-runtime typecheck
 
 ## Objective
 
-Define the adapter plan connecting LinkBot to LiNKaios dispatch, LinkSkills lease-governed capabilities, LiNKbrain audit envelope, LiNKautowork deterministic handoff, and Zulip messaging policy.
+Define the adapter plan connecting LiNKbot to LiNKaios dispatch, LinkSkills lease-governed capabilities, LiNKbrain audit envelope, LiNKautowork deterministic handoff, and Zulip messaging policy.
 
 ---
 
@@ -176,9 +176,9 @@ Define the adapter plan connecting LinkBot to LiNKaios dispatch, LinkSkills leas
 
 ## Historical Report Content Preserved
 
-# LinkBot Agent Report — WP-061
+# LiNKbot Agent Report — WP-061
 
-**Agent:** LinkBot Agent
+**Agent:** LiNKbot Agent
 **Work Packet:** WP-061 — LiNKbot-core upstream sync and integration readiness
 **Date:** 2026-05-15
 **Status:** COMPLETE (sync blocked by conflicts; readiness report delivered)
@@ -281,10 +281,10 @@ Validation performed:
 
 ## Historical Report Content Preserved
 
-# LinkBot Agent Report — WP-044
+# LiNKbot Agent Report — WP-044
 
-**Agent:** LinkBot Agent
-**Work Packet:** WP-044 — LinkBot role contract pack v1
+**Agent:** LiNKbot Agent
+**Work Packet:** WP-044 — LiNKbot role contract pack v1
 **Date:** 2026-05-15
 **Status:** COMPLETE
 
@@ -292,7 +292,7 @@ Validation performed:
 
 ## Objective
 
-Define LinkSites LinkBot role contracts (Lead Scout, Research/Enrichment, Website Builder, Outreach) for the v2 MVO without implementing runtime prompts or behavior.
+Define LinkSites LiNKbot role contracts (Lead Scout, Research/Enrichment, Website Builder, Outreach) for the v2 MVO without implementing runtime prompts or behavior.
 
 ---
 
@@ -327,7 +327,7 @@ sed -n '1,360p' .ai-swarm/LINKAIOS_KERNEL_MANIFEST.md
 
 ## Contract Output Summary
 
-Added LinkBot role contract pack v1 definitions with required fields for all four roles:
+Added LiNKbot role contract pack v1 definitions with required fields for all four roles:
 
 - `lead_scout_bot` (declared, disabled in MVO)
 - `research_enrichment_bot` (enabled)
@@ -352,7 +352,7 @@ For each role, contracts now define:
 
 - Lead Scout role is explicitly marked `disabled_in_mvo`, `mock_input_only`, `no_live_acquisition`, and `no_public_scraping`.
 - Outreach role is explicitly marked `disabled_in_mvo`, `no_outreach_draft`, `no_outreach_send`, and `no_external_contact`.
-- No runtime files (`apps/bot-runtime/**`) were modified.
+- No runtime files (`LiNKbot/runtime-adapters/openclaw/bot-runtime/**`) were modified.
 - No capability plugin runtime wiring was added for acquisition or outreach.
 
 ---
@@ -383,10 +383,10 @@ None.
 
 ## Historical Report Content Preserved
 
-# LinkBot Agent Report — WP-009
+# LiNKbot Agent Report — WP-009
 
-**Agent:** LinkBot Agent  
-**Work Packet:** WP-009 — LinkBot reasoning dispatch  
+**Agent:** LiNKbot Agent  
+**Work Packet:** WP-009 — LiNKbot reasoning dispatch  
 **Date:** 2026-05-14  
 **Status:** COMPLETE (with boundary fixes)
 
@@ -394,7 +394,7 @@ None.
 
 ## Objective
 
-Wire LinkBot reasoning dispatch for WebsiteFactory stages while keeping LinkBot a thin runtime adapter per `.ai-swarm/CONTRACTS_MVO.md` §6.1 and role-bleed rules §12.3.
+Wire LiNKbot reasoning dispatch for WebsiteFactory stages while keeping LiNKbot a thin runtime adapter per `.ai-swarm/CONTRACTS_MVO.md` §6.1 and role-bleed rules §12.3.
 
 ---
 
@@ -402,16 +402,16 @@ Wire LinkBot reasoning dispatch for WebsiteFactory stages while keeping LinkBot 
 
 ### 1. OPENROUTER_API_KEY Direct Use — RESOLVED
 
-**Issue:** Per §12.3, LinkBot "MUST NOT hold secrets (provider keys live in LinkSkills + env; LinkBot receives only the resolved `model_routing_profile`)."
+**Issue:** Per §12.3, LiNKbot "MUST NOT hold secrets (provider keys live in LinkSkills + env; LiNKbot receives only the resolved `model_routing_profile`)."
 
 **Resolution:**
 - Added `ModelCallAdapter` interface that accepts `apiKey` from kernel/runtime boundary
 - `handleReasoningDispatch(env, request, adapter?)` accepts optional adapter
 - If adapter provided, uses `adapter.apiKey`; else falls back to `env.OPENROUTER_API_KEY`
 - **MVO Exception Documented:** For MVO, server-side env fallback is acceptable because:
-  - LinkBot does not OWN the secret lifecycle (managed by deployment/LinkSkills)
+  - LiNKbot does not OWN the secret lifecycle (managed by deployment/LinkSkills)
   - It only passes through the adapter provided by the boundary
-  - The secret never enters LinkBot business logic, only the HTTP transport layer
+  - The secret never enters LiNKbot business logic, only the HTTP transport layer
   - Post-MVO: kernel should provide the adapter; env fallback deprecated
 
 ### 2. Audit Write Semantics (§4.5) — RESOLVED
@@ -432,14 +432,14 @@ Wire LinkBot reasoning dispatch for WebsiteFactory stages while keeping LinkBot 
 
 | File | Description |
 |------|-------------|
-| `apps/bot-runtime/src/reasoning-dispatch.ts` | Main reasoning dispatch implementation — `bot.reason` handler with boundary fixes |
-| `apps/bot-runtime/src/reasoning-dispatch.test.ts` | Comprehensive test suite (29 tests, incl. 4 new boundary tests) |
+| `LiNKbot/runtime-adapters/openclaw/bot-runtime/src/reasoning-dispatch.ts` | Main reasoning dispatch implementation — `bot.reason` handler with boundary fixes |
+| `LiNKbot/runtime-adapters/openclaw/bot-runtime/src/reasoning-dispatch.test.ts` | Comprehensive test suite (29 tests, incl. 4 new boundary tests) |
 
 ### Modified Files
 
 | File | Description |
 |------|-------------|
-| `apps/bot-runtime/src/index.ts` | Added exports for `handleReasoningDispatch`, `stripContactPii`, `ModelCallAdapter`, and types |
+| `LiNKbot/runtime-adapters/openclaw/bot-runtime/src/index.ts` | Added exports for `handleReasoningDispatch`, `stripContactPii`, `ModelCallAdapter`, and types |
 | `packages/shared-config/src/index.ts` | Added `OPENROUTER_API_KEY` to env schema |
 
 ---
@@ -448,7 +448,7 @@ Wire LinkBot reasoning dispatch for WebsiteFactory stages while keeping LinkBot 
 
 ```bash
 # Navigate to bot-runtime
-cd /Users/linktrend/Projects/LiNKtrend-System/apps/bot-runtime
+cd /Users/linktrend/Projects/LiNKtrend-System/LiNKbot/runtime-adapters/openclaw/bot-runtime
 
 # Run all tests
 npm test
@@ -546,7 +546,7 @@ export interface ModelCallAdapter {
 handleReasoningDispatch(env, request, adapter);
 ```
 
-**MVO Exception:** If no adapter is provided, `apps/bot-runtime` may read `OPENROUTER_API_KEY` from server-side env. This is documented as an MVO expedient; post-MVO the kernel must provide the adapter.
+**MVO Exception:** If no adapter is provided, `LiNKbot/runtime-adapters/openclaw/bot-runtime` may read `OPENROUTER_API_KEY` from server-side env. This is documented as an MVO expedient; post-MVO the kernel must provide the adapter.
 
 ### 6. Failure Handling (§5.4)
 
@@ -562,7 +562,7 @@ handleReasoningDispatch(env, request, adapter);
 
 ### 7. Audit Event Emission (§4.5, §6.3)
 
-Per §6.3, LinkBot emits:
+Per §6.3, LiNKbot emits:
 - `stage.started` at dispatch begin
 - `stage.completed` on success (with output_keys, tokens, duration)
 - `stage.failed` on failure (with failure report)
@@ -665,23 +665,23 @@ Test Files  2 passed (2)
 | Rule | Status | Evidence |
 |------|--------|----------|
 | Does NOT hold canonical memory | ✓ | Delegates to `writeBrainAuditEvent()` from SDK; returns failure if audit fails (§4.5) |
-| Does NOT hold capability leases | ✓ | Kernel passes leases; LinkBot never issues |
+| Does NOT hold capability leases | ✓ | Kernel passes leases; LiNKbot never issues |
 | Does NOT hold secrets | ✓ | Accepts `ModelCallAdapter` from kernel/runtime boundary; MVO env fallback documented as exception |
 | Does NOT execute deterministic workflows | ✓ | Only LLM reasoning, no workflow steps |
 | Receives PII only with `strip_contact` policy | ✓ | Validates `pii_policy`, strips before model calls |
 
 ### Secret Boundary Detail (MVO Exception)
 
-Per §12.3, LinkBot "receives only the resolved `model_routing_profile`". For MVO:
+Per §12.3, LiNKbot "receives only the resolved `model_routing_profile`". For MVO:
 
 1. **Primary (recommended) path:** Kernel provides `ModelCallAdapter` with `apiKey`
    ```typescript
    handleReasoningDispatch(env, request, { apiKey: "provided-by-kernel" })
    ```
 
-2. **MVO expedient path:** Server-side `apps/bot-runtime` reads `OPENROUTER_API_KEY` from env
+2. **MVO expedient path:** Server-side `LiNKbot/runtime-adapters/openclaw/bot-runtime` reads `OPENROUTER_API_KEY` from env
    - Documented as MVO exception in code comments
-   - LinkBot does not OWN the secret lifecycle (managed by deployment/LinkSkills)
+   - LiNKbot does not OWN the secret lifecycle (managed by deployment/LinkSkills)
    - Secret stays at transport layer, never enters business logic
    - Post-MVO: remove env fallback, require adapter
 
@@ -695,7 +695,7 @@ None. WP-009 is complete with boundary fixes documented.
 
 ## Next Steps
 
-1. **WP-010 (LiNKaios kernel)** — Wire `bot.reason` dispatch calls from kernel to LinkBot
+1. **WP-010 (LiNKaios kernel)** — Wire `bot.reason` dispatch calls from kernel to LiNKbot
    - Kernel should provide `ModelCallAdapter` with API key from LinkSkills
    - Handle `KERNEL_PERSISTENCE_FAILED` for audit write failures
 2. **WP-011 (WebsiteFactory plugin)** — Implement plugin manifest with reasoning stages
@@ -706,9 +706,9 @@ None. WP-009 is complete with boundary fixes documented.
 ## Notes
 
 - **MVO Exception:** The env fallback for `OPENROUTER_API_KEY` is acceptable for MVO because:
-  - The secret lifecycle is owned by deployment/LinkSkills, not LinkBot
-  - LinkBot only passes the secret through to the HTTP transport layer
+  - The secret lifecycle is owned by deployment/LinkSkills, not LiNKbot
+  - LiNKbot only passes the secret through to the HTTP transport layer
   - The kernel/runtime boundary can provide the adapter post-MVO
-- When `OPENROUTER_API_KEY` is not set (and no adapter provided), LinkBot operates in stub mode suitable for testing
+- When `OPENROUTER_API_KEY` is not set (and no adapter provided), LiNKbot operates in stub mode suitable for testing
 - Model routing profiles are extensible; add new profiles to `MODEL_ROUTING_PROFILES` as needed
 - The implementation is designed to be a thin adapter as required by §12.3 — it does not own state, only transforms inputs and delegates to external services (OpenRouter, LiNKbrain audit)

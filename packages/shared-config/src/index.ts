@@ -69,7 +69,7 @@ const envSchema = z.object({
   /** Cron / internal routes (`/api/internal/brain-embed`, librarian). Vercel Cron may use `CRON_SECRET` instead. */
   LINKAIOS_CRON_SECRET: optionalNonEmpty(),
   CRON_SECRET: optionalNonEmpty(),
-  /** Optional: POST target for tool-governance Zulip notify (`apps/zulip-gateway` internal route). */
+  /** Optional: POST target for tool-governance Zulip notify (`LiNKbot/communications/.../zulip` internal route). */
   ZULIP_GATEWAY_NOTIFY_URL: optionalNonEmpty(),
   /** Shared secret header `x-linktrend-internal-secret` for gateway internal routes. */
   ZULIP_GATEWAY_INTERNAL_SECRET: optionalNonEmpty(),
@@ -97,8 +97,8 @@ const envSchema = z.object({
    */
   LINKAIOS_UI_MOCKS: z.string().optional(),
   /**
-   * OpenRouter API key for LinkBot reasoning (DECISIONS.md D-06).
-   * Optional for MVO — if not set, LinkBot operates in stub mode for testing.
+   * OpenRouter API key for LiNKbot reasoning (DECISIONS.md D-06).
+   * Optional for MVO — if not set, LiNKbot operates in stub mode for testing.
    */
   OPENROUTER_API_KEY: optionalNonEmpty(),
   /** Integration provider selector. Keep `stub` by default for no external writes. */

@@ -102,9 +102,15 @@ function validateDisclosureToken(
     }
 
     const [header, payload, signature] = parts;
+    if (!header || !payload || !signature) {
+      return {
+        valid: false,
+        error: { code: "TOKEN_MALFORMED", message: "Token parts must not be empty" },
+      };
+    }
 
     // Verify signature
-    const secret = env.DISCLOSURE_SIGNING_KEY;
+    const secret = env.DISCLOSURE_SIGNING_KEY ?? "linkskills-dev-key-change-in-production";
     if (!verifySignature(header, payload, signature, secret)) {
       return {
         valid: false,

@@ -1,28 +1,28 @@
-# LinkBot Adapter Plan (WP-062)
+# LiNKbot Adapter Plan (WP-062)
 
 Date: 2026-05-15
 Depends on: `.ai-swarm/LINKBOT_CORE_SYNC_READINESS.md` (WP-061)
 
 ## Purpose
 
-Define adapter boundaries connecting LinkBot runtime with LiNKaios dispatch, LinkSkills governance, LiNKbrain audit envelope, LiNKautowork deterministic workflows, and Zulip messaging without ownership bleed.
+Define adapter boundaries connecting LiNKbot runtime with LiNKaios dispatch, LinkSkills governance, LiNKbrain audit envelope, LiNKautowork deterministic workflows, and Zulip messaging without ownership bleed.
 
 ## Boundaries
 
-- LinkBot stays a thin runtime shell.
-- LinkBot does not own canonical memory, skills, secrets lifecycle, deterministic workflow state, or final audit.
+- LiNKbot stays a thin runtime shell.
+- LiNKbot does not own canonical memory, skills, secrets lifecycle, deterministic workflow state, or final audit.
 - Side effects must be lease-gated by LinkSkills.
 - Default mode remains `mock`/`shadow`; no live messaging.
 
 ## Adapter map
 
-### LiNKaios -> LinkBot dispatch
+### LiNKaios -> LiNKbot dispatch
 
 Input: `tenant_id`, `run_id`, `stage_id`, `session_key`, `linktrendGovernance`, `role_id`, `reasoning_kind`, `inputs_ref`.
 
 Output: `role_outputs_ref`, `tool_trace[]`, `governance_events[]`, `failure_report?`.
 
-### LinkBot -> LinkSkills
+### LiNKbot -> LinkSkills
 
 All side effects route through lease-governed operations:
 
@@ -35,7 +35,7 @@ Each side-effect call requires `lease_id` and `idempotency_key=${run_id}:${stage
 
 ### LiNKbrain envelope mapping
 
-Canonical persistence is LiNKaios/observer-owned, not LinkBot-owned.
+Canonical persistence is LiNKaios/observer-owned, not LiNKbot-owned.
 Required mapped events:
 
 - `run.dispatched`, `role.started`, `role.completed`, `role.failed`
@@ -61,12 +61,12 @@ Route via `cap.zulip.run_messaging` only:
 - `channel.message.mock_send`
 - `connectivity.probe`
 
-No direct LinkBot send path.
+No direct LiNKbot send path.
 
 ## Ownership split
 
 - `LiNKbot-core`: ingress schema + governance bootstrap + tool narrowing.
-- `apps/bot-runtime`: adapter wrapper + evidence forwarding.
+- `LiNKbot/runtime-adapters/openclaw/bot-runtime`: adapter wrapper + evidence forwarding.
 - `LiNKaios`: orchestration, policy, canonical status/trace.
 - `LinkSkills`: lease lifecycle + governed execution.
 - `LiNKbrain`: canonical audit/memory/provenance store.

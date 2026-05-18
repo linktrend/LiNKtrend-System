@@ -26,7 +26,7 @@ Only the Integrator merges.
 
 ## Rule 7 — Respect Service Boundaries
 
-LiNKaios controls execution. LiNKbrain stores memory/audit. LinkSkills governs capabilities. LiNKautowork executes deterministic workflows. LinkBot reasons and delegates.
+LiNKaios controls execution. LiNKbrain stores memory/audit. LinkSkills governs capabilities. LiNKautowork executes deterministic workflows. LiNKbot reasons and delegates.
 
 ## Rule 8 — Stub Blockers
 

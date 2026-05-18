@@ -14,7 +14,7 @@
 
 Violations MUST surface as §5.4 `LEASE_DENIED` with `retryable=false` until policies are pinned.
 
-Sources: LiNKapps `scripts/create-app-repo.sh` / `scripts/release-readiness.sh` (deterministic staging steps referenced by `LINKAPPS_VERTICAL_PLUGIN_CONVERSION_PLAN.md` §4.1), vertical manifest `plugins/vertical/linkapps/manifest.yaml`.
+Sources: LiNKapps `scripts/create-app-repo.sh` / `scripts/release-readiness.sh` (deterministic staging steps referenced by the historical `LINKAPPS_VERTICAL_PLUGIN_CONVERSION_PLAN.md` §4.1), module manifest `modules/linkapps/manifest.yaml`.
 
 ## 2. Master capability matrix (operation × mode × lease)
 
@@ -246,4 +246,4 @@ Items below MUST NOT appear as silently implied responsibilities of WP-112 conne
 
 ## 8. Traceability
 
-- Derived from `LINKAPPS_VERTICAL_PLUGIN_CONVERSION_PLAN.md` §5, `PLUGIN_ARCHITECTURE_V2.md` capability/plugin split, LiNKapps `scripts/create-app-repo.sh` staging behavior, LiNKapps `scripts/release-readiness.sh` deterministic checks posture, `plugins/vertical/linkapps/manifest.yaml` staging + lease posture.
+- Derived from `LINKAPPS_VERTICAL_PLUGIN_CONVERSION_PLAN.md` §5, `PLUGIN_ARCHITECTURE_V2.md` capability/plugin split, LiNKapps `scripts/create-app-repo.sh` staging behavior, LiNKapps `scripts/release-readiness.sh` deterministic checks posture, and `modules/linkapps/manifest.yaml` staging + lease posture.

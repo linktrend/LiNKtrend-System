@@ -9,15 +9,15 @@
 
 ## Purpose
 
-Define how **LiNKaios** coordinates multiple **LinkBot** roles as a governed implementation squad for the `linkapps.app_factory` vertical plugin during Phase 5 (Technical Implementation). This document is authoritative for orchestration behavior in **development mode** (`modes_supported` includes `"development"` per `LINKAPPS_VERTICAL_PLUGIN_CONVERSION_PLAN.md` §1.1).
+Define how **LiNKaios** coordinates multiple **LiNKbot** roles as a governed implementation squad for the `linkapps.app_factory` vertical plugin during Phase 5 (Technical Implementation). This document is authoritative for orchestration behavior in **development mode** (`modes_supported` includes `"development"` per `LINKAPPS_VERTICAL_PLUGIN_CONVERSION_PLAN.md` §1.1).
 
 ---
 
-## Contract anchor: LiNKaios ↔ LinkBot
+## Contract anchor: LiNKaios ↔ LiNKbot
 
 All per-role reasoning work is dispatched through the **`bot.reason` / `bot.reason.result`** contract described in **`CONTRACTS_MVO.md` §6.1**.
 
-LiNKapps extends WebsiteFactory’s pinned `reasoning_kind` vocabulary **only through the vertical plugin manifest** (WP-106): each squad-capable `reasoning_kind` MUST be declared there with typed inputs/outputs. Regardless of vocabulary extension, LinkBot remains a **delegating shell** per §6.1:
+LiNKapps extends WebsiteFactory’s pinned `reasoning_kind` vocabulary **only through the vertical plugin manifest** (WP-106): each squad-capable `reasoning_kind` MUST be declared there with typed inputs/outputs. Regardless of vocabulary extension, LiNKbot remains a **delegating shell** per §6.1:
 
 - MUST NOT write LiNKbrain memory directly (audit via envelope only).
 - MUST NOT issue LinkSkills leases (kernel requests leases; bot consumes granted leases only as narrowed tooling policy allows).
@@ -34,8 +34,8 @@ Cross-plane identifiers (`tenant_id`, `run_id`, `stage_id`, `trace_id`) apply to
 | Concept | Owner | Responsibility |
 |--------|-------|------------------|
 | **Squad orchestrator** | LiNKaios kernel + vertical plugin stage graph | Chooses next squad task, binds `role_id` → runnable dispatch, enforces concurrency and gates |
-| **Technical lead / orchestrator persona** | LinkBot role (`technical_lead`, sourced from LiNKapps `orchestrator.md` semantics) | Plans sequencing **within** an orchestration slice (sub-task breakdown, specialist recommendations); outputs structured plans consumed by kernel |
-| **Specialists** | LinkBot roles (`frontend_specialist`, `backend_specialist`, …) | Execute bounded reasoning slices; produce artifact refs and structured outputs |
+| **Technical lead / orchestrator persona** | LiNKbot role (`technical_lead`, sourced from LiNKapps `orchestrator.md` semantics) | Plans sequencing **within** an orchestration slice (sub-task breakdown, specialist recommendations); outputs structured plans consumed by kernel |
+| **Specialists** | LiNKbot roles (`frontend_specialist`, `backend_specialist`, …) | Execute bounded reasoning slices; produce artifact refs and structured outputs |
 
 Native LiNKapps `.agent/agents/orchestrator.md` describes **tool-local** multi-agent patterns (e.g. Claude Code Agent tool). Under LiNKtrend governance, **LiNKaios is the sole authoritative orchestrator**: it replaces ad hoc agent invocation with **manifest-driven stages**, **`stage`/`run` lifecycle** (`CONTRACTS_MVO.md` §4), and **`FailureReport`** handling (`CONTRACTS_MVO.md` §5).
 
@@ -47,9 +47,9 @@ For each Phase 5 substage that requires judgment:
 2. **Select role:** Apply **role assignment rules** (§4); produce `role_id`, `reasoning_kind`, and `inputs`.
 3. **Pre-authorize side effects:** For operations that imply capability use, kernel obtains leases **before** or **around** dispatch per §3 (LinkSkills touchpoints).
 4. **Emit audit:** `linkapps.role.started` (see §8) before invoking `bot.reason`.
-5. **Dispatch:** Call LinkBot with `BotReasonRequest` (§6.1); attach `model_routing_profile` from tenant/policy (D-06); enforce `pii_policy: "strip_contact"` unless a future policy explicitly documents otherwise.
+5. **Dispatch:** Call LiNKbot with `BotReasonRequest` (§6.1); attach `model_routing_profile` from tenant/policy (D-06); enforce `pii_policy: "strip_contact"` unless a future policy explicitly documents otherwise.
 6. **Persist outputs:** Store **`outputs`** as stage artifacts (refs + typed summaries); emit `linkapps.role.completed` or failure path events.
-7. **Hand off deterministic work:** If substage requires builds/tests/deploy, enqueue LiNKautowork per **`CONTRACTS_MVO.md` §6.4** — LinkBot never runs those workflows directly.
+7. **Hand off deterministic work:** If substage requires builds/tests/deploy, enqueue LiNKautowork per **`CONTRACTS_MVO.md` §6.4** — LiNKbot never runs those workflows directly.
 
 **Parallel specialists within one substage (e.g. FE + BE):** kernel may issue **multiple `bot.reason` dispatches** with distinct `stage_id` slices (or child stage IDs) only when **file boundaries / role domains** do not overlap; otherwise serialize or split stages to avoid **`INTEGRATION_UNAVAILABLE`**-class contention (same principle as LiNKapps orchestrator domain boundaries).
 
@@ -259,7 +259,7 @@ Aligned with **`LINKAPPS_VERTICAL_PLUGIN_CONVERSION_PLAN.md` §11**:
 
 ## 13. References
 
-- **`CONTRACTS_MVO.md` §6.1** — LiNKaios ↔ LinkBot reasoning dispatch (canonical envelope).
+- **`CONTRACTS_MVO.md` §6.1** — LiNKaios ↔ LiNKbot reasoning dispatch (canonical envelope).
 - **`CONTRACTS_MVO.md` §§4–6** — Run/stage lifecycle, failures, cross-plane audit.
 - **`LINKAPPS_VERTICAL_PLUGIN_CONVERSION_PLAN.md` §§2.2, 3, 6, 8.2** — Phase 5 stages, roles, audit/memory, pod separation.
 - **`/Users/linktrend/Projects/LiNKapps/.agent/ARCHITECTURE.md`** — Source catalog of agents/skills/workflows.
@@ -267,4 +267,4 @@ Aligned with **`LINKAPPS_VERTICAL_PLUGIN_CONVERSION_PLAN.md` §11**:
 
 ---
 
-*Specification only. No LinkBot runtime, LiNKapps repo moves, or production side effects.*
+*Specification only. No LiNKbot runtime, LiNKapps repo moves, or production side effects.*

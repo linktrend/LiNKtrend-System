@@ -5,8 +5,8 @@ Reviewer: Codex security audit
 Scope:
 - `.env.example`
 - `packages/shared-config/src/index.ts`
-- `apps/linkaios-web/src/lib/kernel/dispatch.ts`
-- `apps/linkaios-web/src/lib/kernel/plane-adapter.ts`
+- `LiNKaios/linkaios-web/src/lib/kernel/dispatch.ts`
+- `LiNKaios/linkaios-web/src/lib/kernel/plane-adapter.ts`
 - `services/migrations/028_linkskills_plane_external_mappings.sql`
 
 ## Executive Summary
@@ -80,9 +80,9 @@ Validation results:
 Date: 2026-05-15
 Reviewer: Codex security audit
 Scope:
-- `apps/linkaios-web/src/lib/kernel/api-auth.ts`
-- `apps/linkaios-web/src/app/api/kernel/**`
-- `apps/linkaios-web/src/middleware.ts`
+- `LiNKaios/linkaios-web/src/lib/kernel/api-auth.ts`
+- `LiNKaios/linkaios-web/src/app/api/kernel/**`
+- `LiNKaios/linkaios-web/src/middleware.ts`
 - `.env.example`
 - `scripts/run-e2e.ts`
 
@@ -105,12 +105,12 @@ Merge recommendation: Ready from this focused security review after the SEC-001 
 Impact: Any authenticated user who has ever created a work request in tenant `T` can execute another user's run, inspect its trace, list pending approvals for the tenant, and decide approvals for runs they did not request.
 
 Affected logic:
-- `apps/linkaios-web/src/lib/kernel/api-auth.ts:77`
-- `apps/linkaios-web/src/lib/kernel/api-auth.ts:84`
-- `apps/linkaios-web/src/app/api/kernel/run/[runId]/execute/route.ts:28`
-- `apps/linkaios-web/src/app/api/kernel/run/[runId]/trace/route.ts:28`
-- `apps/linkaios-web/src/app/api/kernel/approvals/route.ts:29`
-- `apps/linkaios-web/src/app/api/kernel/approvals/route.ts:127`
+- `LiNKaios/linkaios-web/src/lib/kernel/api-auth.ts:77`
+- `LiNKaios/linkaios-web/src/lib/kernel/api-auth.ts:84`
+- `LiNKaios/linkaios-web/src/app/api/kernel/run/[runId]/execute/route.ts:28`
+- `LiNKaios/linkaios-web/src/app/api/kernel/run/[runId]/trace/route.ts:28`
+- `LiNKaios/linkaios-web/src/app/api/kernel/approvals/route.ts:29`
+- `LiNKaios/linkaios-web/src/app/api/kernel/approvals/route.ts:127`
 
 Why this is a vulnerability:
 - `canAccessKernelScope()` grants run access when the caller is either the original requester or `userOwnsTenantScope(actorId, runScope.tenantId)`.
@@ -149,7 +149,7 @@ None.
 #### SEC-002: Focused auth tests do not exercise route-level cross-scope denial
 
 Affected logic:
-- `apps/linkaios-web/src/lib/kernel/api-auth.test.ts:76`
+- `LiNKaios/linkaios-web/src/lib/kernel/api-auth.test.ts:76`
 
 Notes:
 - The helper tests prove the intended boolean logic in isolation.
@@ -162,7 +162,7 @@ Merge blocker: No by itself.
 ## Checks Against Requested Goals
 
 1. Service bypass requires both `BOT_KERNEL_API_SECRET` and `LINKAIOS_ENABLE_MVO_SERVICE_BYPASS`:
-   - Verified in `apps/linkaios-web/src/lib/kernel/api-auth.ts:58` and `apps/linkaios-web/src/middleware.ts:44`.
+   - Verified in `LiNKaios/linkaios-web/src/lib/kernel/api-auth.ts:58` and `LiNKaios/linkaios-web/src/middleware.ts:44`.
    - Pass.
 
 2. User access denies by default when ownership cannot be proven:
@@ -170,8 +170,8 @@ Merge blocker: No by itself.
    - Pass at helper level, but route behavior is still too broad because tenant history is treated as ownership proof for unrelated runs.
 
 3. Request body cannot spoof `actor` / `requested_by`:
-   - `work-request` ignores body-level `requested_by` and derives `requestedBy` from the resolved actor in `apps/linkaios-web/src/app/api/kernel/work-request/route.ts:79`.
-   - `approvals` writes `decided_by_actor_id` from resolved actor in `apps/linkaios-web/src/app/api/kernel/approvals/route.ts:210`.
+   - `work-request` ignores body-level `requested_by` and derives `requestedBy` from the resolved actor in `LiNKaios/linkaios-web/src/app/api/kernel/work-request/route.ts:79`.
+   - `approvals` writes `decided_by_actor_id` from resolved actor in `LiNKaios/linkaios-web/src/app/api/kernel/approvals/route.ts:210`.
    - Pass.
 
 4. Trace / execute / approval routes cannot cross tenant/run scope:
@@ -183,7 +183,7 @@ Merge blocker: No by itself.
    - Pass.
 
 6. MVO-only bypass is clearly env-gated and not default:
-   - Verified in `apps/linkaios-web/src/lib/kernel/api-auth.ts:35`, `apps/linkaios-web/src/middleware.ts:45`, and `.env.example:20`.
+   - Verified in `LiNKaios/linkaios-web/src/lib/kernel/api-auth.ts:35`, `LiNKaios/linkaios-web/src/middleware.ts:45`, and `.env.example:20`.
    - Pass.
 
 ## Proof
@@ -193,7 +193,7 @@ Commands run:
 ```bash
 cd /Users/linktrend/Projects/LiNKtrend-System
 pnpm --filter @linktrend/linkaios-web test -- src/lib/kernel/api-auth.test.ts
-git diff -- apps/linkaios-web/src/lib/kernel/api-auth.ts apps/linkaios-web/src/app/api/kernel apps/linkaios-web/src/middleware.ts .env.example scripts/run-e2e.ts
+git diff -- LiNKaios/linkaios-web/src/lib/kernel/api-auth.ts LiNKaios/linkaios-web/src/app/api/kernel LiNKaios/linkaios-web/src/middleware.ts .env.example scripts/run-e2e.ts
 ```
 
 Validation results:

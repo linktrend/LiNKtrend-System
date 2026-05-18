@@ -4,6 +4,8 @@
 
 This document gives the engineering mental picture for how the LiNKtrend ecosystem should be developed. The recommended structure is not one giant monorepo and not dozens of tiny repos from day one. The recommended model is one LiNKaios monorepo plus separate peer service repositories for LiNKbrain, LinkSkills, LiNKautowork, and LiNKbot-core.
 
+Current repo ownership and completed-state targets supersede older folder examples in this narrative. Use `docs/architecture/repo-architecture-target.md` and `docs/architecture/system-completion-targets.md` for new work.
+
 This matches the architecture. LiNKaios is the main operating system and plugin host. The other systems are independent services with their own databases, workers, APIs, and deployment needs.
 
 ## High-Level Repo Layout
@@ -226,11 +228,11 @@ Do not split contracts too early. The contracts will change frequently during th
 
 The recommended build order is:
 
-1. LiNKaios skeleton: tenant model, plugin loader, vertical plugin skeleton, capability plugin skeleton, dashboard shell, LinkBot registry, shared UI, service SDK stubs.
+1. LiNKaios skeleton: tenant model, plugin loader, vertical plugin skeleton, capability plugin skeleton, dashboard shell, LiNKbot registry, shared UI, service SDK stubs.
 2. LinkSkills minimal: capability catalog, policy check, capability lease, run ledger, idempotency, one or two capabilities.
 3. LiNKbrain minimal: event ledger, memory objects, context assembly endpoint, audit lookup.
 4. LiNKautowork minimal: n8n instance, signed gateway, one workflow template, audit writeback.
-5. LinkBot adapter: OpenClaw adapter, mission ingress, context request, capability request, autowork delegation.
+5. LiNKbot adapter: OpenClaw adapter, mission ingress, context request, capability request, autowork delegation.
 6. WebsiteFactory vertical: first complete product loop.
 
 Do not start by building all verticals.

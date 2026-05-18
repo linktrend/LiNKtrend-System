@@ -10,7 +10,7 @@ The LinkSites MVO proves the full website factory workflow in development mode.
 In scope:
 
 - mock CRM lead data
-- LinkBot research and enrichment
+- LiNKbot research and enrichment
 - industry template selection from `LiNKsites`
 - generated website copy, media plan, and style changes
 - governed public web research with provenance
@@ -21,7 +21,7 @@ In scope:
 - preview-ready website display through existing/local frontend
 - deterministic checks
 - CRM/mock lead status update to `ready_to_contact`
-- Zulip run notifications and LinkBot/operator work-channel messages
+- Zulip run notifications and LiNKbot/operator work-channel messages
 - Plane internal execution tracking plus future client/project scaffold, mock/shadow by default
 
 Out of scope for this MVO:
@@ -54,7 +54,7 @@ In production, this artifact store becomes cloud cold storage such as Google Dri
 10. If checks pass, CRM/mock lead status is set to `ready_to_contact`.
 11. Outreach Bot role exists, but real outreach execution is disabled.
 
-## LinkBot Roles
+## LiNKbot Roles
 
 Recommended v1 roles:
 
@@ -72,16 +72,16 @@ Version 1 requires:
 - **Odoo/CRM shadow-readiness:** local/mock writes for lead status, with Odoo readiness/shadow checks behind config.
 - **Payload CMS:** local Payload sync/publish connector; no schema invention.
 - **Supabase mirror/content:** structured website content and asset references; schema copied/adapted from existing source.
-- **Zulip:** run notifications plus LinkBot/operator work-channel communication.
+- **Zulip:** run notifications plus LiNKbot/operator work-channel communication.
 - **Public web research:** governed read-only public research with citations/provenance.
 - **Asset generation:** governed generated media with provenance/audit.
 - **Plane:** internal execution tasks plus future client/project scaffold, mock/shadow by default.
 
 ## Data And Storage Flow
 
-`CRM lead record -> LinkBot research/enrichment -> generated website package -> local artifact folder in dev / cloud cold storage in prod -> Supabase mirror -> Payload CMS -> website frontend preview`
+`CRM lead record -> LiNKbot research/enrichment -> generated website package -> local artifact folder in dev / cloud cold storage in prod -> Supabase mirror -> Payload CMS -> website frontend preview`
 
-CRM holds lead and business facts. LinkBots enrich and generate the website package. Artifact storage keeps a durable copy of generated outputs. Supabase is the operational mirror/update layer. LiNKautowork syncs Supabase content into Payload. Payload is the CMS source for what the website frontend displays. The frontend reads from Payload and shows the preview-ready site.
+CRM holds lead and business facts. LiNKbot enrich and generate the website package. Artifact storage keeps a durable copy of generated outputs. Supabase is the operational mirror/update layer. LiNKautowork syncs Supabase content into Payload. Payload is the CMS source for what the website frontend displays. The frontend reads from Payload and shows the preview-ready site.
 
 ## Site Identity Recommendation
 

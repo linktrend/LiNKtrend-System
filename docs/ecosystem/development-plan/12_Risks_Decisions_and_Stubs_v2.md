@@ -16,7 +16,7 @@ Existing code may be useful but inconsistent.
 
 Mitigation: wrap existing code; do not do large rewrites.
 
-## Main Risk — LinkBot Adapter
+## Main Risk — LiNKbot Adapter
 
 OpenClaw integration may take longer than expected.
 
@@ -34,7 +34,7 @@ Real publishing may block the flow.
 
 Mitigation: static/local preview is acceptable for Day 7 if a URL or artifact is available.
 
-## Main Risk — LinkBrain Service Missing
+## Main Risk — LiNKbrain Service Missing
 
 Archive schema exists but HTTP service may not.
 

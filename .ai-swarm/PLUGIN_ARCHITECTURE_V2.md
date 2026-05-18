@@ -1,11 +1,13 @@
-# Plugin Architecture Contract v2
+# Module / Connector Architecture Contract v2
+
+> Post-cleanup terminology note: this document was originally written with `vertical plugin` and `capability plugin`. New work uses `module` and `capability connector`. Legacy schema fields may still say `plugin_*` until the SDK contracts are migrated, but new folders, prompts, docs, and work packets must use the post-cleanup terms.
 
 **Status:** Approved design direction for the revised LinkSites MVO.
 **Purpose:** Define the shared plugin architecture before updating implementation contracts.
 
 ## Plain-English Rule
 
-Vertical plugins say what work needs to happen. Capability plugins provide the tools. LinkSkills grants permissions and skills. LiNKautowork runs repeatable steps. LinkBots think and write. LiNKbrain remembers. LiNKaios coordinates.
+Vertical plugins say what work needs to happen. Capability plugins provide the tools. LinkSkills grants permissions and skills. LiNKautowork runs repeatable steps. LiNKbot think and write. LiNKbrain remembers. LiNKaios coordinates.
 
 ## Core Platform Services
 
@@ -15,7 +17,7 @@ Core platform services are not vertical plugins.
 - **LinkSkills** owns the capability catalog, skills, leases, permissions, approvals, idempotency, kill switches, certification metadata, and run ledger.
 - **LiNKautowork** owns deterministic workflow templates, workflow execution, run ledger, automation audit, and workflow promotion candidates.
 - **LiNKbrain** owns event ledger, audit, memory objects, context assembly, retrieval, trace assembly, and learning data.
-- **LinkBot** is a thin role-bound agent runtime for judgment-heavy work. It does not own canonical memory, skills, secrets, deterministic workflows, or final audit.
+- **LiNKbot** is a thin role-bound agent runtime for judgment-heavy work. It does not own canonical memory, skills, secrets, deterministic workflows, or final audit.
 
 ## Vertical Plugins
 
@@ -26,7 +28,7 @@ Each vertical plugin must declare:
 - plugin id, name, version, purpose, and mode support
 - accepted work request types
 - ordered workflow stages
-- required LinkBot roles
+- required LiNKbot roles
 - required capability plugins
 - required LinkSkills skills and capability leases
 - required LiNKautowork workflow hooks
@@ -51,15 +53,15 @@ Each capability plugin must declare:
 - LinkSkills lease requirements
 - idempotency rules
 - audit events
-- allowed callers: LiNKaios, vertical plugins, LinkBots, or LiNKautowork
+- allowed callers: LiNKaios, vertical plugins, LiNKbot, or LiNKautowork
 - failure mapping
 - what it explicitly does not configure inside the target software
 
 Capability plugins prepare communication and governance surfaces. They do not invent Odoo charts of accounts, Payload schemas, CRM stages, content models, or other business configuration unless explicitly assigned. If a schema or configuration already exists in another repo, agents must discover/copy/adapt it instead of recreating it.
 
-## LinkBot Attachment Model
+## LiNKbot Attachment Model
 
-LinkBots attach to vertical plugin stages through declared roles. A role defines:
+LiNKbot attach to vertical plugin stages through declared roles. A role defines:
 
 - purpose
 - inputs and outputs
@@ -69,7 +71,7 @@ LinkBots attach to vertical plugin stages through declared roles. A role defines
 - audit events
 - development-mode restrictions
 
-LinkBots may work inside vertical plugins and also help maintain core services such as LinkSkills, LiNKbrain, and LiNKautowork. They remain thin runtime workers, not owners of memory, permissions, workflow state, or integration secrets.
+LiNKbot may work inside vertical plugins and also help maintain core services such as LinkSkills, LiNKbrain, and LiNKautowork. They remain thin runtime workers, not owners of memory, permissions, workflow state, or integration secrets.
 
 ## Mode Model
 

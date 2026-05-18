@@ -4,9 +4,11 @@
 
 LiNKbrain is the institutional memory and learning plane for the LiNKtrend AI agent ecosystem. Its role is to make sure that the organization remembers what happened, learns from repeated work, retrieves the right context, preserves auditability, and improves over time.
 
+Current repo ownership for this system lives under `LiNKbrain/`, with compatibility implementation still mapped in `LiNKbrain/source-map.md`. Completion criteria are defined in `docs/architecture/system-completion-targets.md`.
+
 LiNKbrain is not a chatbot memory feature. It is not just a vector database. It is not just a folder of summaries. It is the system that turns operational history into governed institutional intelligence.
 
-In the full ecosystem, LinkBots reason, LinkSkills governs what actions are allowed, LiNKautowork executes deterministic workflows, and LiNKaios coordinates the organization. LiNKbrain records the resulting history, turns it into memory objects, assembles context for future tasks, and produces benchmark intelligence.
+In the full ecosystem, LiNKbot reason, LinkSkills governs what actions are allowed, LiNKautowork executes deterministic workflows, and LiNKaios coordinates the organization. LiNKbrain records the resulting history, turns it into memory objects, assembles context for future tasks, and produces benchmark intelligence.
 
 ## Core Principle
 
@@ -18,7 +20,7 @@ This distinction matters because agent memory systems can easily become polluted
 
 LiNKbrain stores several categories of information.
 
-The first category is raw event history. This includes LinkBot sessions, LinkSkills capability leases and executions, LiNKautowork workflow runs, LiNKaios workflow transitions, approvals, tool calls, prompts, outputs, artifacts, errors, retries, costs, and human decisions.
+The first category is raw event history. This includes LiNKbot sessions, LinkSkills capability leases and executions, LiNKautowork workflow runs, LiNKaios workflow transitions, approvals, tool calls, prompts, outputs, artifacts, errors, retries, costs, and human decisions.
 
 The second category is typed memory objects. These are derived from raw events. They include facts, episodes, incidents, procedures, policies, evaluations, benchmarks, preferences, and artifact references.
 
@@ -38,7 +40,7 @@ Each memory object should move through lifecycle states such as candidate, appro
 
 LiNKbrain needs a scope lattice. Memory should not be retrieved merely because it is semantically similar. It must also be authorized, relevant, and properly scoped.
 
-Scopes include tenant, plugin, vertical, project, workflow, workflow stage, role, bot, user, region, data class, memory tier, and cross-tenant mode. A WebsiteFactory bot should not access a regulated law firm’s private matter memory. A read-only SEO Analyst Bot should not retrieve approval-only billing data. A tenant that disables cross-tenant learning should not contribute to the collective intelligence plane.
+Scopes include tenant, module, project, workflow, workflow stage, role, bot, user, region, data class, memory tier, and cross-tenant mode. A WebsiteFactory bot should not access a regulated law firm’s private matter memory. A read-only SEO Analyst Bot should not retrieve approval-only billing data. A tenant that disables cross-tenant learning should not contribute to the collective intelligence plane.
 
 The scope lattice is a core governance mechanism. It is also a retrieval quality mechanism. It prevents the system from overloading agents with irrelevant material.
 
@@ -46,7 +48,7 @@ The scope lattice is a core governance mechanism. It is also a retrieval quality
 
 The most important product surface of LiNKbrain is not memory search. It is context assembly.
 
-A LinkBot should not ask LiNKbrain for “everything about this client.” It should ask for a context bundle for a specific task, role, workflow stage, and authorization scope. LiNKbrain should assemble the smallest useful package: relevant facts, current project state, applicable procedures, prior incidents, active policies, approved exemplars, benchmark signals, warnings, and source references.
+A LiNKbot should not ask LiNKbrain for “everything about this client.” It should ask for a context bundle for a specific task, role, workflow stage, and authorization scope. LiNKbrain should assemble the smallest useful package: relevant facts, current project state, applicable procedures, prior incidents, active policies, approved exemplars, benchmark signals, warnings, and source references.
 
 This is the practical version of the library-card idea. The system should not load the whole library. It should navigate the catalog, identify the shelf, select the book, open the chapter, and retrieve the relevant section.
 
@@ -68,11 +70,11 @@ Permitted collective intelligence includes anonymized telemetry, k-anonymized pr
 
 This is a key moat because SMBs benefit from patterns learned across other businesses while private data remains isolated.
 
-## Integration With LinkBot
+## Integration With LiNKbot
 
-A LinkBot uses LiNKbrain at the beginning, during, and after work. Before reasoning, it requests context. During work, it may write observations or memory candidates. After work, it writes outcome events, incidents, lessons, or evaluation data.
+A LiNKbot uses LiNKbrain at the beginning, during, and after work. Before reasoning, it requests context. During work, it may write observations or memory candidates. After work, it writes outcome events, incidents, lessons, or evaluation data.
 
-The LinkBot should not store long-term memory locally as canonical truth. OpenClaw-style local rollups may be useful as runtime cache, but LiNKbrain must be authoritative.
+The LiNKbot should not store long-term memory locally as canonical truth. OpenClaw-style local rollups may be useful as runtime cache, but LiNKbrain must be authoritative.
 
 ## Integration With LinkSkills
 
@@ -121,4 +123,4 @@ For SMBs, the value is simple: their AI employees stop repeating mistakes, remem
 
 ## First Build
 
-The first version should implement event ledger, typed memory objects, basic context assembly, simple retrieval, LinkBot write/read integration, LinkSkills run-event intake, LiNKautowork workflow-event intake, and a minimal cross-tenant benchmark table for unregulated WebsiteFactory metrics.
+The first version should implement event ledger, typed memory objects, basic context assembly, simple retrieval, LiNKbot write/read integration, LinkSkills run-event intake, LiNKautowork workflow-event intake, and a minimal cross-tenant benchmark table for unregulated WebsiteFactory metrics.

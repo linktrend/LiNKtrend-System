@@ -5,7 +5,7 @@
  * preview_artifact_ref and registers it for serving at a preview_url.
  *
  * Stub behavior per INT-022:
- * - Route is served from apps/linkaios-web (not Vercel/Payload).
+ * - Route is served from LiNKaios/linkaios-web (not Vercel/Payload).
  * - URL format: /preview/<tenant>/<run_id>/index.html
  * - Lease check: requires a LinkSkills lease_id for side-effecting publish.
  */
@@ -258,7 +258,7 @@ export function createPreviewServeWorkflowHandler(
 
 /**
  * Retrieve a served preview by route.
- * Used by apps/linkaios-web to serve the preview content.
+ * Used by LiNKaios/linkaios-web to serve the preview content.
  */
 export function getServedPreview(route: string): ServedPreview | undefined {
   return servedRoutes.get(route);

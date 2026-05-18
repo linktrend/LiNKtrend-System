@@ -16,7 +16,7 @@ Read:
 
 - `packages/linklogic-sdk/src/declared-tools.ts` — `validateDeclaredToolsForSkillApprove`, `isToolPublishedApprovedCatalog`
 - `packages/linklogic-sdk/src/tool-governance-db.ts` — `loadOrgAllowedToolNames` (logic today uses service client type)
-- `apps/linkaios-web/src/app/(shell)/skills/actions.ts` — `approveSkill`
+- `LiNKaios/linkaios-web/src/app/(shell)/skills/actions.ts` — `approveSkill`
 - `services/migrations/018_linkaios_tool_governance.sql` — `org_tool_allowlist` + RLS (`authenticated` SELECT)
 
 ## Requirements

@@ -1,8 +1,8 @@
 /**
- * LiNKbrain Context Assembly Contracts — LinkBot scoped context retrieval
+ * LiNKbrain Context Assembly Contracts — LiNKbot scoped context retrieval
  *
  * Implements D-082-B (Context Assembly over Search) and D-082-C (Scope Lattice Enforcement).
- * Provides typed request/response contracts for assembling context bundles for LinkBots.
+ * Provides typed request/response contracts for assembling context bundles for LiNKbot.
  *
  * This is an SDK interface that can work with:
  * - In-memory store (for testing, when WP-087 tables not present)
@@ -85,7 +85,7 @@ export const ContextRequestSchema = z.object({
   request_id: z.string().uuid(),
   requested_at: z.string().datetime(),
 
-  // Who is requesting (LinkBot identity)
+  // Who is requesting (LiNKbot identity)
   requester: z.object({
     tenant_id: z.string().min(1),
     plugin_id: z.string().min(1),
@@ -281,7 +281,7 @@ export interface ContextAssemblerOptions {
 }
 
 /**
- * Assemble context for a LinkBot request.
+ * Assemble context for a LiNKbot request.
  * Enforces scope lattice per D-082-C.
  */
 export async function assembleContext(

@@ -1,11 +1,11 @@
 /**
- * LEXOS Vertical Plugin Contract Types
+ * LEXOS Litigation Module Contract Types
  *
  * Canonical source: `.ai-swarm/LEXOS_VERTICAL_PLUGIN_CONVERSION_PLAN.md`
  * Contract patterns: `.ai-swarm/CONTRACTS_MVO.md`
  *
  * These types define the work request/response contracts for the LEXOS litigation
- * vertical plugin. They follow the same patterns as the LinkSites contracts
+ * module. They follow the same patterns as the LinkSites contracts
  * in `contracts-mvo.ts`.
  */
 
@@ -82,7 +82,7 @@ export const LEXOS_STAGE_DISPLAY_NAMES: Record<LexosWorkflowStage, string> = {
 };
 
 /* -------------------------------------------------------------------------- */
-/* §3 LEXOS LinkBot Role IDs                                                  */
+/* §3 LEXOS LiNKbot Role IDs                                                  */
 /* -------------------------------------------------------------------------- */
 
 export const LexosRoleIdSchema = z.enum([
@@ -114,7 +114,7 @@ export const LEXOS_ROLE_DISPLAY_NAMES: Record<LexosRoleId, string> = {
 };
 
 /* -------------------------------------------------------------------------- */
-/* §4 LEXOS Capability Plugin IDs                                             */
+/* §4 LEXOS Capability Connector IDs                                          */
 /* -------------------------------------------------------------------------- */
 
 export const LexosCapabilityIdSchema = z.enum([

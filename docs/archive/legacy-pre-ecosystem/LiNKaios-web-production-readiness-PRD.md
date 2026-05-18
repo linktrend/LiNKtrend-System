@@ -1,7 +1,7 @@
 # LiNKaios Web — Production readiness & UI fixture PRD
 
 **Status:** Draft (2026-04-15).  
-**Scope:** `apps/linkaios-web` only — remove **default** hardcoded demo paths, add **explicit** opt-in mock/fixture mode for UI/UX testing, production hardening (empty states, errors, copy, env behavior).  
+**Scope:** `LiNKaios/linkaios-web` only — remove **default** hardcoded demo paths, add **explicit** opt-in mock/fixture mode for UI/UX testing, production hardening (empty states, errors, copy, env behavior).  
 **Out of scope:** OpenClaw fork; `bot-runtime`; redesigning entire information architecture (IA) unless required to remove demo leakage.
 
 ---
@@ -78,7 +78,7 @@ LiNKaios web is **production ready** when:
 
 ## 8. Acceptance criteria (checklist)
 
-- [ ] Grep for `demo-lisa`, `demo-smb`, `DEMO_SIDEBAR` in `apps/linkaios-web` — either removed from default paths or strictly behind `isUiMocksEnabled()`.
+- [ ] Grep for `demo-lisa`, `demo-smb`, `DEMO_SIDEBAR` in `LiNKaios/linkaios-web` — either removed from default paths or strictly behind `isUiMocksEnabled()`.
 - [ ] `next build` passes with mocks **off** and **on**.
 - [ ] Manual: cold start with empty DB + mocks **off** — app is usable and honest (empty states).
 - [ ] Manual: mocks **on** — key flows still populate for UX review.

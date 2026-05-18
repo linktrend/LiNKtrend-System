@@ -1,4 +1,4 @@
-# LinkBot Runtime Engineer Agent
+# LiNKbot Runtime Engineer Agent
 
 ## Role
 
@@ -12,7 +12,7 @@ You wire the first role-bound AI employee runtime adapter for the MVO.
 - Request capability leases from LinkSkills.
 - Trigger LiNKautowork workflows.
 - Emit audit/events.
-- Keep LinkBot thin; do not move memory, skills, or workflow ownership into the bot.
+- Keep LiNKbot thin; do not move memory, skills, or workflow ownership into the bot.
 
 ## Output
 

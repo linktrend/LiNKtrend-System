@@ -7,7 +7,7 @@
 ## 1. Goals
 
 1. **Cross-tenant intelligence** — Platform-level metrics (latency, failure rates, cost bands) keyed by coarse plugin/workflow dimensions, not by customer identity.
-2. **Human + LinkBot feedback** — Authoritative labeling of derived memory (`approved` / `invalidated`) under LinkSkills leases, auditing through the existing envelope.
+2. **Human + LiNKbot feedback** — Authoritative labeling of derived memory (`approved` / `invalidated`) under LinkSkills leases, auditing through the existing envelope.
 3. **Privacy by construction** — Benchmark rows must be safe if exported or displayed on a shared dashboard without per-tenant RLS quirks leaking identity.
 
 Non-goals for this wave: live analytics SaaS, real-time aggregation, storing raw transcripts or CRM payloads in benchmark tables.
@@ -19,7 +19,7 @@ Non-goals for this wave: live analytics SaaS, real-time aggregation, storing raw
 | LiNKbrain | Canonical event ledger, memory objects, **proposed** `brain_benchmarks` anonymized rollup table, benchmark read API shape. |
 | LinkSkills | `feedback.record` capability lease (who may transition memory object lifecycle). |
 | LiNKaios | Runs stages, dispatches governed work; exposes read-only dashboard view fed by aggregated rows only. |
-| LinkBot / operators | Submit feedback payloads referencing `memory_object_id` after WP-087 persistence exists. |
+| LiNKbot / operators | Submit feedback payloads referencing `memory_object_id` after WP-087 persistence exists. |
 
 ## 3. Planned table: `brain_benchmarks` (post–WP-087 merge)
 
@@ -88,7 +88,7 @@ Actual dollar reconciliation stays in billing systems, outside this table.
 
 ## 8. `feedback.record` capability (memory lifecycle)
 
-**Intent:** Operators or governed LinkBots mark a memory object's validity.
+**Intent:** Operators or governed LiNKbot mark a memory object's validity.
 
 | Aspect | Rule |
 |--------|------|
