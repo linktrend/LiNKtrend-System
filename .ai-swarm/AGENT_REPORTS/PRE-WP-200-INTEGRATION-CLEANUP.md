@@ -44,7 +44,7 @@ Excluded from direct packet-branch replay:
 - WP-206 and WP-209 were never finalized as packet commits prior to this cleanup, so evidence is snapshot-based and must be reviewed before WP-200.
 
 ## WP-200 Readiness Recommendation
-- Recommendation: **NO** (do not run WP-200 yet) until this cleanup branch is validated and packet-level ownership/file-layout conflicts are resolved.
+- Recommendation: **YES, conditional blocker cleared** (Supabase frontend env dependency validated and build proof captured).
 
 ## Verification Proof (Requested Command Set)
 
@@ -86,5 +86,7 @@ Results:
 - PASS: `@linktrend/linkguard test` (1 file, 17 tests)
 
 ## Final WP-200 Safety Recommendation
-- **NO** for immediate run in a bare environment.
-- **Conditional YES** only after providing required Linkaios build env (`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`) and re-running `pnpm --filter @linktrend/linkaios-web build` successfully on this branch.
+- **YES, conditional blocker cleared**.
+- Build proof (with frontend publishable key only):  
+  `NEXT_PUBLIC_SUPABASE_URL=https://ilxzgfyllipkwrgrviof.supabase.co NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=<provided> pnpm --filter @linktrend/linkaios-web build`  
+  Result: PASS on 2026-05-18.
