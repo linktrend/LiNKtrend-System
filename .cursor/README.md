@@ -8,7 +8,7 @@ It supports development of:
 - LiNKbrain — institutional memory and learning plane
 - LinkSkills — capability governance and capability lease plane
 - LiNKautowork — deterministic workflow execution plane
-- LinkBot — role-bound AI employee runtime adapter
+- LiNKbot — role-bound AI employee runtime adapter
 - LinkSites / WebsiteFactory — first MVO vertical
 
 ## Priority Order
@@ -37,7 +37,7 @@ Known reuse anchors:
 - `LiNKtrend-System` — LiNKaios monorepo and 12-route kernel UI
 - `LiNKskills` — existing Phase 0–3 logic-engine
 - `LiNKautowork` — existing n8n gateway MVO
-- `Archive/LiNKaios/packages/linkbrain` — LinkBrain schema/migrations
+- `Archive/LiNKaios/packages/linkbrain` — LiNKbrain schema/migrations
 - `LiNKsites` — Payload CMS website factory and templates
 - `LiNKapps` — reusable UI/design-system ancestor
 - `LiNKbot-core` — OpenClaw-based runtime fork
@@ -49,7 +49,7 @@ The first MVO is the LinkSites / WebsiteFactory lead-to-preview-site flow.
 
 Agents must prioritize wiring the existing ecosystem loop:
 
-LiNKaios → LinkBot → LinkSkills → LiNKautowork → LiNKbrain → LiNKaios trace/dashboard.
+LiNKaios → LiNKbot → LinkSkills → LiNKautowork → LiNKbrain → LiNKaios trace/dashboard.
 
 ## Parallel Work
 

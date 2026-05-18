@@ -21,11 +21,11 @@ Completed. Inventory of active and archived repositories performed. Reusable ass
 
 - **Repos Inspected:** `LiNKtrend-System`, `LiNKskills`, `LiNKautowork`, `LiNKsites`, `LiNKapps`, `LiNKbot-core`, `Archive/LiNKaios`, `Archive/LiNKopenclaw`, `LiNKtrend-LEXOS`.
 - **Reusable Assets Found:**
-    - **LiNKaios:** `apps/linkaios-web`, `packages/linklogic-sdk`.
+    - **LiNKaios:** `LiNKaios/linkaios-web`, `packages/linklogic-sdk`.
     - **LiNKbrain:** `Archive/LiNKaios/packages/linkbrain/migrations` (schema reference).
     - **LinkSkills:** `LiNKskills/services/logic-engine`, `LiNKskills/skills/` (catalog).
     - **LiNKautowork:** `LiNKautowork/gateway/` (n8n integration).
-    - **LinkBot:** `LiNKbot-core` (runtime), `LiNKtrend-System/apps/bot-runtime` (adapter).
+    - **LiNKbot:** `LiNKbot-core` (runtime), `LiNKtrend-System/LiNKbot/runtime-adapters/openclaw/bot-runtime` (adapter).
     - **WebsiteFactory:** `LiNKsites/apps/web-master` (template), `LiNKsites/apps/cms` (Payload).
     - **UI:** `LiNKapps/packages/ui` (shadcn).
 

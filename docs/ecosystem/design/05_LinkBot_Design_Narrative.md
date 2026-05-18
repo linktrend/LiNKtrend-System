@@ -1,30 +1,32 @@
-# LinkBot — Design Narrative
+# LiNKbot — Design Narrative
 
 ## Purpose
 
-A LinkBot is a role-bound AI employee inside the LiNKtrend ecosystem. It is not merely an agent process. It is an institutional actor that belongs to a tenant, a vertical plugin, and a role. It has a runtime core, persona, memory scopes, skill permissions, model routing, cost caps, and governance gates.
+A LiNKbot is a role-bound AI employee inside the LiNKtrend ecosystem. It is not merely an agent process. It is an institutional actor that belongs to a tenant, a module, and a role. It has a runtime core, persona, memory scopes, skill permissions, model routing, cost caps, and governance gates.
+
+Current repo ownership for this system lives under `LiNKbot/`, with OpenClaw as the first runtime adapter. Completion criteria are defined in `docs/architecture/system-completion-targets.md`.
 
 The user-facing metaphor is an employee. The engineering reality is a runtime adapter bound to organizational contracts.
 
-A LinkBot may run on OpenClaw, Agent Zero, LangGraph, Claude Code-like systems, Cursor/Codex-like systems, or future runtimes. The goal is not to make OpenClaw permanent. The goal is to make LinkBot runtime-agnostic while using OpenClaw and Agent Zero as strong first cores.
+A LiNKbot may run on OpenClaw, Agent Zero, LangGraph, Claude Code-like systems, Cursor/Codex-like systems, or future runtimes. The goal is not to make OpenClaw permanent. The goal is to make LiNKbot runtime-agnostic while using OpenClaw and Agent Zero as strong first cores.
 
 ## Core Principle
 
-A LinkBot should be a thin reasoning shell over externalized memory, externalized capabilities, externalized automations, and externalized governance.
+A LiNKbot should be a thin reasoning shell over externalized memory, externalized capabilities, externalized automations, and externalized governance.
 
 The bot should keep what agents are good at: reasoning, ambiguity handling, planning, communication, prioritization, exception handling, and role-specific judgment.
 
 It should not own canonical long-term memory, permanent secrets, broad tool permissions, workflow automation definitions, or institutional learning. Those belong to LiNKbrain, LinkSkills, LiNKautowork, and LiNKaios.
 
-## The LinkBot Record
+## The LiNKbot Record
 
-Mechanically, a LinkBot is a database record. It should include tenant ID, plugin ID, role ID, agent core, runtime adapter, display name, persona baseline, persona overlay, model routing profile, allowed memory scopes, allowed capability scopes, allowed autowork scopes, daily cost cap, approval threshold, and status.
+Mechanically, a LiNKbot is a database record. It should include tenant ID, module ID, role ID, agent core, runtime adapter, display name, persona baseline, persona overlay, model routing profile, allowed memory scopes, allowed capability scopes, allowed autowork scopes, daily cost cap, approval threshold, and status.
 
-The bot is hired into a role declared by a vertical plugin. If the WebsiteFactory plugin declares Studio Manager, SEO Analyst, Website Scout, and Sales Ops roles, LiNKaios can hire bots into those roles. Hiring creates the bot record, generates credentials, binds the runtime, applies persona overlay, assigns memory scopes, and pre-binds allowed capabilities.
+The bot is hired into a role declared by a module or shared role pack. If the WebsiteFactory module declares Studio Manager, SEO Analyst, Website Scout, and Sales Ops roles, LiNKaios can hire bots into those roles. Hiring creates the bot record, generates credentials, binds the runtime, applies persona overlay, assigns memory scopes, and pre-binds allowed capabilities.
 
 ## Persona Model
 
-Every LinkBot inherits the Senior Sovereign Baseline Persona. That baseline establishes executive-level judgment, disciplined communication, accountability, and audit awareness. The role-specific overlay defines how the bot behaves in a particular job. A senior litigator is conservative and precedent-driven. A Studio Manager is coordination-focused. A DevOps bot is operational and failure-aware. A Content Bot is creative but must obey publishing gates.
+Every LiNKbot inherits the Senior Sovereign Baseline Persona. That baseline establishes executive-level judgment, disciplined communication, accountability, and audit awareness. The role-specific overlay defines how the bot behaves in a particular job. A senior litigator is conservative and precedent-driven. A Studio Manager is coordination-focused. A DevOps bot is operational and failure-aware. A Content Bot is creative but must obey publishing gates.
 
 Individual bot variations can exist for human readability, but they should not weaken role rigor. “Lisa is formal” is fine. “Lisa can ignore approval gates” is not.
 
@@ -44,15 +46,15 @@ However, LiNKbot-core should convert OpenClaw into a business runtime shell. Loc
 
 Do not over-fork. Keep a clean adapter layer so OpenClaw can be updated or replaced later.
 
-## LinkBot Adapter Contract
+## LiNKbot Adapter Contract
 
 Every runtime adapter should implement a common contract. It should be able to start a session, receive a mission, request context, request a capability, delegate a workflow, emit an event, write a memory candidate, request human approval, pause, resume, and terminate.
 
 This adapter is the runtime abstraction. LiNKaios should not need to understand OpenClaw internals. It should send a governed run request. The adapter translates that request into the runtime’s native shape.
 
-## LinkBot Work Loop
+## LiNKbot Work Loop
 
-A typical LinkBot work loop starts when LiNKaios assigns a mission. The bot requests scoped context from LiNKbrain. LiNKbrain returns relevant memory, policies, incidents, procedures, and project state. The bot reasons over the task. If action is needed, the bot requests a capability lease from LinkSkills. If routine workflow execution exists, LinkSkills routes to LiNKautowork. If the bot must perform a direct reasoning step, it performs it under policy. The bot emits events throughout. At completion, LiNKbrain records outcome and possible lessons.
+A typical LiNKbot work loop starts when LiNKaios assigns a mission. The bot requests scoped context from LiNKbrain. LiNKbrain returns relevant memory, policies, incidents, procedures, and project state. The bot reasons over the task. If action is needed, the bot requests a capability lease from LinkSkills. If routine workflow execution exists, LinkSkills routes to LiNKautowork. If the bot must perform a direct reasoning step, it performs it under policy. The bot emits events throughout. At completion, LiNKbrain records outcome and possible lessons.
 
 This makes the bot useful without allowing it to become uncontrolled.
 
@@ -98,12 +100,12 @@ A practical structure is:
 - `gateway` for governed ingress from LiNKaios.
 - `personas/baseline` and `personas/overlays`.
 - `channels/zulip`, `channels/slack`, `channels/webchat`, and others.
-- `sdk` for calls to LinkBrain, LinkSkills, LiNKautowork, and LiNKaios.
+- `sdk` for calls to LiNKbrain, LinkSkills, LiNKautowork, and LiNKaios.
 - `docs/runtime-contract`, `docs/persona`, and `docs/session-lifecycle`.
 
 ## Moat
 
-A standalone LinkBot is not enough. The moat is a LinkBot connected to the rest of the ecosystem. The bot has safe skills, institutional memory, deterministic workflows, role-bound permissions, cost controls, and audit.
+A standalone LiNKbot is not enough. The moat is a LiNKbot connected to the rest of the ecosystem. The bot has safe skills, institutional memory, deterministic workflows, role-bound permissions, cost controls, and audit.
 
 For SMBs, the value is easy to understand: the business can hire AI employees into specific roles, and those employees can actually do work safely.
 

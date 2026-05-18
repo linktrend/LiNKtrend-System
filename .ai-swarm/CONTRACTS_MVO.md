@@ -1,6 +1,14 @@
-# MVO contracts — LiNKaios kernel + plugin architecture v2
+# MVO contracts — LiNKaios kernel + module/connector architecture
 
-**Current canonical target:** LinkSites vertical plugin development-mode MVO v2 (see §0.A below).
+> Post-cleanup terminology note: older sections use `plugin`, `vertical plugin`, and `capability plugin` because the first contract version and TypeScript schema names used those words. For all new planning and implementation, read those as compatibility terms:
+>
+> - `vertical plugin` -> tenant-enabled `module`
+> - `capability plugin` -> LinkSkills `capability connector`
+> - `plugin_id` / `plugin_kind` -> legacy manifest fields retained until schemas are migrated
+>
+> The folder/source-of-truth layout is `docs/architecture/repo-architecture-target.md`; the completed-state target is `docs/architecture/system-completion-targets.md`.
+
+**Current canonical target:** LinkSites / WebsiteFactory module development-mode MVO v2 (see §0.A below).
 **Status:** Plugin architecture v2 contract (WP-040, 2026-05-15) plus LinkSites v2 contract target (WP-041, 2026-05-15). Supersedes the WebsiteFactory-only framing from WP-004; the original v1 WebsiteFactory binding is retained as a concrete vertical-plugin instance and historical reference.
 **Owner:** Cursor Architect / Integrator.
 **Binds to:** `ARCHITECTURE_RULES.md`, `.cursor/rules/01-ecosystem-boundaries.mdc`, `PLUGIN_ARCHITECTURE_V2.md`, `LINKSITES_VERTICAL_MVO_V2.md`, `DECISIONS.md` D-01..D-09, `INTEGRATION_QUEUE.md`, `LINKAIOS_KERNEL_MANIFEST.md` (WP-003 + v2 addendum).
@@ -24,9 +32,9 @@ This subsection makes the revised LinkSites development-mode MVO the canonical c
 
 The LinkSites v2 MVO proves the full website factory workflow in development mode. The canonical end-to-end flow is:
 
-`mock CRM lead -> LinkBot research/enrichment -> template-guided website package -> local generated artifact folder -> Supabase mirror -> LiNKautowork sync to real local Payload CMS -> preview-ready frontend -> deterministic checks -> CRM/mock lead status ready_to_contact`
+`mock CRM lead -> LiNKbot research/enrichment -> template-guided website package -> local generated artifact folder -> Supabase mirror -> LiNKautowork sync to real local Payload CMS -> preview-ready frontend -> deterministic checks -> CRM/mock lead status ready_to_contact`
 
-Plain English: a mock CRM lead exists; a Research/Enrichment LinkBot performs governed public research and enriches context; a Website Builder LinkBot picks a `LiNKsites` master/industry template, writes business-specific copy, plans media, and proposes style changes; generated artifacts are written to a local generated-artifact folder; structured website content and asset refs are written to the Supabase mirror; LiNKautowork syncs Supabase content into the local Payload CMS; the existing/local frontend reads from Payload and shows the preview-ready site; LiNKautowork deterministic checks validate required pages, navigation, content blocks, media references, provenance, Payload sync status, and preview readiness; if checks pass, the mock CRM lead status is set to `ready_to_contact`.
+Plain English: a mock CRM lead exists; a Research/Enrichment LiNKbot performs governed public research and enriches context; a Website Builder LiNKbot picks a `LiNKsites` master/industry template, writes business-specific copy, plans media, and proposes style changes; generated artifacts are written to a local generated-artifact folder; structured website content and asset refs are written to the Supabase mirror; LiNKautowork syncs Supabase content into the local Payload CMS; the existing/local frontend reads from Payload and shows the preview-ready site; LiNKautowork deterministic checks validate required pages, navigation, content blocks, media references, provenance, Payload sync status, and preview readiness; if checks pass, the mock CRM lead status is set to `ready_to_contact`.
 
 ### 0.A.2 Development-mode hard boundaries
 
@@ -44,7 +52,7 @@ In development mode, generated website artifacts are written to a local generate
 
 In production, this artifact store becomes cloud cold storage (for example Google Drive or an equivalent durable archive), NOT live hosting. The artifact store is the versioned archive of generated outputs; the live website host is a separate downstream concern outside the v2 MVO scope.
 
-### 0.A.4 Canonical LinkBot roles (v1 LinkSites)
+### 0.A.4 Canonical LiNKbot roles (v1 LinkSites)
 
 - **Lead Scout Bot** — future role for discovering leads and creating/enriching CRM records. **Declared but disabled** in v2; mock CRM data supplies its output.
 - **Research/Enrichment Bot** — researches the specific lead and comparable businesses, records provenance, prepares research context.
@@ -53,7 +61,7 @@ In production, this artifact store becomes cloud cold storage (for example Googl
 
 Quality control starts with deterministic LiNKautowork checks. A dedicated QA Bot is **deferred** until deterministic checks expose a need for judgment review.
 
-### 0.A.4.1 LinkBot role contract pack v1 (WP-044)
+### 0.A.4.1 LiNKbot role contract pack v1 (WP-044)
 
 The LinkSites v2 vertical plugin MUST declare `required_linkbot_roles[]` entries for the four roles below. This section defines the minimum required role-contract fields and MVO restrictions for each role.
 
@@ -131,7 +139,7 @@ The v2 MVO requires capability plugins (governed connectors) covering:
 - **Odoo/Accounting shadow-readiness** — connector-only accounting readiness/read surfaces for admin verticals; no accounting business setup.
 - **Payload CMS (local)** — local Payload sync/publish connector; no schema invention.
 - **Supabase mirror/content** — structured website content and asset references; schema copied/adapted from existing source, not invented.
-- **Zulip** — run notifications plus LinkBot/operator work-channel communication.
+- **Zulip** — run notifications plus LiNKbot/operator work-channel communication.
 - **Public web research** — governed read-only public research with citations/provenance.
 - **Asset generation** — governed generated media (images/video) with provenance and audit.
 - **Plane** — internal execution tasks plus future client/project scaffold; mock/shadow by default.
@@ -190,7 +198,7 @@ All side effects in the v2 flow MUST flow through LinkSkills capability leases a
 - **LinkSkills leases** gate every capability-backed side effect: CRM/mock writes, Supabase mirror writes, Payload CMS writes, Zulip notifications, asset generation, public web research, and Plane/project writes. Lease lifecycle, idempotency, kill switches, and run-ledger semantics from §6.2 and §7.5 remain authoritative.
 - **LiNKautowork workflows** own deterministic steps: artifact assembly, Supabase mirror sync, Payload sync, deterministic checks, and CRM status promotion to `ready_to_contact`. Each workflow accepts a `lease_id` when it performs a capability-gated action and references that lease in audit (§6.4).
 - **LiNKbrain audit envelope** (§6.3, D-08) remains the single audit/event surface. Per-service ad hoc logging is not a substitute. New workflow and capability action types may be added per §6.3.1's "agents may add via decision row, never rename" rule.
-- **LinkBot** continues to obey §6.1 boundaries: no direct memory writes, no direct lease issuance, no deterministic step execution, PII stripped from model prompts.
+- **LiNKbot** continues to obey §6.1 boundaries: no direct memory writes, no direct lease issuance, no deterministic step execution, PII stripped from model prompts.
 
 ### 0.A.8 Schema-related deferrals (discovery-gated)
 
@@ -260,7 +268,7 @@ Contract rules for the five handles above:
 - lead intake schema, validation, idempotency, and PII rules (§3).
 - `WorkRequest` / `Run` / `Stage` lifecycle and retry policy (§4).
 - `FailureReport` taxonomy and canonical error codes (§5).
-- cross-plane envelopes for LinkBot (§6.1), LinkSkills (§6.2), LiNKbrain (§6.3, D-08), and LiNKautowork (§6.4).
+- cross-plane envelopes for LiNKbot (§6.1), LinkSkills (§6.2), LiNKbrain (§6.3, D-08), and LiNKautowork (§6.4).
 - capability common rules (§7.5) and minimum audit-event sets per outcome (§8).
 - role-bleed rules per plane and per plugin (§12).
 
@@ -277,7 +285,7 @@ Old v1 proof language elsewhere in §§1–13 should be read as "historical v1 e
 
 > **Historical reference (v1).** §§1–13 below describe the v1 `websitefactory.lead_to_preview` static/local proof. Read with §0.A above; the canonical current target is the LinkSites v2 development-mode flow.
 
-> "LiNKaios coordinates the ecosystem but must not absorb the responsibilities of LiNKbrain, LinkSkills, LiNKautowork, or LinkBot." — `ARCHITECTURE_RULES.md`
+> "LiNKaios coordinates the ecosystem but must not absorb the responsibilities of LiNKbrain, LinkSkills, LiNKautowork, or LiNKbot." — `ARCHITECTURE_RULES.md`
 
 All field names below are **canonical**. Implementation agents MUST bind to these names exactly. Pin Zod/TypeScript schemas in `packages/linklogic-sdk` (LiNKaios) and mirror in service-local types; do not invent parallel names.
 
@@ -292,10 +300,10 @@ The kernel/plugin contract surface in §1.5–§1.7 is shared by **all** plugins
 ### 1.0.1 Plugin kinds
 
 - **Core platform services** — `linkaios`, `linkskills`, `linkautowork`, `linkbrain`, `linkbot`. These are not plugins. Plugins MUST NOT absorb their responsibilities (see §12 and `.cursor/rules/01-ecosystem-boundaries.mdc`).
-- **Vertical plugin** (`plugin_kind: "vertical"`) — declares work request types, ordered workflow stages, required LinkBot roles, required capability plugins, required LinkSkills permissions/skills, required LiNKautowork workflow hooks, required LiNKbrain audit/memory events, LiNKaios UI panels/read views, owned data objects, and per-mode behavior. Examples: LinkSites/WebsiteFactory, LEXOS Litigation, Linktrend Media, Linkapps, Linktrend Development, Linktrend Admin.
+- **Vertical plugin** (`plugin_kind: "vertical"`) — declares work request types, ordered workflow stages, required LiNKbot roles, required capability plugins, required LinkSkills permissions/skills, required LiNKautowork workflow hooks, required LiNKbrain audit/memory events, LiNKaios UI panels/read views, owned data objects, and per-mode behavior. Examples: LinkSites/WebsiteFactory, LEXOS Litigation, Linktrend Media, Linkapps, Linktrend Development, Linktrend Admin.
 - **Capability plugin** (`plugin_kind: "capability"`) — declares a governed connection to one piece of software/tooling: capability id, target software, allowed operations, auth/tenant config, mode flags, LinkSkills lease requirements, idempotency rules, audit events, allowed callers, failure mapping, and what it explicitly does **not** configure inside the target software. Capability plugins prepare the connector surface only; they MUST NOT invent the target software's internal business setup (Odoo charts of accounts, Payload schemas, CRM stages, content models, etc.). If a schema or configuration already exists in another repo, agents MUST discover/copy/adapt rather than recreate.
 
-Verticals say what work needs to happen. Capabilities provide the tools. LinkSkills grants permissions and skills. LiNKautowork runs deterministic steps. LinkBots reason. LiNKbrain remembers. LiNKaios coordinates.
+Verticals say what work needs to happen. Capabilities provide the tools. LinkSkills grants permissions and skills. LiNKautowork runs deterministic steps. LiNKbot reason. LiNKbrain remembers. LiNKaios coordinates.
 
 ### 1.0.2 Mode model (development / shadow / live)
 
@@ -307,9 +315,9 @@ Every vertical and capability plugin MUST declare which modes it supports and be
 
 The plugin manifest's `modes_supported` field declares the supported modes; the run-time mode is selected per `(tenant_id, plugin_id, capability)` by LiNKaios config and surfaced in the trace view. A capability plugin that declares only `development` MUST NOT be invoked in `shadow` or `live` regardless of operator override.
 
-### 1.0.3 LinkBot role attachment model
+### 1.0.3 LiNKbot role attachment model
 
-LinkBots attach to vertical-plugin stages through **declared roles**. A role declaration belongs to the vertical plugin manifest (or to a shared role pack), and pins:
+LiNKbot attach to vertical-plugin stages through **declared roles**. A role declaration belongs to the vertical plugin manifest (or to a shared role pack), and pins:
 
 - role purpose
 - inputs and outputs (typed names from §2)
@@ -319,7 +327,7 @@ LinkBots attach to vertical-plugin stages through **declared roles**. A role dec
 - audit events the role emits
 - development-mode restrictions (e.g. outreach drafts only, no send)
 
-LinkBots remain thin runtime workers: they do not own canonical memory, permissions, deterministic workflow state, or integration secrets (§12.3).
+LiNKbot remain thin runtime workers: they do not own canonical memory, permissions, deterministic workflow state, or integration secrets (§12.3).
 
 ### 1.0.4 Stop-and-ask rule
 
@@ -352,7 +360,7 @@ type FailureMode = "retryable" | "abort_run" | "require_approval";
 type PluginKind = "vertical" | "capability";
 type PluginMode = "development" | "shadow" | "live";
 
-interface LinkBotRoleAttachment {
+interface LiNKbotRoleAttachment {
   role_id: string;                   // e.g. "research_enrichment_bot"
   purpose: string;
   inputs: string[];                  // §2 typed names
@@ -392,7 +400,7 @@ interface PluginManifest {
 
   public_surfaces: {
     work_request_types: string[];   // e.g. ["websitefactory.lead_to_preview"]
-    ui_panels: string[];            // panels mounted into apps/linkaios-web
+    ui_panels: string[];            // panels mounted into LiNKaios/linkaios-web
     read_views: string[];
   };
 
@@ -410,7 +418,7 @@ interface PluginManifest {
   required_capabilities: string[];    // capability plugin ids (vertical) / empty for capability plugins
   required_workflow_hooks: string[];  // LiNKautowork workflow handles
   required_audit_events: string[];    // LiNKbrain audit event types (subset of §6.3)
-  required_linkbot_roles?: LinkBotRoleAttachment[]; // vertical plugins only
+  required_linkbot_roles?: LiNKbotRoleAttachment[]; // vertical plugins only
   preview_output_shape: Record<string, string>; // declared field → type (verticals that surface a preview)
   non_goals: string[];
 
@@ -423,7 +431,7 @@ Notes for v2 compatibility:
 
 - `plugin_kind` and `modes_supported` MAY be omitted by legacy v1 manifests; the kernel SHOULD treat the manifest as `plugin_kind="vertical"` and `modes_supported=["development"]` and emit a deprecation warning. New manifests MUST declare both.
 - A vertical plugin MUST have at least one stage; a capability plugin SHOULD declare `stages: []` if its surface is purely a connector and MUST declare its operations through the `capability` block.
-- `required_linkbot_roles` is verbose by design: the kernel surfaces role attachments in the trace view so operators see which LinkBot played which stage.
+- `required_linkbot_roles` is verbose by design: the kernel surfaces role attachments in the trace view so operators see which LiNKbot played which stage.
 
 ### 1.3 Manifest validation at load
 
@@ -444,7 +452,7 @@ The kernel rejects the manifest if any of the following hold; agents must surfac
 
 ### 1.4 LinkSites / WebsiteFactory manifest declaration (concrete vertical instance)
 
-Pinned in `LINKAIOS_KERNEL_MANIFEST.md` §4. WP-004 binds the manifest fields to types above; the YAML in WP-003 is the canonical v1 instance and is loaded as-is at boot. The LinkSites vertical MVO v2 (see `LINKSITES_VERTICAL_MVO_V2.md` and WP-041) extends this manifest with `plugin_kind: "vertical"`, `modes_supported: ["development"]`, the LinkBot role attachments declared in WP-044, and the capability plugins enumerated in WP-043. v2 fields are additive; the v1 manifest remains valid under the legacy-compat rules in §1.2.
+Pinned in `LINKAIOS_KERNEL_MANIFEST.md` §4. WP-004 binds the manifest fields to types above; the YAML in WP-003 is the canonical v1 instance and is loaded as-is at boot. The LinkSites vertical MVO v2 (see `LINKSITES_VERTICAL_MVO_V2.md` and WP-041) extends this manifest with `plugin_kind: "vertical"`, `modes_supported: ["development"]`, the LiNKbot role attachments declared in WP-044, and the capability plugins enumerated in WP-043. v2 fields are additive; the v1 manifest remains valid under the legacy-compat rules in §1.2.
 
 ---
 
@@ -456,15 +464,15 @@ These names appear in stage `inputs`/`outputs` and across plane contracts. Pin o
 |------|-----------------|-------|
 | `lead_input` | §3.1 | LiNKaios kernel (intake) |
 | `lead_record_ref` | `{ lead_id: string; tenant_id: string; idempotency_key: string }` | LiNKaios kernel |
-| `lead_evaluation` | `{ score: number; segment: string; rationale: string; model_run_id: string }` | LinkBot |
-| `template_id` | `string` (slug from `LiNKsites/apps/web-master` template catalog) | LinkBot |
-| `copy_bundle` | `{ blocks: Array<{ block_id: string; text: Record<string,string> }>; locale: string }` | LinkBot |
-| `media_plan` | `{ placements: Array<{ block_id: string; asset_ref: string; kind: "placeholder" \| "stock" }> }` | LinkBot |
+| `lead_evaluation` | `{ score: number; segment: string; rationale: string; model_run_id: string }` | LiNKbot |
+| `template_id` | `string` (slug from `LiNKsites/apps/web-master` template catalog) | LiNKbot |
+| `copy_bundle` | `{ blocks: Array<{ block_id: string; text: Record<string,string> }>; locale: string }` | LiNKbot |
+| `media_plan` | `{ placements: Array<{ block_id: string; asset_ref: string; kind: "placeholder" \| "stock" }> }` | LiNKbot |
 | `render_spec` | `{ template_id: string; copy_bundle: CopyBundle; media_plan: MediaPlan; theme: ThemeOverrides }` | LiNKautowork |
 | `crm_record_id` | `string` (uuid) | LinkSkills lease backend (stub: `mvo_crm_records.id`) |
 | `project_id` | `string` (uuid) | LinkSkills lease backend (stub: `mvo_projects.id`) |
 | `task_id` | `string` (uuid) | LinkSkills lease backend (stub: `mvo_tasks.id`) |
-| `preview_url` | `string` (absolute URL on `apps/linkaios-web`) | LiNKautowork (`autowork.websitefactory.preview_serve`) |
+| `preview_url` | `string` (absolute URL on `LiNKaios/linkaios-web`) | LiNKautowork (`autowork.websitefactory.preview_serve`) |
 | `preview_artifact_ref` | `string` (storage handle for rendered bundle) | LiNKautowork |
 | `lease_ids` | `string[]` (LinkSkills run-ledger refs) | LinkSkills |
 | `workflow_run_ids` | `string[]` (LiNKautowork run refs) | LiNKautowork |
@@ -519,7 +527,7 @@ interface LeadInput {
 - PII MUST NOT appear in audit `payload` fields. Audit events that need to reference a contact use `subject.lead_id` only; PII lookup goes through LiNKaios kernel reads gated by RLS.
 - PII MUST NOT appear in `copy_bundle` or `render_spec` outputs (the preview must not leak the lead's own contact info as page content unless explicitly placed by an operator-approved stage; MVO does not expose such a stage).
 - Logs at all planes MUST redact email and phone using `[redacted:email]` / `[redacted:phone]`.
-- LinkBot prompts to OpenRouter MUST strip `contact` entirely; only `business_name`, `industry`, `location`, `notes` are sent.
+- LiNKbot prompts to OpenRouter MUST strip `contact` entirely; only `business_name`, `industry`, `location`, `notes` are sent.
 
 ---
 
@@ -576,7 +584,7 @@ interface Stage {
     lease_ids?: string[];       // LinkSkills
     workflow_run_ids?: string[];// LiNKautowork
     audit_event_ids?: string[]; // LiNKbrain
-    model_run_id?: string;      // LinkBot
+    model_run_id?: string;      // LiNKbot
   };
   failure?: FailureReport;
 }
@@ -662,9 +670,9 @@ Every `FailureReport` MUST also be emitted as a LiNKbrain audit event of type `s
 
 All cross-plane calls are JSON over the in-cluster transport exposed by `packages/linklogic-sdk`. Every call carries `tenant_id`, `run_id`, `stage_id`, and a `trace_id` header; receivers MUST echo these into their audit events.
 
-### 6.1 LiNKaios ↔ LinkBot (reasoning dispatch)
+### 6.1 LiNKaios ↔ LiNKbot (reasoning dispatch)
 
-LinkBot is a **delegating shell**. It accepts a stage dispatch and returns typed output. It MUST NOT write to LiNKbrain memory directly (it asks LiNKbrain via the audit envelope), MUST NOT issue capability leases (it asks LinkSkills via the kernel), and MUST NOT execute deterministic steps.
+LiNKbot is a **delegating shell**. It accepts a stage dispatch and returns typed output. It MUST NOT write to LiNKbrain memory directly (it asks LiNKbrain via the audit envelope), MUST NOT issue capability leases (it asks LinkSkills via the kernel), and MUST NOT execute deterministic steps.
 
 **Request — `bot.reason`**
 
@@ -680,7 +688,7 @@ interface BotReasonRequest {
     | "media_placement";
   inputs: Record<string, unknown>;    // typed per stage; §2 names
   model_routing_profile: string;      // resolved by LiNKaios from tenant config (D-06)
-  pii_policy: "strip_contact";        // MVO default; LinkBot MUST honor
+  pii_policy: "strip_contact";        // MVO default; LiNKbot MUST honor
 }
 ```
 
@@ -905,7 +913,7 @@ interface PreviewPublishArgs {
 
 ```ts
 interface PreviewPublishResult {
-  preview_url: string;          // absolute URL, served by apps/linkaios-web
+  preview_url: string;          // absolute URL, served by LiNKaios/linkaios-web
   preview_artifact_ref: string;
   expires_at?: string;          // optional; null for static/local MVO
 }
@@ -1059,11 +1067,11 @@ STUB: Static/local preview publishing
     (HTML/CSS/JS) for LiNKsites/apps/web-master with tenant copy + media plan applied. Bundle is stored
     under a preview_artifact_ref (object storage handle or local volume for MVO).
   - LiNKautowork workflow autowork.websitefactory.preview_serve registers the bundle behind a route
-    served by apps/linkaios-web at preview_route_prefix/<tenant>/<run_id>.
+    served by LiNKaios/linkaios-web at preview_route_prefix/<tenant>/<run_id>.
   - Capability preview.publish gates the publish step; lease lifecycle runs per §6.2 with approval gate.
   - Audit event preview.published carries subject.preview_url, subject.preview_artifact_ref, run_id.
 - Limitation:
-  - No DigitalOcean-hosted preview publish, no DNS, no TLS issuance (route is on the existing apps/linkaios-web host).
+  - No DigitalOcean-hosted preview publish, no DNS, no TLS issuance (route is on the existing LiNKaios/linkaios-web host).
   - No Payload CMS publish path.
   - No CDN/cache invalidation; previews are best-effort and may be garbage-collected after a TTL
     (default 14 days for MVO; not contractually guaranteed).
@@ -1086,7 +1094,7 @@ Reviewers MUST reject any implementation that violates the rules in this section
 - Execute deterministic workflow steps (delegate to LiNKautowork).
 - Hold long-term canonical memory or learning state (delegate to LiNKbrain).
 - Decide capability/permission policy, hold secrets, or issue capability leases (delegate to LinkSkills).
-- Run LLM reasoning sessions or persona state (delegate to LinkBot).
+- Run LLM reasoning sessions or persona state (delegate to LiNKbot).
 - Encode plugin-specific business logic (e.g. lead scoring, copy generation, template choice).
 - Publish/serve preview sites except as a thin static route surfaced via the plugin's declared `preview_output_shape` (per D-03).
 
@@ -1099,11 +1107,11 @@ Reviewers MUST reject any implementation that violates the rules in this section
 - Mutate `Run` or `Stage` state — request transitions via kernel APIs only.
 - Add capabilities, workflow handles, or audit event types not declared in its manifest at boot.
 
-### 12.3 LinkBot — MUST NOT
+### 12.3 LiNKbot — MUST NOT
 
 - Hold canonical memory (writes go via `brain.audit.write`; long-term memory belongs to LiNKbrain).
 - Hold or fetch capability leases on its own — the kernel obtains them and passes lease references when needed.
-- Hold secrets (provider keys live in LinkSkills + env; LinkBot receives only the resolved `model_routing_profile`).
+- Hold secrets (provider keys live in LinkSkills + env; LiNKbot receives only the resolved `model_routing_profile`).
 - Execute deterministic workflow steps (delegate to LiNKautowork).
 - Receive PII fields outside `pii_policy="strip_contact"` for MVO.
 
@@ -1115,14 +1123,14 @@ LinkSkills MUST NOT:
 
 - Hold long-term memory or learning state (delegate to LiNKbrain).
 - Execute deterministic workflows beyond capability backends (LiNKautowork executes the workflow body).
-- Run LLM reasoning (delegate to LinkBot).
+- Run LLM reasoning (delegate to LiNKbot).
 - Approve its own leases — approval routing belongs to the LiNKaios kernel approvals surface.
 - Skip emitting `lease.executed` to LiNKbrain when the side effect occurred (even on partial failure).
 - Allow a capability plugin to perform side effects in modes (`shadow`, `live`) the plugin manifest did not declare in `modes_supported`.
 
 ### 12.5 LiNKautowork — MUST NOT
 
-- Make high-judgment decisions, lead-scoring, copy generation, or template selection (delegate to LinkBot).
+- Make high-judgment decisions, lead-scoring, copy generation, or template selection (delegate to LiNKbot).
 - Issue or modify capability leases (delegate to LinkSkills).
 - Write to LiNKbrain memory beyond its declared `workflow.*` audit events.
 - Bypass the lease for side-effecting workflows; if a workflow performs a capability-gated action it MUST accept a `lease_id` in `WorkflowInvokeRequest` and reference it in audit.
@@ -1155,7 +1163,7 @@ Contracts above are concrete enough that the following parallel packets can star
 - **WP-006** — LiNKbrain audit envelope migration + writer (D-08, §6.3). Owner: linkbrain-agent + database-architect.
 - **WP-007** — LinkSkills lease lifecycle wiring on `LiNKskills/services/logic-engine` (§6.2, §7). Owner: linkskills-agent.
 - **WP-008** — LiNKautowork workflow handles `autowork.websitefactory.render` and `autowork.websitefactory.preview_serve` on `LiNKautowork/gateway` (§6.4, §11.3). Owner: linkautowork-agent.
-- **WP-009** — LinkBot reasoning dispatch wiring on `apps/bot-runtime` (§6.1). Owner: linkbot-agent.
+- **WP-009** — LiNKbot reasoning dispatch wiring on `LiNKbot/runtime-adapters/openclaw/bot-runtime` (§6.1). Owner: linkbot-agent.
 - **WP-010** — LiNKaios kernel: tenant + plugin registry, work_request/run/stage orchestration, manifest loader, approvals surface (§1, §4). Owner: linkaios-agent.
 - **WP-011** — WebsiteFactory plugin: declare manifest, implement stage handlers as dispatch glue only (§1.4, §12.2). Owner: linkaios-agent + linkbot-agent.
 - **WP-012** — Stub backends INT-020/INT-021/INT-022 (§11). Owner: integration-agent + database-architect.

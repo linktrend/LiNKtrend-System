@@ -2,7 +2,7 @@
 
 ## Purpose of the MVO
 
-Prove an end-to-end **lead → preview site** path using **LinkSites / WebsiteFactory** as the vertical slice, with the ecosystem planes (LiNKaios, LiNKbrain, LinkSkills, LiNKautowork, LinkBot) wired **without role bleed** per `ARCHITECTURE_RULES.md`.
+Prove an end-to-end **lead → preview site** path using **LinkSites / WebsiteFactory** as the vertical slice, with the ecosystem planes (LiNKaios, LiNKbrain, LinkSkills, LiNKautowork, LiNKbot) wired **without role bleed** per `ARCHITECTURE_RULES.md`.
 
 Success means a credible demo: capture or represent a lead, drive deterministic steps where required, apply governance where side effects exist, emit audit/learn signals to LiNKbrain, and surface a **preview** website artifact suitable for stakeholder review.
 
@@ -24,13 +24,15 @@ In order:
 1. **Command center + docs verification** — confirm `.ai-swarm/` and `docs/ecosystem/` are the operating sources of truth (`WP-000`).
 2. **Repo inventory + reuse map** — identify existing services, packages, and prior art to reuse (`WP-001`).
 3. **Day-1 decision freeze** — close or explicitly stub the minimum set of platform choices (`WP-002`).
-4. **LiNKaios kernel/plugin manifest using WebsiteFactory** — define the minimum LiNKaios plugin contract and use WebsiteFactory as the first vertical plugin example (`WP-003`).
+4. **LiNKaios kernel/module manifest using WebsiteFactory** — define the minimum LiNKaios module contract and use WebsiteFactory as the first module example (`WP-003`).
 5. **MVO contracts** — cross-service interfaces, events, and failure modes for the lead-to-preview path, bound to the WP-003 kernel/plugin manifest (`WP-004`).
 
 ## Reference documentation
 
 Authoritative narratives and execution planning live under:
 
+- **Architecture ownership:** `docs/architecture/repo-architecture-target.md`
+- **System completion targets:** `docs/architecture/system-completion-targets.md`
 - **Design:** `docs/ecosystem/design/`
 - **Development plan:** `docs/ecosystem/development-plan/`
 

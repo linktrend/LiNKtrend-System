@@ -14,7 +14,7 @@ An operator opens LiNKaios and starts a WebsiteFactory mission:
 Find a potential SMB lead and create a preview website for outreach.
 ```
 
-The assigned LinkBot acts as Website Scout / Studio Manager.
+The assigned LiNKbot acts as Website Scout / Studio Manager.
 
 For the first MVO, the lead source should be seed CSV or approved provider/API. Do not build direct Google Maps scraping into the first demo.
 
@@ -47,7 +47,7 @@ At demo time, the operator should see:
 - generated outreach email draft
 - CRM record or MVO CRM stub
 - Plane project/tasks or MVO Plane stub
-- LinkBot run
+- LiNKbot run
 - LinkSkills capability leases/runs
 - LiNKautowork workflow run
 - LiNKbrain events/memory
@@ -82,4 +82,4 @@ Do not polish public SaaS UI.
 
 ## Simple Example
 
-A restaurant called “Bella Taipei Pasta” appears in the seed lead list. The LinkBot identifies it as a restaurant, selects the restaurant template from the LinkSites template stack, generates local Italian restaurant copy, picks suitable stock or placeholder food images, changes the look-and-feel to a bistro style, publishes a preview URL, creates a CRM lead, creates a Plane project with follow-up tasks, drafts an outreach email, and records the full trace.
+A restaurant called “Bella Taipei Pasta” appears in the seed lead list. The LiNKbot identifies it as a restaurant, selects the restaurant template from the LinkSites template stack, generates local Italian restaurant copy, picks suitable stock or placeholder food images, changes the look-and-feel to a bistro style, publishes a preview URL, creates a CRM lead, creates a Plane project with follow-up tasks, drafts an outreach email, and records the full trace.

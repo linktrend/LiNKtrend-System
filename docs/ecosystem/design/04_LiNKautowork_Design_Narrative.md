@@ -16,9 +16,9 @@ LiNKautowork turns repeated agent behavior into deterministic workflows. This is
 
 LiNKautowork is not LiNKaios. It is not LinkSkills. It is not LiNKbrain. It is the execution engine for routine workflows.
 
-LiNKaios decides that work exists and routes it. LinkBot reasons about ambiguous steps and delegates execution. LinkSkills determines whether the workflow can be triggered. LiNKautowork executes the workflow. LiNKbrain records what happened and learns from it.
+LiNKaios decides that work exists and routes it. LiNKbot reasons about ambiguous steps and delegates execution. LinkSkills determines whether the workflow can be triggered. LiNKautowork executes the workflow. LiNKbrain records what happened and learns from it.
 
-This separation is essential. If LinkBots do all automation, costs explode. If n8n directly executes everything without policy, governance fails. If LinkSkills tries to run all workflows, it becomes too broad. LiNKautowork is the dedicated deterministic plane.
+This separation is essential. If LiNKbot do all automation, costs explode. If n8n directly executes everything without policy, governance fails. If LinkSkills tries to run all workflows, it becomes too broad. LiNKautowork is the dedicated deterministic plane.
 
 ## n8n Runtime
 
@@ -58,13 +58,13 @@ Maintainer monitors production drift, API changes, workflow failures, execution 
 
 A workflow should not become a reusable certified capability immediately. It should pass through stages.
 
-It may begin as an experimental tenant workflow. If it works, it becomes a reusable template. If used successfully across enough ventures or tenants, it becomes a candidate for LinkSkills certification. LinkSkills then wraps it as a capability. Once certified, LinkBots call it through LinkSkills rather than directly invoking n8n.
+It may begin as an experimental tenant workflow. If it works, it becomes a reusable template. If used successfully across enough ventures or tenants, it becomes a candidate for LinkSkills certification. LinkSkills then wraps it as a capability. Once certified, LiNKbot call it through LinkSkills rather than directly invoking n8n.
 
 This is the system’s automation flywheel: agent work becomes workflow, workflow becomes certified capability, certified capability becomes reusable across verticals, and LiNKbrain learns from outcomes.
 
-## Integration With LinkBot
+## Integration With LiNKbot
 
-A LinkBot should delegate to LiNKautowork when a deterministic workflow exists. The bot may decide that client onboarding is needed, but it should not manually create folders, CRM records, project boards, invoice drafts, and notifications. It should request the onboarding capability through LinkSkills. If the capability maps to LiNKautowork, the workflow runs.
+A LiNKbot should delegate to LiNKautowork when a deterministic workflow exists. The bot may decide that client onboarding is needed, but it should not manually create folders, CRM records, project boards, invoice drafts, and notifications. It should request the onboarding capability through LinkSkills. If the capability maps to LiNKautowork, the workflow runs.
 
 The bot receives result or exception information. If the workflow completes, the bot communicates outcome. If the workflow fails, the bot handles the exception or escalates.
 

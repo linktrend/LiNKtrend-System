@@ -29,7 +29,7 @@ Use `LiNKtrend-System` as the LiNKaios monorepo.
 
 Reuse:
 
-- `apps/linkaios-web`
+- `LiNKaios/linkaios-web`
 - existing 12 routes
 - sidecar apps where useful
 - `packages/auth`
@@ -127,7 +127,7 @@ Reuse:
 
 MVO work may defer full design-system port if it blocks the demo, but should not rebuild UI primitives from scratch.
 
-### LinkBot
+### LiNKbot
 
 Use `LiNKbot-core`.
 
@@ -152,10 +152,10 @@ Use it later as LawFirm vertical reference. Do not merge during WebsiteFactory M
 - `.ai-swarm/`
 - WebsiteFactory plugin manifest
 - MVO shared contracts
-- LinkBrain HTTP service if not already present
+- LiNKbrain HTTP service if not already present
 - LinkSkills LinkSites capabilities
 - LiNKautowork LinkSites workflow templates
-- LinkBot Website Scout / Studio Manager adapter
+- LiNKbot Website Scout / Studio Manager adapter
 - LiNKaios wiring to real service endpoints
 - unified audit event contract
 

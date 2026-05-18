@@ -34,23 +34,23 @@ Create WebsiteFactory plugin manifest.
 
 Create MVO contracts.
 
-## Day 2 — Wire Existing LiNKaios, LinkBrain, LinkSkills
+## Day 2 — Wire Existing LiNKaios, LiNKbrain, LinkSkills
 
 LiNKaios: confirm 12-route UI boots and create wiring points.
 
-LinkBrain: port archive migrations or confirm active repo equivalent.
+LiNKbrain: port archive migrations or confirm active repo equivalent.
 
 LinkSkills: verify existing logic-engine endpoints and catalog.
 
 Create minimum service health checks.
 
-## Day 3 — Wire LiNKautowork and LinkBot
+## Day 3 — Wire LiNKautowork and LiNKbot
 
 LiNKautowork: use existing gateway, add LinkSites workflow templates.
 
-LinkBot: implement minimal adapter around current `LiNKbot-core`.
+LiNKbot: implement minimal adapter around current `LiNKbot-core`.
 
-Prove LinkBot can request context, request lease, and trigger workflow.
+Prove LiNKbot can request context, request lease, and trigger workflow.
 
 ## Day 4 — LinkSites Template/Preview Path
 
@@ -94,11 +94,11 @@ Deploy locally and prepare internal DigitalOcean deployment if time allows.
 
 Replace stubs with real Plane/CRM integration.
 
-Improve LinkBot reliability.
+Improve LiNKbot reliability.
 
 Improve LinkSkills policy checks.
 
-Improve LinkBrain context assembly.
+Improve LiNKbrain context assembly.
 
 Harden LiNKautowork workflows.
 

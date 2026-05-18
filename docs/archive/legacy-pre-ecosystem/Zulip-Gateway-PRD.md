@@ -1,7 +1,7 @@
 # Zulip-Gateway — Product Requirements (PRD)
 
 **Status:** Draft (2026-04-15).  
-**Scope:** `apps/zulip-gateway` only — inbound Zulip → Supabase + traces, outbound governance posts, health, security hardening, tests, and operator docs.  
+**Scope:** `LiNKbot/communications/temporary-gateways/zulip` only — inbound Zulip → Supabase + traces, outbound governance posts, health, security hardening, tests, and operator docs.  
 **Out of scope:** OpenClaw/LiNKbot Zulip chat plugin (fork); full “presence” product; mapping Zulip users to LiNKbot identities (future).
 
 **Parent context:** Monorepo PRD §5.2 / §10 (`docs/260414 - LiNKtrend Agentic System PRD.md`) — gateway is the **mission-aware adapter**, not the chat engine.

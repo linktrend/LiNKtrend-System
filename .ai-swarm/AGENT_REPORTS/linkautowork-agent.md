@@ -141,7 +141,7 @@ None.
 1. **MVO Stub Storage**: Used in-memory Maps for artifact store and served routes (post-MVO: replace with persistent storage)
 2. **HTML Generation**: Static HTML generation with placeholder blocks (post-MVO: integrate with `LiNKsites/apps/web-master` template engine)
 3. **Audit Event Collection**: Events are collected and returned in `WorkflowInvokeResult.audit_event_ids` for the LiNKaios kernel to write to LiNKbrain
-4. **Preview URL Format**: `/preview/<tenant_id>/<run_id>/index.html` served from `apps/linkaios-web` (per INT-022 stub behavior)
+4. **Preview URL Format**: `/preview/<tenant_id>/<run_id>/index.html` served from `LiNKaios/linkaios-web` (per INT-022 stub behavior)
 5. **Idempotency Contract**: Exact cached result returned, preserving original `workflow_run_id`
 
 ## Next Step
@@ -722,7 +722,7 @@ Add development-mode operator controls for LiNKautowork with pause/resume, run c
 - `LiNKautowork/gateway/src/lib/workflow-runner.ts` (modified pause/cancel checks)
 - `LiNKautowork/gateway/src/lib/retry-policy.test.ts` (extended for pause/cancel behavior)
 - `LiNKautowork/gateway/src/index.ts` (exports for operator control API)
-- `apps/linkaios-web/src/panels/autowork-controls/index.tsx` (new minimal panel)
+- `LiNKaios/linkaios-web/src/panels/autowork-controls/index.tsx` (new minimal panel)
 - `.ai-swarm/AGENT_REPORTS/linkautowork-agent.md` (this report update)
 
 ### Commands Run
@@ -757,7 +757,7 @@ Key proof points:
 
 ### Blockers / Gaps
 
-- UI screenshot proof was not captured in this packet run. A minimal panel component was added at `apps/linkaios-web/src/panels/autowork-controls/index.tsx`, but no screenshot harness/run was executed in this pass.
+- UI screenshot proof was not captured in this packet run. A minimal panel component was added at `LiNKaios/linkaios-web/src/panels/autowork-controls/index.tsx`, but no screenshot harness/run was executed in this pass.
 - Workspace-wide typecheck in this snapshot includes pre-existing unresolved workspace package/type linkage errors unrelated to WP-073 scope; targeted gateway tests were used as packet proof.
 
 ### Branch / Commit

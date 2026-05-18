@@ -8,7 +8,7 @@ The formal plan should assume 21 days. The operational execution target should b
 
 The first successful MVO should demonstrate the LinkSites / WebsiteFactory flow:
 
-A LinkBot receives or starts a mission to find a lead, selects a potential SMB lead, chooses an industry template, generates business-specific copy, selects or places suitable images/placeholders, changes the look-and-feel without changing the template structure, publishes a preview site, creates CRM and Plane records or approved MVO stubs, logs execution events, writes memory, and displays trace/status inside LiNKaios.
+A LiNKbot receives or starts a mission to find a lead, selects a potential SMB lead, chooses an industry template, generates business-specific copy, selects or places suitable images/placeholders, changes the look-and-feel without changing the template structure, publishes a preview site, creates CRM and Plane records or approved MVO stubs, logs execution events, writes memory, and displays trace/status inside LiNKaios.
 
 ## Core Correction From Architect Review
 
@@ -16,13 +16,13 @@ The previous plan was too “greenfield.” The corrected method is “wire exis
 
 The architect review confirmed substantial existing assets:
 
-- LiNKaios UI exists in `LiNKtrend-System/apps/linkaios-web`.
+- LiNKaios UI exists in `LiNKtrend-System/LiNKaios/linkaios-web`.
 - LinkSkills Phase 0–3 logic-engine exists in `LiNKskills/services/logic-engine`.
 - LiNKautowork gateway MVO exists in `LiNKautowork`.
-- LinkBrain v0 schema exists in `Archive/LiNKaios/packages/linkbrain`.
+- LiNKbrain v0 schema exists in `Archive/LiNKaios/packages/linkbrain`.
 - LinkSites Payload CMS and templates exist in `LiNKsites`.
 - UI/design-system ancestor exists in `LiNKapps`.
-- LinkBot/OpenClaw runtime exists in `LiNKbot-core`.
+- LiNKbot/OpenClaw runtime exists in `LiNKbot-core`.
 
 Therefore the development method should not start by creating new skeletons unless a component is actually missing.
 
@@ -30,7 +30,7 @@ Therefore the development method should not start by creating new skeletons unle
 
 The ecosystem is developed from the operating loop outward:
 
-LiNKaios tracks the work. LinkBot reasons where judgment is needed. LinkSkills authorizes capabilities. LiNKautowork executes deterministic steps. LiNKbrain records memory and audit. LiNKaios displays state and trace.
+LiNKaios tracks the work. LiNKbot reasons where judgment is needed. LinkSkills authorizes capabilities. LiNKautowork executes deterministic steps. LiNKbrain records memory and audit. LiNKaios displays state and trace.
 
 Everything that does not support this loop is deferred.
 
@@ -52,10 +52,10 @@ Carlos can supervise approximately 12 hours per day. The bottleneck is not token
 2. Repo verification and reuse map.
 3. WebsiteFactory plugin manifest.
 4. Minimal shared contracts.
-5. LinkBrain audit/event receiver based on archived schema.
+5. LiNKbrain audit/event receiver based on archived schema.
 6. LinkSkills lease/run path based on existing logic-engine.
 7. LiNKautowork workflow trigger using existing gateway.
-8. LinkBot OpenClaw adapter based on existing `LiNKbot-core`.
+8. LiNKbot OpenClaw adapter based on existing `LiNKbot-core`.
 9. LiNKaios dashboard wiring using existing 12 routes.
 10. LinkSites preview publishing using existing Payload/template stack.
 

@@ -21,88 +21,7 @@ importers:
         specifier: ^5.9.3
         version: 5.9.3
 
-  LiNKautowork/gateway:
-    dependencies:
-      '@linktrend/db':
-        specifier: workspace:*
-        version: link:../../packages/db
-      '@linktrend/linklogic-sdk':
-        specifier: workspace:*
-        version: link:../../packages/linklogic-sdk
-      '@linktrend/shared-config':
-        specifier: workspace:*
-        version: link:../../packages/shared-config
-    devDependencies:
-      '@types/node':
-        specifier: ^20.0.0
-        version: 20.19.39
-      typescript:
-        specifier: ^5.4.0
-        version: 5.9.3
-      vitest:
-        specifier: ^1.6.0
-        version: 1.6.1(@types/node@20.19.39)(lightningcss@1.32.0)
-
-  LiNKskills/services/logic-engine:
-    dependencies:
-      '@linktrend/db':
-        specifier: workspace:*
-        version: link:../../../packages/db
-      '@linktrend/linklogic-sdk':
-        specifier: workspace:*
-        version: link:../../../packages/linklogic-sdk
-      '@linktrend/shared-config':
-        specifier: workspace:*
-        version: link:../../../packages/shared-config
-      '@supabase/supabase-js':
-        specifier: ^2.49.8
-        version: 2.103.0
-    devDependencies:
-      '@types/node':
-        specifier: ^20.19.39
-        version: 20.19.39
-      vitest:
-        specifier: ^3.2.4
-        version: 3.2.4(@types/node@20.19.39)(jiti@2.6.1)(lightningcss@1.32.0)(tsx@4.21.0)
-
-  apps/bot-runtime:
-    dependencies:
-      '@linktrend/linklogic-sdk':
-        specifier: workspace:*
-        version: link:../../packages/linklogic-sdk
-      '@linktrend/observability':
-        specifier: workspace:*
-        version: link:../../packages/observability
-      '@linktrend/shared-config':
-        specifier: workspace:*
-        version: link:../../packages/shared-config
-      '@linktrend/shared-types':
-        specifier: workspace:*
-        version: link:../../packages/shared-types
-    devDependencies:
-      '@eslint/js':
-        specifier: ^9.39.4
-        version: 9.39.4
-      '@types/node':
-        specifier: ^20.19.39
-        version: 20.19.39
-      eslint:
-        specifier: ^9.39.4
-        version: 9.39.4(jiti@2.6.1)
-      tsx:
-        specifier: ^4.19.4
-        version: 4.21.0
-      typescript:
-        specifier: ^5.9.3
-        version: 5.9.3
-      typescript-eslint:
-        specifier: ^8.58.2
-        version: 8.59.0(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3)
-      vitest:
-        specifier: ^3.2.4
-        version: 3.2.4(@types/node@20.19.39)(jiti@2.6.1)(lightningcss@1.32.0)(tsx@4.21.0)
-
-  apps/linkaios-web:
+  LiNKaios/linkaios-web:
     dependencies:
       '@linktrend/auth':
         specifier: workspace:*
@@ -181,33 +100,42 @@ importers:
         specifier: ^3.2.4
         version: 3.2.4(@types/node@20.19.39)(jiti@2.6.1)(lightningcss@1.32.0)(tsx@4.21.0)
 
-  apps/openclaw-shim:
-    dependencies:
-      '@linktrend/observability':
-        specifier: workspace:*
-        version: link:../../packages/observability
-    devDependencies:
-      '@types/node':
-        specifier: ^20.19.39
-        version: 20.19.39
-      tsx:
-        specifier: ^4.19.4
-        version: 4.21.0
-      typescript:
-        specifier: ^5.9.3
-        version: 5.9.3
-
-  apps/prism-defender:
+  LiNKautowork/gateway:
     dependencies:
       '@linktrend/db':
         specifier: workspace:*
         version: link:../../packages/db
-      '@linktrend/observability':
+      '@linktrend/linklogic-sdk':
         specifier: workspace:*
-        version: link:../../packages/observability
+        version: link:../../packages/linklogic-sdk
       '@linktrend/shared-config':
         specifier: workspace:*
         version: link:../../packages/shared-config
+    devDependencies:
+      '@types/node':
+        specifier: ^20.0.0
+        version: 20.19.39
+      typescript:
+        specifier: ^5.4.0
+        version: 5.9.3
+      vitest:
+        specifier: ^1.6.0
+        version: 1.6.1(@types/node@20.19.39)(lightningcss@1.32.0)
+
+  LiNKbot/communications/temporary-gateways/zulip:
+    dependencies:
+      '@linktrend/db':
+        specifier: workspace:*
+        version: link:../../../../packages/db
+      '@linktrend/linklogic-sdk':
+        specifier: workspace:*
+        version: link:../../../../packages/linklogic-sdk
+      '@linktrend/observability':
+        specifier: workspace:*
+        version: link:../../../../packages/observability
+      '@linktrend/shared-config':
+        specifier: workspace:*
+        version: link:../../../../packages/shared-config
     devDependencies:
       '@eslint/js':
         specifier: ^9.39.4
@@ -231,20 +159,20 @@ importers:
         specifier: ^3.2.4
         version: 3.2.4(@types/node@20.19.39)(jiti@2.6.1)(lightningcss@1.32.0)(tsx@4.21.0)
 
-  apps/zulip-gateway:
+  LiNKbot/runtime-adapters/openclaw/bot-runtime:
     dependencies:
-      '@linktrend/db':
-        specifier: workspace:*
-        version: link:../../packages/db
       '@linktrend/linklogic-sdk':
         specifier: workspace:*
-        version: link:../../packages/linklogic-sdk
+        version: link:../../../../packages/linklogic-sdk
       '@linktrend/observability':
         specifier: workspace:*
-        version: link:../../packages/observability
+        version: link:../../../../packages/observability
       '@linktrend/shared-config':
         specifier: workspace:*
-        version: link:../../packages/shared-config
+        version: link:../../../../packages/shared-config
+      '@linktrend/shared-types':
+        specifier: workspace:*
+        version: link:../../../../packages/shared-types
     devDependencies:
       '@eslint/js':
         specifier: ^9.39.4
@@ -264,6 +192,78 @@ importers:
       typescript-eslint:
         specifier: ^8.58.2
         version: 8.59.0(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3)
+      vitest:
+        specifier: ^3.2.4
+        version: 3.2.4(@types/node@20.19.39)(jiti@2.6.1)(lightningcss@1.32.0)(tsx@4.21.0)
+
+  LiNKbot/runtime-adapters/openclaw/openclaw-shim:
+    dependencies:
+      '@linktrend/observability':
+        specifier: workspace:*
+        version: link:../../../../packages/observability
+    devDependencies:
+      '@types/node':
+        specifier: ^20.19.39
+        version: 20.19.39
+      tsx:
+        specifier: ^4.19.4
+        version: 4.21.0
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+
+  LiNKguard/sidecar/linkguard:
+    dependencies:
+      '@linktrend/db':
+        specifier: workspace:*
+        version: link:../../../packages/db
+      '@linktrend/observability':
+        specifier: workspace:*
+        version: link:../../../packages/observability
+      '@linktrend/shared-config':
+        specifier: workspace:*
+        version: link:../../../packages/shared-config
+    devDependencies:
+      '@eslint/js':
+        specifier: ^9.39.4
+        version: 9.39.4
+      '@types/node':
+        specifier: ^20.19.39
+        version: 20.19.39
+      eslint:
+        specifier: ^9.39.4
+        version: 9.39.4(jiti@2.6.1)
+      tsx:
+        specifier: ^4.19.4
+        version: 4.21.0
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+      typescript-eslint:
+        specifier: ^8.58.2
+        version: 8.59.0(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3)
+      vitest:
+        specifier: ^3.2.4
+        version: 3.2.4(@types/node@20.19.39)(jiti@2.6.1)(lightningcss@1.32.0)(tsx@4.21.0)
+
+  LiNKskills/services/logic-engine:
+    dependencies:
+      '@linktrend/db':
+        specifier: workspace:*
+        version: link:../../../packages/db
+      '@linktrend/linklogic-sdk':
+        specifier: workspace:*
+        version: link:../../../packages/linklogic-sdk
+      '@linktrend/shared-config':
+        specifier: workspace:*
+        version: link:../../../packages/shared-config
+      '@supabase/supabase-js':
+        specifier: ^2.49.8
+        version: 2.103.0
+    devDependencies:
+      '@types/node':
+        specifier: ^20.19.39
+        version: 20.19.39
       vitest:
         specifier: ^3.2.4
         version: 3.2.4(@types/node@20.19.39)(jiti@2.6.1)(lightningcss@1.32.0)(tsx@4.21.0)
@@ -3869,8 +3869,8 @@ snapshots:
 
   '@typescript-eslint/project-service@8.58.2(typescript@5.9.3)':
     dependencies:
-      '@typescript-eslint/tsconfig-utils': 8.58.2(typescript@5.9.3)
-      '@typescript-eslint/types': 8.58.2
+      '@typescript-eslint/tsconfig-utils': 8.59.0(typescript@5.9.3)
+      '@typescript-eslint/types': 8.59.0
       debug: 4.4.3
       typescript: 5.9.3
     transitivePeerDependencies:

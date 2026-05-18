@@ -6,13 +6,13 @@
 
 ## WP-040 — Plugin architecture v2 contract (2026-05-15)
 
-**Status:** Complete. The shared plugin architecture contract is now first-class in the repo source of truth. Vertical plugins, capability plugins, LinkBot role attachments, LinkSkills permissions/skills, LiNKautowork hooks, LiNKbrain audit/memory events, mode model, and stop-and-ask are pinned in both the prose contract and the SDK schema.
+**Status:** Complete. The shared plugin architecture contract is now first-class in the repo source of truth. Vertical plugins, capability plugins, LiNKbot role attachments, LinkSkills permissions/skills, LiNKautowork hooks, LiNKbrain audit/memory events, mode model, and stop-and-ask are pinned in both the prose contract and the SDK schema.
 
 ### Files Changed (WP-040)
 
 - `.ai-swarm/CONTRACTS_MVO.md`
   - Title and §0 rewritten: contract now binds the LiNKaios kernel + plugin architecture v2; WebsiteFactory framed as the first concrete vertical instance.
-  - Added §1.0.1 plugin kinds (vertical vs capability), §1.0.2 mode model (`development` / `shadow` / `live`), §1.0.3 LinkBot role attachment model, §1.0.4 stop-and-ask rule.
+  - Added §1.0.1 plugin kinds (vertical vs capability), §1.0.2 mode model (`development` / `shadow` / `live`), §1.0.3 LiNKbot role attachment model, §1.0.4 stop-and-ask rule.
   - Extended §1.2 `PluginManifest` TypeScript shape with `plugin_kind`, `modes_supported`, `required_linkbot_roles[]`, and a `capability` block (`CapabilityPluginSurface`). Legacy-compat rules retained for v1 manifests.
   - Extended §1.3 manifest validation rules: empty stages on verticals, missing capability block on capability plugins, invalid callers, unknown modes, role attachments referencing undeclared capabilities/audit events, capability `not_configured[]` empty.
   - §1.4 reframed as "LinkSites / WebsiteFactory manifest declaration (concrete vertical instance)" with v1↔v2 mapping.
@@ -23,12 +23,12 @@
   - §3 split into shared / vertical-only / capability-only required fields.
   - §4 YAML annotated with `plugin_kind`, `modes_supported`, and v1↔v2 carry-over note.
 - `packages/linklogic-sdk/src/contracts-mvo.ts`
-  - Added `PluginKindSchema`, `PluginModeSchema`, `LinkBotRoleAttachmentSchema`, `CapabilityPluginCallerSchema`, `CapabilityPluginSurfaceSchema`.
+  - Added `PluginKindSchema`, `PluginModeSchema`, `LiNKbotRoleAttachmentSchema`, `CapabilityPluginCallerSchema`, `CapabilityPluginSurfaceSchema`.
   - Extended `PluginManifestSchema` with optional `plugin_kind`, `modes_supported`, `required_linkbot_roles`, and `capability`. Used `.superRefine` to enforce v2 cross-field rules without breaking v1 manifests.
 - `packages/linklogic-sdk/src/contracts-mvo.test.ts`
   - Added 7 v2 manifest tests: v2 vertical accepts, role attachment must reference declared capability, capability manifest accepts, capability with stages rejected, capability without `capability` block rejected, capability with empty `not_configured` rejected. All test cases land in the existing `PluginManifestSchema` describe block.
 - `packages/linklogic-sdk/src/index.ts`
-  - Re-exported new v2 schemas and inferred types (`PluginKind`, `PluginMode`, `LinkBotRoleAttachment`, `CapabilityPluginCaller`, `CapabilityPluginSurface`).
+  - Re-exported new v2 schemas and inferred types (`PluginKind`, `PluginMode`, `LiNKbotRoleAttachment`, `CapabilityPluginCaller`, `CapabilityPluginSurface`).
 - `.ai-swarm/DECISIONS.md`
   - Added decision row D-09 ("Plugin architecture v2").
 - `.ai-swarm/AGENT_COORDINATION.md`
@@ -53,7 +53,7 @@ Test Files  11 passed (11)
 
 Acceptance verification against WP-040:
 
-- [x] Contract docs distinguish vertical plugins, capability plugins, core platform services, and LinkBots (`CONTRACTS_MVO.md` §1.0.1; `LINKAIOS_KERNEL_MANIFEST.md` §0).
+- [x] Contract docs distinguish vertical plugins, capability plugins, core platform services, and LiNKbot (`CONTRACTS_MVO.md` §1.0.1; `LINKAIOS_KERNEL_MANIFEST.md` §0).
 - [x] No document implies capability plugins own target-app business setup (`CONTRACTS_MVO.md` §1.0.1, §1.0.4, §12.7; manifest §3.3 `not_configured[]` required-non-empty).
 - [x] Existing WebsiteFactory-specific language reframed as the concrete vertical instance (`CONTRACTS_MVO.md` §0, §1.4; manifest §4 header + YAML annotations); v1 manifests remain valid (legacy-compat rules in §1.2).
 - [x] Mode semantics `development` / `shadow` / `live` declared at the contract layer (§1.0.2) and enforced via `PluginModeSchema` + capability `mode_flags`.
@@ -91,7 +91,7 @@ None. The v2 contract is additive over v1 and downstream packets WP-041..WP-045 
   - §3 Lead intake contract (`LeadInput`, validation, idempotency keyed on `(tenant_id, idempotency_key)` with 24h window, PII handling rules).
   - §4 Work / Run lifecycle (`WorkRequest`, `Run`, `Stage`, status state machine, retry policy).
   - §5 Failure taxonomy (`FailureReport`, code → status mapping, canonical error code enum).
-  - §6 Cross-plane contracts (LinkBot reasoning dispatch, LinkSkills lease lifecycle, LiNKbrain audit envelope per D-08, LiNKautowork workflow run lifecycle).
+  - §6 Cross-plane contracts (LiNKbot reasoning dispatch, LinkSkills lease lifecycle, LiNKbrain audit envelope per D-08, LiNKautowork workflow run lifecycle).
   - §7 LinkSkills capability checks for `crm.upsert`, `plane.project.create`, `plane.task.create`, `preview.publish`.
   - §8 Minimum audit events for succeeded / failed / awaiting_approval runs.
   - §9 `PreviewOutput` contract (preview_url, preview_artifact_ref, run_id, lease_ids, workflow_run_ids, audit_event_ids).
@@ -126,7 +126,7 @@ Final `CONTRACTS_MVO.md` section headings (ready for implementation planning):
 4. Lead intake contract (3.1 `LeadInput`, 3.2 validation, 3.3 idempotency/dedupe, 3.4 PII handling)
 5. Work / Run lifecycle (4.1 `WorkRequest`, 4.2 `Run`, 4.3 `Stage`, 4.4 status transitions, 4.5 finalization, 4.6 retry policy)
 6. Failure taxonomy (5.1 `FailureReport`, 5.2 code → status, 5.3 visibility via audit, 5.4 canonical error enum)
-7. Cross-plane contracts (6.1 LiNKaios↔LinkBot, 6.2 LiNKaios↔LinkSkills lease lifecycle, 6.3 all planes→LiNKbrain audit envelope, 6.4 LiNKaios↔LiNKautowork workflow lifecycle)
+7. Cross-plane contracts (6.1 LiNKaios↔LiNKbot, 6.2 LiNKaios↔LinkSkills lease lifecycle, 6.3 all planes→LiNKbrain audit envelope, 6.4 LiNKaios↔LiNKautowork workflow lifecycle)
 8. LinkSkills capability checks (`crm.upsert`, `plane.project.create`, `plane.task.create`, `preview.publish`, common rules)
 9. Minimum audit events per run outcome (succeeded / failed / awaiting_approval)
 10. Preview output contract (`PreviewOutput`)
@@ -144,7 +144,7 @@ Acceptance verification against `WP-004-mvo-contracts.md`:
 - [x] Audit envelope schema for LiNKbrain finalized (§6.3 fulfilling D-08).
 - [x] LinkSkills capability checks defined for all MVO side effects (§7).
 - [x] LiNKautowork workflow boundaries (request, run state machine, compensation) defined (§6.4).
-- [x] LinkBot involvement defined as delegating only with forbidden ownership listed (§6.1 + §12.3).
+- [x] LiNKbot involvement defined as delegating only with forbidden ownership listed (§6.1 + §12.3).
 - [x] Kernel vs plugin contract surface split made explicit (§1 + §12.1 + §12.2).
 
 ## Blockers
@@ -163,7 +163,7 @@ Per `CONTRACTS_MVO.md` §13:
 2. **WP-006** — LiNKbrain audit envelope migration + writer (D-08, §6.3). linkbrain-agent + database-architect. **Land first (parallel with WP-005).**
 3. **WP-007** — LinkSkills lease lifecycle on `LiNKskills/services/logic-engine`. linkskills-agent. Parallel after WP-005.
 4. **WP-008** — LiNKautowork workflow handles `autowork.websitefactory.render` and `autowork.websitefactory.preview_serve` on `LiNKautowork/gateway`. linkautowork-agent. Parallel after WP-005.
-5. **WP-009** — LinkBot reasoning dispatch on `apps/bot-runtime`. linkbot-agent. Parallel after WP-005.
+5. **WP-009** — LiNKbot reasoning dispatch on `LiNKbot/runtime-adapters/openclaw/bot-runtime`. linkbot-agent. Parallel after WP-005.
 6. **WP-010** — LiNKaios kernel: tenant + plugin registry, work_request/run/stage orchestration, manifest loader, approvals surface. linkaios-agent. After WP-006 + WP-007.
 7. **WP-011** — WebsiteFactory plugin manifest declaration + stage handler glue. linkaios-agent + linkbot-agent. After WP-010.
 8. **WP-012** — Stub backends INT-020/INT-021/INT-022. integration-agent + database-architect. Parallel with WP-010.
@@ -238,7 +238,7 @@ Hand off to the parallel implementation wave:
 - WP-006 (LiNKbrain audit envelope migration + writer) — bind to `AuditEventSchema` / `AuditWriteResultSchema`.
 - WP-007 (LinkSkills lease lifecycle) — bind to `LeaseRequestSchema` / `LeaseDecisionSchema` / `LeaseExecuteRequestSchema` / `LeaseExecuteResultSchema` and the four capability arg/result schemas.
 - WP-008 (LiNKautowork workflow handles) — bind to `WorkflowInvokeRequestSchema` / `WorkflowInvokeResultSchema` and `RenderSpecSchema`.
-- WP-009 (LinkBot reasoning dispatch) — bind to `BotReasonRequestSchema` / `BotReasonResultSchema`.
+- WP-009 (LiNKbot reasoning dispatch) — bind to `BotReasonRequestSchema` / `BotReasonResultSchema`.
 
 No new platform decision was uncovered. `DECISIONS.md` and `INTEGRATION_QUEUE.md` unchanged.
 

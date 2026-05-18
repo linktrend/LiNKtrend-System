@@ -28,7 +28,7 @@ Output: plugin manifest inside LiNKaios monorepo.
 
 ## WP-004 — MVO Contracts
 
-Define Tenant, Role, LinkBot, Plugin, Capability, CapabilityLease, WorkflowRun, AuditEvent, MemoryEvent, ContextBundle, Lead, WebsitePreview, CRMRecord, PlaneProject.
+Define Tenant, Role, LiNKbot, Plugin, Capability, CapabilityLease, WorkflowRun, AuditEvent, MemoryEvent, ContextBundle, Lead, WebsitePreview, CRMRecord, PlaneProject.
 
 Output: `CONTRACTS_MVO.md` and types/schemas if practical.
 
@@ -38,9 +38,9 @@ Use existing 12-route UI. Wire `/workers`, `/work`, `/projects`, `/skills`, `/me
 
 Output: LiNKaios can display MVO status.
 
-## WP-006 — LinkBrain MVO From Archive
+## WP-006 — LiNKbrain MVO From Archive
 
-Port or reuse archive LinkBrain migrations. Build minimal HTTP endpoints: event write, audit run write, context assemble stub, memory candidate write, trace read.
+Port or reuse archive LiNKbrain migrations. Build minimal HTTP endpoints: event write, audit run write, context assemble stub, memory candidate write, trace read.
 
 Output: LiNKbrain service can receive audit/events.
 
@@ -56,11 +56,11 @@ Use existing gateway. Add LinkSites workflow templates: lead intake, preview pub
 
 Output: LiNKautowork can execute at least one deterministic workflow and report audit.
 
-## WP-009 — LinkBot OpenClaw Adapter
+## WP-009 — LiNKbot OpenClaw Adapter
 
 Use current `LiNKbot-core` unless Day-1 comparison says otherwise. Create Website Scout/Studio Manager bot. Implement context request, capability lease request, workflow trigger, event emission.
 
-Output: LinkBot can execute the MVO mission path.
+Output: LiNKbot can execute the MVO mission path.
 
 ## WP-010 — LinkSites Template/Preview
 

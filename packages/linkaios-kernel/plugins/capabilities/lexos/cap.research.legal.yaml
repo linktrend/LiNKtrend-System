@@ -78,6 +78,6 @@ failure_mapping:
   LEASE_IDEMPOTENCY_CONFLICT: Conflicting deterministic snapshots flagged for materially identical normalized_query_digest when corpus versioning diverged concurrently.
 
 not_configured:
-  - Law firm substantive research strategy authoring (delegated to LEXOS LinkBots and human operators).
+  - Law firm substantive research strategy authoring (delegated to LEXOS LiNKbot and human operators).
   - Full-text corpuses beyond licensed connector surfaces for the tenant bundle.
   - Court filing integrations or PACER equivalents (orthogonal capability IDs required if activated later).

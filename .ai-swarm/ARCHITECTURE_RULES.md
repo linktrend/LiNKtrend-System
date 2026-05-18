@@ -8,16 +8,16 @@ These boundaries apply to the LiNKtrend AI Agent Ecosystem MVO and all follow-on
 - **LiNKbrain** is the **institutional memory and learning plane**.
 - **LinkSkills** is the **capability governance and capability lease plane**.
 - **LiNKautowork** is the **deterministic workflow execution plane**.
-- **LinkBot** is the **role-bound AI employee runtime adapter**.
+- **LiNKbot** is the **role-bound AI employee runtime adapter**.
 
 ## Coordination vs absorption
 
-- **LiNKaios coordinates the ecosystem** but **must not absorb** the responsibilities of LiNKbrain, LinkSkills, LiNKautowork, or LinkBot.
+- **LiNKaios coordinates the ecosystem** but **must not absorb** the responsibilities of LiNKbrain, LinkSkills, LiNKautowork, or LiNKbot.
 
-## LinkBot (thin runtime)
+## LiNKbot (thin runtime)
 
-- LinkBot **must remain a thin reasoning/runtime shell**.
-- LinkBot **must not own** canonical memory, skills, secrets, or deterministic workflow execution.
+- LiNKbot **must remain a thin reasoning/runtime shell**.
+- LiNKbot **must not own** canonical memory, skills, secrets, or deterministic workflow execution.
 
 ## LinkSkills
 

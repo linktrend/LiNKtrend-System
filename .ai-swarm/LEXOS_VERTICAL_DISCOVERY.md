@@ -304,7 +304,7 @@ Each workflow stage has consistent structure:
 
 **Workflow Stages:** W0 → W1 → W2 → (W3 if defense) → W4 → W5 → W6 → W7 → W8 → W9 → W10 → W11
 
-**Required LinkBot Roles:**
+**Required LiNKbot Roles:**
 - `lexos-intake-agent` — W0 intake processing
 - `lexos-extraction-agent` — W4 evidence extraction
 - `lexos-assertion-agent` — W5 assertion extraction

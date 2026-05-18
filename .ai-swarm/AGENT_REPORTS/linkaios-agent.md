@@ -10,19 +10,19 @@ Wire the LinkSites v2 stage plan into LiNKaios WebsiteFactory plugin manifest/he
 
 ### Files changed
 
-- `apps/linkaios-web/src/lib/plugins/websitefactory/manifest.ts`
+- `LiNKaios/linkaios-web/src/lib/plugins/websitefactory/manifest.ts`
   - Replaced v1 stage plan with LinkSites v2 stage plan (`research_enrichment`, `website_package_generation`, `artifact_write_local`, `supabase_mirror_upsert`, `payload_sync_local`, `preview_readiness_check`, `crm_ready_to_contact_mark`, `plane_execution_tracking`, `zulip_run_notify`, `record_run`).
   - Updated required v2 capability plugin IDs and LiNKautowork workflow handles.
   - Updated stage-type helpers and stage→capability/workflow/reasoning mappings to canonical v2 IDs.
-- `apps/linkaios-web/src/lib/plugins/websitefactory/stage-handlers.ts`
+- `LiNKaios/linkaios-web/src/lib/plugins/websitefactory/stage-handlers.ts`
   - Updated stage comments and capability/workflow argument builders to match v2 stage IDs.
-- `apps/linkaios-web/src/lib/kernel/dispatch.ts`
+- `LiNKaios/linkaios-web/src/lib/kernel/dispatch.ts`
   - Added reasoning-output support for v2 reasoning kinds (`research_enrichment`, `website_package_generation`) in mock dispatch.
-- `apps/linkaios-web/src/lib/kernel/manifest-loader.ts`
+- `LiNKaios/linkaios-web/src/lib/kernel/manifest-loader.ts`
   - Switched loader to source manifest from plugin module (`getWebsiteFactoryManifest`) so kernel and plugin stay aligned.
-- `apps/linkaios-web/src/lib/plugins/websitefactory/plugin.test.ts`
+- `LiNKaios/linkaios-web/src/lib/plugins/websitefactory/plugin.test.ts`
   - Updated manifest/mapping assertions to LinkSites v2 stage IDs, capability IDs, workflow handles, and output expectations.
-- `apps/linkaios-web/src/lib/kernel/kernel.test.ts`
+- `LiNKaios/linkaios-web/src/lib/kernel/kernel.test.ts`
   - Updated kernel manifest/mapping assertions to LinkSites v2 stage plan and helper mappings.
 - `.ai-swarm/AGENT_REPORTS/linkaios-agent.md`
   - Added this WP-049 report.
@@ -36,8 +36,8 @@ git pull --ff-only origin development
 git switch -c dev/codex/WP-049-linksites-kernel-v2-stage-wiring
 
 pnpm --filter @linktrend/linkaios-web test -- --run \
-  apps/linkaios-web/src/lib/plugins/websitefactory/plugin.test.ts \
-  apps/linkaios-web/src/lib/kernel/kernel.test.ts
+  LiNKaios/linkaios-web/src/lib/plugins/websitefactory/plugin.test.ts \
+  LiNKaios/linkaios-web/src/lib/kernel/kernel.test.ts
 ```
 
 ### Validation / proof
@@ -58,7 +58,7 @@ pnpm --filter @linktrend/linkaios-web test -- --run \
 
 ### Blockers / risks
 
-- `apps/linkaios-web/src/lib/kernel/manifest-loader.ts` still contains an older in-file manifest constant; runtime now uses plugin manifest directly, so behavior is correct. Residual cleanup risk is low but this duplicate constant should be removed in a follow-up hygiene pass.
+- `LiNKaios/linkaios-web/src/lib/kernel/manifest-loader.ts` still contains an older in-file manifest constant; runtime now uses plugin manifest directly, so behavior is correct. Residual cleanup risk is low but this duplicate constant should be removed in a follow-up hygiene pass.
 
 ### Final branch + commit SHA
 
@@ -75,8 +75,8 @@ Make the revised LinkSites development-mode MVO the canonical contract target in
 
 ### Files changed
 
-- `.ai-swarm/CONTRACTS_MVO.md` — added §0.A LinkSites v2 canonical section (flow, hard boundaries, production artifact direction, canonical LinkBot roles, required v1 capability plugins, site identity, side-effect routing, schema-related deferrals, mode model, acceptance posture, and v1 §§1–13 historical-relationship statement). Marked top-of-file status and v1 §§1–13 as historical reference.
-- `.ai-swarm/LINKAIOS_KERNEL_MANIFEST.md` — added §0.A v2 addendum (v2 work-request and stages, disabled LinkBot roles for Lead Scout and Outreach, required capabilities, deferred concrete manifest pending WP-042, kernel non-ownership reaffirmed under v2, trace/status surface obligations). Marked §4 WebsiteFactory manifest as historical v1 reference.
+- `.ai-swarm/CONTRACTS_MVO.md` — added §0.A LinkSites v2 canonical section (flow, hard boundaries, production artifact direction, canonical LiNKbot roles, required v1 capability plugins, site identity, side-effect routing, schema-related deferrals, mode model, acceptance posture, and v1 §§1–13 historical-relationship statement). Marked top-of-file status and v1 §§1–13 as historical reference.
+- `.ai-swarm/LINKAIOS_KERNEL_MANIFEST.md` — added §0.A v2 addendum (v2 work-request and stages, disabled LiNKbot roles for Lead Scout and Outreach, required capabilities, deferred concrete manifest pending WP-042, kernel non-ownership reaffirmed under v2, trace/status surface obligations). Marked §4 WebsiteFactory manifest as historical v1 reference.
 - `.ai-swarm/INTEGRATION_QUEUE.md` — added "LinkSites v2 capability integrations" section (INT-040..INT-049) plus explicit "out of scope for v2" list. Marked v1 stubbed-integrations section as historical.
 - `.ai-swarm/AGENT_COORDINATION.md` — appended WP-041 entry to Latest Updates.
 - `.ai-swarm/AGENT_REPORTS/linkaios-agent.md` — this entry.
@@ -135,7 +135,7 @@ Implements the WebsiteFactory plugin declaration and stage-handler glue that let
 | Before | After |
 |--------|-------|
 | Kernel had hardcoded `mapStageToReasoningKind()`, `mapStageToWorkflowHandle()`, `mapStageToCapability()` in `orchestrator.ts` | Plugin exports these mappings; kernel imports from plugin |
-| Kernel switch statement dispatched directly to LinkBot/LinkSkills/LiNKautowork | Kernel calls `executeWebsiteFactoryStage()` which then delegates to correct plane |
+| Kernel switch statement dispatched directly to LiNKbot/LinkSkills/LiNKautowork | Kernel calls `executeWebsiteFactoryStage()` which then delegates to correct plane |
 | Kernel `executeLinkSkillsStage()` handled capability leases | Plugin `executeCapabilityStage()` handles capability leases |
 | Hardcoded manifest loading | Generic `loadPluginManifest(pluginId)` with plugin registry pattern |
 
@@ -154,7 +154,7 @@ Complete. WebsiteFactory plugin fully wired to kernel extension points:
 
 ### WebsiteFactory Plugin (new)
 
-- `apps/linkaios-web/src/lib/plugins/websitefactory/manifest.ts` *(new)* — Plugin manifest declaration:
+- `LiNKaios/linkaios-web/src/lib/plugins/websitefactory/manifest.ts` *(new)* — Plugin manifest declaration:
   - Canonical `WEBSITE_FACTORY_MANIFEST` per CONTRACTS_MVO.md §1.4
   - All 10 stages declared with correct `responsible_plane` per §7, §10
   - Stage mapping helpers: `mapStageToCapability()`, `mapStageToWorkflowHandle()`, `mapStageToReasoningKind()`
@@ -162,21 +162,21 @@ Complete. WebsiteFactory plugin fully wired to kernel extension points:
   - Preview output shape per §9
   - Non-goals per D-03
 
-- `apps/linkaios-web/src/lib/plugins/websitefactory/stage-handlers.ts` *(new)* — Stage handler glue:
+- `LiNKaios/linkaios-web/src/lib/plugins/websitefactory/stage-handlers.ts` *(new)* — Stage handler glue:
   - `executeWebsiteFactoryStage()` — Main dispatch router (called by kernel)
-  - `executeReasoningStage()` → LinkBot (§6.1)
+  - `executeReasoningStage()` → LiNKbot (§6.1)
   - `executeCapabilityStage()` → LinkSkills lease lifecycle (§6.2, §7)
   - `executeWorkflowStage()` → LiNKautowork (§6.4)
   - `executeRecordRunStage()` → LiNKbrain closure
   - PII sanitization per §3.4
 
-- `apps/linkaios-web/src/lib/plugins/websitefactory/preview-panel.ts` *(new)* — Preview panel wiring
-- `apps/linkaios-web/src/lib/plugins/websitefactory/index.ts` *(new)* — Module exports
-- `apps/linkaios-web/src/lib/plugins/websitefactory/plugin.test.ts` *(new)* — 31 plugin tests
+- `LiNKaios/linkaios-web/src/lib/plugins/websitefactory/preview-panel.ts` *(new)* — Preview panel wiring
+- `LiNKaios/linkaios-web/src/lib/plugins/websitefactory/index.ts` *(new)* — Module exports
+- `LiNKaios/linkaios-web/src/lib/plugins/websitefactory/plugin.test.ts` *(new)* — 31 plugin tests
 
 ### Kernel Orchestration (refactored)
 
-- `apps/linkaios-web/src/lib/kernel/orchestrator.ts` *(refactored)*:
+- `LiNKaios/linkaios-web/src/lib/kernel/orchestrator.ts` *(refactored)*:
   - Removed hardcoded `mapStageToReasoningKind()`, `mapStageToWorkflowHandle()`, `mapStageToCapability()`
   - Removed hardcoded `executeLinkSkillsStage()` (now in plugin)
   - Added `executePluginStage()` wrapper that calls plugin's `executeWebsiteFactoryStage()`
@@ -187,7 +187,7 @@ Complete. WebsiteFactory plugin fully wired to kernel extension points:
   - Imports stage mappings from plugin module
   - Re-exports plugin functions for consumers
 
-- `apps/linkaios-web/src/lib/kernel/kernel.test.ts` *(updated)*:
+- `LiNKaios/linkaios-web/src/lib/kernel/kernel.test.ts` *(updated)*:
   - Added 5 new tests for plugin extension point wiring
   - Tests verify kernel loads manifest from plugin module
   - Tests verify kernel delegates to plugin's executeStage
@@ -195,7 +195,7 @@ Complete. WebsiteFactory plugin fully wired to kernel extension points:
 
 ### Dev Config (updated)
 
-- `apps/linkaios-web/vitest.config.ts` *(updated)* — Path alias resolution for `@/` imports
+- `LiNKaios/linkaios-web/vitest.config.ts` *(updated)* — Path alias resolution for `@/` imports
 
 ## Role-Bleed Self-Check
 
@@ -206,14 +206,14 @@ Per CONTRACTS_MVO.md §12.1, §12.2:
 | Orchestration, persistence, approvals, trace, status | Owns | — | Kernel owns |
 | Stage declarations, mappings | Reads from plugin | Declares | Plugin declares |
 | Stage execution for non-kernel planes | Calls plugin | Implements | Plugin implements |
-| Reasoning (LinkBot) | Delegates | Delegates | Correct |
+| Reasoning (LiNKbot) | Delegates | Delegates | Correct |
 | Capability leases (LinkSkills) | Delegates | Delegates | Correct |
 | Deterministic workflows (LiNKautowork) | Delegates | Delegates | Correct |
 | Audit/memory (LiNKbrain) | Delegates | Delegates | Correct |
 
 **Role boundaries intact:**
 - Kernel does NOT duplicate plugin stage mappings
-- Kernel does NOT absorb LinkBot/LinkSkills/LiNKautowork/LiNKbrain responsibilities
+- Kernel does NOT absorb LiNKbot/LinkSkills/LiNKautowork/LiNKbrain responsibilities
 - Plugin does NOT implement kernel routing/approvals/trace
 
 ## Commands Run
@@ -287,7 +287,7 @@ pnpm --filter @linktrend/linkaios-web test -- --run
 
 ### Kernel uses plugin extension point:
 
-```23:40:apps/linkaios-web/src/lib/kernel/orchestrator.ts
+```23:40:LiNKaios/linkaios-web/src/lib/kernel/orchestrator.ts
 // WebsiteFactory plugin extension point
 import {
   executeWebsiteFactoryStage,
@@ -298,20 +298,20 @@ import {
 
 ### Kernel delegates to plugin for stage execution:
 
-```387:402:apps/linkaios-web/src/lib/kernel/orchestrator.ts
+```387:402:LiNKaios/linkaios-web/src/lib/kernel/orchestrator.ts
 case "linkbot":
 case "linkskills":
 case "linkautowork":
 case "linkbrain":
   // Plugin-declared stages: delegate to plugin's executeStage handler
-  // Plugin then delegates to the correct plane (LinkBot, LinkSkills, etc.)
+  // Plugin then delegates to the correct plane (LiNKbot, LinkSkills, etc.)
   result = await executePluginStage(env, run, stage, manifestStage, accumulatedOutputs);
   break;
 ```
 
 ### Plugin executes stage and delegates to planes:
 
-```64:95:apps/linkaios-web/src/lib/plugins/websitefactory/stage-handlers.ts
+```64:95:LiNKaios/linkaios-web/src/lib/plugins/websitefactory/stage-handlers.ts
 export async function executeWebsiteFactoryStage(
   ctx: StageContext,
 ): Promise<DispatchResult> {
@@ -340,7 +340,7 @@ None.
 The kernel now:
 1. Loads WebsiteFactory manifest from plugin module
 2. Executes stages through plugin's `executeWebsiteFactoryStage()` handler
-3. Plugin delegates to correct planes (LinkBot, LinkSkills, LiNKautowork, LiNKbrain)
+3. Plugin delegates to correct planes (LiNKbot, LinkSkills, LiNKautowork, LiNKbrain)
 4. Kernel maintains orchestration, persistence, approvals, trace, status
 
 WP-013 can now test:
@@ -437,7 +437,7 @@ git -C /Users/linktrend/Projects/LiNKsites status --short
 
 - Added LinkSites v2-focused SDK schemas/types for:
   - canonical discovered template id
-  - canonical LinkBot role ids
+  - canonical LiNKbot role ids
   - canonical LinkSites capability plugin ids
   - canonical LiNKautowork workflow handles
   - pinned WP-042 discovered source refs
@@ -476,16 +476,16 @@ pnpm --filter @linktrend/linklogic-sdk test
 
 ## WP-063 — LiNKaios ingress fail-closed governance adapter (2026-05-17)
 
-**Status:** COMPLETE (fail-closed governance validation at LinkBot dispatch + tests).
+**Status:** COMPLETE (fail-closed governance validation at LiNKbot dispatch + tests).
 
 ### Files changed
 
-- `apps/linkaios-web/src/lib/kernel/dispatch.ts`
-  - Added strict `linktrendGovernance` ingress validation in `dispatchToLinkBot`.
+- `LiNKaios/linkaios-web/src/lib/kernel/dispatch.ts`
+  - Added strict `linktrendGovernance` ingress validation in `dispatchToLiNKbot`.
   - Enforced fail-closed rejection when governance payload is missing/invalid.
   - Mapped rejection to canonical failure code `MANIFEST_INVALID`.
   - Emitted denied dispatch audit event (`stage.failed`) with `governance_ingress_rejected` metadata.
-- `apps/linkaios-web/src/lib/kernel/dispatch.test.ts`
+- `LiNKaios/linkaios-web/src/lib/kernel/dispatch.test.ts`
   - Added coverage for valid governance dispatch success.
   - Added coverage for missing governance payload fail-closed behavior.
   - Added coverage for invalid governance payload shape fail-closed behavior.
@@ -509,7 +509,7 @@ pnpm --filter @linktrend/linkaios-web test -- src/lib/kernel/dispatch.test.ts
 ### Validation / proof
 
 - `pnpm --filter @linktrend/linkaios-web test -- src/lib/kernel/dispatch.test.ts` passes.
-- `dispatchToLinkBot governance ingress` tests prove:
+- `dispatchToLiNKbot governance ingress` tests prove:
   - valid governance dispatch still succeeds,
   - missing governance payload is rejected fail-closed,
   - invalid governance payload shape is rejected fail-closed,
@@ -519,7 +519,7 @@ pnpm --filter @linktrend/linkaios-web test -- src/lib/kernel/dispatch.test.ts
 ### Blockers / risks
 
 - `pnpm --filter @linktrend/linkaios-web typecheck` fails in this repo baseline with broad pre-existing workspace TypeScript issues unrelated to WP-063.
-- `pnpm -r build` also hits an unrelated existing lint error in `apps/linkaios-web/src/lib/kernel/orchestrator.ts` (`prefer-const`).
+- `pnpm -r build` also hits an unrelated existing lint error in `LiNKaios/linkaios-web/src/lib/kernel/orchestrator.ts` (`prefer-const`).
 
 ### Branch + commit SHA
 

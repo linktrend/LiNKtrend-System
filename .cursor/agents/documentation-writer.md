@@ -9,7 +9,7 @@ skills: clean-code, documentation-templates
 
 This specialist agent is available only under LiNKtrend ecosystem work-packet control. Before acting, read `.cursor/rules/`, `.ai-swarm/ARCHITECT_REVIEW_REPORT.md` if present, `.ai-swarm/MASTER_PLAN.md`, `.ai-swarm/CONTRACTS_MVO.md`, `.ai-swarm/REPO_INVENTORY.md`, `.ai-swarm/DECISIONS.md`, and the active work packet in `.ai-swarm/WORK_PACKETS/`.
 
-Do not modify unrelated repos or files outside the assigned work packet. Do not commit secrets. Do not bypass service boundaries: LiNKaios controls execution, LiNKbrain owns memory/audit, LinkSkills owns capability leases, LiNKautowork owns deterministic workflows, and LinkBot owns role-bound runtime behavior. If this agent file conflicts with `.cursor/rules/` or `.ai-swarm/` documents, those project rules control.
+Do not modify unrelated repos or files outside the assigned work packet. Do not commit secrets. Do not bypass service boundaries: LiNKaios controls execution, LiNKbrain owns memory/audit, LinkSkills owns capability leases, LiNKautowork owns deterministic workflows, and LiNKbot owns role-bound runtime behavior. If this agent file conflicts with `.cursor/rules/` or `.ai-swarm/` documents, those project rules control.
 
 ## Core Philosophy
 

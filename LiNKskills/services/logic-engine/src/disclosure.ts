@@ -16,6 +16,11 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Env } from "@linktrend/shared-config";
 import { getLease } from "./lease-lifecycle.js";
 
+type DisclosureEnv = Env & {
+  DISCLOSURE_SIGNING_KEY?: string;
+  LINKSKILLS_SIGNING_KEY?: string;
+};
+
 // Types defined locally to avoid SDK import issues
 // These mirror the types in packages/linklogic-sdk/src/types/disclosure.ts
 
@@ -149,7 +154,7 @@ const MAX_TOKEN_TTL_SECONDS = 1800;    // 30 minutes maximum
 const SIGNING_ALGORITHM = "HS256";
 
 /** Token signing key - in production, this should be rotated and stored securely */
-function getSigningKey(env: Env): string {
+function getSigningKey(env: DisclosureEnv): string {
   // Use a development-safe signing key
   // In production, this should come from a proper key management service
   const key = env.DISCLOSURE_SIGNING_KEY || env.LINKSKILLS_SIGNING_KEY || "linkskills-dev-key-change-in-production";
@@ -217,7 +222,7 @@ function buildTokenPayload(
   const now = Math.floor(Date.now() / 1000);
   const exp = now + Math.max(MIN_TOKEN_TTL_SECONDS, Math.min(ttlSeconds, MAX_TOKEN_TTL_SECONDS));
 
-  return {
+  const payload: DisclosureTokenPayload = {
     iss: "linkskills",
     sub: `${request.run_id}:${request.stage_id}`,
     jti: randomUUID(),
@@ -230,15 +235,22 @@ function buildTokenPayload(
     step_scope: request.scope,
     mode: request.mode,
     allowed_tools: allowedTools,
-    allowed_skills: allowedSkills,
-    lease_id: leaseId,
   };
+
+  if (allowedSkills) {
+    payload.allowed_skills = allowedSkills;
+  }
+  if (leaseId) {
+    payload.lease_id = leaseId;
+  }
+
+  return payload;
 }
 
 /**
  * Sign a disclosure token.
  */
-function signToken(payload: DisclosureTokenPayload, env: Env): DisclosureToken {
+function signToken(payload: DisclosureTokenPayload, env: DisclosureEnv): DisclosureToken {
   const header = buildTokenHeader();
   const payloadJson = base64UrlEncode(JSON.stringify(payload));
   const secret = getSigningKey(env);
@@ -258,7 +270,7 @@ function signToken(payload: DisclosureTokenPayload, env: Env): DisclosureToken {
  */
 export function validateDisclosureToken(
   request: DisclosureValidationRequest,
-  env: Env,
+  env: DisclosureEnv,
 ): DisclosureValidationResult {
   try {
     const parts = request.token_string.split(".");
@@ -270,6 +282,12 @@ export function validateDisclosureToken(
     }
 
     const [header, payload, signature] = parts;
+    if (!header || !payload || !signature) {
+      return {
+        valid: false,
+        error: { code: "TOKEN_MALFORMED", message: "Token parts must not be empty" },
+      };
+    }
 
     // Verify signature
     const secret = getSigningKey(env);
@@ -489,7 +507,25 @@ function buildDisclosureAuditRecord(
 } {
   const fragmentTypes = [...new Set(manifest.fragments.map(f => f.fragment_type))];
 
-  return {
+  const event: {
+    event_type: "disclosure.issued";
+    tenant_id: string;
+    run_id: string;
+    stage_id: string;
+    capability_id: string;
+    token_id: string;
+    manifest_id: string;
+    fragment_scope: {
+      fragment_types: SkillFragmentType[];
+      skill_count: number;
+      fragment_count: number;
+    };
+    recipient: {
+      actor_kind: string;
+      actor_id: string;
+    };
+    lease_id?: string;
+  } = {
     event_type: "disclosure.issued",
     tenant_id: request.tenant_id,
     run_id: request.run_id,
@@ -506,8 +542,13 @@ function buildDisclosureAuditRecord(
       actor_kind: request.actor.actor_kind,
       actor_id: request.actor.actor_id,
     },
-    lease_id: request.lease_id,
   };
+
+  if (request.lease_id) {
+    event.lease_id = request.lease_id;
+  }
+
+  return event;
 }
 
 /**
@@ -545,8 +586,8 @@ export async function issueDisclosure(
 
   // Validate lease if provided
   if (request.lease_id) {
-    const leaseResult = await getLease(client, request.lease_id);
-    if (!leaseResult) {
+    const { data: lease, error: leaseError } = await getLease(client, request.lease_id);
+    if (leaseError || !lease) {
       return {
         success: false,
         failure: {
@@ -558,7 +599,7 @@ export async function issueDisclosure(
     }
 
     // Check lease expiry
-    if (leaseResult.expires_at && new Date(leaseResult.expires_at) < new Date()) {
+    if (lease.expires_at && new Date(lease.expires_at) < new Date()) {
       return {
         success: false,
         failure: {
@@ -570,9 +611,9 @@ export async function issueDisclosure(
     }
 
     // Validate lease matches request context
-    if (leaseResult.tenant_id !== request.tenant_id ||
-        leaseResult.run_id !== request.run_id ||
-        leaseResult.capability_id !== request.capability_id) {
+    if (lease.tenant_id !== request.tenant_id ||
+        lease.run_id !== request.run_id ||
+        lease.capability_id !== request.capability_id) {
       return {
         success: false,
         failure: {
