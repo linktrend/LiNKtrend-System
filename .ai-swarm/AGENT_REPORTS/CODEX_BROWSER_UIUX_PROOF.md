@@ -106,5 +106,16 @@ pnpm --filter @linktrend/linkaios-web dev
 3. Add/verify explicit route discoverability for WebsiteFactory/LEXOS/LiNKapps proof surfaces to support deterministic UI QA coverage.
 4. Run an authenticated kernel-header probe using local secret injection path (without exposing the secret) once env is confirmed present in this worktree shell context.
 
+## Follow-up command hardening
+- Fresh-worktree bootstrap command for Browser UI/UX proof:
+```bash
+pnpm dev:uiux:prepare
+```
+- Secret-safe authenticated kernel probe path:
+```bash
+set -a && source .env && set +a
+curl -i -H "Authorization: Bearer $BOT_KERNEL_API_SECRET" "http://localhost:3000/api/kernel/approvals?tenant_id=test"
+```
+
 ## Final UX Verdict
 NEEDS_FIXES_BEFORE_HUMAN_UIUX_REVIEW

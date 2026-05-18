@@ -43,6 +43,12 @@ pnpm db:migrate
 pnpm --filter @linktrend/linkaios-web dev
 ```
 
+For fresh clean UI/UX worktrees, run this once before `dev` to build internal workspace packages required by `@linktrend/linkaios-web`:
+
+```bash
+pnpm dev:uiux:prepare
+```
+
 If your local `3000` is occupied, start with an explicit port (example `3001`) and export the same base URL for E2E:
 
 ```bash
@@ -64,6 +70,13 @@ MVO_E2E_BASE_URL=http://localhost:3001 LINKAIOS_ENABLE_MVO_SERVICE_BYPASS=true p
 ```
 
 `scripts/run-e2e.ts` uses `Authorization: Bearer $BOT_KERNEL_API_SECRET`; set `BOT_KERNEL_API_SECRET` and `LINKAIOS_ENABLE_MVO_SERVICE_BYPASS=true` in the dev server environment.
+
+Local secret-safe probe path (never echo secret in logs):
+
+```bash
+set -a && source .env && set +a
+curl -i -H "Authorization: Bearer $BOT_KERNEL_API_SECRET" "http://localhost:3000/api/kernel/approvals?tenant_id=test"
+```
 
 ## 2) Demo flow (operator actions)
 
