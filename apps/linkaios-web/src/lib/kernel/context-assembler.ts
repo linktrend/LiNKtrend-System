@@ -168,7 +168,7 @@ class InMemoryMemoryStore implements MemoryStore {
     created_after?: string;
     limit: number;
   }): Promise<MemoryObject[]> {
-    let results = this.objects.filter(obj => {
+    const results = this.objects.filter(obj => {
       // Strict tenant boundary - never cross tenants
       if (obj.tenant_id !== filters.scope.tenant_id) return false;
 
@@ -207,7 +207,7 @@ class InMemoryMemoryStore implements MemoryStore {
   }): Promise<MemoryObject[]> {
     const queryLower = filters.query.toLowerCase();
 
-    let results = this.objects.filter(obj => {
+    const results = this.objects.filter(obj => {
       // Scope checks (same as metadata query)
       if (obj.tenant_id !== filters.scope.tenant_id) return false;
       if (filters.scope.plugin_id && obj.scope.plugin_id &&

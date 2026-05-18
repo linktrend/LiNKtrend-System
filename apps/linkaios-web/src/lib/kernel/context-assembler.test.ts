@@ -1,4 +1,5 @@
-import { describe, expect, it, beforeEach } from "vitest";
+import { describe, expect, it } from "vitest";
+import type { SupabaseClient } from "@supabase/supabase-js";
 
 import {
   assembleBuilderBotContext,
@@ -36,7 +37,9 @@ describe("Context Assembler Service", () => {
         { tenant_id: "tenant-2" },
       );
       expect(result.authorized).toBe(false);
-      expect(result.reason).toContain("Cross-tenant access denied");
+      if (!result.authorized) {
+        expect(result.reason).toContain("Cross-tenant access denied");
+      }
     });
 
     it("allows access when scopes match", () => {
@@ -53,7 +56,9 @@ describe("Context Assembler Service", () => {
         { tenant_id: "tenant-1", plugin_id: "other-plugin", role_id: "research_bot" },
       );
       expect(result.authorized).toBe(false);
-      expect(result.reason).toContain("Scope lattice mismatch");
+      if (!result.authorized) {
+        expect(result.reason).toContain("Scope lattice mismatch");
+      }
     });
 
     it("allows access when bot scope is broader than target", () => {
@@ -74,7 +79,7 @@ describe("Context Assembler Service", () => {
   });
 
   describe("assembleContextForBot", () => {
-    const mockSupabase = createMockSupabase() as any;
+    const mockSupabase = createMockSupabase() as unknown as SupabaseClient;
 
     it("returns successful context assembly for valid request", async () => {
       const result = await assembleContextForBot(
@@ -157,7 +162,7 @@ describe("Context Assembler Service", () => {
   });
 
   describe("createContextAssembler factory", () => {
-    const mockSupabase = createMockSupabase() as any;
+    const mockSupabase = createMockSupabase() as unknown as SupabaseClient;
 
     it("creates assembler with in-memory store by default", () => {
       const assembler = createContextAssembler(mockSupabase);
@@ -195,7 +200,7 @@ describe("Context Assembler Service", () => {
   });
 
   describe("WebsiteFactory Bot Helpers", () => {
-    const mockSupabase = createMockSupabase() as any;
+    const mockSupabase = createMockSupabase() as unknown as SupabaseClient;
 
     describe("assembleResearchBotContext", () => {
       it("assembles context for research bot", async () => {
@@ -258,7 +263,7 @@ describe("Context Assembler Service", () => {
   });
 
   describe("Cross-Tenant Security Tests", () => {
-    const mockSupabase = createMockSupabase() as any;
+    const mockSupabase = createMockSupabase() as unknown as SupabaseClient;
 
     it("prevents tenant-1 bot from accessing tenant-2 scope", async () => {
       // First, verify the access check fails

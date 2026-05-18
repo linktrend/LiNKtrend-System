@@ -642,7 +642,7 @@ export async function executeRun(
 ): Promise<Run> {
   const supabase = createSupabaseServiceClient(env);
   // Load run first to get plugin_id, then load manifest from plugin
-  let run = await loadRun(supabase, runId);
+  const run = await loadRun(supabase, runId);
   const manifest = loadPluginManifest(run.plugin_id);
 
   // Transition to running

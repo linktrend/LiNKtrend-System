@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { createPlaneAdapter, resolvePlaneMode, PlaneReadinessError } from "./plane-adapter";
+import { createPlaneAdapter, resolvePlaneMode } from "./plane-adapter";
 import type { Env } from "@linktrend/shared-config";
 
 function baseEnv(overrides: Partial<Env> = {}): Env {
@@ -76,7 +76,7 @@ describe("plane adapter scaffold", () => {
         project_name: "Project A",
         work_item_title: "Initial work item",
       }),
-    ).rejects.toMatchObject<PlaneReadinessError>({
+    ).rejects.toMatchObject({
       failureCode: "INTEGRATION_AUTH_FAILED",
     });
   });
@@ -102,7 +102,7 @@ describe("plane adapter scaffold", () => {
         project_name: "Project A",
         work_item_title: "Initial work item",
       }),
-    ).rejects.toMatchObject<PlaneReadinessError>({
+    ).rejects.toMatchObject({
       failureCode: "INTEGRATION_TIMEOUT",
     });
   });
