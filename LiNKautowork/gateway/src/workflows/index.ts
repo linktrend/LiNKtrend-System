@@ -133,3 +133,26 @@ export {
 } from "./websitefactory-preview-serve.js";
 
 export { clearLinksitesStores } from "./linksites-v2.js";
+
+// Re-export LiNKapps workflow pack
+export {
+  CREATE_REPO_HANDLE,
+  PROVISION_SERVICES_HANDLE,
+  BUILD_ITERATION_HANDLE,
+  RELEASE_READINESS_HANDLE,
+  DEPLOY_HANDLE,
+  COMPILE_HANDOFF_HANDLE,
+  createRepoHandler,
+  createProvisionServicesHandler,
+  createBuildIterationHandler,
+  createReleaseReadinessHandler,
+  createDeployHandler,
+  createCompileHandoffHandler,
+  getRepo,
+  getService,
+  getBuild,
+  getValidation,
+  getDeploy,
+  getHandoff,
+  clearLinkappsStores,
+} from "./linkapps.js";
