@@ -1,6 +1,10 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
+function isTruthy(value: string | undefined): boolean {
+  return value === "1" || value === "true";
+}
+
 export async function middleware(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
 
@@ -42,9 +46,10 @@ export async function middleware(request: NextRequest) {
   /** Handler validates `Authorization: Bearer` against `BOT_SKILLS_API_SECRET` or `BOT_BRAIN_API_SECRET` — not anonymous. */
   const isPublicSkillsExecution = path.startsWith("/api/skills/execution");
   const kernelServiceSecret = process.env.BOT_KERNEL_API_SECRET?.trim();
-  const isKernelServiceBypassEnabled =
-    process.env.LINKAIOS_ENABLE_MVO_SERVICE_BYPASS === "1" ||
-    process.env.LINKAIOS_ENABLE_MVO_SERVICE_BYPASS === "true";
+  const isKernelServiceBypassEnabled = isTruthy(process.env.LINKAIOS_ENABLE_MVO_SERVICE_BYPASS);
+  const isDevMode = process.env.NODE_ENV !== "production";
+  const isDevAuthBypassEnabled = isTruthy(process.env.LINKAIOS_ENABLE_DEV_AUTH_BYPASS);
+  const isDevAuthBypassRoute = isDevMode && isDevAuthBypassEnabled && !path.startsWith("/api/");
   const authHeader = request.headers.get("authorization");
   const isKernelServiceAuthorized =
     isKernelServiceBypassEnabled &&
@@ -61,7 +66,8 @@ export async function middleware(request: NextRequest) {
     !isInternalBrainEmbed &&
     !isInternalSkillEmbed &&
     !isPublicSkillsExecution &&
-    !isKernelApiBypass
+    !isKernelApiBypass &&
+    !isDevAuthBypassRoute
   ) {
     const redirectUrl = request.nextUrl.clone();
     redirectUrl.pathname = "/login";

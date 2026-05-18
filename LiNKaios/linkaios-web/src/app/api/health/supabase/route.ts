@@ -4,6 +4,10 @@ import { getSupabaseAdmin } from "@/lib/supabase-admin";
 
 export const dynamic = "force-dynamic";
 
+function isTruthy(value: string | undefined): boolean {
+  return value === "1" || value === "true";
+}
+
 export async function GET() {
   const supabase = getSupabaseAdmin();
   const { error, count } = await supabase
@@ -12,6 +16,16 @@ export async function GET() {
     .select("*", { count: "exact", head: true });
 
   if (error) {
+    const isDevStubMode =
+      process.env.NODE_ENV !== "production" && isTruthy(process.env.LINKAIOS_SUPABASE_HEALTH_DEV_STUB);
+    if (isDevStubMode) {
+      return NextResponse.json({
+        ok: true,
+        mode: "dev_stub_ready",
+        reason: "Supabase is unreachable in local development; health route stub enabled.",
+      });
+    }
+
     return NextResponse.json(
       {
         ok: false,
