@@ -26,6 +26,17 @@ export {
 } from "./lib/workflow-runner.js";
 
 export {
+  // Workflow status read model (WP-217)
+  workflowStatusQuery,
+  recordWorkflowRun,
+  updateWorkflowRun,
+  buildRunView,
+  clearWorkflowStatusStore,
+  type WorkflowRunView,
+  type WorkflowStatusQuery,
+} from "./lib/workflow-status.js";
+
+export {
   // Audit emitter
   createAuditEmitter,
   type AuditEmitter,

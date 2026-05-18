@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { createPlaneAdapter, resolvePlaneMode, PlaneReadinessError } from "./plane-adapter";
+import { createPlaneAdapter, resolvePlaneMode } from "./plane-adapter";
 import type { Env } from "@linktrend/shared-config";
 
 function baseEnv(overrides: Partial<Env> = {}): Env {

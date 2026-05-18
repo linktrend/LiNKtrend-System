@@ -53,6 +53,13 @@ export interface TemplateRegistryDiscoveryResult {
   error?: string;
 }
 
+export interface LinkBotTemplateContext {
+  available_template_ids: TemplateId[];
+  default_template_id: TemplateId;
+  template_metadata: Record<TemplateId, TemplateMetadata>;
+  discovery_mode: TemplateRegistryDiscoveryResult["discovery_mode"];
+}
+
 /**
  * Static fallback registry data.
  * Copied from LiNKsites WP-042 discovery.
@@ -267,12 +274,7 @@ export function getTemplateMetadata(
  */
 export function buildTemplateContextForLiNKbot(
   registry: TemplateRegistryDiscoveryResult,
-): {
-  available_template_ids: TemplateId[];
-  default_template_id: TemplateId;
-  template_metadata: Record<TemplateId, TemplateMetadata>;
-  discovery_mode: TemplateRegistryDiscoveryResult["discovery_mode"];
-} {
+): LinkBotTemplateContext {
   return {
     available_template_ids: registry.available_template_ids,
     default_template_id: registry.default_template_id,

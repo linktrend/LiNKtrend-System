@@ -133,3 +133,9 @@ export {
   revokeDisclosure,
   listDisclosuresForRun,
 } from "./disclosure.js";
+
+// LinkSites lease enforcement (WP-213)
+export {
+  getLinksitesCapabilityManifest,
+  getAllLinksitesCapabilityIds,
+} from "./linksites-capability-manifest.js";

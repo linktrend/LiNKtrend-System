@@ -134,7 +134,11 @@ function validateReadinessEnv(env: Env): {
     );
   }
 
-  return { baseUrl: baseUrl!, workspaceSlug: workspaceSlug!, apiKey: apiKey! };
+  return {
+    baseUrl: baseUrl as string,
+    workspaceSlug: workspaceSlug as string,
+    apiKey: apiKey as string,
+  };
 }
 
 function withTrailingSlash(value: string): string {

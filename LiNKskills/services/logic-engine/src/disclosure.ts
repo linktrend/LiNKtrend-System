@@ -592,7 +592,7 @@ export async function issueDisclosure(
         success: false,
         failure: {
           code: "DISCLOSURE_LEASE_REQUIRED",
-          message: "Provided lease not found",
+          message: leaseError?.message ?? "Provided lease not found",
           retryable: false,
         },
       };

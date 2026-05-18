@@ -8,12 +8,19 @@ function makeRequest(token?: string): Request {
   return new Request("http://localhost/api/kernel/test", { method: "POST", headers });
 }
 
+function withEnv(overrides: Partial<NodeJS.ProcessEnv> = {}): NodeJS.ProcessEnv {
+  return {
+    NODE_ENV: "test",
+    ...overrides,
+  };
+}
+
 describe("resolveKernelActor", () => {
   it("rejects missing authorization header", async () => {
     const actor = await resolveKernelActor(
       makeRequest(),
       { getUserByAccessToken: vi.fn() },
-      {}
+      withEnv()
     );
     expect(actor).toBeNull();
   });
@@ -22,7 +29,7 @@ describe("resolveKernelActor", () => {
     const actor = await resolveKernelActor(
       makeRequest("svc-secret"),
       { getUserByAccessToken: vi.fn().mockResolvedValue(null) },
-      { BOT_KERNEL_API_SECRET: "svc-secret", LINKAIOS_ENABLE_MVO_SERVICE_BYPASS: "false" }
+      withEnv({ BOT_KERNEL_API_SECRET: "svc-secret", LINKAIOS_ENABLE_MVO_SERVICE_BYPASS: "false" })
     );
     expect(actor).toBeNull();
   });
@@ -31,7 +38,7 @@ describe("resolveKernelActor", () => {
     const actor = await resolveKernelActor(
       makeRequest("svc-secret"),
       { getUserByAccessToken: vi.fn() },
-      { BOT_KERNEL_API_SECRET: "svc-secret", LINKAIOS_ENABLE_MVO_SERVICE_BYPASS: "true" }
+      withEnv({ BOT_KERNEL_API_SECRET: "svc-secret", LINKAIOS_ENABLE_MVO_SERVICE_BYPASS: "true" })
     );
     expect(actor).toEqual({ kind: "service", actorId: "mvo-service" });
   });
@@ -40,7 +47,7 @@ describe("resolveKernelActor", () => {
     const actor = await resolveKernelActor(
       makeRequest("undefined"),
       { getUserByAccessToken: vi.fn().mockResolvedValue(null) },
-      { LINKAIOS_ENABLE_MVO_SERVICE_BYPASS: "true" }
+      withEnv({ LINKAIOS_ENABLE_MVO_SERVICE_BYPASS: "true" })
     );
     expect(actor).toBeNull();
   });
@@ -49,7 +56,7 @@ describe("resolveKernelActor", () => {
     const actor = await resolveKernelActor(
       makeRequest("user-token"),
       { getUserByAccessToken: vi.fn().mockResolvedValue({ id: "user-1" }) },
-      {}
+      withEnv()
     );
     expect(actor).toEqual({ kind: "user", actorId: "user-1" });
   });
@@ -58,7 +65,7 @@ describe("resolveKernelActor", () => {
     const actor = await resolveKernelActor(
       makeRequest("user-token"),
       { getUserByAccessToken: vi.fn().mockResolvedValue({ id: "user-1" }) },
-      { LINKAIOS_DISABLE_MVO_USER_KERNEL_API: "true" }
+      withEnv({ LINKAIOS_DISABLE_MVO_USER_KERNEL_API: "true" })
     );
     expect(actor).toBeNull();
   });
@@ -67,7 +74,7 @@ describe("resolveKernelActor", () => {
     const actor = await resolveKernelActor(
       makeRequest("user-token"),
       { getUserByAccessToken: vi.fn().mockResolvedValue({ id: "user-2" }) },
-      { LINKAIOS_MVO_KERNEL_OPERATOR_USER_IDS: "user-1,user-3" }
+      withEnv({ LINKAIOS_MVO_KERNEL_OPERATOR_USER_IDS: "user-1,user-3" })
     );
     expect(actor).toBeNull();
   });
@@ -94,7 +101,7 @@ describe("canAccessKernelScope", () => {
       { kind: "user", actorId: "u-1" },
       { kind: "tenant", tenantId: "t-1" },
       deps,
-      { LINKAIOS_MVO_KERNEL_OPERATOR_USER_IDS: "u-1" }
+      withEnv({ LINKAIOS_MVO_KERNEL_OPERATOR_USER_IDS: "u-1" })
     );
     expect(allowed).toBe(true);
   });
@@ -105,7 +112,7 @@ describe("canAccessKernelScope", () => {
       { kind: "user", actorId: "u-2" },
       { kind: "tenant", tenantId: "t-1" },
       deps,
-      {}
+      withEnv()
     );
     expect(allowed).toBe(false);
   });
@@ -119,7 +126,7 @@ describe("canAccessKernelScope", () => {
       { kind: "user", actorId: "u-2" },
       { kind: "run", runId: "r-1" },
       deps,
-      {}
+      withEnv()
     );
     expect(allowed).toBe(true);
   });
@@ -134,7 +141,7 @@ describe("canAccessKernelScope", () => {
       { kind: "user", actorId: "u-sibling" },
       { kind: "run", runId: "r-1" },
       deps,
-      {}
+      withEnv()
     );
     expect(allowed).toBe(false);
   });
@@ -149,7 +156,7 @@ describe("canAccessKernelScope", () => {
       { kind: "user", actorId: "u-3" },
       { kind: "approval", approvalId: "a-1" },
       deps,
-      {}
+      withEnv()
     );
     expect(allowed).toBe(true);
   });
@@ -169,7 +176,7 @@ describe("canAccessKernelScope", () => {
       { kind: "user", actorId: "u-sibling" },
       { kind: "approval", approvalId: "a-1" },
       deps,
-      {}
+      withEnv()
     );
     expect(allowed).toBe(false);
   });

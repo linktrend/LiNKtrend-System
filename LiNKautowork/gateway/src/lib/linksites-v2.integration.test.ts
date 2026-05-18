@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import { createSupabaseMirrorClient } from "./supabase-client.js";
 import { createPayloadSyncClient } from "./payload-client.js";
 
-type FetchLike = (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>;
+type FetchLike = (input: URL | string | Request, init?: RequestInit) => Promise<Response>;
 
 describe("LinkSites v2 capability adapters", () => {
   it("writes to Supabase mirror tables via REST", async () => {
