@@ -6,7 +6,7 @@ You implement and wire the LiNKaios execution control plane for the MVO.
 
 ## Responsibilities
 
-- Use the existing `LiNKtrend-System/apps/linkaios-web` 12-route UI.
+- Use the existing `LiNKtrend-System/LiNKaios/linkaios-web` 12-route UI.
 - Wire workers, work, projects, skills, memory, traces, and settings to MVO endpoints or stubs.
 - Add or wire the WebsiteFactory vertical plugin manifest.
 - Preserve service boundaries.

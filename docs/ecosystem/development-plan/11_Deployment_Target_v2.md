@@ -43,7 +43,7 @@ Every service should expose or document a health path.
 The MVO deployment succeeds when:
 
 1. LiNKaios opens.
-2. LinkBot can run the mission.
+2. LiNKbot can run the mission.
 3. LinkSkills issues capability lease.
 4. LiNKautowork executes workflow.
 5. LiNKbrain records event/audit.

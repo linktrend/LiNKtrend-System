@@ -7,7 +7,7 @@ Paste everything below the line into a **new Agent** chat. Repository root: **`L
 ## Authority
 
 Single source of truth: **`docs/Zulip-Gateway-PRD.md`**.  
-Read **`apps/zulip-gateway/src/index.ts`**, **`zulip-payload.ts`**, **`zulip-send.ts`**, **`docs/zulip-routing.md`**, and **`packages/shared-config/src/index.ts`**.
+Read **`LiNKbot/communications/temporary-gateways/zulip/src/index.ts`**, **`zulip-payload.ts`**, **`zulip-send.ts`**, **`docs/zulip-routing.md`**, and **`packages/shared-config/src/index.ts`**.
 
 ## Goals
 
@@ -15,9 +15,9 @@ Read **`apps/zulip-gateway/src/index.ts`**, **`zulip-payload.ts`**, **`zulip-sen
 
 2. **Inbound webhook hardening:** Max body bytes (reject early). Optional **`ZULIP_INBOUND_WEBHOOK_SECRET`**: if set, require match on agreed header **or** query param; document in `docs/zulip-routing.md`. Add fields to **shared-config** schema.
 
-3. **Tests:** Add **Vitest** to `apps/zulip-gateway` — tests for topic parser, resolution order with **mocked** Supabase client or injected async functions (no live Zulip required).
+3. **Tests:** Add **Vitest** to `LiNKbot/communications/temporary-gateways/zulip` — tests for topic parser, resolution order with **mocked** Supabase client or injected async functions (no live Zulip required).
 
-4. **Lint:** Replace `"lint": "echo \"no lint yet\""` with real **ESLint** (minimal flat config, align versions with `apps/prism-defender` or `apps/linkaios-web` where practical).
+4. **Lint:** Replace `"lint": "echo \"no lint yet\""` with real **ESLint** (minimal flat config, align versions with `LiNKguard/sidecar/linkguard` or `LiNKaios/linkaios-web` where practical).
 
 5. **Docs:** Update **`docs/zulip-routing.md`** with resolution order, env table, and “configure Zulip outgoing webhook” checklist including optional secret.
 

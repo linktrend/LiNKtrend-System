@@ -212,20 +212,20 @@ Each former §14 item is **[DONE]** with proof in code or tests. **Fresh DB:** r
 
 | # | Item | Proof |
 |---|------|--------|
-| 1 | True file uploads | `services/migrations/016_linkbrain_uploads_embed_jobs.sql` (`brain_upload_objects`), `uploadBrainBinaryFromForm` in [apps/linkaios-web/src/app/(shell)/memory/brain-actions.ts](apps/linkaios-web/src/app/(shell)/memory/brain-actions.ts), UI in [memory-command-centre.tsx](apps/linkaios-web/src/components/linkbrain/memory-command-centre.tsx); `017` bucket |
-| 2 | Edit-outside-Inbox + diff | `createBrainDraftFromPublishedIfAny` sets `predecessor_version_id` in [packages/linklogic-sdk/src/brain-virtual-files.ts](packages/linklogic-sdk/src/brain-virtual-files.ts); inbox summary via `summarizeBrainInboxTextDiff` in [memory-command-centre.tsx](apps/linkaios-web/src/components/linkbrain/memory-command-centre.tsx) |
+| 1 | True file uploads | `services/migrations/016_linkbrain_uploads_embed_jobs.sql` (`brain_upload_objects`), `uploadBrainBinaryFromForm` in [LiNKaios/linkaios-web/src/app/(shell)/memory/brain-actions.ts](LiNKaios/linkaios-web/src/app/(shell)/memory/brain-actions.ts), UI in [memory-command-centre.tsx](LiNKaios/linkaios-web/src/components/linkbrain/memory-command-centre.tsx); `017` bucket |
+| 2 | Edit-outside-Inbox + diff | `createBrainDraftFromPublishedIfAny` sets `predecessor_version_id` in [packages/linklogic-sdk/src/brain-virtual-files.ts](packages/linklogic-sdk/src/brain-virtual-files.ts); inbox summary via `summarizeBrainInboxTextDiff` in [memory-command-centre.tsx](LiNKaios/linkaios-web/src/components/linkbrain/memory-command-centre.tsx) |
 | 3 | Inbox typing / filter / sort | `listBrainDraftsForInbox` options + `BrainInboxItemType` in SDK; `/memory?tab=inbox&inbox_item=…&inbox_sort=…` |
-| 4 | Skills-pattern draft editor | [apps/linkaios-web/src/components/brain-draft-editor.tsx](apps/linkaios-web/src/components/brain-draft-editor.tsx) on draft page |
+| 4 | Skills-pattern draft editor | [LiNKaios/linkaios-web/src/components/brain-draft-editor.tsx](LiNKaios/linkaios-web/src/components/brain-draft-editor.tsx) on draft page |
 | 5 | Daily log read merge | `getPublishedVirtualFileBody` + `mergeDailyLogLinesIntoPublishedBody` in SDK; tests [packages/linklogic-sdk/src/brain-daily-log.test.ts](packages/linklogic-sdk/src/brain-daily-log.test.ts) |
-| 6 | Operator append UX + RLS | `016` policy `brain_daily_log_lines_insert`; `appendBrainDailyLogFromForm` + UI on [memory/files/[fileId]/page.tsx](apps/linkaios-web/src/app/(shell)/memory/files/[fileId]/page.tsx) |
+| 6 | Operator append UX + RLS | `016` policy `brain_daily_log_lines_insert`; `appendBrainDailyLogFromForm` + UI on [memory/files/[fileId]/page.tsx](LiNKaios/linkaios-web/src/app/(shell)/memory/files/[fileId]/page.tsx) |
 | 7 | LiNKbot `file_kind` filters | `b_kind` query + `listBrainVirtualFilesByScope*` in SDK |
-| 8 | Ask file picker | `b_file` select + advanced path in [memory-command-centre.tsx](apps/linkaios-web/src/components/linkbrain/memory-command-centre.tsx); [memory/page.tsx](apps/linkaios-web/src/app/(shell)/memory/page.tsx) resolves path |
-| 9 | Overview metrics | `loadOverviewBrainStats` in [linkbrain-data.ts](apps/linkaios-web/src/lib/linkbrain-data.ts) |
-| 10 | Embed pipeline state | `brain_embed_jobs` in `016`; `upsertBrainEmbedJobPending` on publish in [brain-actions.ts](apps/linkaios-web/src/app/(shell)/memory/brain-actions.ts); worker updates in [brain-embedding-batches.ts](packages/linklogic-sdk/src/brain-embedding-batches.ts) |
-| 11 | Scheduled backfill | [apps/linkaios-web/vercel.json](apps/linkaios-web/vercel.json) crons + `GET`/`POST` on [brain-embed/route.ts](apps/linkaios-web/src/app/api/internal/brain-embed/route.ts) (`LINKAIOS_CRON_SECRET` or `CRON_SECRET`) |
+| 8 | Ask file picker | `b_file` select + advanced path in [memory-command-centre.tsx](LiNKaios/linkaios-web/src/components/linkbrain/memory-command-centre.tsx); [memory/page.tsx](LiNKaios/linkaios-web/src/app/(shell)/memory/page.tsx) resolves path |
+| 9 | Overview metrics | `loadOverviewBrainStats` in [linkbrain-data.ts](LiNKaios/linkaios-web/src/lib/linkbrain-data.ts) |
+| 10 | Embed pipeline state | `brain_embed_jobs` in `016`; `upsertBrainEmbedJobPending` on publish in [brain-actions.ts](LiNKaios/linkaios-web/src/app/(shell)/memory/brain-actions.ts); worker updates in [brain-embedding-batches.ts](packages/linklogic-sdk/src/brain-embedding-batches.ts) |
+| 11 | Scheduled backfill | [LiNKaios/linkaios-web/vercel.json](LiNKaios/linkaios-web/vercel.json) crons + `GET`/`POST` on [brain-embed/route.ts](LiNKaios/linkaios-web/src/app/api/internal/brain-embed/route.ts) (`LINKAIOS_CRON_SECRET` or `CRON_SECRET`) |
 | 12 | Index cards CRUD | `listBrainIndexCardsForFile` / `replaceIndexCardsForFile`; file detail form |
-| 13–14 | Librarian job + config | [brain-librarian/route.ts](apps/linkaios-web/src/app/api/internal/brain-librarian/route.ts); env `LINKBRAIN_LIBRARIAN_*` in [shared-config](packages/shared-config/src/index.ts) |
-| 15 | Company shell | [company/page.tsx](apps/linkaios-web/src/app/(shell)/company/page.tsx) → `/memory/company-structure` |
+| 13–14 | Librarian job + config | [brain-librarian/route.ts](LiNKaios/linkaios-web/src/app/api/internal/brain-librarian/route.ts); env `LINKBRAIN_LIBRARIAN_*` in [shared-config](packages/shared-config/src/index.ts) |
+| 15 | Company shell | [company/page.tsx](LiNKaios/linkaios-web/src/app/(shell)/company/page.tsx) → `/memory/company-structure` |
 | 16 | RLS matrix (minimal) | **Documented:** authenticated users may `SELECT` all `linkaios.brain_*` rows in current migrations; **writes** require `linkaios.command_centre_write_allowed()`. Per-user legal-entity / sensitivity partitioning is **not** enforced in Postgres yet (would need JWT claims or role tables). |
 | 17 | `ALL_IN_ONE.sql` | Merges 014–017 in [services/migrations/ALL_IN_ONE.sql](services/migrations/ALL_IN_ONE.sql) |
 | 18 | Automated tests | Vitest: `brain-daily-log.test.ts`, `brain-inbox.test.ts`; cron auth shares pattern with embed route (manual: `GET /api/internal/brain-embed` with bearer). Full DB integration tests deferred. |
@@ -248,7 +248,7 @@ You are implementing LiNKbrain in the LiNKtrend-System monorepo.
 Single source of truth: docs/LiNKbrain-PRD.md — especially §14 “Remaining engineering backlog (to FULLY developed)”. Treat §14 as your ordered backlog unless dependencies force a different order.
 
 Rules:
-- Read the full PRD and the existing code (apps/linkaios-web, packages/linklogic-sdk, services/migrations) before changing behaviour.
+- Read the full PRD and the existing code (LiNKaios/linkaios-web, packages/linklogic-sdk, services/migrations) before changing behaviour.
 - Implement each §14 item to completion: schema, SDK, API routes, LiNKaios UI, and tests where listed.
 - When an item is done, remove it from §14 or mark it [DONE] with a one-line pointer to the test or doc that proves it (keep the PRD truthful).
 - If product scope is unclear, propose a minimal shippable interpretation in a short comment in the PRD §14 deferral subsection—do not invent major product changes without noting them.

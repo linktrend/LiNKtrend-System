@@ -2,7 +2,7 @@
 
 ## In this repo
 
-- **`apps/openclaw-shim`**: a small HTTP service that accepts the ingress shape expected by **`apps/bot-runtime`** and can forward to a real OpenClaw / LiNKbot gateway using env vars (`OPENCLAW_AGENT_RUN_URL`, bearer token, body mode). Use it for local development and CI without a full OpenClaw stack.
+- **`LiNKbot/runtime-adapters/openclaw/openclaw-shim`**: a small HTTP service that accepts the ingress shape expected by **`LiNKbot/runtime-adapters/openclaw/bot-runtime`** and can forward to a real OpenClaw / LiNKbot gateway using env vars (`OPENCLAW_AGENT_RUN_URL`, bearer token, body mode). Use it for local development and CI without a full OpenClaw stack.
 
 ## Production path
 

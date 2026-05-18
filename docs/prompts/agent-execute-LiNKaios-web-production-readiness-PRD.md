@@ -12,12 +12,12 @@ Single source of truth: **`docs/LiNKaios-web-production-readiness-PRD.md`**.
 
 Read the PRD fully, then scan:
 
-- `apps/linkaios-web/src/lib/demo-entities.ts`
-- `apps/linkaios-web/src/lib/demo-worker-ui.ts`
-- `apps/linkaios-web/src/components/shell-sidebar.tsx`
-- `apps/linkaios-web/src/lib/overview-dashboard.ts`
-- `apps/linkaios-web/src/app/(shell)/missions/page.tsx` and `missions/[id]/page.tsx`
-- `apps/linkaios-web/src/app/(shell)/workers/**/*.tsx`, `work/**/*.tsx`, `metrics/**`
+- `LiNKaios/linkaios-web/src/lib/demo-entities.ts`
+- `LiNKaios/linkaios-web/src/lib/demo-worker-ui.ts`
+- `LiNKaios/linkaios-web/src/components/shell-sidebar.tsx`
+- `LiNKaios/linkaios-web/src/lib/overview-dashboard.ts`
+- `LiNKaios/linkaios-web/src/app/(shell)/missions/page.tsx` and `missions/[id]/page.tsx`
+- `LiNKaios/linkaios-web/src/app/(shell)/workers/**/*.tsx`, `work/**/*.tsx`, `metrics/**`
 - `packages/shared-config/src/index.ts` (add mock flag if server-side)
 
 ## Implementation strategy
@@ -28,7 +28,7 @@ Read the PRD fully, then scan:
 
 3. **Routes with fake IDs:** For `/missions/[id]` and `/workers/[id]` (and similar), when mocks **off** and id matches known demo pattern (`isDemoMissionId` / `isDemoAgentId`) **or** id not found in DB → **`notFound()`** or redirect to list with toast-friendly pattern (choose `notFound` unless product prefers redirect).
 
-4. **Centralize fixtures:** Move mock rows into `apps/linkaios-web/src/lib/ui-mocks/` (or agreed folder) so one banner + one flag controls all fixture injection.
+4. **Centralize fixtures:** Move mock rows into `LiNKaios/linkaios-web/src/lib/ui-mocks/` (or agreed folder) so one banner + one flag controls all fixture injection.
 
 5. **Shell banner:** When mocks on, show a non-dismissible (or session-dismissible) banner at top of `(shell)/layout` stating data may be synthetic.
 
@@ -51,7 +51,7 @@ pnpm --filter @linktrend/linkaios-web lint
 pnpm --filter @linktrend/linkaios-web build
 ```
 
-Optional: `grep -r "demo-lisa\\|demo-smb\\|DEMO_SIDEBAR" apps/linkaios-web/src` and paste counts before/after in PR notes (expect hits only inside `ui-mocks` + `isUiMocksEnabled` branches).
+Optional: `grep -r "demo-lisa\\|demo-smb\\|DEMO_SIDEBAR" LiNKaios/linkaios-web/src` and paste counts before/after in PR notes (expect hits only inside `ui-mocks` + `isUiMocksEnabled` branches).
 
 ## Deliverable
 

@@ -72,9 +72,9 @@ Executed a comprehensive review of LiNKbrain v2 audit and memory coverage agains
 | `services/migrations/026_linkbrain_rpc_wrapper.sql` | RPC wrapper for audit writes |
 | `packages/linklogic-sdk/src/brain-audit.ts` | SDK audit writer implementation |
 | `packages/linklogic-sdk/src/contracts-mvo.ts` | Canonical audit actions enum |
-| `apps/linkaios-web/src/lib/kernel/orchestrator.ts` | Run/stage orchestration + audit emits |
-| `apps/linkaios-web/src/lib/kernel/dispatch.ts` | Cross-plane dispatch + audit emits |
-| `apps/linkaios-web/src/lib/plugins/websitefactory/manifest.ts` | LinkSites v2 plugin manifest |
+| `LiNKaios/linkaios-web/src/lib/kernel/orchestrator.ts` | Run/stage orchestration + audit emits |
+| `LiNKaios/linkaios-web/src/lib/kernel/dispatch.ts` | Cross-plane dispatch + audit emits |
+| `LiNKaios/linkaios-web/src/lib/plugins/websitefactory/manifest.ts` | LinkSites v2 plugin manifest |
 | `LiNKskills/services/logic-engine/src/audit-events.ts` | LinkSkills lease audit events |
 | `LiNKskills/services/logic-engine/src/lease-lifecycle.ts` | Lease lifecycle + audit integration |
 
@@ -96,13 +96,13 @@ Executed a comprehensive review of LiNKbrain v2 audit and memory coverage agains
 | Step | Required Action | Status | Evidence | Gap |
 |------|-----------------|--------|----------|-----|
 | Role declared | `role.declared` | ❌ Missing | - | No role declaration audit |
-| Role started | `role.started` | ❌ Missing | - | No LinkBot role lifecycle audit |
+| Role started | `role.started` | ❌ Missing | - | No LiNKbot role lifecycle audit |
 | Research performed | `research.performed` | ❌ Missing | - | WP-044 follow-up needed |
 | Provenance recorded | `provenance.recorded` | ❌ Missing | - | WP-044 follow-up needed |
-| Role completed | `role.completed` | ❌ Missing | - | No LinkBot role lifecycle audit |
+| Role completed | `role.completed` | ❌ Missing | - | No LiNKbot role lifecycle audit |
 | Reasoning output | `stage.completed` | ✅ Implemented | `orchestrator.ts:512` | Kernel emits stage event only |
 
-**Gap Analysis:** LinkBot reasoning stages currently emit only `stage.started`/`stage.completed` from the kernel. Per §0.A.4.1, the Research/Enrichment Bot role MUST emit: `role.started`, `role.completed`, `research.performed`, `provenance.recorded`, `role.failed`.
+**Gap Analysis:** LiNKbot reasoning stages currently emit only `stage.started`/`stage.completed` from the kernel. Per §0.A.4.1, the Research/Enrichment Bot role MUST emit: `role.started`, `role.completed`, `research.performed`, `provenance.recorded`, `role.failed`.
 
 ### 3. Website Builder Bot (linkbot)
 
@@ -194,7 +194,7 @@ Executed a comprehensive review of LiNKbrain v2 audit and memory coverage agains
 
 | Category | Gap | Severity | Owner Packet | Notes |
 |----------|-----|----------|--------------|-------|
-| **LinkBot Role Audit** | Missing `role.started`, `role.completed`, `research.performed`, `provenance.recorded`, `template.guidance.selected`, `website.package.generated` | High | WP-044 | LinkBot role contract pack incomplete |
+| **LiNKbot Role Audit** | Missing `role.started`, `role.completed`, `research.performed`, `provenance.recorded`, `template.guidance.selected`, `website.package.generated` | High | WP-044 | LiNKbot role contract pack incomplete |
 | **Readiness Checks** | Missing `preview.readiness.checked/failed` | Medium | WP-045 | LiNKautowork workflow specifics |
 | **Shadow Mode Audits** | Missing `crm.odoo.readiness.checked`, `plane.readiness.checked`, `zulip.connectivity.checked` | Low | WP-043 | Shadow mode only, not blocking MVO |
 | **Memory Persistence** | LiNKbrain memory writes stubbed | Medium | WP-046 | Run closure persistence not implemented |
@@ -229,7 +229,7 @@ Per `.cursor/rules/04-mvo-scope-and-stubbing.mdc`:
 
 ## Recommended Follow-Up Work Packets
 
-1. **WP-044-follow-up** (LinkBot Agent): Add role-specific audit events
+1. **WP-044-follow-up** (LiNKbot Agent): Add role-specific audit events
    - Add `role.started`, `role.completed`, `role.failed` event emitters
    - Add `research.performed`, `provenance.recorded` for Research Bot
    - Add `template.guidance.selected`, `website.package.generated` for Builder Bot
@@ -238,7 +238,7 @@ Per `.cursor/rules/04-mvo-scope-and-stubbing.mdc`:
    - Add v2 capability output actions to `AUDIT_ACTIONS` array
    - Verify all §0.A.5 capability audit events are in canonical set
 
-3. **WP-046-follow-up** (LinkBrain Agent): Memory persistence
+3. **WP-046-follow-up** (LiNKbrain Agent): Memory persistence
    - Implement actual LiNKbrain memory writes for run closure
    - Connect `record_run` stage to real memory persistence
 
@@ -290,7 +290,7 @@ None. This review packet is complete and ready for Integrator review.
 
 ---
 
-# WP-065 LiNKbrain Audit Envelope Mapping for LinkBot Flow - Agent Report
+# WP-065 LiNKbrain Audit Envelope Mapping for LiNKbot Flow - Agent Report
 
 **Agent:** Codex  
 **Work Packet:** WP-065-linkbrain-audit-envelope-mapping-for-linkbot-flow  
@@ -300,12 +300,12 @@ None. This review packet is complete and ready for Integrator review.
 
 ## Summary
 
-Implemented canonical LiNKbrain envelope mapping helpers for LinkBot lifecycle signals, LinkSkills capability signals, LiNKautowork workflow signals, and Linktrend governance authorization lifecycle signals. Added focused tests proving mapping normalization and run/stage subject queryability.
+Implemented canonical LiNKbrain envelope mapping helpers for LiNKbot lifecycle signals, LinkSkills capability signals, LiNKautowork workflow signals, and Linktrend governance authorization lifecycle signals. Added focused tests proving mapping normalization and run/stage subject queryability.
 
 ## Files Changed
 
-- `apps/linkaios-web/src/lib/kernel/audit-envelope-mapper.ts`
-- `apps/linkaios-web/src/lib/kernel/audit-envelope-mapper.test.ts`
+- `LiNKaios/linkaios-web/src/lib/kernel/audit-envelope-mapper.ts`
+- `LiNKaios/linkaios-web/src/lib/kernel/audit-envelope-mapper.test.ts`
 
 ---
 
@@ -319,13 +319,13 @@ Implemented canonical LiNKbrain envelope mapping helpers for LinkBot lifecycle s
 
 ## Summary
 
-Completed canonical audit action coverage for LinkSites v2 by extending the SDK action registry, adding LinkBot role/provenance lifecycle emits, and adding explicit LiNKautowork readiness emits (`preview.readiness.checked` / `preview.readiness.failed`).
+Completed canonical audit action coverage for LinkSites v2 by extending the SDK action registry, adding LiNKbot role/provenance lifecycle emits, and adding explicit LiNKautowork readiness emits (`preview.readiness.checked` / `preview.readiness.failed`).
 
 ## Files Changed
 
 - `packages/linklogic-sdk/src/contracts-mvo.ts`
-- `apps/bot-runtime/src/reasoning-dispatch.ts`
-- `apps/bot-runtime/src/reasoning-dispatch.test.ts`
+- `LiNKbot/runtime-adapters/openclaw/bot-runtime/src/reasoning-dispatch.ts`
+- `LiNKbot/runtime-adapters/openclaw/bot-runtime/src/reasoning-dispatch.test.ts`
 - `LiNKautowork/gateway/src/lib/audit-emitter.ts`
 - `LiNKautowork/gateway/src/workflows/linksites-v2.ts`
 - `LiNKautowork/gateway/src/workflows/linksites-v2.test.ts`
@@ -357,7 +357,7 @@ pnpm --filter @linktrend/autowork-gateway exec vitest run src/workflows/linksite
 
 ## Risks / Notes
 
-- Audit volume increased for LinkBot reasoning stages due to role-level and provenance events; downstream consumers should expect additional canonical events per stage.
+- Audit volume increased for LiNKbot reasoning stages due to role-level and provenance events; downstream consumers should expect additional canonical events per stage.
 - Existing `approval.*` subject handling was already present from prior mapping work; no changes were needed in this packet’s allowed file scope.
 
 ## Blockers
@@ -394,7 +394,7 @@ pnpm --filter @linktrend/linkaios-web test -- src/lib/kernel/audit-envelope-mapp
 
 ## Proof
 
-- Mapping helper tests pass and verify normalization for LinkBot, LinkSkills, LiNKautowork, and governance signals.
+- Mapping helper tests pass and verify normalization for LiNKbot, LinkSkills, LiNKautowork, and governance signals.
 - Integration-style mapper write test verifies canonical envelope subject includes both `run_id` and `stage_id` for trace queryability.
 - Focused test command result: all kernel/plugin suites executed by Vitest in this workspace passed, including the new mapper suite.
 
@@ -444,7 +444,7 @@ Defined the LiNKbrain Completion Plan and created follow-up work packets (WP-086
 
 ## Follow-up Packets Created
 
-1. **WP-086:** Audit Ledger Completion (LinkBot roles, readiness, provenance).
+1. **WP-086:** Audit Ledger Completion (LiNKbot roles, readiness, provenance).
 2. **WP-087:** Memory Object Schemas (Leads, Research, Episodes persistence).
 3. **WP-088:** Context Assembler (Scoped retrieval, pgvector).
 4. **WP-089:** Learning & Benchmarks (Feedback loop, anonymized metrics).
@@ -484,7 +484,7 @@ None.
 
 ## Summary
 
-Implemented the first LiNKbrain memory object persistence foundation: migration, SDK schemas, and writer functions. Created the `brain_memory_objects` table with full provenance tracking, RLS enforcement, and type-specific schemas for LeadMemory, ResearchBundle, and EpisodeSummary. This enables LinkBots to receive scoped, provenance-backed context bundles for any task.
+Implemented the first LiNKbrain memory object persistence foundation: migration, SDK schemas, and writer functions. Created the `brain_memory_objects` table with full provenance tracking, RLS enforcement, and type-specific schemas for LeadMemory, ResearchBundle, and EpisodeSummary. This enables LiNKbot to receive scoped, provenance-backed context bundles for any task.
 
 ## Files Changed
 
@@ -673,8 +673,8 @@ Implemented the LiNKbrain Context Assembler foundation providing typed request/r
 | `packages/linklogic-sdk/src/context-assembly.ts` | Core context assembly contracts, `MemoryStore` interface, and `assembleContext` |
 | `packages/linklogic-sdk/src/context-assembly.test.ts` | Tests for scope lattice, in-memory store, and context assembly |
 | `packages/linklogic-sdk/src/index.ts` | Context assembly exports |
-| `apps/linkaios-web/src/lib/kernel/context-assembler.ts` | Kernel context assembler service and bot helpers |
-| `apps/linkaios-web/src/lib/kernel/context-assembler.test.ts` | Kernel-level context assembly tests |
+| `LiNKaios/linkaios-web/src/lib/kernel/context-assembler.ts` | Kernel context assembler service and bot helpers |
+| `LiNKaios/linkaios-web/src/lib/kernel/context-assembler.test.ts` | Kernel-level context assembly tests |
 
 ## Proof
 

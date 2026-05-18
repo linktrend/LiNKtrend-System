@@ -4,7 +4,7 @@
  * Canonical source of truth: `.ai-swarm/CONTRACTS_MVO.md`.
  *
  * Field names below are PINNED. Implementation agents (LiNKaios kernel,
- * LinkBot, LinkSkills, LiNKautowork, LiNKbrain, WebsiteFactory plugin) MUST
+ * LiNKbot, LinkSkills, LiNKautowork, LiNKbrain, WebsiteFactory plugin) MUST
  * import from `@linktrend/linklogic-sdk` rather than redefining parallel
  * names.
  *
@@ -43,7 +43,7 @@ export type PluginKind = z.infer<typeof PluginKindSchema>;
 export const PluginModeSchema = z.enum(["development", "shadow", "live"]);
 export type PluginMode = z.infer<typeof PluginModeSchema>;
 
-export const LinkBotRoleAttachmentSchema = z.object({
+export const LiNKbotRoleAttachmentSchema = z.object({
   role_id: z.string().min(1),
   purpose: z.string().min(1),
   inputs: z.array(z.string()),
@@ -57,7 +57,7 @@ export const LinkBotRoleAttachmentSchema = z.object({
   audit_events: z.array(z.string()),
   development_restrictions: z.array(z.string()).optional(),
 });
-export type LinkBotRoleAttachment = z.infer<typeof LinkBotRoleAttachmentSchema>;
+export type LiNKbotRoleAttachment = z.infer<typeof LiNKbotRoleAttachmentSchema>;
 
 export const CapabilityPluginCallerSchema = z.enum([
   "linkaios",
@@ -121,7 +121,7 @@ export const PluginManifestSchema = z
     required_capabilities: z.array(z.string()),
     required_workflow_hooks: z.array(z.string()),
     required_audit_events: z.array(z.string()),
-    required_linkbot_roles: z.array(LinkBotRoleAttachmentSchema).optional(),
+    required_linkbot_roles: z.array(LiNKbotRoleAttachmentSchema).optional(),
     preview_output_shape: z.record(z.string(), z.string()),
     non_goals: z.array(z.string()),
 
@@ -158,7 +158,7 @@ export const PluginManifestSchema = z
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           path: ["required_linkbot_roles"],
-          message: "capability plugins must not declare LinkBot role attachments",
+          message: "capability plugins must not declare LiNKbot role attachments",
         });
       }
     }
@@ -379,7 +379,7 @@ export const RunSchema = z.object({
 export type Run = z.infer<typeof RunSchema>;
 
 /* -------------------------------------------------------------------------- */
-/* §6.1 LiNKaios ↔ LinkBot                                                    */
+/* §6.1 LiNKaios ↔ LiNKbot                                                    */
 /* -------------------------------------------------------------------------- */
 
 export const ReasoningKindSchema = z.enum([
@@ -387,6 +387,8 @@ export const ReasoningKindSchema = z.enum([
   "template_selection",
   "copy_generation",
   "media_placement",
+  "research_enrichment",
+  "website_package_generation",
 ]);
 export type ReasoningKind = z.infer<typeof ReasoningKindSchema>;
 

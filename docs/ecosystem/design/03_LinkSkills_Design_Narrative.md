@@ -4,7 +4,7 @@
 
 LinkSkills is the capability control plane of the LiNKtrend ecosystem. It governs what agents, workflows, and services are allowed to do. It is not just a skill library, not a prompt collection, and not a public protocol. It is the system that turns tools and procedures into safe, certified, auditable business capabilities.
 
-In the full ecosystem, LinkBots request actions, LiNKaios coordinates work, LiNKautowork executes deterministic workflows, and LiNKbrain records outcomes. LinkSkills sits between intent and action. It answers whether a capability can be used, by whom, under what authority, at what cost, with what side effects, and with what evidence.
+In the full ecosystem, LiNKbot request actions, LiNKaios coordinates work, LiNKautowork executes deterministic workflows, and LiNKbrain records outcomes. LinkSkills sits between intent and action. It answers whether a capability can be used, by whom, under what authority, at what cost, with what side effects, and with what evidence.
 
 ## Core Principle
 
@@ -30,7 +30,7 @@ In practice, a skill package can contain a SKILL.md or Agent Skill, scripts, ref
 
 ## Disclosure Broker
 
-The disclosure broker is the heart of LinkSkills. When a LinkBot or workflow needs to act, it requests permission. LinkSkills evaluates the request and, if approved, issues a capability lease.
+The disclosure broker is the heart of LinkSkills. When a LiNKbot or workflow needs to act, it requests permission. LinkSkills evaluates the request and, if approved, issues a capability lease.
 
 A capability lease includes tenant, principal, bot, workflow, run, capability, version, allowed inputs, allowed outputs, cost cap, duration, approval state, idempotency key, policy decision reference, trace identifier, and expiry.
 
@@ -50,7 +50,7 @@ DPR should be treated as policy logic rather than a proprietary magic concept. T
 
 LinkSkills should not perform every execution itself. It should route to execution substrates.
 
-Execution adapters may include MCP servers, OpenAPI APIs, A2A agents, LiNKautowork workflows, Temporal workflows, sandboxed scripts, cloud functions, local CLI wrappers, OpenClaw/LinkBot runtime steps, and external SaaS APIs.
+Execution adapters may include MCP servers, OpenAPI APIs, A2A agents, LiNKautowork workflows, Temporal workflows, sandboxed scripts, cloud functions, local CLI wrappers, OpenClaw/LiNKbot runtime steps, and external SaaS APIs.
 
 This makes LinkSkills agent-agnostic and runtime-agnostic. It also avoids building a giant execution engine.
 
@@ -68,9 +68,9 @@ The Curator service should evaluate capabilities using telemetry, synthetic test
 
 For read-only low-risk capabilities, automatic promotion may be acceptable under strict evidence thresholds. For write or external-action capabilities, human review or pre-approved policy is required.
 
-## Integration With LinkBot
+## Integration With LiNKbot
 
-LinkBots consume LinkSkills. A bot should not decide on its own that it can send an invoice, publish a post, deploy a website, or update a CRM. It requests a capability lease. LinkSkills evaluates the request. If approved, the bot receives only the manifest or interface required for that step.
+LiNKbot consume LinkSkills. A bot should not decide on its own that it can send an invoice, publish a post, deploy a website, or update a CRM. It requests a capability lease. LinkSkills evaluates the request. If approved, the bot receives only the manifest or interface required for that step.
 
 At session start, a bot may request its role-based JIT pack: the capabilities pre-bound to its role. This should be a view, not full uncontrolled access.
 
@@ -123,4 +123,4 @@ For SMBs, the value is simple: AI employees can do real work safely. The owner c
 
 ## First Build
 
-The first version should implement a capability catalog, role-to-capability prebinding, disclosure issue endpoint, run ledger, idempotency table, simple OPA policy, one or two certified skills, LinkBot SDK integration, LiNKautowork workflow trigger capability, and LiNKbrain telemetry export.
+The first version should implement a capability catalog, role-to-capability prebinding, disclosure issue endpoint, run ledger, idempotency table, simple OPA policy, one or two certified skills, LiNKbot SDK integration, LiNKautowork workflow trigger capability, and LiNKbrain telemetry export.

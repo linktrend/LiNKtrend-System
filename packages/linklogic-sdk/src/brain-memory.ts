@@ -210,7 +210,7 @@ export const EpisodeSummaryPayloadSchema = z.object({
     project_id: z.string().optional(),
     task_id: z.string().optional(),
   }),
-  // Human-readable episode summary (for LinkBot context)
+  // Human-readable episode summary (for LiNKbot context)
   narrative_summary: z.string().max(3000).optional(),
   // For retrieval and clustering
   keywords: z.array(z.string()).default([]),

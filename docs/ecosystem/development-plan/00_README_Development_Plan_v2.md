@@ -13,7 +13,7 @@ The previous version treated several items as if they needed to be created from 
 - `LiNKtrend-System` already contains the LiNKaios monorepo and 12-route kernel web UI.
 - `LiNKskills` already contains a substantial Phase 0–3 logic-engine implementation.
 - `LiNKautowork` already contains a substantial n8n gateway MVO.
-- Archive `LiNKaios/packages/linkbrain` contains useful LinkBrain SQL migrations and schemas.
+- Archive `LiNKaios/packages/linkbrain` contains useful LiNKbrain SQL migrations and schemas.
 - `LiNKsites` already contains the Payload CMS website factory and `web-master` template.
 - `LiNKapps` contains the reusable UI/design system ancestor.
 - `LiNKbot-core` contains the OpenClaw-based runtime fork.
@@ -33,7 +33,7 @@ The first MVO remains the **LinkSites / WebsiteFactory lead-to-preview-site flow
 
 The first working demo should show:
 
-A LinkBot finds or selects a lead, chooses an industry template, generates copy, adjusts style/look-and-feel without changing structure, publishes a preview site, creates CRM and Plane records or accepted MVO stubs, requests capability leases from LinkSkills, triggers deterministic work through LiNKautowork, writes events/memory to LiNKbrain, and shows trace/status in LiNKaios.
+A LiNKbot finds or selects a lead, chooses an industry template, generates copy, adjusts style/look-and-feel without changing structure, publishes a preview site, creates CRM and Plane records or accepted MVO stubs, requests capability leases from LinkSkills, triggers deterministic work through LiNKautowork, writes events/memory to LiNKbrain, and shows trace/status in LiNKaios.
 
 ## Critical Day-1 Decisions
 

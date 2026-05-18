@@ -12,7 +12,7 @@
 
 LEXOS is a complete litigation vertical application with 180+ TypeScript files, 22 database migrations, and a sophisticated W0–W11 legal cognition workflow. This plan defines how LEXOS becomes a LiNKaios vertical plugin without moving code yet.
 
-**Key Decision:** LEXOS will remain a **vertical plugin**, not a core platform concern. It declares what work needs to happen; LinkSkills grants permissions; LiNKautowork runs deterministic steps; LinkBots perform judgment work; LiNKbrain remembers; LiNKaios coordinates.
+**Key Decision:** LEXOS will remain a **vertical plugin**, not a core platform concern. It declares what work needs to happen; LinkSkills grants permissions; LiNKautowork runs deterministic steps; LiNKbot perform judgment work; LiNKbrain remembers; LiNKaios coordinates.
 
 ---
 
@@ -53,24 +53,24 @@ Each LEXOS workflow stage maps to a responsible plane per `PLUGIN_ARCHITECTURE_V
 
 | Stage | Workflow | Responsible Plane | Side Effects? |
 |-------|----------|-------------------|---------------|
-| W0 | Client Onboarding | LinkBot (intake agent) + LiNKaios | Yes (stub CRM) |
-| W1 | Client Master Record | LinkBot (custodian agent) | No (reasoning) |
-| W2 | Case-Client Story | LinkBot (story architect) | No (reasoning) |
-| W3 | Opposing File Reconciliation | LinkBot (defense agent) | No (reasoning) |
+| W0 | Client Onboarding | LiNKbot (intake agent) + LiNKaios | Yes (stub CRM) |
+| W1 | Client Master Record | LiNKbot (custodian agent) | No (reasoning) |
+| W2 | Case-Client Story | LiNKbot (story architect) | No (reasoning) |
+| W3 | Opposing File Reconciliation | LiNKbot (defense agent) | No (reasoning) |
 | W4 | Evidence Intake | LiNKautowork + LinkSkills | Yes (storage, extraction) |
-| W5 | Support Matrix | LinkBot (analyst) + LiNKautowork | Yes (assertion updates) |
-| W6 | Strategy | LinkBot (strategist) | No (reasoning) |
-| W7 | Legal Research | LinkBot (librarian) | No (reasoning) |
-| W8 | Argument Drafting | LinkBot (advocate) | No (reasoning) |
-| W9 | Adversarial Review | LinkBot (adversary) | No (reasoning) |
+| W5 | Support Matrix | LiNKbot (analyst) + LiNKautowork | Yes (assertion updates) |
+| W6 | Strategy | LiNKbot (strategist) | No (reasoning) |
+| W7 | Legal Research | LiNKbot (librarian) | No (reasoning) |
+| W8 | Argument Drafting | LiNKbot (advocate) | No (reasoning) |
+| W9 | Adversarial Review | LiNKbot (adversary) | No (reasoning) |
 | W10 | Visual Exhibits | LiNKautowork | Yes (asset generation) |
-| W11 | Output Refinement | LinkBot (rhetorician) | No (reasoning) |
+| W11 | Output Refinement | LiNKbot (rhetorician) | No (reasoning) |
 
 ---
 
-## 2. LinkBot Role Attachments
+## 2. LiNKbot Role Attachments
 
-LEXOS requires these LinkBot roles, each with defined inputs, outputs, allowed capabilities, and audit events:
+LEXOS requires these LiNKbot roles, each with defined inputs, outputs, allowed capabilities, and audit events:
 
 ### 2.1 `lexos_intake_agent` (W0)
 
@@ -384,7 +384,7 @@ Per `01-ecosystem-boundaries.mdc`:
 - ❌ Capability catalog, lease issuance (LinkSkills owns)
 - ❌ Event ledger, audit storage (LiNKbrain owns)
 - ❌ Deterministic workflow execution (LiNKautowork owns)
-- ❌ Bot runtime, model routing (LinkBot runtime owns)
+- ❌ Bot runtime, model routing (LiNKbot runtime owns)
 - ❌ Secrets, credential storage (LinkSkills owns)
 
 ### 11.2 What LEXOS Vertical Plugin DOES Own
@@ -392,7 +392,7 @@ Per `01-ecosystem-boundaries.mdc`:
 - ✅ Litigation-specific work request types
 - ✅ W0–W11 workflow stage definitions
 - ✅ Legal-domain data objects (clients, matters, evidence, assertions)
-- ✅ Role attachments for legal-domain LinkBots
+- ✅ Role attachments for legal-domain LiNKbot
 - ✅ UI panels for legal workspaces
 - ✅ Required capability plugin declarations
 - ✅ Required audit event type declarations
@@ -461,7 +461,7 @@ The following work packets are required for safe migration/adaptation:
 | Packet | Objective | Priority |
 |--------|-----------|----------|
 | WP-103 | Create LEXOS capability plugin manifests | Medium |
-| WP-104 | Create LEXOS LinkBot role contracts | Medium |
+| WP-104 | Create LEXOS LiNKbot role contracts | Medium |
 | WP-105 | Create LEXOS LiNKautowork workflow hooks | Medium |
 
 ---
@@ -492,7 +492,7 @@ The following work packets are required for safe migration/adaptation:
 ### 14.4 Phase 4: Integration (WP-103, WP-104, WP-105)
 
 1. Declare capability plugins
-2. Declare LinkBot roles
+2. Declare LiNKbot roles
 3. Declare LiNKautowork workflow hooks
 4. End-to-end test with mock data
 
@@ -515,7 +515,7 @@ The following work packets are required for safe migration/adaptation:
 This plan is complete when:
 
 - [x] Defines LEXOS as a vertical plugin, not core-platform concern
-- [x] Maps W0–W11 workflows to candidate LinkBot roles
+- [x] Maps W0–W11 workflows to candidate LiNKbot roles
 - [x] Maps W0–W11 to LiNKautowork deterministic steps
 - [x] Identifies LinkSkills capability needs
 - [x] Identifies LiNKbrain audit/memory needs
@@ -531,7 +531,7 @@ This plan is complete when:
 | Item | Evidence |
 |------|----------|
 | Files inspected | 22 migrations, 2,718 lines of types, 17 server modules, 12 UI workspaces |
-| Workflow mapping | W0–W11 mapped to LinkBot roles and planes |
+| Workflow mapping | W0–W11 mapped to LiNKbot roles and planes |
 | Schema inventory | 12 core tables, 9 artifact tables, 5 cross-cutting tables |
 | Architecture compliance | Boundaries verified against `PLUGIN_ARCHITECTURE_V2.md` |
 

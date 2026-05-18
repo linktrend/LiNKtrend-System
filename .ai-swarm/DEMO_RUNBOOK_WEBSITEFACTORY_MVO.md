@@ -95,7 +95,7 @@ Also confirm terminal `run.status` is `succeeded` for full demo proof.
   - Local `linkskills` tables (`mvo_projects`, `mvo_tasks`) and lease-gated project/task creation.
 - Preview stub (`DECISIONS.md` D-03 / INT-022):
   - Static/local preview route served by LiNKaios; no DigitalOcean-hosted preview or full Payload publish in MVO.
-- LinkBot/OpenRouter:
+- LiNKbot/OpenRouter:
   - MVO uses OpenRouter routing decision (D-06), but behavior may be mocked/stubbed in test paths; demo acceptance is based on contract outputs, refs, and audit trail rather than model quality.
 
 ## 5) Demo command checklist

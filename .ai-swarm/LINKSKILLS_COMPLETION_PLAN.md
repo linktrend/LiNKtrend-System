@@ -37,7 +37,7 @@ This completion plan defines the path to fulfill both responsibilities while pre
 | Component | Status | Evidence Path | Target |
 |-----------|--------|---------------|--------|
 | Golden Template | PRESERVED | `LiNKskills/skills/skill-template/SKILL.md` | Copy/adapt to new repo |
-| Skill catalog API | MISSING | N/A | Discovery endpoint for LinkBots |
+| Skill catalog API | MISSING | N/A | Discovery endpoint for LiNKbot |
 | Progressive disclosure | MISSING | PRD_LINKSKILLS_LOGIC_ENGINE §12 | Run-scoped fragment delivery |
 | Skill certification | PARTIAL | `LiNKskills/validator.py` | Adapt validation logic |
 | Package orchestration | MISSING | N/A - new | Department bundles (future) |
@@ -52,7 +52,7 @@ This completion plan defines the path to fulfill both responsibilities while pre
 | Source Path | Target Use | Notes |
 |-------------|------------|-------|
 | `LiNKskills/skills/skill-template/SKILL.md` | Golden Template master | Copy with version update |
-| `LiNKskills/skills/skill-architect/SKILL.md` | Meta-skill reference | Reference for LinkBot skill usage |
+| `LiNKskills/skills/skill-architect/SKILL.md` | Meta-skill reference | Reference for LiNKbot skill usage |
 | `LiNKskills/validator.py` | Validation framework base | Adapt for `packages/linklogic-sdk` |
 | `LiNKskills/services/logic-engine/` | Runtime patterns | Service structure reference only |
 | `LiNKskills/configs/service_ownership.json` | Ownership pattern | Adapt for capability ownership |
@@ -220,7 +220,7 @@ This completion plan defines the path to fulfill both responsibilities while pre
 
 ### 4.6 Target F: Golden Template Preservation
 
-**Definition:** Standardized skill structure for LinkBot skill usage.
+**Definition:** Standardized skill structure for LiNKbot skill usage.
 
 **Requirements:**
 - YAML frontmatter with: name, description, version, engine, tooling, permissions
@@ -241,7 +241,7 @@ This completion plan defines the path to fulfill both responsibilities while pre
 **Completion Criteria:**
 - [ ] Golden Template copied to `packages/linklogic-sdk/templates/skill-golden.md`
 - [ ] Template validation in SDK
-- [ ] Documentation for LinkBot skill usage
+- [ ] Documentation for LiNKbot skill usage
 
 ---
 
@@ -274,7 +274,7 @@ This completion plan defines the path to fulfill both responsibilities while pre
 
 ### 4.8 Target H: Skill Catalog API
 
-**Definition:** Discovery endpoint for LinkBots to find available skills.
+**Definition:** Discovery endpoint for LiNKbot to find available skills.
 
 **Requirements:**
 - List skills by department/bundle
@@ -387,13 +387,13 @@ This completion plan defines the path to fulfill both responsibilities while pre
 | Ledger storage | LiNKbrain tables for lease records |
 | Retention sweep | LiNKbrain retention worker includes lease ledger |
 
-### 6.3 LinkBot Integration
-| LinkSkills Surface | LinkBot Usage |
+### 6.3 LiNKbot Integration
+| LinkSkills Surface | LiNKbot Usage |
 |-------------------|-----------------|
-| Skill catalog | LinkBot discovers available skills |
-| Golden Template | LinkBot skill structure reference |
-| Disclosure tokens | LinkBot receives run-scoped skill fragments |
-| Capability leases | LinkBot NEVER issues directly (kernel only) |
+| Skill catalog | LiNKbot discovers available skills |
+| Golden Template | LiNKbot skill structure reference |
+| Disclosure tokens | LiNKbot receives run-scoped skill fragments |
+| Capability leases | LiNKbot NEVER issues directly (kernel only) |
 
 ### 6.4 LiNKautowork Integration
 | LinkSkills Surface | LiNKautowork Usage |

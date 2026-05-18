@@ -38,4 +38,4 @@ They are now governed by the LiNKtrend ecosystem rules and `.ai-swarm/` work-pac
 - LiNKbrain owns memory, event ledger, audit union, context assembly, and learning.
 - LinkSkills owns capability leases, capability catalog, side-effect governance, run ledger, and skill certification.
 - LiNKautowork owns deterministic workflow execution through n8n gateway.
-- LinkBot owns role-bound reasoning/session/runtime adapter behavior.
+- LiNKbot owns role-bound reasoning/session/runtime adapter behavior.

@@ -150,7 +150,7 @@ find plugins/vertical/lexos -type f | sort
 
 **Branch:** `dev/cursor/WP-122-lexos-ui-workspace-scaffold`
 
-**Commit SHA:** (to be added after push)
+**Commit SHA:** `cbb37e5304b498512aca9a52aa2b18bb1c26bb49`
 
 ---
 

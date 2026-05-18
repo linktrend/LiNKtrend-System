@@ -1,68 +1,31 @@
-/**
- * LiNKbot Zulip Temporary Gateway
- *
- * Per CONTRACTS_MVO.md §0.A.5 and LINKBOT_ADAPTER_PLAN.md:
- * - This is a TEMPORARY gateway until OpenClaw adopts native Zulip support
- * - Routes via cap.zulip.run_messaging only
- * - Mission-aware (carries tenant, run, stage, role context)
- * - Mock/shadow modes only for MVO (live disabled)
- * - Lease-gated when not in mock mode
- * - Does NOT become generic capability ownership
- */
+import { createServer } from "node:http";
 
-// Types
-export type {
-  ZulipMode,
-  ZulipGatewayConfig,
-  ZulipMissionContext,
-  ZulipMessagePayload,
-  ZulipRunNotification,
-  ZulipSendResult,
-  ZulipConnectivityResult,
-  GatewayDispatchRequest,
-  GatewayDispatchResult,
-  ZulipGatewayHealth,
-} from "./types.js";
+import { log } from "@linktrend/observability";
+import { loadEnv } from "@linktrend/shared-config";
 
-// Payload builders
-export {
-  buildRunNotificationPayload,
-  buildStatusUpdatePayload,
-  buildOperatorAlertPayload,
-  buildDebugPayload,
-  validateZulipPayload,
-  hasRequiredLease,
-  redactPayloadForLogging,
-} from "./zulip-payload.js";
+import { dispatch } from "./gateway-dispatch.js";
 
-// Send operations
-export {
-  sendZulipMessage,
-  probeZulipConnectivity,
-  sendRunNotification,
-  sendBatchMessages,
-  getSendStats,
-  resetSendStats,
-} from "./zulip-send.js";
+const DEFAULT_PORT = 8790;
 
-// Mission resolution
-export {
-  buildMissionId,
-  parseMissionId,
-  resolveMissionFromContext,
-  validateMissionContext,
-  isSameMission,
-  isSameRun,
-  buildMissionDisplayName,
-  buildTenantTopicPrefix,
-} from "./resolve-mission-id.js";
-export type { MissionId } from "./resolve-mission-id.js";
+async function main() {
+  const env = loadEnv();
+  const port = Number(process.env.ZULIP_GATEWAY_PORT ?? DEFAULT_PORT);
 
-// Gateway dispatch
-export {
-  dispatchGatewayOperation,
-  validateDispatchRequest,
-  getGatewayCapabilities,
-  checkGatewayHealth,
-  DEFAULT_GATEWAY_CONFIG,
-} from "./gateway-dispatch.js";
+  const server = createServer((req, res) => {
+    void dispatch(req, res, env).catch((err) => {
+      log("error", "request failed", { service: "zulip-gateway", error: String(err) });
+      res.writeHead(500, { "content-type": "text/plain" });
+      res.end("error");
+    });
+  });
+
+  server.listen(port, () => {
+    log("info", "zulip-gateway listening", {
+      service: "zulip-gateway",
+      port,
+      webhook: `http://127.0.0.1:${port}/webhooks/zulip`,
+    });
+  });
+}
+
+main();

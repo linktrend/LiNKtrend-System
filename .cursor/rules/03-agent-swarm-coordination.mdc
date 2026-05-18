@@ -21,13 +21,24 @@ Each work packet must define:
 - proof required
 - report file to update
 
+Every work packet must use the canonical ownership map from `docs/architecture/repo-architecture-target.md` and the system completion targets from `docs/architecture/system-completion-targets.md`:
+
+- LiNKaios control work → `LiNKaios/` ownership docs or current compatibility code in `LiNKaios/linkaios-web` / `packages/linkaios-kernel`
+- LinkSkills governance and skills → `LiNKskills/`
+- capability connector docs/manifests → `LiNKskills/capability-connectors/`
+- LiNKbrain memory/audit/retrieval/context/learning → `LiNKbrain/` ownership docs or current compatibility code referenced there
+- LiNKautowork workflow gateway/templates → `LiNKautowork/`
+- LiNKbot roles/runtime adapters/fleet/communications → `LiNKbot/`
+- worker security/cleanup sidecar → `LiNKguard/`
+- tenant-enabled business packages → `modules/`
+
 Specialist agents do not merge their own work. The Integrator reviews and merges.
 
 Use separate branches or worktrees for parallel work.
 
-For large waves, branches alone are not enough. Any wave with three or more concurrent agents, or any agents likely to touch overlapping repo areas, MUST use isolated worktrees or separate clean checkouts. Each agent must verify `git status --short --branch` is clean before starting. If an agent sees unrelated dirty files, it must stop before editing and report the blocker.
+For large waves, branches alone are not enough. Any wave with three or more concurrent agents, or any agents likely to touch overlapping repo areas, MUST use isolated worktrees or separate clean checkouts. LiNKtrend-System worktrees MUST live under `/Users/linktrend/Projects/LiNKtrend-System/.worktrees/<packet-id>` and MUST NOT be created directly under `/Users/linktrend/Projects`. The Projects folder contains separate repos and software forks that must not be touched by cleanup automation. Each agent must verify `git status --short --branch` is clean before starting. If an agent sees unrelated dirty files, it must stop before editing and report the blocker.
 
-Every prompt file for a large wave MUST include an explicit clean-worktree launch block. The block must instruct the agent to create/use a packet-specific checkout or worktree, verify clean status before editing, and stop if unrelated dirty files exist. Do not rely on chat instructions for this; the prompt file itself must contain the isolation requirement.
+Every prompt file for a large wave MUST include an explicit clean-worktree launch block. The block must instruct the agent to create/use a packet-specific checkout or worktree under `.worktrees/`, verify clean status before editing, and stop if unrelated dirty files exist. Do not rely on chat instructions for this; the prompt file itself must contain the isolation requirement.
 
 If two agents need to edit the same file, stop and escalate to the Integrator.
 

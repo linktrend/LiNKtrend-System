@@ -9,7 +9,7 @@
 
 ## Executive Summary
 
-This document defines the conversion path for LiNKapps from a standalone App Factory starter kit into a governed **LiNKaios vertical plugin** called `linkapps.app_factory`. The plan maps the existing 7-phase venture lifecycle and autonomous squad structure into the LiNKtrend ecosystem architecture (LiNKaios, LiNKbrain, LinkSkills, LiNKautowork, LinkBot) without moving code yet.
+This document defines the conversion path for LiNKapps from a standalone App Factory starter kit into a governed **LiNKaios vertical plugin** called `linkapps.app_factory`. The plan maps the existing 7-phase venture lifecycle and autonomous squad structure into the LiNKtrend ecosystem architecture (LiNKaios, LiNKbrain, LinkSkills, LiNKautowork, LiNKbot) without moving code yet.
 
 **Key Design Decision:** LiNKapps becomes the "App Factory" vertical plugin that transforms Phase 3 blueprints (PRD + Business Plan) into working software through Phase 5, ultimately producing spinoff-ready ventures at Phase 7.
 
@@ -41,7 +41,7 @@ This document defines the conversion path for LiNKapps from a standalone App Fac
 
 **LiNKapps (Vertical Plugin) declares:**
 - What work needs to happen (PRD → repo → deployed app)
-- Which LinkBot roles execute each phase
+- Which LiNKbot roles execute each phase
 - Which capability plugins are required (GitHub, Supabase, Stripe, Vercel, etc.)
 - Workflow stages and their sequencing
 
@@ -57,14 +57,14 @@ This document defines the conversion path for LiNKapps from a standalone App Fac
 
 ### 2.1 Phase Mapping to Ecosystem Planes
 
-| Phase | Name | Department | LiNKtrend Plane | LinkBot Role | LiNKautowork | LinkSkills |
+| Phase | Name | Department | LiNKtrend Plane | LiNKbot Role | LiNKautowork | LinkSkills |
 |-------|------|------------|-----------------|--------------|--------------|------------|
-| 1 | Discovery & Research | BD/Market Research | LinkBot (judgment) | `market_research_bot` | — | `research.public_web` |
-| 2 | Feasibility & Stress-Testing | BD/Venture Architect | LinkBot (judgment) | `feasibility_bot` | — | `research.public_web`, `analytics.read` |
-| 3 | Blueprinting | Cross-departmental | LinkBot + LiNKaios | `product_owner_bot` | `blueprint.compile` | `plane.project.write` |
+| 1 | Discovery & Research | BD/Market Research | LiNKbot (judgment) | `market_research_bot` | — | `research.public_web` |
+| 2 | Feasibility & Stress-Testing | BD/Venture Architect | LiNKbot (judgment) | `feasibility_bot` | — | `research.public_web`, `analytics.read` |
+| 3 | Blueprinting | Cross-departmental | LiNKbot + LiNKaios | `product_owner_bot` | `blueprint.compile` | `plane.project.write` |
 | 4 | The Final Gate | Strategic Leadership | LiNKaios (approval) | — | `approval.gate_check` | `approval.request` |
 | 5 | **Technical Implementation** | **Development** | **All Planes** | **Squad Roles** | **CI/CD workflows** | **Capability leases** |
-| 6 | Launch & Traction | Growth/Media & Sales | LinkBot + LinkSkills | `growth_bot` | — | `postiz.distribution` |
+| 6 | Launch & Traction | Growth/Media & Sales | LiNKbot + LinkSkills | `growth_bot` | — | `postiz.distribution` |
 | 7 | Spinout | All Departments | LiNKaios + LiNKbrain | — | `spinoff.package` | `audit.export` |
 
 ### 2.2 Phase 5 Technical Implementation — Detailed Breakdown
@@ -73,49 +73,49 @@ Phase 5 is LiNKapps' core responsibility. It executes within the vertical plugin
 
 ```
 Stage 5.1: squad_formation
-├─ LinkBot: orchestrator (squad assembly)
+├─ LiNKbot: orchestrator (squad assembly)
 ├─ LinkSkills: lease squad_creation capability
 └─ Output: squad_config with role assignments
 
 Stage 5.2: repo_generation
-├─ LinkBot: product_owner (PRD refinement)
+├─ LiNKbot: product_owner (PRD refinement)
 ├─ LiNKautowork: autowork.linkapps.create_repo
 ├─ LinkSkills: lease cap.github.repo_creation
 └─ Output: app_repo_ref
 
 Stage 5.3: service_provisioning
-├─ LinkBot: backend-specialist (architecture review)
+├─ LiNKbot: backend-specialist (architecture review)
 ├─ LiNKautowork: autowork.linkapps.provision_services
 ├─ LinkSkills: leases for supabase, stripe, vercel
 └─ Output: service_credentials_ref
 
 Stage 5.4: ai_implementation
-├─ LinkBots: frontend-specialist, backend-specialist, mobile-developer
+├─ LiNKbot: frontend-specialist, backend-specialist, mobile-developer
 ├─ LiNKautowork: autowork.linkapps.build_iteration (deterministic checks)
 ├─ LinkSkills: leases for code_generation (if any external services)
 └─ Output: built_app_bundle
 
 Stage 5.5: quality_validation
-├─ LinkBots: test-engineer, qa-automation-engineer, security-auditor
+├─ LiNKbot: test-engineer, qa-automation-engineer, security-auditor
 ├─ LiNKautowork: autowork.linkapps.release_readiness
 ├─ LinkSkills: leases for test_execution
 └─ Output: validation_report
 
 Stage 5.6: deployment
-├─ LinkBot: devops-engineer (deploy verification)
+├─ LiNKbot: devops-engineer (deploy verification)
 ├─ LiNKautowork: autowork.linkapps.deploy
 ├─ LinkSkills: lease cap.vercel.deployment
 └─ Output: deployment_refs
 
 Stage 5.7: handoff_pack
-├─ LinkBot: documentation-writer
+├─ LiNKbot: documentation-writer
 ├─ LiNKautowork: autowork.linkapps.compile_handoff
 └─ Output: handoff_package
 ```
 
 ---
 
-## 3. LinkBot Role Definitions for LiNKapps
+## 3. LiNKbot Role Definitions for LiNKapps
 
 ### 3.1 Core Squad Roles (from LiNKapps `.agent/agents/`)
 
@@ -274,7 +274,7 @@ interface RepoCreationLeaseRequest {
 |----------|---------|--------------|
 | `linkapps.factory_dashboard` | Overview of active app builds | Runs, stages, squad status |
 | `linkapps.blueprint_intake` | Submit new venture blueprints | Work request form |
-| `linkapps.squad_monitor` | Real-time squad execution view | Stage refs, LinkBot outputs |
+| `linkapps.squad_monitor` | Real-time squad execution view | Stage refs, LiNKbot outputs |
 | `linkapps.build_logs` | Build iteration history | LiNKautowork workflow runs |
 | `linkapps.validation_results` | Quality gate reports | Validation workflow outputs |
 | `linkapps.deployment_history` | Deploy tracking | Vercel/EAS capability events |
@@ -331,7 +331,7 @@ Per `ARCHITECTURE_RULES.md` and `PLUGIN_ARCHITECTURE_V2.md`:
 |----------------|--------------|-----------------|
 | `scripts/create-app-repo.sh` | Copy/adapt | `LiNKautowork/workflows/linkapps/create_repo/` |
 | `scripts/release-readiness.sh` | Copy/adapt | `LiNKautowork/workflows/linkapps/release_readiness/` |
-| `.agent/agents/*.md` | Reference/copy | `LinkBot/roles/linkapps/` |
+| `.agent/agents/*.md` | Reference/copy | `LiNKbot/roles/linkapps/` |
 | `.agent/skills/*.md` | Reference | LinkSkills skills catalog |
 | `.agent/workflows/*.md` | Adapt | LiNKaios slash commands |
 | `apps/web/` template | Reference | `LiNKsites` template catalog |
@@ -397,7 +397,7 @@ LiNKtrend-System/
 **Acceptance Criteria:**
 - [ ] Complete `manifest.json` per `PLUGIN_ARCHITECTURE_V2.md`
 - [ ] All 7 Phase 5 stages declared
-- [ ] All 10+ LinkBot roles attached
+- [ ] All 10+ LiNKbot roles attached
 - [ ] All required capabilities listed
 - [ ] All required workflow hooks mapped
 - [ ] All required audit events enumerated
@@ -408,7 +408,7 @@ LiNKtrend-System/
 
 ### 10.3 Packet WP-107: LiNKapps Squad Orchestration Design
 
-**Objective:** Define how LiNKaios coordinates multiple LinkBot agents as a squad.
+**Objective:** Define how LiNKaios coordinates multiple LiNKbot agents as a squad.
 
 **Hard Questions to Answer:**
 1. How does the orchestrator agent dispatch to specialist agents?
@@ -467,7 +467,7 @@ LiNKtrend-System/
 | `LiNKapps/scripts/create-app-repo.sh` | App generation entry point | Core workflow step |
 | `LiNKapps/scripts/release-readiness.sh` | Quality gates | Stage 5.5 validation |
 | `LiNKapps/.agent/ARCHITECTURE.md` | Agent ecosystem design | Role mapping source |
-| `LiNKapps/.agent/agents/*.md` | 20 agent definitions | LinkBot role contracts |
+| `LiNKapps/.agent/agents/*.md` | 20 agent definitions | LiNKbot role contracts |
 | `LiNKapps/.agent/workflows/*.md` | 11 slash commands | Workflow templates |
 | `LiNKapps/docs/00_OPERATOR_LIBRARY/` | Governance docs | Process patterns |
 
@@ -477,7 +477,7 @@ LiNKtrend-System/
 |----------|---------|--------------|
 | `CONTRACTS_MVO.md` | §0.A (LinkSites v2) | Mode model, role attachments |
 | `CONTRACTS_MVO.md` | §1.0.1 (Plugin kinds) | Vertical vs capability boundary |
-| `CONTRACTS_MVO.md` | §1.0.3 (LinkBot roles) | Role contract shape |
+| `CONTRACTS_MVO.md` | §1.0.3 (LiNKbot roles) | Role contract shape |
 | `PLUGIN_ARCHITECTURE_V2.md` | All | Plugin declaration rules |
 | `ARCHITECTURE_RULES.md` | Planes | Responsibility boundaries |
 
@@ -488,7 +488,7 @@ LiNKtrend-System/
 This conversion plan establishes LiNKapps as a first-class LiNKaios vertical plugin (`linkapps.app_factory`) while preserving all existing starter kit value. The plan:
 
 1. **Maps** the 7-phase venture lifecycle to ecosystem planes
-2. **Defines** 10+ LinkBot roles with contracts
+2. **Defines** 10+ LiNKbot roles with contracts
 3. **Specifies** 6+ LiNKautowork workflow hooks
 4. **Enumerates** 7+ capability plugin requirements
 5. **Declares** 9+ audit event types for LiNKbrain

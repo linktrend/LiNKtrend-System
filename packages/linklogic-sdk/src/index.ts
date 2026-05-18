@@ -284,7 +284,7 @@ export {
   LinkSitesV2SiteGenerationRefSchema,
   LinkSitesV2TemplateIdSchema,
   LinkSitesV2WorkflowHandleSchema,
-  LinkBotRoleAttachmentSchema,
+  LiNKbotRoleAttachmentSchema,
   MediaPlanSchema,
   PlaneProjectCreateArgsSchema,
   PlaneProjectCreateResultSchema,
@@ -345,7 +345,7 @@ export type {
   LinkSitesV2SiteGenerationRef,
   LinkSitesV2TemplateId,
   LinkSitesV2WorkflowHandle,
-  LinkBotRoleAttachment,
+  LiNKbotRoleAttachment,
   MediaPlan,
   Plane,
   PlaneProjectCreateArgs,
@@ -412,27 +412,6 @@ export type {
   MemoryObjectState as ContextMemoryObjectState,
   MemoryObjectType as ContextMemoryObjectType,
 } from "./context-assembly.js";
-
-// LiNKbrain Trace Intelligence (WP-202)
-export {
-  buildTraceSummaryText,
-  getLeadTrace,
-  getOperatorBrainStatus,
-  getPlaneBreakdown,
-  getRecentActivitySummary,
-  getRunTrace,
-  isMvoCompleteTrace,
-} from "./brain-trace-intelligence.js";
-export type {
-  CrossPlaneStageSummary,
-  LeadTraceResult,
-  MemoryObjectReference,
-  OperatorBrainStatus,
-  OperatorBrainStatusResult,
-  RunTraceResult,
-  RunTraceSummary,
-  TraceEvent,
-} from "./brain-trace-intelligence.js";
 
 // Progressive disclosure types (WP-080)
 export {

@@ -18,7 +18,7 @@ The ecosystem consists of:
 - LiNKbrain — institutional memory and learning plane
 - LinkSkills — capability governance and capability lease plane
 - LiNKautowork — deterministic workflow execution plane
-- LinkBot — role-bound AI employee runtime adapter
+- LiNKbot — role-bound AI employee runtime adapter
 
 The current repo being used as the coordination repo is:
 
@@ -44,12 +44,12 @@ The MVO is the LinkSites / WebsiteFactory lead-to-preview-site flow.
 
 The flow is:
 
-1. A LinkBot finds or selects an SMB lead.
-2. The LinkBot evaluates the lead.
-3. The LinkBot selects an industry website template.
-4. The LinkBot generates business-specific copy.
-5. The LinkBot selects or places suitable images/placeholders.
-6. The LinkBot changes look-and-feel without changing template structure.
+1. A LiNKbot finds or selects an SMB lead.
+2. The LiNKbot evaluates the lead.
+3. The LiNKbot selects an industry website template.
+4. The LiNKbot generates business-specific copy.
+5. The LiNKbot selects or places suitable images/placeholders.
+6. The LiNKbot changes look-and-feel without changing template structure.
 7. LiNKautowork executes deterministic workflow steps.
 8. LinkSkills authorizes capabilities through short-lived capability leases.
 9. LiNKbrain records events, memory, audit, and trace.
@@ -73,7 +73,7 @@ Confirmed existing assets should anchor the implementation:
 - `LiNKtrend-System` is the LiNKaios monorepo.
 - `LiNKskills` already contains substantial Phase 0–3 logic-engine work.
 - `LiNKautowork` already contains a substantial n8n gateway MVO.
-- `Archive/LiNKaios/packages/linkbrain` contains useful LinkBrain SQL migrations and schemas.
+- `Archive/LiNKaios/packages/linkbrain` contains useful LiNKbrain SQL migrations and schemas.
 - `LiNKsites` contains the Payload CMS website factory and `web-master` template.
 - `LiNKapps` contains reusable UI/design-system patterns.
 - `LiNKbot-core` contains the OpenClaw-based runtime fork.
@@ -91,11 +91,11 @@ LinkSkills is the capability governance and capability lease plane.
 
 LiNKautowork is the deterministic workflow execution plane.
 
-LinkBot is the role-bound AI employee runtime adapter.
+LiNKbot is the role-bound AI employee runtime adapter.
 
 LiNKaios coordinates the ecosystem but must not absorb the responsibilities of the other services.
 
-LinkBot must remain a thin reasoning/runtime shell. It must not own canonical memory, skills, secrets, or deterministic workflow execution.
+LiNKbot must remain a thin reasoning/runtime shell. It must not own canonical memory, skills, secrets, or deterministic workflow execution.
 
 LinkSkills governs capabilities and side effects. It does not own long-term memory.
 

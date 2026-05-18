@@ -12,8 +12,8 @@ Single source of truth: **`docs/bot-runtime-production-readiness-PRD.md`**.
 
 Read the PRD, then read:
 
-- `apps/bot-runtime/src/index.ts`
-- `apps/bot-runtime/src/openclaw-handoff.ts`
+- `LiNKbot/runtime-adapters/openclaw/bot-runtime/src/index.ts`
+- `LiNKbot/runtime-adapters/openclaw/bot-runtime/src/openclaw-handoff.ts`
 - `packages/shared-config/src/index.ts` (for new timeout env vars)
 
 ## Tasks
@@ -28,9 +28,9 @@ Read the PRD, then read:
 
 5. **Governance catch:** In the outer `catch` for governance/bootstrap, call `recordTrace` best-effort with a dedicated `eventType` string per PRD §2.5.
 
-6. **Vitest:** Add `vitest`, `vitest.config.ts`, exclude `*.test.ts` from `tsc` `dist` emit in `apps/bot-runtime/tsconfig.json`. Tests: mocked `fetch` for OpenClaw success + HTTP 500 + timeout abort; optionally one test that notify URL path builds JSON (mock fetch).
+6. **Vitest:** Add `vitest`, `vitest.config.ts`, exclude `*.test.ts` from `tsc` `dist` emit in `LiNKbot/runtime-adapters/openclaw/bot-runtime/tsconfig.json`. Tests: mocked `fetch` for OpenClaw success + HTTP 500 + timeout abort; optionally one test that notify URL path builds JSON (mock fetch).
 
-7. **ESLint:** `eslint.config.mjs` + `package.json` scripts mirroring `apps/zulip-gateway`.
+7. **ESLint:** `eslint.config.mjs` + `package.json` scripts mirroring `LiNKbot/communications/temporary-gateways/zulip`.
 
 8. **Docs:** Create **`docs/bot-runtime.md`** per PRD §2.6 and §5.
 

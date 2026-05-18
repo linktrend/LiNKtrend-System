@@ -1,310 +1,106 @@
-/**
- * Gateway Dispatch
- *
- * Per CONTRACTS_MVO.md §0.A.5 and LINKBOT_ADAPTER_PLAN.md §"Zulip messaging adapter":
- * Route via cap.zulip.run_messaging only:
- * - run.notify
- * - channel.message.mock_send
- * - connectivity.probe
- *
- * No direct LiNKbot send path.
- */
+import type { IncomingMessage, ServerResponse } from "node:http";
+import { text } from "node:stream/consumers";
 
-import {
-  GatewayDispatchRequest,
-  GatewayDispatchResult,
-  ZulipGatewayConfig,
-  ZulipMode,
-} from "./types.js";
-import { sendZulipMessage, probeZulipConnectivity, sendRunNotification } from "./zulip-send.js";
-import { buildRunNotificationPayload, buildDebugPayload } from "./zulip-payload.js";
-import { buildMissionId } from "./resolve-mission-id.js";
+import { createSupabaseServiceClient } from "@linktrend/db";
+import { recordTrace } from "@linktrend/linklogic-sdk";
+import { log } from "@linktrend/observability";
+import type { Env } from "@linktrend/shared-config";
 
-/**
- * Default gateway configuration
- */
-export const DEFAULT_GATEWAY_CONFIG: ZulipGatewayConfig = {
-  base_url: process.env.ZULIP_BASE_URL || "http://localhost:9991",
-  bot_email: process.env.ZULIP_BOT_EMAIL || "bot@example.com",
-  api_key: process.env.ZULIP_API_KEY || "mock-key",
-  default_stream: process.env.ZULIP_DEFAULT_STREAM || "linkbot-notifications",
-  topic_template: process.env.ZULIP_TOPIC_TEMPLATE || "run-{run_id}",
-  mode: (process.env.ZULIP_MODE as ZulipMode) || "mock",
-  requires_lease: process.env.ZULIP_REQUIRES_LEASE !== "false",
-  request_timeout_ms: parseInt(process.env.ZULIP_TIMEOUT_MS || "10000"),
-};
+import { resolveMissionId } from "./resolve-mission-id.js";
+import { extractZulipMessageId, extractZulipStreamId, extractZulipTopic } from "./zulip-payload.js";
 
-/**
- * Dispatch gateway operation
- *
- * Per CONTRACTS_MVO.md §0.A.5, operations are:
- * - run.notify
- * - channel.message.mock_send
- * - connectivity.probe
- */
-export async function dispatchGatewayOperation(
-  request: GatewayDispatchRequest,
-  config: ZulipGatewayConfig = DEFAULT_GATEWAY_CONFIG
-): Promise<GatewayDispatchResult> {
-  const now = new Date().toISOString();
+export async function handleZulipWebhook(
+  env: Env,
+  rawBody: string,
+  queryMissionId: string | null,
+): Promise<{ ok: boolean; status: number; body: string }> {
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(rawBody) as unknown;
+  } catch {
+    return { ok: false, status: 400, body: "invalid json" };
+  }
+
+  const zulipMessageId = extractZulipMessageId(parsed);
+  if (!zulipMessageId) {
+    return { ok: false, status: 422, body: "no message id" };
+  }
+
+  const streamId = extractZulipStreamId(parsed);
+  const topic = extractZulipTopic(parsed);
+  const client = createSupabaseServiceClient(env);
+
+  const override =
+    queryMissionId && /^[0-9a-f-]{36}$/i.test(queryMissionId.trim()) ? queryMissionId.trim() : null;
+  const { missionId, source } = await resolveMissionId({
+    client,
+    streamId,
+    overrideMissionId: override,
+  });
+
+  const basePayload: Record<string, unknown> =
+    parsed && typeof parsed === "object" && !Array.isArray(parsed)
+      ? { ...(parsed as Record<string, unknown>) }
+      : { value: parsed };
+  basePayload._linktrend = {
+    missionResolution: { missionId, source, streamId, topic },
+  };
+
+  const { error } = await client
+    .schema("gateway")
+    .from("zulip_message_links")
+    .upsert(
+      {
+        zulip_message_id: zulipMessageId,
+        stream_id: streamId ?? undefined,
+        topic: topic ?? undefined,
+        mission_id: missionId ?? undefined,
+        payload: basePayload,
+      },
+      { onConflict: "zulip_message_id" },
+    );
+
+  if (error) {
+    log("error", "gateway upsert failed", { service: "zulip-gateway", message: error.message });
+    return { ok: false, status: 500, body: error.message };
+  }
 
   try {
-    switch (request.operation) {
-      case "run.notify": {
-        const result = await handleRunNotify(request, config);
-        return {
-          success: result.success,
-          operation: request.operation,
-          result: result,
-          processed_at: now,
-        };
-      }
-
-      case "channel.message.mock_send": {
-        const result = await handleMockSend(request, config);
-        return {
-          success: result.success,
-          operation: request.operation,
-          result: result,
-          processed_at: now,
-        };
-      }
-
-      case "connectivity.probe": {
-        const result = await probeZulipConnectivity(config);
-        return {
-          success: result.reachable,
-          operation: request.operation,
-          result: {
-            reachable: result.reachable,
-            latency_ms: result.latency_ms,
-            server_version: result.server_version,
-          },
-          processed_at: now,
-        };
-      }
-
-      default:
-        return {
-          success: false,
-          operation: String(request.operation),
-          result: {},
-          error: {
-            code: "UNKNOWN_OPERATION",
-            message: `Unknown operation: ${request.operation}`,
-          },
-          processed_at: now,
-        };
-    }
-  } catch (error) {
-    return {
-      success: false,
-      operation: request.operation,
-      result: {},
-      error: {
-        code: "DISPATCH_ERROR",
-        message: error instanceof Error ? error.message : String(error),
+    await recordTrace(env, {
+      eventType: missionId ? "gateway.message_linked" : "gateway.mission_unresolved",
+      missionId,
+      payload: {
+        zulipMessageId,
+        streamId,
+        topic,
+        resolutionSource: source,
       },
-      processed_at: now,
-    };
+    });
+  } catch (e) {
+    log("warn", "gateway trace failed", { service: "zulip-gateway", error: String(e) });
   }
+
+  return { ok: true, status: 200, body: "ok" };
 }
 
-/**
- * Handle run.notify operation
- */
-async function handleRunNotify(
-  request: GatewayDispatchRequest,
-  config: ZulipGatewayConfig
-): Promise<{
-  success: boolean;
-  message_id?: string;
-  mock_sent: boolean;
-  mode: ZulipMode;
-}> {
-  const args = request.arguments as {
-    notification_type: "started" | "completed" | "failed" | "awaiting_approval";
-    message: string;
-    role_id: string;
-    details?: Record<string, unknown>;
-  };
+export async function dispatch(req: IncomingMessage, res: ServerResponse, env: Env) {
+  const url = new URL(req.url ?? "/", `http://${req.headers.host ?? "localhost"}`);
 
-  const result = await sendRunNotification(
-    request.tenant_id,
-    request.idempotency_key.includes(":")
-      ? request.idempotency_key.split(":")[0]
-      : request.tenant_id, // Extract run_id from idempotency key if formatted as run:stage:capability
-    "unknown", // stage_id not in request, use mission context
-    args.role_id,
-    args.notification_type,
-    args.message,
-    config,
-    args.details,
-    request.lease_id
-  );
-
-  return {
-    success: result.success,
-    message_id: result.message_id,
-    mock_sent: result.mock_sent,
-    mode: result.mode,
-  };
-}
-
-/**
- * Handle channel.message.mock_send operation
- */
-async function handleMockSend(
-  request: GatewayDispatchRequest,
-  config: ZulipGatewayConfig
-): Promise<{
-  success: boolean;
-  message_id?: string;
-  mock_sent: boolean;
-  mode: ZulipMode;
-}> {
-  const args = request.arguments as {
-    content: string;
-    stream?: string;
-    topic?: string;
-    mission_context: {
-      tenant_id: string;
-      run_id: string;
-      stage_id: string;
-      role_id: string;
-    };
-  };
-
-  const mission_id = buildMissionId(
-    args.mission_context.tenant_id,
-    args.mission_context.run_id,
-    args.mission_context.stage_id,
-    args.mission_context.role_id
-  );
-
-  const payload = buildDebugPayload(
-    {
-      tenant_id: mission_id.tenant_id,
-      run_id: mission_id.run_id,
-      stage_id: mission_id.stage_id,
-      role_id: mission_id.role_id,
-      message_purpose: "debug",
-    },
-    {
-      content: args.content,
-      operation: "channel.message.mock_send",
-      request_args: request.arguments,
-    },
-    args.stream || config.default_stream,
-    config.mode
-  );
-
-  const result = await sendZulipMessage(payload, config);
-
-  return {
-    success: result.success,
-    message_id: result.message_id,
-    mock_sent: result.mock_sent,
-    mode: result.mode,
-  };
-}
-
-/**
- * Validate gateway dispatch request
- */
-export function validateDispatchRequest(request: unknown): {
-  valid: boolean;
-  errors: string[];
-} {
-  const errors: string[] = [];
-
-  if (!request || typeof request !== "object") {
-    return { valid: false, errors: ["Request must be an object"] };
+  if (req.method === "GET" && url.pathname === "/health") {
+    res.writeHead(200, { "content-type": "application/json" });
+    res.end(JSON.stringify({ ok: true, service: "zulip-gateway" }));
+    return;
   }
 
-  const req = request as Record<string, unknown>;
-
-  // Check required fields
-  if (!req.operation || typeof req.operation !== "string") {
-    errors.push("operation is required and must be a string");
+  if (req.method === "POST" && url.pathname === "/webhooks/zulip") {
+    const raw = await text(req);
+    const missionOverride = url.searchParams.get("mission_id");
+    const result = await handleZulipWebhook(env, raw, missionOverride);
+    res.writeHead(result.status, { "content-type": "text/plain" });
+    res.end(result.body);
+    return;
   }
 
-  if (!req.tenant_id || typeof req.tenant_id !== "string") {
-    errors.push("tenant_id is required and must be a string");
-  }
-
-  if (!req.capability || req.capability !== "cap.zulip.run_messaging") {
-    errors.push("capability must be 'cap.zulip.run_messaging'");
-  }
-
-  if (!req.arguments || typeof req.arguments !== "object") {
-    errors.push("arguments is required and must be an object");
-  }
-
-  if (!req.idempotency_key || typeof req.idempotency_key !== "string") {
-    errors.push("idempotency_key is required and must be a string");
-  }
-
-  // Validate operation is allowed
-  const allowedOperations = ["run.notify", "channel.message.mock_send", "connectivity.probe"];
-  if (req.operation && !allowedOperations.includes(req.operation as string)) {
-    errors.push(`operation must be one of: ${allowedOperations.join(", ")}`);
-  }
-
-  return {
-    valid: errors.length === 0,
-    errors,
-  };
-}
-
-/**
- * Get gateway capabilities
- */
-export function getGatewayCapabilities(): {
-  operations: string[];
-  modes: ZulipMode[];
-  requires_lease: boolean;
-} {
-  return {
-    operations: ["run.notify", "channel.message.mock_send", "connectivity.probe"],
-    modes: ["mock", "shadow", "live"],
-    requires_lease: true,
-  };
-}
-
-/**
- * Check gateway health
- */
-export async function checkGatewayHealth(
-  config: ZulipGatewayConfig = DEFAULT_GATEWAY_CONFIG
-): Promise<{
-  status: "healthy" | "degraded" | "unhealthy";
-  mode: ZulipMode;
-  connectivity: {
-    reachable: boolean;
-    latency_ms: number;
-  };
-}> {
-  const connectivity = await probeZulipConnectivity(config);
-  const stats = await import("./zulip-send.js").then((m) => m.getSendStats());
-
-  let status: "healthy" | "degraded" | "unhealthy" = "unhealthy";
-
-  if (config.mode === "mock") {
-    // Mock mode is always healthy (no external dependency)
-    status = "healthy";
-  } else if (connectivity.reachable) {
-    status = "healthy";
-  } else if (stats.total_messages_sent > 0) {
-    status = "degraded";
-  }
-
-  return {
-    status,
-    mode: config.mode,
-    connectivity: {
-      reachable: connectivity.reachable,
-      latency_ms: connectivity.latency_ms,
-    },
-  };
+  res.writeHead(404, { "content-type": "text/plain" });
+  res.end("not found");
 }

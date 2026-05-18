@@ -183,7 +183,7 @@ pnpm install
 
 ---
 
-## 3. Development Team / LinkBot Pod Concept
+## 3. Development Team / LiNKbot Pod Concept
 
 ### 3.1 The Autonomous Squad Structure
 
@@ -217,11 +217,11 @@ Autonomous Development Squad
     └── Release approval authority
 ```
 
-### 3.2 LinkBot Agent Mapping to Squad Roles
+### 3.2 LiNKbot Agent Mapping to Squad Roles
 
 The `.agent/agents/` folder contains pre-defined agent personas that map directly to squad positions:
 
-| Squad Role | LinkBot Agent File | Purpose |
+| Squad Role | LiNKbot Agent File | Purpose |
 |------------|-------------------|---------|
 | Product Owner | `product-owner.md` | Requirements, roadmap, PRD ownership |
 | Technical Lead | `orchestrator.md` + `backend-specialist.md` | Architecture, multi-agent coordination |
@@ -324,7 +324,7 @@ Based on the PLUGIN_ARCHITECTURE_V2 contract, LiNKapps would require:
 ### 5.2 Hard Unknowns
 
 1. **Squad Formation Trigger**: How does LiNKaios trigger squad formation at Phase 5 transition?
-2. **Role Assignment**: How are specific LinkBot agent instances assigned to squad roles?
+2. **Role Assignment**: How are specific LiNKbot agent instances assigned to squad roles?
 3. **Context Handoff**: How does Phase 3 BD context (feasibility, blueprint) transfer to the development squad?
 4. **Progress Reporting**: How does the squad report progress back to LiNKaios for Phase 5-6 tracking?
 5. **Spinoff Mechanics**: What is the technical process for transitioning an app from LiNKapps factory to standalone venture entity?
@@ -342,7 +342,7 @@ For each capability action, LiNKapps would require:
 | Configure Stripe | Stripe | Product/price write access | product_created, price_created |
 | Deploy to Vercel | Vercel | Project deployment rights | deployment_triggered, deployment_completed |
 | Run E2E tests | Testing | Test environment access | test_run_started, test_run_completed |
-| Create squad | LinkBot | Agent instantiation rights | squad_created, role_assigned |
+| Create squad | LiNKbot | Agent instantiation rights | squad_created, role_assigned |
 
 ---
 
@@ -353,7 +353,7 @@ For each capability action, LiNKapps would require:
 1. **WP-XXX: LiNKapps Plugin Manifest** - Define vertical plugin declaration per PLUGIN_ARCHITECTURE_V2
 2. **WP-XXX: Squad Orchestration Integration** - Design how LiNKaios coordinates autonomous squads
 3. **WP-XXX: Phase 5-7 Transition Workflow** - Define handoff mechanics from development to spinout
-4. **WP-XXX: LinkBot Pod Lifecycle** - Define squad creation, execution, and teardown workflows
+4. **WP-XXX: LiNKbot Pod Lifecycle** - Define squad creation, execution, and teardown workflows
 5. **WP-XXX: Capability Plugin Contracts** - Define required capability plugins for app factory operations
 
 ### 7.2 Reuse Strategy

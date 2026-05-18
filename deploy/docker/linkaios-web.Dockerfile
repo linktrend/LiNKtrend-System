@@ -33,9 +33,9 @@ RUN apt-get update \
   && rm -rf /var/lib/apt/lists/* \
   && groupadd --gid 1001 linktrend \
   && useradd --uid 1001 --gid 1001 --shell /bin/bash --create-home linktrend
-COPY --from=build /app/apps/linkaios-web/.next/standalone/ ./
-COPY --from=build /app/apps/linkaios-web/.next/static ./apps/linkaios-web/.next/static
-COPY --from=build /app/apps/linkaios-web/public ./apps/linkaios-web/public
+COPY --from=build /app/LiNKaios/linkaios-web/.next/standalone/ ./
+COPY --from=build /app/LiNKaios/linkaios-web/.next/static ./LiNKaios/linkaios-web/.next/static
+COPY --from=build /app/LiNKaios/linkaios-web/public ./LiNKaios/linkaios-web/public
 USER linktrend
 EXPOSE 3000
-CMD ["node", "apps/linkaios-web/server.js"]
+CMD ["node", "LiNKaios/linkaios-web/server.js"]

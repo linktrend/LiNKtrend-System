@@ -1,6 +1,8 @@
 packages:
-  - "apps/*"
+  - "LiNKaios/*"
   - "packages/*"
   - "LiNKautowork/*"
   - "LiNKskills/*/*"
-  - "LiNKbot/**/*"
+  - "LiNKbot/runtime-adapters/*/*"
+  - "LiNKbot/communications/temporary-gateways/*"
+  - "LiNKguard/sidecar/*"

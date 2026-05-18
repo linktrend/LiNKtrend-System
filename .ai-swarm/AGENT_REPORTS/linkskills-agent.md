@@ -6,7 +6,7 @@
 
 ## Objective
 
-Define the completion path for LinkSkills as both the permission/control plane and the governed skills service for LinkBots, preserving Golden Template, progressive discovery, progressive execution, validation, and catalog governance.
+Define the completion path for LinkSkills as both the permission/control plane and the governed skills service for LiNKbot, preserving Golden Template, progressive discovery, progressive execution, validation, and catalog governance.
 
 ## Files Changed
 
@@ -23,7 +23,7 @@ Define the completion path for LinkSkills as both the permission/control plane a
 
 ## Integrator Notes
 
-- Original WP-060 output used WP-061..WP-067 for follow-up packets, which collided with active LinkBot adapter packet numbers.
+- Original WP-060 output used WP-061..WP-067 for follow-up packets, which collided with active LiNKbot adapter packet numbers.
 - Integrator preserved the plan and renumbered LinkSkills follow-up packets to WP-075..WP-081.
 - The branch's destructive rewrite of historical `linkskills-agent.md` was not accepted; this section was appended instead.
 
@@ -117,7 +117,7 @@ sed -n '1,260p' .ai-swarm/PLUGIN_ARCHITECTURE_V2.md
 sed -n '1,260p' .ai-swarm/CONTRACTS_MVO.md
 sed -n '1,260p' .ai-swarm/WORK_PACKETS/WP-055-postiz-distribution-capability-scaffold.md
 sed -n '1,260p' .ai-swarm/INTEGRATION_QUEUE.md
-rg -n "postiz|Postiz|distribution capability|capability scaffold|agent report|WP-054|WP-053" .ai-swarm LiNKskills apps/linkaios-web/src .env.example
+rg -n "postiz|Postiz|distribution capability|capability scaffold|agent report|WP-054|WP-053" .ai-swarm LiNKskills LiNKaios/linkaios-web/src .env.example
 git fetch origin && git switch development && git pull --ff-only origin development && git switch -c dev/codex/WP-055-postiz-distribution-capability-scaffold
 pnpm --filter @linktrend/linkskills-logic-engine test -- src/capability-handlers.postiz.test.ts src/capability-handlers.zulip.test.ts
 pnpm --filter @linktrend/linkskills-logic-engine test
@@ -155,15 +155,15 @@ pnpm --filter @linktrend/linkskills-logic-engine test
 
 ## Objective
 
-Scaffold the LinkSkills-governed Zulip communication capability surface for LinkBot/operator and bot-to-bot messaging in development mode, with no live outbound sends and explicit mock/shadow behavior.
+Scaffold the LinkSkills-governed Zulip communication capability surface for LiNKbot/operator and bot-to-bot messaging in development mode, with no live outbound sends and explicit mock/shadow behavior.
 
 ## Search Evidence (existing bridge reuse)
 
 Repository evidence discovered before implementation:
 
-- `apps/zulip-gateway/src/gateway-dispatch.ts` — existing inbound webhook bridge and `gateway.zulip_message_links` upsert path.
-- `apps/zulip-gateway/src/resolve-mission-id.ts` — mission routing from Zulip stream IDs.
-- `apps/zulip-gateway/src/zulip-payload.ts` and tests — existing Zulip payload extraction utilities.
+- `LiNKbot/communications/temporary-gateways/zulip/src/gateway-dispatch.ts` — existing inbound webhook bridge and `gateway.zulip_message_links` upsert path.
+- `LiNKbot/communications/temporary-gateways/zulip/src/resolve-mission-id.ts` — mission routing from Zulip stream IDs.
+- `LiNKbot/communications/temporary-gateways/zulip/src/zulip-payload.ts` and tests — existing Zulip payload extraction utilities.
 - `services/migrations/ALL_IN_ONE.sql` — existing `gateway.zulip_message_links` and stream routing persistence.
 - `LiNKskills/services/logic-engine/src/capability-catalog.ts` — `cap.zulip.run_messaging` already listed in LinkSites v2 capability IDs.
 
@@ -685,7 +685,7 @@ rg -n "CREATE TABLE IF NOT EXISTS linkskills\.(capabilities|lease_requests|lease
 
 ## Objective
 
-Preserve the LinkSkills Golden Template and add an SDK-level skill manifest validation plus scaffolding surface for governed LinkBot skill usage.
+Preserve the LinkSkills Golden Template and add an SDK-level skill manifest validation plus scaffolding surface for governed LiNKbot skill usage.
 
 ## Files Changed
 
@@ -990,7 +990,7 @@ pnpm --filter @linktrend/linklogic-sdk typecheck
 
 ## Objective
 
-Implement a progressive disclosure service for governed LinkBot skill usage, providing run-scoped disclosure token generation and fragment delivery with IP protection.
+Implement a progressive disclosure service for governed LiNKbot skill usage, providing run-scoped disclosure token generation and fragment delivery with IP protection.
 
 ## Repo Reality Note
 

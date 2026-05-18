@@ -1,32 +1,29 @@
 {
   "name": "@linktrend/bot-runtime",
-  "version": "0.1.0",
-  "description": "LiNKbot OpenClaw runtime adapter - role-bound AI employee runtime",
+  "version": "0.0.0",
+  "private": true,
   "type": "module",
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
-  "exports": {
-    ".": {
-      "import": "./dist/index.js",
-      "types": "./dist/index.d.ts"
-    }
-  },
   "scripts": {
-    "build": "tsc",
-    "typecheck": "tsc --noEmit",
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "lint": "eslint src/**/*.ts"
+    "build": "tsc -p tsconfig.json",
+    "dev": "tsx watch src/index.ts",
+    "start": "node dist/index.js",
+    "lint": "eslint .",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run"
   },
   "dependencies": {
-    "zod": "^3.23.8"
+    "@linktrend/linklogic-sdk": "workspace:*",
+    "@linktrend/observability": "workspace:*",
+    "@linktrend/shared-config": "workspace:*",
+    "@linktrend/shared-types": "workspace:*"
   },
   "devDependencies": {
-    "@types/node": "^20.14.0",
-    "typescript": "^5.4.5",
-    "vitest": "^1.6.0"
-  },
-  "engines": {
-    "node": ">=20"
+    "@eslint/js": "^9.39.4",
+    "@types/node": "^20.19.39",
+    "eslint": "^9.39.4",
+    "tsx": "^4.19.4",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.58.2",
+    "vitest": "^3.2.4"
   }
 }
