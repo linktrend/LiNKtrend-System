@@ -11,3 +11,8 @@
 - New Project flow: Wire `Module -> Project Type -> intake/start` UI to real create/start actions once approved API contracts are available.
 - Plane bridge: Add per-project Plane IDs and sync telemetry so `Plane sync` shows real state beyond mock-safe placeholders.
 - Terminology cleanup: Continue staged user-facing `Mission -> Project` copy updates in touched UI surfaces while preserving internal table/function compatibility names.
+
+## WP-229 Follow-ups
+
+- Wire worker project context to live source-of-truth fields for module, project_type, workflow_handle, issue refs, run refs, and trace refs instead of synthetic labels in `workers/[id]/projects`.
+- Resolve workspace package linkage/module-resolution baseline issue (`@linktrend/shared-config`, `@linktrend/shared-types`, `@linktrend/linklogic-sdk`) blocking local compile and trustworthy browser proof in clean packet worktrees.
