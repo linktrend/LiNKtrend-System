@@ -6,7 +6,9 @@ export function ProjectsPlaneStrip(props: { workspaceProjectsHref: string | null
       <div className="min-w-0">
         <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">Plane</p>
         <p className="mt-1 max-w-2xl text-sm text-zinc-600 dark:text-zinc-400">
-          {configured ? "Boards and delivery work in Plane." : "Connect Plane to open boards from LiNKaios."}
+          {configured
+            ? "Plane is the execution board. LiNKaios remains the orchestration and approval control plane."
+            : "Connect Plane to open execution boards from LiNKaios."}
         </p>
       </div>
       <div className="flex shrink-0 flex-col items-stretch gap-2 sm:items-end">

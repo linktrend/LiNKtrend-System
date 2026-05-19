@@ -67,7 +67,19 @@ export default async function ProjectsListPage() {
   return (
     <main className="space-y-10">
       <header className="border-b border-zinc-200 pb-8 dark:border-zinc-800">
-        <h1 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">Projects</h1>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h1 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">Projects</h1>
+          <Link
+            href="/projects/new"
+            className="inline-flex rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
+          >
+            New Project
+          </Link>
+        </div>
+        <p className="mt-3 max-w-3xl text-sm text-zinc-600 dark:text-zinc-400">
+          Projects are client-specific instances of vendor project types. Plane runs board execution; LiNKaios runs
+          orchestration, approvals, outputs, and traces.
+        </p>
       </header>
 
       <ProjectsPlaneStrip workspaceProjectsHref={planeProjectsHref} />
@@ -121,6 +133,12 @@ export default async function ProjectsListPage() {
                 id: String(m.id),
                 title: m.title,
                 status: m.status,
+                moduleName: bridge?.moduleName ?? "Unmapped module",
+                projectTypeName: bridge?.projectTypeName ?? "Unmapped project type",
+                workflowName: bridge?.workflowName ?? "Workflow pending",
+                activeIssue: bridge?.activeIssue ?? "No active issue linked",
+                approvalGate: bridge?.approvalGate ?? "Approval policy pending",
+                planeSyncStatus: bridge?.planeSyncStatus ?? "pending",
                 leadLabel: leadLabel(m.primary_agent_id),
                 leadHref: lh,
                 code,

@@ -10,6 +10,12 @@ export type ProjectRowModal = {
   id: string;
   title: string;
   status: string;
+  moduleName: string;
+  projectTypeName: string;
+  workflowName: string;
+  activeIssue: string;
+  approvalGate: string;
+  planeSyncStatus: "synced" | "pending";
   leadLabel: string;
   leadHref: string | null;
   code: string;
@@ -48,12 +54,15 @@ export function ProjectsIndexTable(props: { rows: ProjectRowModal[]; planeWorksp
           <thead className="bg-zinc-50 text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:bg-zinc-900 dark:text-zinc-400">
             <tr>
               <th className={`px-4 py-3 ${TABLE.thText}`}>Name</th>
+              <th className={`px-4 py-3 ${TABLE.thText}`}>Module</th>
+              <th className={`px-4 py-3 ${TABLE.thText}`}>Project type</th>
               <th className={`px-4 py-3 ${TABLE.thControl}`}>
                 <div className={TABLE.thControlInner}>Plane</div>
               </th>
-              <th className={`px-4 py-3 ${TABLE.thText}`}>Status</th>
+              <th className={`px-4 py-3 ${TABLE.thText}`}>Workflow / Issue</th>
+              <th className={`px-4 py-3 ${TABLE.thText}`}>Approval</th>
               <th className={`px-4 py-3 ${TABLE.thText}`}>LiNKbot</th>
-              <th className={`px-4 py-3 ${TABLE.thText}`}>Activity</th>
+              <th className={`px-4 py-3 ${TABLE.thText}`}>Plane sync</th>
               <th className={`px-4 py-3 ${TABLE.thControl}`}>
                 <div className={TABLE.thControlInner}>Details</div>
               </th>
@@ -70,6 +79,8 @@ export function ProjectsIndexTable(props: { rows: ProjectRowModal[]; planeWorksp
                     {r.title}
                   </Link>
                 </td>
+                <td className="px-4 py-3 text-zinc-700 dark:text-zinc-300">{r.moduleName}</td>
+                <td className="px-4 py-3 text-zinc-700 dark:text-zinc-300">{r.projectTypeName}</td>
                 <td className={`px-4 py-3 ${TABLE.thControl}`}>
                   {props.planeWorkspaceHref ? (
                     <a
@@ -84,7 +95,11 @@ export function ProjectsIndexTable(props: { rows: ProjectRowModal[]; planeWorksp
                     <span className="text-xs text-zinc-400">—</span>
                   )}
                 </td>
-                <td className="px-4 py-3 text-zinc-700 dark:text-zinc-300">{projectStatusDisplay(r.status)}</td>
+                <td className="max-w-[14rem] px-4 py-3 text-xs text-zinc-700 dark:text-zinc-300">
+                  <p className="font-medium">{r.workflowName}</p>
+                  <p className="mt-1 text-zinc-500 dark:text-zinc-400">Issue: {r.activeIssue}</p>
+                </td>
+                <td className="px-4 py-3 text-xs text-zinc-600 dark:text-zinc-400">{r.approvalGate}</td>
                 <td className="px-4 py-3">
                   {r.leadHref ? (
                     <Link href={r.leadHref} className="text-violet-800 underline-offset-2 hover:underline dark:text-violet-300">
@@ -95,7 +110,8 @@ export function ProjectsIndexTable(props: { rows: ProjectRowModal[]; planeWorksp
                   )}
                 </td>
                 <td className="max-w-[14rem] px-4 py-3 text-xs text-zinc-600 dark:text-zinc-400">
-                  {activitySummary(r.open, r.blockers, r.hasBridge)}
+                  <p>{r.planeSyncStatus === "synced" ? "Synced to Plane" : "Pending Plane mapping"}</p>
+                  <p className="mt-1">{activitySummary(r.open, r.blockers, r.hasBridge)}</p>
                 </td>
                 <td className={`px-4 py-3 ${TABLE.thControl}`}>
                   <button
@@ -137,6 +153,14 @@ export function ProjectsIndexTable(props: { rows: ProjectRowModal[]; planeWorksp
               <div className="flex justify-between gap-4">
                 <dt className="text-zinc-500">Status</dt>
                 <dd className="font-medium">{projectStatusDisplay(open.status)}</dd>
+              </div>
+              <div className="flex justify-between gap-4">
+                <dt className="text-zinc-500">Module</dt>
+                <dd className="text-right font-medium">{open.moduleName}</dd>
+              </div>
+              <div className="flex justify-between gap-4">
+                <dt className="text-zinc-500">Project type</dt>
+                <dd className="text-right font-medium">{open.projectTypeName}</dd>
               </div>
               <div className="flex justify-between gap-4">
                 <dt className="text-zinc-500">Assigned LiNKbots</dt>
