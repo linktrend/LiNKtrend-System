@@ -8,9 +8,9 @@ import { screenTabLinkClass, TABS } from "@/lib/ui-standards";
 
 const TABS_LIST: { id: LinkbrainTab; label: string }[] = [
   { id: "inbox", label: "Inbox" },
-  { id: "project", label: "Project" },
-  { id: "agent", label: "LiNKbot" },
-  { id: "company", label: "Company" },
+  { id: "project", label: "Project Memory" },
+  { id: "agent", label: "LiNKbot Memory" },
+  { id: "company", label: "Company Memory" },
   { id: "ask", label: "Ask LiNKbrain" },
 ];
 

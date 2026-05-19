@@ -133,8 +133,9 @@ export default async function MemoryPage(props: {
         <div>
           <h1 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100">LiNKbrain</h1>
           <p className="mt-2 max-w-2xl text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
-            Your company knowledge hub: review drafts in <strong>Inbox</strong>, browse by project or LiNKbot, and ask
-            read-only questions when you need a quick excerpt.
+            Permission-aware memory hub: client users work with <strong>Company</strong>, <strong>Project</strong>, and{" "}
+            <strong>LiNKbot</strong> memory; vendor users can additionally use <strong>vendor-only</strong>,{" "}
+            <strong>anonymized learning</strong>, and <strong>protected IP</strong> knowledge surfaces.
           </p>
         </div>
         <Link href="/memory/drafts/new" className={`${BUTTON.primaryRow} h-fit shrink-0`}>

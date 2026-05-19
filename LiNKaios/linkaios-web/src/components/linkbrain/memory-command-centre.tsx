@@ -29,6 +29,16 @@ function kindLabel(k: string): string {
   return "Standard";
 }
 
+function ScopeBadge(props: { tone: "client" | "vendor" | "shared"; text: string }) {
+  const cls =
+    props.tone === "client"
+      ? "border-sky-300 bg-sky-50 text-sky-800 dark:border-sky-800 dark:bg-sky-950/40 dark:text-sky-200"
+      : props.tone === "vendor"
+        ? "border-violet-300 bg-violet-50 text-violet-800 dark:border-violet-800 dark:bg-violet-950/40 dark:text-violet-200"
+        : "border-emerald-300 bg-emerald-50 text-emerald-800 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-200";
+  return <span className={`inline-flex rounded-full border px-2 py-0.5 text-xs font-medium ${cls}`}>{props.text}</span>;
+}
+
 function inboxSourceLine(d: BrainInboxRow, data: LinkbrainPageData): string {
   if (d.scope === "company") return "Source: company-wide knowledge";
   if (d.scope === "mission" && d.mission_id) {
@@ -120,8 +130,16 @@ export function MemoryCommandCentre(props: {
       {tab === "project" ? (
         <section className="space-y-6">
           <p className="text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
-            Choose a <strong>project</strong> to see its LiNKbrain documents. Notes and uploads land in{" "}
-            <strong>Inbox</strong> until you approve them.
+            Choose a <strong>project</strong> to see <strong>client project memory</strong>. Notes and uploads land in{" "}
+            <strong>Inbox</strong> until approved.
+          </p>
+          <div className="flex flex-wrap gap-2">
+            <ScopeBadge tone="client" text="Client view" />
+            <ScopeBadge tone="client" text="Client-private" />
+            <ScopeBadge tone="shared" text="Shared published" />
+          </div>
+          <p className="text-xs text-zinc-500 dark:text-zinc-400">
+            Project memory is client instance knowledge, not vendor project-type internals.
           </p>
           <div>
             <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Project</label>
@@ -208,8 +226,13 @@ export function MemoryCommandCentre(props: {
       {tab === "agent" ? (
         <section className="space-y-6">
           <p className="text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
-            Choose a <strong>LiNKbot</strong> to see the documents tied to that bot.
+            Choose a <strong>LiNKbot</strong> to see tenant LiNKbot memory (logs, outputs, and context tied to this tenant).
           </p>
+          <div className="flex flex-wrap gap-2">
+            <ScopeBadge tone="client" text="Client view" />
+            <ScopeBadge tone="client" text="Client-private" />
+            <ScopeBadge tone="shared" text="Shared published" />
+          </div>
           <div>
             <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">LiNKbot</label>
             <MemoryAgentSelect
@@ -323,8 +346,18 @@ export function MemoryCommandCentre(props: {
       {tab === "company" ? (
         <section className="space-y-6">
           <p className="text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
-            <strong>Company</strong>-wide documents. Optionally narrow the list using organisation tags.
+            <strong>Company</strong> memory is client-owned IP for this tenant. Optionally narrow the list using organisation tags.
           </p>
+          <div className="space-y-2 rounded-xl border border-zinc-200 bg-zinc-50/80 p-4 dark:border-zinc-800 dark:bg-zinc-900/40">
+            <div className="flex flex-wrap gap-2">
+              <ScopeBadge tone="client" text="Client view" />
+              <ScopeBadge tone="client" text="Client-private" />
+              <ScopeBadge tone="vendor" text="Vendor-only (not shown here)" />
+            </div>
+            <p className="text-xs text-zinc-600 dark:text-zinc-300">
+              Vendor module memory and project-type knowledge are protected IP and are not directly shown in the client company view.
+            </p>
+          </div>
           {data.orgMetaError ? <p className="text-sm text-amber-800 dark:text-amber-200">{data.orgMetaError}</p> : null}
           <CompanyOrgNarrowSelect nodes={data.orgNodes} selectedOrgId={props.orgNodeId} />
           {data.brainMetaError ? <p className="text-sm text-amber-800 dark:text-amber-200">{data.brainMetaError}</p> : null}
@@ -498,8 +531,21 @@ export function MemoryCommandCentre(props: {
       {tab === "ask" ? (
         <section className="space-y-4">
           <p className="text-sm text-zinc-600 dark:text-zinc-400">
-            Pick a document, type a question, and preview matching excerpts. Your knowledge base is not changed here.
+            Pick a document, type a question, and preview matching excerpts. This is permission-aware retrieval and does not
+            change memory.
           </p>
+          <div className="space-y-2 rounded-xl border border-zinc-200 bg-zinc-50/80 p-4 dark:border-zinc-800 dark:bg-zinc-900/40">
+            <div className="flex flex-wrap gap-2">
+              <ScopeBadge tone="client" text="Client view" />
+              <ScopeBadge tone="vendor" text="Vendor-only" />
+              <ScopeBadge tone="vendor" text="Anonymized learning" />
+              <ScopeBadge tone="vendor" text="Protected IP" />
+            </div>
+            <p className="text-xs text-zinc-600 dark:text-zinc-300">
+              Client users retrieve client-visible company/project/LiNKbot memory. Vendor users may also retrieve vendor module memory,
+              project type knowledge, and reviewed anonymized learning.
+            </p>
+          </div>
           <form method="get" action="/memory" className="space-y-4 rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950">
             <input type="hidden" name="tab" value="ask" />
             <input type="hidden" name="b_scope" value={props.brainScope} />
