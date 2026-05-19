@@ -16,3 +16,10 @@
 
 - Wire worker project context to live source-of-truth fields for module, project_type, workflow_handle, issue refs, run refs, and trace refs instead of synthetic labels in `workers/[id]/projects`.
 - Resolve workspace package linkage/module-resolution baseline issue (`@linktrend/shared-config`, `@linktrend/shared-types`, `@linktrend/linklogic-sdk`) blocking local compile and trustworthy browser proof in clean packet worktrees.
+
+## WP-230 Follow-up Items
+
+- Add explicit Issue Memory and Workflow Memory surfaces in LiNKbrain with the same client/vendor scope markers used for Company/Project/LiNKbot memory.
+- Replace UI-only memory boundary badges with real role/scope enforcement sourced from retrieval permission checks.
+- Add role-aware test coverage proving client users cannot access vendor `Project Type Knowledge` / `Vendor Module Memory` internals.
+- Add end-to-end Ask LiNKbrain tests validating client-visible retrieval vs vendor-only/anonymized retrieval paths.
