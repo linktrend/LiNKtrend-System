@@ -60,4 +60,4 @@ Current screenshots capture the active runtime blocker overlay (`Module not foun
 3. Re-capture route screenshots after successful runtime boot to prove actual `/modules` UI rendering.
 
 ## Final Commit SHA
-- Pending commit in this report section; updated after commit.
+- 7ea4236732dd308ade8ad993ef55c708c8d6780c
