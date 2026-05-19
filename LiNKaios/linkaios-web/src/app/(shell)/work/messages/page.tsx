@@ -46,8 +46,8 @@ export default async function WorkMessagesPage() {
     <main>
       <header className="border-b border-zinc-200 pb-8 dark:border-zinc-800">
         <h1 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">Messages</h1>
-        <p className="mt-2 max-w-2xl text-sm text-zinc-600 dark:text-zinc-400">
-          Choose a channel (Zulip first), then filter by LiNKbot. Slack and Telegram appear when the gateway stores those threads.
+        <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
+          Filter threads by channel and LiNKbot.
         </p>
       </header>
       <div className="mt-8">

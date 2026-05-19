@@ -15,12 +15,7 @@ export default async function WorkerModelsPage(props: { params: Promise<{ id: st
     const initial = demoAgentRuntimeSettings(id);
     return (
       <section className="space-y-4">
-        <div>
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-zinc-500">Models</h2>
-          <p className="mt-1 max-w-2xl text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
-            Model selection for the LiNKbot and token usage limits.
-          </p>
-        </div>
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-zinc-500">Models</h2>
         <AgentModelsForm agentId={id} initial={initial} readonly />
       </section>
     );
@@ -52,12 +47,7 @@ export default async function WorkerModelsPage(props: { params: Promise<{ id: st
 
   return (
     <section className="space-y-4">
-      <div>
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-zinc-500">Models</h2>
-        <p className="mt-1 max-w-2xl text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
-          Model selection for the LiNKbot and token usage limits.
-        </p>
-      </div>
+      <h2 className="text-sm font-semibold uppercase tracking-wide text-zinc-500">Models</h2>
       <AgentModelsForm agentId={id} initial={initial} />
     </section>
   );

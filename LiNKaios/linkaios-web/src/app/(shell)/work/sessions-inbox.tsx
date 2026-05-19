@@ -10,6 +10,18 @@ import type { SessionThreadRow } from "@/lib/work-sessions";
 
 const SESSION_UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
+function formatRelativeTime(iso: string): string {
+  const diffMs = Date.now() - new Date(iso).getTime();
+  const mins = Math.floor(diffMs / 60_000);
+  if (mins < 1) return "just now";
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs}h ago`;
+  const days = Math.floor(hrs / 24);
+  if (days < 7) return `${days}d ago`;
+  return new Date(iso).toLocaleDateString(undefined, { day: "numeric", month: "short" });
+}
+
 type SessionFilter = "all" | "running" | "waiting" | "completed" | "failed";
 
 function sessionStatusBadgeClass(st: SessionThreadRow["displayStatus"]): string {
@@ -34,15 +46,15 @@ function statusLabel(st: SessionThreadRow["displayStatus"]): string {
 function rowStatusShell(st: SessionThreadRow["displayStatus"]): string {
   switch (st) {
     case "running":
-      return "border-l-[6px] border-l-emerald-500";
+      return "border-l-4 border-l-sky-500 dark:border-l-sky-400";
     case "waiting":
-      return "border-l-[6px] border-l-amber-500";
+      return "border-l-4 border-l-yellow-400 dark:border-l-yellow-400";
     case "completed":
-      return "border-l-[6px] border-l-zinc-400 dark:border-l-zinc-500";
+      return "border-l-4 border-l-emerald-500 dark:border-l-emerald-400";
     case "failed":
-      return "border-l-[6px] border-l-red-600 dark:border-l-red-500";
+      return "border-l-4 border-l-red-600 dark:border-l-red-500";
     default:
-      return "border-l-[6px] border-l-zinc-300";
+      return "border-l-4 border-l-zinc-300";
   }
 }
 
@@ -78,18 +90,32 @@ export function SessionsInbox(props: { sessions: SessionThreadRow[] }) {
     return props.sessions.filter((s) => s.displayStatus === filter);
   }, [props.sessions, filter]);
 
+  const sessionFilterBtnClass = (f: SessionFilter): string => {
+    const active = filter === f;
+    const pill = "min-w-[6.5rem] rounded-full px-3 py-1 text-center text-xs font-semibold transition";
+    if (f === "running")
+      return active
+        ? `${pill} bg-sky-600 text-white ring-1 ring-sky-700`
+        : `${pill} bg-sky-100 text-sky-800 ring-1 ring-sky-300 hover:bg-sky-200 dark:bg-sky-950/50 dark:text-sky-200 dark:ring-sky-700 dark:hover:bg-sky-950/70`;
+    if (f === "waiting")
+      return active
+        ? `${pill} bg-yellow-400 text-yellow-950 ring-1 ring-yellow-500`
+        : `${pill} bg-yellow-100 text-yellow-900 ring-1 ring-yellow-300 hover:bg-yellow-200 dark:bg-yellow-950/50 dark:text-yellow-200 dark:ring-yellow-700 dark:hover:bg-yellow-950/70`;
+    if (f === "completed")
+      return active
+        ? `${pill} bg-emerald-600 text-white ring-1 ring-emerald-700`
+        : `${pill} bg-emerald-100 text-emerald-800 ring-1 ring-emerald-300 hover:bg-emerald-200 dark:bg-emerald-950/50 dark:text-emerald-200 dark:ring-emerald-800 dark:hover:bg-emerald-950/70`;
+    if (f === "failed")
+      return active
+        ? `${pill} bg-red-600 text-white ring-1 ring-red-700`
+        : `${pill} bg-red-100 text-red-800 ring-1 ring-red-300 hover:bg-red-200 dark:bg-red-950/50 dark:text-red-200 dark:ring-red-800 dark:hover:bg-red-950/70`;
+    return active
+      ? `${pill} bg-zinc-900 text-white ring-1 ring-zinc-700 dark:bg-zinc-100 dark:text-zinc-900 dark:ring-zinc-300`
+      : `${pill} bg-zinc-100 text-zinc-700 ring-1 ring-zinc-300 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-200 dark:ring-zinc-600 dark:hover:bg-zinc-700`;
+  };
+
   const filterBtn = (f: SessionFilter, label: string) => (
-    <button
-      key={f}
-      type="button"
-      onClick={() => setFilter(f)}
-      className={
-        "rounded-full px-3 py-1 text-xs font-semibold transition " +
-        (filter === f
-          ? "bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900"
-          : "bg-zinc-100 text-zinc-700 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-700")
-      }
-    >
+    <button key={f} type="button" onClick={() => setFilter(f)} className={sessionFilterBtnClass(f)}>
       {label}
     </button>
   );
@@ -166,7 +192,7 @@ export function SessionsInbox(props: { sessions: SessionThreadRow[] }) {
                     </div>
                   </td>
                   <td className="whitespace-nowrap px-4 py-3 text-xs text-zinc-500">
-                    {new Date(s.lastActivityAt).toLocaleString()}
+                    {formatRelativeTime(s.lastActivityAt)}
                   </td>
                   <td className={`px-4 py-3 ${TABLE.thControl}`}>
                     <div className="flex flex-wrap items-center justify-center gap-2">
@@ -174,7 +200,7 @@ export function SessionsInbox(props: { sessions: SessionThreadRow[] }) {
                         <Link
                           href={s.openHref}
                           title="Opens the session workspace. Inline reply from this list is not implemented yet."
-                          className={BUTTON.primaryCompact}
+                          className={BUTTON.approveCompact}
                         >
                           Respond
                         </Link>
@@ -183,7 +209,7 @@ export function SessionsInbox(props: { sessions: SessionThreadRow[] }) {
                           type="button"
                           disabled
                           title="Respond is available when the session is waiting."
-                          className={BUTTON.primaryCompact}
+                          className={BUTTON.approveCompact}
                         >
                           Respond
                         </button>
@@ -199,7 +225,7 @@ export function SessionsInbox(props: { sessions: SessionThreadRow[] }) {
                               : "Demo sessions cannot be stopped here."
                         }
                         onClick={() => void onStop(s)}
-                        className={BUTTON.secondaryCompact}
+                        className={BUTTON.rejectCompact}
                       >
                         {stoppingId === s.id ? "Stopping…" : "Stop"}
                       </button>
@@ -212,9 +238,15 @@ export function SessionsInbox(props: { sessions: SessionThreadRow[] }) {
         </table>
       </div>
 
-      <p className="text-[11px] leading-relaxed text-zinc-500 dark:text-zinc-400">
-        Stop updates the row in <code className="rounded bg-zinc-100 px-1 text-[10px] dark:bg-zinc-800">bot_runtime.worker_sessions</code> when you have command-centre write access. It does not cancel an in-flight external job unless your runtime listens for that state. Respond opens the session; one-click reply from this list is not implemented.
-      </p>
+      <details className="group text-[11px] text-zinc-400 dark:text-zinc-500">
+        <summary className="inline-flex cursor-pointer list-none items-center gap-1 select-none hover:text-zinc-600 dark:hover:text-zinc-300">
+          <span aria-hidden>ⓘ</span> How do Stop and Respond work?
+        </summary>
+        <p className="mt-1.5 max-w-prose leading-relaxed">
+          <strong className="font-medium text-zinc-600 dark:text-zinc-300">Stop</strong> marks the session row in the database only — it does not kill an in-flight external job unless your runtime listens for that state change.{" "}
+          <strong className="font-medium text-zinc-600 dark:text-zinc-300">Respond</strong> opens the session workspace; inline reply from this list is not yet implemented.
+        </p>
+      </details>
     </div>
   );
 }

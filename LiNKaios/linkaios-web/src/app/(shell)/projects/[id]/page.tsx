@@ -436,7 +436,7 @@ export default async function MissionDetailPage(props: {
               </a>
             ) : null}
             <div className="flex flex-wrap justify-end gap-2">
-              <span className="inline-flex rounded-full bg-zinc-100 px-2.5 py-1 text-xs font-medium text-zinc-800 ring-1 ring-zinc-200">
+              <span className="inline-flex rounded-full bg-zinc-100 px-2.5 py-1 text-xs font-medium text-zinc-800 ring-1 ring-zinc-300 dark:bg-zinc-800 dark:text-zinc-200 dark:ring-zinc-600">
                 {projectStatusDisplay(m.status)}
               </span>
               {m.primary_agent_id ? (

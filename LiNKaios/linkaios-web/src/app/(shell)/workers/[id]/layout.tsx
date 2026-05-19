@@ -23,7 +23,7 @@ export default async function WorkerLayout(props: { children: React.ReactNode; p
     const isLisa = id === "demo-lisa";
     const model = demoWorkerHeaderModel(
       id,
-      isLisa ? "Lisa" : "Eric",
+      isLisa ? "Lisa (CEO)" : "Eric (CTO)",
       isLisa ? "Chief Executive Officer" : "Chief Technology Officer",
       isLisa
         ? "Demo executive LiNKbot — strategy, portfolio prioritisation, and cross-project alignment. Replace with a live worker bound to your gateway."
@@ -35,7 +35,7 @@ export default async function WorkerLayout(props: { children: React.ReactNode; p
     );
     return (
       <main className="space-y-6">
-        <WorkerBreadcrumbRegister agentId={id} displayName={isLisa ? "Lisa" : "Eric"} />
+        <WorkerBreadcrumbRegister agentId={id} displayName={isLisa ? "Lisa (CEO)" : "Eric (CTO)"} />
         <WorkerDetailHeader model={model} />
         <WorkerSubnav agentId={id} />
         {props.children}

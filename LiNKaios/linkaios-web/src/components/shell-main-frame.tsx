@@ -6,17 +6,18 @@ import { BreadcrumbLabelProvider } from "@/components/breadcrumb-label-registry"
 export function ShellMainFrame(props: { uiMocksEnabled: boolean; children: React.ReactNode }) {
   return (
     <BreadcrumbLabelProvider>
-      {props.uiMocksEnabled ? (
-        <div
-          role="status"
-          className="mb-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950 dark:border-amber-900/60 dark:bg-amber-950/40 dark:text-amber-100"
-        >
-          <span className="font-semibold">UI mock mode.</span> Sidebar, projects, work samples, and metrics may be
-          synthetic for UX review — not production data. Set <code className="rounded bg-amber-100/80 px-1 text-xs dark:bg-amber-900/80">LINKAIOS_UI_MOCKS=0</code> or unset before stakeholder demos. See{" "}
-          <span className="font-mono text-xs">docs/LiNKaios-web-production-readiness-PRD.md</span> §7.
-        </div>
-      ) : null}
-      <AutoBreadcrumbs fixtureLabelsInNav={props.uiMocksEnabled} />
+      <div className="mb-4 flex min-h-[1.75rem] items-center justify-between gap-3">
+        <AutoBreadcrumbs fixtureLabelsInNav={props.uiMocksEnabled} />
+        {props.uiMocksEnabled ? (
+          <span
+            role="status"
+            title="Sidebar, projects, work samples, and metrics may be synthetic — not production data. Set LINKAIOS_UI_MOCKS=0 before stakeholder demos."
+            className="shrink-0 cursor-default rounded-full border border-amber-300 bg-amber-100 px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-amber-800 dark:border-amber-700 dark:bg-amber-950/60 dark:text-amber-300"
+          >
+            UI Mock Mode
+          </span>
+        ) : null}
+      </div>
       <div className="min-h-0 flex-1">{props.children}</div>
     </BreadcrumbLabelProvider>
   );

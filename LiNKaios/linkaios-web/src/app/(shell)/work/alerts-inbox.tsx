@@ -1,5 +1,6 @@
 "use client";
 
+import { AlertCircle, AlertTriangle, Info } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { acknowledgeTraceAlertAction } from "@/app/(shell)/work/alert-acknowledgments-actions";
@@ -9,7 +10,19 @@ import type { WorkAlert } from "@/lib/work-alerts";
 
 const RESOLVED_STORAGE_KEY = "linkaios_work_alerts_resolved_ids_v1";
 
-type AlertFilter = "all" | "critical" | "warning" | "resolved";
+function formatRelativeTime(iso: string): string {
+  const diffMs = Date.now() - new Date(iso).getTime();
+  const mins = Math.floor(diffMs / 60_000);
+  if (mins < 1) return "just now";
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs}h ago`;
+  const days = Math.floor(hrs / 24);
+  if (days < 7) return `${days}d ago`;
+  return new Date(iso).toLocaleDateString(undefined, { day: "numeric", month: "short" });
+}
+
+type AlertFilter = "all" | "critical" | "warning" | "info" | "resolved";
 
 function loadResolvedIds(): Set<string> {
   if (typeof window === "undefined") return new Set();
@@ -39,30 +52,31 @@ function initialResolvedSet(props: { traceAckPersistenceEnabled: boolean; initia
 
 function severityLabel(sev: WorkAlert["severity"]) {
   switch (sev) {
-    case "critical":
-      return "Critical";
-    case "warning":
-      return "Warning";
-    default:
-      return "Info";
+    case "critical": return "Critical";
+    case "warning": return "Warning";
+    default: return "Info";
   }
 }
 
-function severityBadgeClass(sev: WorkAlert["severity"]): string {
-  switch (sev) {
-    case "critical":
-      return WORK_ALERT_BADGE.severityCritical;
-    case "warning":
-      return WORK_ALERT_BADGE.severityWarning;
-    default:
-      return WORK_ALERT_BADGE.severityInfo;
-  }
+function severityIconClass(sev: WorkAlert["severity"], isResolved: boolean): string {
+  if (isResolved) return "mt-0.5 h-4 w-4 shrink-0 text-emerald-500 dark:text-emerald-400";
+  if (sev === "critical") return "mt-0.5 h-4 w-4 shrink-0 text-red-600 dark:text-red-400";
+  if (sev === "warning") return "mt-0.5 h-4 w-4 shrink-0 text-yellow-500 dark:text-yellow-400";
+  return "mt-0.5 h-4 w-4 shrink-0 text-sky-500 dark:text-sky-400";
 }
 
-function rowShell(sev: WorkAlert["severity"]): string {
-  if (sev === "critical") return "border-l-4 border-l-red-600 bg-red-50/40 dark:border-l-red-500 dark:bg-red-950/25";
-  if (sev === "warning") return "border-l-4 border-l-amber-500 bg-amber-50/35 dark:border-l-amber-400 dark:bg-amber-950/20";
-  return "border-l-4 border-l-sky-400 bg-sky-50/25 dark:border-l-sky-500 dark:bg-sky-950/15";
+function rowShell(sev: WorkAlert["severity"], isResolved: boolean): string {
+  if (isResolved) return "border-l-4 border-l-emerald-500 dark:border-l-emerald-500";
+  if (sev === "critical") return "border-l-4 border-l-red-600 dark:border-l-red-500";
+  if (sev === "warning") return "border-l-4 border-l-yellow-400 dark:border-l-yellow-400";
+  return "border-l-4 border-l-sky-500 dark:border-l-sky-500";
+}
+
+function rowHover(sev: WorkAlert["severity"], isResolved: boolean): string {
+  if (isResolved) return "hover:bg-emerald-50/70 dark:hover:bg-emerald-950/30";
+  if (sev === "critical") return "hover:bg-red-50/80 dark:hover:bg-red-950/30";
+  if (sev === "warning") return "hover:bg-yellow-50/90 dark:hover:bg-yellow-950/25";
+  return "hover:bg-sky-50/70 dark:hover:bg-sky-950/25";
 }
 
 function goToFixHref(a: WorkAlert): string {
@@ -120,22 +134,37 @@ export function AlertsInbox(props: {
       if (isResolved) return false;
       if (filter === "critical") return a.severity === "critical";
       if (filter === "warning") return a.severity === "warning";
+      if (filter === "info") return a.severity !== "critical" && a.severity !== "warning";
       return true;
     });
   }, [props.items, filter, resolved]);
 
+  const filterBtnClass = (f: AlertFilter): string => {
+    const active = filter === f;
+    const pill = "min-w-[6.5rem] rounded-full px-3 py-1 text-center text-xs font-semibold transition";
+    if (f === "critical")
+      return active
+        ? `${pill} bg-red-600 text-white ring-1 ring-red-700`
+        : `${pill} bg-red-100 text-red-800 ring-1 ring-red-300 hover:bg-red-200 dark:bg-red-950/50 dark:text-red-200 dark:ring-red-800 dark:hover:bg-red-950/70`;
+    if (f === "warning")
+      return active
+        ? `${pill} bg-yellow-400 text-yellow-950 ring-1 ring-yellow-500`
+        : `${pill} bg-yellow-100 text-yellow-900 ring-1 ring-yellow-300 hover:bg-yellow-200 dark:bg-yellow-950/50 dark:text-yellow-200 dark:ring-yellow-700 dark:hover:bg-yellow-950/70`;
+    if (f === "info")
+      return active
+        ? `${pill} bg-sky-600 text-white ring-1 ring-sky-700`
+        : `${pill} bg-sky-100 text-sky-800 ring-1 ring-sky-300 hover:bg-sky-200 dark:bg-sky-950/50 dark:text-sky-200 dark:ring-sky-700 dark:hover:bg-sky-950/70`;
+    if (f === "resolved")
+      return active
+        ? `${pill} bg-emerald-600 text-white ring-1 ring-emerald-700`
+        : `${pill} bg-emerald-100 text-emerald-800 ring-1 ring-emerald-300 hover:bg-emerald-200 dark:bg-emerald-950/50 dark:text-emerald-200 dark:ring-emerald-800 dark:hover:bg-emerald-950/70`;
+    return active
+      ? `${pill} bg-zinc-900 text-white ring-1 ring-zinc-700 dark:bg-zinc-100 dark:text-zinc-900 dark:ring-zinc-300`
+      : `${pill} bg-zinc-100 text-zinc-700 ring-1 ring-zinc-300 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-200 dark:ring-zinc-600 dark:hover:bg-zinc-700`;
+  };
+
   const filterBtn = (f: AlertFilter, label: string) => (
-    <button
-      key={f}
-      type="button"
-      onClick={() => setFilter(f)}
-      className={
-        "rounded-full px-3 py-1 text-xs font-semibold transition " +
-        (filter === f
-          ? "bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900"
-          : "bg-zinc-100 text-zinc-700 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-700")
-      }
-    >
+    <button key={f} type="button" onClick={() => setFilter(f)} className={filterBtnClass(f)}>
       {label}
     </button>
   );
@@ -156,6 +185,7 @@ export function AlertsInbox(props: {
         {filterBtn("all", "All")}
         {filterBtn("critical", "Critical")}
         {filterBtn("warning", "Warning")}
+        {filterBtn("info", "Info")}
         {filterBtn("resolved", "Resolved")}
       </div>
 
@@ -171,20 +201,31 @@ export function AlertsInbox(props: {
                   type="button"
                   onClick={() => setSelected(a)}
                   className={
-                    "flex w-full items-start gap-3 px-4 py-4 text-left transition hover:bg-zinc-50 dark:hover:bg-zinc-900/70 " +
-                    rowShell(a.severity)
+                    "flex w-full items-start gap-3 px-4 py-4 text-left transition " +
+                    rowShell(a.severity, isResolved) + " " +
+                    rowHover(a.severity, isResolved)
                   }
                 >
+                  <span aria-hidden>
+                    {isResolved ? (
+                      <AlertCircle className={severityIconClass(a.severity, true)} />
+                    ) : a.severity === "critical" ? (
+                      <AlertTriangle className={severityIconClass(a.severity, false)} />
+                    ) : a.severity === "warning" ? (
+                      <AlertTriangle className={severityIconClass(a.severity, false)} />
+                    ) : (
+                      <Info className={severityIconClass(a.severity, false)} />
+                    )}
+                  </span>
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="font-medium text-zinc-900 dark:text-zinc-100">{a.title}</span>
-                      <span className={severityBadgeClass(a.severity)}>{severityLabel(a.severity)}</span>
-                      <span className={isResolved ? WORK_ALERT_BADGE.statusResolved : WORK_ALERT_BADGE.statusOpen}>
-                        {isResolved ? "Resolved" : "Open"}
-                      </span>
+                      {isResolved ? (
+                        <span className={WORK_ALERT_BADGE.statusResolved}>Resolved</span>
+                      ) : null}
                     </div>
                     <p className="mt-1 line-clamp-2 text-sm text-zinc-600 dark:text-zinc-400">{a.summary}</p>
-                    <p className="mt-2 text-xs text-zinc-400">{new Date(a.createdAt).toLocaleString()}</p>
+                    <p className="mt-2 text-xs text-zinc-400">{formatRelativeTime(a.createdAt)}</p>
                   </div>
                 </button>
               </li>
@@ -235,7 +276,7 @@ export function AlertsInbox(props: {
         {selected ? (
           <div className="space-y-4">
             <p className="whitespace-pre-wrap text-zinc-700 dark:text-zinc-300">{selected.detail}</p>
-            <p className="text-xs text-zinc-400">Received {new Date(selected.createdAt).toLocaleString()}</p>
+            <p className="text-xs text-zinc-400">Received {formatRelativeTime(selected.createdAt)}</p>
             <p className="rounded-md border border-zinc-200 bg-zinc-50 p-2 text-[11px] text-zinc-600 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-400">
               <strong className="font-semibold text-zinc-800 dark:text-zinc-200">Note:</strong> {persistenceNote}
             </p>

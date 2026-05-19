@@ -3,6 +3,8 @@ export type ChannelMessageThread = {
   channel: string;
   /** Shown as column 1 tag (Slack, Telegram, Zulip, …) */
   channelTag: string;
+  /** Human-readable project or mission name this thread belongs to. */
+  projectName?: string | null;
   subject: string;
   preview: string;
   lastActivity: string;

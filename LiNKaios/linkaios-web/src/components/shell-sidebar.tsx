@@ -145,7 +145,16 @@ export function ShellSidebar(props: { user: SidebarUser | null }) {
       <div
         className="flex h-[4.5rem] shrink-0 items-center border-b border-zinc-100 px-4 dark:border-zinc-800"
         aria-label="Application logo"
-      />
+      >
+        <Link href="/" className="flex items-center gap-2 select-none">
+          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-zinc-900 dark:bg-zinc-100">
+            <span className="text-[11px] font-black tracking-tight text-white dark:text-zinc-900">Li</span>
+          </span>
+          <span className="text-base font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
+            LiNK<span className="text-sky-600 dark:text-sky-400">aios</span>
+          </span>
+        </Link>
+      </div>
 
       {/* Zone 2 — main + section nav */}
       <nav className="min-h-0 flex-1 space-y-0.5 overflow-y-auto overscroll-contain px-2 py-3" aria-label="Primary">

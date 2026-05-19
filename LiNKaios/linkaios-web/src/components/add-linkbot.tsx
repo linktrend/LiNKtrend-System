@@ -8,7 +8,7 @@ import { BUTTON, FIELD } from "@/lib/ui-standards";
 
 export const ADD_LINKBOT_OPEN_EVENT = "linktrend:add-linkbot-open";
 
-export function AddLinkbotRoot() {
+export function AddLinkbotRoot({ autoOpen }: { autoOpen?: boolean }) {
   const router = useRouter();
   const dlg = useRef<HTMLDialogElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
@@ -29,6 +29,14 @@ export function AddLinkbotRoot() {
     window.addEventListener(ADD_LINKBOT_OPEN_EVENT, onOpen);
     return () => window.removeEventListener(ADD_LINKBOT_OPEN_EVENT, onOpen);
   }, []);
+
+  useEffect(() => {
+    if (autoOpen) {
+      setErr(null);
+      formRef.current?.reset();
+      dlg.current?.showModal();
+    }
+  }, [autoOpen]);
 
   return (
     <dialog

@@ -51,10 +51,10 @@ export function AgentSkillsTable(props: { rows: Row[] }) {
                     className={
                       "rounded-full px-2 py-0.5 text-xs font-medium ring-1 " +
                       (r.status === "enabled"
-                        ? "bg-emerald-50 text-emerald-900 ring-emerald-200"
+                        ? "bg-emerald-50 text-emerald-900 ring-emerald-300 dark:bg-emerald-950/40 dark:text-emerald-100 dark:ring-emerald-700"
                         : r.status === "pending"
-                          ? "bg-sky-50 text-sky-900 ring-sky-200"
-                          : "bg-zinc-100 text-zinc-700 ring-zinc-200")
+                          ? "bg-sky-50 text-sky-900 ring-sky-300 dark:bg-sky-950/40 dark:text-sky-100 dark:ring-sky-700"
+                          : "bg-zinc-100 text-zinc-700 ring-zinc-300 dark:bg-zinc-800 dark:text-zinc-200 dark:ring-zinc-600")
                     }
                   >
                     {r.status}

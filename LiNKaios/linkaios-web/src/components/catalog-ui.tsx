@@ -4,17 +4,17 @@
 const LIFECYCLE_MIN = "min-w-[6.75rem] justify-center";
 
 const LIFECYCLE_STYLES: Record<string, string> = {
-  draft: "bg-zinc-100 text-zinc-800 ring-zinc-200 dark:bg-zinc-800 dark:text-zinc-200 dark:ring-zinc-600",
+  draft: "bg-zinc-100 text-zinc-800 ring-zinc-300 dark:bg-zinc-800 dark:text-zinc-200 dark:ring-zinc-600",
   approved: "bg-emerald-50 text-emerald-900 ring-emerald-200 dark:bg-emerald-950/50 dark:text-emerald-200 dark:ring-emerald-800",
-  deprecated: "bg-amber-50 text-amber-900 ring-amber-200 dark:bg-amber-950/40 dark:text-amber-200 dark:ring-amber-800",
-  archived: "bg-amber-50 text-amber-900 ring-amber-200 dark:bg-amber-950/40 dark:text-amber-200 dark:ring-amber-800",
+  deprecated: "bg-yellow-50 text-yellow-900 ring-yellow-200 dark:bg-yellow-950/40 dark:text-yellow-200 dark:ring-yellow-700",
+  archived: "bg-yellow-50 text-yellow-900 ring-yellow-200 dark:bg-yellow-950/40 dark:text-yellow-200 dark:ring-yellow-700",
 };
 
 export function LifecyclePill(props: { status: string }) {
   const cls = LIFECYCLE_STYLES[props.status] ?? LIFECYCLE_STYLES.draft;
   return (
     <span
-      className={`inline-flex rounded-full px-2 py-0.5 text-xs font-semibold capitalize ring-1 ${LIFECYCLE_MIN} ${cls}`}
+      className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium capitalize ring-1 ${LIFECYCLE_MIN} ${cls}`}
     >
       {props.status}
     </span>

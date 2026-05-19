@@ -11,12 +11,9 @@ import {
   MessageSquare,
   Radio,
   ShieldAlert,
-  Sparkles,
   Upload,
   Wrench,
 } from "lucide-react";
-
-import { AttentionFeedBadges } from "@/components/attention-feed-badges";
 import type { OverviewData, SystemStatusLevel } from "@/lib/overview-dashboard";
 import { BUTTON } from "@/lib/ui-standards";
 
@@ -103,8 +100,7 @@ export function OverviewHome(props: { data: OverviewData }) {
 
       <header className="flex flex-wrap items-end justify-between gap-4 border-b border-zinc-200 pb-6 dark:border-zinc-800">
         <div>
-          <BrandHeading>LiNKaios</BrandHeading>
-          <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">Command overview</p>
+          <BrandHeading>Control Overview</BrandHeading>
         </div>
       </header>
 
@@ -125,7 +121,6 @@ export function OverviewHome(props: { data: OverviewData }) {
                   href={item.href}
                   className="flex flex-col gap-1 px-4 py-3 text-sm transition hover:bg-zinc-50 dark:hover:bg-zinc-900/80"
                 >
-                  <AttentionFeedBadges item={item} />
                   <span className="flex items-start gap-2 font-medium text-zinc-900 dark:text-zinc-100">
                     {item.kind === "alert" ? (
                       <AlertTriangle
@@ -134,7 +129,7 @@ export function OverviewHome(props: { data: OverviewData }) {
                           (item.alertSeverity === "critical"
                             ? "text-red-600 dark:text-red-400"
                             : item.alertSeverity === "warning"
-                              ? "text-amber-600 dark:text-amber-400"
+                              ? "text-amber-500 dark:text-amber-400"
                               : "text-sky-600 dark:text-sky-400")
                         }
                         aria-hidden
@@ -156,11 +151,6 @@ export function OverviewHome(props: { data: OverviewData }) {
             ))}
           </ul>
         )}
-        <p className="mt-2 flex justify-end">
-          <Link href="/work" className={BUTTON.secondaryCardAction}>
-            Open All Work
-          </Link>
-        </p>
       </section>
 
       <div className="grid gap-6 lg:grid-cols-2 lg:items-stretch">
@@ -266,8 +256,8 @@ export function OverviewHome(props: { data: OverviewData }) {
       <section>
         <h2 className="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Quick actions</h2>
         <div className="mt-3 flex flex-wrap gap-2">
-          <Link href="/workers" className={BUTTON.primaryRowUniform}>
-            <Sparkles className="h-4 w-4 shrink-0" aria-hidden />
+          <Link href="/workers?open=add-linkbot" className={BUTTON.primaryRowUniform}>
+            <Bot className="h-4 w-4 shrink-0" aria-hidden />
             Add LiNKbot
           </Link>
           <Link href="/projects" className={BUTTON.primaryRowUniform}>

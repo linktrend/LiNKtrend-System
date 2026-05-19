@@ -43,20 +43,20 @@ function descriptionFromRuntime(raw: unknown): string | null {
 function statusStyles(status: string) {
   switch (status) {
     case "active":
-      return "bg-emerald-50 text-emerald-800 ring-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-100 dark:ring-emerald-900/50";
+      return "bg-emerald-50 text-emerald-800 ring-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-100 dark:ring-emerald-800";
     case "inactive":
-      return "bg-zinc-100 text-zinc-700 ring-zinc-200 dark:bg-zinc-800 dark:text-zinc-200 dark:ring-zinc-600";
+      return "bg-zinc-100 text-zinc-700 ring-zinc-300 dark:bg-zinc-800 dark:text-zinc-200 dark:ring-zinc-600";
     case "retired":
-      return "bg-amber-50 text-amber-900 ring-amber-200 dark:bg-amber-950/35 dark:text-amber-100 dark:ring-amber-900/40";
+      return "bg-yellow-50 text-yellow-900 ring-yellow-200 dark:bg-yellow-950/35 dark:text-yellow-100 dark:ring-yellow-700";
     default:
-      return "bg-zinc-100 text-zinc-700 ring-zinc-200";
+      return "bg-zinc-100 text-zinc-700 ring-zinc-300";
   }
 }
 
 function uxBadge(ux: FleetRow["operationalUx"]) {
-  if (ux === "working") return "text-emerald-800 ring-emerald-200 bg-emerald-50 dark:bg-emerald-950/40 dark:text-emerald-100";
-  if (ux === "idle") return "text-sky-900 ring-sky-200 bg-sky-50 dark:bg-sky-950/40 dark:text-sky-100";
-  return "text-zinc-600 ring-zinc-200 bg-zinc-100 dark:bg-zinc-800 dark:text-zinc-200";
+  if (ux === "working") return "text-emerald-800 ring-emerald-200 bg-emerald-50 dark:bg-emerald-950/40 dark:text-emerald-100 dark:ring-emerald-800";
+  if (ux === "idle") return "text-sky-900 ring-sky-200 bg-sky-50 dark:bg-sky-950/40 dark:text-sky-100 dark:ring-sky-800";
+  return "text-zinc-600 ring-zinc-300 bg-zinc-100 dark:bg-zinc-800 dark:text-zinc-200 dark:ring-zinc-600";
 }
 
 function uxLabel(ux: FleetRow["operationalUx"]) {
@@ -98,7 +98,7 @@ function passesFilter(row: FleetRow, filter: FleetPresenceFilter): boolean {
   return true;
 }
 
-export default async function WorkersPage(props: { searchParams: Promise<{ view?: string; filter?: string }> }) {
+export default async function WorkersPage(props: { searchParams: Promise<{ view?: string; filter?: string; open?: string }> }) {
   const sp = await props.searchParams;
   const rawView = Array.isArray(sp.view) ? sp.view[0] : sp.view;
   if (rawView === "runtime") {
@@ -106,6 +106,7 @@ export default async function WorkersPage(props: { searchParams: Promise<{ view?
   }
   const view: FleetView = parseFleetView(sp.view);
   const filter = parseFleetPresenceFilter(sp.filter);
+  const autoOpenAdd = sp.open === "add-linkbot";
   const uiMocksEnabled = isUiMocksEnabled();
 
   const supabase = await createSupabaseServerClient();
@@ -174,7 +175,7 @@ export default async function WorkersPage(props: { searchParams: Promise<{ view?
 
   return (
     <main className="space-y-6">
-      <AddLinkbotRoot />
+      <AddLinkbotRoot autoOpen={autoOpenAdd} />
       <header className="border-b border-zinc-200 pb-8 dark:border-zinc-800">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
@@ -191,7 +192,7 @@ export default async function WorkersPage(props: { searchParams: Promise<{ view?
           <StatCard label="Busy" value={busy} tone="sky" />
           <StatCard label="Idle" value={idle} tone="sky" />
           <StatCard label="Inactive" value={fleet.filter((a) => a.status !== "active").length} />
-          <StatCard label="Visible" value={visible.length} tone="amber" />
+          <StatCard label="Visible" value={visible.length} />
         </div>
         <WorkersFleetNav current={view} />
         <FleetPresenceFilterBar current={filter} view={view} />
@@ -213,17 +214,14 @@ export default async function WorkersPage(props: { searchParams: Promise<{ view?
       ) : null}
 
       {fleet.length > 0 && visible.length === 0 ? (
-        <p className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950 dark:border-amber-900/40 dark:bg-amber-950/25 dark:text-amber-100">
+        <p className="rounded-lg border border-yellow-200 bg-yellow-50 px-4 py-3 text-sm text-yellow-950 dark:border-yellow-900/40 dark:bg-yellow-950/25 dark:text-yellow-100">
           No LiNKbots match this filter. Choose <span className="font-medium">All</span> to see the full fleet.
         </p>
       ) : null}
 
       {fleet.length > 0 && view === "list" ? (
-        <section aria-labelledby="fleet-list-heading">
-          <h2 id="fleet-list-heading" className="text-sm font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
-            List
-          </h2>
-          <ul className="mt-4 divide-y divide-zinc-200 rounded-xl border border-zinc-200 bg-white dark:divide-zinc-800 dark:border-zinc-800 dark:bg-zinc-950">
+        <section aria-label="LiNKbots list">
+          <ul className="divide-y divide-zinc-200 rounded-xl border border-zinc-200 bg-white dark:divide-zinc-800 dark:border-zinc-800 dark:bg-zinc-950">
             {visible.map((agent) => {
               const role = agent.role?.trim() || titleFromRuntime(undefined) || "—";
               const desc =
@@ -254,11 +252,8 @@ export default async function WorkersPage(props: { searchParams: Promise<{ view?
       ) : null}
 
       {fleet.length > 0 && view === "grid" ? (
-        <section aria-labelledby="fleet-grid-heading">
-          <h2 id="fleet-grid-heading" className="text-sm font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
-            Grid
-          </h2>
-          <ul className="mt-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        <section aria-label="LiNKbots grid">
+          <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
             {visible.map((agent) => {
               const role = agent.role?.trim() || titleFromRuntime(undefined) || "LiNKbot";
               const desc =
@@ -291,11 +286,8 @@ export default async function WorkersPage(props: { searchParams: Promise<{ view?
       ) : null}
 
       {fleet.length > 0 && view === "org" ? (
-        <section aria-labelledby="fleet-org-heading">
-          <h2 id="fleet-org-heading" className="text-sm font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
-            Org
-          </h2>
-          <p className="mt-1 max-w-2xl text-xs text-zinc-500 dark:text-zinc-400">
+        <section aria-label="LiNKbots org chart">
+          <p className="max-w-2xl text-xs text-zinc-500 dark:text-zinc-400">
             Illustrative hierarchy: <span className="font-medium text-violet-800 dark:text-violet-300">Role</span> (executive
             titles), <span className="font-medium text-sky-800 dark:text-sky-300">Team</span> (pools),{" "}
             <span className="font-medium text-teal-800 dark:text-teal-300">Agent</span> (LiNKbots).

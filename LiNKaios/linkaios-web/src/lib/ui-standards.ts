@@ -150,18 +150,18 @@ export function screenTabLinkClass(active: boolean): string {
  * soft fill + `ring-1`, not solid saturated fills.
  */
 const pillBadgeFrame =
-  "inline-flex min-w-[6.75rem] shrink-0 justify-center rounded-full px-2.5 py-0.5 text-xs font-semibold ring-1 tabular-nums";
+  "inline-flex min-w-[6.75rem] shrink-0 justify-center rounded-full px-2.5 py-0.5 text-xs font-medium ring-1 tabular-nums";
 
 /** Status / lifecycle chips: fixed min width so a row of badges lines up (use short labels). */
 export const BADGE = {
   /** Base frame only; pair with tone classes (see workers list `statusStyles`). */
   status: pillBadgeFrame,
   /** Inbox / queue “pending” style */
-  pending: `${pillBadgeFrame} bg-amber-50 uppercase tracking-wide text-amber-900 ring-amber-200/90 dark:bg-amber-950/50 dark:text-amber-100 dark:ring-amber-800`,
+  pending: `${pillBadgeFrame} bg-yellow-50 text-yellow-900 ring-yellow-200 dark:bg-yellow-950/50 dark:text-yellow-100 dark:ring-yellow-700`,
   /** Work sessions table — same shell as {@link BADGE.status} + fleet-compatible tones */
-  sessionRunning: `${pillBadgeFrame} bg-emerald-50 text-emerald-800 ring-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-100 dark:ring-emerald-900/50`,
-  sessionWaiting: `${pillBadgeFrame} bg-amber-50 text-amber-900 ring-amber-200 dark:bg-amber-950/35 dark:text-amber-100 dark:ring-amber-900/40`,
-  sessionCompleted: `${pillBadgeFrame} bg-zinc-100 text-zinc-700 ring-zinc-200 dark:bg-zinc-800 dark:text-zinc-200 dark:ring-zinc-600`,
-  sessionFailed: `${pillBadgeFrame} bg-red-100 text-red-900 ring-red-200 dark:bg-red-950/60 dark:text-red-100 dark:ring-red-900/50`,
-  sessionDefault: `${pillBadgeFrame} bg-zinc-100 text-zinc-700 ring-zinc-200 dark:bg-zinc-800 dark:text-zinc-200 dark:ring-zinc-600`,
+  sessionRunning: `${pillBadgeFrame} bg-sky-50 text-sky-800 ring-sky-200 dark:bg-sky-950/40 dark:text-sky-100 dark:ring-sky-800`,
+  sessionWaiting: `${pillBadgeFrame} bg-yellow-50 text-yellow-900 ring-yellow-200 dark:bg-yellow-950/35 dark:text-yellow-100 dark:ring-yellow-700`,
+  sessionCompleted: `${pillBadgeFrame} bg-emerald-50 text-emerald-800 ring-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-100 dark:ring-emerald-800`,
+  sessionFailed: `${pillBadgeFrame} bg-red-100 text-red-900 ring-red-300 dark:bg-red-950/60 dark:text-red-100 dark:ring-red-800`,
+  sessionDefault: `${pillBadgeFrame} bg-zinc-100 text-zinc-700 ring-zinc-300 dark:bg-zinc-800 dark:text-zinc-200 dark:ring-zinc-600`,
 } as const;

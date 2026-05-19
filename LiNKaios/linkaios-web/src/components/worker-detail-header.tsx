@@ -28,7 +28,7 @@ export function WorkerDetailHeader(props: { model: WorkerDetailHeaderModel }) {
           <p className="mt-1 text-sm font-semibold text-violet-800 dark:text-violet-300">Role · {m.role}</p>
           <p className="mt-3 max-w-2xl text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">{m.description}</p>
           {m.isDemo ? (
-            <p className="mt-2 text-xs font-medium text-amber-800 dark:text-amber-200">Sample profile — replace with live worker data.</p>
+            <p className="mt-2 text-xs font-medium text-yellow-700 dark:text-yellow-300">Sample profile — replace with live worker data.</p>
           ) : null}
           <details className="mt-3 text-xs text-zinc-400 dark:text-zinc-500">
             <summary className="cursor-pointer select-none text-zinc-500 dark:text-zinc-400">Technical id</summary>
