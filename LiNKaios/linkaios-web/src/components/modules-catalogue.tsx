@@ -17,6 +17,8 @@ function audienceBadge(audience: AudienceMode) {
 
 const VENDOR_ONLY_BADGE =
   "inline-flex items-center rounded-full border border-amber-300 bg-amber-50 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-amber-900 dark:border-amber-900/50 dark:bg-amber-950/40 dark:text-amber-100";
+const META_BADGE =
+  "inline-flex items-center rounded-full border border-zinc-300 bg-zinc-50 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-zinc-700 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-200";
 
 type BrowseMode = "module" | "project-type";
 
@@ -42,20 +44,22 @@ export function ModulesCatalogue(props: { browse: BrowseMode; audience: Audience
         <div className="mt-4 flex flex-wrap items-center gap-2">
           <span className={audienceBadge(props.audience)}>{props.audience === "vendor" ? "Vendor scope" : "Client scope"}</span>
           {props.audience === "vendor" ? <span className={VENDOR_ONLY_BADGE}>Vendor-only</span> : null}
+          <span className={META_BADGE}>Mock sample data</span>
+          <span className={META_BADGE}>Protected IP hidden</span>
         </div>
       </header>
 
       <div className={TABS.row}>
-        <Link href={`/modules?browse=module&audience=${props.audience}`} className={screenTabLinkClass(props.browse === "module")}>
+        <Link href={`/modules?audience=${props.audience}`} className={screenTabLinkClass(props.browse === "module")}>
           Browse by Module
         </Link>
-        <Link href={`/modules?browse=project-type&audience=${props.audience}`} className={screenTabLinkClass(props.browse === "project-type")}>
+        <Link href={`/modules/project-types?audience=${props.audience}`} className={screenTabLinkClass(props.browse === "project-type")}>
           Browse by Project Type
         </Link>
-        <Link href={`/modules?browse=${props.browse}&audience=client`} className={screenTabLinkClass(props.audience === "client")}>
+        <Link href={`${props.browse === "project-type" ? "/modules/project-types" : "/modules"}?audience=client`} className={screenTabLinkClass(props.audience === "client")}>
           Client View
         </Link>
-        <Link href={`/modules?browse=${props.browse}&audience=vendor`} className={screenTabLinkClass(props.audience === "vendor")}>
+        <Link href={`${props.browse === "project-type" ? "/modules/project-types" : "/modules"}?audience=vendor`} className={screenTabLinkClass(props.audience === "vendor")}>
           Vendor View
         </Link>
       </div>
@@ -74,7 +78,7 @@ export function ModulesCatalogue(props: { browse: BrowseMode; audience: Audience
               {modules.map((m) => (
                 <li key={m.id}>
                   <Link
-                    href={`/modules?browse=module&audience=${props.audience}&module=${m.id}`}
+                    href={`/modules/${m.id}?audience=${props.audience}`}
                     className={`block rounded-lg border px-3 py-2 text-sm transition ${
                       m.id === selectedModule.id
                         ? "border-zinc-900 bg-zinc-900 text-white dark:border-zinc-100 dark:bg-zinc-100 dark:text-zinc-900"
@@ -83,6 +87,11 @@ export function ModulesCatalogue(props: { browse: BrowseMode; audience: Audience
                   >
                     <p className="font-semibold">{m.name}</p>
                     <p className="mt-1 text-xs opacity-85">{m.summary}</p>
+                    <div className="mt-2 flex flex-wrap gap-1">
+                      <span className={META_BADGE}>Published</span>
+                      <span className={META_BADGE}>{m.clientLicensed ? "Licensed" : "Unlicensed"}</span>
+                      {m.published && m.clientLicensed ? <span className={META_BADGE}>Client-visible</span> : null}
+                    </div>
                   </Link>
                 </li>
               ))}
@@ -104,6 +113,11 @@ export function ModulesCatalogue(props: { browse: BrowseMode; audience: Audience
                 <div key={pt.id} className="rounded-lg border border-zinc-200 p-3 dark:border-zinc-700">
                   <p className="font-medium text-zinc-900 dark:text-zinc-100">{pt.name}</p>
                   <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">{pt.clientSafeSummary}</p>
+                  <div className="mt-2 flex flex-wrap gap-1">
+                    <span className={META_BADGE}>{pt.published ? "Published" : "Not published"}</span>
+                    <span className={META_BADGE}>{pt.clientLicensed ? "Licensed" : "Unlicensed"}</span>
+                    {pt.published && pt.clientLicensed ? <span className={META_BADGE}>Client-visible</span> : null}
+                  </div>
                   {props.audience === "vendor" ? <p className="mt-1 text-xs text-zinc-500"><span className={VENDOR_ONLY_BADGE}>Vendor-only</span> {pt.vendorOnlyNote}</p> : null}
                   <ul className="mt-2 space-y-2">
                     {pt.workflows.map((wf) => (
@@ -136,7 +150,7 @@ export function ModulesCatalogue(props: { browse: BrowseMode; audience: Audience
               {projectTypes.map((pt) => (
                 <li key={pt.id}>
                   <Link
-                    href={`/modules?browse=project-type&audience=${props.audience}&projectType=${pt.id}`}
+                    href={`/modules/project-types/${pt.id}?audience=${props.audience}`}
                     className={`block rounded-lg border px-3 py-2 text-sm transition ${
                       pt.id === selectedProjectType.id
                         ? "border-zinc-900 bg-zinc-900 text-white dark:border-zinc-100 dark:bg-zinc-100 dark:text-zinc-900"
@@ -145,6 +159,11 @@ export function ModulesCatalogue(props: { browse: BrowseMode; audience: Audience
                   >
                     <p className="font-semibold">{pt.name}</p>
                     <p className="mt-1 text-xs opacity-85">Module: {MODULES_CATALOG_DEMO.modules.find((m) => m.id === pt.moduleId)?.name ?? "Unknown"}</p>
+                    <div className="mt-2 flex flex-wrap gap-1">
+                      <span className={META_BADGE}>{pt.published ? "Published" : "Not published"}</span>
+                      <span className={META_BADGE}>{pt.clientLicensed ? "Licensed" : "Unlicensed"}</span>
+                      {pt.published && pt.clientLicensed ? <span className={META_BADGE}>Client-visible</span> : null}
+                    </div>
                   </Link>
                 </li>
               ))}
