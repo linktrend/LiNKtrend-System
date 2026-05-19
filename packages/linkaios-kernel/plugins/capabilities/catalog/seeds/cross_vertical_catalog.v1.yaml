@@ -1,0 +1,355 @@
+# Cross-vertical capability catalog seed — WP-114
+# Sources: CONTRACTS_MVO §0.A.5.1, LINKAPPS_CAPABILITY_REQUIREMENTS.md, plugins/vertical/linkapps/manifest.yaml,
+#          packages/linkaios-kernel/plugins/capabilities/lexos/*.yaml
+---
+spec_version: wp114-catalog-v1
+kind: linkskills_capability_catalog_seed
+description: Declaration-only reconciliation; no bundled providers.
+
+inventory_sources:
+  linksites_connector_pack_v1:
+    citation: CONTRACTS_MVO §0.A.5.1
+  linkapps_vertical:
+    citation: plugins/vertical/linkapps/manifest.yaml — required_capabilities
+  lexos_capability_plugins:
+    path_glob: packages/linkaios-kernel/plugins/capabilities/lexos/*.yaml
+
+global_defaults:
+  default_execution_mode_mvo: mock
+  lease_posture_side_effects: mandatory_grant_before_execute
+  idempotency_global: tenant_scoped_key_per_CONTRACTS_MVO_6_2
+
+capabilities:
+  # --- LinkSites v1 connector pack only (Odoo/accounting/CMS/research/asset/plane/postiz/supabase mirror) ---
+  - capability_id: cap.crm.odoo_shadow
+    declaration_sources:
+      - linksites.connector_pack.contracts_mvo
+    modes:
+      default_mvo: mock
+      allowed: [mock, shadow, live]
+      live_requires_opt_in: true
+    canonical_lease_permissions_union:
+      - crm.lead.read
+      - crm.lead.status.write
+      - crm.odoo.readiness.check
+    idempotency_posture:
+      anchor: >-
+        Stable tuple per CONTRACTS §0.A.5.1 table rows; readiness idempotent on (tenant_id, probe_window).
+    side_effects_possible: true
+    operation_variants_by_vertical:
+      linksites_v2_contract_minimum: [lead.read_mock, lead.status.set_ready_to_contact, odoo.readiness.probe]
+    reconciliation_notes:
+      - No LiNKapps or LEXOS manifest reference; ERP shadow surface is LinkSites / admin-plane adjacent only.
+
+  - capability_id: cap.accounting.odoo_shadow
+    declaration_sources:
+      - linksites.connector_pack.contracts_mvo
+    modes:
+      default_mvo: mock
+      allowed: [mock, shadow, live]
+      live_requires_opt_in: true
+    canonical_lease_permissions_union:
+      - accounting.ledger.read
+      - accounting.invoice.read
+      - accounting.odoo.readiness.check
+    idempotency_posture:
+      anchor: Accounting reads keyed by (tenant_id, report_scope, as_of_date, run_id).
+    side_effects_possible: false
+    reconciliation_notes:
+      - MUST stay permission-split from cap.crm.odoo_shadow per CONTRACTS §0.A.5.2 even when Odoo readiness/auth overlap.
+
+  - capability_id: cap.payload.local_sync
+    declaration_sources:
+      - linksites.connector_pack.contracts_mvo
+    modes:
+      default_mvo: mock
+      allowed: [mock, shadow, live]
+      live_requires_opt_in: true
+    canonical_lease_permissions_union:
+      - payload.content.write
+      - payload.preview.publish
+      - payload.sync.read
+    side_effects_possible: true
+
+  - capability_id: cap.supabase.mirror_content
+    declaration_sources:
+      - linksites.connector_pack.contracts_mvo
+    modes:
+      default_mvo: mock
+      allowed: [mock, shadow, live]
+      live_requires_opt_in: true
+    canonical_lease_permissions_union:
+      - supabase.mirror.write
+      - supabase.mirror.read
+    side_effects_possible: true
+    reconciliation_notes:
+      - Sibling naming to LiNKapps `cap.supabase.provisioning`; do NOT alias — mirror vs org provisioning differ (see overlaps doc).
+
+  - capability_id: cap.zulip.run_messaging
+    declaration_sources:
+      - linksites.connector_pack.contracts_mvo
+      - linkapps.vertical.manifest.wp106
+      - linkapps_capability_requirements_doc
+    modes:
+      default_mvo: mock
+      allowed: [mock, shadow, live]
+      live_requires_opt_in: true
+    canonical_lease_permissions_union:
+      - zulip.run.notify
+      - zulip.channel.message.send
+      - zulip.connectivity.probe
+    side_effects_possible: true
+    operation_variants_by_vertical:
+      linkapps_matrix_includes_optional_probe: >-
+        CONNECTOR doc adds readiness probe SKU `zulip.connectivity.probe` alongside CONTRACTS leases; union all for catalog row.
+      linksites_contract_table: [run.notify, channel.message.mock_send, connectivity.probe]
+    reconciliation_notes:
+      - Single canonical `capability_id`; CONNECTOR SKU list is supersets of §0.A.5.1 text.
+
+  - capability_id: cap.research.public_web
+    declaration_sources:
+      - linksites.connector_pack.contracts_mvo
+      - linkapps.vertical.manifest.wp106
+    modes:
+      default_mvo: mock
+      allowed: [mock, shadow, live]
+      live_same_as_shadow_no_writes: true
+    canonical_lease_permissions_union:
+      - research.public.read
+    side_effects_possible: false
+    reconciliation_notes:
+      - Distinct from `cap.research.legal` — different authoritative corpus surfaces and SKU families.
+
+  - capability_id: cap.asset.generation
+    declaration_sources:
+      - linksites.connector_pack.contracts_mvo
+      - linkapps.vertical.manifest.wp106
+    modes:
+      default_mvo: mock
+      allowed: [mock, shadow, live]
+      live_requires_opt_in: true
+    canonical_lease_permissions_union:
+      - asset.generate.image
+      - asset.generate.video
+      - asset.metadata.write
+    side_effects_possible: true
+
+  - capability_id: cap.plane.execution_tracking
+    declaration_sources:
+      - linksites.connector_pack.contracts_mvo
+      - linkapps.vertical.manifest.wp106
+      - linkapps_capability_requirements_doc
+    modes:
+      default_mvo: mock
+      allowed: [mock, shadow, live]
+      live_requires_opt_in: true
+    canonical_lease_permissions_union:
+      - plane.project.write
+      - plane.task.write
+      - plane.sprint.track
+      - plane.readiness.check
+    side_effects_possible: true
+    operation_variants_by_vertical:
+      linksites_contract_minimum: [project.ensure_mock, task.ensure_mock, readiness.probe]
+      linkapps_adds_tracking_stub: [project.ensure_mock, task.ensure_mock, sprint.track_stub, readiness.probe]
+    reconciliation_notes:
+      - Optional SKU `plane.sprint.track` / sprint.track_stub operation — collapse per WP-112 if Integrator rejects optional row.
+
+  - capability_id: cap.postiz.distribution
+    declaration_sources:
+      - linksites.connector_pack.contracts_mvo
+      - linkapps.vertical.manifest.wp106
+    modes:
+      default_mvo: mock
+      allowed: [mock, shadow, live]
+      live_requires_opt_in: true
+    canonical_lease_permissions_union:
+      - postiz.connectivity.check
+      - postiz.draft.write
+      - postiz.schedule.write
+      - postiz.status.read
+    side_effects_possible: true
+    reconciliation_notes:
+      - CONTRACTS: remain mock/shadow-safe until Media vertical publishes live approvals.
+
+  # --- LiNKapps Phase-5 connectors ( absent from §0.A.5.1 table — additive to ecosystem union ) ---
+  - capability_id: cap.github.repo_management
+    declaration_sources:
+      - linkapps.vertical.manifest.wp106
+      - linkapps_capability_requirements_doc
+    modes:
+      default_mvo: mock
+      allowed: [mock, shadow, live]
+      live_requires_opt_in: true
+    canonical_lease_permissions_union:
+      - github.repo.template_materialize
+      - github.repo.write
+      - git.local.init
+      - github.repo.configure
+      - github.commit.write
+      - github.push.deploy
+    side_effects_possible: true
+
+  - capability_id: cap.supabase.provisioning
+    declaration_sources:
+      - linkapps.vertical.manifest.wp106
+      - linkapps_capability_requirements_doc
+    modes:
+      default_mvo: mock
+      allowed: [mock, shadow, live]
+      live_requires_opt_in: true
+    canonical_lease_permissions_union:
+      - supabase.project.stub
+      - supabase.schema.apply
+      - supabase.rls.configure
+      - supabase.readiness.check
+      - supabase.migrate.run
+      - supabase.project.create
+    side_effects_possible: true
+
+  - capability_id: cap.stripe.product_management
+    declaration_sources:
+      - linkapps.vertical.manifest.wp106
+      - linkapps_capability_requirements_doc
+    modes:
+      default_mvo: mock
+      allowed: [mock, shadow, live]
+      live_requires_opt_in: true
+    canonical_lease_permissions_union:
+      - stripe.product.fixture
+      - stripe.product.write
+      - stripe.price.write
+      - stripe.webhook.configure
+      - stripe.account.readiness
+    side_effects_possible: true
+
+  - capability_id: cap.vercel.deployment
+    declaration_sources:
+      - linkapps.vertical.manifest.wp106
+      - linkapps_capability_requirements_doc
+    modes:
+      default_mvo: mock
+      allowed: [mock, shadow, live]
+      live_requires_opt_in: true
+    canonical_lease_permissions_union:
+      - vercel.project.record
+      - vercel.deploy.record
+      - vercel.deploy
+      - vercel.project.create
+      - vercel.domain.configure
+    side_effects_possible: true
+
+  - capability_id: cap.eas.build
+    declaration_sources:
+      - linkapps.vertical.manifest.wp106
+      - linkapps_capability_requirements_doc
+    modes:
+      default_mvo: mock
+      allowed: [mock, shadow, live]
+      live_requires_opt_in: true
+    canonical_lease_permissions_union:
+      - eas.build.plan
+      - eas.build
+      - eas.submit.release
+    side_effects_possible: true
+
+  # --- LEXOS capability plugins ( filesystem manifests — reconciled IDs only ) ---
+  - capability_id: cap.extraction.parser
+    declaration_sources:
+      - lexos.cap.manifest
+    lexos_manifest_refs:
+      file: packages/linkaios-kernel/plugins/capabilities/lexos/cap.extraction.parser.yaml
+    modes:
+      default_mvo: mock
+      allowed: [development]
+      note_lexos_yaml_uses_development_keyword: >-
+        LEXOS manifests use `mode_flags.mvo_modes: [development]` — map to MOCK routing for WP-114 seeds until PLUGIN_ARCHITECTURE enum alignment lands.
+    canonical_lease_permissions_union:
+      - extraction.parser.parse_document
+      - extraction.parser.markdown_emit
+      - extraction.parser.json_emit
+    idempotency_posture:
+      anchor: lexos_yaml key_components (tenant_id, source_blob_stable_id_or_uri_fingerprint, parser_version_or_profile_checksum, operation_id, initiating_run_id, optional_page_range_digest)
+    side_effects_possible: false
+
+  - capability_id: cap.extraction.ocr
+    declaration_sources:
+      - lexos.cap.manifest
+    lexos_manifest_refs:
+      file: packages/linkaios-kernel/plugins/capabilities/lexos/cap.extraction.ocr.yaml
+    modes:
+      default_mvo: mock
+      allowed: [development]
+      note_lexos_yaml_uses_development_keyword: true
+    canonical_lease_permissions_union:
+      - extraction.ocr.perform
+      - extraction.ocr.confidence_emit
+    side_effects_possible: false
+
+  - capability_id: cap.extraction.qa
+    declaration_sources:
+      - lexos.cap.manifest
+    lexos_manifest_refs:
+      file: packages/linkaios-kernel/plugins/capabilities/lexos/cap.extraction.qa.yaml
+    modes:
+      default_mvo: mock
+      allowed: [development]
+      note_lexos_yaml_uses_development_keyword: true
+    canonical_lease_permissions_union:
+      - extraction.qa.compare
+      - extraction.qa.assess_quality
+      - extraction.qa.generate_flags
+    side_effects_possible: false
+
+  - capability_id: cap.storage.evidence
+    declaration_sources:
+      - lexos.cap.manifest
+    lexos_manifest_refs:
+      file: packages/linkaios-kernel/plugins/capabilities/lexos/cap.storage.evidence.yaml
+    modes:
+      default_mvo: mock
+      allowed: [development]
+      note_lexos_yaml_uses_development_keyword: true
+    canonical_lease_permissions_union:
+      - storage.evidence.write
+      - storage.evidence.preserve_original
+      - storage.evidence.write_derivative
+    side_effects_possible: true
+    reconciliation_notes:
+      - LEXOS declares Supabase Storage evidence paths — unrelated to LinkSites mirror (`cap.supabase.mirror_content`) or LiNKapps provisioning.
+
+  - capability_id: cap.research.legal
+    declaration_sources:
+      - lexos.cap.manifest
+    lexos_manifest_refs:
+      file: packages/linkaios-kernel/plugins/capabilities/lexos/cap.research.legal.yaml
+    modes:
+      default_mvo: shadow
+      allowed: [development, shadow]
+      note_lexos_default_shadow: LEXOS YAML advertises shadow-tier legal corpora lookups.
+    canonical_lease_permissions_union:
+      - research.legal.search_authority
+      - research.legal.verify_citation
+      - research.legal.verify_jurisdiction
+    side_effects_possible: false
+
+overlaps_and_family_notes:
+  supabase_capability_family:
+    non_aliased_ids:
+      - cap.supabase.mirror_content
+      - cap.supabase.provisioning
+      - >-
+        LEXOS-adjacent storage uses `cap.storage.evidence` (Supabase buckets) rather than renaming to supabase.*
+
+  plane_operation_superset_policy: >-
+    Use single catalog row `cap.plane.execution_tracking`; vertical manifests may omit optional sprint stub — loader treats missing ops as `not_offered_for_vertical` metadata in future schemas.
+  messaging_readiness_patterns: >-
+    Zulip CONNECTOR doc SKU `zulip.connectivity.probe` aligns with taxonomy for other connectivity probes (`postiz.connectivity.check`, Stripe/Supabase readiness).
+
+not_configured_merged_examples:
+  - capability_id: cap.research.public_web
+    examples_from_contract_pack: >-
+      Target-site accounts, outreach actions, writes/submits against external websites.
+  - capability_id: cap.storage.evidence
+    examples_from_lexos_manifest: >-
+      LEXOS evidence taxonomy, courtroom bundle assembly policy, authoring Supabase RLS for arbitrary tenancy.

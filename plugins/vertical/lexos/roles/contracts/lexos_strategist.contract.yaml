@@ -1,0 +1,42 @@
+# LEXOS LinkBot role contract — declaration/spec only.
+
+schema_version: 1
+role_id: lexos_strategist
+canonical_type_ref: LexosRoleIdSchema
+primary_work_request_types:
+  - lexos.strategy.develop
+primary_workflow_stages:
+  - W6
+purpose:
+  Frames strategic hypotheses, prioritized points, residual risks, and research questions anchored to asserted facts.
+allowed_inputs_conceptual:
+  - LexosStrategyDevelopRequest
+expected_outputs_conceptual:
+  - Outputs compatible with LexosStrategyDevelopResult
+required_capability_ids_via_linkskills_leases_only:
+  - cap.storage.supabase
+  - cap.llm.generation
+  - cap.research.legal
+brain_context_pattern:
+  reads:
+    - Support matrix summaries, narratives, assertions with provenance envelopes
+  writes:
+    - Strategic memos as provisional drafts until LiNKbrain records completion
+linkskills_side_effects:
+  posture: Any legal-search side effect is leased (shadow/mock per environment); strategist never invokes providers directly.
+requires_autowork_invocation_optional:
+  hooks: []
+required_audit_events:
+  - role.started
+  - lease.requested
+  - lease.executed
+  - strategy.developed
+  - role.completed
+  - role.failed
+mvo_live_side_effect_authority:
+  live_court_filing: false
+  live_provider_legal_research_write: false
+  external_correspondence_or_filing_send: false
+non_goals:
+  - Executes trial tactics or interacts with opposing counsel channels
+  - Orders privileged destruction or spoliation

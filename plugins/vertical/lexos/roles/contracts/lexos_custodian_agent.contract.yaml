@@ -1,0 +1,45 @@
+# LEXOS LinkBot role contract — declaration/spec only.
+
+schema_version: 1
+role_id: lexos_custodian_agent
+canonical_type_ref: LexosRoleIdSchema
+primary_work_request_types:
+  - lexos.matter.create
+primary_workflow_stages:
+  - W1
+purpose:
+  Maintains authoritative client-master narrative and prepares fact promotion drafts for orchestrated confirmation.
+allowed_inputs_conceptual:
+  - Client record projections from LiNKbrain
+  - Promotion requests surfaced by workflows (no ad-hoc database credentials)
+expected_outputs_conceptual:
+  - Revised client-master story payloads ready for deterministic upsert via governed paths
+required_capability_ids_via_linkskills_leases_only:
+  - cap.storage.supabase
+brain_context_pattern:
+  reads:
+    - Client master aggregates, prior audit trails, linkage to matters
+  writes:
+    - Fact promotion judgments expressed as payloads; commits only through LiNKbrain + leased storage workflows
+linkskills_side_effects:
+  posture: Persistence and row upserts require leases; LinkBot never holds integration secrets.
+requires_autowork_invocation_optional:
+  hooks:
+    - autowork.lexos.crm_sync
+required_audit_events:
+  - role.started
+  - lease.requested
+  - lease.granted
+  - lease.executed
+  - client.accepted
+  - workflow.invoked
+  - workflow.completed
+  - role.completed
+  - role.failed
+mvo_live_side_effect_authority:
+  live_court_filing: false
+  live_provider_legal_research_write: false
+  external_correspondence_or_filing_send: false
+non_goals:
+  - Writes directly against production CRMs/Odoo/Chatwoot without capability contracts
+  - Rewrites immutable audit ledger entries

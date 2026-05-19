@@ -47,6 +47,20 @@ import {
   CRM_SYNC_HANDLE,
 } from "./lexos.js";
 import type { AuditEvent } from "@linktrend/linklogic-sdk";
+import {
+  createRepoHandler,
+  provisionServicesHandler,
+  buildIterationHandler,
+  releaseReadinessHandler,
+  deployHandler,
+  compileHandoffHandler,
+  CREATE_REPO_HANDLE,
+  PROVISION_SERVICES_HANDLE,
+  BUILD_ITERATION_HANDLE,
+  RELEASE_READINESS_HANDLE,
+  DEPLOY_HANDLE,
+  COMPILE_HANDOFF_HANDLE,
+} from "./linkapps.js";
 
 /**
  * Bootstrap all WebsiteFactory workflows.
@@ -119,6 +133,124 @@ export function bootstrapWebsiteFactoryWorkflows(deps: {
     requires_lease: true,
     handler: createCrmReadyToContactMarkHandler(auditEmitter),
   });
+
+  // Register LiNKapps workflow pack (Phase 5 stages)
+  registerWorkflow({
+    handle: CREATE_REPO_HANDLE,
+    display_name: "LiNKapps Create Repository",
+    description: "Stage 5.2: Generate app repository from template (mock mode only)",
+    requires_lease: true,
+    handler: createRepoHandler(auditEmitter),
+  });
+
+  registerWorkflow({
+    handle: PROVISION_SERVICES_HANDLE,
+    display_name: "LiNKapps Provision Services",
+    description: "Stage 5.3: Provision Supabase, Stripe services (mock mode only)",
+    requires_lease: true,
+    handler: provisionServicesHandler(auditEmitter),
+  });
+
+  registerWorkflow({
+    handle: BUILD_ITERATION_HANDLE,
+    display_name: "LiNKapps Build Iteration",
+    description: "Stage 5.4: AI implementation iteration (deterministic, no lease required)",
+    requires_lease: false,
+    handler: buildIterationHandler(auditEmitter),
+  });
+
+  registerWorkflow({
+    handle: RELEASE_READINESS_HANDLE,
+    display_name: "LiNKapps Release Readiness",
+    description: "Stage 5.5: Quality validation and release readiness check",
+    requires_lease: true,
+    handler: releaseReadinessHandler(auditEmitter),
+  });
+
+  registerWorkflow({
+    handle: DEPLOY_HANDLE,
+    display_name: "LiNKapps Deploy",
+    description: "Stage 5.6: Deploy to preview environment (mock mode only)",
+    requires_lease: true,
+    handler: deployHandler(auditEmitter),
+  });
+
+  registerWorkflow({
+    handle: COMPILE_HANDOFF_HANDLE,
+    display_name: "LiNKapps Compile Handoff",
+    description: "Stage 5.7: Compile spinoff handoff package",
+    requires_lease: true,
+    handler: compileHandoffHandler(auditEmitter),
+  });
+}
+
+/**
+ * Bootstrap all LEXOS litigation workflows.
+ *
+ * Per WP-105 and LEXOS_VERTICAL_PLUGIN_CONVERSION_PLAN.md §4.
+ *
+ * @param deps.writeAuditEvent - Function to write audit events to LiNKbrain
+ */
+export function bootstrapLexosWorkflows(deps: {
+  writeAuditEvent: (event: AuditEvent) => Promise<{ event_id: string }>;
+}): void {
+  const auditEmitter = createAuditEmitter(deps.writeAuditEvent);
+
+  // Register autowork.lexos.evidence_ingest (W4)
+  registerWorkflow({
+    handle: EVIDENCE_INGEST_HANDLE,
+    display_name: "LEXOS Evidence Ingest",
+    description: "Ingest evidence files and trigger extraction pipeline (W4)",
+    requires_lease: true, // Side-effecting: storage writes
+    handler: createEvidenceIngestHandler(auditEmitter),
+  });
+
+  // Register autowork.lexos.extraction_run (W4)
+  registerWorkflow({
+    handle: EXTRACTION_RUN_HANDLE,
+    display_name: "LEXOS Extraction Run",
+    description: "Run extraction pipeline (OCR, parser, QA) on evidence (W4)",
+    requires_lease: true, // Side-effecting: processing writes
+    handler: createExtractionRunHandler(auditEmitter),
+  });
+
+  // Register autowork.lexos.assertion_sync (W5)
+  registerWorkflow({
+    handle: ASSERTION_SYNC_HANDLE,
+    display_name: "LEXOS Assertion Sync",
+    description: "Sync assertion support states and build support matrix (W5)",
+    requires_lease: true, // Side-effecting: database updates
+    handler: createAssertionSyncHandler(auditEmitter),
+  });
+
+  // Register autowork.lexos.artifact_generate (W10/W11)
+  registerWorkflow({
+    handle: ARTIFACT_GENERATE_HANDLE,
+    display_name: "LEXOS Artifact Generate",
+    description: "Generate output artifacts (legal briefs, memos, etc.) (W10/W11)",
+    requires_lease: true, // Side-effecting: artifact generation
+    handler: createArtifactGenerateHandler(auditEmitter),
+  });
+
+  // Register autowork.lexos.crm_sync (W0)
+  registerWorkflow({
+    handle: CRM_SYNC_HANDLE,
+    display_name: "LEXOS CRM Sync",
+    description: "Sync client/matter records to mock CRM (W0)",
+    requires_lease: true, // Side-effecting: CRM writes
+    handler: createCrmSyncHandler(auditEmitter),
+  });
+}
+
+/**
+ * Bootstrap all MVO workflows (LinkSites + LEXOS).
+ */
+export function bootstrapAllWorkflows(deps: {
+  writeAuditEvent: (event: AuditEvent) => Promise<{ event_id: string }>;
+  preview_route_prefix?: string;
+}): void {
+  bootstrapWebsiteFactoryWorkflows(deps);
+  bootstrapLexosWorkflows(deps);
 }
 
 /**
@@ -240,3 +372,22 @@ export {
   listCrmSyncs,
   clearLexosStores,
 } from "./lexos.js";
+
+// Re-export LiNKapps workflow handles and utilities
+export {
+  CREATE_REPO_HANDLE as LINKAPPS_CREATE_REPO_HANDLE,
+  PROVISION_SERVICES_HANDLE as LINKAPPS_PROVISION_SERVICES_HANDLE,
+  BUILD_ITERATION_HANDLE as LINKAPPS_BUILD_ITERATION_HANDLE,
+  RELEASE_READINESS_HANDLE as LINKAPPS_RELEASE_READINESS_HANDLE,
+  DEPLOY_HANDLE as LINKAPPS_DEPLOY_HANDLE,
+  COMPILE_HANDOFF_HANDLE as LINKAPPS_COMPILE_HANDOFF_HANDLE,
+  getRepoCreation,
+  getServiceProvision,
+  getBuildIteration,
+  getReleaseReadiness,
+  getDeployment,
+  getHandoffPackage,
+  listAllRepoCreations,
+  clearLinkappsStores,
+  getWorkflowHandles as getLinkappsWorkflowHandles,
+} from "./linkapps.js";

@@ -1,0 +1,48 @@
+# LEXOS LinkBot role contract — declaration/spec only (no runtime).
+# Aligns with packages/linklogic-sdk/src/lexos-contracts.ts :: LexosRoleIdSchema + LexosAuditEventTypeSchema.
+
+schema_version: 1
+role_id: lexos_intake_agent
+canonical_type_ref: LexosRoleIdSchema
+primary_work_request_types:
+  - lexos.intake.new
+primary_workflow_stages:
+  - W0
+purpose:
+  Guided intake structuring, conflict-awareness checks, KYC/CDD placeholders, draft acceptance decisions.
+allowed_inputs_conceptual:
+  - Prospect client and matter payloads as defined by LexosIntakeNewRequest
+  - Conflict register summaries from LiNKbrain context assembly
+expected_outputs_conceptual:
+  - Intake disposition fields consistent with LexosIntakeNewResult
+  - Client/matter candidates for downstream custodian workflows
+required_capability_ids_via_linkskills_leases_only:
+  - cap.storage.supabase
+  - cap.crm.mock
+brain_context_pattern:
+  reads:
+    - Prior intake and conflict summaries under tenant scope assembled by LiNKbrain
+    - CRM stub pointers (no raw secrets)
+  writes:
+    - All durable facts and judgments committed as LiNKbrain events / memory projections; LinkBot emits payload only after orchestration validates.
+linkskills_side_effects:
+  posture: Capability lease required before any persistence, outbound stub CRM update, or non-reasoning action.
+requires_autowork_invocation_optional:
+  hooks: []
+required_audit_events:
+  # Subset aligned with lexos-contracts LexosAuditEventTypeSchema
+  - role.started
+  - intake.processed
+  - conflict.checked
+  - lease.requested
+  - lease.executed
+  - role.completed
+  - role.failed
+mvo_live_side_effect_authority:
+  live_court_filing: false
+  live_provider_legal_research_write: false
+  external_correspondence_or_filing_send: false
+non_goals:
+  - Performs court e-filing, service of process, or regulator submissions
+  - Initiates unsolicited client outreach without LiNKaios approval policy
+  - Stores canonical intake record outside orchestrated persistence paths

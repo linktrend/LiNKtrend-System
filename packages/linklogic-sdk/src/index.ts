@@ -437,6 +437,38 @@ export type {
   SkillFragmentType,
 } from "./types/disclosure.js";
 
+// LiNKapps App Factory ↔ LiNKbrain audit/memory payloads (WP-111)
+export {
+  LINKAPPS_PLUGIN_ID,
+  LinkappsArtifactRefSchema,
+  LinkappsBrainEventPayloadSchema,
+  LinkappsCapabilityLeaseSummarySchema,
+  LinkappsHandoffArtifactMemoryPayloadSchema,
+  LinkappsHandoffArtifactRecordSchema,
+  LinkappsRunCheckpointKindSchema,
+  LinkappsRunEventPayloadSchema,
+  LinkappsSquadDecisionEventPayloadSchema,
+  LinkappsSquadDecisionKindSchema,
+  LinkappsWorkRequestTypeSchema,
+  parseLinkappsBrainEventPayload,
+  parseLinkappsCapabilityLeaseSummary,
+  parseLinkappsHandoffArtifactMemoryPayload,
+  parseLinkappsRunEventPayload,
+  parseLinkappsSquadDecisionEventPayload,
+} from "./linkapps-brain-events.js";
+export type {
+  LinkappsArtifactRef,
+  LinkappsBrainEventPayload,
+  LinkappsCapabilityLeaseSummary,
+  LinkappsHandoffArtifactMemoryPayload,
+  LinkappsHandoffArtifactRecord,
+  LinkappsRunCheckpointKind,
+  LinkappsRunEventPayload,
+  LinkappsSquadDecisionEventPayload,
+  LinkappsSquadDecisionKind,
+  LinkappsWorkRequestType,
+} from "./linkapps-brain-events.js";
+
 // LEXOS Litigation vertical plugin contracts (WP-097)
 export {
   LEXOS_PLUGIN_ID,
