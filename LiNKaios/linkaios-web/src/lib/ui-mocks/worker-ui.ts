@@ -26,6 +26,12 @@ export type DemoPersonaLayer = {
   updated: string;
 };
 
+export type DemoPersonaEntry = {
+  title: string;
+  type: "journal" | "pin" | "note";
+  tag: string;
+};
+
 export const DEMO_AGENT_SKILLS: Record<string, DemoAgentSkillRow[]> = {
   "demo-lisa": [
     {
@@ -90,6 +96,19 @@ export const DEMO_AGENT_PERSONA: Record<string, DemoPersonaLayer[]> = {
     { layer: "Soul", summary: "Curious builder; prefers small reversible steps.", updated: "2026-03-20" },
     { layer: "Identity", summary: "CTO LiNKbot — architecture and release risk.", updated: "2026-04-02" },
     { layer: "Agent", summary: "Codex-style harness; human approval on applies.", updated: "2026-04-11" },
+  ],
+};
+
+export const DEMO_AGENT_PERSONA_ENTRIES: Record<string, DemoPersonaEntry[]> = {
+  "demo-lisa": [
+    { title: "Stakeholder readout — Q3 priorities", type: "pin", tag: "pinned" },
+    { title: "Operating principles — escalation ladder", type: "journal", tag: "2026-03-15" },
+    { title: "Last governance review notes", type: "note", tag: "2026-02-27" },
+  ],
+  "demo-eric": [
+    { title: "Runtime cutover checklist", type: "pin", tag: "pinned" },
+    { title: "Model failover retrofit notes", type: "journal", tag: "2026-03-21" },
+    { title: "Ops review and mitigation log", type: "note", tag: "2026-03-12" },
   ],
 };
 
@@ -210,4 +229,10 @@ export const MOCK_UI_AGENT_PERSONA_LAYERS: DemoPersonaLayer[] = [
   { layer: "Soul", summary: "Patient with ambiguity; asks one clarifying question when needed.", updated: "2026-04-05" },
   { layer: "Identity", summary: "Mission-aligned operator — prioritises customer outcomes.", updated: "2026-04-09" },
   { layer: "Agent", summary: "Default tools: memory_search, mission_board (preview fixture).", updated: "2026-04-12" },
+];
+
+export const MOCK_UI_AGENT_PERSONA_ENTRIES: DemoPersonaEntry[] = [
+  { title: "Project brief — Acme rollout risks", type: "journal", tag: "2026-04-18" },
+  { title: "Customer notes — preferred escalation path", type: "note", tag: "2026-04-12" },
+  { title: "Weekly digest — open actions", type: "pin", tag: "pinned" },
 ];

@@ -11,6 +11,7 @@ import { buildFleetOrgChart } from "@/lib/fleet-org-chart-layout";
 import { AddLinkbotOpenButton, AddLinkbotRoot } from "@/components/add-linkbot";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { BADGE, BUTTON } from "@/lib/ui-standards";
+import { presenceTone, registryStatusTone } from "@/lib/worker-status-badges";
 import {
   FleetPresenceFilterBar,
   WorkersFleetNav,
@@ -38,25 +39,6 @@ function descriptionFromRuntime(raw: unknown): string | null {
   if (!lp || typeof lp !== "object") return null;
   const d = (lp as Record<string, unknown>).description;
   return typeof d === "string" && d.trim() ? d.trim() : null;
-}
-
-function statusStyles(status: string) {
-  switch (status) {
-    case "active":
-      return "bg-emerald-50 text-emerald-800 ring-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-100 dark:ring-emerald-900/50";
-    case "inactive":
-      return "bg-zinc-100 text-zinc-700 ring-zinc-200 dark:bg-zinc-800 dark:text-zinc-200 dark:ring-zinc-600";
-    case "retired":
-      return "bg-amber-50 text-amber-900 ring-amber-200 dark:bg-amber-950/35 dark:text-amber-100 dark:ring-amber-900/40";
-    default:
-      return "bg-zinc-100 text-zinc-700 ring-zinc-200";
-  }
-}
-
-function uxBadge(ux: FleetRow["operationalUx"]) {
-  if (ux === "working") return "text-emerald-800 ring-emerald-200 bg-emerald-50 dark:bg-emerald-950/40 dark:text-emerald-100";
-  if (ux === "idle") return "text-sky-900 ring-sky-200 bg-sky-50 dark:bg-sky-950/40 dark:text-sky-100";
-  return "text-zinc-600 ring-zinc-200 bg-zinc-100 dark:bg-zinc-800 dark:text-zinc-200";
 }
 
 function uxLabel(ux: FleetRow["operationalUx"]) {
@@ -242,8 +224,8 @@ export default async function WorkersPage(props: { searchParams: Promise<{ view?
                       <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">{currentActivityLine(agent.operationalUx)}</p>
                     </div>
                     <div className="flex shrink-0 flex-col items-end gap-1.5">
-                      <span className={`capitalize ${BADGE.status} ${statusStyles(agent.status)}`}>{agent.status}</span>
-                      <span className={`${BADGE.status} ${uxBadge(agent.operationalUx)}`}>{uxLabel(agent.operationalUx)}</span>
+                      <span className={`capitalize ${BADGE.status} ${registryStatusTone(agent.status)}`}>{agent.status}</span>
+                      <span className={`${BADGE.status} ${presenceTone(uxLabel(agent.operationalUx))}`}>{uxLabel(agent.operationalUx)}</span>
                     </div>
                   </Link>
                 </li>
@@ -276,8 +258,8 @@ export default async function WorkersPage(props: { searchParams: Promise<{ view?
                         <p className="mt-0.5 text-xs font-medium text-violet-700 dark:text-violet-300">Role · {role}</p>
                       </div>
                       <div className="flex shrink-0 flex-col items-end gap-1">
-                        <span className={`capitalize ${BADGE.status} ${statusStyles(agent.status)}`}>{agent.status}</span>
-                        <span className={`${BADGE.status} ${uxBadge(agent.operationalUx)}`}>{uxLabel(agent.operationalUx)}</span>
+                        <span className={`capitalize ${BADGE.status} ${registryStatusTone(agent.status)}`}>{agent.status}</span>
+                        <span className={`${BADGE.status} ${presenceTone(uxLabel(agent.operationalUx))}`}>{uxLabel(agent.operationalUx)}</span>
                       </div>
                     </div>
                     <p className="mt-3 line-clamp-3 text-xs leading-relaxed text-zinc-600 dark:text-zinc-400">{desc}</p>

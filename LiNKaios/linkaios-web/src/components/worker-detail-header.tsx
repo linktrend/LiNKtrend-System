@@ -1,4 +1,5 @@
-import Link from "next/link";
+import { BADGE } from "@/lib/ui-standards";
+import { presenceTone, registryStatusTone } from "@/lib/worker-status-badges";
 
 export type WorkerDetailHeaderModel = {
   id: string;
@@ -15,13 +16,6 @@ export function WorkerDetailHeader(props: { model: WorkerDetailHeaderModel }) {
   const m = props.model;
   return (
     <header className="border-b border-zinc-200 pb-8 dark:border-zinc-800">
-      <p className="text-sm text-zinc-500 dark:text-zinc-400">
-        <Link href="/workers" className="text-sky-700 underline dark:text-sky-400">
-          LiNKbots
-        </Link>
-        <span className="mx-2">/</span>
-        <span className="text-zinc-900 dark:text-zinc-100">{m.displayName}</span>
-      </p>
       <div className="mt-4 flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
         <div className="min-w-0 flex-1">
           <h1 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">{m.displayName}</h1>
@@ -40,11 +34,11 @@ export function WorkerDetailHeader(props: { model: WorkerDetailHeaderModel }) {
           <dl className="mt-4 space-y-3 text-sm">
             <div className="flex justify-between gap-4">
               <dt className="text-zinc-500 dark:text-zinc-400">Registry</dt>
-              <dd className="text-right font-medium text-zinc-900 dark:text-zinc-100">{m.registryLabel}</dd>
+              <dd className={`text-right font-medium capitalize ${BADGE.status} ${registryStatusTone(m.registryLabel)}`}>{m.registryLabel}</dd>
             </div>
             <div className="flex justify-between gap-4">
               <dt className="text-zinc-500 dark:text-zinc-400">Presence</dt>
-              <dd className="text-right font-medium text-zinc-900 dark:text-zinc-100">{m.operationalSummary}</dd>
+              <dd className={`text-right font-medium ${BADGE.status} ${presenceTone(m.operationalSummary)}`}>{m.operationalSummary}</dd>
             </div>
             <div className="flex flex-col gap-1">
               <dt className="text-zinc-500 dark:text-zinc-400">Current activity</dt>

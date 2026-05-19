@@ -1,17 +1,25 @@
 import { notFound } from "next/navigation";
+import { BookOpen, FileText, Pin } from "lucide-react";
 
 import { isDemoAgentId } from "@/lib/ui-mocks/entities";
-import { DEMO_AGENT_PERSONA, MOCK_UI_AGENT_PERSONA_LAYERS } from "@/lib/ui-mocks/worker-ui";
+import { DEMO_AGENT_PERSONA, DEMO_AGENT_PERSONA_ENTRIES, MOCK_UI_AGENT_PERSONA_ENTRIES, MOCK_UI_AGENT_PERSONA_LAYERS, type DemoPersonaEntry } from "@/lib/ui-mocks/worker-ui";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { TABLE } from "@/lib/ui-standards";
 
 export const dynamic = "force-dynamic";
+
+function entryIcon(entry: DemoPersonaEntry) {
+  if (entry.type === "pin") return <Pin className="h-4 w-4 text-amber-600 dark:text-amber-400" aria-hidden />;
+  if (entry.type === "note") return <BookOpen className="h-4 w-4 text-sky-600 dark:text-sky-400" aria-hidden />;
+  return <FileText className="h-4 w-4 text-violet-600 dark:text-violet-400" aria-hidden />;
+}
 
 export default async function WorkerBrainPage(props: { params: Promise<{ id: string }> }) {
   const { id } = await props.params;
 
   if (isDemoAgentId(id)) {
     const layers = DEMO_AGENT_PERSONA[id] ?? [];
+    const entries = DEMO_AGENT_PERSONA_ENTRIES[id] ?? [];
     return (
       <div className="space-y-8">
         <section>
@@ -46,9 +54,19 @@ export default async function WorkerBrainPage(props: { params: Promise<{ id: str
             Agent-scoped journal and memory entries (UI fixture — not from LiNKbrain storage).
           </p>
           <ul className="mt-3 divide-y divide-zinc-200 rounded-xl border border-zinc-200 bg-white text-sm">
-            <li className="px-4 py-3 text-zinc-600">Stakeholder readout — Q3 priorities (pinned)</li>
-            <li className="px-4 py-3 text-zinc-600">Operating principles — escalation ladder</li>
-            <li className="px-4 py-3 text-zinc-600">Last governance review notes</li>
+            {entries.map((entry) => (
+              <li key={entry.title} className="px-4 py-3 text-zinc-600 transition hover:bg-zinc-50">
+                <span className="flex items-center justify-between gap-3">
+                  <span className="inline-flex min-w-0 items-center gap-2">
+                    {entryIcon(entry)}
+                    <span className="truncate font-medium text-zinc-900">{entry.title}</span>
+                  </span>
+                  <span className="shrink-0 rounded-full border border-zinc-200 bg-zinc-50 px-2 py-0.5 text-[11px] font-medium uppercase tracking-wide text-zinc-600">
+                    {entry.tag}
+                  </span>
+                </span>
+              </li>
+            ))}
           </ul>
         </section>
       </div>
@@ -95,9 +113,19 @@ export default async function WorkerBrainPage(props: { params: Promise<{ id: str
           Recent memory-style entries (preview copy for layout review).
         </p>
         <ul className="mt-3 divide-y divide-zinc-200 rounded-xl border border-zinc-200 bg-white text-sm dark:divide-zinc-800 dark:border-zinc-800 dark:bg-zinc-950">
-          <li className="px-4 py-3 text-zinc-600 dark:text-zinc-400">Project brief — Acme rollout risks</li>
-          <li className="px-4 py-3 text-zinc-600 dark:text-zinc-400">Customer notes — preferred escalation path</li>
-          <li className="px-4 py-3 text-zinc-600 dark:text-zinc-400">Weekly digest — open actions</li>
+          {MOCK_UI_AGENT_PERSONA_ENTRIES.map((entry) => (
+            <li key={entry.title} className="px-4 py-3 text-zinc-600 transition hover:bg-zinc-50 dark:text-zinc-400 dark:hover:bg-zinc-900/70">
+              <span className="flex items-center justify-between gap-3">
+                <span className="inline-flex min-w-0 items-center gap-2">
+                  {entryIcon(entry)}
+                  <span className="truncate font-medium text-zinc-900 dark:text-zinc-100">{entry.title}</span>
+                </span>
+                <span className="shrink-0 rounded-full border border-zinc-200 bg-zinc-50 px-2 py-0.5 text-[11px] font-medium uppercase tracking-wide text-zinc-600 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300">
+                  {entry.tag}
+                </span>
+              </span>
+            </li>
+          ))}
         </ul>
       </section>
     </div>

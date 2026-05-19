@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import {
+  X,
   BarChart3,
   Bot,
   Brain,
@@ -118,13 +119,18 @@ function accordionKeyForPath(pathname: string): AccordionKey {
   return null;
 }
 
-export function ShellSidebar(props: { user: SidebarUser | null }) {
+export function ShellSidebar(props: {
+  user: SidebarUser | null;
+  mobileOpen?: boolean;
+  onMobileOpenChange?: (open: boolean) => void;
+}) {
   const pathname = usePathname() ?? "/";
   const [openAccordion, setOpenAccordion] = useState<AccordionKey>(() => accordionKeyForPath(pathname));
 
   useEffect(() => {
     const k = accordionKeyForPath(pathname);
     if (k) setOpenAccordion(k);
+    props.onMobileOpenChange?.(false);
   }, [pathname]);
 
   const workOpen = openAccordion === "work";
@@ -139,13 +145,37 @@ export function ShellSidebar(props: { user: SidebarUser | null }) {
   const settingsActive = pathname === "/settings" || pathname.startsWith("/settings/");
   const subMenuRail = "ml-2 mt-0.5 border-l border-sky-500/35 pl-2 dark:border-sky-400/35";
 
+  const mobileOpen = props.mobileOpen ?? false;
+  const setMobileOpen = props.onMobileOpenChange ?? (() => {});
+
   return (
-    <aside className="sticky top-0 flex h-screen max-h-screen w-60 shrink-0 flex-col overflow-hidden border-r border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950">
-      {/* Zone 1 — brand */}
+    <>
       <div
-        className="flex h-[4.5rem] shrink-0 items-center border-b border-zinc-100 px-4 dark:border-zinc-800"
-        aria-label="Application logo"
+        className={
+          "fixed inset-0 z-40 bg-black/40 transition-opacity md:hidden " + (mobileOpen ? "opacity-100" : "pointer-events-none opacity-0")
+        }
+        aria-hidden
+        onClick={() => setMobileOpen(false)}
       />
+      <aside
+        id="shell-sidebar"
+        className={
+          "fixed inset-y-0 left-0 z-50 flex h-screen max-h-screen w-60 shrink-0 flex-col overflow-hidden border-r border-zinc-200 bg-white transition-transform dark:border-zinc-800 dark:bg-zinc-950 md:sticky md:top-0 md:z-auto md:translate-x-0 " +
+          (mobileOpen ? "translate-x-0" : "-translate-x-full")
+        }
+      >
+      {/* Zone 1 — brand */}
+      <div className="flex h-[4.5rem] shrink-0 items-center justify-between border-b border-zinc-100 px-4 dark:border-zinc-800">
+        <div aria-label="Application logo" />
+        <button
+          type="button"
+          onClick={() => setMobileOpen(false)}
+          className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-zinc-200 text-zinc-700 hover:bg-zinc-100 md:hidden dark:border-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-800"
+          aria-label="Close navigation"
+        >
+          <X className="h-4 w-4" aria-hidden />
+        </button>
+      </div>
 
       {/* Zone 2 — main + section nav */}
       <nav className="min-h-0 flex-1 space-y-0.5 overflow-y-auto overscroll-contain px-2 py-3" aria-label="Primary">
@@ -333,6 +363,7 @@ export function ShellSidebar(props: { user: SidebarUser | null }) {
           </>
         ) : null}
       </div>
-    </aside>
+      </aside>
+    </>
   );
 }
