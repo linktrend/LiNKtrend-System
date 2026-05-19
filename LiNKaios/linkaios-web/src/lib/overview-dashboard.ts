@@ -36,6 +36,7 @@ export type SystemStatusLevel = "ok" | "attention" | "critical";
 export type OverviewSystemIssue = { label: string; href: string };
 
 export type OverviewData = {
+  fetchedAt: string;
   setupError: string | null;
   systemStatus: {
     level: SystemStatusLevel;
@@ -440,6 +441,7 @@ export async function loadOverviewData(
   ).length;
 
   return {
+    fetchedAt: new Date(now).toISOString(),
     setupError,
     systemStatus: {
       level: systemLevel,

@@ -1,19 +1,29 @@
-import Link from "next/link";
+"use client";
 
-import { BrandHeading } from "@linktrend/ui";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
+
 import {
   AlertTriangle,
   ArrowRight,
   Bot,
   Brain,
   Briefcase,
+  ChevronDown,
+  ChevronUp,
+  Clock3,
   FolderKanban,
   MessageSquare,
   Radio,
   ShieldAlert,
+  Sparkles,
   Upload,
   Wrench,
+  Zap,
 } from "lucide-react";
+
+import { AttentionFeedBadges } from "@/components/attention-feed-badges";
 import type { OverviewData, SystemStatusLevel } from "@/lib/overview-dashboard";
 import { BUTTON } from "@/lib/ui-standards";
 
@@ -30,8 +40,25 @@ function statusLabel(level: SystemStatusLevel): string {
   return "OK";
 }
 
+function issueIcon(label: string) {
+  const lower = label.toLowerCase();
+  if (lower.includes("llm")) return <Zap className="h-4 w-4 shrink-0 text-sky-700 dark:text-sky-300" aria-hidden />;
+  if (lower.includes("tool")) return <Wrench className="h-4 w-4 shrink-0 text-amber-700 dark:text-amber-300" aria-hidden />;
+  return <ShieldAlert className="h-4 w-4 shrink-0 text-red-700 dark:text-red-300" aria-hidden />;
+}
+
 export function OverviewHome(props: { data: OverviewData }) {
   const { data } = props;
+  const router = useRouter();
+  const [statusOpen, setStatusOpen] = useState(false);
+  const [now, setNow] = useState(() => Date.now());
+  const fetchedAt = data.fetchedAt ? new Date(data.fetchedAt).getTime() : Date.now();
+
+  useEffect(() => {
+    const t = setInterval(() => setNow(Date.now()), 30_000);
+    return () => clearInterval(t);
+  }, []);
+
   const schemaHint =
     data.setupError?.includes("schema") || data.setupError?.toLowerCase().includes("pgrst");
 
@@ -42,40 +69,60 @@ export function OverviewHome(props: { data: OverviewData }) {
         ? "Some checks reported warnings — review linked areas when you can."
         : "Core connectivity checks look healthy for this snapshot.";
 
+  const refreshedLabel = useMemo(() => {
+    const diffSeconds = Math.max(0, Math.round((now - fetchedAt) / 1000));
+    if (diffSeconds < 60) return "Refreshed just now";
+    const mins = Math.floor(diffSeconds / 60);
+    if (mins < 60) return `Refreshed ${mins} min ago`;
+    const hrs = Math.floor(mins / 60);
+    return `Refreshed ${hrs} hr ago`;
+  }, [now, fetchedAt]);
+
   return (
     <main className="space-y-8 pb-16">
-      {/* System status — single top status bar */}
-      <section
-        className={`sticky top-0 z-20 rounded-xl border p-4 shadow-sm backdrop-blur-sm ${statusBarTone(data.systemStatus.level)}`}
-        aria-label="System status"
-      >
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <div className="flex min-w-0 flex-1 items-start gap-3">
-            <ShieldAlert className="mt-0.5 h-5 w-5 shrink-0 opacity-90" aria-hidden />
-            <div className="min-w-0">
-              <p className="text-[10px] font-semibold uppercase tracking-wide opacity-80">System status</p>
-              <p className="text-lg font-semibold leading-tight">{statusLabel(data.systemStatus.level)}</p>
-              <p className="mt-1 text-sm opacity-90">{statusSummary}</p>
+      <section className={`rounded-xl border p-3 shadow-sm ${statusBarTone(data.systemStatus.level)}`} aria-label="System status">
+        <button
+          type="button"
+          onClick={() => setStatusOpen((s) => !s)}
+          className="flex w-full items-center justify-between gap-3 text-left"
+          aria-expanded={statusOpen}
+        >
+          <div className="flex min-w-0 flex-1 items-center gap-3">
+            <ShieldAlert className="h-5 w-5 shrink-0 opacity-90" aria-hidden />
+            <div className="inline-flex min-w-0 items-center gap-2">
+              <p className="text-sm font-semibold leading-tight">System: {statusLabel(data.systemStatus.level)}</p>
+              {data.systemStatus.issues.length > 0 ? (
+                <span className="rounded-full bg-black/10 px-2 py-0.5 text-[11px] font-semibold dark:bg-white/15">
+                  {data.systemStatus.issues.length} issue{data.systemStatus.issues.length === 1 ? "" : "s"}
+                </span>
+              ) : null}
             </div>
           </div>
-          <Link href="/settings" className="shrink-0 text-xs font-semibold underline opacity-90 hover:opacity-100">
-            Settings
-          </Link>
-        </div>
-        {data.systemStatus.issues.length > 0 ? (
+          {statusOpen ? <ChevronUp className="h-4 w-4 shrink-0 opacity-75" aria-hidden /> : <ChevronDown className="h-4 w-4 shrink-0 opacity-75" aria-hidden />}
+        </button>
+        <p className="mt-1 pl-8 text-xs opacity-90">{statusSummary}</p>
+
+        {statusOpen && data.systemStatus.issues.length > 0 ? (
           <ul className="mt-3 space-y-1.5 border-t border-black/10 pt-3 text-sm dark:border-white/10">
             {data.systemStatus.issues.map((issue, i) => (
               <li key={`${issue.href}-${i}`}>
-                <Link href={issue.href} className="flex items-center gap-1.5 font-medium hover:underline">
-                  <ArrowRight className="h-3.5 w-3.5 shrink-0 opacity-70" aria-hidden />
-                  <span>{issue.label}</span>
+                <Link href={issue.href} className="flex items-center justify-between gap-2 rounded-lg px-2 py-1.5 font-medium hover:bg-black/5 dark:hover:bg-white/10">
+                  <span className="inline-flex min-w-0 items-center gap-2">
+                    {issueIcon(issue.label)}
+                    <span className="truncate">{issue.label}</span>
+                  </span>
+                  <span className="inline-flex items-center gap-1 text-xs font-semibold opacity-90">
+                    Fix <ArrowRight className="h-3.5 w-3.5 shrink-0" aria-hidden />
+                  </span>
                 </Link>
               </li>
             ))}
           </ul>
-        ) : (
+        ) : null}
+
+        {statusOpen && data.systemStatus.issues.length === 0 ? (
           <p className="mt-3 border-t border-black/10 pt-3 text-sm opacity-90 dark:border-white/10">No open issues.</p>
-        )}
+        ) : null}
       </section>
 
       {data.setupError ? (
@@ -100,11 +147,24 @@ export function OverviewHome(props: { data: OverviewData }) {
 
       <header className="flex flex-wrap items-end justify-between gap-4 border-b border-zinc-200 pb-6 dark:border-zinc-800">
         <div>
-          <BrandHeading>Control Overview</BrandHeading>
+          <h1 className="text-3xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">LiNKaios</h1>
+          <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">Command overview</p>
+          <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-zinc-500 dark:text-zinc-400">
+            <span className="inline-flex items-center gap-1">
+              <Clock3 className="h-3.5 w-3.5" aria-hidden />
+              {refreshedLabel}
+            </span>
+            <button
+              type="button"
+              onClick={() => router.refresh()}
+              className="rounded-md border border-zinc-300 bg-white px-2 py-1 font-medium text-zinc-700 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-200 dark:hover:bg-zinc-800"
+            >
+              Refresh
+            </button>
+          </div>
         </div>
       </header>
 
-      {/* 2. What Needs Attention */}
       <section>
         <h2 className="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
           What needs attention
@@ -121,6 +181,7 @@ export function OverviewHome(props: { data: OverviewData }) {
                   href={item.href}
                   className="flex flex-col gap-1 px-4 py-3 text-sm transition hover:bg-zinc-50 dark:hover:bg-zinc-900/80"
                 >
+                  <AttentionFeedBadges item={item} />
                   <span className="flex items-start gap-2 font-medium text-zinc-900 dark:text-zinc-100">
                     {item.kind === "alert" ? (
                       <AlertTriangle
@@ -129,7 +190,7 @@ export function OverviewHome(props: { data: OverviewData }) {
                           (item.alertSeverity === "critical"
                             ? "text-red-600 dark:text-red-400"
                             : item.alertSeverity === "warning"
-                              ? "text-amber-500 dark:text-amber-400"
+                              ? "text-amber-600 dark:text-amber-400"
                               : "text-sky-600 dark:text-sky-400")
                         }
                         aria-hidden
@@ -151,10 +212,14 @@ export function OverviewHome(props: { data: OverviewData }) {
             ))}
           </ul>
         )}
+        <p className="mt-2 flex justify-end">
+          <Link href="/work" className={BUTTON.secondaryCardAction}>
+            Open All Work
+          </Link>
+        </p>
       </section>
 
       <div className="grid gap-6 lg:grid-cols-2 lg:items-stretch">
-        {/* 3. Workforce Summary */}
         <section className="flex min-h-[20rem] flex-col rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
           <h2 className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
             <Bot className="h-4 w-4" aria-hidden />
@@ -163,33 +228,23 @@ export function OverviewHome(props: { data: OverviewData }) {
           <dl className="mt-4 grid flex-1 grid-cols-2 content-start gap-3 text-sm sm:grid-cols-3">
             <div className="rounded-lg border border-zinc-100 bg-zinc-50/80 px-3 py-2 dark:border-zinc-800 dark:bg-zinc-900/50">
               <dt className="text-xs text-zinc-500 dark:text-zinc-400">LiNKbots</dt>
-              <dd className="text-xl font-semibold tabular-nums text-zinc-900 dark:text-zinc-100">
-                {data.workforceSummary.total}
-              </dd>
+              <dd className="text-xl font-semibold tabular-nums text-zinc-900 dark:text-zinc-100">{data.workforceSummary.total}</dd>
             </div>
             <div className="rounded-lg border border-zinc-100 bg-zinc-50/80 px-3 py-2 dark:border-zinc-800 dark:bg-zinc-900/50">
               <dt className="text-xs text-zinc-500 dark:text-zinc-400">Online</dt>
-              <dd className="text-xl font-semibold tabular-nums text-emerald-700 dark:text-emerald-400">
-                {data.workforceSummary.online}
-              </dd>
+              <dd className="text-xl font-semibold tabular-nums text-emerald-700 dark:text-emerald-400">{data.workforceSummary.online}</dd>
             </div>
             <div className="rounded-lg border border-zinc-100 bg-zinc-50/80 px-3 py-2 dark:border-zinc-800 dark:bg-zinc-900/50">
               <dt className="text-xs text-zinc-500 dark:text-zinc-400">Offline</dt>
-              <dd className="text-xl font-semibold tabular-nums text-zinc-600 dark:text-zinc-300">
-                {data.workforceSummary.offline}
-              </dd>
+              <dd className="text-xl font-semibold tabular-nums text-zinc-600 dark:text-zinc-300">{data.workforceSummary.offline}</dd>
             </div>
             <div className="rounded-lg border border-zinc-100 bg-zinc-50/80 px-3 py-2 dark:border-zinc-800 dark:bg-zinc-900/50">
               <dt className="text-xs text-zinc-500 dark:text-zinc-400">Busy</dt>
-              <dd className="text-xl font-semibold tabular-nums text-zinc-900 dark:text-zinc-100">
-                {data.workforceSummary.busy}
-              </dd>
+              <dd className="text-xl font-semibold tabular-nums text-zinc-900 dark:text-zinc-100">{data.workforceSummary.busy}</dd>
             </div>
             <div className="rounded-lg border border-zinc-100 bg-zinc-50/80 px-3 py-2 dark:border-zinc-800 dark:bg-zinc-900/50">
               <dt className="text-xs text-zinc-500 dark:text-zinc-400">Idle</dt>
-              <dd className="text-xl font-semibold tabular-nums text-zinc-900 dark:text-zinc-100">
-                {data.workforceSummary.idle}
-              </dd>
+              <dd className="text-xl font-semibold tabular-nums text-zinc-900 dark:text-zinc-100">{data.workforceSummary.idle}</dd>
             </div>
           </dl>
           <Link href="/workers" className={`${BUTTON.secondaryCardAction} mt-auto`}>
@@ -197,7 +252,6 @@ export function OverviewHome(props: { data: OverviewData }) {
           </Link>
         </section>
 
-        {/* 4. Work Summary */}
         <section className="flex min-h-[20rem] flex-col rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
           <h2 className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
             <Briefcase className="h-4 w-4" aria-hidden />
@@ -227,7 +281,6 @@ export function OverviewHome(props: { data: OverviewData }) {
         </section>
       </div>
 
-      {/* 5. Projects Summary */}
       <section className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
         <h2 className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
           <FolderKanban className="h-4 w-4" aria-hidden />
@@ -236,15 +289,11 @@ export function OverviewHome(props: { data: OverviewData }) {
         <div className="mt-4 flex flex-wrap gap-4">
           <div className="min-w-[10rem] flex-1 rounded-lg border border-sky-200 bg-sky-50/50 px-4 py-3 dark:border-sky-900/40 dark:bg-sky-950/20">
             <p className="text-xs font-medium text-sky-800 dark:text-sky-200">Active</p>
-            <p className="mt-1 text-2xl font-semibold tabular-nums text-sky-950 dark:text-sky-50">
-              {data.projectsSummary.active}
-            </p>
+            <p className="mt-1 text-2xl font-semibold tabular-nums text-sky-950 dark:text-sky-50">{data.projectsSummary.active}</p>
           </div>
           <div className="min-w-[10rem] flex-1 rounded-lg border border-amber-200 bg-amber-50/50 px-4 py-3 dark:border-amber-900/40 dark:bg-amber-950/20">
             <p className="text-xs font-medium text-amber-900 dark:text-amber-200">Needs attention</p>
-            <p className="mt-1 text-2xl font-semibold tabular-nums text-amber-950 dark:text-amber-50">
-              {data.projectsSummary.needsAttention}
-            </p>
+            <p className="mt-1 text-2xl font-semibold tabular-nums text-amber-950 dark:text-amber-50">{data.projectsSummary.needsAttention}</p>
           </div>
         </div>
         <Link href="/projects" className={`${BUTTON.secondaryCardAction} mt-4`}>
@@ -252,23 +301,22 @@ export function OverviewHome(props: { data: OverviewData }) {
         </Link>
       </section>
 
-      {/* 6. Quick Actions */}
       <section>
         <h2 className="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Quick actions</h2>
-        <div className="mt-3 flex flex-wrap gap-2">
-          <Link href="/workers?open=add-linkbot" className={BUTTON.primaryRowUniform}>
-            <Bot className="h-4 w-4 shrink-0" aria-hidden />
+        <div className="mt-3 grid grid-cols-1 gap-2 md:grid-cols-2 xl:grid-cols-4">
+          <Link href="/workers" className={`${BUTTON.primaryRow} w-full justify-center gap-2`}>
+            <Sparkles className="h-4 w-4 shrink-0" aria-hidden />
             Add LiNKbot
           </Link>
-          <Link href="/projects" className={BUTTON.primaryRowUniform}>
+          <Link href="/projects" className={`${BUTTON.primaryRow} w-full justify-center gap-2`}>
             <FolderKanban className="h-4 w-4 shrink-0" aria-hidden />
             Create project
           </Link>
-          <Link href="/skills/skills" className={BUTTON.primaryRowUniform}>
+          <Link href="/skills/skills" className={`${BUTTON.primaryRow} w-full justify-center gap-2`}>
             <Wrench className="h-4 w-4 shrink-0" aria-hidden />
             Add skill
           </Link>
-          <Link href="/memory?tab=inbox&inbox_item=upload" className={BUTTON.primaryRowUniform}>
+          <Link href="/memory?tab=inbox&inbox_item=upload" className={`${BUTTON.primaryRow} w-full justify-center gap-2`}>
             <Upload className="h-4 w-4 shrink-0" aria-hidden />
             Upload to LiNKbrain
           </Link>

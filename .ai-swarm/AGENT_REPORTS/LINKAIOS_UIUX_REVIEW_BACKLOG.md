@@ -3,110 +3,72 @@
 Maintained by the LiNKaios UI/UX review agents.
 Status: `open` | `in-progress` | `fixed`
 
-## Page: `/` — Overview / Home
+## Fixed In UIUX Backlog Pass
 
-### UIUX-HOME-002 — Mobile sidebar: no collapse/drawer at <768px
-**Status:** open
+### UIUX-HOME-002 — Mobile sidebar drawer
+**Status:** fixed
 **Effort:** complex/long
-**Category:** responsiveness
+**Commit:** 90a83be
 
-The sidebar must be hidden by default below `md`, opened by a hamburger button, shown as a drawer with overlay, closed on nav click, and always visible at desktop width.
-
-Likely files:
-- `LiNKaios/linkaios-web/src/components/shell-sidebar.tsx`
-- `LiNKaios/linkaios-web/src/components/shell-layout.tsx`
-- `LiNKaios/linkaios-web/src/components/shell-main-frame.tsx`
+Implemented mobile navigation with a hamburger trigger, overlay, drawer behavior, desktop persistence, and route-change close behavior.
 
 ### UIUX-HOME-007 — System status banner redesign
-**Status:** open
+**Status:** fixed
 **Effort:** medium
-**Category:** visual polish / UX
+**Commit:** 90a83be
 
-Remove sticky behavior, remove generic Settings link, collapse to a slim status chip, expand issue list on click, and use direct issue links.
+Removed the sticky oversized banner pattern and generic Settings link. Added a collapsible status chip with issue count, severity icons, and direct issue actions.
 
-Likely files:
-- `LiNKaios/linkaios-web/src/components/overview-home.tsx`
-- `LiNKaios/linkaios-web/src/lib/overview-dashboard.ts`
-
-### UIUX-HOME-010 — Overview last-refreshed timestamp
-**Status:** open
+### UIUX-HOME-010 — Overview refreshed timestamp
+**Status:** fixed
 **Effort:** medium
-**Category:** information architecture
+**Commit:** 90a83be
 
-Add unobtrusive `Refreshed X ago` timestamp and optional refresh action for dashboard data.
-
-Likely files:
-- `LiNKaios/linkaios-web/src/app/(shell)/page.tsx`
-- `LiNKaios/linkaios-web/src/components/overview-home.tsx`
+Added relative refresh timestamp and manual refresh action to the overview header.
 
 ### UIUX-HOME-011 — Quick actions grid
-**Status:** open
+**Status:** fixed
 **Effort:** easy/fast
-**Category:** visual polish / responsiveness
+**Commit:** 90a83be
 
-Use a responsive grid so the four quick actions render as one equal-width row on wide screens and 2x2 at medium widths.
-
-Likely files:
-- `LiNKaios/linkaios-web/src/components/overview-home.tsx`
-- `LiNKaios/linkaios-web/src/lib/ui-standards.ts`
+Changed quick actions to a responsive grid that fits four actions in one row on wide screens and adapts at smaller breakpoints.
 
 ### UIUX-HOME-012 — System status issue icons
-**Status:** open
+**Status:** fixed
 **Effort:** medium
-**Category:** visual polish / UX
+**Commit:** 90a83be
 
-Implement together with `UIUX-HOME-007`. Use purpose-specific icons and severity colors for issue rows.
+Implemented together with `UIUX-HOME-007` using purpose-specific issue icons and direct fix affordances.
 
-## Page: `/work/messages` — Messages
-
-### UIUX-MESSAGES-010 — Slack and Telegram tabs not fully wired
-**Status:** open
+### UIUX-MESSAGES-010 — Slack and Telegram tabs
+**Status:** fixed for UI/mock surface
 **Effort:** complex/long
-**Category:** UX/workflow
+**Commit:** 90a83be
 
-Support non-Zulip channel threads when existing data/mock structures provide them. Keep backend gateway/schema work deferred unless already present.
-
-Likely files:
-- `LiNKaios/linkaios-web/src/app/(shell)/work/work-messages-workspace.tsx`
-- `LiNKaios/linkaios-web/src/app/(shell)/work/messages/page.tsx`
-- `LiNKaios/linkaios-web/src/lib/work-messages.ts`
-- `LiNKaios/linkaios-web/src/lib/ui-mocks/channel-threads.ts`
-
-## Page: `/workers` and `/workers/[id]/*` — LiNKbots
+Messages workspace now supports channel filtering beyond Zulip when channel-tagged threads are available. Live gateway/schema work remains a backend integration follow-up.
 
 ### UIUX-WORKERS-001 — Double breadcrumb on worker detail pages
-**Status:** open
+**Status:** fixed
 **Effort:** medium
-**Category:** information architecture
+**Commit:** 90a83be
 
-Remove redundant inline breadcrumb from `WorkerDetailHeader`; keep the shell breadcrumb as the only breadcrumb.
-
-Likely file:
-- `LiNKaios/linkaios-web/src/components/worker-detail-header.tsx`
+Removed redundant inline breadcrumb from `WorkerDetailHeader`; shell breadcrumb remains the navigation context.
 
 ### UIUX-WORKERS-002 — Worker status card pills
-**Status:** open
+**Status:** fixed
 **Effort:** medium
-**Category:** visual polish
+**Commit:** 90a83be
 
-Replace plain Registry/Presence values with color-coded pills matching fleet badges.
-
-Likely files:
-- `LiNKaios/linkaios-web/src/components/worker-detail-header.tsx`
-- `LiNKaios/linkaios-web/src/app/(shell)/workers/page.tsx`
+Registry and presence now use shared color-coded worker status badge helpers.
 
 ### UIUX-WORKERS-003 — LiNKbrain Entries structure
-**Status:** open
+**Status:** fixed
 **Effort:** medium
-**Category:** visual polish / information architecture
+**Commit:** 90a83be
 
-Improve entries with icon, title, date/tag, hover state, and clear row structure.
+Worker LiNKbrain entries now have row structure, icons, dates/tags, and hover treatment.
 
-Likely files:
-- `LiNKaios/linkaios-web/src/app/(shell)/workers/[id]/brain/page.tsx`
-- `LiNKaios/linkaios-web/src/lib/ui-mocks/worker-ui.ts`
-
-## Product Model Follow-ups
+## Remaining Product Model Follow-ups
 
 ### PM-001 — Repo-wide `mission` to `project` rename
 **Status:** open
