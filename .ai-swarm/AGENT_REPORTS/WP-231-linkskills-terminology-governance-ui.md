@@ -46,7 +46,7 @@ Implemented packet-scoped UI/UX copy updates for Skills governance terminology i
 
 ## Final Commit
 - Branch: `wp-231-linkskills-terminology-governance-ui`
-- Commit SHA: `TBD`
+- Commit SHA: `6c4552a`
 
 ## Next Step
 - Integrator review and merge through `development` after validating UI copy acceptance criteria.
