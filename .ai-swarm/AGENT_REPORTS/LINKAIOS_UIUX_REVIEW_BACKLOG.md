@@ -49,7 +49,7 @@ The sidebar (`shell-sidebar.tsx`) is always rendered at a fixed `w-60` (240px) w
 ---
 
 
-**Commit:** PENDING_SHA  
+**Commit:** 90a83be  
 **Files changed:** see UIUX_BACKLOG_FIX_PASS.md
 
 ### UIUX-HOME-007 — System status banner: redesign with better structure, remove Settings link
@@ -96,7 +96,7 @@ The system status banner is `sticky top-0 z-20`, variable in height (up to ~140p
 ---
 
 
-**Commit:** PENDING_SHA  
+**Commit:** 90a83be  
 **Files changed:** see UIUX_BACKLOG_FIX_PASS.md
 
 ### UIUX-HOME-010 — No last-refreshed timestamp on overview dashboard data
@@ -134,7 +134,7 @@ Display a "Refreshed just now" or "Refreshed 2 min ago" line somewhere unobtrusi
 ---
 
 
-**Commit:** PENDING_SHA  
+**Commit:** 90a83be  
 **Files changed:** see UIUX_BACKLOG_FIX_PASS.md
 
 ### UIUX-HOME-011 — Quick actions: 4 buttons should sit in a single row at full width
@@ -183,7 +183,7 @@ Remove `BUTTON.primaryRowUniform` fixed width if it constrains the cell; instead
 ---
 
 
-**Commit:** PENDING_SHA  
+**Commit:** 90a83be  
 **Files changed:** see UIUX_BACKLOG_FIX_PASS.md
 
 ### UIUX-HOME-012 — System status banner: full redesign with icons (combined with 007)
@@ -210,7 +210,7 @@ Key additions from this item:
 ## Page: `/work/messages` — Messages
 
 
-**Commit:** PENDING_SHA  
+**Commit:** 90a83be  
 **Files changed:** see UIUX_BACKLOG_FIX_PASS.md
 
 ### UIUX-MESSAGES-010 — Slack and Telegram tabs not yet wired; placeholder shown
@@ -245,7 +245,7 @@ Clicking the Slack or Telegram tab shows: "Slack/Telegram is not wired yet. When
 ## Page: `/workers` and `/workers/[id]/*` — LiNKbots section
 
 
-**Commit:** PENDING_SHA  
+**Commit:** 90a83be  
 **Files changed:** see UIUX_BACKLOG_FIX_PASS.md
 
 ### UIUX-WORKERS-001 — Double breadcrumb on worker detail pages
@@ -277,7 +277,7 @@ Remove the inline `<p>` breadcrumb from `WorkerDetailHeader`. The component can 
 ---
 
 
-**Commit:** PENDING_SHA  
+**Commit:** 90a83be  
 **Files changed:** see UIUX_BACKLOG_FIX_PASS.md
 
 ### UIUX-WORKERS-002 — Status card values are plain text with no color signal
@@ -308,7 +308,7 @@ Use `BADGE.status` + the same tone functions already defined in `workers/page.ts
 ---
 
 
-**Commit:** PENDING_SHA  
+**Commit:** 90a83be  
 **Files changed:** see UIUX_BACKLOG_FIX_PASS.md
 
 ### UIUX-WORKERS-003 — LiNKbrain Entries section has no visual treatment
@@ -348,5 +348,5 @@ Update mock data in `DEMO_AGENT_PERSONA` to include `type` and `date` fields on 
 - Effort labels: `easy/fast` = <1h, `medium` = 1–4h, `complex/long` = 4h+
 
 
-**Commit:** PENDING_SHA  
+**Commit:** 90a83be  
 **Files changed:** see UIUX_BACKLOG_FIX_PASS.md
