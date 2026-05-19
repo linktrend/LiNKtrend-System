@@ -23,3 +23,8 @@
 - Replace UI-only memory boundary badges with real role/scope enforcement sourced from retrieval permission checks.
 - Add role-aware test coverage proving client users cannot access vendor `Project Type Knowledge` / `Vendor Module Memory` internals.
 - Add end-to-end Ask LiNKbrain tests validating client-visible retrieval vs vendor-only/anonymized retrieval paths.
+
+## 2026-05-19 - WP-231 LinkSkills Terminology Governance UI
+
+- Runtime wiring follow-up: connect UI terminology badges (Output vs Side Effect, client-visible vs vendor-only) to real LinkSkills lease/policy/certification data instead of static copy.
+- Runtime wiring follow-up: add server-driven catalog metadata for vendor-only certification/policy-template availability while keeping protected implementation details hidden from client view.

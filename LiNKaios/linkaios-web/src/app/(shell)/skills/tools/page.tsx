@@ -66,6 +66,25 @@ export default async function SkillsToolsPage() {
             Add tool
           </Link>
         </div>
+        <div className="mt-4 rounded-xl border border-zinc-200 bg-zinc-50/80 p-4 text-xs leading-6 text-zinc-700 dark:border-zinc-800 dark:bg-zinc-900/40 dark:text-zinc-300">
+          <p>
+            <strong>Tool</strong> means a callable API/script/browser/action. <strong>Provider</strong> means an external system.{" "}
+            <strong>Policy</strong>, <strong>approval</strong>, and <strong>lease</strong> gates determine if tool-backed capability actions can run.
+          </p>
+          <p className="mt-2">
+            <span className="inline-flex rounded-full bg-emerald-50 px-2 py-0.5 font-medium text-emerald-900 ring-1 ring-emerald-200 dark:bg-emerald-950/30 dark:text-emerald-200 dark:ring-emerald-800">
+              Output
+            </span>{" "}
+            = produced data/artifacts.{" "}
+            <span className="inline-flex rounded-full bg-amber-50 px-2 py-0.5 font-medium text-amber-900 ring-1 ring-amber-200 dark:bg-amber-950/30 dark:text-amber-200 dark:ring-amber-800">
+              Side Effect
+            </span>{" "}
+            = external/durable change.
+          </p>
+          <p className="mt-2">
+            Visibility: this table is client-visible governance state only. Vendor-only catalog/certification/policy-template internals remain protected.
+          </p>
+        </div>
         <div className="mt-4">
           <ToolsCatalogTable rows={rows} />
         </div>

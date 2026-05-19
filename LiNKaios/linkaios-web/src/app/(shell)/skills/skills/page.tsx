@@ -64,6 +64,15 @@ export default async function SkillsCatalogPage() {
       </header>
 
       <section className="space-y-8">
+        <div className="rounded-xl border border-zinc-200 bg-zinc-50/80 p-4 text-xs leading-6 text-zinc-700 dark:border-zinc-800 dark:bg-zinc-900/40 dark:text-zinc-300">
+          <p>
+            <strong>Skill</strong> means a packaged ability folder (SKILL.md, scripts, references, assets/templates, examples).{" "}
+            <strong>Capabilities</strong> and <strong>tools</strong> are governed separately and can be approved/enabled without exposing vendor implementation internals.
+          </p>
+          <p className="mt-2">
+            Visibility: this table is <strong>client-visible governance state</strong>. Vendor-only catalog/certification/policy-template surfaces are not exposed here.
+          </p>
+        </div>
         <p className="max-w-3xl text-xs text-zinc-600 dark:text-zinc-400">
           Skill <strong>categories</strong> are curated in Postgres (<code className="rounded bg-zinc-100 px-1 dark:bg-zinc-800">linkaios.skill_categories</code>
           ) and seeded/maintained by migrations or SQL — there is no category authoring UI in LiNKskills v1 yet.
