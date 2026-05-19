@@ -22,13 +22,34 @@ function StatLine(props: { label: string; value: number }) {
   );
 }
 
+function GovernanceLegend() {
+  return (
+    <div className="rounded-xl border border-zinc-200 bg-zinc-50/80 p-4 text-xs leading-6 text-zinc-700 dark:border-zinc-800 dark:bg-zinc-900/40 dark:text-zinc-300">
+      <p>
+        <strong>Skill</strong> = packaged ability folder (SKILL.md, scripts, references, assets/templates, examples).{" "}
+        <strong>Capability</strong> = governed permission/action against a provider. <strong>Provider</strong> = external system.{" "}
+        <strong>Tool</strong> = callable API/script/browser/action.
+      </p>
+      <p className="mt-2">
+        <strong>Lease</strong> = time-scoped grant. <strong>Policy</strong> = rules governing capabilities/tools/leases/approvals/providers.{" "}
+        <strong>Approval</strong> = decision that unlocks action/transition.
+      </p>
+    </div>
+  );
+}
+
 export function CapabilitiesHubCards(props: { skills: CapabilitiesHubSliceStats; tools: CapabilitiesHubSliceStats }) {
   return (
-    <div className="grid gap-6 md:grid-cols-2">
+    <div className="space-y-6">
+      <GovernanceLegend />
+      <div className="grid gap-6 md:grid-cols-2">
       <article className="flex flex-col rounded-xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
         <h2 className="text-lg font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">Skills</h2>
         <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
-          Instruction-style capabilities agents can load at runtime.
+          Packaged abilities that use governed capabilities and tools at runtime.
+        </p>
+        <p className="mt-2 text-xs text-zinc-600 dark:text-zinc-400">
+          Visibility: <strong>Client-visible</strong> governance controls only. <strong>Vendor-only</strong> catalog/certification/policy templates are managed separately.
         </p>
         <div className="mt-4 flex-1">
           <StatLine label="Total in catalogue" value={props.skills.total} />
@@ -47,8 +68,16 @@ export function CapabilitiesHubCards(props: { skills: CapabilitiesHubSliceStats;
       <article className="flex flex-col rounded-xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
         <h2 className="text-lg font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">Tools</h2>
         <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
-          Callable integrations and actions exposed to agents.
+          Callable integrations/actions executed through approved capability governance.
         </p>
+        <div className="mt-2 flex flex-wrap gap-2 text-[11px]">
+          <span className="rounded-full bg-emerald-50 px-2 py-0.5 font-medium text-emerald-900 ring-1 ring-emerald-200 dark:bg-emerald-950/30 dark:text-emerald-200 dark:ring-emerald-800">
+            Output: produced artifact/data
+          </span>
+          <span className="rounded-full bg-amber-50 px-2 py-0.5 font-medium text-amber-900 ring-1 ring-amber-200 dark:bg-amber-950/30 dark:text-amber-200 dark:ring-amber-800">
+            Side Effect: external or durable change
+          </span>
+        </div>
         <div className="mt-4 flex-1">
           <StatLine label="Total in catalogue" value={props.tools.total} />
           <StatLine label="Approved" value={props.tools.approved} />
@@ -62,6 +91,7 @@ export function CapabilitiesHubCards(props: { skills: CapabilitiesHubSliceStats;
           Open Tools catalogue
         </Link>
       </article>
+      </div>
     </div>
   );
 }

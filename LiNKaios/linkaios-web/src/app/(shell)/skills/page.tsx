@@ -119,9 +119,9 @@ export default async function SkillsCapabilitiesHubPage() {
     <main className="space-y-8">
       <header className="border-b border-zinc-200 pb-8 dark:border-zinc-800">
         <h1 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">LiNKskills</h1>
-        <p className="mt-1 text-sm font-medium text-zinc-600 dark:text-zinc-400">All Capabilities</p>
+        <p className="mt-1 text-sm font-medium text-zinc-600 dark:text-zinc-400">Governed Skills, Capabilities, and Tools</p>
         <p className="mt-3 max-w-2xl text-sm text-zinc-600 dark:text-zinc-400">
-          Compare catalogue health at a glance. Open each area for full tables, editing, and governance actions.
+          Compare catalogue health at a glance. Client view shows enabled/licensed governance controls only; vendor catalog, certification, and policy-template internals stay protected.
         </p>
       </header>
 
