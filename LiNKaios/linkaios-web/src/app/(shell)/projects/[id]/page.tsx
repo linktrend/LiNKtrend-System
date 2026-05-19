@@ -17,7 +17,11 @@ import { getPlaneBridgeConfig, planeWorkspaceProjectsHref } from "@/lib/plane-li
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { isDemoMissionId } from "@/lib/ui-mocks/entities";
 import { isUiMocksEnabled } from "@/lib/ui-mocks/flags";
-import { DEMO_MISSION_DETAIL_SPECS, type DemoMissionDetailSpec } from "@/lib/ui-mocks/missions-fixtures";
+import {
+  DEMO_MISSION_DETAIL_SPECS,
+  DEMO_MISSION_PLANE_BRIDGE,
+  type DemoMissionDetailSpec,
+} from "@/lib/ui-mocks/missions-fixtures";
 
 import { AppendMemoryForm } from "./append-memory-form";
 import { MissionToolsSection } from "./mission-tools-section";
@@ -101,6 +105,14 @@ function DemoMissionTabs(props: { spec: DemoMissionDetailSpec; tab: ProjectTabId
             </div>
           </dl>
         </Section>
+        <Section title="Plane sync and approvals">
+          <p className="text-sm text-zinc-700">
+            Plane sync: <span className="font-medium">{spec.planeSyncStatus === "synced" ? "Synced" : "Pending"}</span>
+          </p>
+          <p className="mt-2 text-sm text-zinc-700">
+            Approval gate: <span className="font-medium">{spec.approvalGate}</span>
+          </p>
+        </Section>
       </div>
     );
   }
@@ -149,6 +161,7 @@ function DemoMissionTabs(props: { spec: DemoMissionDetailSpec; tab: ProjectTabId
   /* activity */
   return (
     <Section title="Activity">
+      <p className="mb-3 text-sm text-zinc-600">Outputs and traces stay in LiNKaios for orchestration visibility.</p>
       <Link href="/settings/traces" className="inline-flex text-sm font-medium text-sky-700 underline dark:text-sky-400">
         System logs
       </Link>
@@ -361,6 +374,14 @@ export default async function MissionDetailPage(props: {
           </div>
           <dl className="mt-6 grid gap-4 sm:grid-cols-3">
             <div className="rounded-xl border border-zinc-100 bg-zinc-50 px-4 py-3">
+              <dt className="text-xs font-medium uppercase tracking-wide text-zinc-500">Module</dt>
+              <dd className="mt-1 text-sm font-semibold text-zinc-900">{demo.moduleName}</dd>
+            </div>
+            <div className="rounded-xl border border-zinc-100 bg-zinc-50 px-4 py-3">
+              <dt className="text-xs font-medium uppercase tracking-wide text-zinc-500">Project type</dt>
+              <dd className="mt-1 text-sm font-semibold text-zinc-900">{demo.projectTypeName}</dd>
+            </div>
+            <div className="rounded-xl border border-zinc-100 bg-zinc-50 px-4 py-3">
               <dt className="text-xs font-medium uppercase tracking-wide text-zinc-500">Lead LiNKbot</dt>
               <dd className="mt-1 text-sm font-semibold text-zinc-900">
                 <Link href={`/workers/${demo.leadId}/sessions`} className="text-violet-800 underline">
@@ -376,7 +397,24 @@ export default async function MissionDetailPage(props: {
               <dt className="text-xs font-medium uppercase tracking-wide text-zinc-500">Cycle</dt>
               <dd className="mt-1 text-sm font-semibold text-zinc-900">{demo.cycle}</dd>
             </div>
+            <div className="rounded-xl border border-zinc-100 bg-zinc-50 px-4 py-3">
+              <dt className="text-xs font-medium uppercase tracking-wide text-zinc-500">Workflow</dt>
+              <dd className="mt-1 text-sm font-semibold text-zinc-900">{demo.workflowName}</dd>
+            </div>
+            <div className="rounded-xl border border-zinc-100 bg-zinc-50 px-4 py-3">
+              <dt className="text-xs font-medium uppercase tracking-wide text-zinc-500">Active issue</dt>
+              <dd className="mt-1 text-sm font-semibold text-zinc-900">{demo.activeIssue}</dd>
+            </div>
+            <div className="rounded-xl border border-zinc-100 bg-zinc-50 px-4 py-3">
+              <dt className="text-xs font-medium uppercase tracking-wide text-zinc-500">Approvals</dt>
+              <dd className="mt-1 text-sm font-semibold text-zinc-900">{demo.approvalGate}</dd>
+            </div>
           </dl>
+          {demo.vendorOnlyNote ? (
+            <p className="mt-4 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">
+              Vendor-only section: {demo.vendorOnlyNote}
+            </p>
+          ) : null}
         </header>
 
         <ProjectsPlaneStrip workspaceProjectsHref={planeProjectsHref} />
@@ -409,6 +447,7 @@ export default async function MissionDetailPage(props: {
   }
 
   const m = mission as { id: string; title: string; status: string; primary_agent_id: string | null };
+  const bridge = DEMO_MISSION_PLANE_BRIDGE[m.id];
 
   return (
     <main className="space-y-8">
@@ -450,6 +489,26 @@ export default async function MissionDetailPage(props: {
             </div>
           </div>
         </div>
+        <p className="mt-3 text-sm text-zinc-600">
+          Plane is the project board for execution. LiNKaios is the orchestration and control plane for approvals,
+          outputs, and traces.
+        </p>
+        <dl className="mt-4 grid gap-4 sm:grid-cols-3">
+          <div className="rounded-xl border border-zinc-100 bg-zinc-50 px-4 py-3">
+            <dt className="text-xs font-medium uppercase tracking-wide text-zinc-500">Module</dt>
+            <dd className="mt-1 text-sm font-semibold text-zinc-900">{bridge?.moduleName ?? "Unmapped module"}</dd>
+          </div>
+          <div className="rounded-xl border border-zinc-100 bg-zinc-50 px-4 py-3">
+            <dt className="text-xs font-medium uppercase tracking-wide text-zinc-500">Project type</dt>
+            <dd className="mt-1 text-sm font-semibold text-zinc-900">
+              {bridge?.projectTypeName ?? "Unmapped project type"}
+            </dd>
+          </div>
+          <div className="rounded-xl border border-zinc-100 bg-zinc-50 px-4 py-3">
+            <dt className="text-xs font-medium uppercase tracking-wide text-zinc-500">Protected internals</dt>
+            <dd className="mt-1 text-xs text-zinc-700">Client view hides vendor-only workflow internals.</dd>
+          </div>
+        </dl>
       </header>
 
       <ProjectsPlaneStrip workspaceProjectsHref={planeProjectsHref} />
