@@ -9,6 +9,13 @@ export type DemoMissionDetailSpec = {
   title: string;
   tagline: string;
   status: string;
+  moduleName: string;
+  projectTypeName: string;
+  workflowName: string;
+  activeIssue: string;
+  approvalGate: string;
+  planeSyncStatus: "synced" | "pending";
+  vendorOnlyNote?: string;
   leadId: string;
   leadName: string;
   openWorkItems: number;
@@ -19,12 +26,67 @@ export type DemoMissionDetailSpec = {
 /** Optional Plane-style bridge fields for the projects index when mocks are on. */
 export const DEMO_MISSION_PLANE_BRIDGE: Record<
   string,
-  { code: string; activeCycle: string; openWorkItems: number; blockers: number }
+  {
+    code: string;
+    activeCycle: string;
+    openWorkItems: number;
+    blockers: number;
+    moduleName: string;
+    projectTypeName: string;
+    workflowName: string;
+    activeIssue: string;
+    approvalGate: string;
+    planeSyncStatus: "synced" | "pending";
+  }
 > = {
-  "demo-smb": { code: "SMB", activeCycle: "2026.14", openWorkItems: 5, blockers: 1 },
-  "demo-ai-edu": { code: "EDU", activeCycle: "2026.13", openWorkItems: 2, blockers: 0 },
-  "demo-mission-1": { code: "NW", activeCycle: "Q3 sprint", openWorkItems: 14, blockers: 2 },
-  "demo-mission-2": { code: "REL", activeCycle: "Hotfix window", openWorkItems: 3, blockers: 0 },
+  "demo-smb": {
+    code: "SMB",
+    activeCycle: "2026.14",
+    openWorkItems: 5,
+    blockers: 1,
+    moduleName: "LinkSites",
+    projectTypeName: "WebsiteFactory MVO",
+    workflowName: "Lead to preview handoff",
+    activeIssue: "Preview QA blockers",
+    approvalGate: "Project head review",
+    planeSyncStatus: "synced",
+  },
+  "demo-ai-edu": {
+    code: "EDU",
+    activeCycle: "2026.13",
+    openWorkItems: 2,
+    blockers: 0,
+    moduleName: "Linktrend Media",
+    projectTypeName: "Curriculum campaign",
+    workflowName: "Content production cycle",
+    activeIssue: "Legal copy approval",
+    approvalGate: "Vendor legal sign-off",
+    planeSyncStatus: "synced",
+  },
+  "demo-mission-1": {
+    code: "NW",
+    activeCycle: "Q3 sprint",
+    openWorkItems: 14,
+    blockers: 2,
+    moduleName: "LiNKapps",
+    projectTypeName: "App relaunch",
+    workflowName: "Migration release train",
+    activeIssue: "Migration scope lock",
+    approvalGate: "Executive release gate",
+    planeSyncStatus: "pending",
+  },
+  "demo-mission-2": {
+    code: "REL",
+    activeCycle: "Hotfix window",
+    openWorkItems: 3,
+    blockers: 0,
+    moduleName: "LEXOS Litigation",
+    projectTypeName: "Matter operations",
+    workflowName: "Intake to filing",
+    activeIssue: "Client evidence intake",
+    approvalGate: "Counsel approval",
+    planeSyncStatus: "pending",
+  },
 };
 
 export function demoMissionsFixtureRows(): MissionRecord[] {
@@ -55,6 +117,13 @@ export const DEMO_MISSION_DETAIL_SPECS: Record<string, DemoMissionDetailSpec> = 
     title: "SMB Website Builder",
     tagline: "Fixture project for portfolio and delivery previews.",
     status: "running",
+    moduleName: "LinkSites",
+    projectTypeName: "WebsiteFactory MVO",
+    workflowName: "Lead to preview handoff",
+    activeIssue: "Preview QA blockers",
+    approvalGate: "Project head review",
+    planeSyncStatus: "synced",
+    vendorOnlyNote: "Template internals are vendor-only.",
     leadId: "demo-lisa",
     leadName: "Lisa (CEO)",
     openWorkItems: 5,
@@ -66,6 +135,13 @@ export const DEMO_MISSION_DETAIL_SPECS: Record<string, DemoMissionDetailSpec> = 
     title: "Ai Edu Channel",
     tagline: "Fixture project for curriculum and stakeholder comms.",
     status: "assigned",
+    moduleName: "Linktrend Media",
+    projectTypeName: "Curriculum campaign",
+    workflowName: "Content production cycle",
+    activeIssue: "Legal copy approval",
+    approvalGate: "Vendor legal sign-off",
+    planeSyncStatus: "synced",
+    vendorOnlyNote: "Editorial automation settings are vendor-only.",
     leadId: "demo-eric",
     leadName: "Eric (CTO)",
     openWorkItems: 2,
@@ -77,6 +153,12 @@ export const DEMO_MISSION_DETAIL_SPECS: Record<string, DemoMissionDetailSpec> = 
     title: "Northwind modernisation",
     tagline: "Fixture programme with mixed activity signals.",
     status: "running",
+    moduleName: "LiNKapps",
+    projectTypeName: "App relaunch",
+    workflowName: "Migration release train",
+    activeIssue: "Migration scope lock",
+    approvalGate: "Executive release gate",
+    planeSyncStatus: "pending",
     leadId: "demo-lisa",
     leadName: "Lisa (CEO)",
     openWorkItems: 14,
@@ -88,6 +170,13 @@ export const DEMO_MISSION_DETAIL_SPECS: Record<string, DemoMissionDetailSpec> = 
     title: "Platform reliability sprint",
     tagline: "Fixture infra programme with waiting-session patterns.",
     status: "assigned",
+    moduleName: "LEXOS Litigation",
+    projectTypeName: "Matter operations",
+    workflowName: "Intake to filing",
+    activeIssue: "Client evidence intake",
+    approvalGate: "Counsel approval",
+    planeSyncStatus: "pending",
+    vendorOnlyNote: "Litigation strategy playbooks remain vendor-only.",
     leadId: "demo-eric",
     leadName: "Eric (CTO)",
     openWorkItems: 3,

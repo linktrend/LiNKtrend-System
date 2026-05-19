@@ -13,6 +13,7 @@ import {
   ChevronRight,
   Clock,
   FolderKanban,
+  Layers3,
   LayoutDashboard,
   Pin,
   Settings,
@@ -312,6 +313,10 @@ export function ShellSidebar(props: { user: SidebarUser | null }) {
         <Link href="/memory" className={navLinkClass(pathname === "/memory" || pathname.startsWith("/memory/"))}>
           <Brain className="h-4 w-4 shrink-0 opacity-85" aria-hidden />
           LiNKbrain
+        </Link>
+        <Link href="/modules" className={navLinkClass(pathname === "/modules" || pathname.startsWith("/modules/"))}>
+          <Layers3 className="h-4 w-4 shrink-0 opacity-85" aria-hidden />
+          Modules
         </Link>
         <Link href="/metrics" className={navLinkClass(pathname === "/metrics" || pathname.startsWith("/metrics/"))}>
           <BarChart3 className="h-4 w-4 shrink-0 opacity-85" aria-hidden />
