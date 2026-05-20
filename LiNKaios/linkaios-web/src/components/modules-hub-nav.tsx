@@ -17,19 +17,27 @@ function audienceQuery(audience: AudienceMode): string {
   return audience === "vendor" ? "vendor" : "client";
 }
 
-export function ModulesHubNav(props: { browse: BrowseMode; audience: AudienceMode; showAudienceToggle?: boolean }) {
+export function ModulesHubNav(props: {
+  browse: BrowseMode;
+  audience: AudienceMode;
+  moduleId?: string;
+  projectTypeId?: string;
+  showAudienceToggle?: boolean;
+}) {
   const pathname = usePathname() ?? "/modules";
   const browse = props.browse ?? browseFromPath(pathname);
   const aud = audienceQuery(props.audience);
-  const moduleBase = `/modules?audience=${aud}`;
-  const projectTypeBase = `/modules/project-types?audience=${aud}`;
+  const moduleHref = props.moduleId ? `/modules/${props.moduleId}?audience=${aud}` : `/modules?audience=${aud}`;
+  const projectTypeHref = props.projectTypeId
+    ? `/modules/project-types/${props.projectTypeId}?audience=${aud}`
+    : `/modules/project-types?audience=${aud}`;
 
   return (
     <div className={TABS.row}>
-      <Link href={moduleBase} className={screenTabLinkClass(browse === "module")}>
+      <Link href={moduleHref} className={screenTabLinkClass(browse === "module")}>
         Module catalogue
       </Link>
-      <Link href={projectTypeBase} className={screenTabLinkClass(browse === "project-type")}>
+      <Link href={projectTypeHref} className={screenTabLinkClass(browse === "project-type")}>
         Project type catalogue
       </Link>
       {props.showAudienceToggle ? (
