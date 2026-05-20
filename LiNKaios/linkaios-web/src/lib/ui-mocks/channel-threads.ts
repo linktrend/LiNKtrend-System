@@ -18,7 +18,7 @@ export const DEMO_CHANNEL_THREADS: ChannelMessageThread[] = [
     missionId: "demo-smb",
     messageCount: 4,
     hasUnread: true,
-    openHref: "/settings/gateway",
+    openHref: "/settings/platform",
   },
   {
     id: "demo-channel-support",
@@ -35,7 +35,7 @@ export const DEMO_CHANNEL_THREADS: ChannelMessageThread[] = [
     missionId: "demo-ai-edu",
     messageCount: 2,
     hasUnread: false,
-    openHref: "/settings/gateway",
+    openHref: "/settings/platform",
   },
   {
     id: "demo-channel-slack",

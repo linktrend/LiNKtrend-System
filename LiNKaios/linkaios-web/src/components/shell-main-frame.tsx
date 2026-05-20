@@ -3,13 +3,16 @@
 import { AutoBreadcrumbs } from "@/components/auto-breadcrumbs";
 import { BreadcrumbLabelProvider } from "@/components/breadcrumb-label-registry";
 import { ShellAutoPageHeader } from "@/components/shell-auto-page-header";
+import { ShellCompanySwitcher } from "@/components/shell-company-switcher";
 
 export function ShellMainFrame(props: { uiMocksEnabled: boolean; children: React.ReactNode }) {
   return (
     <BreadcrumbLabelProvider>
-      <div className="mb-4 flex min-h-[1.75rem] items-center justify-between gap-3">
+      <div className="mb-4 flex min-h-[1.75rem] flex-wrap items-center justify-between gap-3">
         <AutoBreadcrumbs fixtureLabelsInNav={props.uiMocksEnabled} />
-        {props.uiMocksEnabled ? (
+        <div className="flex shrink-0 flex-wrap items-center gap-3">
+          <ShellCompanySwitcher />
+          {props.uiMocksEnabled ? (
           <span
             role="status"
             title="Sidebar, projects, work samples, and metrics may be synthetic — not production data. Set LINKAIOS_UI_MOCKS=0 before stakeholder demos."
@@ -17,7 +20,8 @@ export function ShellMainFrame(props: { uiMocksEnabled: boolean; children: React
           >
             UI Mock Mode
           </span>
-        ) : null}
+          ) : null}
+        </div>
       </div>
       <ShellAutoPageHeader />
       <div className="min-h-0 flex-1">{props.children}</div>

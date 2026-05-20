@@ -12,9 +12,17 @@ import {
   type KpiTone,
   type KpiViewId,
 } from "@/lib/metrics-kpi-views";
+import {
+  DEFAULT_METRICS_SCOPE,
+  DEMO_METRICS_SCOPE_OPTIONS,
+  type MetricsFilterOption,
+  type MetricsScopeState,
+} from "@/lib/metrics-scope-filters";
+import { demoMetricsSnapshotForScope } from "@/lib/ui-mocks/metrics-demo-snapshot";
+import { DomainStatusPill } from "@/components/ui/status-pill";
 import { screenTabLinkClass, TABS } from "@/lib/ui-standards";
 
-export type MetricsFilterOption = { id: string; label: string };
+export type { MetricsFilterOption } from "@/lib/metrics-scope-filters";
 
 type RangeDays = 1 | 7 | 30;
 type TraceStatusFilter = "all" | "success" | "errors";
@@ -116,15 +124,7 @@ function RecentRunsTable(props: { snapshot: MetricsSnapshot }) {
                   <td className="px-4 py-2 text-right tabular-nums">{r.cost_usd != null ? formatUsd(r.cost_usd) : "—"}</td>
                   <td className="px-4 py-2 text-right tabular-nums">{formatDuration(dur)}</td>
                   <td className="px-4 py-2">
-                    <span
-                      className={
-                        err
-                          ? "inline-flex rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-semibold uppercase text-red-900 dark:bg-red-950/50 dark:text-red-200"
-                          : "inline-flex rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold uppercase text-emerald-900 dark:bg-emerald-950/50 dark:text-emerald-200"
-                      }
-                    >
-                      {err ? "Failed" : "OK"}
-                    </span>
+                    <DomainStatusPill domain="metric" status={err ? "failed" : "ok"} equalWidth />
                   </td>
                 </tr>
               );
@@ -277,6 +277,71 @@ function RankedCostTable(props: { title: string; rows: NamedAmount[]; emptyHint:
   );
 }
 
+function SkillToolBreakdown(props: { snapshot: MetricsSnapshot }) {
+  const hasSkill = props.snapshot.costBySkill.length > 0;
+  const hasTool = props.snapshot.costByTool.length > 0;
+  if (!hasSkill && !hasTool) {
+    return (
+      <section
+        aria-label="Skill and tool usage"
+        className="rounded-xl border border-dashed border-zinc-300 bg-zinc-50/80 p-6 text-sm text-zinc-600 dark:border-zinc-700 dark:bg-zinc-900/40 dark:text-zinc-400"
+      >
+        No skill or tool identifiers in run payloads for this window. Scope filters and trace enrichment will populate
+        these tables as LinkSkills and capability connectors emit structured metadata.
+      </section>
+    );
+  }
+  return (
+    <section aria-label="Skill and tool usage" className="space-y-3">
+      <div>
+        <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Skill &amp; tool breakdown</h2>
+        <p className="text-xs text-zinc-500 dark:text-zinc-400">
+          Ranked spend from payload <code className="font-mono text-[11px]">skill_id</code> and{" "}
+          <code className="font-mono text-[11px]">tool_name</code> fields — not event-type heuristics.
+        </p>
+      </div>
+      <div className="grid gap-4 lg:grid-cols-2">
+        <RankedCostTable
+          title="Usage by skill"
+          rows={props.snapshot.costBySkill}
+          emptyHint="No skill_id on runs in this window."
+        />
+        <RankedCostTable
+          title="Usage by tool"
+          rows={props.snapshot.costByTool}
+          emptyHint="No tool_name on runs in this window."
+        />
+      </div>
+    </section>
+  );
+}
+
+function ScopeFilterSelect(props: {
+  label: string;
+  value: string;
+  options: MetricsFilterOption[];
+  disabled?: boolean;
+  onChange: (value: string) => void;
+}) {
+  return (
+    <label className="flex flex-col text-xs font-medium text-zinc-600 dark:text-zinc-400">
+      {props.label}
+      <select
+        className="mt-1 rounded-lg border border-zinc-200 bg-white px-2 py-1.5 text-sm text-zinc-900 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100"
+        value={props.value}
+        disabled={props.disabled}
+        onChange={(e) => props.onChange(e.target.value)}
+      >
+        {props.options.map((o) => (
+          <option key={o.id} value={o.id}>
+            {o.label}
+          </option>
+        ))}
+      </select>
+    </label>
+  );
+}
+
 export function MetricsDashboard(props: {
   initialSnapshot: MetricsSnapshot;
   loadError?: string | null;
@@ -294,12 +359,18 @@ export function MetricsDashboard(props: {
   const [modelContains, setModelContains] = useState("");
   const [missionTitleContains, setMissionTitleContains] = useState("");
   const [traceStatus, setTraceStatus] = useState<TraceStatusFilter>("all");
+  const [scope, setScope] = useState<MetricsScopeState>(DEFAULT_METRICS_SCOPE);
   const [filtersOpen, setFiltersOpen] = useState(true);
   const [viewTab, setViewTab] = useState<KpiViewId>("cost");
   const [refreshError, setRefreshError] = useState<string | null>(null);
   const skipFetchOnce = useRef(false);
 
   const runFetch = useCallback(() => {
+    if (props.demoMode) {
+      setRefreshError(null);
+      setSnapshot(demoMetricsSnapshotForScope(scope));
+      return;
+    }
     startTransition(() => {
       void (async () => {
         const r = await fetchMetricsSnapshot({
@@ -310,6 +381,7 @@ export function MetricsDashboard(props: {
           modelContains: modelContains.trim() || null,
           missionTitleContains: missionTitleContains.trim() || null,
           traceStatus,
+          scope,
         });
         if (!r.ok) {
           setRefreshError(r.error ?? "Metrics could not be refreshed.");
@@ -319,7 +391,7 @@ export function MetricsDashboard(props: {
         setSnapshot(r.data);
       })();
     });
-  }, [days, agent, mission, eventTypeContains, modelContains, missionTitleContains, traceStatus]);
+  }, [days, agent, mission, eventTypeContains, modelContains, missionTitleContains, traceStatus, scope, props.demoMode]);
 
   useEffect(() => {
     if (!skipFetchOnce.current) {
@@ -507,16 +579,43 @@ export function MetricsDashboard(props: {
               </label>
             </div>
             <div className="rounded-lg border border-dashed border-zinc-300 bg-white/60 p-3 dark:border-zinc-700 dark:bg-zinc-900/30">
-              <p className="text-[11px] font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Scope (coming soon)</p>
-              <div className="mt-2 grid gap-2 sm:grid-cols-2 lg:grid-cols-5">
-                {["Module", "Project type", "Workflow", "Issue", "Automation"].map((label) => (
-                  <label key={label} className="flex flex-col text-xs text-zinc-500 dark:text-zinc-400">
-                    {label}
-                    <select disabled className="mt-1 cursor-not-allowed rounded-lg border border-zinc-200 bg-zinc-100 px-2 py-1.5 text-sm opacity-70 dark:border-zinc-700 dark:bg-zinc-900">
-                      <option>All</option>
-                    </select>
-                  </label>
-                ))}
+              <p className="text-[11px] font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+                Scope
+                {props.demoMode ? (
+                  <span className="ml-2 font-normal normal-case text-zinc-400">· mock dimensions active</span>
+                ) : (
+                  <span className="ml-2 font-normal normal-case text-zinc-400">· filters payload metadata when present</span>
+                )}
+              </p>
+              <div className="mt-2 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+                <ScopeFilterSelect
+                  label="Module"
+                  value={scope.module}
+                  options={DEMO_METRICS_SCOPE_OPTIONS.module}
+                  disabled={pending}
+                  onChange={(module) => setScope((s) => ({ ...s, module }))}
+                />
+                <ScopeFilterSelect
+                  label="Project type"
+                  value={scope.projectType}
+                  options={DEMO_METRICS_SCOPE_OPTIONS.projectType}
+                  disabled={pending}
+                  onChange={(projectType) => setScope((s) => ({ ...s, projectType }))}
+                />
+                <ScopeFilterSelect
+                  label="Workflow"
+                  value={scope.workflow}
+                  options={DEMO_METRICS_SCOPE_OPTIONS.workflow}
+                  disabled={pending}
+                  onChange={(workflow) => setScope((s) => ({ ...s, workflow }))}
+                />
+                <ScopeFilterSelect
+                  label="Issue"
+                  value={scope.issue}
+                  options={DEMO_METRICS_SCOPE_OPTIONS.issue}
+                  disabled={pending}
+                  onChange={(issue) => setScope((s) => ({ ...s, issue }))}
+                />
               </div>
             </div>
           </div>
@@ -539,6 +638,8 @@ export function MetricsDashboard(props: {
       </nav>
 
       <KpiCardGrid cards={kpiCards} viewLabel={KPI_VIEW_LABELS[viewTab].title} viewQuestion={KPI_VIEW_LABELS[viewTab].question} />
+
+      <SkillToolBreakdown snapshot={snapshot} />
 
       {viewTab === "cost" ? (
         <section className="space-y-4">

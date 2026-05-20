@@ -42,6 +42,30 @@ export function modelFromPayload(p: Record<string, unknown>): string | null {
   return pick("model") ?? pick("model_id") ?? pick("deployment") ?? pick("engine") ?? pick("model_name");
 }
 
+export function skillFromPayload(p: Record<string, unknown>): string | null {
+  const pick = (k: string) => {
+    const v = p[k];
+    if (typeof v === "string" && v.trim()) return v.trim();
+    return null;
+  };
+  return pick("skill_id") ?? pick("skill") ?? pick("skill_name");
+}
+
+export function toolFromPayload(p: Record<string, unknown>): string | null {
+  const pick = (k: string) => {
+    const v = p[k];
+    if (typeof v === "string" && v.trim()) return v.trim();
+    return null;
+  };
+  return (
+    pick("tool_name") ??
+    pick("tool") ??
+    pick("tool_id") ??
+    pick("mcp_tool") ??
+    pick("function_name")
+  );
+}
+
 /**
  * Coarse observability bucket from event_type for dashboard mix charts.
  */

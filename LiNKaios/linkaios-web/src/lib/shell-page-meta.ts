@@ -26,17 +26,13 @@ const EXACT: Record<string, ShellPageMeta> = {
     title: "Metrics",
     subtitle: "Performance observability — cost, tokens, run time, success/failure, and usage by project, LiNKbot, model, tool, and skill.",
   },
-  "/cockpit": {
-    title: "Cockpit",
-    subtitle: "Cross-plane operations — module health, workflow runs, and system status (leases live under LiNKskills).",
-  },
   "/company": {
     title: "Company",
     subtitle: "Licensed organization — profile, locations, modules, and company context.",
   },
   "/settings": {
     title: "Settings",
-    subtitle: "Account, access, integrations, and advanced operator controls.",
+    subtitle: "Account, team permissions, integrations, privacy, and platform operator controls.",
   },
   "/workers": {
     title: "LiNKbots",
@@ -57,14 +53,7 @@ const PREFIX: { prefix: string; meta: ShellPageMeta }[] = [
     prefix: "/settings/",
     meta: {
       title: "Settings",
-      subtitle: "Account, access, integrations, and advanced operator controls.",
-    },
-  },
-  {
-    prefix: "/cockpit/",
-    meta: {
-      title: "Cockpit",
-      subtitle: "Cross-plane operations — module health, workflow runs, and system status.",
+      subtitle: "Account, team permissions, integrations, privacy, and platform operator controls.",
     },
   },
   {
@@ -101,7 +90,6 @@ const SEGMENT_LABELS: Record<string, string> = {
   memory: "LiNKbrain",
   modules: "Modules",
   metrics: "Metrics",
-  cockpit: "Cockpit",
   company: "Company",
   settings: "Settings",
   gateway: "Integration routing",
@@ -109,7 +97,10 @@ const SEGMENT_LABELS: Record<string, string> = {
   user: "User",
   access: "Access",
   governance: "Governance",
-  advanced: "Advanced",
+  advanced: "Platform",
+  platform: "Platform",
+  privacy: "Privacy & data",
+  "api-keys": "Integrations",
   brain: "LiNKbrain",
   models: "Models",
   tools: "Tools",

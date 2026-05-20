@@ -1,6 +1,7 @@
 "use server";
 
 import { buildMetricsSnapshotFromRows, type MetricsSnapshot } from "@/lib/metrics-snapshot";
+import { scopePayloadMatches, type MetricsScopeState } from "@/lib/metrics-scope-filters";
 import { modelFromPayload } from "@/lib/trace-metrics";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -21,6 +22,7 @@ export async function fetchMetricsSnapshot(input: {
   modelContains?: string | null;
   missionTitleContains?: string | null;
   traceStatus?: "all" | "success" | "errors";
+  scope?: Partial<MetricsScopeState>;
 }): Promise<{ ok: true; data: MetricsSnapshot } | { ok: false; error: string }> {
   const supabase = await createSupabaseServerClient();
   const { from, to } = startEnd(Math.min(90, Math.max(1, input.days)));
@@ -142,6 +144,24 @@ export async function fetchMetricsSnapshot(input: {
       const title = mid ? missionMeta.get(mid)?.title ?? "" : "";
       return title.toLowerCase().includes(mt);
     });
+  }
+
+  const scope = input.scope;
+  if (scope) {
+    const fullScope: MetricsScopeState = {
+      module: scope.module ?? "all",
+      projectType: scope.projectType ?? "all",
+      workflow: scope.workflow ?? "all",
+      issue: scope.issue ?? "all",
+    };
+    const hasScope =
+      fullScope.module !== "all" ||
+      fullScope.projectType !== "all" ||
+      fullScope.workflow !== "all" ||
+      fullScope.issue !== "all";
+    if (hasScope) {
+      filtered = filtered.filter((r) => scopePayloadMatches(r.payload ?? {}, fullScope));
+    }
   }
 
   const data = buildMetricsSnapshotFromRows({

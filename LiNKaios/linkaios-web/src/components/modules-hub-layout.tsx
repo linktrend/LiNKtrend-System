@@ -33,7 +33,13 @@ export function ModulesHubLayout(props: {
           </Link>
         }
       />
-      <ModulesHubNav browse={props.browse} audience={props.audience} showAudienceToggle={isUiMocksEnabled()} />
+      <ModulesHubNav
+        browse={props.browse}
+        audience={props.audience}
+        moduleId={props.moduleId}
+        projectTypeId={props.projectTypeId}
+        showAudienceToggle={isUiMocksEnabled()}
+      />
       <ModulesGlossary />
       {props.children}
       <ModulesHubFooter />

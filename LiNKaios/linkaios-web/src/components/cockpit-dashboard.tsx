@@ -3,18 +3,20 @@
 import Link from "next/link";
 import {
   Activity,
-  AlertTriangle,
   Bot,
   CheckCircle2,
   ChevronRight,
   Clock,
+  FolderKanban,
   Gauge,
   Layers,
+  LayoutDashboard,
   Play,
   Shield,
   XCircle,
 } from "lucide-react";
 
+import { DomainStatusPill, StatusPill } from "@/components/ui/status-pill";
 import type { CockpitDashboardData, ModuleStatus, LeaseStatus, RunOverview } from "@/lib/cockpit";
 import { BUTTON } from "@/lib/ui-standards";
 
@@ -31,29 +33,32 @@ function healthTone(level: CockpitDashboardData["system_health"]): string {
   }
 }
 
-function healthLabel(level: CockpitDashboardData["system_health"]): string {
-  switch (level) {
-    case "healthy":
-      return "Healthy";
-    case "degraded":
-      return "Degraded";
-    case "unhealthy":
-      return "Unhealthy";
-    default:
-      return "Unknown";
-  }
+function systemHealthMetricStatus(level: CockpitDashboardData["system_health"]): string {
+  if (level === "healthy") return "ok";
+  if (level === "unhealthy") return "failed";
+  if (level === "degraded") return "degraded";
+  return "ok";
+}
+
+function moduleHealthMetricStatus(health: ModuleStatus["health"]): string {
+  if (health === "healthy") return "ok";
+  if (health === "unhealthy") return "failed";
+  return "degraded";
+}
+
+function leaseStatusForPill(raw: string): string {
+  if (raw === "granted" || raw === "executed") return "active";
+  if (raw === "denied") return "revoked";
+  if (raw === "requires_approval") return "pending";
+  return raw;
+}
+
+function runStatusForPill(raw: string): string {
+  if (raw === "succeeded") return "success";
+  return raw;
 }
 
 function ModuleStatusCard({ module }: { module: ModuleStatus }) {
-  const healthIcon =
-    module.health === "healthy" ? (
-      <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-    ) : module.health === "unhealthy" ? (
-      <XCircle className="h-4 w-4 text-red-600 dark:text-red-400" />
-    ) : (
-      <AlertTriangle className="h-4 w-4 text-amber-600 dark:text-amber-400" />
-    );
-
   return (
     <div className="flex items-center justify-between rounded-lg border border-zinc-200 bg-white px-4 py-3 dark:border-zinc-800 dark:bg-zinc-950">
       <div className="flex items-center gap-3">
@@ -71,31 +76,14 @@ function ModuleStatusCard({ module }: { module: ModuleStatus }) {
         </div>
       </div>
       <div className="flex items-center gap-2">
-        {healthIcon}
-        <span
-          className={`text-xs font-medium ${
-            module.is_enabled
-              ? "text-emerald-600 dark:text-emerald-400"
-              : "text-zinc-500 dark:text-zinc-400"
-          }`}
-        >
-          {module.is_enabled ? "Enabled" : "Disabled"}
-        </span>
+        <DomainStatusPill domain="metric" status={moduleHealthMetricStatus(module.health)} equalWidth />
+        <DomainStatusPill domain="module" status={module.is_enabled ? "active" : "unavailable"} equalWidth />
       </div>
     </div>
   );
 }
 
 function LeaseStatusRow({ lease }: { lease: LeaseStatus }) {
-  const statusColor =
-    lease.status === "granted" || lease.status === "executed"
-      ? "text-emerald-600 dark:text-emerald-400"
-      : lease.status === "denied" || lease.status === "revoked"
-        ? "text-red-600 dark:text-red-400"
-        : lease.status === "requires_approval"
-          ? "text-amber-600 dark:text-amber-400"
-          : "text-zinc-600 dark:text-zinc-400";
-
   return (
     <div className="flex items-center justify-between rounded-lg border border-zinc-200 bg-white px-4 py-3 dark:border-zinc-800 dark:bg-zinc-950">
       <div className="flex items-center gap-3">
@@ -108,12 +96,10 @@ function LeaseStatusRow({ lease }: { lease: LeaseStatus }) {
         </div>
       </div>
       <div className="flex items-center gap-3">
-        {lease.kill_switch_state === "tripped" && (
-          <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-700 dark:bg-red-950 dark:text-red-300">
-            Kill Switch
-          </span>
-        )}
-        <span className={`text-xs font-medium ${statusColor}`}>{lease.status}</span>
+        {lease.kill_switch_state === "tripped" ? (
+          <StatusPill label="Kill switch" tone="danger" />
+        ) : null}
+        <DomainStatusPill domain="lease" status={leaseStatusForPill(lease.status)} equalWidth />
         <span className="text-xs text-zinc-400 dark:text-zinc-500">
           {new Date(lease.requested_at).toLocaleTimeString()}
         </span>
@@ -123,30 +109,21 @@ function LeaseStatusRow({ lease }: { lease: LeaseStatus }) {
 }
 
 function RunStatusRow({ run }: { run: RunOverview }) {
-  const statusColor =
-    run.status === "succeeded"
-      ? "text-emerald-600 dark:text-emerald-400"
-      : run.status === "failed"
-        ? "text-red-600 dark:text-red-400"
-        : run.status === "running"
-          ? "text-sky-600 dark:text-sky-400"
-          : "text-amber-600 dark:text-amber-400";
-
   const statusIcon =
     run.status === "succeeded" ? (
-      <CheckCircle2 className="h-4 w-4" />
+      <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
     ) : run.status === "failed" ? (
-      <XCircle className="h-4 w-4" />
+      <XCircle className="h-4 w-4 text-red-600 dark:text-red-400" />
     ) : run.status === "running" ? (
-      <Play className="h-4 w-4" />
+      <Play className="h-4 w-4 text-sky-600 dark:text-sky-400" />
     ) : (
-      <Clock className="h-4 w-4" />
+      <Clock className="h-4 w-4 text-amber-600 dark:text-amber-400" />
     );
 
   return (
     <div className="flex items-center justify-between rounded-lg border border-zinc-200 bg-white px-4 py-3 dark:border-zinc-800 dark:bg-zinc-950">
       <div className="flex items-center gap-3">
-        <div className={`${statusColor}`}>{statusIcon}</div>
+        <div aria-hidden>{statusIcon}</div>
         <div>
           <p className="font-medium text-zinc-900 dark:text-zinc-100">
             {run.work_request_type}
@@ -159,14 +136,11 @@ function RunStatusRow({ run }: { run: RunOverview }) {
         </div>
       </div>
       <div className="flex items-center gap-3">
-        <span className={`text-xs font-medium ${statusColor}`}>{run.status}</span>
+        <DomainStatusPill domain="run" status={runStatusForPill(run.status)} equalWidth />
         <span className="text-xs text-zinc-400 dark:text-zinc-500">
           {new Date(run.started_at).toLocaleTimeString()}
         </span>
-        <Link
-          href={`/cockpit/runs/${run.run_id}`}
-          className="rounded-md p-1 hover:bg-zinc-100 dark:hover:bg-zinc-800"
-        >
+        <Link href="/work" className="rounded-md p-1 hover:bg-zinc-100 dark:hover:bg-zinc-800" aria-label="Open Work">
           <ChevronRight className="h-4 w-4 text-zinc-500" />
         </Link>
       </div>
@@ -177,7 +151,6 @@ function RunStatusRow({ run }: { run: RunOverview }) {
 export function CockpitDashboard({ data }: { data: CockpitDashboardData }) {
   return (
     <main className="space-y-8 pb-16">
-      {/* System health status bar */}
       <section
         className={`sticky top-0 z-20 rounded-xl border p-4 shadow-sm backdrop-blur-sm ${healthTone(
           data.system_health,
@@ -188,12 +161,14 @@ export function CockpitDashboard({ data }: { data: CockpitDashboardData }) {
           <div className="flex min-w-0 flex-1 items-start gap-3">
             <Gauge className="mt-0.5 h-5 w-5 shrink-0 opacity-90" aria-hidden />
             <div className="min-w-0">
-              <p className="text-[10px] font-semibold uppercase tracking-wide opacity-80">System Health</p>
-              <p className="text-lg font-semibold leading-tight">{healthLabel(data.system_health)}</p>
+              <p className="text-[10px] font-semibold uppercase tracking-wide opacity-80">Cross-plane health</p>
+              <div className="mt-1 flex flex-wrap items-center gap-2">
+                <DomainStatusPill domain="metric" status={systemHealthMetricStatus(data.system_health)} wideEqualWidth />
+              </div>
               <p className="mt-1 text-sm opacity-90">
                 {data.health_issues.length > 0
                   ? data.health_issues.join(" • ")
-                  : "All systems operational. Cross-plane components healthy."}
+                  : "All systems operational. Drill into Overview, Modules, Projects, or Work for details."}
               </p>
             </div>
           </div>
@@ -222,9 +197,9 @@ export function CockpitDashboard({ data }: { data: CockpitDashboardData }) {
 
       <header className="flex flex-wrap items-end justify-between gap-4 border-b border-zinc-200 pb-6 dark:border-zinc-800">
         <div>
-          <h1 className="text-2xl font-semibold text-zinc-900 dark:text-zinc-100">Operational Cockpit</h1>
+          <h1 className="text-2xl font-semibold text-zinc-900 dark:text-zinc-100">Cross-plane summary</h1>
           <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-            Cross-plane visibility: modules, leases, runs, workers, and traces
+            Snapshot across planes — open Overview, Modules, Projects, or Work for the canonical homes.
           </p>
         </div>
         <p className="text-xs text-zinc-400 dark:text-zinc-500">
@@ -232,7 +207,49 @@ export function CockpitDashboard({ data }: { data: CockpitDashboardData }) {
         </p>
       </header>
 
-      {/* Quick stats grid */}
+      <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <Link
+          href="/"
+          className="flex items-center gap-3 rounded-xl border border-zinc-200 bg-white p-4 shadow-sm transition hover:border-zinc-300 dark:border-zinc-800 dark:bg-zinc-950 dark:hover:border-zinc-700"
+        >
+          <LayoutDashboard className="h-5 w-5 text-zinc-500 dark:text-zinc-400" aria-hidden />
+          <div>
+            <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Overview</p>
+            <p className="text-xs text-zinc-500 dark:text-zinc-400">Attention queue &amp; system status</p>
+          </div>
+        </Link>
+        <Link
+          href="/modules"
+          className="flex items-center gap-3 rounded-xl border border-zinc-200 bg-white p-4 shadow-sm transition hover:border-zinc-300 dark:border-zinc-800 dark:bg-zinc-950 dark:hover:border-zinc-700"
+        >
+          <Layers className="h-5 w-5 text-zinc-500 dark:text-zinc-400" aria-hidden />
+          <div>
+            <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Modules</p>
+            <p className="text-xs text-zinc-500 dark:text-zinc-400">Tenant packages &amp; health</p>
+          </div>
+        </Link>
+        <Link
+          href="/projects"
+          className="flex items-center gap-3 rounded-xl border border-zinc-200 bg-white p-4 shadow-sm transition hover:border-zinc-300 dark:border-zinc-800 dark:bg-zinc-950 dark:hover:border-zinc-700"
+        >
+          <FolderKanban className="h-5 w-5 text-zinc-500 dark:text-zinc-400" aria-hidden />
+          <div>
+            <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Projects</p>
+            <p className="text-xs text-zinc-500 dark:text-zinc-400">Active work &amp; delivery</p>
+          </div>
+        </Link>
+        <Link
+          href="/work"
+          className="flex items-center gap-3 rounded-xl border border-zinc-200 bg-white p-4 shadow-sm transition hover:border-zinc-300 dark:border-zinc-800 dark:bg-zinc-950 dark:hover:border-zinc-700"
+        >
+          <Activity className="h-5 w-5 text-zinc-500 dark:text-zinc-400" aria-hidden />
+          <div>
+            <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Work</p>
+            <p className="text-xs text-zinc-500 dark:text-zinc-400">Runs, alerts, sessions</p>
+          </div>
+        </Link>
+      </section>
+
       <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <div className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
           <div className="flex items-center gap-2 text-xs font-medium text-zinc-500 dark:text-zinc-400">
@@ -243,8 +260,8 @@ export function CockpitDashboard({ data }: { data: CockpitDashboardData }) {
             {data.enabled_module_count}
             <span className="text-sm font-normal text-zinc-500">/{data.total_module_count}</span>
           </p>
-          <Link href="/cockpit/modules" className={`${BUTTON.secondaryCardAction} mt-3`}>
-            View modules
+          <Link href="/modules" className={`${BUTTON.secondaryCardAction} mt-3`}>
+            Open modules
           </Link>
         </div>
 
@@ -262,7 +279,7 @@ export function CockpitDashboard({ data }: { data: CockpitDashboardData }) {
             </p>
           )}
           <Link href="/skills/leases" className={`${BUTTON.secondaryCardAction} mt-3`}>
-            View leases
+            Open leases
           </Link>
         </div>
 
@@ -277,8 +294,8 @@ export function CockpitDashboard({ data }: { data: CockpitDashboardData }) {
           {data.failed_run_count > 0 && (
             <p className="mt-1 text-xs text-red-600 dark:text-red-400">{data.failed_run_count} failed (24h)</p>
           )}
-          <Link href="/cockpit/runs" className={`${BUTTON.secondaryCardAction} mt-3`}>
-            View runs
+          <Link href="/work" className={`${BUTTON.secondaryCardAction} mt-3`}>
+            Open work
           </Link>
         </div>
 
@@ -295,19 +312,17 @@ export function CockpitDashboard({ data }: { data: CockpitDashboardData }) {
             <p className="mt-1 text-xs text-sky-600 dark:text-sky-400">{data.busy_worker_count} busy</p>
           )}
           <Link href="/workers" className={`${BUTTON.secondaryCardAction} mt-3`}>
-            View workers
+            Open LiNKbots
           </Link>
         </div>
       </section>
 
-      {/* Recent activity sections */}
       <div className="grid gap-8 lg:grid-cols-2">
-        {/* Recent runs */}
         <section>
           <div className="mb-4 flex items-center justify-between">
             <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Recent Runs</h2>
-            <Link href="/cockpit/runs" className="text-xs font-medium text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-300">
-              View all
+            <Link href="/work" className="text-xs font-medium text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-300">
+              Open Work
             </Link>
           </div>
           <div className="space-y-2">
@@ -319,12 +334,11 @@ export function CockpitDashboard({ data }: { data: CockpitDashboardData }) {
           </div>
         </section>
 
-        {/* Recent leases */}
         <section>
           <div className="mb-4 flex items-center justify-between">
             <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Recent Leases</h2>
             <Link href="/skills/leases" className="text-xs font-medium text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-300">
-              View all
+              Open leases
             </Link>
           </div>
           <div className="space-y-2">
@@ -337,12 +351,11 @@ export function CockpitDashboard({ data }: { data: CockpitDashboardData }) {
         </section>
       </div>
 
-      {/* Module health */}
       <section>
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Module Health</h2>
-          <Link href="/cockpit/modules" className="text-xs font-medium text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-300">
-            View all
+          <Link href="/modules" className="text-xs font-medium text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-300">
+            Open modules
           </Link>
         </div>
         <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">

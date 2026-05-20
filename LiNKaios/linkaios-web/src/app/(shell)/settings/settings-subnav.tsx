@@ -8,18 +8,35 @@ import { screenTabLinkClass } from "@/lib/ui-standards";
 type NavItem = { href: string; label: string; match: (path: string) => boolean };
 
 const SETTINGS_TABS: NavItem[] = [
-  { href: "/settings/user", label: "User", match: (p) => p === "/settings/user" || p === "/settings" || p === "/settings/" },
-  { href: "/settings/access", label: "Access", match: (p) => p.startsWith("/settings/access") },
-  { href: "/settings/api-keys", label: "API Keys", match: (p) => p.startsWith("/settings/api-keys") },
-  { href: "/settings/gateway", label: "Integration Routing", match: (p) => p.startsWith("/settings/gateway") },
   {
-    href: "/settings/advanced",
-    label: "Advanced",
+    href: "/settings/user",
+    label: "User",
     match: (p) =>
+      p === "/settings/user" ||
+      p === "/settings" ||
+      p === "/settings/" ||
+      p.startsWith("/settings/access"),
+  },
+  {
+    href: "/settings/api-keys",
+    label: "Integrations",
+    match: (p) => p.startsWith("/settings/api-keys"),
+  },
+  {
+    href: "/settings/privacy",
+    label: "Privacy & data",
+    match: (p) => p.startsWith("/settings/privacy"),
+  },
+  {
+    href: "/settings/platform",
+    label: "Platform",
+    match: (p) =>
+      p.startsWith("/settings/platform") ||
       p.startsWith("/settings/advanced") ||
       p.startsWith("/settings/tools") ||
       p.startsWith("/settings/traces") ||
-      p.startsWith("/settings/prism"),
+      p.startsWith("/settings/prism") ||
+      p.startsWith("/settings/gateway"),
   },
 ];
 

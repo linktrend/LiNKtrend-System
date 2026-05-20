@@ -52,7 +52,7 @@ export async function stopWorkerSessionAction(sessionId: string): Promise<{ ok: 
   }
 
   revalidatePath("/work/sessions");
-  revalidatePath("/settings/advanced");
+  revalidatePath("/settings/platform");
   revalidatePath(`/workers/${row.agent_id}/sessions/${sessionId}`);
   return { ok: true };
 }
