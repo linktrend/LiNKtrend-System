@@ -20,7 +20,8 @@
     "@linktrend/observability": "workspace:*",
     "@linktrend/shared-config": "workspace:*",
     "@linktrend/shared-types": "workspace:*",
-    "@supabase/supabase-js": "^2.49.8"
+    "@supabase/supabase-js": "^2.49.8",
+    "zod": "^3.24.4"
   },
   "devDependencies": {
     "@types/node": "^20.19.39",

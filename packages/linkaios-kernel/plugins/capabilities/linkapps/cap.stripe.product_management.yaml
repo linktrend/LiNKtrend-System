@@ -1,0 +1,126 @@
+---
+# Declaration-only capability plugin manifest — LiNKapps Stripe catalogue connector surface (mock-first).
+# Sources: LINKAPPS_CAPABILITY_REQUIREMENTS.md §2.3, §3, §4; CONTRACTS_MVO.md §0.A.5.1.
+manifest_version: '1.0'
+plugin_kind: capability
+kind_version: semantic
+capability_id: cap.stripe.product_management
+vertical_family: linkapps.app_factory
+
+target_software:
+  product: Stripe
+  role_description: >-
+    Fixture snapshots, mock price attachment, webhook URL stubs — live catalogue mutations are future-only and opt-in.
+
+default_execution_mode: mock
+live_execution_policy:
+  status: disabled_by_default
+  requires_tenant_opt_in: true
+  requires_distinct_lease_policies: true
+
+allowed_operations:
+  - id: catalog.snapshot_mock
+    lease_permissions:
+      - stripe.product.fixture
+      - stripe.product.write
+    writes_side_effect: true
+    mode_routing:
+      mock: allowed
+      shadow: not_offered
+      live: future_requires_opt_in
+  - id: price.attach_mock
+    lease_permissions:
+      - stripe.price.write
+    writes_side_effect: true
+    mode_routing:
+      mock: allowed
+      shadow: not_offered
+      live: future_requires_opt_in
+  - id: webhook.endpoint.register_stub
+    lease_permissions:
+      - stripe.webhook.configure
+    writes_side_effect: true
+    mode_routing:
+      mock: allowed
+      shadow: not_offered
+      live: future_requires_opt_in
+  - id: readiness.probe
+    lease_permissions:
+      - stripe.account.readiness
+    writes_side_effect: false
+    mode_routing:
+      mock: not_offered
+      shadow: allowed
+      live: allowed_with_readiness_lease
+
+auth_requirements:
+  note: Declare handles only — never embed secrets in manifests or repo.
+  tenant_config_refs:
+    - stripe.account_ref
+    - stripe.api_key_ref
+    - stripe.fixture_catalog_ref
+    - stripe.webhook_endpoint_url_template_ref
+  requires_linkskills_registration: true
+
+mode_flags:
+  mvo_modes:
+    - development
+  supported_capability_modes:
+    - mock
+    - shadow
+    - live
+  live_api_writes:
+    default: disabled
+    accidental_live_attempt_in_mvo: routes_to_LEASE_DENIED
+
+lease_requirements:
+  linkskills_permissions_hint:
+    - stripe.product.fixture
+    - stripe.price.write
+    - stripe.webhook.configure
+    - stripe.account.readiness
+  mandatory_lease_claims:
+    - tenant_id
+    - run_id_or_work_request_id
+    - lease_id
+    - idempotency_key
+    - originating_stage_id
+
+idempotency_rules:
+  template: "${tenant_id}:${run_id}:${stage_id}:${capability_id}:${operation}:${stable_scope_segment}"
+  stable_scope_segment_by_operation:
+    catalog.snapshot_mock: "pricing_tier_set_digest"
+    price.attach_mock: "product_mock_id:${currency}"
+    webhook.endpoint.register_stub: "endpoint_url_normalized_sha"
+    readiness.probe: "tenant_id:${probe_window_floor_ts}"
+  collision_policy: >-
+    Replay identical key returns original outcome; divergent args → LEASE_IDEMPOTENCY_CONFLICT.
+
+audit_events:
+  minimum_outcomes:
+    - capability.requested
+    - capability.executed
+    - stripe.catalog.mocked
+    - capability.failed
+
+allowed_callers:
+  - linkautowork
+  - vertical_plugin
+
+failure_mapping:
+  MANIFEST_INVALID: Missing fixture profile or bad catalog ref.
+  INTEGRATION_AUTH_FAILED: Key invalid/revoked or unauthorized account.
+  INTEGRATION_UNAVAILABLE: Stripe API outage or quota.
+  INTEGRATION_TIMEOUT: Request deadline exceeded.
+  LEASE_DENIED: Live mode blocked under MVO posture; accidental live attempt.
+  POLICY_REQUIRES_APPROVAL: Webhook registration gated by human approval (optional mapping).
+  LEASE_REQUEST_INVALID: Malformed mock product id or currency envelope.
+  LEASE_IDEMPOTENCY_CONFLICT: Same key, divergent price/fixture payload.
+
+kill_switch_registration:
+  scope: capability_kill_switch
+  optional_operation_subscope: true
+
+not_configured:
+  - Subscription lifecycle, disputes, taxation, Radar rules, Stripe Connect onboarding.
+  - Revenue recognition workflows and finance operations inside Stripe.

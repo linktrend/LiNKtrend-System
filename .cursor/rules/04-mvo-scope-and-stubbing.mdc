@@ -1,0 +1,40 @@
+---
+description: MVO scope and stubbing rules.
+alwaysApply: true
+---
+
+# MVO Scope And Stubbing
+
+The first MVO is the LinkSites / WebsiteFactory lead-to-preview-site flow.
+
+The demo must show:
+
+- lead selection/import
+- template selection
+- copy generation
+- preview site generation/publishing
+- CRM record or accepted CRM stub
+- Plane project/tasks or accepted Plane stub
+- LiNKbot mission execution
+- LinkSkills capability lease/run
+- LiNKautowork deterministic workflow run
+- LiNKbrain event/audit/memory write
+- LiNKaios trace/status view
+
+If a third-party integration blocks the 7-day compression target, create a documented MVO stub and continue.
+
+Acceptable stubs:
+
+- seed CSV instead of live lead provider
+- local CRM table instead of Chatwoot/Odoo
+- local project/task table instead of Plane
+- static/local preview instead of full hosted publishing
+- simplified policy response if the capability lease is still recorded
+
+Unacceptable stubs:
+
+- no audit event
+- no capability lease
+- no memory/event write
+- no trace/status visibility
+- fake success without proof

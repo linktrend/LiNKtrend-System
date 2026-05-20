@@ -1,0 +1,83 @@
+# Operator Assistant Role
+# Per CONTRACTS_MVO.md §6.1 - LiNKbot role attachment model
+
+role_id: operator_assistant
+version: "1.0.0"
+purpose: |
+  Assist human operators with system navigation, status queries,
+  run trace viewing, and cross-plane coordination. Provides read-only
+  access to operational data without capability execution authority.
+
+# Module access
+allowed_modules:
+  - linksites
+  - linkapps
+  - lexos
+  - linktrend-media
+  - linktrend-development
+  - linktrend-admin
+
+# Capability connectors (read-only)
+allowed_capabilities:
+  - cap.zulip.run_messaging   # For operator notifications only
+
+# LinkSkills skills
+allowed_skills:
+  - system.status.read
+  - run.trace.read
+  - operator.help.provide
+
+# Memory and context rules
+memory_rules:
+  read_scopes:
+    - tenant.own_runs
+    - tenant.own_traces
+    - module.status
+  write_scopes: []  # Operator assistant does not write canonical memory
+
+# Model and runtime policy
+model_policy:
+  model_routing_profile: operator-assistant-v1
+  max_tokens: 4000
+  temperature: 0.3
+  tool_subset:
+    - status.query
+    - trace.fetch
+    - help.render
+
+# Audit events this role emits
+audit_events:
+  - role.started
+  - role.completed
+  - operator.query
+  - operator.assisted
+  - role.failed
+
+# LiNKguard cleanup profile
+cleanup_profile: light_session
+
+# Channel permissions
+channel_permissions:
+  read:
+    - "zulip:streams/operations"
+    - "zulip:topics/operator-*"
+  write:
+    - "zulip:streams/operations"
+    - "zulip:topics/operator-assist"
+
+# Development restrictions for MVO
+development_restrictions:
+  - read_only_operational_data
+  - no_capability_execution
+  - no_memory_write
+
+declared_in_mvo: true
+enabled_in_mvo: true
+
+# Role contract non-ownership (explicit)
+explicit_non_ownership:
+  - canonical_memory_persistence  # LiNKbrain owns
+  - capability_lease_authority      # LinkSkills owns
+  - deterministic_workflows         # LiNKautowork owns
+  - audit_storage                   # LiNKbrain owns
+  - secrets_lifecycle               # LinkSkills owns

@@ -1,0 +1,91 @@
+# Capability Connector: cap.stripe.product_management
+# Per LINKAPPS_CAPABILITY_REQUIREMENTS.md §2.3 and CONTRACTS_MVO.md §0.A.5.1
+
+plugin_id: cap.stripe.product_management
+plugin_kind: capability
+plugin_name: Stripe Product Management
+version: "1.0.0-mvo"
+purpose: Governed Stripe catalog and product configuration
+
+modes_supported:
+  - mock
+  - shadow
+  - live
+
+operations:
+  - operation_id: catalog.snapshot_mock
+    description: Free/Pro/Business placeholders
+    default_mode: mock
+    lease_skus:
+      - stripe.product.fixture
+      - stripe.product.write
+    idempotency_key_pattern: "${tenant_id}:${run_id}:${stage_id}:catalog.snapshot_mock:${pricing_tier_set_digest}"
+    allowed_callers:
+      - linkautowork
+      - vertical_plugin
+    failure_mapping:
+      missing_fixture: MANIFEST_INVALID
+      key_invalid: INTEGRATION_AUTH_FAILED
+
+  - operation_id: price.attach_mock
+    description: Attach price fixtures to product mocks
+    default_mode: mock
+    lease_skus:
+      - stripe.price.write
+    idempotency_key_pattern: "${tenant_id}:${run_id}:${stage_id}:price.attach_mock:${product_mock_id}:${currency}"
+    allowed_callers:
+      - linkautowork
+    failure_mapping:
+      invalid_price: LEASE_REQUEST_INVALID
+
+  - operation_id: webhook.endpoint.register_stub
+    description: Record endpoint URL only
+    default_mode: mock
+    lease_skus:
+      - stripe.webhook.configure
+    idempotency_key_pattern: "${tenant_id}:${run_id}:${stage_id}:webhook.endpoint.register_stub:${endpoint_url_normalized_sha}"
+    allowed_callers:
+      - linkautowork
+    failure_mapping:
+      registration_blocked: POLICY_REQUIRES_APPROVAL
+
+  - operation_id: readiness.probe
+    description: Key rotation / reachable API
+    default_mode: shadow
+    lease_skus:
+      - stripe.account.readiness
+    idempotency_key_pattern: "${tenant_id}:${probe_window_floor_ts}"
+    allowed_callers:
+      - linkautowork
+      - vertical_plugin
+      - linkaios
+    failure_mapping:
+      connectivity: INTEGRATION_UNAVAILABLE
+      auth: INTEGRATION_AUTH_FAILED
+
+auth_config_surface:
+  - stripe.account_ref
+  - stripe.api_key_ref
+  - stripe.fixture_catalog_ref
+
+audit_events:
+  - capability.requested
+  - capability.executed
+  - stripe.catalog.mocked
+  - capability.failed
+
+non_ownership:
+  - Subscription lifecycle rules
+  - Disputes and chargebacks
+  - Radar fraud training
+  - Stripe Tax configuration
+  - Stripe Connect onboarding
+  - Revenue recognition workflows
+
+required_by_modules:
+  - linkapps.app_factory
+
+notes: >
+  Per LINKAPPS_CAPABILITY_REQUIREMENTS.md §2.3: All operations default to mock/fixture
+  mode. Live mode requires explicit tenant opt-in, distinct lease policies, and
+  WP-112 implementation. Webhook registration may require POLICY_REQUIRES_APPROVAL.

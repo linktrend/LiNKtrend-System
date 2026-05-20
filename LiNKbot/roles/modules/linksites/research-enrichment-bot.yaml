@@ -1,0 +1,90 @@
+# Research/Enrichment Bot Role
+# Per CONTRACTS_MVO.md §0.A.4.1 - research_enrichment_bot contract
+
+role_id: research_enrichment_bot
+version: "1.0.0"
+purpose: |
+  Research the lead and comparable businesses; produce a provenance-backed
+  enrichment bundle for downstream website generation.
+
+# Module binding
+module: linksites
+module_version: "2.0.0"
+
+# Inputs and outputs
+inputs:
+  - lead_record_ref         # Lead reference from intake
+  - lead_input              # Business facts
+  - prior_research_refs     # Optional prior research
+
+outputs:
+  - lead_research_bundle    # Facts + comparables + citations
+  - enriched_context_refs   # Optional enriched context
+
+# MVO status
+enabled_in_mvo: true
+declared_in_mvo: true
+
+# Allowed capabilities (subset of module's required_capabilities)
+allowed_capabilities:
+  - cap.research.public_web     # Governed public web research
+  - cap.zulip.run_messaging     # Run/operator notifications only
+
+# Allowed skills (LinkSkills-governed)
+allowed_skills:
+  - research.public_read
+  - citation.extract
+  - provenance.record
+  - comparable.find
+
+# Development restrictions for MVO
+development_restrictions:
+  - research_read_only        # Read-only research, no writes
+  - provenance_required       # Citations required for all facts
+  - no_direct_crm_write       # CRM writes go through LiNKautowork
+  - no_direct_payload_or_supabase_write  # Content writes go through workflow
+
+# Audit events
+audit_events:
+  - role.started
+  - role.completed
+  - research.performed
+  - provenance.recorded
+  - role.failed
+
+# Model policy
+model_policy:
+  model_routing_profile: research-enrichment-v1
+  max_tokens: 8000
+  temperature: 0.2
+  tool_subset:
+    - research.public_web.search
+    - citation.extract
+    - comparable.analyze
+
+# Memory rules
+memory_rules:
+  read_scopes:
+    - module.linksites.templates
+    - research.public_web.cache
+  write_scopes: []  # Research bot does not write canonical memory directly
+
+# Channel permissions
+channel_permissions:
+  read:
+    - "zulip:streams/linksites"
+    - "zulip:topics/research-*"
+  write:
+    - "zulip:streams/linksites"
+    - "zulip:topics/run-notifications"
+
+# LiNKguard cleanup profile
+cleanup_profile: research_session
+
+# Explicit non-ownership
+explicit_non_ownership:
+  - capability_lease_issuance   # LinkSkills owns lease lifecycle
+  - canonical_memory_write      # LiNKbrain owns canonical persistence
+  - crm_write_operations        # CRM writes through LiNKautowork
+  - payload_sync_operations     # Payload sync through LiNKautowork
+  - supabase_mirror_write       # Supabase writes through workflow

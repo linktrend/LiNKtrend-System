@@ -1,0 +1,36 @@
+{
+  "name": "@linktrend/autowork-gateway",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "LiNKautowork Gateway — deterministic workflow execution plane",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./workflows": {
+      "import": "./dist/workflows/index.js",
+      "types": "./dist/workflows/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "eslint src/**/*.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@linktrend/linklogic-sdk": "workspace:*",
+    "@linktrend/db": "workspace:*",
+    "@linktrend/shared-config": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.4.0",
+    "vitest": "^1.6.0"
+  }
+}

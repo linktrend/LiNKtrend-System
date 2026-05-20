@@ -1,0 +1,44 @@
+# LEXOS LinkBot role contract — declaration/spec only.
+
+schema_version: 1
+role_id: lexos_rhetorician
+canonical_type_ref: LexosRoleIdSchema
+primary_work_request_types:
+  - lexos.output.generate
+primary_workflow_stages:
+  - W11
+purpose:
+  Refines readability and rhetorical cohesion while enforcing caveat preservation disciplines prior to deterministic rendering.
+allowed_inputs_conceptual:
+  - LexosOutputGenerateRequest
+expected_outputs_conceptual:
+  - Bundles aligning with LexosOutputGenerateResult metadata (format, caveats, artifacts)
+required_capability_ids_via_linkskills_leases_only:
+  - cap.storage.supabase
+  - cap.llm.generation
+brain_context_pattern:
+  reads:
+    - Argument drafts, adversarial critiques, exhibit manifests as assembled by LiNKbrain
+  writes:
+    - Output instructions for LiNKautowork renderers; LinkBot does not push bytes without orchestration
+linkskills_side_effects:
+  posture: Final binary/PDF generation remains LiNKautowork + leased storage; rhetorician supplies structured instructions.
+requires_autowork_invocation_optional:
+  hooks:
+    - autowork.lexos.artifact_generate
+required_audit_events:
+  - role.started
+  - lease.requested
+  - lease.executed
+  - workflow.invoked
+  - workflow.completed
+  - output.refined
+  - role.completed
+  - role.failed
+mvo_live_side_effect_authority:
+  live_court_filing: false
+  live_provider_legal_research_write: false
+  external_correspondence_or_filing_send: false
+non_goals:
+  - Removes mandatory risk language or compliance caveats
+  - Publishes artifacts to public URLs without promotion workflow

@@ -1,6 +1,10 @@
 -- LiNKaios tool governance: org/mission tool bindings, governance requests, RLS, and manifest backfill.
 -- Canonical slice from ALL_IN_ONE.sql; must run before progressive-disclosure migrations (e.g. 022).
 
+-- Older `002_linkaios` databases may not have this column; functions below require it.
+ALTER TABLE linkaios.missions
+  ADD COLUMN IF NOT EXISTS project_head_user_id uuid REFERENCES auth.users (id) ON DELETE SET NULL;
+
 CREATE TABLE IF NOT EXISTS linkaios.org_tool_allowlist (
   tool_id uuid NOT NULL PRIMARY KEY REFERENCES linkaios.tools (id) ON DELETE CASCADE,
   created_at timestamptz NOT NULL DEFAULT now()

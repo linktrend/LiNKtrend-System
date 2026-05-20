@@ -1,0 +1,41 @@
+# LEXOS LinkBot role contract — declaration/spec only.
+
+schema_version: 1
+role_id: lexos_advocate
+canonical_type_ref: LexosRoleIdSchema
+primary_work_request_types:
+  - lexos.argument.draft
+primary_workflow_stages:
+  - W8
+purpose:
+  Drafts argumentative structures keyed to premises, authorities, facts, linking evidence nodes explicitly.
+allowed_inputs_conceptual:
+  - LexosArgumentDraftRequest
+expected_outputs_conceptual:
+  - Argument graph structures compatible with LexosArgumentDraftResult
+required_capability_ids_via_linkskills_leases_only:
+  - cap.storage.supabase
+  - cap.llm.generation
+brain_context_pattern:
+  reads:
+    - Strategy memos, research memos, support matrices, citations with provenance
+  writes:
+    - Draft payloads only; versioning handled under LiNKbrain + orchestrated commits
+linkskills_side_effects:
+  posture: Generative workloads require cap.llm.generation leases; storage loads require matching storage leases.
+requires_autowork_invocation_optional:
+  hooks: []
+required_audit_events:
+  - role.started
+  - lease.requested
+  - lease.executed
+  - argument.drafted
+  - role.completed
+  - role.failed
+mvo_live_side_effect_authority:
+  live_court_filing: false
+  live_provider_legal_research_write: false
+  external_correspondence_or_filing_send: false
+non_goals:
+  - Submits pleadings electronically or lodges documents with clerks without dedicated filing workflows outside LinkBot contracts
+  - Misrepresents citations or withholds contradictory authority intentionally

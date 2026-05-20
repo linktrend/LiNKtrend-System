@@ -1,0 +1,94 @@
+# Website Builder Bot Role
+# Per CONTRACTS_MVO.md §0.A.4.1 - website_builder_bot contract
+
+role_id: website_builder_bot
+version: "1.0.0"
+purpose: |
+  Use discovered LiNKsites template(s) as guidance and produce
+  business-specific website package content including copy,
+  media plans, and style proposals.
+
+# Module binding
+module: linksites
+module_version: "2.0.0"
+
+# Inputs and outputs
+inputs:
+  - lead_record_ref         # Lead reference
+  - lead_research_bundle    # From research_enrichment_bot
+  - template_id             # Discovered template reference
+
+outputs:
+  - website_package         # Copy bundle + media plan + style proposal
+  - template_guidance_refs  # Template selection rationale
+
+# MVO status
+enabled_in_mvo: true
+declared_in_mvo: true
+
+# Allowed capabilities (subset of module's required_capabilities)
+allowed_capabilities:
+  - cap.asset.generation      # Governed media generation
+  - cap.research.public_web     # Supplemental research if needed
+  - cap.zulip.run_messaging     # Status notifications only
+
+# Allowed skills (LinkSkills-governed)
+allowed_skills:
+  - content.generation
+  - style.planning
+  - media.planning
+  - template.guidance.apply
+
+# Development restrictions for MVO
+development_restrictions:
+  - template_guidance_not_clone  # Use templates as guidance, not clones
+  - local_artifact_target_only   # Write to local artifact folder only
+  - no_direct_publish            # No direct publishing
+  - no_target_schema_invention   # Don't invent Payload/Supabase schemas
+
+# Audit events
+audit_events:
+  - role.started
+  - role.completed
+  - template.guidance.selected
+  - website.package.generated
+  - provenance.recorded
+  - role.failed
+
+# Model policy
+model_policy:
+  model_routing_profile: website-builder-v1
+  max_tokens: 12000
+  temperature: 0.4
+  tool_subset:
+    - content.generate
+    - style.plan
+    - media.plan
+    - template.select
+
+# Memory rules
+memory_rules:
+  read_scopes:
+    - module.linksites.templates
+    - lead.research_bundles
+  write_scopes: []  # Builder bot does not write canonical memory directly
+
+# Channel permissions
+channel_permissions:
+  read:
+    - "zulip:streams/linksites"
+    - "zulip:topics/builder-*"
+  write:
+    - "zulip:streams/linksites"
+    - "zulip:topics/run-notifications"
+
+# LiNKguard cleanup profile
+cleanup_profile: builder_session
+
+# Explicit non-ownership
+explicit_non_ownership:
+  - payload_sync              # LiNKautowork owns Payload sync
+  - supabase_mirror_persistence  # LinkSkills lease gates Supabase writes
+  - deterministic_checks      # LiNKautowork owns preview checks
+  - crm_status_promotion      # LinkSkills/LiNKautowork own CRM updates
+  - canonical_artifact_storage  # Future cold storage, not builder's concern

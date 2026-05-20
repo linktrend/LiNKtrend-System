@@ -1,0 +1,78 @@
+---
+manifest_version: '1.0'
+plugin_kind: capability
+kind_version: semantic
+capability_id: cap.extraction.ocr
+
+target_software:
+  product: OCR Engine (hosted or containerized OCR service)
+  role_description: Rasterize textual content from scanned or image-heavy PDF pages for LEXOS ingestion.
+
+allowed_operations:
+  - id: text.extract
+    lease_permission: extraction.ocr.perform
+    writes_side_effect: false
+    description: Return machine text per page/block with deterministic ordering cues.
+  - id: confidence.score
+    lease_permission: extraction.ocr.confidence_emit
+    writes_side_effect: false
+    description: Confidence metrics for downstream QA Comparator gating without persisting adjudication.
+
+auth_requirements:
+  note: Secret material through LinkSkills credential refs only — never inlined.
+  tenant_config_refs:
+    - ocr.provider_ref
+    - ocr.model_profile_slug
+    - ocr.credential_ref
+  requires_linkskills_registration: true
+
+mode_flags:
+  mvo_modes:
+    - development
+
+lease_requirements:
+  linkskills_permissions_hint:
+    - extraction.ocr.perform
+    - extraction.ocr.confidence_emit
+  mandatory_lease_claims:
+    - tenant_id
+    - run_id_or_work_request_id
+    - page_or_region_scope_tokens
+    - output_language_hints_optional
+
+idempotency_rules:
+  key_components:
+    - tenant_id
+    - source_asset_id_or_fingerprint
+    - ocr_model_profile_slug
+    - operation_id
+    - region_or_rotation_descriptor_digest
+    - initiating_run_id
+  collision_policy: Reuse OCR artifact fingerprints if identical deterministic inputs recur during lease window.
+
+audit_events:
+  minimum_outcomes:
+    - capability.requested
+    - capability.executed
+    - extraction.ocr.started
+    - extraction.confidence.available
+    - capability.failed
+
+allowed_callers:
+  - vertical_plugin
+  - linkbot
+  - linkautowork
+
+failure_mapping:
+  INTEGRATION_UNAVAILABLE: OCR autoscaler offline, backlog overflow, degraded GPU tier.
+  INTEGRATION_AUTH_FAILED: OCR provider credentials invalid vs declared profile.
+  INTEGRATION_TIMEOUT: Per-page SLA exceeded versus LinkSkills policy.
+  LEASE_DENIED: Sensitive document class blocked without higher tier approval stub.
+  LEASE_EXPIRED: Lease shorter than OCR job duration estimation.
+  LEASE_KILL_SWITCH: OCR provider halt or tenant-scope kill.
+  LEASE_REQUEST_INVALID: Illegal DPI hint, contradictory region tokens, malformed asset reference.
+  LEASE_IDEMPOTENCY_CONFLICT: Same stable input under divergent preprocessing hints flagged concurrently.
+
+not_configured:
+  - Handwriting adjudication courtroom standards or legal admissibility determinations beyond confidence surfacing (LEXOS LiNKbot/policy layers own that synthesis).
+  - OCR vendor fine-tuned model inventory outside LEXOS-required stable profiles list.

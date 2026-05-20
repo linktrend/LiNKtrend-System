@@ -10,9 +10,9 @@ Read and follow **`docs/LiNKskills-PRD.md`** end-to-end. Do **not** implement or
 
 ## Scope you own
 
-1. **Structured metadata `declared_tools`** on skills: stable representation (prefer extending existing skill `metadata` JSON and/or frontmatter parsing in `apps/linkaios-web` / `src/lib/skill-markdown.ts` patterns). Keys must match **`linkaios.tools.name`**.
+1. **Structured metadata `declared_tools`** on skills: stable representation (prefer extending existing skill `metadata` JSON and/or frontmatter parsing in `LiNKaios/linkaios-web` / `src/lib/skill-markdown.ts` patterns). Keys must match **`linkaios.tools.name`**.
 2. **Validation:** On draft save / approve path, enforce PRD §5.2 (invalid catalog names blocked or warned per PRD default: prefer **hard error** on approve for missing catalog names; on draft save, match product intent in PRD).
-3. **LiNKskills UI** (`apps/linkaios-web` routes under **LiNKskills**): Skills catalog/editor surfaces to view and edit `declared_tools`; Tools catalog (**LiNKskills · Tools**) per PRD §6 — draft create/edit, **delete only never-approved tools**, **archive** for approved, read-only “which approved skills declare this tool” aggregate where feasible.
+3. **LiNKskills UI** (`LiNKaios/linkaios-web` routes under **LiNKskills**): Skills catalog/editor surfaces to view and edit `declared_tools`; Tools catalog (**LiNKskills · Tools**) per PRD §6 — draft create/edit, **delete only never-approved tools**, **archive** for approved, read-only “which approved skills declare this tool” aggregate where feasible.
 4. **Types:** Extend `packages/shared-types` (or equivalent) so `declared_tools` is typed where skill records are consumed.
 5. **Governance contract (read path only):** Where `linklogic-sdk` or `bot-runtime` loads the resolved skill, ensure **declared tool names** are available on the governance payload or an adjacent field **for consumers** that will intersect with allowlists (if the other agent adds intersection later, your job is to **emit** `declared_tools` reliably — do not implement org/mission intersection in this task unless trivially required to avoid duplication; prefer a small exported helper `getDeclaredToolsFromSkill(skill)`).
 
@@ -25,7 +25,7 @@ Read and follow **`docs/LiNKskills-PRD.md`** end-to-end. Do **not** implement or
 
 ## Preconditions
 
-Skim: `services/migrations/011_linkaios_tools.sql`, `apps/linkaios-web/src/app/(shell)/skills/`, `packages/linklogic-sdk/src/resolve-skill.ts`, `packages/linklogic-sdk/src/governance-payload.ts` (read-only understanding of where skill body is attached).
+Skim: `services/migrations/011_linkaios_tools.sql`, `LiNKaios/linkaios-web/src/app/(shell)/skills/`, `packages/linklogic-sdk/src/resolve-skill.ts`, `packages/linklogic-sdk/src/governance-payload.ts` (read-only understanding of where skill body is attached).
 
 ## Verification
 

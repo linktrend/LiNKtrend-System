@@ -1,0 +1,121 @@
+---
+# Declaration-only capability plugin manifest — LiNKapps Zulip run messaging (mock queue default; aligns CONTRACTS_MVO pack).
+# Sources: LINKAPPS_CAPABILITY_REQUIREMENTS.md §2.7, §3, §4; CONTRACTS_MVO.md §0.A.5.1 (cap.zulip.run_messaging).
+manifest_version: '1.0'
+plugin_kind: capability
+kind_version: semantic
+capability_id: cap.zulip.run_messaging
+vertical_family: linkapps.app_factory
+
+target_software:
+  product: Zulip
+  role_description: >-
+    Run notifications and channel messages as locally queued / mock-send by default; real outbound delivery is future-only.
+
+default_execution_mode: mock
+live_execution_policy:
+  status: disabled_by_default
+  requires_tenant_opt_in: true
+  requires_distinct_lease_policies: true
+
+allowed_operations:
+  - id: run.notify
+    lease_permissions:
+      - zulip.run.notify
+    writes_side_effect: true
+    mode_routing:
+      mock: allowed
+      shadow: not_offered
+      live: future_requires_opt_in
+  - id: channel.message.mock_send
+    lease_permissions:
+      - zulip.channel.message.send
+    writes_side_effect: true
+    mode_routing:
+      mock: allowed
+      shadow: not_offered
+      live: future_requires_opt_in
+  - id: connectivity.probe
+    lease_permissions:
+      - zulip.connectivity.probe
+    writes_side_effect: false
+    mode_routing:
+      mock: not_offered
+      shadow: allowed
+      live: allowed_with_readiness_lease
+
+auth_requirements:
+  note: Declare handles only — never embed secrets in manifests or repo.
+  tenant_config_refs:
+    - zulip.base_url
+    - zulip.bot_email_ref
+    - zulip.api_key_ref
+    - zulip.stream_ref
+    - zulip.topic_template
+    - tenant.stream_routing_ref
+  requires_linkskills_registration: true
+
+mode_flags:
+  mvo_modes:
+    - development
+  supported_capability_modes:
+    - mock
+    - shadow
+    - live
+  outbound_delivery:
+    default: mock_queue_only
+    live_outbound:
+      status: future_only
+      requires_explicit_enablement: true
+
+lease_requirements:
+  linkskills_permissions_hint:
+    - zulip.run.notify
+    - zulip.channel.message.send
+    - zulip.connectivity.probe
+  mandatory_lease_claims:
+    - tenant_id
+    - run_id_or_work_request_id
+    - lease_id
+    - idempotency_key
+    - originating_stage_id
+
+idempotency_rules:
+  template: "${tenant_id}:${run_id}:${stage_id}:${capability_id}:${operation}:${stable_scope_segment}"
+  stable_scope_segment_by_operation:
+    run.notify: "run_id:${message_purpose}"
+    channel.message.mock_send: "purpose:${deterministic_topic}"
+    connectivity.probe: "tenant_id:${probe_window_floor_ts}"
+  collision_policy: >-
+    Replay identical key returns original outcome; divergent args → LEASE_IDEMPOTENCY_CONFLICT.
+
+audit_events:
+  minimum_outcomes:
+    - capability.requested
+    - capability.executed
+    - zulip.notification.queued
+    - zulip.connectivity.checked
+    - capability.failed
+
+allowed_callers:
+  - linkaios
+  - vertical_plugin
+  - linkbot
+  - linkautowork
+
+failure_mapping:
+  MANIFEST_INVALID: Stream/topic template missing or malformed routing ref.
+  INTEGRATION_AUTH_FAILED: Bot credential invalid.
+  INTEGRATION_UNAVAILABLE: Zulip outage or network failure.
+  LEASE_DENIED: Live attempt while mock posture active; publish/send prohibited.
+  INTEGRATION_TIMEOUT: Outbound deadline exceeded.
+  LEASE_IDEMPOTENCY_CONFLICT: Same key, divergent message envelope.
+  LEASE_KILL_SWITCH: Tenant halt on messaging tier.
+
+kill_switch_registration:
+  scope: capability_kill_switch
+  optional_operation_subscope: true
+
+not_configured:
+  - Organization-wide stream hierarchy redesign beyond run-notification templates.
+  - Moderation/bot onboarding for non-Linkapps topics, full message archive export beyond governed audit slice.

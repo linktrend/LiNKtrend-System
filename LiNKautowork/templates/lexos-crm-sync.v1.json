@@ -1,0 +1,41 @@
+{
+  "version": "1.0",
+  "templateVersion": "v1",
+  "handle": "autowork.lexos.crm_sync",
+  "displayName": "LEXOS CRM Sync",
+  "description": "Syncs client/matter records to mock CRM for MVO (future: real Odoo/Chatwoot)",
+  "requiresLease": true,
+  "source": {
+    "type": "n8n",
+    "n8nWorkflowId": "wf-lexos-crm-sync-v1"
+  },
+  "tags": ["lexos", "crm", "sync", "mock", "deterministic"],
+  "createdAt": "2026-05-18T00:00:00.000Z",
+  "updatedAt": "2026-05-18T00:00:00.000Z",
+  "author": "WP-207",
+  "environments": ["development"],
+  "expectedInputs": {
+    "tenant_id": "string (uuid)",
+    "sync_type": "enum: client, matter, intake",
+    "client_id": "string (uuid, optional)",
+    "matter_id": "string (uuid, optional)",
+    "intake_id": "string (uuid, optional)",
+    "sync_direction": "enum: to_crm, from_crm, bidirectional (default: to_crm)"
+  },
+  "expectedOutputs": {
+    "crm_record_id": "string (uuid in mock CRM)",
+    "sync_status": "enum: synced, pending, failed, partial",
+    "sync_timestamp": "ISO8601 timestamp",
+    "sync_errors": "array of error objects (if any)"
+  },
+  "requiredCapabilities": [
+    "cap.crm.mock"
+  ],
+  "auditEventTypes": [
+    "workflow.invoked",
+    "crm.synced",
+    "workflow.completed",
+    "workflow.failed"
+  ],
+  "mvoNotes": "This workflow uses mock CRM (local Postgres) for MVO. Real Odoo/Chatwoot integration deferred to post-MVO."
+}
