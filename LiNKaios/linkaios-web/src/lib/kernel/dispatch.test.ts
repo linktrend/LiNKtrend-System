@@ -22,6 +22,17 @@ vi.mock("@linktrend/linklogic-sdk", async () => {
   };
 });
 
+vi.mock("@linktrend/linklogic-sdk", async () => {
+  const actual = await vi.importActual<typeof import("@linktrend/linklogic-sdk")>("@linktrend/linklogic-sdk");
+  return {
+    ...actual,
+    writeBrainAuditEvent: vi.fn(async (_env, event) => ({
+      event_id: event.event_id,
+      persisted: true,
+    })),
+  };
+});
+
 const ctx: DispatchContext = {
   tenant_id: "tenant-1",
   run_id: "run-1",
