@@ -6,7 +6,8 @@
  */
 
 import { describe, it, expect, beforeEach } from "vitest";
-import type { WorkflowInvokeRequest, WorkflowContext } from "@linktrend/linklogic-sdk";
+import type { WorkflowInvokeRequest } from "@linktrend/linklogic-sdk";
+import type { WorkflowContext } from "../types/index.js";
 import {
   createRepoHandler,
   provisionServicesHandler,
@@ -112,11 +113,12 @@ describe("LiNKapps Workflow Pack", () => {
 
       expect("outputs" in result).toBe(true);
       if ("outputs" in result) {
-        expect(result.outputs.app_repo_ref).toBeDefined();
-        expect(result.outputs.app_repo_ref.repo_url).toMatch(/^mock:\/\//);
-        expect(result.outputs.git_commit_sha).toMatch(/^mock-/);
-        expect(result.outputs.lease_id).toBe("lease-test-001");
-        expect(result.outputs.mode).toBe("mock");
+        const outputs = result.outputs as Record<string, any>;
+        expect(outputs.app_repo_ref).toBeDefined();
+        expect(outputs.app_repo_ref.repo_url).toMatch(/^mock:\/\//);
+        expect(outputs.git_commit_sha).toMatch(/^mock-/);
+        expect(outputs.lease_id).toBe("lease-test-001");
+        expect(outputs.mode).toBe("mock");
         expect(result.audit_event_ids).toHaveLength(2);
       }
     });
@@ -281,9 +283,10 @@ describe("LiNKapps Workflow Pack", () => {
       if ("outputs" in result) {
         expect(result.outputs.service_credentials_ref).toMatch(/^credentials:/);
         expect(result.outputs.supabase_project_ref).toMatch(/^mock-supabase-/);
-        expect(result.outputs.stripe_product_ids_ref).toBeDefined();
-        expect(result.outputs.stripe_product_ids_ref.free).toMatch(/^mock_price_free_/);
-        expect(result.outputs.mode).toBe("mock");
+        const outputs = result.outputs as Record<string, any>;
+        expect(outputs.stripe_product_ids_ref).toBeDefined();
+        expect(outputs.stripe_product_ids_ref.free).toMatch(/^mock_price_free_/);
+        expect(outputs.mode).toBe("mock");
       }
     });
 
@@ -349,7 +352,7 @@ describe("LiNKapps Workflow Pack", () => {
       expect("outputs" in result).toBe(true);
       if ("outputs" in result) {
         expect(result.outputs.implementation_bundle_ref).toMatch(/^bundle:/);
-        expect(result.outputs.built_app_bundle.build_status).toBe("succeeded");
+        expect((result.outputs as Record<string, any>).built_app_bundle.build_status).toBe("succeeded");
         expect(result.outputs.iteration_num).toBe(1);
         expect(result.outputs.mode).toBe("mock");
       }
@@ -438,11 +441,12 @@ describe("LiNKapps Workflow Pack", () => {
 
       expect("outputs" in result).toBe(true);
       if ("outputs" in result) {
-        expect(result.outputs.deployment_refs).toBeInstanceOf(Array);
-        expect(result.outputs.deployment_refs[0]).toMatch(/^deploy:/);
-        expect(result.outputs.preview_urls[0]).toMatch(/^http:\/\/localhost/);
-        expect(result.outputs.lease_id).toBe("lease-test-004");
-        expect(result.outputs.mode).toBe("mock");
+        const outputs = result.outputs as Record<string, any>;
+        expect(outputs.deployment_refs).toBeInstanceOf(Array);
+        expect(outputs.deployment_refs[0]).toMatch(/^deploy:/);
+        expect(outputs.preview_urls[0]).toMatch(/^http:\/\/localhost/);
+        expect(outputs.lease_id).toBe("lease-test-004");
+        expect(outputs.mode).toBe("mock");
       }
     });
 

@@ -331,36 +331,6 @@ export function createPreviewReadinessCheckHandler(
             "No readiness requirements specified. At least one of required_pages, required_navigation_items, required_content_blocks, or required_media_refs must be provided.",
           ),
         };
-      } catch (error) {
-        const reason = error instanceof Error ? error.message : "unknown error";
-        if (reason.includes("not configured for development mode")) {
-          // Development fallback: fail-closed when services not configured
-          // Only succeed if explicit requirements were provided (checked above)
-          // Return deterministic failure indicating checks could not be performed
-          return {
-            outputs: {
-              checks_passed: false,
-              check_report_ref: `readiness_report:${request.tenant_id}:${request.run_id}:${request.idempotency_key}`,
-              failed_checks: ["payload_service_not_configured"],
-              preview_readiness_status: "failed",
-              checked_at: new Date().toISOString(),
-              dev_fallback: true,
-              checked_items: {
-                pages_count: requiredPages.length,
-                navigation_items_count: requiredNavigationItems.length,
-                content_blocks_count: requiredContentBlocks.length,
-                media_refs_count: requiredMediaRefs.length,
-                provenance_refs_count: expectedProvenanceRefs.length,
-              },
-            },
-          };
-        }
-        return {
-          failure: fail(
-            "INTEGRATION_UNAVAILABLE",
-            `Payload readiness check failed: ${reason}`,
-          ),
-        };
       }
 
       try {
