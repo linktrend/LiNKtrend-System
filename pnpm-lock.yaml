@@ -176,6 +176,9 @@ importers:
       '@linktrend/shared-types':
         specifier: workspace:*
         version: link:../../../../packages/shared-types
+      zod:
+        specifier: ^3.25.76
+        version: 3.25.76
     devDependencies:
       '@eslint/js':
         specifier: ^9.39.4

@@ -219,11 +219,11 @@ export async function requestLeasesBatch(
   requests: BotLeaseRequest[],
   config: LeaseAdapterConfig = DEFAULT_LEASE_CONFIG
 ): Promise<LeaseDecision[]> {
-  const decisions = await Promise.all(
+  const decisions: Array<LeaseDecision | LeaseAdapterError> = await Promise.all(
     requests.map((req) => requestLease(req, config).catch((err) => err as LeaseAdapterError))
   );
 
-  return decisions.map((decision) => {
+  return decisions.map((decision: LeaseDecision | LeaseAdapterError) => {
     if (decision instanceof LeaseAdapterError) {
       return {
         lease_id: `failed-${Date.now()}-${Math.random().toString(36).slice(2)}`,
