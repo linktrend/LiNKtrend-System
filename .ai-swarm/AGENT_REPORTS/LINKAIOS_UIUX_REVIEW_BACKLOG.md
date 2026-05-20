@@ -784,7 +784,41 @@ Chairman approved items 1–17. Implemented in UI review pass (no commit unless 
 | UIUX-SET-002 | Rename API Keys → Integrations |
 | UIUX-SET-003 | New Privacy & data tab (export, backup, retention) |
 | UIUX-SET-004 | Platform tab vendor-only (Advanced, traces, Integration Routing) |
-| UIUX-SET-005 | Integration Routing: move Zulip routing off licensee Settings |
+| UIUX-SET-005 | Integration Routing: move Zulip routing off licensee Settings | fixed (Platform hub) |
+
+---
+
+## UI/UX Wave Execution — 2026-05-20 (Integrator)
+
+**Branch:** `development` through Wave 3 + TODO sweep
+
+### Waves 0–2 (integrated)
+
+| Wave | Scope | Status |
+|------|-------|--------|
+| 0 | StatusPill + status-colors foundation | fixed |
+| 1 | Work/Modules/Metrics/Cockpit pills, Company Phase B, Settings restructure | fixed |
+| 2 | Cockpit retired, Modules/Metrics Phase B, static page Help | fixed |
+
+Agent reports: `.ai-swarm/AGENT_REPORTS/wp-wave1-*.md`, `wp-wave2-*.md`
+
+### Wave 3 + TODO sweep (this pass)
+
+| ID | Item | Status |
+|----|------|--------|
+| UIUX-COMP-010 | Shell + Company switcher mock | fixed |
+| UIUX-COMP-011–014 | Profile/locations/modules UI (mock persistence) | fixed (Phase B) |
+| UIUX-COMP-013 | Org parent picker dropdown | fixed |
+| UIUX-COMP-015–017 | People card, tabs, vendor badge | fixed |
+| UIUX-COMP-016 | Licensee + Linktrend operator badges | fixed |
+| UIUX-COMP-022 | LiNKbrain knowledge preview list | partial fixed |
+| UIUX-COCK Phase 2–3 | Redirects + sidebar removal | fixed |
+| UIUX-SET-001–005 | Settings IA | fixed |
+| UIUX-GLOBAL-002 | Static Help panel | fixed (LLM TODO) |
+| UIUX-GLOBAL-001 | StatusPill adoption | partial fixed |
+| LINK-CLEANUP-001 | Stale `/settings/gateway`, `/settings/advanced`, `/cockpit` links | fixed |
+
+**Remaining:** see `.ai-swarm/TODO-WAVE3-REMAINING.md`
 
 ---
 

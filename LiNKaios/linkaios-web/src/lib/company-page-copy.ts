@@ -56,6 +56,7 @@ export const COMPANY_SECTION_COPY = {
     body: "Approved company documents and reference material live in LiNKbrain. Add new files through Inbox; published company memory appears under LiNKbrain → Company.",
     addLabel: "Add via LiNKbrain Inbox",
     viewLabel: "View company memory",
+    emptyPreview: "No published company files yet. Add material through LiNKbrain Inbox.",
   },
   people: {
     title: "People & permissions",

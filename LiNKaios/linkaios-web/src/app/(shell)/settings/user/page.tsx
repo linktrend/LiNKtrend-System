@@ -62,14 +62,8 @@ export default async function SettingsUserPage() {
       <section id="help" className="scroll-mt-8">
         <h3 className="text-base font-semibold text-zinc-900 dark:text-zinc-100">Help</h3>
         <p className="mt-2 max-w-xl text-sm text-zinc-600 dark:text-zinc-400">
-          An in-product LLM help assistant will live here. For now, use your workspace runbook or contact Linktrend
-          support.
-        </p>
-        <p
-          className="mt-4 inline-flex cursor-not-allowed items-center rounded-lg border border-dashed border-zinc-300 px-4 py-2 text-sm text-zinc-500 dark:border-zinc-700 dark:text-zinc-400"
-          aria-disabled="true"
-        >
-          Help assistant — coming soon
+          Use the <strong>Help</strong> button in the page header for static guidance on any screen. An in-product LLM
+          assistant will replace this later.
         </p>
       </section>
     </div>

@@ -119,6 +119,7 @@ const DOMAIN_STATUS_MAP: Partial<Record<StatusDomain, Record<string, PillSpec>>>
   run: {
     ok: { tone: "success", label: "OK" },
     success: { tone: "success", label: "Success" },
+    succeeded: { tone: "success", label: "Succeeded" },
     failed: { tone: "danger", label: "Failed" },
     error: { tone: "danger", label: "Error" },
     running: { tone: "active", label: "Running" },
@@ -132,6 +133,7 @@ const DOMAIN_STATUS_MAP: Partial<Record<StatusDomain, Record<string, PillSpec>>>
   },
   lease: {
     active: { tone: "success", label: "Active" },
+    granted: { tone: "success", label: "Granted" },
     expired: { tone: "neutral", label: "Expired" },
     revoked: { tone: "danger", label: "Revoked" },
     pending: { tone: "warning", label: "Pending" },

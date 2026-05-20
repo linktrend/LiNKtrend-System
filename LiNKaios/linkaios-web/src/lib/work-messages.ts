@@ -58,7 +58,7 @@ export function groupZulipIntoThreads(rows: ZulipMessageLinkRow[]): ChannelMessa
         detail: "",
         missionId: row.mission_id,
         messageCount: 0,
-        openHref: "/settings/gateway",
+        openHref: "/settings/platform",
         _rows: [],
       };
       map.set(key, g);

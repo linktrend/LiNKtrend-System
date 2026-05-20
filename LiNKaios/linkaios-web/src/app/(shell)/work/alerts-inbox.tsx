@@ -81,7 +81,7 @@ function rowHover(sev: WorkAlert["severity"], isResolved: boolean): string {
 
 function goToFixHref(a: WorkAlert): string {
   const blob = `${a.title} ${a.summary} ${a.source}`.toLowerCase();
-  if (blob.includes("gateway") || blob.includes("zulip") || blob.includes("stream")) return "/settings/gateway";
+  if (blob.includes("gateway") || blob.includes("zulip") || blob.includes("stream")) return "/settings/platform";
   if (blob.includes("brain") || blob.includes("memory") || blob.includes("draft")) return "/memory?tab=inbox";
   if (blob.includes("skill") || blob.includes("tool")) return "/skills/skills";
   return "/workers";

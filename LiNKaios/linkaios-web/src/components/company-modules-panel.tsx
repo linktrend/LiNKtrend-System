@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 
 import { CompanyStripeModal, type StripeModalMode } from "@/components/company-stripe-modal";
+import { ModulesCatalogLink, ModulesStartProjectLink } from "@/components/modules-start-project-link";
 import { DomainStatusPill } from "@/components/ui/status-pill";
 import { COMPANY_SECTION_COPY } from "@/lib/company-page-copy";
 import {
@@ -104,7 +105,9 @@ export function CompanyModulesPanel() {
               const subscribed = row.status === "active" || row.status === "trialing";
               return (
                 <tr key={row.id}>
-                  <td className="px-3 py-2 font-medium text-zinc-900 dark:text-zinc-100">{row.module}</td>
+                  <td className="px-3 py-2 font-medium text-zinc-900 dark:text-zinc-100">
+                    <ModulesCatalogLink moduleId={row.moduleId} label={row.module} />
+                  </td>
                   <td className={`px-3 py-2 ${TABLE.thControl}`}>
                     <DomainStatusPill domain="subscription" status={row.status} equalWidth />
                   </td>
@@ -113,6 +116,7 @@ export function CompanyModulesPanel() {
                     <div className="flex flex-wrap justify-center gap-2">
                       {subscribed ? (
                         <>
+                          <ModulesStartProjectLink moduleId={row.moduleId} />
                           <button type="button" className={BUTTON.secondaryCompact} onClick={() => openSubscribe(row)}>
                             {COMPANY_SECTION_COPY.modules.changePlan}
                           </button>
@@ -121,9 +125,12 @@ export function CompanyModulesPanel() {
                           </button>
                         </>
                       ) : (
-                        <button type="button" className={BUTTON.primaryCompact} onClick={() => openSubscribe(row)}>
-                          {COMPANY_SECTION_COPY.modules.subscribe}
-                        </button>
+                        <>
+                          <button type="button" className={BUTTON.primaryCompact} onClick={() => openSubscribe(row)}>
+                            {COMPANY_SECTION_COPY.modules.subscribe}
+                          </button>
+                          <ModulesCatalogLink moduleId={row.moduleId} label="Preview" className={BUTTON.secondaryCompact} />
+                        </>
                       )}
                     </div>
                   </td>

@@ -76,7 +76,7 @@ export default function DevtoolsMvoProofPage() {
       </section>
 
       <section>
-        <Link href="/settings/advanced" className="text-sm font-medium text-sky-700 underline dark:text-sky-400">
+        <Link href="/settings/platform" className="text-sm font-medium text-sky-700 underline dark:text-sky-400">
           Back to Advanced settings
         </Link>
       </section>

@@ -47,7 +47,6 @@ export async function setCommandCentreRole(
     .upsert({ user_id: targetUserId, role }, { onConflict: "user_id" });
 
   if (error) return { ok: false, error: error.message };
-  revalidatePath("/settings/access");
   revalidatePath("/settings/user");
   return { ok: true };
 }
@@ -72,7 +71,6 @@ export async function clearCommandCentreRole(
     .eq("user_id", targetUserId);
 
   if (error) return { ok: false, error: error.message };
-  revalidatePath("/settings/access");
   revalidatePath("/settings/user");
   return { ok: true };
 }

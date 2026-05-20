@@ -31,6 +31,7 @@ function CompanyTabContent(props: {
   primaryEntity?: BrainLegalEntityRow;
   nodes: BrainOrgNodeRow[] | null;
   companyKnowledgeCount: number | null;
+  companyKnowledgePreview: { id: string; path: string }[];
   inboxHref: string;
   companyMemoryHref: string;
 }) {
@@ -105,6 +106,17 @@ function CompanyTabContent(props: {
           </>
         )}
       </p>
+      {props.companyKnowledgePreview.length > 0 ? (
+        <ul className="mt-4 space-y-1 rounded-lg border border-zinc-200 bg-zinc-50/80 px-3 py-2 text-sm dark:border-zinc-800 dark:bg-zinc-900/40">
+          {props.companyKnowledgePreview.map((f) => (
+            <li key={f.id} className="truncate font-mono text-xs text-zinc-700 dark:text-zinc-300">
+              {f.path}
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="mt-3 text-sm text-zinc-500 dark:text-zinc-400">{COMPANY_SECTION_COPY.knowledge.emptyPreview}</p>
+      )}
       <div className="mt-4 flex flex-wrap gap-3">
         <Link href={props.inboxHref} className={BUTTON.primaryRow}>
           {COMPANY_SECTION_COPY.knowledge.addLabel}
@@ -122,9 +134,11 @@ function CompanyPageShellInner(props: {
   primaryEntity?: BrainLegalEntityRow;
   nodes: BrainOrgNodeRow[] | null;
   companyKnowledgeCount: number | null;
+  companyKnowledgePreview: { id: string; path: string }[];
   inboxHref: string;
   companyMemoryHref: string;
   uiMocks: boolean;
+  isVendorOperator: boolean;
 }) {
   const searchParams = useSearchParams();
   const tab = searchParams.get("tab") ?? COMPANY_DEFAULT_TAB;
@@ -133,6 +147,16 @@ function CompanyPageShellInner(props: {
   return (
     <main className="space-y-6">
       <ShellPageHeaderClient title={COMPANY_PAGE_HEADER.title} subtitle={COMPANY_PAGE_HEADER.subtitle} />
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="inline-flex rounded-full border border-emerald-300 bg-emerald-50 px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wide text-emerald-900 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-100">
+          Licensee company
+        </span>
+        {props.isVendorOperator ? (
+          <span className="inline-flex rounded-full border border-indigo-300 bg-indigo-50 px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wide text-indigo-900 dark:border-indigo-800 dark:bg-indigo-950/40 dark:text-indigo-100">
+            Linktrend operator view
+          </span>
+        ) : null}
+      </div>
       <CompanySwitcher />
       {props.uiMocks ? (
         <p className="text-xs font-medium uppercase tracking-wide text-amber-800 dark:text-amber-200">
@@ -162,6 +186,7 @@ function CompanyPageShellInner(props: {
         primaryEntity={props.primaryEntity}
         nodes={props.nodes}
         companyKnowledgeCount={props.companyKnowledgeCount}
+        companyKnowledgePreview={props.companyKnowledgePreview}
         inboxHref={props.inboxHref}
         companyMemoryHref={props.companyMemoryHref}
       />
@@ -174,9 +199,11 @@ export function CompanyPageShell(props: {
   primaryEntity?: BrainLegalEntityRow;
   nodes: BrainOrgNodeRow[] | null;
   companyKnowledgeCount: number | null;
+  companyKnowledgePreview: { id: string; path: string }[];
   inboxHref: string;
   companyMemoryHref: string;
   uiMocks: boolean;
+  isVendorOperator: boolean;
 }) {
   return (
     <Suspense fallback={<main className="p-6 text-sm text-zinc-500">Loading company…</main>}>

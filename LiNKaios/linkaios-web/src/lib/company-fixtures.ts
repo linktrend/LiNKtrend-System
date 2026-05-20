@@ -77,6 +77,7 @@ export function locationsForCompany(companyId: string): LocationFixture[] {
 
 export type ModuleSubscriptionFixture = {
   id: string;
+  moduleId: string;
   module: string;
   status: "active" | "trialing" | "not_subscribed" | "canceled";
   plan: string | null;
@@ -84,18 +85,18 @@ export type ModuleSubscriptionFixture = {
 
 const MODULES_BY_COMPANY: Record<string, ModuleSubscriptionFixture[]> = {
   "xyz-marketing": [
-    { id: "linksites", module: "LinkSites", status: "active", plan: "Professional" },
-    { id: "linkapps", module: "LiNKapps", status: "not_subscribed", plan: null },
-    { id: "lexos", module: "LEXOS Litigation", status: "trialing", plan: "Starter" },
+    { id: "linksites", moduleId: "linksites", module: "LinkSites", status: "active", plan: "Professional" },
+    { id: "linkapps", moduleId: "linkapps", module: "LiNKapps", status: "not_subscribed", plan: null },
+    { id: "lexos", moduleId: "lexos", module: "LEXOS Litigation", status: "trialing", plan: "Starter" },
   ],
   "acme-dental": [
-    { id: "linksites", module: "LinkSites", status: "active", plan: "Starter" },
-    { id: "linkapps", module: "LiNKapps", status: "not_subscribed", plan: null },
+    { id: "linksites", moduleId: "linksites", module: "LinkSites", status: "active", plan: "Starter" },
+    { id: "linkapps", moduleId: "linkapps", module: "LiNKapps", status: "not_subscribed", plan: null },
   ],
   "harbor-legal": [
-    { id: "linksites", module: "LinkSites", status: "active", plan: "Enterprise" },
-    { id: "lexos", module: "LEXOS Litigation", status: "active", plan: "Professional" },
-    { id: "linkapps", module: "LiNKapps", status: "canceled", plan: null },
+    { id: "linksites", moduleId: "linksites", module: "LinkSites", status: "active", plan: "Enterprise" },
+    { id: "lexos", moduleId: "lexos", module: "LEXOS Litigation", status: "active", plan: "Professional" },
+    { id: "linkapps", moduleId: "linkapps", module: "LiNKapps", status: "canceled", plan: null },
   ],
 };
 

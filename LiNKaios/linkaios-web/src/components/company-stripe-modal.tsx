@@ -6,6 +6,8 @@ import { COMPANY_SECTION_COPY } from "@/lib/company-page-copy";
 import { STRIPE_PLAN_OPTIONS } from "@/lib/company-fixtures";
 import { BUTTON, FIELD } from "@/lib/ui-standards";
 
+/** TODO(UIUX-COMP-021): Replace stub with Stripe Checkout / Customer Portal — provider: Stripe. */
+
 export type StripeModalMode = "subscribe" | "cancel";
 
 export function CompanyStripeModal(props: {
