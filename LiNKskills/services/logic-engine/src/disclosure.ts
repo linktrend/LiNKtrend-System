@@ -17,8 +17,8 @@ import type { Env } from "@linktrend/shared-config";
 import { getLease } from "./lease-lifecycle.js";
 
 type DisclosureEnv = Env & {
-  DISCLOSURE_SIGNING_KEY?: string;
-  LINKSKILLS_SIGNING_KEY?: string;
+  DISCLOSURE_SIGNING_KEY?: string | undefined;
+  LINKSKILLS_SIGNING_KEY?: string | undefined;
 };
 
 // Types defined locally to avoid SDK import issues
