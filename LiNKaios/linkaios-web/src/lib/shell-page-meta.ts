@@ -36,7 +36,7 @@ const EXACT: Record<string, ShellPageMeta> = {
   },
   "/settings": {
     title: "Settings",
-    subtitle: "Account, access, integrations, and advanced operator controls.",
+    subtitle: "Account, team permissions, integrations, privacy, and platform operator controls.",
   },
   "/workers": {
     title: "LiNKbots",
@@ -57,7 +57,7 @@ const PREFIX: { prefix: string; meta: ShellPageMeta }[] = [
     prefix: "/settings/",
     meta: {
       title: "Settings",
-      subtitle: "Account, access, integrations, and advanced operator controls.",
+      subtitle: "Account, team permissions, integrations, privacy, and platform operator controls.",
     },
   },
   {
@@ -109,7 +109,10 @@ const SEGMENT_LABELS: Record<string, string> = {
   user: "User",
   access: "Access",
   governance: "Governance",
-  advanced: "Advanced",
+  advanced: "Platform",
+  platform: "Platform",
+  privacy: "Privacy & data",
+  "api-keys": "Integrations",
   brain: "LiNKbrain",
   models: "Models",
   tools: "Tools",

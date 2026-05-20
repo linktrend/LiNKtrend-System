@@ -51,8 +51,8 @@ export default async function SettingsToolsPage() {
         {!isAdmin ? (
           <p className="mt-3 text-sm text-amber-800">
             Signed in as non-admin — org allowlist controls are read-only. Request an admin role in{" "}
-            <Link href="/settings/access" className="underline">
-              Access
+            <Link href="/settings/user#team-permissions" className="underline">
+              Team &amp; permissions
             </Link>
             .
           </p>
