@@ -51,7 +51,8 @@ git push -u origin wp-wave1-modules
 
 ## Commit
 
-- **SHA:** `23e471f`
+- **SHA (feature):** `23e471f`
+- **SHA (branch tip):** `ab0bad8`
 - **Message:** `feat(linkaios-web): adopt StatusPill on metrics, modules, cockpit, leases`
 
 ## Blockers
