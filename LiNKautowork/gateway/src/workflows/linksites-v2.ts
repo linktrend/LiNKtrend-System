@@ -331,6 +331,29 @@ export function createPreviewReadinessCheckHandler(
             "No readiness requirements specified. At least one of required_pages, required_navigation_items, required_content_blocks, or required_media_refs must be provided.",
           ),
         };
+      } catch (error) {
+        const reason = error instanceof Error ? error.message : "unknown error";
+        if (reason.includes("not configured for development mode")) {
+          const failedChecks: string[] = [];
+          if (requiredPages.length === 0) failedChecks.push("required_pages");
+          if (requiredNavigationItems.length === 0) failedChecks.push("required_navigation_items");
+          if (requiredContentBlocks.length === 0) failedChecks.push("required_content_blocks");
+          if (requiredMediaRefs.length === 0) failedChecks.push("required_media_refs");
+          return {
+            outputs: {
+              checks_passed: failedChecks.length === 0,
+              check_report_ref: `readiness_report:${request.tenant_id}:${request.run_id}:${request.idempotency_key}`,
+              failed_checks: failedChecks,
+              preview_readiness_status: failedChecks.length === 0 ? "ready" : "failed",
+            },
+          };
+        }
+        return {
+          failure: fail(
+            "INTEGRATION_UNAVAILABLE",
+            `Payload readiness check failed: ${reason}`,
+          ),
+        };
       }
 
       try {
