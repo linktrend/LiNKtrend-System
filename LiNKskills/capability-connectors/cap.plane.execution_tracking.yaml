@@ -1,0 +1,95 @@
+# Capability Connector: cap.plane.execution_tracking
+# Per LINKAPPS_CAPABILITY_REQUIREMENTS.md §2.6 and CONTRACTS_MVO.md §0.A.5.1
+
+plugin_id: cap.plane.execution_tracking
+plugin_kind: capability
+plugin_name: Plane Execution Tracking
+version: "1.0.0-mvo"
+purpose: Governed Plane project, task, and sprint tracking
+
+modes_supported:
+  - mock
+  - shadow
+  - live
+
+operations:
+  - operation_id: project.ensure_mock
+    description: Local/mock project identity
+    default_mode: mock
+    lease_skus:
+      - plane.project.write
+    idempotency_key_pattern: "${tenant_id}:${run_id}:${stage_id}:project.ensure_mock:${normalized_project_title}|${venture_id}"
+    allowed_callers:
+      - linkaios
+      - vertical_plugin
+      - linkautowork
+    failure_mapping:
+      connectivity: INTEGRATION_UNAVAILABLE
+      auth: INTEGRATION_AUTH_FAILED
+
+  - operation_id: task.ensure_mock
+    description: Local/mock task identity
+    default_mode: mock
+    lease_skus:
+      - plane.task.write
+    idempotency_key_pattern: "${tenant_id}:${run_id}:${stage_id}:task.ensure_mock:${normalized_task_title}:${issue_group}|${normalized_task_body_hash}"
+    allowed_callers:
+      - linkaios
+      - vertical_plugin
+      - linkautowork
+    failure_mapping:
+      invalid_title: LEASE_REQUEST_INVALID
+      policy_denied: LEASE_DENIED
+
+  - operation_id: sprint.track_stub
+    description: Attach iteration counters to LiNKbrain
+    default_mode: mock
+    lease_skus:
+      - plane.sprint.track
+    idempotency_key_pattern: "${tenant_id}:${run_id}:${stage_id}:sprint.track_stub:${iteration}:${squad_iteration_scope}"
+    allowed_callers:
+      - linkautowork
+    failure_mapping:
+      invalid_iteration: LEASE_REQUEST_INVALID
+
+  - operation_id: readiness.probe
+    description: Plane connectivity check
+    default_mode: shadow
+    lease_skus:
+      - plane.readiness.check
+    idempotency_key_pattern: "${tenant_id}:${probe_window_floor_ts}"
+    allowed_callers:
+      - linkaios
+      - vertical_plugin
+      - linkautowork
+    failure_mapping:
+      connectivity: INTEGRATION_UNAVAILABLE
+      auth: INTEGRATION_AUTH_FAILED
+
+auth_config_surface:
+  - plane.base_url
+  - plane.workspace_ref
+  - plane.api_key_ref
+  - plane.project_template_ref
+
+audit_events:
+  - capability.requested
+  - capability.executed
+  - plane.task.upserted
+  - plane.readiness.checked
+  - capability.failed
+
+non_ownership:
+  - Client-facing PM methodology
+  - RACI redesign
+  - SLA legal contract authoring
+  - Enterprise portfolio taxonomy
+
+required_by_modules:
+  - linkapps.app_factory
+  - lexos.litigation
+  - linksites
+
+notes: >
+  Per LINKAPPS_CAPABILITY_REQUIREMENTS.md §2.6: Plane operations default to mock.
+  Sprint tracking attaches to LiNKbrain memory, not Plane taxonomy in MVO.

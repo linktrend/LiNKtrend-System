@@ -1,0 +1,90 @@
+# Capability Connector: cap.vercel.deployment
+# Per LINKAPPS_CAPABILITY_REQUIREMENTS.md §2.4 and CONTRACTS_MVO.md §0.A.5.1
+
+plugin_id: cap.vercel.deployment
+plugin_kind: capability
+plugin_name: Vercel Deployment
+version: "1.0.0-mvo"
+purpose: Governed Vercel project and deployment management
+
+modes_supported:
+  - mock
+  - shadow
+  - live
+
+operations:
+  - operation_id: build.local_record
+    description: Store tarball/digest refs only (no CDN publish in MVO)
+    default_mode: mock
+    lease_skus:
+      - vercel.project.record
+      - vercel.deploy.record
+    idempotency_key_pattern: "${tenant_id}:${run_id}:${stage_id}:build.local_record:${web_build_bundle_digest}"
+    allowed_callers:
+      - linkautowork
+      - vertical_plugin
+    failure_mapping:
+      invalid_bundle: LEASE_REQUEST_INVALID
+
+  - operation_id: deploy.trigger_mock
+    description: Emit preview URL fixtures
+    default_mode: mock
+    lease_skus:
+      - vercel.deploy
+    idempotency_key_pattern: "${tenant_id}:${run_id}:${stage_id}:deploy.trigger_mock:${preview_subject_hash}"
+    allowed_callers:
+      - linkautowork
+    failure_mapping:
+      malformed_profile: LEASE_REQUEST_INVALID
+
+  - operation_id: project.link_stub
+    description: Record project metadata stub
+    default_mode: mock
+    lease_skus:
+      - vercel.project.create
+    idempotency_key_pattern: "${tenant_id}:${run_id}:${stage_id}:project.link_stub:${vercel_slug_candidate}"
+    allowed_callers:
+      - linkautowork
+    failure_mapping:
+      slug_conflict: LEASE_IDEMPOTENCY_CONFLICT
+
+  - operation_id: domain.configure_future
+    description: Placeholder for future domain configuration
+    default_mode: live
+    modes_disabled_in_mvo:
+      - mock
+      - shadow
+    lease_skus:
+      - vercel.domain.configure
+    idempotency_key_pattern: "${tenant_id}:${run_id}:${stage_id}:domain.configure_future:${domain_normalized}"
+    allowed_callers:
+      - linkautowork
+    failure_mapping:
+      domain_unavailable: INTEGRATION_UNAVAILABLE
+      auth_failed: INTEGRATION_AUTH_FAILED
+
+auth_config_surface:
+  - vercel.team_ref
+  - vercel.token_ref
+  - vercel.project_naming_rules_ref
+
+audit_events:
+  - capability.requested
+  - capability.executed
+  - linkapps.deployed
+  - capability.failed
+
+non_ownership:
+  - Vercel org membership governance
+  - SAML/SCIM setup
+  - Bespoke edge middleware packages
+  - Observability alerting baselines
+
+required_by_modules:
+  - linkapps.app_factory
+  - linksites
+
+notes: >
+  Per LINKAPPS_CAPABILITY_REQUIREMENTS.md §2.4: build.local_record mirrors local
+  pnpm build success path captured as audit metadata. No CDN publish in MVO.
+  Live mode requires explicit tenant opt-in for production deployments.

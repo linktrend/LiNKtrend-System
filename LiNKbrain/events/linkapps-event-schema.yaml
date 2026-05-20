@@ -1,0 +1,384 @@
+# LiNKbrain Event Schema: linkapps.app_factory
+# Per WP-111, LINKAPPS_VERTICAL_PLUGIN_CONVERSION_PLAN.md §6, and CONTRACTS_MVO.md §6.3
+
+namespace: linkapps
+version: "1.0.0-mvo"
+description: Event and memory schema for LiNKapps App Factory vertical plugin
+
+# Core cross-plane lifecycle events (§6.3.1)
+cross_plane_events:
+  - event_id: run.started
+    description: Run lifecycle initiation
+    required_fields:
+      - run_id
+      - tenant_id
+      - plugin_id
+      - work_request_type
+    emitted_by:
+      - linkaios
+
+  - event_id: run.completed
+    description: Run successful completion
+    required_fields:
+      - run_id
+      - tenant_id
+      - stage_count
+      - audit_event_count
+    emitted_by:
+      - linkaios
+
+  - event_id: run.failed
+    description: Run failure with FailureReport
+    required_fields:
+      - run_id
+      - tenant_id
+      - failure.code
+      - failure.message
+      - failure.retryable
+    emitted_by:
+      - linkaios
+
+  - event_id: stage.started
+    description: Stage execution start
+    required_fields:
+      - run_id
+      - stage_id
+      - tenant_id
+      - responsible_plane
+    emitted_by:
+      - linkaios
+
+  - event_id: stage.completed
+    description: Stage successful completion
+    required_fields:
+      - run_id
+      - stage_id
+      - tenant_id
+      - outputs_ref
+    emitted_by:
+      - linkaios
+
+  - event_id: stage.failed
+    description: Stage failure
+    required_fields:
+      - run_id
+      - stage_id
+      - tenant_id
+      - failure
+    emitted_by:
+      - linkaios
+
+  - event_id: workflow.invoked
+    description: Workflow execution request
+    required_fields:
+      - run_id
+      - workflow_handle
+      - tenant_id
+      - idempotency_key
+    emitted_by:
+      - linkaios
+      - linkautowork
+
+  - event_id: workflow.completed
+    description: Workflow successful execution
+    required_fields:
+      - run_id
+      - workflow_run_id
+      - tenant_id
+      - outputs_ref
+    emitted_by:
+      - linkautowork
+
+  - event_id: workflow.failed
+    description: Workflow execution failure
+    required_fields:
+      - run_id
+      - workflow_run_id
+      - tenant_id
+      - failure
+    emitted_by:
+      - linkautowork
+
+  - event_id: lease.requested
+    description: Capability lease request
+    required_fields:
+      - run_id
+      - capability_id
+      - tenant_id
+      - operation
+      - idempotency_key
+    emitted_by:
+      - linkaios
+
+  - event_id: lease.granted
+    description: Lease granted by LinkSkills
+    required_fields:
+      - run_id
+      - lease_id
+      - tenant_id
+      - capability_id
+      - granted_until
+    emitted_by:
+      - linkskills
+
+  - event_id: lease.executed
+    description: Lease consumed by operation
+    required_fields:
+      - run_id
+      - lease_id
+      - tenant_id
+      - operation_result_ref
+    emitted_by:
+      - linkautowork
+
+  - event_id: lease.denied
+    description: Lease request denied
+    required_fields:
+      - run_id
+      - capability_id
+      - tenant_id
+      - denial_reason
+    emitted_by:
+      - linkskills
+
+# LiNKapps domain-specific events (§6.1)
+domain_events:
+  - event_id: linkapps.blueprint.received
+    description: Phase 3 handoff to Phase 5
+    phase: "5.0"
+    required_fields:
+      - run_id
+      - tenant_id
+      - blueprint_ref
+      - venture_id
+    emitted_by:
+      - linkaios
+    memory_promotion:
+      - AppBlueprint
+
+  - event_id: linkapps.squad.formed
+    description: Squad creation complete
+    phase: "5.1"
+    required_fields:
+      - run_id
+      - tenant_id
+      - squad_config
+      - role_assignments
+    emitted_by:
+      - linkaios
+    memory_promotion:
+      - SquadExecution
+
+  - event_id: linkapps.role.started
+    description: LiNKbot role dispatch initiation
+    phase: "5.1-5.7"
+    required_fields:
+      - run_id
+      - tenant_id
+      - role_id
+      - stage_id
+      - reasoning_kind
+    emitted_by:
+      - linkaios
+
+  - event_id: linkapps.role.completed
+    description: LiNKbot role successful completion
+    phase: "5.1-5.7"
+    required_fields:
+      - run_id
+      - tenant_id
+      - role_id
+      - stage_id
+      - outputs_ref
+    emitted_by:
+      - linkaios
+
+  - event_id: linkapps.role.failed
+    description: LiNKbot role failure
+    phase: "5.1-5.7"
+    required_fields:
+      - run_id
+      - tenant_id
+      - role_id
+      - stage_id
+      - failure
+    emitted_by:
+      - linkaios
+
+  - event_id: linkapps.role.reassigned
+    description: Worker substitution for role
+    phase: "5.1-5.7"
+    required_fields:
+      - run_id
+      - tenant_id
+      - role_id
+      - from_worker
+      - to_worker
+      - reason
+    emitted_by:
+      - linkaios
+
+  - event_id: linkapps.repo.created
+    description: App repo generated
+    phase: "5.2"
+    required_fields:
+      - run_id
+      - tenant_id
+      - app_repo_ref
+      - template_used
+      - git_commit_sha
+    emitted_by:
+      - linkautowork
+    memory_promotion:
+      - AppRepo
+
+  - event_id: linkapps.services.provisioned
+    description: Infrastructure services ready
+    phase: "5.3"
+    required_fields:
+      - run_id
+      - tenant_id
+      - service_refs
+      - provision_time_ms
+    emitted_by:
+      - linkautowork
+
+  - event_id: linkapps.build.iteration
+    description: AI implementation cycle recorded
+    phase: "5.4"
+    required_fields:
+      - run_id
+      - tenant_id
+      - iteration_num
+      - files_changed_manifest_ref
+      - check_results
+    emitted_by:
+      - linkautowork
+
+  - event_id: linkapps.validation.passed
+    description: Quality gates passed
+    phase: "5.5"
+    required_fields:
+      - run_id
+      - tenant_id
+      - validation_report_ref
+      - checks_passed
+    emitted_by:
+      - linkautowork
+    memory_promotion:
+      - ValidationReport
+
+  - event_id: linkapps.validation.failed
+    description: Quality gates failed
+    phase: "5.5"
+    required_fields:
+      - run_id
+      - tenant_id
+      - validation_report_ref
+      - failed_checks
+    emitted_by:
+      - linkautowork
+
+  - event_id: linkapps.deployed
+    description: App deployment completed
+    phase: "5.6"
+    required_fields:
+      - run_id
+      - tenant_id
+      - deployment_refs
+      - preview_urls
+    emitted_by:
+      - linkautowork
+    memory_promotion:
+      - DeploymentHistory
+
+  - event_id: linkapps.handoff.ready
+    description: Phase 7 handoff prepared
+    phase: "5.7"
+    required_fields:
+      - run_id
+      - tenant_id
+      - handoff_package_ref
+      - package_contents_summary
+    emitted_by:
+      - linkautowork
+
+  - event_id: linkapps.spunoff
+    description: Venture independence achieved
+    phase: "7.0"
+    required_fields:
+      - run_id
+      - tenant_id
+      - venture_id
+      - spinoff_entity_ref
+    emitted_by:
+      - linkaios
+
+# Memory object schemas (§6.2)
+memory_objects:
+  - object_type: AppBlueprint
+    description: PRD, business plan, GTM strategy
+    retention_years: 7
+    source_event: linkapps.blueprint.received
+    fields:
+      - blueprint_ref
+      - venture_id
+      - prd_summary
+      - business_plan_ref
+      - gtm_strategy_ref
+      - created_at
+
+  - object_type: SquadExecution
+    description: Role assignments, iterations, outputs
+    retention_years: 3
+    source_event: linkapps.squad.formed
+    fields:
+      - squad_config
+      - role_assignments
+      - execution_timeline
+      - artifact_index
+      - updated_at
+
+  - object_type: AppRepo
+    description: Repo URL, commits, branches
+    retention_years: "duration_of_venture + 1"
+    source_event: linkapps.repo.created
+    fields:
+      - app_repo_ref
+      - repo_url
+      - clone_url
+      - default_branch
+      - commits
+      - branches
+
+  - object_type: DeploymentHistory
+    description: Deploy refs, URLs, timestamps
+    retention_years: 2
+    source_event: linkapps.deployed
+    fields:
+      - deployment_refs
+      - preview_urls
+      - deployment_status
+      - deployed_at
+
+  - object_type: ValidationReport
+    description: Test results, security scans
+    retention_years: 3
+    source_event: linkapps.validation.passed | linkapps.validation.failed
+    fields:
+      - validation_report_ref
+      - checks_passed
+      - check_results
+      - failed_checks
+      - validated_at
+
+# Schema extensions
+event_extension_rule: >
+  Agents may add domain events via DECISION row in .ai-swarm/DECISIONS.md.
+  Never rename existing events. Cross-plane lifecycle events (§6.3.1) are
+  immutable. Domain events follow "linkapps.<domain>.<verb>" naming.
+
+compatibility:
+  linksites_events: >
+    LinkSites events (linksites.blueprint.received, linksites.template.selected,
+    etc.) remain valid in parallel. LiNKapps events are distinct namespace.
