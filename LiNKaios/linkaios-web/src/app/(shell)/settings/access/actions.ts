@@ -48,6 +48,7 @@ export async function setCommandCentreRole(
 
   if (error) return { ok: false, error: error.message };
   revalidatePath("/settings/access");
+  revalidatePath("/settings/user");
   return { ok: true };
 }
 
@@ -72,5 +73,6 @@ export async function clearCommandCentreRole(
 
   if (error) return { ok: false, error: error.message };
   revalidatePath("/settings/access");
+  revalidatePath("/settings/user");
   return { ok: true };
 }

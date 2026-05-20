@@ -23,11 +23,11 @@ export default async function SettingsApiKeysPage() {
       <p className="text-sm text-zinc-500 dark:text-zinc-400">
         <span className="text-zinc-900 dark:text-zinc-200">Settings</span>
         <span className="mx-2">/</span>
-        <span className="text-zinc-900 dark:text-zinc-200">API Keys</span>
+        <span className="text-zinc-900 dark:text-zinc-200">Integrations</span>
       </p>
-      <h2 className="mt-2 text-lg font-semibold text-zinc-900 dark:text-zinc-100">API Keys</h2>
+      <h2 className="mt-2 text-lg font-semibold text-zinc-900 dark:text-zinc-100">Integrations</h2>
       <p className="mt-2 max-w-2xl text-sm text-zinc-600 dark:text-zinc-400">
-        Store keys for integrations your workspace uses. Only Admins can view or edit this list.
+        API keys and secrets for integrations your workspace uses. Only Admins can view or edit this list.
       </p>
       <div className="mt-8">
         <ApiKeysPanel initialRows={initialRows} canManage={canManage} />
