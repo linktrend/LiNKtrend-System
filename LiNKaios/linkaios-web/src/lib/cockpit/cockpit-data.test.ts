@@ -23,6 +23,13 @@ type MockQueryResult<T> = {
   error: Error | null;
 };
 
+function resolveThenable<T>(result: T) {
+  return <TResult1 = T, TResult2 = never>(
+    onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | null,
+    _onrejected?: ((reason: unknown) => TResult2 | PromiseLike<TResult2>) | null,
+  ): Promise<TResult1 | TResult2> => Promise.resolve(onfulfilled ? onfulfilled(result) : (result as unknown as TResult1));
+}
+
 function createMockSupabase(result: MockQueryResult<Record<string, unknown>>): SupabaseClient {
   const mockQueryBuilder = {
     schema: vi.fn().mockReturnThis(),
@@ -32,7 +39,7 @@ function createMockSupabase(result: MockQueryResult<Record<string, unknown>>): S
     in: vi.fn().mockReturnThis(),
     order: vi.fn().mockReturnThis(),
     limit: vi.fn().mockReturnThis(),
-    then: vi.fn().mockResolvedValue(result),
+    then: vi.fn(resolveThenable(result)),
   };
 
   return {
@@ -52,10 +59,10 @@ function createMockSupabaseWithChain(results: Record<string, MockQueryResult<Rec
     in: vi.fn().mockReturnThis(),
     order: vi.fn().mockReturnThis(),
     limit: vi.fn().mockReturnThis(),
-    then: vi.fn().mockImplementation(() => {
+    then: vi.fn().mockImplementation((onfulfilled, onrejected) => {
       const result = allResults[callIndex] ?? { data: [], error: null };
       callIndex++;
-      return Promise.resolve(result);
+      return resolveThenable(result)(onfulfilled, onrejected);
     }),
   };
 
