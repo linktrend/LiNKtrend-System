@@ -116,6 +116,72 @@ ruby -ryaml -e "YAML.load_file('plugins/vertical/linkapps/manifest.yaml')"
 
 ---
 
+## WP-103 — LEXOS capability plugin manifests (2026-05-17)
+
+**Status:** COMPLETE
+
+### Scope
+
+- `packages/linkaios-kernel/plugins/capabilities/lexos/*.yaml` (declaration-only; no integrations or secrets).
+
+### Manifest files
+
+- `packages/linkaios-kernel/plugins/capabilities/lexos/cap.storage.evidence.yaml`
+- `packages/linkaios-kernel/plugins/capabilities/lexos/cap.extraction.parser.yaml`
+- `packages/linkaios-kernel/plugins/capabilities/lexos/cap.extraction.ocr.yaml`
+- `packages/linkaios-kernel/plugins/capabilities/lexos/cap.extraction.qa.yaml`
+- `packages/linkaios-kernel/plugins/capabilities/lexos/cap.research.legal.yaml`
+
+### Example excerpt (`cap.storage.evidence.yaml`)
+
+```yaml
+capability_id: cap.storage.evidence
+
+target_software:
+  product: Supabase Storage
+
+mode_flags:
+  mvo_modes:
+    - development
+
+not_configured:
+  - LEXOS-owned evidence taxonomy rows, tagging rules, exhibits ordering, courtroom bundle assembly policy.
+```
+
+### MVO mode validation
+
+- No manifest lists `live` under `mode_flags.mvo_modes`; verification: `grep -REw live packages/linkaios-kernel/plugins/capabilities/lexos || echo NO_LIVE_MATCHES` yields no YAML hits (completion run on macOS grep).
+
+### Commands run
+
+```bash
+git fetch origin --prune
+git worktree add ../LiNKtrend-System-WP-103 -b dev/cursor/WP-103-lexos-capability-manifests origin/development
+cd ../LiNKtrend-System-WP-103
+git status --short --branch
+grep -REw live packages/linkaios-kernel/plugins/capabilities/lexos || echo 'NO_LIVE_MATCHES'
+git rev-parse HEAD
+```
+
+### Proof
+
+- Five YAML manifests committed on branch `dev/cursor/WP-103-lexos-capability-manifests` describing capability id, target software, operations, auth requirement refs (non-secret), MVO modes, lease hints, idempotency, audit events, callers, failure mapping, and explicit `not_configured`.
+- DECISIONS.md unchanged (schema follows existing PLUGIN_ARCHITECTURE_V2 / CONTRACTS_MVO §0.A.5.1 patterns).
+
+### Branch / commits
+
+- Branch: `dev/cursor/WP-103-lexos-capability-manifests`
+
+### Blockers
+
+- None.
+
+### Next step
+
+- Integrator merges through `development` after review; LEXOS downstream packets may reference these manifests in LinkSkills catalog registration.
+
+---
+
 ## WP-051 — Kernel to LiNKautowork v2 handle integration (2026-05-15)
 
 **Status:** COMPLETE
