@@ -630,7 +630,7 @@ Chairman approved items 1–17. Implemented in UI review pass (no commit unless 
 | UIUX-MOD-M005 | Unify or redirect legacy `/modules/linkapps` App Factory dashboard | Ventures/Blueprints/Squads vocabulary conflicts |
 | UIUX-MOD-M006 | Shared module/project-type picker component with `/projects/new` | Single source for pre-defined types |
 | UIUX-MOD-M007 | Plane strip on module and project-type pages | Same pattern as Projects |
-| UIUX-MOD-M008 | StatusPill for published/licensed/health (GLOBAL-001) | Replace ad-hoc META_BADGE sprawl |
+| UIUX-MOD-M008 | StatusPill for published/licensed/health (GLOBAL-001) | **partial fixed** (wp-wave1-modules): licensed/published/issue pills; META for client-visible/vendor/template |
 | UIUX-MOD-M009 | Queue-style rows for workflows and template tasks | Match All Work / Inbox patterns |
 
 ### Backlogged — Hard (platform, multi-session)
@@ -679,7 +679,7 @@ Chairman approved items 1–17. Implemented in UI review pass (no commit unless 
 | UIUX-MET-M003 | LiNKautowork / automation run dimension |
 | UIUX-MET-M004 | Drill-down from project → workflow → issue metrics |
 | UIUX-MET-M005 | Link run rows to trace detail / Cockpit run ledger |
-| UIUX-MET-M006 | StatusPill for OK/Failed (GLOBAL-001) |
+| UIUX-MET-M006 | StatusPill for OK/Failed (GLOBAL-001) | **partial fixed** (wp-wave1-modules): recent runs table uses DomainStatusPill domain=metric |
 
 ### Backlogged — Hard
 

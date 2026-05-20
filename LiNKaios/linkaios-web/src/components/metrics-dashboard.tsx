@@ -12,6 +12,7 @@ import {
   type KpiTone,
   type KpiViewId,
 } from "@/lib/metrics-kpi-views";
+import { DomainStatusPill } from "@/components/ui/status-pill";
 import { screenTabLinkClass, TABS } from "@/lib/ui-standards";
 
 export type MetricsFilterOption = { id: string; label: string };
@@ -116,15 +117,7 @@ function RecentRunsTable(props: { snapshot: MetricsSnapshot }) {
                   <td className="px-4 py-2 text-right tabular-nums">{r.cost_usd != null ? formatUsd(r.cost_usd) : "—"}</td>
                   <td className="px-4 py-2 text-right tabular-nums">{formatDuration(dur)}</td>
                   <td className="px-4 py-2">
-                    <span
-                      className={
-                        err
-                          ? "inline-flex rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-semibold uppercase text-red-900 dark:bg-red-950/50 dark:text-red-200"
-                          : "inline-flex rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold uppercase text-emerald-900 dark:bg-emerald-950/50 dark:text-emerald-200"
-                      }
-                    >
-                      {err ? "Failed" : "OK"}
-                    </span>
+                    <DomainStatusPill domain="metric" status={err ? "failed" : "ok"} equalWidth />
                   </td>
                 </tr>
               );
