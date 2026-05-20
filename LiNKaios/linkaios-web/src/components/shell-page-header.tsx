@@ -10,9 +10,10 @@ export function ShellPageHeader(props: {
   subtitle: string;
   refreshedLabel?: string | null;
   onRefresh?: () => void;
+  onHelpClick?: () => void;
   actions?: React.ReactNode;
 }) {
-  const { title, subtitle, refreshedLabel, onRefresh, actions } = props;
+  const { title, subtitle, refreshedLabel, onRefresh, onHelpClick, actions } = props;
 
   return (
     <header className="flex flex-wrap items-start justify-between gap-4 border-b border-zinc-200 pb-6 dark:border-zinc-800">
@@ -35,10 +36,11 @@ export function ShellPageHeader(props: {
         ) : null}
         <button
           type="button"
-          disabled
-          title="Page help assistant — coming soon"
-          className="inline-flex min-h-8 items-center justify-center gap-1.5 rounded-lg border border-zinc-200 bg-white px-2.5 py-1 text-xs font-medium text-zinc-500 opacity-70 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-400"
-          aria-label="Page help (coming soon)"
+          onClick={onHelpClick}
+          disabled={!onHelpClick}
+          title={onHelpClick ? "Page help for this screen" : "Page help not available"}
+          className="inline-flex min-h-8 items-center justify-center gap-1.5 rounded-lg border border-zinc-200 bg-white px-2.5 py-1 text-xs font-medium text-zinc-700 transition hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-70 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-300 dark:hover:bg-zinc-900"
+          aria-label={onHelpClick ? "Open page help" : "Page help not available"}
         >
           <CircleHelp className="h-4 w-4 shrink-0" aria-hidden />
           Help
