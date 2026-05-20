@@ -15,7 +15,8 @@
     "@linktrend/db": "workspace:*",
     "@linktrend/linklogic-sdk": "workspace:*",
     "@linktrend/observability": "workspace:*",
-    "@linktrend/shared-config": "workspace:*"
+    "@linktrend/shared-config": "workspace:*",
+    "zod": "^3.25.76"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.4",
