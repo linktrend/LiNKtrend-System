@@ -2,10 +2,14 @@ import { listSkills, listTools } from "@linktrend/linklogic-sdk";
 import type { SkillRecord, ToolRecord } from "@linktrend/shared-types";
 
 import { CapabilitiesHubCards, type CapabilitiesHubSliceStats } from "@/components/capabilities-hub-cards";
+import { LinkskillsGlossaryFull } from "@/components/linkskills-glossary";
+import { LinkskillsHubNav } from "@/components/linkskills-hub-nav";
+import { ShellPageHeaderClient } from "@/components/shell-page-header-client";
 import type { SkillCatalogRow } from "@/components/skills-catalog-table";
 import type { ToolCatalogRow } from "@/components/tools-catalog-table";
 import { readSkillAdminFlags } from "@/lib/skills-admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { connectorHubStats, DEMO_CONNECTOR_CATALOG_ROWS } from "@/lib/ui-mocks/capability-connectors-demo";
 import { isUiMocksEnabled } from "@/lib/ui-mocks/flags";
 import { mergeSkillCatalogWithDemo, mergeToolCatalogWithDemo } from "@/lib/ui-mocks/skills-tools-catalog-demo";
 import { readToolAdminFlags } from "@/lib/tools-admin";
@@ -77,16 +81,17 @@ export default async function SkillsCapabilitiesHubPage() {
 
   if (blocking) {
     return (
-      <main>
-        <header className="border-b border-zinc-200 pb-8 dark:border-zinc-800">
-          <h1 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">LiNKskills</h1>
-          <p className="mt-1 text-sm font-medium text-zinc-600 dark:text-zinc-400">All Capabilities</p>
-        </header>
-        <p className="mt-6 text-sm text-amber-800 dark:text-amber-200">
+      <main className="space-y-6">
+        <ShellPageHeaderClient
+          title="LiNKskills"
+          subtitle="Skills, tools, capability connectors, and governance in one place."
+          showRefresh={false}
+        />
+        <p className="text-sm text-amber-800 dark:text-amber-200">
           Capabilities could not be loaded. Check your connection and database migrations, then refresh.
         </p>
-        {skillsErr ? <p className="mt-2 text-xs text-zinc-600 dark:text-zinc-400">Skills: {skillsErr.message}</p> : null}
-        {toolsErr ? <p className="mt-2 text-xs text-zinc-600 dark:text-zinc-400">Tools: {toolsErr.message}</p> : null}
+        {skillsErr ? <p className="text-xs text-zinc-600 dark:text-zinc-400">Skills: {skillsErr.message}</p> : null}
+        {toolsErr ? <p className="text-xs text-zinc-600 dark:text-zinc-400">Tools: {toolsErr.message}</p> : null}
       </main>
     );
   }
@@ -114,16 +119,15 @@ export default async function SkillsCapabilitiesHubPage() {
     new Set(["archived"]),
     "Archived",
   );
+  const connectorsStats = connectorHubStats(DEMO_CONNECTOR_CATALOG_ROWS);
 
   return (
     <main className="space-y-8">
-      <header className="border-b border-zinc-200 pb-8 dark:border-zinc-800">
-        <h1 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">LiNKskills</h1>
-        <p className="mt-1 text-sm font-medium text-zinc-600 dark:text-zinc-400">Governed Skills, Capabilities, and Tools</p>
-        <p className="mt-3 max-w-2xl text-sm text-zinc-600 dark:text-zinc-400">
-          Compare catalogue health at a glance. Client view shows enabled/licensed governance controls only; vendor catalog, certification, and policy-template internals stay protected.
-        </p>
-      </header>
+      <ShellPageHeaderClient
+        title="LiNKskills"
+        subtitle="Compare catalogue health for skills, tools, connectors, and leases."
+      />
+      <LinkskillsHubNav />
 
       {uiMocksEnabled && (skillsErr || toolsErr) ? (
         <p className="max-w-3xl rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-950 dark:border-amber-900/50 dark:bg-amber-950/30 dark:text-amber-100">
@@ -131,7 +135,8 @@ export default async function SkillsCapabilitiesHubPage() {
         </p>
       ) : null}
 
-      <CapabilitiesHubCards skills={skillsStats} tools={toolsStats} />
+      <LinkskillsGlossaryFull />
+      <CapabilitiesHubCards skills={skillsStats} tools={toolsStats} connectors={connectorsStats} />
     </main>
   );
 }

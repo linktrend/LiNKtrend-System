@@ -4,6 +4,7 @@ import { DEMO_SESSION_THREADS } from "@/lib/ui-mocks/session-threads";
 import { missionIdFromSessionMetadata } from "@/lib/session-display";
 import { mapWorkerSessionsToThreads } from "@/lib/work-sessions";
 
+import { ShellPageHeaderClient } from "@/components/shell-page-header-client";
 import { SessionsInbox } from "../sessions-inbox";
 
 export const dynamic = "force-dynamic";
@@ -50,12 +51,10 @@ export default async function WorkSessionsPage() {
 
   return (
     <main>
-      <header className="border-b border-zinc-200 pb-8 dark:border-zinc-800">
-        <h1 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">Sessions</h1>
-        <p className="mt-2 max-w-2xl text-sm text-zinc-600 dark:text-zinc-400">
-          See what each LiNKbot session is doing at a glance. Open a row for the full timeline.
-        </p>
-      </header>
+      <ShellPageHeaderClient
+        title="Sessions"
+        subtitle="See what each LiNKbot is doing. Respond opens that bot's session chat; Stop ends the session."
+      />
       <div className="mt-8">
         {err ? <p className="mb-4 text-sm text-red-700 dark:text-red-400">Could not load sessions: {err.message}</p> : null}
         <SessionsInbox sessions={merged} />

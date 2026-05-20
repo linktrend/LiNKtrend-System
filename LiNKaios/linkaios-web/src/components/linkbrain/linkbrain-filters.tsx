@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 import { memoryHref } from "@/lib/memory-href";
+import type { LinkbrainTab } from "@/lib/linkbrain-data";
 
 import type { BrainOrgNodeRow } from "@linktrend/linklogic-sdk";
 
@@ -14,9 +15,13 @@ export function MemoryProjectSelect(props: {
   selectedMissionId?: string;
   classification?: string;
   scope?: "recent" | "all";
+  /** When set (e.g. Ask tab), navigation stays on this tab. */
+  memoryTab?: LinkbrainTab;
+  brainScope?: string;
 }) {
   const router = useRouter();
   const sc = props.scope === "all" ? "all" : undefined;
+  const tab = props.memoryTab ?? "project";
   return (
     <select
       className="mt-2 w-full max-w-xl rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 shadow-sm dark:border-zinc-600 dark:bg-zinc-950 dark:text-zinc-100"
@@ -25,11 +30,11 @@ export function MemoryProjectSelect(props: {
       onChange={(e) => {
         const v = e.target.value.trim();
         router.push(
-          memoryHref("project", {
+          memoryHref(tab, {
             mission: v || undefined,
             classification: props.classification,
             scope: sc,
-            brainScope: "mission",
+            brainScope: props.brainScope ?? (tab === "ask" ? "mission" : "mission"),
             brainMission: v || undefined,
           }),
         );
@@ -50,9 +55,12 @@ export function MemoryAgentSelect(props: {
   selectedAgentId?: string;
   classification?: string;
   scope?: "recent" | "all";
+  memoryTab?: LinkbrainTab;
+  brainScope?: string;
 }) {
   const router = useRouter();
   const sc = props.scope === "all" ? "all" : undefined;
+  const tab = props.memoryTab ?? "agent";
   return (
     <select
       className="mt-2 w-full max-w-xl rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 shadow-sm dark:border-zinc-600 dark:bg-zinc-950 dark:text-zinc-100"
@@ -61,11 +69,11 @@ export function MemoryAgentSelect(props: {
       onChange={(e) => {
         const v = e.target.value.trim();
         router.push(
-          memoryHref("agent", {
+          memoryHref(tab, {
             agent: v || undefined,
             classification: props.classification,
             scope: sc,
-            brainScope: "agent",
+            brainScope: props.brainScope ?? "agent",
             brainAgent: v || undefined,
           }),
         );
@@ -155,8 +163,8 @@ export function CompanyOrgNarrowSelect(props: {
       <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
         Tags are many-to-many; the primary anchor is still <span className="font-medium">company</span> scope. Manage
         structure on{" "}
-        <Link href="/memory/company-structure" className="text-sky-700 underline dark:text-sky-400">
-          Company structure
+        <Link href="/company" className="text-sky-700 underline dark:text-sky-400">
+          Company
         </Link>
         .
       </p>

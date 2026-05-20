@@ -1,8 +1,10 @@
 import Link from "next/link";
 
 import { NewBrainDraftForm } from "@/components/linkbrain/new-brain-draft-form";
-import { PageIntro } from "@/components/page-intro";
+import { ShellPageHeaderClient } from "@/components/shell-page-header-client";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { isUiMocksEnabled } from "@/lib/ui-mocks/flags";
+import { DEMO_BRAIN_AGENTS } from "@/lib/ui-mocks/linkbrain-demo-agents";
 
 import { listBrainLegalEntities, type BrainScope } from "@linktrend/linklogic-sdk";
 
@@ -29,6 +31,7 @@ export default async function NewBrainDraftPage(props: {
   const agentId = sp.agentId?.trim() ?? "";
 
   const supabase = await createSupabaseServerClient();
+  const uiMocksEnabled = isUiMocksEnabled();
   const [{ data: missionRows }, { data: agentRows }, { data: legalRows, error: legalErr }] = await Promise.all([
     supabase.schema("linkaios").from("missions").select("id, title").order("title", { ascending: true }).limit(300),
     supabase.schema("linkaios").from("agents").select("id, display_name").order("display_name", { ascending: true }).limit(300),
@@ -36,19 +39,20 @@ export default async function NewBrainDraftPage(props: {
   ]);
 
   const missions = (missionRows ?? []) as { id: string; title: string }[];
-  const agents = (agentRows ?? []) as { id: string; display_name: string }[];
+  const agentsFromDb = (agentRows ?? []) as { id: string; display_name: string }[];
+  const agents =
+    uiMocksEnabled && agentsFromDb.length < 2
+      ? [...DEMO_BRAIN_AGENTS.map((a) => ({ id: a.id, display_name: a.display_name })), ...agentsFromDb]
+      : agentsFromDb;
   const legalEntities = legalRows ?? [];
 
   return (
     <main className="mx-auto max-w-2xl space-y-6">
-      <div>
-        <h1 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100">New virtual-file draft</h1>
-        <PageIntro className="mt-2">
-          Creates the Supabase row for this path if needed, then opens a draft version. Publishing replaces the prior
-          published body for the same path and scope. <strong>Project</strong> scope is stored as a mission record in
-          the database (same id you pick below).
-        </PageIntro>
-      </div>
+      <ShellPageHeaderClient
+        title="Add Knowledge"
+        subtitle="Creates a draft in Inbox — it is not recorded in LiNKbrain until an operator approves."
+        showRefresh={false}
+      />
 
       {sp.err ? (
         <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-900 dark:border-red-900 dark:bg-red-950/40 dark:text-red-100">
@@ -79,8 +83,8 @@ export default async function NewBrainDraftPage(props: {
       />
 
       <p className="text-sm text-zinc-500 dark:text-zinc-400">
-        <Link href="/memory?tab=project" className="text-sky-700 underline dark:text-sky-400">
-          Back to LiNKbrain
+        <Link href="/memory?tab=inbox" className="text-sky-700 underline dark:text-sky-400">
+          Back to Inbox
         </Link>
       </p>
     </main>

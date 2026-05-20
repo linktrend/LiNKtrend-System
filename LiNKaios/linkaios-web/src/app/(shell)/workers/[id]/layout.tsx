@@ -28,10 +28,6 @@ export default async function WorkerLayout(props: { children: React.ReactNode; p
       isLisa
         ? "Demo executive LiNKbot — strategy, portfolio prioritisation, and cross-project alignment. Replace with a live worker bound to your gateway."
         : "Demo technical LiNKbot — architecture reviews, release risk, and engineering coordination. Replace with a live worker bound to your gateway.",
-      {
-        operational: isLisa ? "Online · busy" : "Online · idle",
-        activity: isLisa ? "Reviewing portfolio threads (fixture)." : "Standing by for infra reviews (fixture).",
-      },
     );
     return (
       <main className="space-y-6">

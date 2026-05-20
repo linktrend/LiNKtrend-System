@@ -14,7 +14,15 @@ const STATIC_LABELS: Record<string, string> = {
   missions: "Projects",
   projects: "Projects",
   skills: "LiNKskills",
-  tools: "Tool permissions",
+  tools: "Tools",
+  connectors: "Connectors",
+  modules: "Modules",
+  "project-types": "Project types",
+  linksites: "LinkSites",
+  linkapps: "LiNKapps",
+  "linktrend-media": "Linktrend Media",
+  "website-factory": "WebsiteFactory MVO",
+  "app-factory-operator": "App Factory Operator",
   brain: "LiNKbrain",
   models: "Models",
   memory: "LiNKbrain",
@@ -67,9 +75,16 @@ export function AutoBreadcrumbs(props: { fixtureLabelsInNav?: boolean }) {
   } else {
     items.push({ href: "/", label: "LiNKaios" });
     let acc = "";
-    for (const seg of parts) {
+    for (let i = 0; i < parts.length; i++) {
+      const seg = parts[i]!;
       acc += `/${seg}`;
-      items.push({ href: acc, label: segmentLabel(seg, fixtureLabelsInNav, uuidLabels) });
+      let label = segmentLabel(seg, fixtureLabelsInNav, uuidLabels);
+      if (parts[0] === "skills" && i === 1 && seg === "skills") label = "Skills";
+      if (parts[0] === "skills" && i === 1 && seg === "tools") label = "Tools";
+      if (parts[0] === "skills" && i === 1 && seg === "connectors") label = "Connectors";
+      if (parts[0] === "skills" && i === 1 && seg === "leases") label = "Leases";
+      if (parts[0] === "modules" && seg === "project-types") label = "Project types";
+      items.push({ href: acc, label });
     }
   }
 

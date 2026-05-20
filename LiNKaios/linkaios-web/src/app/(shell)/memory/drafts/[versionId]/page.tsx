@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { BrainDraftEditor } from "@/components/brain-draft-editor";
-import { PageIntro } from "@/components/page-intro";
+import { ShellPageHeaderClient } from "@/components/shell-page-header-client";
 import { publishBrainDraftFromForm } from "@/app/(shell)/memory/brain-actions";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -33,39 +33,39 @@ export default async function BrainDraftEditPage(props: { params: Promise<{ vers
 
   return (
     <main className="mx-auto max-w-3xl space-y-6">
-      <div>
-        <h1 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100">Edit draft</h1>
-        <PageIntro className="mt-2">
-          <span className="font-mono text-xs">{file?.logical_path ?? "unknown path"}</span>
-          <span className="mx-2 text-zinc-400">·</span>
-          <span>{file?.scope ?? ""}</span>
-          {file?.mission_id ? (
-            <>
-              <span className="mx-2 text-zinc-400">·</span>
-              <span className="font-mono text-xs">mission {file.mission_id}</span>
-            </>
-          ) : null}
-          {file?.agent_id ? (
-            <>
-              <span className="mx-2 text-zinc-400">·</span>
-              <span className="font-mono text-xs">agent {file.agent_id}</span>
-            </>
-          ) : null}
-        </PageIntro>
-      </div>
+      <ShellPageHeaderClient
+        title="Edit Inbox draft"
+        subtitle={file?.logical_path ?? "Draft awaiting approval"}
+        showRefresh={false}
+      />
+      <p className="text-sm text-zinc-600 dark:text-zinc-400">
+        Scope: {file?.scope ?? "—"}
+        {file?.mission_id ? (
+          <>
+            {" "}
+            · project <span className="font-mono text-xs">{file.mission_id}</span>
+          </>
+        ) : null}
+        {file?.agent_id ? (
+          <>
+            {" "}
+            · LiNKbot <span className="font-mono text-xs">{file.agent_id}</span>
+          </>
+        ) : null}
+      </p>
 
       <BrainDraftEditor versionId={versionId} initialBody={ver.body} />
 
       <form action={publishBrainDraftFromForm} className="border-t border-zinc-200 pt-4 dark:border-zinc-800">
         <input type="hidden" name="versionId" value={versionId} />
         <p className="text-sm text-zinc-600 dark:text-zinc-400">
-          Publishing archives the current published version for this file (if any) and promotes this draft.
+          Approving publishes this draft to LiNKbrain. The prior published version for this path is archived.
         </p>
         <button
           type="submit"
           className="mt-3 rounded-lg bg-violet-700 px-4 py-2 text-sm font-medium text-white dark:bg-violet-600"
         >
-          Publish
+          Approve &amp; publish
         </button>
       </form>
 

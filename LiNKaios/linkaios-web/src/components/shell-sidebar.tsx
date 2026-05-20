@@ -166,9 +166,14 @@ export function ShellSidebar(props: {
           (mobileOpen ? "translate-x-0" : "-translate-x-full")
         }
       >
-      {/* Zone 1 — brand */}
+      {/* Zone 1 — brand (temporary wordmark until final brand assets ship) */}
       <div className="flex h-[4.5rem] shrink-0 items-center justify-between border-b border-zinc-100 px-4 dark:border-zinc-800">
-        <div aria-label="Application logo" />
+        <Link href="/" className="flex min-w-0 items-center gap-2.5" aria-label="LiNKaios home">
+          <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-zinc-900 text-[11px] font-bold tracking-tight text-white dark:bg-zinc-100 dark:text-zinc-900">
+            LK
+          </span>
+          <span className="truncate text-sm font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">LiNKaios</span>
+        </Link>
         <button
           type="button"
           onClick={() => setMobileOpen(false)}
@@ -312,7 +317,7 @@ export function ShellSidebar(props: {
                 href="/skills"
                 className={footerSubLinkClass(pathname === "/skills" || pathname === "/skills/")}
               >
-                All Capabilities
+                Overview
               </Link>
               <Link
                 href="/skills/skills"
@@ -327,6 +332,12 @@ export function ShellSidebar(props: {
               </Link>
               <Link href="/skills/tools" className={subLinkClass(pathname.startsWith("/skills/tools"))}>
                 Tools
+              </Link>
+              <Link href="/skills/connectors" className={subLinkClass(pathname.startsWith("/skills/connectors"))}>
+                Connectors
+              </Link>
+              <Link href="/skills/leases" className={subLinkClass(pathname.startsWith("/skills/leases"))}>
+                Leases
               </Link>
             </div>
           ) : null}

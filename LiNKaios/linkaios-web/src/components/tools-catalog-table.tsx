@@ -1,6 +1,6 @@
 "use client";
 
-import { Archive, Pencil } from "lucide-react";
+import { Archive, Eye, GitBranch, Pencil, Play, Wrench } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTransition } from "react";
@@ -58,19 +58,28 @@ export function ToolsCatalogTable(props: { rows: ToolCatalogRow[] }) {
           <tr>
             <th className={`px-4 py-3 ${TABLE.thText}`}>Category</th>
             <th className={`px-4 py-3 ${TABLE.thText}`}>Name</th>
-            <th className={`px-4 py-3 ${TABLE.thText}`}>Type</th>
+            <th className={`px-3 py-3 ${TABLE.thControl}`} title="Tool type">
+              <div className={TABLE.thControlInner}>
+                <Wrench className="h-3.5 w-3.5" aria-label="Tool type" />
+              </div>
+            </th>
             <th className={`px-4 py-3 ${TABLE.thText}`}>Description</th>
-            <th className={`px-4 py-3 ${TABLE.thControl}`}>
-              <div className={TABLE.thControlInner}>Lifecycle</div>
+            <th className={`px-3 py-3 ${TABLE.thControl}`} title="Lifecycle">
+              <div className={TABLE.thControlInner}>
+                <GitBranch className="h-3.5 w-3.5" aria-label="Lifecycle" />
+              </div>
             </th>
-            <th className={`px-4 py-3 ${TABLE.thControl}`}>
-              <div className={TABLE.thControlInner}>Available</div>
+            <th className={`px-3 py-3 ${TABLE.thControl}`} title="Available">
+              <div className={TABLE.thControlInner}>
+                <Eye className="h-3.5 w-3.5" aria-label="Available" />
+              </div>
             </th>
-            <th className={`px-4 py-3 ${TABLE.thControl}`}>
-              <div className={TABLE.thControlInner}>Enabled</div>
+            <th className={`px-3 py-3 ${TABLE.thControl}`} title="Runtime enabled">
+              <div className={TABLE.thControlInner}>
+                <Play className="h-3.5 w-3.5" aria-label="Runtime enabled" />
+              </div>
             </th>
-            <th className={`px-4 py-3 ${TABLE.thText}`}>Updated</th>
-            <th className={`px-4 py-3 ${TABLE.thControl}`}>
+            <th className={`px-3 py-3 ${TABLE.thControl}`}>
               <div className={TABLE.thControlInner}>Actions</div>
             </th>
           </tr>
@@ -98,43 +107,41 @@ export function ToolsCatalogTable(props: { rows: ToolCatalogRow[] }) {
                 </div>
               </td>
               <td className="px-4 py-3 text-sm font-medium text-zinc-900 dark:text-zinc-100">{r.name}</td>
-              <td className="whitespace-nowrap px-4 py-3 text-xs text-zinc-600 dark:text-zinc-400">
-                {TOOL_TYPE_LABELS[r.tool_type] ?? r.tool_type}
+              <td
+                className={`px-3 py-3 ${TABLE.thControl}`}
+                title={TOOL_TYPE_LABELS[r.tool_type] ?? r.tool_type}
+              >
+                <div className={TABLE.thControlInner}>
+                  <Wrench className="h-4 w-4 text-zinc-500 dark:text-zinc-400" aria-hidden />
+                </div>
               </td>
-              <td className="max-w-xs px-4 py-3 text-xs text-zinc-600 dark:text-zinc-400">{r.description}</td>
-              <td className={`px-4 py-3 ${TABLE.thControl}`}>
+              <td className="px-4 py-3 text-xs text-zinc-600 dark:text-zinc-400">{r.description}</td>
+              <td className={`px-3 py-3 ${TABLE.thControl}`}>
                 <div className={TABLE.thControlInner}>
                   <LifecyclePill status={r.status} />
                 </div>
               </td>
-              <td className={`px-4 py-3 ${TABLE.thControl}`}>
-                <div className="flex items-center justify-center gap-2">
+              <td className={`px-3 py-3 ${TABLE.thControl}`}>
+                <div className="flex items-center justify-center gap-1.5">
                   <CatalogueBoolToggle
                     on={r.published}
                     disabled={pending || r.status !== "approved" || r.isFixture}
                     ariaLabel={`Available: ${r.name}`}
                     onToggle={(pub) => void applyFlags(r.id, pub, pub ? r.runtimeEnabled : false)}
                   />
-                  <span className="text-xs text-zinc-500 dark:text-zinc-400">{r.published ? "On" : "Off"}</span>
                 </div>
               </td>
-              <td className={`px-4 py-3 ${TABLE.thControl}`}>
-                <div className="flex items-center justify-center gap-2">
+              <td className={`px-3 py-3 ${TABLE.thControl}`}>
+                <div className="flex items-center justify-center gap-1.5">
                   <CatalogueBoolToggle
                     on={r.runtimeEnabled}
                     disabled={pending || r.status !== "approved" || !r.published || r.isFixture}
                     ariaLabel={`Enabled: ${r.name}`}
                     onToggle={(on) => void applyFlags(r.id, r.published, on)}
                   />
-                  <span className={r.published ? "text-xs text-zinc-500 dark:text-zinc-400" : "text-xs text-zinc-400"}>
-                    {r.runtimeEnabled ? "On" : "Off"}
-                  </span>
                 </div>
               </td>
-              <td className="whitespace-nowrap px-4 py-3 text-xs text-zinc-500 dark:text-zinc-400">
-                {r.updated_at?.slice(0, 10) ?? "—"}
-              </td>
-              <td className={`px-4 py-3 ${TABLE.thControl}`}>
+              <td className={`px-3 py-3 ${TABLE.thControl}`}>
                 <div className={CATALOGUE_ACTIONS_ROW_CLASS}>
                   {r.isFixture ? (
                     <span

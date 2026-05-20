@@ -2,7 +2,10 @@ import type { AgentRecord } from "@linktrend/shared-types";
 
 import type { WorkerDetailHeaderModel } from "@/components/worker-detail-header";
 import { agentOperationalUxFromSessions } from "@/lib/agent-operational-ux";
+import { demoFleetProfile } from "@/lib/demo-fleet-profiles";
+import { linkbotFleetStatusLabel, type LinkbotFleetStatusLabel } from "@/lib/linkbot-fleet-status";
 import { parseRuntimeSettings } from "@/lib/agent-runtime-settings";
+import { DEMO_AGENT_MODEL_DEFAULTS } from "@/lib/ui-mocks/worker-ui";
 
 type SessionLite = { agent_id: string; status: string; started_at: string; last_heartbeat: string | null };
 
@@ -11,24 +14,21 @@ export function demoWorkerHeaderModel(
   name: string,
   role: string,
   bio: string,
-  opts?: { activity?: string; operational?: string },
+  opts?: { activity?: string; statusLabel?: LinkbotFleetStatusLabel },
 ): WorkerDetailHeaderModel {
+  const profile = demoFleetProfile(id);
   return {
     id,
     displayName: name,
     role,
     description: bio,
-    registryLabel: "Active",
-    operationalSummary: opts?.operational ?? "Online · busy",
-    currentActivity: opts?.activity ?? "Demo fixture — no live gateway session.",
+    statusLabel: opts?.statusLabel ?? profile?.statusLabel ?? "Online",
+    currentActivity: opts?.activity ?? profile?.currentActivity ?? "Demo fixture — no live gateway session.",
+    lastHeartbeatIso: profile?.lastHeartbeatIso ?? null,
+    primaryModel: profile?.primaryModel ?? DEMO_AGENT_MODEL_DEFAULTS[id]?.execution ?? null,
+    projectTitles: profile?.projectTitles ?? [],
     isDemo: true,
   };
-}
-
-function registryLabel(status: AgentRecord["status"]): string {
-  if (status === "active") return "Active";
-  if (status === "inactive") return "Inactive";
-  return "Retired";
 }
 
 export function liveWorkerHeaderModel(agent: AgentRecord, sessions: SessionLite[]): WorkerDetailHeaderModel {
@@ -40,18 +40,10 @@ export function liveWorkerHeaderModel(agent: AgentRecord, sessions: SessionLite[
     "Registered LiNKbot — use Sessions for runtime work, LiNKskills for bindings, and Settings for model routing.";
 
   const ux = agentOperationalUxFromSessions(String(agent.id), sessions);
-  const reg = registryLabel(agent.status);
-  let operationalSummary = reg;
-  if (agent.status === "active") {
-    if (ux === "working") operationalSummary = "Online · busy";
-    else if (ux === "idle") operationalSummary = "Online · idle";
-    else operationalSummary = "Online · standby";
-  } else if (agent.status === "inactive") {
-    operationalSummary = "Offline";
-  } else {
-    operationalSummary = "Paused";
-  }
-
+  const statusLabel = linkbotFleetStatusLabel(agent.status, ux);
+  const latest = sessions
+    .filter((s) => String(s.agent_id) === String(agent.id))
+    .sort((a, b) => new Date(b.started_at).getTime() - new Date(a.started_at).getTime())[0];
   const running = sessions.some((s) => s.status === "running");
   const currentActivity = running
     ? "Executing a live worker session (runtime reports status running)."
@@ -59,13 +51,16 @@ export function liveWorkerHeaderModel(agent: AgentRecord, sessions: SessionLite[
       ? "Idle — ready for the next scheduled or on-demand session."
       : "Not accepting new sessions while registry status is not active.";
 
+  const primaryModel = parsed.models.primary.execution?.trim() || null;
+
   return {
     id: String(agent.id),
     displayName: agent.display_name,
     role,
     description,
-    registryLabel: reg,
-    operationalSummary,
+    statusLabel,
     currentActivity,
+    lastHeartbeatIso: latest?.last_heartbeat ?? null,
+    primaryModel,
   };
 }

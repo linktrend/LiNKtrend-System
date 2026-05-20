@@ -1,10 +1,12 @@
 export default function ModulesLoading() {
   return (
-    <main>
-      <header className="border-b border-zinc-200 pb-6 dark:border-zinc-800">
-        <h1 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">Modules</h1>
-        <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">Loading module and project type catalogues…</p>
-      </header>
-    </main>
+    <div className="space-y-4 py-2" aria-busy="true" aria-label="Loading modules">
+      <div className="h-16 animate-pulse rounded-xl bg-zinc-100 dark:bg-zinc-900" />
+      <div className="h-10 animate-pulse rounded-lg bg-zinc-100 dark:bg-zinc-900" />
+      <div className="grid gap-4 lg:grid-cols-[20rem,1fr]">
+        <div className="h-64 animate-pulse rounded-xl bg-zinc-100 dark:bg-zinc-900" />
+        <div className="h-96 animate-pulse rounded-xl bg-zinc-100 dark:bg-zinc-900" />
+      </div>
+    </div>
   );
 }

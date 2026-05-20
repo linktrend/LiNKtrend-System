@@ -102,7 +102,7 @@ export function WorkMessagesWorkspace(props: {
             ))}
           </select>
           <p className="mt-1 text-[11px] text-zinc-500 dark:text-zinc-400">
-            Filter uses each project&apos;s primary LiNKbot until message-level routing metadata exists.
+            Show threads for the LiNKbot assigned to each project.
           </p>
         </label>
       </div>
@@ -178,7 +178,7 @@ export function WorkMessagesWorkspace(props: {
                   href={selected.openHref}
                   className="inline-flex w-fit rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
                 >
-                  Open channel workspace
+                  Open in {CHANNEL_LABEL[productChannel]}
                 </a>
               </div>
             ) : (

@@ -1,4 +1,5 @@
 import { ModulesCatalogue } from "@/components/modules-catalogue";
+import { ModulesHubLayout } from "@/components/modules-hub-layout";
 import type { AudienceMode } from "@/lib/ui-mocks/modules-catalog-demo";
 
 export const dynamic = "force-dynamic";
@@ -16,5 +17,9 @@ export default async function ProjectTypeDetailPage(props: {
   const audienceRaw = first(searchParams.audience);
   const audience: AudienceMode = audienceRaw === "vendor" ? "vendor" : "client";
 
-  return <ModulesCatalogue browse="project-type" audience={audience} projectTypeId={params.projectTypeId} />;
+  return (
+    <ModulesHubLayout browse="project-type" audience={audience} projectTypeId={params.projectTypeId}>
+      <ModulesCatalogue browse="project-type" audience={audience} projectTypeId={params.projectTypeId} />
+    </ModulesHubLayout>
+  );
 }

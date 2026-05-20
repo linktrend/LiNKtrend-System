@@ -151,10 +151,11 @@ export default async function BrainFileDetailPage(props: {
         </section>
       ) : null}
 
-      <section className="rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950">
-        <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Governance</h2>
+      <section id="governance" className="rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950">
+        <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Edit or remove</h2>
         <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
-          Proposing an edit creates a <strong>new draft</strong> from the published body (concurrent drafts allowed).
+          Changes and removals go through <strong>Inbox</strong> — proposing an edit creates a new draft from the published
+          body for operator approval.
         </p>
         <form action={proposeEditFromPublishedForm} className="mt-3">
           <input type="hidden" name="fileId" value={fileId} />

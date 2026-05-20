@@ -237,16 +237,6 @@ export function SessionsInbox(props: { sessions: SessionThreadRow[] }) {
           </tbody>
         </table>
       </div>
-
-      <details className="group text-[11px] text-zinc-400 dark:text-zinc-500">
-        <summary className="inline-flex cursor-pointer list-none items-center gap-1 select-none hover:text-zinc-600 dark:hover:text-zinc-300">
-          <span aria-hidden>ⓘ</span> How do Stop and Respond work?
-        </summary>
-        <p className="mt-1.5 max-w-prose leading-relaxed">
-          <strong className="font-medium text-zinc-600 dark:text-zinc-300">Stop</strong> marks the session row in the database only — it does not kill an in-flight external job unless your runtime listens for that state change.{" "}
-          <strong className="font-medium text-zinc-600 dark:text-zinc-300">Respond</strong> opens the session workspace; inline reply from this list is not yet implemented.
-        </p>
-      </details>
     </div>
   );
 }

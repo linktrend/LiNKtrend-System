@@ -261,7 +261,7 @@ export function CockpitDashboard({ data }: { data: CockpitDashboardData }) {
               {data.tripped_kill_switch_count} kill switch tripped
             </p>
           )}
-          <Link href="/cockpit/leases" className={`${BUTTON.secondaryCardAction} mt-3`}>
+          <Link href="/skills/leases" className={`${BUTTON.secondaryCardAction} mt-3`}>
             View leases
           </Link>
         </div>
@@ -323,7 +323,7 @@ export function CockpitDashboard({ data }: { data: CockpitDashboardData }) {
         <section>
           <div className="mb-4 flex items-center justify-between">
             <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Recent Leases</h2>
-            <Link href="/cockpit/leases" className="text-xs font-medium text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-300">
+            <Link href="/skills/leases" className="text-xs font-medium text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-300">
               View all
             </Link>
           </div>

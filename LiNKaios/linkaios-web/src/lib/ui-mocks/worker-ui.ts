@@ -46,7 +46,7 @@ export const DEMO_AGENT_SKILLS: Record<string, DemoAgentSkillRow[]> = {
     {
       id: "sk-lisa-2",
       category: "Comms",
-      description: "Draft stakeholder updates from mission deltas.",
+      description: "Draft stakeholder updates from project deltas.",
       status: "enabled",
       version: "1.4.2",
       updated: "2026-03-22",
@@ -88,8 +88,8 @@ export const DEMO_AGENT_PERSONA: Record<string, DemoPersonaLayer[]> = {
   "demo-lisa": [
     { layer: "Base persona", summary: "Calm, decisive executive voice; cites evidence.", updated: "2026-03-01" },
     { layer: "Soul", summary: "Long-horizon optimism; low ego in threads.", updated: "2026-03-15" },
-    { layer: "Identity", summary: "CEO LiNKbot — portfolio and mission alignment.", updated: "2026-04-01" },
-    { layer: "Agent", summary: "Default tools: memory_search, mission_board (governed).", updated: "2026-04-12" },
+    { layer: "Identity", summary: "CEO LiNKbot — portfolio and project alignment.", updated: "2026-04-01" },
+    { layer: "Agent", summary: "Default tools: memory_search, project_board (governed).", updated: "2026-04-12" },
   ],
   "demo-eric": [
     { layer: "Base persona", summary: "Direct, precise technical reviewer.", updated: "2026-03-05" },
@@ -197,7 +197,7 @@ export const MOCK_UI_AGENT_SKILLS_ROWS: DemoAgentSkillRow[] = [
   {
     id: "mock-sk-research",
     category: "Research",
-    description: "Scan approved sources and produce cited briefs for missions.",
+    description: "Scan approved sources and produce cited briefs for projects.",
     status: "enabled",
     version: "2.0.1",
     updated: "2026-04-14",
@@ -206,7 +206,7 @@ export const MOCK_UI_AGENT_SKILLS_ROWS: DemoAgentSkillRow[] = [
   {
     id: "mock-sk-comms",
     category: "Comms",
-    description: "Draft stakeholder updates from mission deltas and LiNKbrain notes.",
+    description: "Draft stakeholder updates from project deltas and LiNKbrain notes.",
     status: "pending",
     version: "0.8.0",
     updated: "2026-04-10",
@@ -228,7 +228,7 @@ export const MOCK_UI_AGENT_PERSONA_LAYERS: DemoPersonaLayer[] = [
   { layer: "Base persona", summary: "Direct, evidence-first tone; avoids speculation.", updated: "2026-04-02" },
   { layer: "Soul", summary: "Patient with ambiguity; asks one clarifying question when needed.", updated: "2026-04-05" },
   { layer: "Identity", summary: "Mission-aligned operator — prioritises customer outcomes.", updated: "2026-04-09" },
-  { layer: "Agent", summary: "Default tools: memory_search, mission_board (preview fixture).", updated: "2026-04-12" },
+  { layer: "Agent", summary: "Default tools: memory_search, project_board (preview fixture).", updated: "2026-04-12" },
 ];
 
 export const MOCK_UI_AGENT_PERSONA_ENTRIES: DemoPersonaEntry[] = [

@@ -3,6 +3,10 @@ import Link from "next/link";
 import { listTools } from "@linktrend/linklogic-sdk";
 import type { ToolRecord } from "@linktrend/shared-types";
 
+import { CatalogueSplitSections, splitCatalogueRows } from "@/components/catalogue-sections";
+import { LinkskillsGlossaryBrief } from "@/components/linkskills-glossary";
+import { LinkskillsHubNav } from "@/components/linkskills-hub-nav";
+import { ShellPageHeaderClient } from "@/components/shell-page-header-client";
 import { ToolsCatalogTable, type ToolCatalogRow } from "@/components/tools-catalog-table";
 import { readToolAdminFlags } from "@/lib/tools-admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -34,61 +38,50 @@ export default async function SkillsToolsPage() {
 
   if (error && !uiMocksEnabled) {
     return (
-      <main>
-        <h1 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100">LiNKskills · Tools</h1>
-        <p className="mt-4 text-sm text-red-700 dark:text-red-400">{error.message}</p>
-        <p className="mt-2 max-w-xl text-sm text-zinc-600 dark:text-zinc-400">
-          The tools registry may be missing from this environment. Apply the latest LiNKaios database migrations, then
-          refresh.
-        </p>
+      <main className="space-y-6">
+        <ShellPageHeaderClient title="Tools" subtitle="Callable actions in the LinkSkills catalogue." showRefresh={false} />
+        <p className="text-sm text-red-700 dark:text-red-400">{error.message}</p>
       </main>
     );
   }
 
   const apiRows = ((data ?? []) as ToolRecord[]).map(toRow);
   const rows = uiMocksEnabled ? mergeToolCatalogWithDemo(apiRows) : apiRows;
+  const { fixtures, live } = splitCatalogueRows(rows);
 
   return (
     <main className="space-y-8">
-      <header className="border-b border-zinc-200 pb-8 dark:border-zinc-800">
-        <h1 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">LiNKskills · Tools</h1>
-        {error && uiMocksEnabled ? (
-          <p className="mt-3 max-w-3xl rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-950 dark:border-amber-900/50 dark:bg-amber-950/30 dark:text-amber-100">
-            Live tools data is unavailable; showing sample rows for layout review.
-          </p>
-        ) : null}
-      </header>
-
-      <section>
-        <div className="flex flex-wrap items-end justify-between gap-4">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Catalogue</h2>
-          <Link href="/skills/tools/new" className={BUTTON.primaryRow}>
+      <ShellPageHeaderClient
+        title="Tools"
+        subtitle="Callable API, script, MCP, and browser actions — governed by leases and policy."
+        actions={
+          <Link href="/skills/tools/new" className={`${BUTTON.primaryRow} h-fit shrink-0`} title="Creates a draft tool in Postgres when live DB is available">
             Add tool
           </Link>
-        </div>
-        <div className="mt-4 rounded-xl border border-zinc-200 bg-zinc-50/80 p-4 text-xs leading-6 text-zinc-700 dark:border-zinc-800 dark:bg-zinc-900/40 dark:text-zinc-300">
-          <p>
-            <strong>Tool</strong> means a callable API/script/browser/action. <strong>Provider</strong> means an external system.{" "}
-            <strong>Policy</strong>, <strong>approval</strong>, and <strong>lease</strong> gates determine if tool-backed capability actions can run.
-          </p>
-          <p className="mt-2">
-            <span className="inline-flex rounded-full bg-emerald-50 px-2 py-0.5 font-medium text-emerald-900 ring-1 ring-emerald-200 dark:bg-emerald-950/30 dark:text-emerald-200 dark:ring-emerald-800">
-              Output
-            </span>{" "}
-            = produced data/artifacts.{" "}
-            <span className="inline-flex rounded-full bg-amber-50 px-2 py-0.5 font-medium text-amber-900 ring-1 ring-amber-200 dark:bg-amber-950/30 dark:text-amber-200 dark:ring-amber-800">
-              Side Effect
-            </span>{" "}
-            = external/durable change.
-          </p>
-          <p className="mt-2">
-            Visibility: this table is client-visible governance state only. Vendor-only catalog/certification/policy-template internals remain protected.
-          </p>
-        </div>
-        <div className="mt-4">
-          <ToolsCatalogTable rows={rows} />
-        </div>
-      </section>
+        }
+      />
+      <LinkskillsHubNav />
+
+      {error && uiMocksEnabled ? (
+        <p className="max-w-3xl rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-950 dark:border-amber-900/50 dark:bg-amber-950/30 dark:text-amber-100">
+          Live tools data is unavailable; showing sample rows for layout review.
+        </p>
+      ) : null}
+
+      <LinkskillsGlossaryBrief kind="tools" />
+
+      <CatalogueSplitSections
+        hasFixtures={fixtures.length > 0}
+        hasLive={live.length > 0}
+        fixtures={<ToolsCatalogTable rows={fixtures} />}
+        live={<ToolsCatalogTable rows={live} />}
+        empty={
+          <div className="rounded-xl border border-dashed border-zinc-300 bg-zinc-50/80 p-8 text-center dark:border-zinc-700 dark:bg-zinc-900/40">
+            <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">No tools in catalogue</p>
+            <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">Publish tools from the workspace editor when the registry is available.</p>
+          </div>
+        }
+      />
     </main>
   );
 }

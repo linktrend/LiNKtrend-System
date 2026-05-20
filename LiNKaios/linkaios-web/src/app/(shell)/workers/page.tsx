@@ -4,14 +4,21 @@ import { redirect } from "next/navigation";
 import type { AgentRecord } from "@linktrend/shared-types";
 
 import { FleetOrgChart } from "@/components/fleet-org-chart";
+import { demoFleetProfile } from "@/lib/demo-fleet-profiles";
 import { DEMO_SIDEBAR_AGENTS } from "@/lib/ui-mocks/entities";
 import { isUiMocksEnabled } from "@/lib/ui-mocks/flags";
 import { agentOperationalUxFromSessions } from "@/lib/agent-operational-ux";
 import { buildFleetOrgChart } from "@/lib/fleet-org-chart-layout";
+import {
+  formatFleetHeartbeat,
+  linkbotFleetStatusLabel,
+  linkbotFleetStatusTone,
+  type LinkbotFleetStatusLabel,
+} from "@/lib/linkbot-fleet-status";
 import { AddLinkbotOpenButton, AddLinkbotRoot } from "@/components/add-linkbot";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { BADGE, BUTTON } from "@/lib/ui-standards";
-import { presenceTone, registryStatusTone } from "@/lib/worker-status-badges";
+import { parseRuntimeSettings } from "@/lib/agent-runtime-settings";
 import {
   FleetPresenceFilterBar,
   WorkersFleetNav,
@@ -23,7 +30,15 @@ import {
 
 export const dynamic = "force-dynamic";
 
-type FleetRow = AgentRecord & { role?: string; demo?: boolean; operationalUx?: "working" | "idle" | "offline" };
+type FleetRow = AgentRecord & {
+  role?: string;
+  demo?: boolean;
+  operationalUx?: "working" | "idle" | "offline";
+  statusLabel: LinkbotFleetStatusLabel;
+  projectLine: string;
+  lastHeartbeatIso: string | null;
+  description: string;
+};
 
 function titleFromRuntime(raw: unknown): string | null {
   if (!raw || typeof raw !== "object") return null;
@@ -39,18 +54,6 @@ function descriptionFromRuntime(raw: unknown): string | null {
   if (!lp || typeof lp !== "object") return null;
   const d = (lp as Record<string, unknown>).description;
   return typeof d === "string" && d.trim() ? d.trim() : null;
-}
-
-function uxLabel(ux: FleetRow["operationalUx"]) {
-  if (ux === "working") return "Busy";
-  if (ux === "idle") return "Idle";
-  return "Standby";
-}
-
-function currentActivityLine(ux: FleetRow["operationalUx"]): string {
-  if (ux === "working") return "Current activity: in an active session.";
-  if (ux === "idle") return "Current activity: online and available.";
-  return "Current activity: no recent session heartbeat.";
 }
 
 function StatCard(props: { label: string; value: number; tone?: "zinc" | "emerald" | "amber" | "sky" }) {
@@ -74,10 +77,25 @@ function passesFilter(row: FleetRow, filter: FleetPresenceFilter): boolean {
   if (filter === "all") return true;
   if (filter === "active") return row.status === "active";
   if (filter === "inactive") return row.status === "inactive" || row.status === "retired";
-  if (filter === "online") return row.status === "active" && row.operationalUx !== "offline";
-  if (filter === "busy") return row.operationalUx === "working";
-  if (filter === "idle") return row.operationalUx === "idle";
+  if (filter === "online")
+    return row.status === "active" && (row.statusLabel === "Online" || row.statusLabel === "Busy" || row.statusLabel === "Idle");
+  if (filter === "busy") return row.statusLabel === "Busy";
+  if (filter === "idle") return row.statusLabel === "Idle";
   return true;
+}
+
+function demoFleetRow(agent: AgentRecord, index: number): FleetRow {
+  const profile = demoFleetProfile(String(agent.id));
+  return {
+    ...agent,
+    role: profile?.role ?? (index === 0 ? "Chief Executive Officer" : "Chief Technology Officer"),
+    demo: true,
+    operationalUx: profile?.statusLabel === "Busy" ? "working" : profile?.statusLabel === "Idle" ? "idle" : "offline",
+    statusLabel: profile?.statusLabel ?? "Online",
+    projectLine: profile?.projectTitles.length ? profile.projectTitles.join(" · ") : "No active projects",
+    lastHeartbeatIso: profile?.lastHeartbeatIso ?? null,
+    description: profile?.description ?? "Fixture profile for UX review.",
+  };
 }
 
 export default async function WorkersPage(props: { searchParams: Promise<{ view?: string; filter?: string }> }) {
@@ -102,50 +120,58 @@ export default async function WorkersPage(props: { searchParams: Promise<{ view?
     supabase
       .schema("linkaios")
       .from("agents")
-      .select("id, display_name, status, created_at, updated_at")
+      .select("id, display_name, status, created_at, updated_at, runtime_settings")
       .order("updated_at", { ascending: false }),
   ]);
 
   const err = sessionsRes.error || agentsRes.error;
 
-  const demoFleet: FleetRow[] = uiMocksEnabled
-    ? DEMO_SIDEBAR_AGENTS.map((d, i) => ({
-        id: d.id,
-        display_name: d.display_name,
-        status: "active",
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        role: i === 0 ? "Chief Executive Officer" : "Chief Technology Officer",
-        demo: true,
-      }))
-    : [];
+  const demoFleet: FleetRow[] = uiMocksEnabled ? DEMO_SIDEBAR_AGENTS.map((d, i) => demoFleetRow(d, i)) : [];
 
-  const apiAgents = (agentsRes.data ?? []) as FleetRow[];
+  const apiAgents = (agentsRes.data ?? []) as (AgentRecord & { runtime_settings?: unknown })[];
   const fleetBase: FleetRow[] = uiMocksEnabled
-    ? [...demoFleet, ...apiAgents.map((a) => ({ ...a, demo: false }))]
-    : apiAgents.map((a) => ({ ...a, demo: false }));
+    ? demoFleet
+    : apiAgents.map((a) => {
+        const sessionLites = (sessionsRes.data ?? []) as {
+          agent_id: string;
+          status: string;
+          started_at: string;
+          last_heartbeat: string | null;
+        }[];
+        const operationalUx = agentOperationalUxFromSessions(String(a.id), sessionLites);
+        const statusLabel = linkbotFleetStatusLabel(a.status, operationalUx);
+        const parsed = parseRuntimeSettings(a.runtime_settings ?? {});
+        const role = parsed.linkaiosProfile.title?.trim() || titleFromRuntime(a.runtime_settings) || "LiNKbot";
+        const description =
+          parsed.linkaiosProfile.description?.trim() ||
+          descriptionFromRuntime(a.runtime_settings) ||
+          "Open this LiNKbot for sessions, skills, and configuration.";
+        const latest = sessionLites
+          .filter((s) => String(s.agent_id) === String(a.id))
+          .sort((x, y) => new Date(y.started_at).getTime() - new Date(x.started_at).getTime())[0];
+        return {
+          ...a,
+          demo: false,
+          role,
+          operationalUx,
+          statusLabel,
+          projectLine: "Projects load on the LiNKbot detail tab.",
+          lastHeartbeatIso: latest?.last_heartbeat ?? null,
+          description,
+        };
+      });
 
-  const sessionLites = (sessionsRes.data ?? []) as {
-    agent_id: string;
-    status: string;
-    started_at: string;
-    last_heartbeat: string | null;
-  }[];
-
-  const fleet: FleetRow[] = fleetBase.map((a) => ({
-    ...a,
-    operationalUx: agentOperationalUxFromSessions(String(a.id), sessionLites),
-  }));
+  const fleet = fleetBase;
 
   const visible = fleet.filter((a) => passesFilter(a, filter));
 
-  const online = fleet.filter((a) => a.status === "active" && a.operationalUx !== "offline").length;
-  const busy = fleet.filter((a) => a.operationalUx === "working").length;
-  const idle = fleet.filter((a) => a.operationalUx === "idle").length;
+  const online = fleet.filter((a) => a.statusLabel === "Online" || a.statusLabel === "Busy" || a.statusLabel === "Idle").length;
+  const busy = fleet.filter((a) => a.statusLabel === "Busy").length;
+  const idle = fleet.filter((a) => a.statusLabel === "Idle").length;
 
   const orgChart = buildFleetOrgChart(fleet);
 
-  if (err) {
+  if (err && !uiMocksEnabled) {
     return (
       <main>
         <h1 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100">LiNKbots</h1>
@@ -157,34 +183,20 @@ export default async function WorkersPage(props: { searchParams: Promise<{ view?
   return (
     <main className="space-y-6">
       <AddLinkbotRoot />
-      <header className="border-b border-zinc-200 pb-8 dark:border-zinc-800">
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">LiNKbots</h1>
-            <p className="mt-2 max-w-2xl text-sm text-zinc-600 dark:text-zinc-400">
-              Directory of LiNKbots, their registry status, and live presence from recent sessions.
-            </p>
-          </div>
-          <AddLinkbotOpenButton className={BUTTON.primaryRow} />
-        </div>
-        <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-          <StatCard label="Total" value={fleet.length} />
-          <StatCard label="Online" value={online} tone="emerald" />
-          <StatCard label="Busy" value={busy} tone="sky" />
-          <StatCard label="Idle" value={idle} tone="sky" />
-          <StatCard label="Inactive" value={fleet.filter((a) => a.status !== "active").length} />
-          <StatCard label="Visible" value={visible.length} tone="amber" />
-        </div>
-        <WorkersFleetNav current={view} />
-        <FleetPresenceFilterBar current={filter} view={view} />
-      </header>
+      <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+        <StatCard label="Total" value={fleet.length} />
+        <StatCard label="Online" value={online} tone="emerald" />
+        <StatCard label="Busy" value={busy} tone="sky" />
+        <StatCard label="Idle" value={idle} tone="sky" />
+        <StatCard label="Inactive" value={fleet.filter((a) => a.statusLabel === "Inactive").length} />
+      </div>
+      <WorkersFleetNav current={view} />
+      <FleetPresenceFilterBar current={filter} view={view} />
 
       {fleet.length === 0 ? (
         <div className="rounded-xl border border-dashed border-zinc-300 bg-zinc-50/80 p-8 text-center dark:border-zinc-700 dark:bg-zinc-900/40">
           <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">No LiNKbots yet</p>
-          <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
-            Add a LiNKbot to see it listed here.
-          </p>
+          <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">Add a LiNKbot to see it listed here.</p>
           <div className="mt-4 flex flex-wrap justify-center gap-2">
             <AddLinkbotOpenButton className={BUTTON.primaryRow} />
             <Link href="/settings/gateway" className={BUTTON.secondaryRow}>
@@ -202,72 +214,70 @@ export default async function WorkersPage(props: { searchParams: Promise<{ view?
 
       {fleet.length > 0 && view === "list" ? (
         <section aria-labelledby="fleet-list-heading">
-          <h2 id="fleet-list-heading" className="text-sm font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
-            List
+          <h2 id="fleet-list-heading" className="sr-only">
+            LiNKbot list
           </h2>
-          <ul className="mt-4 divide-y divide-zinc-200 rounded-xl border border-zinc-200 bg-white dark:divide-zinc-800 dark:border-zinc-800 dark:bg-zinc-950">
-            {visible.map((agent) => {
-              const role = agent.role?.trim() || titleFromRuntime(undefined) || "—";
-              const desc =
-                descriptionFromRuntime(undefined) ||
-                "Open this LiNKbot for sessions, skills, and configuration.";
-              return (
-                <li key={agent.id}>
-                  <Link
-                    href={`/workers/${agent.id}/sessions`}
-                    className="flex flex-wrap items-center justify-between gap-3 px-4 py-4 text-sm transition hover:bg-zinc-50 dark:hover:bg-zinc-900/60"
-                  >
-                    <div className="min-w-0 flex-1">
-                      <p className="font-semibold text-zinc-900 dark:text-zinc-100">{agent.display_name}</p>
-                      <p className="mt-0.5 text-xs font-medium text-violet-800 dark:text-violet-300">Role · {role}</p>
-                      <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-zinc-600 dark:text-zinc-400">{desc}</p>
-                      <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">{currentActivityLine(agent.operationalUx)}</p>
-                    </div>
-                    <div className="flex shrink-0 flex-col items-end gap-1.5">
-                      <span className={`capitalize ${BADGE.status} ${registryStatusTone(agent.status)}`}>{agent.status}</span>
-                      <span className={`${BADGE.status} ${presenceTone(uxLabel(agent.operationalUx))}`}>{uxLabel(agent.operationalUx)}</span>
-                    </div>
-                  </Link>
-                </li>
-              );
-            })}
+          <ul className="divide-y divide-zinc-200 rounded-xl border border-zinc-200 bg-white dark:divide-zinc-800 dark:border-zinc-800 dark:bg-zinc-950">
+            {visible.map((agent) => (
+              <li key={agent.id}>
+                <Link
+                  href={`/workers/${agent.id}/sessions`}
+                  className="flex flex-wrap items-center justify-between gap-3 px-4 py-4 text-sm transition hover:bg-zinc-50 dark:hover:bg-zinc-900/60"
+                >
+                  <div className="min-w-0 flex-1">
+                    <p className="font-semibold text-zinc-900 dark:text-zinc-100">{agent.display_name}</p>
+                    <p className="mt-0.5 text-xs font-medium text-violet-800 dark:text-violet-300">Role · {agent.role}</p>
+                    <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-zinc-600 dark:text-zinc-400">
+                      Projects · {agent.projectLine}
+                    </p>
+                    {agent.lastHeartbeatIso ? (
+                      <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+                        Last heartbeat · {formatFleetHeartbeat(agent.lastHeartbeatIso)}
+                      </p>
+                    ) : null}
+                  </div>
+                  <span className={`shrink-0 font-semibold ${BADGE.status} ${linkbotFleetStatusTone(agent.statusLabel)}`}>
+                    {agent.statusLabel}
+                  </span>
+                </Link>
+              </li>
+            ))}
           </ul>
         </section>
       ) : null}
 
       {fleet.length > 0 && view === "grid" ? (
         <section aria-labelledby="fleet-grid-heading">
-          <h2 id="fleet-grid-heading" className="text-sm font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
-            Grid
+          <h2 id="fleet-grid-heading" className="sr-only">
+            LiNKbot grid
           </h2>
-          <ul className="mt-4 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-            {visible.map((agent) => {
-              const role = agent.role?.trim() || titleFromRuntime(undefined) || "LiNKbot";
-              const desc =
-                descriptionFromRuntime(undefined) ||
-                (agent.demo ? "Fixture profile for UX review." : "Open this LiNKbot for sessions, skills, and configuration.");
-              return (
-                <li key={agent.id}>
-                  <Link
-                    href={`/workers/${agent.id}/sessions`}
-                    className="flex h-full flex-col rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm transition hover:border-zinc-300 hover:shadow-md dark:border-zinc-800 dark:bg-zinc-950 dark:hover:border-zinc-700"
-                  >
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="min-w-0">
-                        <p className="truncate text-base font-semibold text-zinc-900 dark:text-zinc-100">{agent.display_name}</p>
-                        <p className="mt-0.5 text-xs font-medium text-violet-700 dark:text-violet-300">Role · {role}</p>
-                      </div>
-                      <div className="flex shrink-0 flex-col items-end gap-1">
-                        <span className={`capitalize ${BADGE.status} ${registryStatusTone(agent.status)}`}>{agent.status}</span>
-                        <span className={`${BADGE.status} ${presenceTone(uxLabel(agent.operationalUx))}`}>{uxLabel(agent.operationalUx)}</span>
-                      </div>
+          <ul className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+            {visible.map((agent) => (
+              <li key={agent.id}>
+                <Link
+                  href={`/workers/${agent.id}/sessions`}
+                  className="flex h-full flex-col rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm transition hover:border-zinc-300 hover:shadow-md dark:border-zinc-800 dark:bg-zinc-950 dark:hover:border-zinc-700"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="truncate text-base font-semibold text-zinc-900 dark:text-zinc-100">{agent.display_name}</p>
+                      <p className="mt-0.5 text-xs font-medium text-violet-700 dark:text-violet-300">Role · {agent.role}</p>
                     </div>
-                    <p className="mt-3 line-clamp-3 text-xs leading-relaxed text-zinc-600 dark:text-zinc-400">{desc}</p>
-                    <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">{currentActivityLine(agent.operationalUx)}</p>
-                  </Link>
-                </li>
-              );
-            })}
+                    <span className={`shrink-0 font-semibold ${BADGE.status} ${linkbotFleetStatusTone(agent.statusLabel)}`}>
+                      {agent.statusLabel}
+                    </span>
+                  </div>
+                  <p className="mt-3 line-clamp-2 text-xs leading-relaxed text-zinc-600 dark:text-zinc-400">
+                    Projects · {agent.projectLine}
+                  </p>
+                  {agent.lastHeartbeatIso ? (
+                    <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
+                      Last heartbeat · {formatFleetHeartbeat(agent.lastHeartbeatIso)}
+                    </p>
+                  ) : null}
+                </Link>
+              </li>
+            ))}
           </ul>
         </section>
       ) : null}

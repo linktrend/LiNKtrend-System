@@ -1,16 +1,29 @@
 /** Extract token count from common trace payload shapes. */
 export function tokensFromPayload(p: Record<string, unknown>): number {
-  const pick = (k: string) => {
-    const v = p[k];
+  const pickFrom = (obj: Record<string, unknown>, k: string) => {
+    const v = obj[k];
     return typeof v === "number" && Number.isFinite(v) ? v : null;
   };
-  const total = pick("total_tokens") ?? pick("token_count") ?? pick("tokens");
-  if (total != null) return total;
-  const inp = pick("input_tokens");
-  const out = pick("output_tokens");
-  if (inp != null && out != null) return inp + out;
-  if (inp != null) return inp;
-  if (out != null) return out;
+  const fromObject = (obj: Record<string, unknown>): number | null => {
+    const total = pickFrom(obj, "total_tokens") ?? pickFrom(obj, "token_count") ?? pickFrom(obj, "tokens");
+    if (total != null) return total;
+    const inp = pickFrom(obj, "input_tokens");
+    const out = pickFrom(obj, "output_tokens");
+    if (inp != null && out != null) return inp + out;
+    if (inp != null) return inp;
+    if (out != null) return out;
+    return null;
+  };
+
+  const top = fromObject(p);
+  if (top != null) return top;
+
+  const usage = p.usage;
+  if (usage && typeof usage === "object" && !Array.isArray(usage)) {
+    const nested = fromObject(usage as Record<string, unknown>);
+    if (nested != null) return nested;
+  }
+
   return 0;
 }
 

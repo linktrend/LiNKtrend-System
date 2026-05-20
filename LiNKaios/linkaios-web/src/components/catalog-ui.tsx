@@ -4,19 +4,51 @@
 const LIFECYCLE_MIN = "min-w-[6.75rem] justify-center";
 
 const LIFECYCLE_STYLES: Record<string, string> = {
-  draft: "bg-zinc-100 text-zinc-800 ring-zinc-300 dark:bg-zinc-800 dark:text-zinc-200 dark:ring-zinc-600",
-  approved: "bg-emerald-50 text-emerald-900 ring-emerald-200 dark:bg-emerald-950/50 dark:text-emerald-200 dark:ring-emerald-800",
-  deprecated: "bg-yellow-50 text-yellow-900 ring-yellow-200 dark:bg-yellow-950/40 dark:text-yellow-200 dark:ring-yellow-700",
-  archived: "bg-yellow-50 text-yellow-900 ring-yellow-200 dark:bg-yellow-950/40 dark:text-yellow-200 dark:ring-yellow-700",
+  draft: "bg-zinc-100 text-zinc-800 ring-zinc-400 dark:bg-zinc-800 dark:text-zinc-200 dark:ring-zinc-500",
+  approved: "bg-emerald-50 text-emerald-900 ring-emerald-300 dark:bg-emerald-950/50 dark:text-emerald-200 dark:ring-emerald-700",
+  deprecated: "bg-yellow-50 text-yellow-900 ring-yellow-300 dark:bg-yellow-950/40 dark:text-yellow-200 dark:ring-yellow-600",
+  archived: "bg-yellow-50 text-yellow-900 ring-yellow-300 dark:bg-yellow-950/40 dark:text-yellow-200 dark:ring-yellow-600",
 };
+
+const CONNECTOR_STATUS_STYLES: Record<string, string> = {
+  implemented: "bg-emerald-50 text-emerald-900 ring-emerald-300 dark:bg-emerald-950/50 dark:text-emerald-200 dark:ring-emerald-700",
+  declared: "bg-sky-50 text-sky-900 ring-sky-300 dark:bg-sky-950/40 dark:text-sky-200 dark:ring-sky-700",
+  pending: "bg-zinc-100 text-zinc-800 ring-zinc-400 dark:bg-zinc-800 dark:text-zinc-200 dark:ring-zinc-500",
+};
+
+function formatLifecycleLabel(status: string) {
+  if (status === "draft") return "Draft";
+  if (status === "approved") return "Approved";
+  if (status === "deprecated") return "Deprecated";
+  if (status === "archived") return "Archived";
+  return status.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
+function formatConnectorStatus(status: string) {
+  if (status === "implemented") return "Implemented";
+  if (status === "declared") return "Declared";
+  if (status === "pending") return "Pending";
+  return status.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+}
 
 export function LifecyclePill(props: { status: string }) {
   const cls = LIFECYCLE_STYLES[props.status] ?? LIFECYCLE_STYLES.draft;
   return (
     <span
-      className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium capitalize ring-1 ${LIFECYCLE_MIN} ${cls}`}
+      className={`inline-flex rounded-full px-2 py-0.5 text-xs font-semibold ring-1 ${LIFECYCLE_MIN} ${cls}`}
     >
-      {props.status}
+      {formatLifecycleLabel(props.status)}
+    </span>
+  );
+}
+
+export function ConnectorStatusPill(props: { status: string }) {
+  const cls = CONNECTOR_STATUS_STYLES[props.status] ?? CONNECTOR_STATUS_STYLES.pending;
+  return (
+    <span
+      className={`inline-flex min-w-[6.75rem] justify-center rounded-full px-2 py-0.5 text-xs font-semibold ring-1 ${cls}`}
+    >
+      {formatConnectorStatus(props.status)}
     </span>
   );
 }

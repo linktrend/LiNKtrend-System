@@ -1,33 +1,22 @@
 import Link from "next/link";
 
+import { LinkbrainAddInboxPanel } from "@/components/linkbrain/linkbrain-add-inbox-panel";
+import { LinkbrainAskNarrowing } from "@/components/linkbrain/linkbrain-ask-narrowing";
 import { CompanyOrgNarrowSelect, MemoryAgentSelect, MemoryProjectSelect } from "@/components/linkbrain/linkbrain-filters";
+import { inboxItemTypeLabel, brainFileKindLabel } from "@/components/linkbrain/linkbrain-labels";
+import { LinkbrainInboxRow } from "@/components/linkbrain/linkbrain-inbox-row";
+import { LinkbrainMemoryDocList } from "@/components/linkbrain/linkbrain-memory-doc-row";
+import { LinkbrainWorkspaceFooter } from "@/components/linkbrain/linkbrain-workspace-footer";
 import { memoryHref } from "@/lib/memory-href";
-import {
-  createQuickNoteDraftAction,
-  publishBrainDraftFromInboxForm,
-  rejectBrainDraftFromForm,
-  uploadBrainBinaryFromForm,
-} from "@/app/(shell)/memory/brain-actions";
 import type { LinkbrainPageData, LinkbrainTab } from "@/lib/linkbrain-data";
-import { BADGE, BUTTON } from "@/lib/ui-standards";
+import { BUTTON } from "@/lib/ui-standards";
 
-import {
-  summarizeBrainInboxTextDiff,
-  type BrainInboxItemType,
-  type BrainInboxRow,
-  type BrainRetrieveContextResult,
-  type BrainRetrieveStage,
-  type BrainScope,
-  type BrainVirtualFileEnriched,
+import type {
+  BrainInboxItemType,
+  BrainRetrieveContextResult,
+  BrainRetrieveStage,
+  BrainScope,
 } from "@linktrend/linklogic-sdk";
-
-function kindLabel(k: string): string {
-  if (k === "daily_log") return "Daily log (append-only)";
-  if (k === "quick_note") return "Quick note";
-  if (k === "librarian") return "Librarian proposal";
-  if (k === "upload") return "Upload";
-  return "Standard";
-}
 
 function ScopeBadge(props: { tone: "client" | "vendor" | "shared"; text: string }) {
   const cls =
@@ -37,65 +26,6 @@ function ScopeBadge(props: { tone: "client" | "vendor" | "shared"; text: string 
         ? "border-violet-300 bg-violet-50 text-violet-800 dark:border-violet-800 dark:bg-violet-950/40 dark:text-violet-200"
         : "border-emerald-300 bg-emerald-50 text-emerald-800 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-200";
   return <span className={`inline-flex rounded-full border px-2 py-0.5 text-xs font-medium ${cls}`}>{props.text}</span>;
-}
-
-function inboxSourceLine(d: BrainInboxRow, data: LinkbrainPageData): string {
-  if (d.scope === "company") return "Source: company-wide knowledge";
-  if (d.scope === "mission" && d.mission_id) {
-    const hit = data.missionRows.find((r) => String(r.mission.id) === String(d.mission_id));
-    return hit ? `Source: project “${hit.mission.title}”` : `Source: project id ${d.mission_id}`;
-  }
-  if (d.scope === "agent" && d.agent_id) {
-    const hit = data.agents.find((a) => a.id === d.agent_id);
-    return hit ? `Source: LiNKbot “${hit.display_name}”` : `Source: LiNKbot id ${d.agent_id}`;
-  }
-  return `Source: ${d.scope} scope`;
-}
-
-function BrainPartitionDocTable(props: {
-  files: BrainVirtualFileEnriched[];
-  mission?: string;
-  classification?: string;
-  agent?: string;
-  scope?: "recent" | "all";
-  org?: string;
-}) {
-  if (props.files.length === 0) {
-    return <p className="text-sm text-zinc-500 dark:text-zinc-400">No governed documents in this partition yet.</p>;
-  }
-  return (
-    <ul className="mt-4 space-y-2">
-      {props.files.map((f) => (
-        <li
-          key={f.id}
-          className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-zinc-200 bg-white px-4 py-3 dark:border-zinc-800 dark:bg-zinc-950"
-        >
-          <div className="min-w-0">
-            <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">{f.logical_path}</p>
-            <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-              {kindLabel(f.file_kind)} · {f.sensitivity}
-              {f.has_published ? (
-                <span className="ml-2 text-emerald-700 dark:text-emerald-400">Available</span>
-              ) : (
-                <span className="ml-2 text-amber-800 dark:text-amber-200">Not yet available</span>
-              )}
-            </p>
-          </div>
-          <div className="flex flex-wrap gap-2 text-sm">
-            <Link href={`/memory/files/${f.id}`} className="text-sky-700 underline dark:text-sky-400">
-              Open
-            </Link>
-            <Link
-              href={`/memory/drafts/new?scope=${encodeURIComponent(f.scope)}&logicalPath=${encodeURIComponent(f.logical_path)}${f.mission_id ? `&missionId=${encodeURIComponent(f.mission_id)}` : ""}${f.agent_id ? `&agentId=${encodeURIComponent(f.agent_id)}` : ""}`}
-              className="text-zinc-700 underline dark:text-zinc-300"
-            >
-              New draft
-            </Link>
-          </div>
-        </li>
-      ))}
-    </ul>
-  );
 }
 
 export function MemoryCommandCentre(props: {
@@ -125,22 +55,85 @@ export function MemoryCommandCentre(props: {
     return <p className="text-sm text-red-700 dark:text-red-300">{data.error}</p>;
   }
 
+  const projectTitle = data.missions.find((m) => String(m.id) === props.missionFilter)?.title;
+  const agentTitle = data.agents.find((a) => a.id === props.agentFilter)?.display_name;
+
   return (
     <div className="space-y-10">
+      {tab === "inbox" ? (
+        <section className="space-y-4">
+          <p className="text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
+            All knowledge additions — from operators, LiNKbots, or imports — land here first. Edit, then{" "}
+            <strong>Approve</strong> to record in LiNKbrain or <strong>Reject</strong> to discard.
+          </p>
+          {data.brainMetaError ? <p className="text-sm text-amber-800 dark:text-amber-200">{data.brainMetaError}</p> : null}
+          <div className="flex flex-wrap items-center gap-2 text-xs">
+            <span className="font-medium text-zinc-600 dark:text-zinc-400">Type:</span>
+            <Link
+              href={memoryHref("inbox", { mission: props.missionFilter, agent: props.agentFilter, org: props.orgNodeId })}
+              className={`rounded-full border px-2.5 py-1 ${!props.inboxItemType ? "border-zinc-900 bg-zinc-900 text-white dark:border-zinc-100 dark:bg-zinc-100 dark:text-zinc-900" : "border-zinc-200 dark:border-zinc-700"}`}
+            >
+              All
+            </Link>
+            {(["upload", "quick_note", "librarian", "edit_proposal", "standard"] as const).map((t) => (
+              <Link
+                key={t}
+                href={memoryHref("inbox", {
+                  mission: props.missionFilter,
+                  agent: props.agentFilter,
+                  org: props.orgNodeId,
+                  inboxItem: t,
+                })}
+                className={`rounded-full border px-2.5 py-1 ${props.inboxItemType === t ? "border-zinc-900 bg-zinc-900 text-white dark:border-zinc-100 dark:bg-zinc-100 dark:text-zinc-900" : "border-zinc-200 dark:border-zinc-700"}`}
+              >
+                {inboxItemTypeLabel(t)}
+              </Link>
+            ))}
+            <span className="ml-2 font-medium text-zinc-600 dark:text-zinc-400">Sort:</span>
+            <Link
+              href={memoryHref("inbox", {
+                mission: props.missionFilter,
+                agent: props.agentFilter,
+                org: props.orgNodeId,
+                inboxItem: props.inboxItemType ?? undefined,
+              })}
+              className={`rounded-full border px-2.5 py-1 ${props.inboxSort !== "asc" ? "border-zinc-900 bg-zinc-900 text-white dark:border-zinc-100 dark:bg-zinc-100 dark:text-zinc-900" : "border-zinc-200 dark:border-zinc-700"}`}
+            >
+              Newest
+            </Link>
+            <Link
+              href={memoryHref("inbox", {
+                mission: props.missionFilter,
+                agent: props.agentFilter,
+                org: props.orgNodeId,
+                inboxItem: props.inboxItemType ?? undefined,
+                inboxSort: "asc",
+              })}
+              className={`rounded-full border px-2.5 py-1 ${props.inboxSort === "asc" ? "border-zinc-900 bg-zinc-900 text-white dark:border-zinc-100 dark:bg-zinc-100 dark:text-zinc-900" : "border-zinc-200 dark:border-zinc-700"}`}
+            >
+              Oldest
+            </Link>
+          </div>
+          <ul className="space-y-3">
+            {data.brainDrafts.length === 0 ? (
+              <li className="text-sm text-zinc-500 dark:text-zinc-400">No drafts in Inbox.</li>
+            ) : (
+              data.brainDrafts.map((d) => <LinkbrainInboxRow key={d.id} draft={d} data={data} />)
+            )}
+          </ul>
+        </section>
+      ) : null}
+
       {tab === "project" ? (
         <section className="space-y-6">
           <p className="text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
-            Choose a <strong>project</strong> to see <strong>client project memory</strong>. Notes and uploads land in{" "}
-            <strong>Inbox</strong> until approved.
+            Select a project to view approved memory. To add or change items, use the panel below — new content goes to{" "}
+            <strong>Inbox</strong> for approval first.
           </p>
           <div className="flex flex-wrap gap-2">
             <ScopeBadge tone="client" text="Client view" />
-            <ScopeBadge tone="client" text="Client-private" />
             <ScopeBadge tone="shared" text="Shared published" />
           </div>
-          <p className="text-xs text-zinc-500 dark:text-zinc-400">
-            Project memory is client instance knowledge, not vendor project-type internals.
-          </p>
           <div>
             <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Project</label>
             <MemoryProjectSelect
@@ -155,67 +148,21 @@ export function MemoryCommandCentre(props: {
               {data.brainMetaError || data.orgMetaError ? (
                 <p className="text-sm text-amber-800 dark:text-amber-200">{data.brainMetaError ?? data.orgMetaError}</p>
               ) : null}
-              <BrainPartitionDocTable
+              <LinkbrainMemoryDocList
                 files={data.brainPartitionFiles}
-                mission={props.missionFilter}
-                classification={props.classificationFilter}
-                agent={props.agentFilter}
-                scope={props.scope}
+                scopeLabel={projectTitle ?? "Project"}
+                missionId={props.missionFilter}
               />
-              <div className="rounded-xl border border-zinc-200 bg-zinc-50/80 p-4 dark:border-zinc-800 dark:bg-zinc-900/40">
-                <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Quick note → Inbox</h3>
-                <form action={createQuickNoteDraftAction} className="mt-3 space-y-2">
-                  <input type="hidden" name="scope" value="mission" />
-                  <input type="hidden" name="missionId" value={props.missionFilter} />
-                  <input type="hidden" name="returnTab" value="project" />
-                  <input type="hidden" name="legalEntityId" value={defaultLegalEntityId} />
-                  <textarea
-                    name="noteBody"
-                    rows={4}
-                    placeholder="Short note (markdown)"
-                    className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-950"
-                  />
-                  <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400">Sensitivity</label>
-                  <select name="sensitivity" className="rounded-lg border border-zinc-200 bg-white px-2 py-1 text-sm dark:border-zinc-700 dark:bg-zinc-950">
-                    <option value="internal">internal</option>
-                    <option value="public">public</option>
-                    <option value="confidential">confidential</option>
-                    <option value="restricted">restricted</option>
-                  </select>
-                  <button
-                    type="submit"
-                    className="rounded-lg bg-zinc-900 px-3 py-2 text-sm font-medium text-white dark:bg-zinc-100 dark:text-zinc-900"
-                  >
-                    Save to inbox as draft
-                  </button>
-                </form>
-              </div>
-              <div className="rounded-xl border border-zinc-200 bg-zinc-50/80 p-4 dark:border-zinc-800 dark:bg-zinc-900/40">
-                <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Binary upload → Inbox</h3>
-                <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">PDF, images, plain text, or markdown (up to 25 MiB).</p>
-                <form action={uploadBrainBinaryFromForm} encType="multipart/form-data" className="mt-3 space-y-2">
-                  <input type="hidden" name="scope" value="mission" />
-                  <input type="hidden" name="missionId" value={props.missionFilter} />
-                  <input type="hidden" name="returnTab" value="project" />
-                  <input type="hidden" name="legalEntityId" value={defaultLegalEntityId} />
-                  <input type="hidden" name="sensitivity" value="internal" />
-                  <input type="file" name="file" required className="block w-full text-sm" />
-                  <button
-                    type="submit"
-                    className="rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm font-medium text-zinc-900 dark:border-zinc-600 dark:bg-zinc-950 dark:text-zinc-100"
-                  >
-                    Upload to inbox
-                  </button>
-                </form>
-              </div>
-              <div>
-                <Link
-                  href={`/memory/drafts/new?scope=mission&missionId=${encodeURIComponent(props.missionFilter)}`}
-                  className={BUTTON.secondaryRow}
-                >
-                  New draft for this project
-                </Link>
-              </div>
+              <LinkbrainAddInboxPanel
+                scope="mission"
+                contextLabel={projectTitle ?? "Selected project"}
+                returnTab="project"
+                legalEntityId={defaultLegalEntityId}
+                missionId={props.missionFilter}
+              />
+              <Link href={`/memory/drafts/new?scope=mission&missionId=${encodeURIComponent(props.missionFilter)}`} className={BUTTON.secondaryRow}>
+                New structured draft
+              </Link>
             </>
           ) : (
             <p className="text-sm text-zinc-500 dark:text-zinc-400">Select a project to list governed documents.</p>
@@ -226,11 +173,11 @@ export function MemoryCommandCentre(props: {
       {tab === "agent" ? (
         <section className="space-y-6">
           <p className="text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
-            Choose a <strong>LiNKbot</strong> to see tenant LiNKbot memory (logs, outputs, and context tied to this tenant).
+            Select a LiNKbot to view approved memory for this tenant. Additions go to <strong>Inbox</strong> before they
+            are recorded.
           </p>
           <div className="flex flex-wrap gap-2">
             <ScopeBadge tone="client" text="Client view" />
-            <ScopeBadge tone="client" text="Client-private" />
             <ScopeBadge tone="shared" text="Shared published" />
           </div>
           <div>
@@ -274,68 +221,25 @@ export function MemoryCommandCentre(props: {
                     })}
                     className={`rounded-full border px-2.5 py-1 ${props.brainFileKindFilter === k ? "border-zinc-900 bg-zinc-900 text-white dark:border-zinc-100 dark:bg-zinc-100 dark:text-zinc-900" : "border-zinc-200 dark:border-zinc-700"}`}
                   >
-                    {k}
+                    {brainFileKindLabel(k)}
                   </Link>
                 ))}
               </div>
-              <BrainPartitionDocTable
+              <LinkbrainMemoryDocList
                 files={data.brainPartitionFiles}
-                mission={props.missionFilter}
-                agent={props.agentFilter}
-                scope={props.scope}
+                scopeLabel={agentTitle ?? "LiNKbot"}
+                agentId={props.agentFilter}
               />
-              <div className="rounded-xl border border-zinc-200 bg-zinc-50/80 p-4 dark:border-zinc-800 dark:bg-zinc-900/40">
-                <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Quick note → Inbox</h3>
-                <form action={createQuickNoteDraftAction} className="mt-3 space-y-2">
-                  <input type="hidden" name="scope" value="agent" />
-                  <input type="hidden" name="agentId" value={props.agentFilter} />
-                  <input type="hidden" name="returnTab" value="agent" />
-                  <input type="hidden" name="legalEntityId" value={defaultLegalEntityId} />
-                  <textarea
-                    name="noteBody"
-                    rows={4}
-                    placeholder="Short note (markdown)"
-                    className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-950"
-                  />
-                  <select name="sensitivity" className="rounded-lg border border-zinc-200 bg-white px-2 py-1 text-sm dark:border-zinc-700 dark:bg-zinc-950">
-                    <option value="internal">internal</option>
-                    <option value="public">public</option>
-                    <option value="confidential">confidential</option>
-                    <option value="restricted">restricted</option>
-                  </select>
-                  <button
-                    type="submit"
-                    className="rounded-lg bg-zinc-900 px-3 py-2 text-sm font-medium text-white dark:bg-zinc-100 dark:text-zinc-900"
-                  >
-                    Save to inbox as draft
-                  </button>
-                </form>
-              </div>
-              <div className="rounded-xl border border-zinc-200 bg-zinc-50/80 p-4 dark:border-zinc-800 dark:bg-zinc-900/40">
-                <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Binary upload → Inbox</h3>
-                <form action={uploadBrainBinaryFromForm} encType="multipart/form-data" className="mt-3 space-y-2">
-                  <input type="hidden" name="scope" value="agent" />
-                  <input type="hidden" name="agentId" value={props.agentFilter} />
-                  <input type="hidden" name="returnTab" value="agent" />
-                  <input type="hidden" name="legalEntityId" value={defaultLegalEntityId} />
-                  <input type="hidden" name="sensitivity" value="internal" />
-                  <input type="file" name="file" required className="block w-full text-sm" />
-                  <button
-                    type="submit"
-                    className="rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm font-medium text-zinc-900 dark:border-zinc-600 dark:bg-zinc-950 dark:text-zinc-100"
-                  >
-                    Upload to inbox
-                  </button>
-                </form>
-              </div>
-              <div>
-                <Link
-                  href={`/memory/drafts/new?scope=agent&agentId=${encodeURIComponent(props.agentFilter)}`}
-                  className={BUTTON.secondaryRow}
-                >
-                  New draft for this LiNKbot
-                </Link>
-              </div>
+              <LinkbrainAddInboxPanel
+                scope="agent"
+                contextLabel={agentTitle ?? "Selected LiNKbot"}
+                returnTab="agent"
+                legalEntityId={defaultLegalEntityId}
+                agentId={props.agentFilter}
+              />
+              <Link href={`/memory/drafts/new?scope=agent&agentId=${encodeURIComponent(props.agentFilter)}`} className={BUTTON.secondaryRow}>
+                New structured draft
+              </Link>
             </>
           ) : (
             <p className="text-sm text-zinc-500 dark:text-zinc-400">Select a LiNKbot to list governed documents.</p>
@@ -346,223 +250,54 @@ export function MemoryCommandCentre(props: {
       {tab === "company" ? (
         <section className="space-y-6">
           <p className="text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
-            <strong>Company</strong> memory is client-owned IP for this tenant. Optionally narrow the list using organisation tags.
+            Company memory for this tenant. There is one company context — view approved items below and add new knowledge
+            through Inbox approval.
           </p>
-          <div className="space-y-2 rounded-xl border border-zinc-200 bg-zinc-50/80 p-4 dark:border-zinc-800 dark:bg-zinc-900/40">
-            <div className="flex flex-wrap gap-2">
-              <ScopeBadge tone="client" text="Client view" />
-              <ScopeBadge tone="client" text="Client-private" />
-              <ScopeBadge tone="vendor" text="Vendor-only (not shown here)" />
-            </div>
-            <p className="text-xs text-zinc-600 dark:text-zinc-300">
-              Vendor module memory and project-type knowledge are protected IP and are not directly shown in the client company view.
-            </p>
+          <div className="flex flex-wrap gap-2">
+            <ScopeBadge tone="client" text="Client view" />
+            <ScopeBadge tone="vendor" text="Vendor-only (hidden)" />
           </div>
           {data.orgMetaError ? <p className="text-sm text-amber-800 dark:text-amber-200">{data.orgMetaError}</p> : null}
           <CompanyOrgNarrowSelect nodes={data.orgNodes} selectedOrgId={props.orgNodeId} />
           {data.brainMetaError ? <p className="text-sm text-amber-800 dark:text-amber-200">{data.brainMetaError}</p> : null}
-          <BrainPartitionDocTable
-            files={data.brainPartitionFiles}
-            mission={props.missionFilter}
-            agent={props.agentFilter}
-            org={props.orgNodeId}
-            scope={props.scope}
+          <LinkbrainMemoryDocList files={data.brainPartitionFiles} scopeLabel="Company" />
+          <LinkbrainAddInboxPanel
+            scope="company"
+            contextLabel="Company-wide"
+            returnTab="company"
+            legalEntityId={defaultLegalEntityId}
           />
-          <div className="rounded-xl border border-zinc-200 bg-zinc-50/80 p-4 dark:border-zinc-800 dark:bg-zinc-900/40">
-            <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Quick note → Inbox</h3>
-            <form action={createQuickNoteDraftAction} className="mt-3 space-y-2">
-              <input type="hidden" name="scope" value="company" />
-              <input type="hidden" name="returnTab" value="company" />
-              <input type="hidden" name="legalEntityId" value={defaultLegalEntityId} />
-              <textarea
-                name="noteBody"
-                rows={4}
-                placeholder="Short note (markdown)"
-                className="w-full rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-950"
-              />
-              <select name="sensitivity" className="rounded-lg border border-zinc-200 bg-white px-2 py-1 text-sm dark:border-zinc-700 dark:bg-zinc-950">
-                <option value="internal">internal</option>
-                <option value="public">public</option>
-                <option value="confidential">confidential</option>
-                <option value="restricted">restricted</option>
-              </select>
-              <button
-                type="submit"
-                className="rounded-lg bg-zinc-900 px-3 py-2 text-sm font-medium text-white dark:bg-zinc-100 dark:text-zinc-900"
-              >
-                Save to inbox as draft
-              </button>
-            </form>
-          </div>
-          <div className="rounded-xl border border-zinc-200 bg-zinc-50/80 p-4 dark:border-zinc-800 dark:bg-zinc-900/40">
-            <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Binary upload → Inbox</h3>
-            <form action={uploadBrainBinaryFromForm} encType="multipart/form-data" className="mt-3 space-y-2">
-              <input type="hidden" name="scope" value="company" />
-              <input type="hidden" name="returnTab" value="company" />
-              <input type="hidden" name="legalEntityId" value={defaultLegalEntityId} />
-              <input type="hidden" name="sensitivity" value="internal" />
-              <input type="file" name="file" required className="block w-full text-sm" />
-              <button
-                type="submit"
-                className="rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm font-medium text-zinc-900 dark:border-zinc-600 dark:bg-zinc-950 dark:text-zinc-100"
-              >
-                Upload to inbox
-              </button>
-            </form>
-          </div>
-          <div>
-            <Link href="/memory/drafts/new?scope=company" className={BUTTON.secondaryRow}>
-              New company-wide draft
-            </Link>
-          </div>
-        </section>
-      ) : null}
-
-      {tab === "inbox" ? (
-        <section className="space-y-4">
-          <p className="text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
-            Review incoming drafts. Approve to publish, reject to archive, or open a draft to edit.
-          </p>
-          {data.brainMetaError ? <p className="text-sm text-amber-800 dark:text-amber-200">{data.brainMetaError}</p> : null}
-          <div className="flex flex-wrap items-center gap-2 text-xs">
-            <span className="font-medium text-zinc-600 dark:text-zinc-400">Type:</span>
-            <Link
-              href={memoryHref("inbox", {
-                mission: props.missionFilter,
-                agent: props.agentFilter,
-                org: props.orgNodeId,
-              })}
-              className={`rounded-full border px-2.5 py-1 ${!props.inboxItemType ? "border-zinc-900 bg-zinc-900 text-white dark:border-zinc-100 dark:bg-zinc-100 dark:text-zinc-900" : "border-zinc-200 dark:border-zinc-700"}`}
-            >
-              All
-            </Link>
-            {(["upload", "quick_note", "librarian", "edit_proposal", "standard"] as const).map((t) => (
-              <Link
-                key={t}
-                href={memoryHref("inbox", {
-                  mission: props.missionFilter,
-                  agent: props.agentFilter,
-                  org: props.orgNodeId,
-                  inboxItem: t,
-                })}
-                className={`rounded-full border px-2.5 py-1 ${props.inboxItemType === t ? "border-zinc-900 bg-zinc-900 text-white dark:border-zinc-100 dark:bg-zinc-100 dark:text-zinc-900" : "border-zinc-200 dark:border-zinc-700"}`}
-              >
-                {t.replace("_", " ")}
-              </Link>
-            ))}
-            <span className="ml-2 font-medium text-zinc-600 dark:text-zinc-400">Sort:</span>
-            <Link
-              href={memoryHref("inbox", {
-                mission: props.missionFilter,
-                agent: props.agentFilter,
-                org: props.orgNodeId,
-                inboxItem: props.inboxItemType ?? undefined,
-              })}
-              className={`rounded-full border px-2.5 py-1 ${props.inboxSort !== "asc" ? "border-zinc-900 bg-zinc-900 text-white dark:border-zinc-100 dark:bg-zinc-100 dark:text-zinc-900" : "border-zinc-200 dark:border-zinc-700"}`}
-            >
-              Newest
-            </Link>
-            <Link
-              href={memoryHref("inbox", {
-                mission: props.missionFilter,
-                agent: props.agentFilter,
-                org: props.orgNodeId,
-                inboxItem: props.inboxItemType ?? undefined,
-                inboxSort: "asc",
-              })}
-              className={`rounded-full border px-2.5 py-1 ${props.inboxSort === "asc" ? "border-zinc-900 bg-zinc-900 text-white dark:border-zinc-100 dark:bg-zinc-100 dark:text-zinc-900" : "border-zinc-200 dark:border-zinc-700"}`}
-            >
-              Oldest
-            </Link>
-          </div>
-          <ul className="space-y-3">
-            {data.brainDrafts.length === 0 ? (
-              <li className="text-sm text-zinc-500 dark:text-zinc-400">No drafts.</li>
-            ) : (
-              data.brainDrafts.map((d) => (
-                <li
-                  key={d.id}
-                  className="rounded-xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-950"
-                >
-                  <div className="flex flex-wrap items-start justify-between gap-2 border-b border-zinc-100 pb-3 dark:border-zinc-800">
-                    <div className="min-w-0">
-                      <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">{d.logical_path || "Draft"}</p>
-                      <p className="mt-0.5 text-xs text-zinc-500 dark:text-zinc-400">
-                        {d.inbox_item_type.replace(/_/g, " ")} · {d.file_kind}
-                      </p>
-                    </div>
-                    <span className={`shrink-0 ${BADGE.pending}`}>Pending</span>
-                  </div>
-                  {d.inbox_item_type === "edit_proposal" && d.predecessor_body != null ? (
-                    <p className="mt-3 text-xs text-zinc-500 dark:text-zinc-400">
-                      {summarizeBrainInboxTextDiff(d.predecessor_body, d.body).summary}
-                    </p>
-                  ) : null}
-                  <p className="mt-2 text-xs text-zinc-600 dark:text-zinc-300">{inboxSourceLine(d, data)}</p>
-                  <p className="mt-3 line-clamp-8 text-sm leading-relaxed text-zinc-800 dark:text-zinc-200">{d.body}</p>
-                  <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-zinc-500">
-                    <span>{d.created_at.replace("T", " ").slice(0, 19)}</span>
-                    <span className="capitalize">{d.sensitivity}</span>
-                  </div>
-                  <div className="mt-4 flex flex-wrap items-center gap-3">
-                    <Link href={`/memory/drafts/${d.id}`} className={BUTTON.editRow}>
-                      Edit
-                    </Link>
-                    <form action={publishBrainDraftFromInboxForm} className="inline">
-                      <input type="hidden" name="versionId" value={d.id} />
-                      <button type="submit" className={BUTTON.approveRow}>
-                        Approve
-                      </button>
-                    </form>
-                    <form action={rejectBrainDraftFromForm} className="inline">
-                      <input type="hidden" name="versionId" value={d.id} />
-                      <button type="submit" className={BUTTON.rejectRow}>
-                        Reject
-                      </button>
-                    </form>
-                  </div>
-                </li>
-              ))
-            )}
-          </ul>
+          <Link href="/memory/drafts/new?scope=company" className={BUTTON.secondaryRow}>
+            New structured draft
+          </Link>
         </section>
       ) : null}
 
       {tab === "ask" ? (
         <section className="space-y-4">
-          <p className="text-sm text-zinc-600 dark:text-zinc-400">
-            Pick a document, type a question, and preview matching excerpts. This is permission-aware retrieval and does not
-            change memory.
-          </p>
-          <div className="space-y-2 rounded-xl border border-zinc-200 bg-zinc-50/80 p-4 dark:border-zinc-800 dark:bg-zinc-900/40">
-            <div className="flex flex-wrap gap-2">
-              <ScopeBadge tone="client" text="Client view" />
-              <ScopeBadge tone="vendor" text="Vendor-only" />
-              <ScopeBadge tone="vendor" text="Anonymized learning" />
-              <ScopeBadge tone="vendor" text="Protected IP" />
-            </div>
-            <p className="text-xs text-zinc-600 dark:text-zinc-300">
-              Client users retrieve client-visible company/project/LiNKbot memory. Vendor users may also retrieve vendor module memory,
-              project type knowledge, and reviewed anonymized learning.
-            </p>
-          </div>
+          <LinkbrainAskNarrowing
+            data={data}
+            brainScope={props.brainScope}
+            brainMissionId={props.brainMissionId}
+            brainAgentId={props.brainAgentId}
+            missionFilter={props.missionFilter}
+            agentFilter={props.agentFilter}
+            orgNodeId={props.orgNodeId}
+          />
           <form method="get" action="/memory" className="space-y-4 rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950">
             <input type="hidden" name="tab" value="ask" />
             <input type="hidden" name="b_scope" value={props.brainScope} />
             <input type="hidden" name="b_path" value={props.sandboxPath ?? ""} />
             {props.brainMissionId ? <input type="hidden" name="b_mission" value={props.brainMissionId} /> : null}
             {props.brainAgentId ? <input type="hidden" name="b_agent" value={props.brainAgentId} /> : null}
-            {props.missionFilter ? <input type="hidden" name="mission" value={props.missionFilter} /> : null}
-            {props.agentFilter ? <input type="hidden" name="agent" value={props.agentFilter} /> : null}
-            {props.orgNodeId ? <input type="hidden" name="org" value={props.orgNodeId} /> : null}
             <div>
-              <label className="text-sm font-medium text-zinc-900 dark:text-zinc-100">Document</label>
+              <label className="text-sm font-medium text-zinc-900 dark:text-zinc-100">Document (optional narrow step)</label>
               <select
                 name="b_file"
                 defaultValue={props.askSelectedFileId ?? ""}
                 className="mt-1 w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900"
               >
-                <option value="">Choose a document…</option>
+                <option value="">All documents in scope…</option>
                 {data.brainPartitionFiles.map((f) => (
                   <option key={f.id} value={f.id}>
                     {f.logical_path}
@@ -581,7 +316,7 @@ export function MemoryCommandCentre(props: {
               />
             </div>
             <div>
-              <label className="text-sm font-medium text-zinc-900 dark:text-zinc-100">Retrieval stage</label>
+              <label className="text-sm font-medium text-zinc-900 dark:text-zinc-100">Retrieval depth</label>
               <select
                 name="b_stage"
                 defaultValue={props.brainRetrieveStage}
@@ -592,16 +327,12 @@ export function MemoryCommandCentre(props: {
                 <option value="index_cards">Index cards only</option>
                 <option value="chunks">Passages only</option>
               </select>
-              <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-                Progressive disclosure: start with orientation or cards, then switch to passages when you need grounded
-                excerpts.
-              </p>
             </div>
             <button
               type="submit"
               className="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white dark:bg-zinc-100 dark:text-zinc-900"
             >
-              Preview
+              Preview retrieval
             </button>
           </form>
           {props.brainSandbox ? (
@@ -609,29 +340,15 @@ export function MemoryCommandCentre(props: {
               {props.brainSandbox.error ? (
                 <p className="text-sm text-red-700 dark:text-red-300">{props.brainSandbox.error}</p>
               ) : null}
-              {!props.brainSandbox.fileId ? (
+              {!props.brainSandbox.fileId && props.sandboxPath ? (
                 <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                  No published document at this path for the current scope. Create and publish a draft first.
+                  No published document at this path for the current scope.
                 </p>
-              ) : (
+              ) : null}
+              {props.brainSandbox.indexCards.length > 0 || props.brainSandbox.relevantChunks.length > 0 ? (
                 <>
-                  {props.brainSandbox.mapIndexCards && props.brainSandbox.mapIndexCards.length > 0 ? (
-                    <>
-                      <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Company orientation map</h3>
-                      <ul className="mt-2 space-y-2">
-                        {props.brainSandbox.mapIndexCards.map((c) => (
-                          <li key={c.card_key} className="text-sm">
-                            <span className="font-medium text-zinc-900 dark:text-zinc-100">{c.title}</span>
-                            <p className="text-zinc-600 dark:text-zinc-400">{c.summary}</p>
-                          </li>
-                        ))}
-                      </ul>
-                    </>
-                  ) : null}
-                  <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Index cards</h3>
-                  {props.brainSandbox.indexCards.length === 0 ? (
-                    <p className="text-sm text-zinc-500">None yet.</p>
-                  ) : (
+                  <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">What LiNKbrain would return</h3>
+                  {props.brainSandbox.indexCards.length > 0 ? (
                     <ul className="mt-2 space-y-2">
                       {props.brainSandbox.indexCards.map((c) => (
                         <li key={c.card_key} className="text-sm">
@@ -640,35 +357,26 @@ export function MemoryCommandCentre(props: {
                         </li>
                       ))}
                     </ul>
-                  )}
-                  <h3 className="mt-4 text-sm font-semibold text-zinc-900 dark:text-zinc-100">Passages</h3>
-                  {props.brainSandbox.relevantChunks.length === 0 ? (
-                    <p className="text-sm text-zinc-500">No chunks yet — publish to chunk the body.</p>
-                  ) : (
-                    <ul className="mt-2 space-y-3">
+                  ) : null}
+                  {props.brainSandbox.relevantChunks.length > 0 ? (
+                    <ul className="mt-4 space-y-3">
                       {props.brainSandbox.relevantChunks.map((c) => (
-                        <li key={c.chunkId} className="text-sm">
-                          <p className="whitespace-pre-wrap text-zinc-800 dark:text-zinc-200">{c.content}</p>
+                        <li key={c.chunkId} className="text-sm whitespace-pre-wrap text-zinc-800 dark:text-zinc-200">
+                          {c.content}
                         </li>
                       ))}
                     </ul>
-                  )}
-                  {props.brainSandbox.publishedExcerpt ? (
-                    <details className="mt-4">
-                      <summary className="cursor-pointer text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                        Approved text
-                      </summary>
-                      <pre className="mt-2 max-h-48 overflow-auto whitespace-pre-wrap rounded bg-white p-3 text-xs dark:bg-zinc-950">
-                        {props.brainSandbox.publishedExcerpt}
-                      </pre>
-                    </details>
                   ) : null}
                 </>
-              )}
+              ) : props.sandboxQuery ? (
+                <p className="text-sm text-zinc-500">No matching passages in this scope yet.</p>
+              ) : null}
             </div>
           ) : null}
         </section>
       ) : null}
+
+      <LinkbrainWorkspaceFooter overviewBrain={data.overviewBrain} />
     </div>
   );
 }

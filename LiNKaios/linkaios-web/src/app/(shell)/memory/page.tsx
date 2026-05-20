@@ -1,17 +1,20 @@
 import Link from "next/link";
 
 import { LinkbrainTabNav } from "@/components/linkbrain/linkbrain-tab-nav";
+import { LinkbrainScopeAbout } from "@/components/linkbrain/linkbrain-scope-about";
 import { MemoryCommandCentre } from "@/components/linkbrain/memory-command-centre";
+import { ShellPageHeaderClient } from "@/components/shell-page-header-client";
 import type { LinkbrainTab } from "@/lib/linkbrain-data";
+import { linkbrainPageTitle, linkbrainTabSubtitle } from "@/lib/linkbrain-page-copy";
 import { loadLinkbrainPageData } from "@/lib/linkbrain-data";
-import { BUTTON } from "@/lib/ui-standards";
-import { isUiMocksEnabled } from "@/lib/ui-mocks/flags";
-import { applyLinkbrainUiMockOverlay } from "@/lib/ui-mocks/linkbrain-demo-overlay";
 import { runBrainRetrievalSandbox } from "@/lib/brain-sandbox";
-import type { BrainRetrieveStage } from "@linktrend/linklogic-sdk";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { isUiMocksEnabled } from "@/lib/ui-mocks/flags";
+import { resolveDemoBrainAgentId, demoBrainAgentSlugForId } from "@/lib/ui-mocks/linkbrain-demo-agents";
+import { applyLinkbrainUiMockOverlay } from "@/lib/ui-mocks/linkbrain-demo-overlay";
+import { BUTTON } from "@/lib/ui-standards";
 
-import type { BrainInboxItemType, BrainRetrieveContextResult, BrainScope } from "@linktrend/linklogic-sdk";
+import type { BrainInboxItemType, BrainRetrieveContextResult, BrainRetrieveStage, BrainScope } from "@linktrend/linklogic-sdk";
 
 export const dynamic = "force-dynamic";
 
@@ -67,13 +70,18 @@ export default async function MemoryPage(props: {
   const tab = parseTab(sp.tab);
   const missionFilter = sp.mission?.trim();
   const classificationFilter = sp.classification?.trim();
-  const agentFilter = sp.agent?.trim();
+  const agentFilterRaw = sp.agent?.trim();
+  const uiMocksEnabled = isUiMocksEnabled();
+  const agentFilter = uiMocksEnabled ? resolveDemoBrainAgentId(agentFilterRaw) : agentFilterRaw;
+  const agentFilterDisplay = agentFilterRaw ?? (agentFilter ? demoBrainAgentSlugForId(agentFilter) : undefined);
   const scope = parseScope(sp.scope);
   const brainScope = parseBrainScope(sp.b_scope);
   const orgNodeId = sp.org?.trim();
   const brainMissionId =
     sp.b_mission?.trim() ?? (tab === "project" && missionFilter ? missionFilter : undefined);
-  const brainAgentId = sp.b_agent?.trim() ?? (tab === "agent" && agentFilter ? agentFilter : undefined);
+  const brainAgentId =
+    (uiMocksEnabled ? resolveDemoBrainAgentId(sp.b_agent?.trim()) : sp.b_agent?.trim()) ??
+    (tab === "agent" && agentFilter ? agentFilter : undefined);
   let sandboxPath = sp.b_path?.trim();
   const sandboxQuery = sp.b_query?.trim();
   const inboxItemType = parseInboxItem(sp.inbox_item?.trim());
@@ -90,7 +98,6 @@ export default async function MemoryPage(props: {
       : "index_cards";
 
   const supabase = await createSupabaseServerClient();
-  const uiMocksEnabled = isUiMocksEnabled();
   let data = await loadLinkbrainPageData(supabase, {
     tab,
     missionId: missionFilter,
@@ -107,7 +114,7 @@ export default async function MemoryPage(props: {
   });
 
   if (uiMocksEnabled && !data.error) {
-    data = applyLinkbrainUiMockOverlay(data);
+    data = applyLinkbrainUiMockOverlay(data, { tab, brainMissionId, brainAgentId });
   }
 
   if (tab === "ask" && !sandboxPath && askSelectedFileId) {
@@ -116,10 +123,10 @@ export default async function MemoryPage(props: {
   }
 
   let brainSandbox: BrainRetrieveContextResult | null = null;
-  if (tab === "ask" && sandboxPath && sandboxQuery) {
+  if (tab === "ask" && sandboxQuery) {
     brainSandbox = await runBrainRetrievalSandbox(supabase, {
       scope: brainScope,
-      logicalPath: sandboxPath,
+      logicalPath: sandboxPath ?? "",
       query: sandboxQuery,
       missionId: brainMissionId,
       agentId: brainAgentId,
@@ -127,21 +134,23 @@ export default async function MemoryPage(props: {
     });
   }
 
+  const pageTitle = tab === "inbox" ? "LiNKbrain" : linkbrainPageTitle(tab);
+
   return (
     <main className="space-y-6">
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <h1 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100">LiNKbrain</h1>
-          <p className="mt-2 max-w-2xl text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
-            Permission-aware memory hub: client users work with <strong>Company</strong>, <strong>Project</strong>, and{" "}
-            <strong>LiNKbot</strong> memory; vendor users can additionally use <strong>vendor-only</strong>,{" "}
-            <strong>anonymized learning</strong>, and <strong>protected IP</strong> knowledge surfaces.
-          </p>
-        </div>
-        <Link href="/memory/drafts/new" className={`${BUTTON.primaryRow} h-fit shrink-0`}>
-          Add Knowledge
-        </Link>
-      </div>
+      <ShellPageHeaderClient
+        title={pageTitle}
+        subtitle={linkbrainTabSubtitle(tab)}
+        actions={
+          <Link
+            href="/memory/drafts/new"
+            className={`${BUTTON.primaryRow} h-fit shrink-0`}
+            title="Creates a draft in Inbox — not recorded in LiNKbrain until approved"
+          >
+            Add Knowledge
+          </Link>
+        }
+      />
 
       {sp.err ? (
         <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-950 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-100">
@@ -155,11 +164,13 @@ export default async function MemoryPage(props: {
         </p>
       ) : null}
 
+      <LinkbrainScopeAbout />
+
       <LinkbrainTabNav
         active={tab}
         mission={missionFilter}
         classification={classificationFilter}
-        agent={agentFilter}
+        agent={agentFilterDisplay ?? agentFilter}
         scope={scope}
         brainScope={brainScope}
         brainMission={brainMissionId}

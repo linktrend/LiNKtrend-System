@@ -61,7 +61,7 @@ export const DEMO_TOOL_CATALOG_ROWS: ToolCatalogRow[] = [
     name: "mission_board",
     tool_type: "bundle",
     category: "Projects",
-    description: "Read/write mission board tiles and status transitions (fixture).",
+    description: "Read/write project board tiles and status transitions (fixture).",
     published: true,
     runtimeEnabled: true,
     status: "approved",
@@ -92,4 +92,8 @@ export function mergeToolCatalogWithDemo(rows: ToolCatalogRow[]): ToolCatalogRow
   const ids = new Set(rows.map((r) => r.id));
   const extra = DEMO_TOOL_CATALOG_ROWS.filter((r) => !ids.has(r.id));
   return [...extra, ...rows];
+}
+
+export function findDemoSkillFixture(id: string): SkillCatalogRow | undefined {
+  return DEMO_SKILL_CATALOG_ROWS.find((r) => r.id === id);
 }

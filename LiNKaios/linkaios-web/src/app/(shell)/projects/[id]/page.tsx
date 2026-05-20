@@ -9,11 +9,12 @@ import {
 
 import { EntityTable } from "@/components/entity-table";
 import { ProjectDetailTabNav } from "@/components/project-detail-tab-nav";
+import { ShellPageHeaderClient } from "@/components/shell-page-header-client";
 import { parseProjectTab, type ProjectTabId } from "@/lib/project-tabs";
 import { projectStatusDisplay } from "@/lib/project-status-ui";
 import { ProjectsPlaneStrip } from "@/components/projects-plane-strip";
 import { canWriteCommandCentre, getCommandCentreRoleForUser } from "@/lib/command-centre-access";
-import { getPlaneBridgeConfig, planeWorkspaceProjectsHref } from "@/lib/plane-links";
+import { getPlaneBridgeConfig, planeProjectBoardHref, planeWorkspaceProjectsHref } from "@/lib/plane-links";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { isDemoMissionId } from "@/lib/ui-mocks/entities";
 import { isUiMocksEnabled } from "@/lib/ui-mocks/flags";
@@ -336,25 +337,18 @@ export default async function MissionDetailPage(props: {
 
   const demo = isUiMocksEnabled() ? DEMO_MISSION_DETAIL_SPECS[id] : undefined;
   if (demo) {
+    const demoBridge = DEMO_MISSION_PLANE_BRIDGE[demo.id];
+    const demoPlaneHref = planeProjectBoardHref(planeCfg, demoBridge?.code ?? null) ?? planeProjectsHref;
     return (
       <main className="space-y-8">
-        <header className="border-b border-zinc-200 pb-8">
-          <p className="text-sm text-zinc-500">
-            <Link href="/projects" className="text-zinc-700 underline">
-              Projects
-            </Link>
-            <span className="mx-2">/</span>
-            <span className="text-zinc-900">{demo.title}</span>
-          </p>
-          <div className="mt-3 flex flex-wrap items-start justify-between gap-4">
-            <div>
-              <h1 className="text-2xl font-semibold tracking-tight text-zinc-900">{demo.title}</h1>
-              <p className="mt-2 max-w-2xl text-sm text-zinc-600">{demo.tagline}</p>
-            </div>
-            <div className="flex w-full flex-col gap-2 sm:w-auto sm:items-end">
-              {planeProjectsHref ? (
+        <ShellPageHeaderClient
+          title={demo.title}
+          subtitle={demo.tagline}
+          actions={
+            <>
+              {demoPlaneHref ? (
                 <a
-                  href={planeProjectsHref}
+                  href={demoPlaneHref}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center justify-center rounded-lg bg-zinc-900 px-4 py-2 text-sm font-semibold text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
@@ -362,17 +356,16 @@ export default async function MissionDetailPage(props: {
                   Open in Plane ↗
                 </a>
               ) : null}
-              <div className="flex flex-wrap justify-end gap-2">
-                <span className="inline-flex rounded-full bg-amber-50 px-2.5 py-1 text-xs font-medium text-amber-900 ring-1 ring-amber-200">
-                  Sample project
-                </span>
-                <span className="inline-flex rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-900 ring-1 ring-emerald-200">
-                  {projectStatusDisplay(demo.status)}
-                </span>
-              </div>
-            </div>
-          </div>
-          <dl className="mt-6 grid gap-4 sm:grid-cols-3">
+              <span className="inline-flex rounded-full bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-900 ring-1 ring-amber-300 dark:bg-amber-950/40 dark:text-amber-100 dark:ring-amber-800">
+                Sample project
+              </span>
+              <span className="inline-flex rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-900 ring-1 ring-emerald-300 dark:bg-emerald-950/40 dark:text-emerald-100 dark:ring-emerald-800">
+                {projectStatusDisplay(demo.status)}
+              </span>
+            </>
+          }
+        />
+        <dl className="grid gap-4 sm:grid-cols-3">
             <div className="rounded-xl border border-zinc-100 bg-zinc-50 px-4 py-3">
               <dt className="text-xs font-medium uppercase tracking-wide text-zinc-500">Module</dt>
               <dd className="mt-1 text-sm font-semibold text-zinc-900">{demo.moduleName}</dd>
@@ -411,11 +404,10 @@ export default async function MissionDetailPage(props: {
             </div>
           </dl>
           {demo.vendorOnlyNote ? (
-            <p className="mt-4 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">
+            <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900 dark:border-amber-900/40 dark:bg-amber-950/20 dark:text-amber-100">
               Vendor-only section: {demo.vendorOnlyNote}
             </p>
           ) : null}
-        </header>
 
         <ProjectsPlaneStrip workspaceProjectsHref={planeProjectsHref} />
 
@@ -448,25 +440,18 @@ export default async function MissionDetailPage(props: {
 
   const m = mission as { id: string; title: string; status: string; primary_agent_id: string | null };
   const bridge = DEMO_MISSION_PLANE_BRIDGE[m.id];
+  const livePlaneHref = planeProjectBoardHref(planeCfg, bridge?.code ?? null) ?? planeProjectsHref;
 
   return (
     <main className="space-y-8">
-      <header className="border-b border-zinc-200 pb-8">
-        <p className="text-sm text-zinc-500">
-          <Link href="/projects" className="text-zinc-700 underline">
-            Projects
-          </Link>
-          <span className="mx-2">/</span>
-          <span className="text-zinc-900">{m.title}</span>
-        </p>
-        <div className="mt-3 flex flex-wrap items-start justify-between gap-4">
-          <div className="min-w-0 flex-1">
-            <h1 className="text-2xl font-semibold tracking-tight text-zinc-900">{m.title}</h1>
-          </div>
-          <div className="flex w-full flex-col gap-2 sm:w-auto sm:items-end">
-            {planeProjectsHref ? (
+      <ShellPageHeaderClient
+        title={m.title}
+        subtitle="Plane runs board execution; LiNKaios runs orchestration, approvals, outputs, and traces."
+        actions={
+          <>
+            {livePlaneHref ? (
               <a
-                href={planeProjectsHref}
+                href={livePlaneHref}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center justify-center rounded-lg bg-zinc-900 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
@@ -474,26 +459,21 @@ export default async function MissionDetailPage(props: {
                 Open in Plane ↗
               </a>
             ) : null}
-            <div className="flex flex-wrap justify-end gap-2">
-              <span className="inline-flex rounded-full bg-zinc-100 px-2.5 py-1 text-xs font-medium text-zinc-800 ring-1 ring-zinc-300 dark:bg-zinc-800 dark:text-zinc-200 dark:ring-zinc-600">
-                {projectStatusDisplay(m.status)}
-              </span>
-              {m.primary_agent_id ? (
-                <Link
-                  href={`/workers/${m.primary_agent_id}/sessions`}
-                  className="inline-flex rounded-full bg-sky-50 px-2.5 py-1 text-xs font-medium text-sky-900 ring-1 ring-sky-200 hover:bg-sky-100"
-                >
-                  Lead LiNKbot
-                </Link>
-              ) : null}
-            </div>
-          </div>
-        </div>
-        <p className="mt-3 text-sm text-zinc-600">
-          Plane is the project board for execution. LiNKaios is the orchestration and control plane for approvals,
-          outputs, and traces.
-        </p>
-        <dl className="mt-4 grid gap-4 sm:grid-cols-3">
+            <span className="inline-flex rounded-full bg-zinc-100 px-2.5 py-1 text-xs font-semibold text-zinc-800 ring-1 ring-zinc-300 dark:bg-zinc-800 dark:text-zinc-200 dark:ring-zinc-600">
+              {projectStatusDisplay(m.status)}
+            </span>
+            {m.primary_agent_id ? (
+              <Link
+                href={`/workers/${m.primary_agent_id}/sessions`}
+                className="inline-flex rounded-full bg-sky-50 px-2.5 py-1 text-xs font-semibold text-sky-900 ring-1 ring-sky-300 hover:bg-sky-100 dark:bg-sky-950/40 dark:text-sky-100 dark:ring-sky-800"
+              >
+                Lead LiNKbot
+              </Link>
+            ) : null}
+          </>
+        }
+      />
+      <dl className="grid gap-4 sm:grid-cols-3">
           <div className="rounded-xl border border-zinc-100 bg-zinc-50 px-4 py-3">
             <dt className="text-xs font-medium uppercase tracking-wide text-zinc-500">Module</dt>
             <dd className="mt-1 text-sm font-semibold text-zinc-900">{bridge?.moduleName ?? "Unmapped module"}</dd>
@@ -509,7 +489,6 @@ export default async function MissionDetailPage(props: {
             <dd className="mt-1 text-xs text-zinc-700">Client view hides vendor-only workflow internals.</dd>
           </div>
         </dl>
-      </header>
 
       <ProjectsPlaneStrip workspaceProjectsHref={planeProjectsHref} />
 

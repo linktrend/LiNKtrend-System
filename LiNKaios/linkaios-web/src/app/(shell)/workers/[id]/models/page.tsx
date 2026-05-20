@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { AgentModelsForm } from "@/components/agent-models-form";
+import { WorkerTabSectionHeader } from "@/components/worker-tab-section-header";
 import { isDemoAgentId } from "@/lib/ui-mocks/entities";
 import { demoAgentRuntimeSettings } from "@/lib/ui-mocks/worker-ui";
 import { parseRuntimeSettings } from "@/lib/agent-runtime-settings";
@@ -15,7 +16,10 @@ export default async function WorkerModelsPage(props: { params: Promise<{ id: st
     const initial = demoAgentRuntimeSettings(id);
     return (
       <section className="space-y-4">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-zinc-500">Models</h2>
+        <WorkerTabSectionHeader
+          title="Models"
+          subtitle="Models this LiNKbot may use by task category, plus spend limits and fallbacks (demo — read only)."
+        />
         <AgentModelsForm agentId={id} initial={initial} readonly />
       </section>
     );

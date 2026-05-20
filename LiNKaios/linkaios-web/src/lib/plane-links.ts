@@ -25,3 +25,11 @@ export function planeWorkspaceProjectsHref(cfg: PlaneBridgeConfig): string | nul
   }
   return `${cfg.workspaceUrl}/`;
 }
+
+/** Per-project Plane board when a project code/slug mapping exists (full mapping pending PM-004). */
+export function planeProjectBoardHref(cfg: PlaneBridgeConfig, projectCode: string | null | undefined): string | null {
+  const workspace = planeWorkspaceProjectsHref(cfg);
+  if (!workspace || !projectCode?.trim()) return workspace;
+  const base = workspace.replace(/\/$/, "");
+  return `${base}/${encodeURIComponent(projectCode.trim())}/`;
+}
