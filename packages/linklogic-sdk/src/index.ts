@@ -447,6 +447,27 @@ export type {
   MemoryObjectType as ContextMemoryObjectType,
 } from "./context-assembly.js";
 
+// LiNKbrain Trace Intelligence (WP-202)
+export {
+  buildTraceSummaryText,
+  getLeadTrace,
+  getOperatorBrainStatus,
+  getPlaneBreakdown,
+  getRecentActivitySummary,
+  getRunTrace,
+  isMvoCompleteTrace,
+} from "./brain-trace-intelligence.js";
+export type {
+  CrossPlaneStageSummary,
+  LeadTraceResult,
+  MemoryObjectReference,
+  OperatorBrainStatus,
+  OperatorBrainStatusResult,
+  RunTraceResult,
+  RunTraceSummary,
+  TraceEvent,
+} from "./brain-trace-intelligence.js";
+
 // Progressive disclosure types (WP-080)
 export {
   DisclosureScopeSchema,
