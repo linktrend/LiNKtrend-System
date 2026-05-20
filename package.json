@@ -5,10 +5,12 @@
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",
+    "dev:uiux:prepare": "pnpm --filter @linktrend/ui build && pnpm --filter @linktrend/shared-config build && pnpm --filter @linktrend/shared-types build && pnpm --filter @linktrend/db build && pnpm --filter @linktrend/observability build && pnpm --filter @linktrend/linklogic-sdk build",
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",
     "test": "turbo run test",
-    "db:migrate": "node services/migrations/run.mjs"
+    "db:migrate": "node services/migrations/run.mjs",
+    "test:mvo:e2e": "node --experimental-strip-types scripts/run-e2e.ts"
   },
   "devDependencies": {
     "dotenv": "^16.5.0",

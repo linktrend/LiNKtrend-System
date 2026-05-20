@@ -1,0 +1,47 @@
+# LEXOS LinkBot role contract — declaration/spec only.
+
+schema_version: 1
+role_id: lexos_analyst
+canonical_type_ref: LexosRoleIdSchema
+primary_work_request_types:
+  - lexos.assertions.extract
+  - lexos.support.map
+primary_workflow_stages:
+  - W5
+purpose:
+  Curates assertions, evidence support mapping, contradiction surfacing, and gap analysis jointly with deterministic sync steps.
+allowed_inputs_conceptual:
+  - LexosAssertionsExtractRequest and LexosSupportMapRequest payloads
+expected_outputs_conceptual:
+  - Outputs compatible with LexosAssertionsExtractResult and LexosSupportMapResult
+required_capability_ids_via_linkskills_leases_only:
+  - cap.storage.supabase
+  - cap.llm.generation
+brain_context_pattern:
+  reads:
+    - Assertion graph, extraction artifacts, narratives from LiNKbrain
+  writes:
+    - Matrix updates drafted for orchestration; deterministic writes flow through leased storage + workflows
+linkskills_side_effects:
+  posture: Model-assisted linkage requires cap.llm.generation leases and recorded audit coverage.
+requires_autowork_invocation_optional:
+  hooks:
+    - autowork.lexos.assertion_sync
+required_audit_events:
+  - role.started
+  - lease.requested
+  - lease.executed
+  - assertions.extracted
+  - support.mapped
+  - contradictions.found
+  - workflow.invoked
+  - workflow.completed
+  - role.completed
+  - role.failed
+mvo_live_side_effect_authority:
+  live_court_filing: false
+  live_provider_legal_research_write: false
+  external_correspondence_or_filing_send: false
+non_goals:
+  - Deletes privileged material
+  - Emits final legal conclusions to external recipients

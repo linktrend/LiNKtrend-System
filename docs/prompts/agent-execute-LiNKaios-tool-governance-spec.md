@@ -14,8 +14,8 @@ Read and follow **`docs/LiNKaios-tool-governance-spec.md`** end-to-end. Do **not
 2. **RLS:** Policies consistent with `command_centre_write_allowed()`; extend with role helpers for org admin vs project head as needed (see `docs/operator-roles.md` if present).
 3. **`linklogic-sdk`:** Compute **effective** `approvedTools.toolNames` as **intersection** of org allowlist, mission allowlist (if mission present), and mission-less org default per spec §7; **fail-closed** when data missing; structured **blocked-run** outcome with ids for traces and deep links (spec §6).
 4. **`bot-runtime` / gateway:** Wire blocked outcome without silent retry; pass correlation ids for traces.
-5. **LiNKaios web:** **Org settings → Tools** (spec §4); **Projects → Tools** tab extending `apps/linkaios-web/src/components/project-detail-tab-nav.tsx` and `missions/[id]` routes; pending queue; approve/reject; stable deep link `?request=` (spec §5–6).
-6. **Zulip:** `apps/zulip-gateway` (or agreed notifier): post message with **one-shot LiNKaios URL** on block/request; respect `docs/zulip-routing.md` and `gateway.stream_routing`; define fallback for mission-less (spec §6.2).
+5. **LiNKaios web:** **Org settings → Tools** (spec §4); **Projects → Tools** tab extending `LiNKaios/linkaios-web/src/components/project-detail-tab-nav.tsx` and `missions/[id]` routes; pending queue; approve/reject; stable deep link `?request=` (spec §5–6).
+6. **Zulip:** `LiNKbot/communications/temporary-gateways/zulip` (or agreed notifier): post message with **one-shot LiNKaios URL** on block/request; respect `docs/zulip-routing.md` and `gateway.stream_routing`; define fallback for mission-less (spec §6.2).
 7. **Traces:** Emit rows for every event type in spec §8 with required metadata; add Traces UI filter for `tool.*` if missing and cheap.
 
 ## Explicitly out of scope

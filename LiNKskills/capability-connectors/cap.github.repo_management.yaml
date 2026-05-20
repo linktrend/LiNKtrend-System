@@ -1,0 +1,116 @@
+# Capability Connector: cap.github.repo_management
+# Per LINKAPPS_CAPABILITY_REQUIREMENTS.md §2.1 and CONTRACTS_MVO.md §0.A.5.1
+
+plugin_id: cap.github.repo_management
+plugin_kind: capability
+plugin_name: GitHub Repository Management
+version: "1.0.0-mvo"
+purpose: Governed GitHub/Git operations for repository lifecycle management
+
+modes_supported:
+  - mock
+  - shadow
+  - live
+
+operations:
+  - operation_id: repo.create_from_template
+    description: Materialize starter kit workspace from template
+    default_mode: mock
+    lease_skus:
+      - github.repo.template_materialize
+      - github.repo.write
+    idempotency_key_pattern: "${tenant_id}:${run_id}:${stage_id}:repo.create_from_template:${app_slug}|${template_ref}|${workspace_root_hash}"
+    allowed_callers:
+      - linkautowork
+      - vertical_plugin
+    failure_mapping:
+      malformed_slug: LEASE_REQUEST_INVALID
+      missing_installation: INTEGRATION_AUTH_FAILED
+      kill_switch: LEASE_KILL_SWITCH
+      github_outage: INTEGRATION_UNAVAILABLE
+      idempotency_conflict: LEASE_IDEMPOTENCY_CONFLICT
+
+  - operation_id: repo.init_local
+    description: git init + initial commit in workspace
+    default_mode: mock
+    lease_skus:
+      - github.repo.write
+      - git.local.init
+    idempotency_key_pattern: "${tenant_id}:${run_id}:${stage_id}:repo.init_local:${app_repo_digest_pre_init}|${workspace_path_id}"
+    allowed_callers:
+      - linkautowork
+      - vertical_plugin
+    failure_mapping:
+      path_exists: LEASE_REQUEST_INVALID
+      git_not_available: INTEGRATION_UNAVAILABLE
+
+  - operation_id: remote.register
+    description: Associate origin URL metadata
+    default_mode: mock
+    lease_skus:
+      - github.repo.configure
+    idempotency_key_pattern: "${tenant_id}:${run_id}:${stage_id}:remote.register:${normalized_remote_url_sha}"
+    allowed_callers:
+      - linkautowork
+      - vertical_plugin
+    failure_mapping:
+      invalid_url: LEASE_REQUEST_INVALID
+
+  - operation_id: commit.apply
+    description: Apply staged patches / bot commits deterministically
+    default_mode: mock
+    lease_skus:
+      - github.commit.write
+      - github.repo.write
+    idempotency_key_pattern: "${tenant_id}:${run_id}:${stage_id}:commit.apply:${parents_head_sha}|${patch_set_hash}"
+    allowed_callers:
+      - linkautowork
+      - vertical_plugin
+    failure_mapping:
+      conflict: LEASE_IDEMPOTENCY_CONFLICT
+      invalid_patch: LEASE_REQUEST_INVALID
+
+  - operation_id: push.ref
+    description: Push branch/tag to upstream
+    default_mode: live
+    modes_disabled_in_mvo:
+      - mock
+    lease_skus:
+      - github.push.deploy
+    idempotency_key_pattern: "${tenant_id}:${run_id}:${stage_id}:push.ref:${local_head_sha}|${remote_name}|${ref_name}"
+    allowed_callers:
+      - linkautowork
+    failure_mapping:
+      rejected: INTEGRATION_UNAVAILABLE
+      auth_failed: INTEGRATION_AUTH_FAILED
+
+auth_config_surface:
+  - github.org_ref
+  - github.app_installation_ref
+  - github.pat_ref
+  - github.oauth_actor_ref
+  - github.default_branch_policy_ref
+  - remote.url_template
+
+audit_events:
+  - capability.requested
+  - capability.executed
+  - linkapps.repo.scaffolded
+  - github.commit.recorded
+  - capability.failed
+
+non_ownership:
+  - Repository permission model beyond connector args
+  - CODEOWNERS configuration
+  - Branch protection taxonomy
+  - Codespaces policy
+  - Actions workflow design inside customer repos
+
+required_by_modules:
+  - linkapps.app_factory
+  - linksites
+
+notes: >
+  Per LINKAPPS_CAPABILITY_REQUIREMENTS.md §2.1: repo.create_from_template mirrors
+  create-app-repo.sh staging behavior. push.ref is intentionally absent from MVO
+  mock surface unless integrator adopts guarded local remote.

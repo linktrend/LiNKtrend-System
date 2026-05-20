@@ -1,0 +1,17 @@
+{
+  "version": "1.0",
+  "templateVersion": "v1",
+  "handle": "autowork.websitefactory.render",
+  "displayName": "WebsiteFactory Render",
+  "description": "Renders a website preview bundle",
+  "requiresLease": false,
+  "source": {
+    "type": "file",
+    "filePath": "./handlers/websitefactory-render.js"
+  },
+  "tags": ["websitefactory", "render"],
+  "createdAt": "2026-05-17T00:00:00.000Z",
+  "updatedAt": "2026-05-17T00:00:00.000Z",
+  "author": "WP-074",
+  "environments": ["development", "staging"]
+}

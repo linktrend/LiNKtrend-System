@@ -1,0 +1,53 @@
+import type { ChannelMessageThread } from "@/lib/work-messages";
+
+export const DEMO_CHANNEL_THREADS: ChannelMessageThread[] = [
+  {
+    id: "demo-channel-ops",
+    channel: "Zulip",
+    channelTag: "Zulip",
+    projectName: "LiNKaios Rollout",
+    subject: "ops · deployment hand-off",
+    preview: "SalesBot-1: Site preview is live at the staging URL. Routing check complete.",
+    lastActivity: new Date(Date.now() - 25 * 60 * 1000).toISOString(),
+    detail: [
+      "SalesBot-1 · 08:47\nHi team — LiNKaios module rollout is complete for the ACME SMB demo. Site preview is live at the staging URL. Routing check passed ✓",
+      "OpsBot-2 · 08:52\nReceived. I've created a Plane task for the QA verification step and assigned it to LinkReviewer-1. Task ID: PLANE-1042.",
+      "Alex (operator) · 09:01\nGood. Can we schedule the stakeholder walkthrough for Thursday at 3 PM? Add to the Plane task.",
+      "SalesBot-1 · 09:03\nConfirmed. Calendar invite sent to stakeholders. Plane task PLANE-1042 updated with the Thursday 15:00 slot. No further actions pending from my side.",
+    ].join("\n---\n"),
+    missionId: "demo-smb",
+    messageCount: 4,
+    hasUnread: true,
+    openHref: "/settings/gateway",
+  },
+  {
+    id: "demo-channel-support",
+    channel: "Zulip",
+    channelTag: "Zulip",
+    projectName: "Brightfield Co. Onboarding",
+    subject: "support · customer intake",
+    preview: "SupportBot-3: Intake form received from Brightfield Co. SLA clock started.",
+    lastActivity: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(),
+    detail: [
+      "SupportBot-3 · 06:14\nIntake form received from Brightfield Co. via the website widget. SLA clock started. Ticket #2091 created. Priority: High.",
+      "Maya (operator) · 06:30\nAssign to LiNKbot-Support and flag for human review if no resolution within 4 hours.",
+    ].join("\n---\n"),
+    missionId: "demo-ai-edu",
+    messageCount: 2,
+    hasUnread: false,
+    openHref: "/settings/gateway",
+  },
+  {
+    id: "demo-channel-slack",
+    channel: "Slack",
+    channelTag: "Slack",
+    projectName: "Platform Infra",
+    subject: "eng-deploys · staging cutover",
+    preview: "Fixture Slack-style thread for multi-channel layout.",
+    lastActivity: new Date(Date.now() - 50 * 60 * 1000).toISOString(),
+    detail: "DeployBot · 09:20\nStaging cutover initiated. ETA 8 minutes.\n---\nDeployBot · 09:28\nStaging cutover complete. All health checks green ✓",
+    messageCount: 2,
+    hasUnread: true,
+    openHref: "/work/messages",
+  },
+];

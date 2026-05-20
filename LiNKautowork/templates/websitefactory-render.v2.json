@@ -1,0 +1,17 @@
+{
+  "version": "1.0",
+  "templateVersion": "v2",
+  "handle": "autowork.websitefactory.render",
+  "displayName": "WebsiteFactory Render V2",
+  "description": "Renders a website preview bundle with upgraded deterministic metadata",
+  "requiresLease": false,
+  "source": {
+    "type": "n8n",
+    "n8nWorkflowId": "wf-websitefactory-render-v2"
+  },
+  "tags": ["websitefactory", "render", "n8n"],
+  "createdAt": "2026-05-17T00:00:00.000Z",
+  "updatedAt": "2026-05-17T00:00:00.000Z",
+  "author": "WP-074",
+  "environments": ["development"]
+}

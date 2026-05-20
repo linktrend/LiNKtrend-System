@@ -1,6 +1,6 @@
 # LiNKtrend System
 
-Proprietary **LiNKtrend** monorepo (Turborepo + pnpm): command centre (**LiNKaios**), worker wrapper (**bot-runtime**), **PRISM-Defender**, **Zulip-Gateway**, shared **LiNKlogic**-style packages, and Supabase-backed persistence.
+Proprietary **LiNKtrend** monorepo (Turborepo + pnpm): command centre (**LiNKaios**), LiNKbot runtime adapters, **LiNKguard** worker cleanup/security sidecar, mission-aware communications, shared **LiNKlogic**-style packages, tenant-enabled modules, capability connectors, and Supabase-backed persistence.
 
 Remote: [github.com/linktrend/LiNKtrend-System](https://github.com/linktrend/LiNKtrend-System)
 
@@ -20,18 +20,18 @@ pnpm --filter @linktrend/linkaios-web dev
 
 LiNKaios opens at `/login` until you sign in with a **Supabase Auth** user (Email provider). Command-centre reads use the **anon key + your session JWT** and **Row Level Security** (apply migration `008_rls_and_prism_swept.sql` or the tail of `ALL_IN_ONE.sql`).
 
-Other services:
+Other services and compatibility entrypoints:
 
 ```bash
 pnpm --filter @linktrend/bot-runtime dev
-pnpm --filter @linktrend/prism-defender dev
+pnpm --filter @linktrend/linkguard dev
 pnpm --filter @linktrend/zulip-gateway dev
 pnpm --filter @linktrend/openclaw-shim dev
 ```
 
-- **bot-runtime** — opens a `bot_runtime.worker_sessions` row, heartbeats every 30s, builds `linktrendGovernance` (mission + manifest tool names + skill instructions), writes `linkaios.traces` rows, optionally **POST**s to `OPENCLAW_AGENT_RUN_URL`, closes the session on SIGINT/SIGTERM.
-- **zulip-gateway** — HTTP server on port **8790** (override with `ZULIP_GATEWAY_PORT`). `POST /webhooks/zulip` upserts `gateway.zulip_message_links`. `GET /health` for probes.
-- **prism-defender** — heartbeat plus **residue sweep**: acknowledges closed `bot_runtime.worker_sessions` into `prism.swept_sessions` (disable with `PRISM_RESIDUE_SWEEP=0`, tune batch with `PRISM_RESIDUE_BATCH`).
+- **bot-runtime** — compatibility entrypoint for `LiNKbot/runtime-adapters/openclaw`: opens a `bot_runtime.worker_sessions` row, heartbeats every 30s, builds `linktrendGovernance` (mission + manifest tool names + skill instructions), writes `linkaios.traces` rows, optionally **POST**s to `OPENCLAW_AGENT_RUN_URL`, closes the session on SIGINT/SIGTERM.
+- **zulip-gateway** — temporary mission-aware communication bridge owned by `LiNKbot/communications`: HTTP server on port **8790** (override with `ZULIP_GATEWAY_PORT`). `POST /webhooks/zulip` upserts `gateway.zulip_message_links`. `GET /health` for probes.
+- **prism-defender** — legacy package name for **LiNKguard** compatibility entrypoint: heartbeat plus **residue sweep**: acknowledges closed `bot_runtime.worker_sessions` into `prism.swept_sessions` (disable with `PRISM_RESIDUE_SWEEP=0`, tune batch with `PRISM_RESIDUE_BATCH`).
 - **openclaw-shim** — local HTTP mock (default port **8789**, `OPENCLAW_SHIM_PORT`). Set `OPENCLAW_AGENT_RUN_URL=http://127.0.0.1:8789/` on **bot-runtime** to exercise the governance POST without LiNKbot-core.
 
 ## Docker (optional)
@@ -82,11 +82,21 @@ In **development**, LiNKaios exposes **Gov JSON** in the nav (`/devtools/governa
 
 | Path | Role |
 |------|------|
-| `apps/linkaios-web` | Next.js (App Router) command centre |
-| `apps/bot-runtime` | Worker runtime wrapper; optional OpenClaw governance POST |
-| `apps/prism-defender` | Cleanup / containment sidecar |
-| `apps/zulip-gateway` | Mission-aware Zulip bridge |
-| `apps/openclaw-shim` | Local ingress mock for `bot-runtime` POSTs |
+| `docs/architecture/repo-architecture-target.md` | Canonical ownership map for this repo |
+| `docs/architecture/system-completion-targets.md` | Target completed state for each system and module family |
+| `LiNKaios/` | LiNKaios ownership home, including the command-centre app at `LiNKaios/linkaios-web` |
+| `LiNKskills/` | LinkSkills governance, skills, tools, scripts, catalogs, and capability connectors |
+| `LiNKskills/capability-connectors/` | Capability connector registry and connector docs/manifests |
+| `LiNKbrain/` | LiNKbrain ownership home for memory, audit, retrieval, context, benchmarks, schemas, and migration references |
+| `LiNKautowork/` | Deterministic workflow gateway and templates for the external n8n fork |
+| `LiNKbot/` | Runtime adapters, roles, fleet metadata, and mission-aware communications |
+| `LiNKguard/` | Worker security and cleanup sidecar formerly known as PRISM Defender |
+| `modules/` | Tenant-enabled business/operational modules |
+| `LiNKaios/linkaios-web` | Next.js (App Router) command centre compatibility entrypoint |
+| `LiNKbot/runtime-adapters/openclaw/bot-runtime` | LiNKbot OpenClaw runtime adapter package |
+| `LiNKbot/runtime-adapters/openclaw/openclaw-shim` | Local ingress mock for `bot-runtime` POSTs |
+| `LiNKbot/communications/temporary-gateways/zulip` | Temporary Zulip mission-aware bridge |
+| `LiNKguard/sidecar/linkguard` | LiNKguard sidecar package |
 | `packages/linklogic-sdk` | Retrieval / enforcement (skeleton) |
 | `packages/db` | Supabase client helpers |
 | `packages/shared-types` | Cross-app types |

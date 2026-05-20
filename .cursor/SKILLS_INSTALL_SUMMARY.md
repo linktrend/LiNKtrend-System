@@ -1,0 +1,102 @@
+# Cursor Skills Install Summary
+
+Installed/updated project-scoped Cursor skills from:
+
+- `/Users/linktrend/Projects/linktrend-skills/.cursor/skills`
+- `https://github.com/linktrend/link-antigravity-kit` (`.cursor/skills` and extra `.agent/skills`)
+- `https://github.com/garrytan/gstack` vendored as `gstack-*` skills plus `.cursor/skills/gstack/bin` helpers
+
+Total top-level skill directories now present: 89
+GStack skill directories installed: 52
+
+## Top-Level Skills
+
+- `api-patterns`
+- `app-builder`
+- `architecture`
+- `bash-linux`
+- `behavioral-modes`
+- `brainstorming`
+- `clean-code`
+- `code-review-checklist`
+- `database-design`
+- `deployment-procedures`
+- `documentation-templates`
+- `frontend-design`
+- `game-development`
+- `geo-fundamentals`
+- `gstack`
+- `gstack-autoplan`
+- `gstack-benchmark`
+- `gstack-benchmark-models`
+- `gstack-browse`
+- `gstack-browser-skills-hackernews-frontpage`
+- `gstack-canary`
+- `gstack-careful`
+- `gstack-codex`
+- `gstack-context-restore`
+- `gstack-context-save`
+- `gstack-cso`
+- `gstack-design-consultation`
+- `gstack-design-html`
+- `gstack-design-review`
+- `gstack-design-shotgun`
+- `gstack-devex-review`
+- `gstack-document-generate`
+- `gstack-document-release`
+- `gstack-freeze`
+- `gstack-gstack-upgrade`
+- `gstack-guard`
+- `gstack-health`
+- `gstack-investigate`
+- `gstack-land-and-deploy`
+- `gstack-landing-report`
+- `gstack-learn`
+- `gstack-make-pdf`
+- `gstack-office-hours`
+- `gstack-open-gstack-browser`
+- `gstack-openclaw-skills-gstack-openclaw-ceo-review`
+- `gstack-openclaw-skills-gstack-openclaw-investigate`
+- `gstack-openclaw-skills-gstack-openclaw-office-hours`
+- `gstack-openclaw-skills-gstack-openclaw-retro`
+- `gstack-pair-agent`
+- `gstack-plan-ceo-review`
+- `gstack-plan-design-review`
+- `gstack-plan-devex-review`
+- `gstack-plan-eng-review`
+- `gstack-plan-tune`
+- `gstack-qa`
+- `gstack-qa-only`
+- `gstack-retro`
+- `gstack-review`
+- `gstack-scrape`
+- `gstack-setup-browser-cookies`
+- `gstack-setup-deploy`
+- `gstack-setup-gbrain`
+- `gstack-ship`
+- `gstack-skillify`
+- `gstack-sync-gbrain`
+- `gstack-unfreeze`
+- `i18n-localization`
+- `intelligent-routing`
+- `lint-and-validate`
+- `mcp-builder`
+- `mobile-design`
+- `nextjs-react-expert`
+- `nodejs-best-practices`
+- `parallel-agents`
+- `performance-profiling`
+- `plan-writing`
+- `powershell-windows`
+- `python-patterns`
+- `red-team-tactics`
+- `rust-pro`
+- `seo-fundamentals`
+- `server-management`
+- `systematic-debugging`
+- `tailwind-patterns`
+- `tdd-workflow`
+- `testing-patterns`
+- `vulnerability-scanner`
+- `web-design-guidelines`
+- `webapp-testing`

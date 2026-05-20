@@ -1,0 +1,86 @@
+---
+manifest_version: '1.0'
+plugin_kind: capability
+kind_version: semantic
+capability_id: cap.extraction.parser
+
+target_software:
+  product: Document layout parsers (LlamaParse / comparable layout parsers)
+  role_description: Deterministic structure extraction for uploaded legal documents — tables, headings, blocks.
+
+allowed_operations:
+  - id: document.parse
+    lease_permission: extraction.parser.parse_document
+    writes_side_effect: false
+    description: Produce structured parse tree referencing source offsets.
+  - id: markdown.extract
+    lease_permission: extraction.parser.markdown_emit
+    writes_side_effect: false
+    description: Serialize parse output as markdown suitable for downstream QA.
+  - id: json.extract
+    lease_permission: extraction.parser.json_emit
+    writes_side_effect: false
+    description: Structured JSON artifacts for interoperability with LEXOS ingestion schema consumers.
+
+auth_requirements:
+  note: API keys routed via credential refs at runtime — not present in manifests.
+  tenant_config_refs:
+    - parser.provider_ref
+    - parser.endpoint_or_region_ref
+    - parser.account_or_project_handle
+  requires_linkskills_registration: true
+
+mode_flags:
+  mvo_modes:
+    - development
+
+lease_requirements:
+  linkskills_permissions_hint:
+    - extraction.parser.parse_document
+    - extraction.parser.markdown_emit
+    - extraction.parser.json_emit
+  mandatory_lease_claims:
+    - tenant_id
+    - run_id_or_work_request_id
+    - artifact_reference_to_source_blob
+    - parser_job_profile_hint
+
+idempotency_rules:
+  key_components:
+    - tenant_id
+    - source_blob_stable_id_or_uri_fingerprint
+    - parser_version_or_profile_checksum
+    - operation_id
+    - optional_page_range_digest
+    - initiating_run_id
+  collision_policy: Reuse canonical parse fingerprint when checksums match within lease replay window.
+
+audit_events:
+  minimum_outcomes:
+    - capability.requested
+    - capability.executed
+    - extraction.parse.started
+    - extraction.markdown.emitted
+    - extraction.json.emitted
+    - capability.failed
+
+allowed_callers:
+  - vertical_plugin
+  - linkbot
+  - linkautowork
+
+failure_mapping:
+  INTEGRATION_UNAVAILABLE: Parser SaaS degraded, queue saturation, unreachable endpoint.
+  INTEGRATION_AUTH_FAILED: Credential ref revoked or malformed for provider tenancy.
+  INTEGRATION_TIMEOUT: Parse job SLA exceeded vs LinkSkills SLA.
+  LEASE_DENIED: Tenant parser profile disabled or moderation flag.
+  LEASE_EXPIRED: Lease TTL shorter than queued parse SLA.
+  LEASE_KILL_SWITCH: Provider kill switch flagged in LinkSkills.
+  LEASE_REQUEST_INVALID: Unsupported MIME, truncated upload reference, malformed page window.
+  LEASE_IDEMPOTENCY_CONFLICT: Parallel duplicate parse with contradictory parser profile fingerprints.
+  MANIFEST_INVALID: Parser profile slug not registered under LEXOS tier.
+
+not_configured:
+  - Target parser vendor account billing or seat policies.
+  - Internal layout ontology used inside vendor-specific admin consoles (LEXOS declares integration contracts only).
+  - Fine-grained OCR model internals (see cap.extraction.ocr).

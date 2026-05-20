@@ -69,7 +69,7 @@ const envSchema = z.object({
   /** Cron / internal routes (`/api/internal/brain-embed`, librarian). Vercel Cron may use `CRON_SECRET` instead. */
   LINKAIOS_CRON_SECRET: optionalNonEmpty(),
   CRON_SECRET: optionalNonEmpty(),
-  /** Optional: POST target for tool-governance Zulip notify (`apps/zulip-gateway` internal route). */
+  /** Optional: POST target for tool-governance Zulip notify (`LiNKbot/communications/.../zulip` internal route). */
   ZULIP_GATEWAY_NOTIFY_URL: optionalNonEmpty(),
   /** Shared secret header `x-linktrend-internal-secret` for gateway internal routes. */
   ZULIP_GATEWAY_INTERNAL_SECRET: optionalNonEmpty(),
@@ -96,6 +96,53 @@ const envSchema = z.object({
    * Unset or `0` = production behaviour (no merged demo rows).
    */
   LINKAIOS_UI_MOCKS: z.string().optional(),
+  /**
+   * OpenRouter API key for LiNKbot reasoning (DECISIONS.md D-06).
+   * Optional for MVO — if not set, LiNKbot operates in stub mode for testing.
+   */
+  OPENROUTER_API_KEY: optionalNonEmpty(),
+  /** Integration provider selector. Keep `stub` by default for no external writes. */
+  CRM_PROVIDER: z.enum(["stub", "chatwoot"]).optional(),
+  /** Integration execution mode. Keep `stub_write` by default for no external writes. */
+  CRM_MODE: z.enum(["stub_write", "shadow_readiness", "live"]).optional(),
+  /** Chatwoot API base URL, e.g. https://chatwoot.example.com */
+  CHATWOOT_BASE_URL: optionalNonEmpty(),
+  /** Chatwoot account id. */
+  CHATWOOT_ACCOUNT_ID: optionalNonEmpty(),
+  /** Chatwoot API access token. */
+  CHATWOOT_API_ACCESS_TOKEN: optionalNonEmpty(),
+  /** Chatwoot readiness check timeout in milliseconds (default 5000). */
+  CHATWOOT_READINESS_TIMEOUT_MS: optionalNonEmpty(),
+  /** Plane API base URL. */
+  PLANE_API_BASE_URL: optionalNonEmpty(),
+  /** Plane workspace slug. */
+  PLANE_WORKSPACE_SLUG: optionalNonEmpty(),
+  /** Plane API key. */
+  PLANE_API_KEY: optionalNonEmpty(),
+  /** Plane integration mode. Default stub prevents remote writes. */
+  LINKSKILLS_PLANE_MODE: z.enum(["stub", "shadow_readiness", "live"]).optional(),
+  /** DigitalOcean API token. */
+  DIGITALOCEAN_ACCESS_TOKEN: optionalNonEmpty(),
+  /** DigitalOcean project id. */
+  DIGITALOCEAN_PROJECT_ID: optionalNonEmpty(),
+  /** DigitalOcean app id. */
+  DIGITALOCEAN_APP_ID: optionalNonEmpty(),
+  /** DigitalOcean registry name. */
+  DIGITALOCEAN_REGISTRY_NAME: optionalNonEmpty(),
+  /** Preview publishing mode; defaults to static when unset. */
+  PREVIEW_PUBLISH_MODE: z.enum(["static", "digitalocean"]).optional(),
+  /** Explicit enable switch for DigitalOcean preview scaffold path. */
+  PREVIEW_PUBLISH_DIGITALOCEAN_ENABLED: z.string().optional(),
+  /** Hosted DigitalOcean preview base URL, e.g. https://preview.example.com */
+  DIGITALOCEAN_PREVIEW_BASE_URL: optionalNonEmpty(),
+  /** LinkSites template registry path for dynamic discovery (WP-093). */
+  LINKSITES_REGISTRY_PATH: optionalNonEmpty(),
+  /** LinkSites template discovery mode: dynamic | static (default dynamic). */
+  LINKSITES_TEMPLATE_DISCOVERY_MODE: z.enum(["dynamic", "static"]).optional(),
+  /** Signing key for LinkSkills disclosure tokens (development default provided). */
+  DISCLOSURE_SIGNING_KEY: optionalNonEmpty(),
+  /** Fallback signing key for LinkSkills operations. */
+  LINKSKILLS_SIGNING_KEY: optionalNonEmpty(),
 });
 
 export type Env = z.infer<typeof envSchema>;
