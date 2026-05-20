@@ -343,6 +343,10 @@ export function ShellSidebar(props: {
           <BarChart3 className="h-4 w-4 shrink-0 opacity-85" aria-hidden />
           Metrics
         </Link>
+        <Link href="/cockpit" className={navLinkClass(pathname === "/cockpit" || pathname.startsWith("/cockpit/"))}>
+          <Gauge className="h-4 w-4 shrink-0 opacity-85" aria-hidden />
+          Cockpit
+        </Link>
         <Link href="/company" className={navLinkClass(pathname === "/company" || pathname.startsWith("/company/"))}>
           <Building2 className="h-4 w-4 shrink-0 opacity-85" aria-hidden />
           Company
