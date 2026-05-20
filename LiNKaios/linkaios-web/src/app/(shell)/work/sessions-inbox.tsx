@@ -5,7 +5,9 @@ import { useRouter } from "next/navigation";
 import { useCallback, useMemo, useState } from "react";
 
 import { stopWorkerSessionAction } from "@/app/(shell)/work/session-actions";
-import { BADGE, BUTTON, TABLE } from "@/lib/ui-standards";
+import { StatusPill } from "@/components/ui/status-pill";
+import { BUTTON, TABLE } from "@/lib/ui-standards";
+import type { StatusTone } from "@/lib/status-colors";
 import type { SessionThreadRow } from "@/lib/work-sessions";
 
 const SESSION_UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -24,18 +26,18 @@ function formatRelativeTime(iso: string): string {
 
 type SessionFilter = "all" | "running" | "waiting" | "completed" | "failed";
 
-function sessionStatusBadgeClass(st: SessionThreadRow["displayStatus"]): string {
+function sessionStatusTone(st: SessionThreadRow["displayStatus"]): StatusTone {
   switch (st) {
     case "running":
-      return BADGE.sessionRunning;
+      return "active";
     case "waiting":
-      return BADGE.sessionWaiting;
+      return "warning";
     case "completed":
-      return BADGE.sessionCompleted;
+      return "success";
     case "failed":
-      return BADGE.sessionFailed;
+      return "danger";
     default:
-      return BADGE.sessionDefault;
+      return "neutral";
   }
 }
 
@@ -188,7 +190,11 @@ export function SessionsInbox(props: { sessions: SessionThreadRow[] }) {
                   </td>
                   <td className={`px-4 py-3 ${TABLE.thControl}`}>
                     <div className={TABLE.thControlInner}>
-                      <span className={sessionStatusBadgeClass(s.displayStatus)}>{statusLabel(s.displayStatus)}</span>
+                      <StatusPill
+                        label={statusLabel(s.displayStatus)}
+                        tone={sessionStatusTone(s.displayStatus)}
+                        wideEqualWidth
+                      />
                     </div>
                   </td>
                   <td className="whitespace-nowrap px-4 py-3 text-xs text-zinc-500">

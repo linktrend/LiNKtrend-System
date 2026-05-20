@@ -32,7 +32,10 @@ export const WORK_ALERT_BADGE = {
   statusResolved: `${workAlertBadgeFrame} bg-emerald-50 text-emerald-800 ring-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-100 dark:ring-emerald-800`,
 } as const;
 
-/** Work dashboard stream cards — status label (Needs action / Review / OK), equal width across cards. */
+/**
+ * @deprecated Use `StatusPill` with `equalWidth` from `@/components/ui/status-pill` (GLOBAL-001).
+ * Work stream cards (Needs action / Review / OK) now render via StatusPill on `/work`.
+ */
 export const WORK_STREAM_STATUS_CHIP =
   "inline-flex min-w-[12ch] justify-center text-[10px] font-medium text-zinc-600 tabular-nums dark:text-zinc-400";
 

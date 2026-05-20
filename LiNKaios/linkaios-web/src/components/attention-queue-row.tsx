@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { AlertTriangle, Brain, MessageSquare, Radio } from "lucide-react";
 
+import { AttentionFeedBadges } from "@/components/attention-feed-badges";
 import {
   queueItemIconClass,
   queueRowHoverClass,
@@ -23,18 +24,21 @@ export function AttentionQueueRow(props: { item: AttentionFeedItem }) {
         queueRowHoverClass(item)
       }
     >
-      <span className="flex items-start gap-2 font-medium text-zinc-900 dark:text-zinc-100">
-        {item.kind === "alert" ? (
-          <AlertTriangle className={iconClass} aria-hidden />
-        ) : item.kind === "message" ? (
-          <MessageSquare className={iconClass} aria-hidden />
-        ) : item.kind === "session" ? (
-          <Radio className={iconClass} aria-hidden />
-        ) : (
-          <Brain className={iconClass} aria-hidden />
-        )}
-        <span className="min-w-0">{item.title}</span>
-      </span>
+      <div className="flex items-start justify-between gap-3">
+        <span className="flex min-w-0 flex-1 items-start gap-2 font-medium text-zinc-900 dark:text-zinc-100">
+          {item.kind === "alert" ? (
+            <AlertTriangle className={iconClass} aria-hidden />
+          ) : item.kind === "message" ? (
+            <MessageSquare className={iconClass} aria-hidden />
+          ) : item.kind === "session" ? (
+            <Radio className={iconClass} aria-hidden />
+          ) : (
+            <Brain className={iconClass} aria-hidden />
+          )}
+          <span className="min-w-0">{item.title}</span>
+        </span>
+        <AttentionFeedBadges item={item} />
+      </div>
       {item.subtitle ? (
         <span className="line-clamp-2 pl-6 text-xs text-zinc-600 dark:text-zinc-400">{item.subtitle}</span>
       ) : null}

@@ -4,6 +4,7 @@ import { listBrainDraftsForInbox } from "@linktrend/linklogic-sdk";
 import { AlertTriangle, Brain, MessageSquare, Radio } from "lucide-react";
 
 import { AttentionQueueRow } from "@/components/attention-queue-row";
+import { StatusPill } from "@/components/ui/status-pill";
 import { ShellPageHeaderClient } from "@/components/shell-page-header-client";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { alertToneFromMerged, type WorkRowTone } from "@/lib/overview-dashboard";
@@ -23,21 +24,14 @@ function streamToneClass(_tone: WorkRowTone): string {
   return "border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950";
 }
 
-function streamStatusLabel(tone: WorkRowTone): string {
-  if (tone === "critical") return "Needs action";
-  if (tone === "attention") return "Review";
-  return "OK";
-}
-
-const chipBase =
-  "inline-flex min-w-[6.5rem] shrink-0 items-center justify-center rounded-full px-3 py-1 text-xs font-semibold ring-1";
-
-function streamStatusChipClass(tone: WorkRowTone): string {
-  if (tone === "critical")
-    return `${chipBase} bg-red-100 text-red-800 ring-red-300 dark:bg-red-950/50 dark:text-red-200 dark:ring-red-800`;
-  if (tone === "attention")
-    return `${chipBase} bg-yellow-100 text-yellow-900 ring-yellow-300 dark:bg-yellow-950/50 dark:text-yellow-200 dark:ring-yellow-700`;
-  return `${chipBase} bg-emerald-100 text-emerald-800 ring-emerald-300 dark:bg-emerald-950/50 dark:text-emerald-200 dark:ring-emerald-800`;
+function WorkStreamStatusPill(props: { tone: WorkRowTone }) {
+  if (props.tone === "critical") {
+    return <StatusPill label="Needs action" tone="danger" equalWidth />;
+  }
+  if (props.tone === "attention") {
+    return <StatusPill label="Review" tone="warning" equalWidth />;
+  }
+  return <StatusPill label="OK" tone="success" equalWidth />;
 }
 
 export default async function WorkDashboardPage() {
@@ -158,12 +152,12 @@ export default async function WorkDashboardPage() {
             href="/work/alerts"
             className={`flex flex-col rounded-xl border p-4 shadow-sm transition hover:-translate-y-px hover:shadow-md ${streamToneClass(alertTone)}`}
           >
-            <div className="flex items-center justify-between gap-2">
-              <span className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
-                <AlertTriangle className="h-4 w-4" aria-hidden />
+            <div className="flex items-start justify-between gap-2">
+              <span className="flex min-w-0 items-center gap-2 text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+                <AlertTriangle className="h-4 w-4 shrink-0" aria-hidden />
                 Alerts
               </span>
-              <span className={streamStatusChipClass(alertTone)}>{streamStatusLabel(alertTone)}</span>
+              <WorkStreamStatusPill tone={alertTone} />
             </div>
             <p className="mt-3 text-3xl font-semibold tabular-nums text-zinc-900 dark:text-zinc-50">{alertsMerged.length}</p>
             <p className="mt-2 line-clamp-2 text-xs text-zinc-600 dark:text-zinc-400">
@@ -175,12 +169,12 @@ export default async function WorkDashboardPage() {
             href="/work/messages"
             className={`flex flex-col rounded-xl border p-4 shadow-sm transition hover:-translate-y-px hover:shadow-md ${streamToneClass(msgTone)}`}
           >
-            <div className="flex items-center justify-between gap-2">
-              <span className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
-                <MessageSquare className="h-4 w-4" aria-hidden />
+            <div className="flex items-start justify-between gap-2">
+              <span className="flex min-w-0 items-center gap-2 text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+                <MessageSquare className="h-4 w-4 shrink-0" aria-hidden />
                 Messages
               </span>
-              <span className={streamStatusChipClass(msgTone)}>{streamStatusLabel(msgTone)}</span>
+              <WorkStreamStatusPill tone={msgTone} />
             </div>
             <p className="mt-3 text-3xl font-semibold tabular-nums text-zinc-900 dark:text-zinc-50">{messagesMerged.length}</p>
             <p className="mt-2 line-clamp-2 text-xs text-zinc-600 dark:text-zinc-400">
@@ -192,12 +186,12 @@ export default async function WorkDashboardPage() {
             href="/work/sessions"
             className={`flex flex-col rounded-xl border p-4 shadow-sm transition hover:-translate-y-px hover:shadow-md ${streamToneClass(sessTone)}`}
           >
-            <div className="flex items-center justify-between gap-2">
-              <span className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
-                <Radio className="h-4 w-4" aria-hidden />
+            <div className="flex items-start justify-between gap-2">
+              <span className="flex min-w-0 items-center gap-2 text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+                <Radio className="h-4 w-4 shrink-0" aria-hidden />
                 Sessions
               </span>
-              <span className={streamStatusChipClass(sessTone)}>{streamStatusLabel(sessTone)}</span>
+              <WorkStreamStatusPill tone={sessTone} />
             </div>
             <p className="mt-3 text-3xl font-semibold tabular-nums text-zinc-900 dark:text-zinc-50">{sessionsMerged.length}</p>
             <p className="mt-2 line-clamp-2 text-xs text-zinc-600 dark:text-zinc-400">
@@ -209,12 +203,12 @@ export default async function WorkDashboardPage() {
             href="/memory?tab=inbox"
             className={`flex flex-col rounded-xl border p-4 shadow-sm transition hover:-translate-y-px hover:shadow-md ${streamToneClass(brainTone)}`}
           >
-            <div className="flex items-center justify-between gap-2">
-              <span className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
-                <Brain className="h-4 w-4" aria-hidden />
+            <div className="flex items-start justify-between gap-2">
+              <span className="flex min-w-0 items-center gap-2 text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+                <Brain className="h-4 w-4 shrink-0" aria-hidden />
                 LiNKbrain Inbox
               </span>
-              <span className={streamStatusChipClass(brainTone)}>{streamStatusLabel(brainTone)}</span>
+              <WorkStreamStatusPill tone={brainTone} />
             </div>
             <p className="mt-3 text-3xl font-semibold tabular-nums text-zinc-900 dark:text-zinc-50">{brainCount}</p>
             <p className="mt-2 line-clamp-2 text-xs text-zinc-600 dark:text-zinc-400">{brainPreviewLine}</p>
