@@ -9,8 +9,14 @@ export function MetricsHubFooter() {
       <span className="text-zinc-300 dark:text-zinc-700" aria-hidden>
         ·
       </span>
-      <Link href="/cockpit" className="font-medium text-zinc-700 underline-offset-2 hover:underline dark:text-zinc-200">
-        Cockpit — runs &amp; module health
+      <Link href="/work" className="font-medium text-zinc-700 underline-offset-2 hover:underline dark:text-zinc-200">
+        Work — runs &amp; alerts
+      </Link>
+      <span className="text-zinc-300 dark:text-zinc-700" aria-hidden>
+        ·
+      </span>
+      <Link href="/modules" className="font-medium text-zinc-700 underline-offset-2 hover:underline dark:text-zinc-200">
+        Modules
       </Link>
       <span className="text-zinc-300 dark:text-zinc-700" aria-hidden>
         ·

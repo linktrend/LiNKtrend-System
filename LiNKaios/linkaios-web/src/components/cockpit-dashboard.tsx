@@ -3,13 +3,14 @@
 import Link from "next/link";
 import {
   Activity,
-  AlertTriangle,
   Bot,
   CheckCircle2,
   ChevronRight,
   Clock,
+  FolderKanban,
   Gauge,
   Layers,
+  LayoutDashboard,
   Play,
   Shield,
   XCircle,
@@ -114,7 +115,7 @@ function RunStatusRow({ run }: { run: RunOverview }) {
     ) : run.status === "failed" ? (
       <XCircle className="h-4 w-4 text-red-600 dark:text-red-400" />
     ) : run.status === "running" ? (
-      <Play className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
+      <Play className="h-4 w-4 text-sky-600 dark:text-sky-400" />
     ) : (
       <Clock className="h-4 w-4 text-amber-600 dark:text-amber-400" />
     );
@@ -139,10 +140,7 @@ function RunStatusRow({ run }: { run: RunOverview }) {
         <span className="text-xs text-zinc-400 dark:text-zinc-500">
           {new Date(run.started_at).toLocaleTimeString()}
         </span>
-        <Link
-          href={`/cockpit/runs/${run.run_id}`}
-          className="rounded-md p-1 hover:bg-zinc-100 dark:hover:bg-zinc-800"
-        >
+        <Link href="/work" className="rounded-md p-1 hover:bg-zinc-100 dark:hover:bg-zinc-800" aria-label="Open Work">
           <ChevronRight className="h-4 w-4 text-zinc-500" />
         </Link>
       </div>
@@ -153,7 +151,6 @@ function RunStatusRow({ run }: { run: RunOverview }) {
 export function CockpitDashboard({ data }: { data: CockpitDashboardData }) {
   return (
     <main className="space-y-8 pb-16">
-      {/* System health status bar */}
       <section
         className={`sticky top-0 z-20 rounded-xl border p-4 shadow-sm backdrop-blur-sm ${healthTone(
           data.system_health,
@@ -164,14 +161,14 @@ export function CockpitDashboard({ data }: { data: CockpitDashboardData }) {
           <div className="flex min-w-0 flex-1 items-start gap-3">
             <Gauge className="mt-0.5 h-5 w-5 shrink-0 opacity-90" aria-hidden />
             <div className="min-w-0">
-              <p className="text-[10px] font-semibold uppercase tracking-wide opacity-80">System Health</p>
+              <p className="text-[10px] font-semibold uppercase tracking-wide opacity-80">Cross-plane health</p>
               <div className="mt-1 flex flex-wrap items-center gap-2">
                 <DomainStatusPill domain="metric" status={systemHealthMetricStatus(data.system_health)} wideEqualWidth />
               </div>
               <p className="mt-1 text-sm opacity-90">
                 {data.health_issues.length > 0
                   ? data.health_issues.join(" • ")
-                  : "All systems operational. Cross-plane components healthy."}
+                  : "All systems operational. Drill into Overview, Modules, Projects, or Work for details."}
               </p>
             </div>
           </div>
@@ -200,9 +197,9 @@ export function CockpitDashboard({ data }: { data: CockpitDashboardData }) {
 
       <header className="flex flex-wrap items-end justify-between gap-4 border-b border-zinc-200 pb-6 dark:border-zinc-800">
         <div>
-          <h1 className="text-2xl font-semibold text-zinc-900 dark:text-zinc-100">Operational Cockpit</h1>
+          <h1 className="text-2xl font-semibold text-zinc-900 dark:text-zinc-100">Cross-plane summary</h1>
           <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-            Cross-plane visibility: modules, leases, runs, workers, and traces
+            Snapshot across planes — open Overview, Modules, Projects, or Work for the canonical homes.
           </p>
         </div>
         <p className="text-xs text-zinc-400 dark:text-zinc-500">
@@ -210,7 +207,49 @@ export function CockpitDashboard({ data }: { data: CockpitDashboardData }) {
         </p>
       </header>
 
-      {/* Quick stats grid */}
+      <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <Link
+          href="/"
+          className="flex items-center gap-3 rounded-xl border border-zinc-200 bg-white p-4 shadow-sm transition hover:border-zinc-300 dark:border-zinc-800 dark:bg-zinc-950 dark:hover:border-zinc-700"
+        >
+          <LayoutDashboard className="h-5 w-5 text-zinc-500 dark:text-zinc-400" aria-hidden />
+          <div>
+            <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Overview</p>
+            <p className="text-xs text-zinc-500 dark:text-zinc-400">Attention queue &amp; system status</p>
+          </div>
+        </Link>
+        <Link
+          href="/modules"
+          className="flex items-center gap-3 rounded-xl border border-zinc-200 bg-white p-4 shadow-sm transition hover:border-zinc-300 dark:border-zinc-800 dark:bg-zinc-950 dark:hover:border-zinc-700"
+        >
+          <Layers className="h-5 w-5 text-zinc-500 dark:text-zinc-400" aria-hidden />
+          <div>
+            <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Modules</p>
+            <p className="text-xs text-zinc-500 dark:text-zinc-400">Tenant packages &amp; health</p>
+          </div>
+        </Link>
+        <Link
+          href="/projects"
+          className="flex items-center gap-3 rounded-xl border border-zinc-200 bg-white p-4 shadow-sm transition hover:border-zinc-300 dark:border-zinc-800 dark:bg-zinc-950 dark:hover:border-zinc-700"
+        >
+          <FolderKanban className="h-5 w-5 text-zinc-500 dark:text-zinc-400" aria-hidden />
+          <div>
+            <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Projects</p>
+            <p className="text-xs text-zinc-500 dark:text-zinc-400">Active work &amp; delivery</p>
+          </div>
+        </Link>
+        <Link
+          href="/work"
+          className="flex items-center gap-3 rounded-xl border border-zinc-200 bg-white p-4 shadow-sm transition hover:border-zinc-300 dark:border-zinc-800 dark:bg-zinc-950 dark:hover:border-zinc-700"
+        >
+          <Activity className="h-5 w-5 text-zinc-500 dark:text-zinc-400" aria-hidden />
+          <div>
+            <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Work</p>
+            <p className="text-xs text-zinc-500 dark:text-zinc-400">Runs, alerts, sessions</p>
+          </div>
+        </Link>
+      </section>
+
       <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <div className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
           <div className="flex items-center gap-2 text-xs font-medium text-zinc-500 dark:text-zinc-400">
@@ -221,8 +260,8 @@ export function CockpitDashboard({ data }: { data: CockpitDashboardData }) {
             {data.enabled_module_count}
             <span className="text-sm font-normal text-zinc-500">/{data.total_module_count}</span>
           </p>
-          <Link href="/cockpit/modules" className={`${BUTTON.secondaryCardAction} mt-3`}>
-            View modules
+          <Link href="/modules" className={`${BUTTON.secondaryCardAction} mt-3`}>
+            Open modules
           </Link>
         </div>
 
@@ -240,7 +279,7 @@ export function CockpitDashboard({ data }: { data: CockpitDashboardData }) {
             </p>
           )}
           <Link href="/skills/leases" className={`${BUTTON.secondaryCardAction} mt-3`}>
-            View leases
+            Open leases
           </Link>
         </div>
 
@@ -255,8 +294,8 @@ export function CockpitDashboard({ data }: { data: CockpitDashboardData }) {
           {data.failed_run_count > 0 && (
             <p className="mt-1 text-xs text-red-600 dark:text-red-400">{data.failed_run_count} failed (24h)</p>
           )}
-          <Link href="/cockpit/runs" className={`${BUTTON.secondaryCardAction} mt-3`}>
-            View runs
+          <Link href="/work" className={`${BUTTON.secondaryCardAction} mt-3`}>
+            Open work
           </Link>
         </div>
 
@@ -273,19 +312,17 @@ export function CockpitDashboard({ data }: { data: CockpitDashboardData }) {
             <p className="mt-1 text-xs text-sky-600 dark:text-sky-400">{data.busy_worker_count} busy</p>
           )}
           <Link href="/workers" className={`${BUTTON.secondaryCardAction} mt-3`}>
-            View workers
+            Open LiNKbots
           </Link>
         </div>
       </section>
 
-      {/* Recent activity sections */}
       <div className="grid gap-8 lg:grid-cols-2">
-        {/* Recent runs */}
         <section>
           <div className="mb-4 flex items-center justify-between">
             <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Recent Runs</h2>
-            <Link href="/cockpit/runs" className="text-xs font-medium text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-300">
-              View all
+            <Link href="/work" className="text-xs font-medium text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-300">
+              Open Work
             </Link>
           </div>
           <div className="space-y-2">
@@ -297,12 +334,11 @@ export function CockpitDashboard({ data }: { data: CockpitDashboardData }) {
           </div>
         </section>
 
-        {/* Recent leases */}
         <section>
           <div className="mb-4 flex items-center justify-between">
             <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Recent Leases</h2>
             <Link href="/skills/leases" className="text-xs font-medium text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-300">
-              View all
+              Open leases
             </Link>
           </div>
           <div className="space-y-2">
@@ -315,12 +351,11 @@ export function CockpitDashboard({ data }: { data: CockpitDashboardData }) {
         </section>
       </div>
 
-      {/* Module health */}
       <section>
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Module Health</h2>
-          <Link href="/cockpit/modules" className="text-xs font-medium text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-300">
-            View all
+          <Link href="/modules" className="text-xs font-medium text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-300">
+            Open modules
           </Link>
         </div>
         <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">

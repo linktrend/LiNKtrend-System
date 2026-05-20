@@ -26,10 +26,6 @@ const EXACT: Record<string, ShellPageMeta> = {
     title: "Metrics",
     subtitle: "Performance observability — cost, tokens, run time, success/failure, and usage by project, LiNKbot, model, tool, and skill.",
   },
-  "/cockpit": {
-    title: "Cockpit",
-    subtitle: "Cross-plane operations — module health, workflow runs, and system status (leases live under LiNKskills).",
-  },
   "/company": {
     title: "Company",
     subtitle: "Licensed organization — profile, locations, modules, and company context.",
@@ -58,13 +54,6 @@ const PREFIX: { prefix: string; meta: ShellPageMeta }[] = [
     meta: {
       title: "Settings",
       subtitle: "Account, team permissions, integrations, privacy, and platform operator controls.",
-    },
-  },
-  {
-    prefix: "/cockpit/",
-    meta: {
-      title: "Cockpit",
-      subtitle: "Cross-plane operations — module health, workflow runs, and system status.",
     },
   },
   {
@@ -101,7 +90,6 @@ const SEGMENT_LABELS: Record<string, string> = {
   memory: "LiNKbrain",
   modules: "Modules",
   metrics: "Metrics",
-  cockpit: "Cockpit",
   company: "Company",
   settings: "Settings",
   gateway: "Integration routing",
