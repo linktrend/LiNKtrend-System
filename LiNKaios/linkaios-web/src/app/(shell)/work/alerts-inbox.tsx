@@ -4,8 +4,8 @@ import { AlertCircle, AlertTriangle, Info } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { acknowledgeTraceAlertAction } from "@/app/(shell)/work/alert-acknowledgments-actions";
+import { StatusPill } from "@/components/ui/status-pill";
 import { WorkInboxModal } from "@/components/work-inbox-modal";
-import { WORK_ALERT_BADGE } from "@/lib/ui-theme";
 import type { WorkAlert } from "@/lib/work-alerts";
 
 const RESOLVED_STORAGE_KEY = "linkaios_work_alerts_resolved_ids_v1";
@@ -81,7 +81,7 @@ function rowHover(sev: WorkAlert["severity"], isResolved: boolean): string {
 
 function goToFixHref(a: WorkAlert): string {
   const blob = `${a.title} ${a.summary} ${a.source}`.toLowerCase();
-  if (blob.includes("gateway") || blob.includes("zulip") || blob.includes("stream")) return "/settings/gateway";
+  if (blob.includes("gateway") || blob.includes("zulip") || blob.includes("stream")) return "/settings/platform";
   if (blob.includes("brain") || blob.includes("memory") || blob.includes("draft")) return "/memory?tab=inbox";
   if (blob.includes("skill") || blob.includes("tool")) return "/skills/skills";
   return "/workers";
@@ -220,9 +220,7 @@ export function AlertsInbox(props: {
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="font-medium text-zinc-900 dark:text-zinc-100">{a.title}</span>
-                      {isResolved ? (
-                        <span className={WORK_ALERT_BADGE.statusResolved}>Resolved</span>
-                      ) : null}
+                      {isResolved ? <StatusPill label="Resolved" tone="success" /> : null}
                     </div>
                     <p className="mt-1 line-clamp-2 text-sm text-zinc-600 dark:text-zinc-400">{a.summary}</p>
                     <p className="mt-2 text-xs text-zinc-400">{formatRelativeTime(a.createdAt)}</p>

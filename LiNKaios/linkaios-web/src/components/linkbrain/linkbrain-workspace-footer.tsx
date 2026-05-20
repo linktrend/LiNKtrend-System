@@ -9,8 +9,8 @@ export function LinkbrainWorkspaceFooter(props: { overviewBrain: LinkbrainOvervi
   return (
     <footer className="space-y-3 border-t border-zinc-200 pt-6 text-sm dark:border-zinc-800">
       <div className="flex flex-wrap gap-x-4 gap-y-2 text-zinc-600 dark:text-zinc-400">
-        <Link href="/cockpit/traces" className="font-medium text-sky-800 hover:underline dark:text-sky-300">
-          Audit trail (Cockpit)
+        <Link href="/traces" className="font-medium text-sky-800 hover:underline dark:text-sky-300">
+          Audit trail (system logs)
         </Link>
         <span className="text-zinc-300 dark:text-zinc-600" aria-hidden>
           ·

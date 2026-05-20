@@ -243,7 +243,7 @@ export async function loadOverviewData(
         gatewayState,
         gatewayState === "ok" ? "" : gatewayPing.error?.message ?? "Gateway schema unavailable",
       ),
-      href: "/settings/gateway",
+      href: "/settings/platform",
     },
     {
       id: "llm-api",

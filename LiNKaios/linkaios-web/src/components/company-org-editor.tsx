@@ -30,11 +30,14 @@ export function CompanyOrgEditor(props: { nodes: BrainOrgNodeRow[] | null }) {
           </div>
           <div className="sm:col-span-2">
             <label className="text-xs font-semibold uppercase text-zinc-500 dark:text-zinc-400">Reports under (optional)</label>
-            <input
-              name="parentId"
-              placeholder="Pick from an existing entry below if this unit rolls up under another"
-              className={`mt-1 ${FIELD.control} text-sm`}
-            />
+            <select name="parentId" defaultValue="" className={`mt-1 ${FIELD.control} text-sm`}>
+              <option value="">— Top level —</option>
+              {nodes.map((n) => (
+                <option key={n.id} value={n.id}>
+                  [{n.dimension}] {n.label}
+                </option>
+              ))}
+            </select>
           </div>
           <div>
             <label className="text-xs font-semibold uppercase text-zinc-500 dark:text-zinc-400">Valid from</label>

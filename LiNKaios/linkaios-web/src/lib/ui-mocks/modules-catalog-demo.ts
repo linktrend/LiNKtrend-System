@@ -36,10 +36,105 @@ export type ModuleCatalogueItem = {
   vendorOwner: string;
 };
 
+export type WorkflowStageStatus = "completed" | "running" | "pending" | "skipped";
+
+export type WorkflowStageFixture = {
+  order: number;
+  stageId: string;
+  label: string;
+  summary: string;
+  status: WorkflowStageStatus;
+  primaryPlane: string;
+};
+
 export type ModulesCatalogModel = {
   modules: ModuleCatalogueItem[];
   projectTypes: ModuleProjectType[];
 };
+
+/** Canonical 10-stage LinkSites MVO spine — mirrors `modules/linksites/workflow.md`. */
+export const LINKSITES_MVO_STAGES: WorkflowStageFixture[] = [
+  {
+    order: 1,
+    stageId: "linksites.run.bootstrap",
+    label: "Bootstrap",
+    summary: "Bind tenant run to mock CRM lead and site identities",
+    status: "completed",
+    primaryPlane: "LiNKaios",
+  },
+  {
+    order: 2,
+    stageId: "linksites.lead_scout.skip",
+    label: "Lead scout",
+    summary: "Lead Scout role declared; mock substitution only (MVO skip)",
+    status: "skipped",
+    primaryPlane: "LiNKbot",
+  },
+  {
+    order: 3,
+    stageId: "linksites.research.enrich",
+    label: "Research",
+    summary: "Governed public research with provenance",
+    status: "completed",
+    primaryPlane: "LiNKbot",
+  },
+  {
+    order: 4,
+    stageId: "linksites.template_select_package",
+    label: "Template & copy",
+    summary: "Template-guided copy, media plan, and style proposal",
+    status: "completed",
+    primaryPlane: "LiNKbot",
+  },
+  {
+    order: 5,
+    stageId: "linksites.artifact.write_local",
+    label: "Artifact write",
+    summary: "Persist generated package to local artifact folder",
+    status: "running",
+    primaryPlane: "LiNKautowork",
+  },
+  {
+    order: 6,
+    stageId: "linksites.supabase.mirror_upsert",
+    label: "Mirror upsert",
+    summary: "Structured content and asset refs to Supabase mirror",
+    status: "pending",
+    primaryPlane: "LiNKautowork",
+  },
+  {
+    order: 7,
+    stageId: "linksites.payload.sync_local",
+    label: "Payload sync",
+    summary: "Sync mirror to local Payload CMS",
+    status: "pending",
+    primaryPlane: "LiNKautowork",
+  },
+  {
+    order: 8,
+    stageId: "linksites.preview.verify",
+    label: "Preview verify",
+    summary: "Deterministic checks against preview frontend",
+    status: "pending",
+    primaryPlane: "LiNKautowork",
+  },
+  {
+    order: 9,
+    stageId: "linksites.crm.promote_ready",
+    label: "CRM promote",
+    summary: "Mock CRM lead status update to ready_to_contact",
+    status: "pending",
+    primaryPlane: "LiNKautowork",
+  },
+  {
+    order: 10,
+    stageId: "linksites.outreach.declared_skip",
+    label: "Outreach",
+    summary: "Outreach Bot declared disabled (MVO skip)",
+    status: "skipped",
+    primaryPlane: "LiNKbot",
+  },
+];
 
 export const MODULES_CATALOG_DEMO: ModulesCatalogModel = {
   modules: [

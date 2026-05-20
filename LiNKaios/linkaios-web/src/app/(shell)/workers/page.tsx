@@ -102,7 +102,7 @@ export default async function WorkersPage(props: { searchParams: Promise<{ view?
   const sp = await props.searchParams;
   const rawView = Array.isArray(sp.view) ? sp.view[0] : sp.view;
   if (rawView === "runtime") {
-    redirect("/settings/advanced");
+    redirect("/settings/platform");
   }
   const view: FleetView = parseFleetView(sp.view);
   const filter = parseFleetPresenceFilter(sp.filter);
@@ -199,7 +199,7 @@ export default async function WorkersPage(props: { searchParams: Promise<{ view?
           <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">Add a LiNKbot to see it listed here.</p>
           <div className="mt-4 flex flex-wrap justify-center gap-2">
             <AddLinkbotOpenButton className={BUTTON.primaryRow} />
-            <Link href="/settings/gateway" className={BUTTON.secondaryRow}>
+            <Link href="/settings/platform" className={BUTTON.secondaryRow}>
               Integration routing
             </Link>
           </div>

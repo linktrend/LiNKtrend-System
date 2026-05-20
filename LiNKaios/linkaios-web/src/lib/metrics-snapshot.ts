@@ -1,4 +1,11 @@
-import { costFromPayload, modelFromPayload, observabilityCategory, tokensFromPayload } from "@/lib/trace-metrics";
+import {
+  costFromPayload,
+  modelFromPayload,
+  observabilityCategory,
+  skillFromPayload,
+  tokensFromPayload,
+  toolFromPayload,
+} from "@/lib/trace-metrics";
 
 function durationMsFromPayload(p: Record<string, unknown>): number | null {
   for (const k of ["duration_ms", "latency_ms", "total_duration_ms", "elapsed_ms", "response_time_ms"]) {
@@ -88,6 +95,8 @@ export type MetricsSnapshot = {
   costByModel: NamedAmount[];
   costByAgent: NamedAmount[];
   costByMission: NamedAmount[];
+  costBySkill: NamedAmount[];
+  costByTool: NamedAmount[];
   runs: MetricsRunRow[];
   kpiBase: MetricsKpiBase;
 };
@@ -148,9 +157,13 @@ export function buildMetricsSnapshotFromRows(input: {
   const byModel = new Map<string, { cost: number; tokens: number; traces: number }>();
   const byAgent = new Map<string, { cost: number; tokens: number; traces: number }>();
   const byMission = new Map<string, { cost: number; tokens: number; traces: number }>();
+  const bySkill = new Map<string, { cost: number; tokens: number; traces: number }>();
+  const byTool = new Map<string, { cost: number; tokens: number; traces: number }>();
   const modelLabels = new Map<string, string>();
   const agentLabels = new Map<string, string>();
   const missionLabels = new Map<string, string>();
+  const skillLabels = new Map<string, string>();
+  const toolLabels = new Map<string, string>();
 
   const catCounts = new Map<string, number>([
     ["llm", 0],
@@ -235,6 +248,26 @@ export function buildMetricsSnapshotFromRows(input: {
     curS.tokens += tokens;
     curS.traces += 1;
     byMission.set(msKey, curS);
+
+    const skill = skillFromPayload(p);
+    if (skill) {
+      skillLabels.set(skill, skill);
+      const curSk = bySkill.get(skill) ?? { cost: 0, tokens: 0, traces: 0 };
+      curSk.cost += cost;
+      curSk.tokens += tokens;
+      curSk.traces += 1;
+      bySkill.set(skill, curSk);
+    }
+
+    const tool = toolFromPayload(p);
+    if (tool) {
+      toolLabels.set(tool, tool);
+      const curT = byTool.get(tool) ?? { cost: 0, tokens: 0, traces: 0 };
+      curT.cost += cost;
+      curT.tokens += tokens;
+      curT.traces += 1;
+      byTool.set(tool, curT);
+    }
   }
 
   const tracesByDay = [...byDay.entries()]
@@ -301,6 +334,8 @@ export function buildMetricsSnapshotFromRows(input: {
   const costByModel = topNamedAmounts(byModel, modelLabels, 18);
   const costByAgent = topNamedAmounts(byAgent, agentLabels, 18);
   const costByMission = topNamedAmounts(byMission, missionLabels, 18);
+  const costBySkill = topNamedAmounts(bySkill, skillLabels, 18);
+  const costByTool = topNamedAmounts(byTool, toolLabels, 18);
 
   const runs: MetricsRunRow[] = list.slice(0, 100).map((r) => {
     const mid = r.mission_id ? String(r.mission_id) : null;
@@ -343,6 +378,8 @@ export function buildMetricsSnapshotFromRows(input: {
     costByModel,
     costByAgent,
     costByMission,
+    costBySkill,
+    costByTool,
     runs,
     kpiBase,
   };

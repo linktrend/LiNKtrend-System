@@ -46,3 +46,19 @@ export function modulesStartProjectHref(props: { moduleId?: string; projectTypeI
   const q = params.toString();
   return q ? `/projects/new?${q}` : "/projects/new";
 }
+
+export function modulesDetailHref(moduleId: string, audience: "client" | "vendor" = "client"): string {
+  return `/modules/${moduleId}?audience=${audience}`;
+}
+
+export function modulesProjectTypeHref(projectTypeId: string, audience: "client" | "vendor" = "client"): string {
+  return `/modules/project-types/${projectTypeId}?audience=${audience}`;
+}
+
+/** Deep links for company module rows — import from `@/lib/modules-page-copy`. */
+export function companyModuleRowLinks(moduleId: string) {
+  return {
+    catalog: modulesDetailHref(moduleId),
+    startProject: modulesStartProjectHref({ moduleId }),
+  };
+}

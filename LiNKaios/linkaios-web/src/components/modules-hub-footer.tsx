@@ -10,10 +10,10 @@ export function ModulesHubFooter() {
         ·
       </span>
       <Link
-        href="/cockpit/modules"
+        href="/modules"
         className="font-medium text-zinc-700 underline-offset-2 hover:underline dark:text-zinc-200"
       >
-        Cockpit — module health
+        Module health
       </Link>
       <span className="text-zinc-300 dark:text-zinc-700" aria-hidden>
         ·
