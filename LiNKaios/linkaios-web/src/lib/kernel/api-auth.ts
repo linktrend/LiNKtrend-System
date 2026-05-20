@@ -1,7 +1,5 @@
 type AuthenticatedUser = { id: string };
 
-type KernelAuthEnv = Record<string, string | undefined>;
-
 export type KernelActor =
   | { kind: "service"; actorId: "mvo-service" }
   | { kind: "user"; actorId: string };

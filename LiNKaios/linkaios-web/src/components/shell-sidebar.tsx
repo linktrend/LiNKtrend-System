@@ -14,6 +14,7 @@ import {
   ChevronRight,
   Clock,
   FolderKanban,
+  Gauge,
   Layers3,
   LayoutDashboard,
   Pin,
