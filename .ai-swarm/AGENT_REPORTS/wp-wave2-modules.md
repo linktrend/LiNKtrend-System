@@ -50,7 +50,7 @@ git push -u origin wp-wave2-modules
 
 ## Commit
 
-- **SHA:** _(filled after commit)_
+- **SHA:** `5ba41f7`
 - **Message:** `feat(linkaios-web): modules Phase B hub drill-down and LinkSites workflow strip`
 
 ## Blockers
