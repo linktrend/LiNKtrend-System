@@ -31,13 +31,13 @@ Define how LiNKaios coordinates multiple LinkBot agents as an autonomous squad f
 
 ## Acceptance criteria
 
-- [ ] Squad formation protocol defined
-- [ ] Inter-agent communication contract specified
-- [ ] Artifact sharing mechanism designed
-- [ ] Role assignment algorithm documented
-- [ ] Failure/reassignment policy documented
-- [ ] Escalation paths defined
-- [ ] Concurrency limits specified
+- [x] Squad formation protocol defined
+- [x] Inter-agent communication contract specified
+- [x] Artifact sharing mechanism designed
+- [x] Role assignment algorithm documented
+- [x] Failure/reassignment policy documented
+- [x] Escalation paths defined
+- [x] Concurrency limits specified
 
 ## Hard questions to answer
 
