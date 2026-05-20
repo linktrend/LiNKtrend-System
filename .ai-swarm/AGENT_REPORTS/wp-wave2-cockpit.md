@@ -61,5 +61,5 @@ Integrator: merge `wp-wave2-cockpit` → `development`. Optional follow-up: dele
 
 ## Branch state
 
-- Commit SHA: _(filled after commit)_
-- Pushed: _(filled after push)_
+- Commit SHA: `ac6e96d`
+- Pushed: yes (`origin/wp-wave2-cockpit`)
