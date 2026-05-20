@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { DomainStatusPill } from "@/components/ui/status-pill";
 import { BADGE } from "@/lib/ui-standards";
 import {
   MODULES_CATALOG_DEMO,
@@ -25,10 +26,12 @@ const TEMPLATE_BADGE =
 
 type BrowseMode = "module" | "project-type";
 
-function issueStatusClass(status: "open" | "watch" | "resolved") {
-  if (status === "resolved") return "bg-emerald-50 text-emerald-800 ring-emerald-200";
-  if (status === "watch") return "bg-amber-50 text-amber-900 ring-amber-200";
-  return "bg-red-100 text-red-900 ring-red-200";
+function ModuleLicensePill(props: { licensed: boolean }) {
+  return <DomainStatusPill domain="module" status={props.licensed ? "licensed" : "unavailable"} />;
+}
+
+function PublishedPill(props: { published: boolean }) {
+  return <DomainStatusPill domain="memory" status={props.published ? "published" : "draft"} />;
 }
 
 export function ModulesCatalogue(props: { browse: BrowseMode; audience: AudienceMode; moduleId?: string; projectTypeId?: string }) {
@@ -81,9 +84,9 @@ export function ModulesCatalogue(props: { browse: BrowseMode; audience: Audience
                   >
                     <p className="font-semibold">{m.name}</p>
                     <p className="mt-1 text-xs opacity-85">{m.summary}</p>
-                    <div className="mt-2 flex flex-wrap gap-1">
-                      <span className={META_BADGE}>Published</span>
-                      <span className={META_BADGE}>{m.clientLicensed ? "Licensed" : "Unlicensed"}</span>
+                    <div className="mt-2 flex flex-wrap items-center gap-1">
+                      <PublishedPill published={m.published} />
+                      <ModuleLicensePill licensed={m.clientLicensed} />
                       {m.published && m.clientLicensed ? <span className={META_BADGE}>Client-visible</span> : null}
                     </div>
                   </Link>
@@ -112,9 +115,9 @@ export function ModulesCatalogue(props: { browse: BrowseMode; audience: Audience
                     {pt.name}
                   </Link>
                   <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">{pt.clientSafeSummary}</p>
-                  <div className="mt-2 flex flex-wrap gap-1">
-                    <span className={META_BADGE}>{pt.published ? "Published" : "Not published"}</span>
-                    <span className={META_BADGE}>{pt.clientLicensed ? "Licensed" : "Unlicensed"}</span>
+                  <div className="mt-2 flex flex-wrap items-center gap-1">
+                    <PublishedPill published={pt.published} />
+                    <ModuleLicensePill licensed={pt.clientLicensed} />
                     {pt.published && pt.clientLicensed ? <span className={META_BADGE}>Client-visible</span> : null}
                     <span className={TEMPLATE_BADGE}>Process template</span>
                   </div>
@@ -142,10 +145,13 @@ export function ModulesCatalogue(props: { browse: BrowseMode; audience: Audience
                           {wf.issues.filter((i) => issueVisibleToAudience(i, props.audience)).map((issue) => (
                             <span
                               key={issue.id}
-                              className={`${BADGE.status} ${issueStatusClass(issue.status)}`}
+                              className={`${BADGE.status} inline-flex items-center gap-1.5`}
                               title="Blueprint example — not a live project issue"
                             >
-                              {issue.id}: {issue.title}
+                              <DomainStatusPill domain="issue" status={issue.status} />
+                              <span>
+                                {issue.id}: {issue.title}
+                              </span>
                             </span>
                           ))}
                         </div>
@@ -176,9 +182,9 @@ export function ModulesCatalogue(props: { browse: BrowseMode; audience: Audience
                   >
                     <p className="font-semibold">{pt.name}</p>
                     <p className="mt-1 text-xs opacity-85">Module: {MODULES_CATALOG_DEMO.modules.find((m) => m.id === pt.moduleId)?.name ?? "Unknown"}</p>
-                    <div className="mt-2 flex flex-wrap gap-1">
-                      <span className={META_BADGE}>{pt.published ? "Published" : "Not published"}</span>
-                      <span className={META_BADGE}>{pt.clientLicensed ? "Licensed" : "Unlicensed"}</span>
+                    <div className="mt-2 flex flex-wrap items-center gap-1">
+                      <PublishedPill published={pt.published} />
+                      <ModuleLicensePill licensed={pt.clientLicensed} />
                       {pt.published && pt.clientLicensed ? <span className={META_BADGE}>Client-visible</span> : null}
                     </div>
                   </Link>
