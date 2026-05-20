@@ -1,14 +1,16 @@
 import { BADGE } from "@/lib/ui-standards";
-import { presenceTone, registryStatusTone } from "@/lib/worker-status-badges";
+import { formatFleetHeartbeat, linkbotFleetStatusTone, type LinkbotFleetStatusLabel } from "@/lib/linkbot-fleet-status";
 
 export type WorkerDetailHeaderModel = {
   id: string;
   displayName: string;
   role: string;
   description: string;
-  registryLabel: string;
-  operationalSummary: string;
+  statusLabel: LinkbotFleetStatusLabel;
   currentActivity: string;
+  lastHeartbeatIso?: string | null;
+  primaryModel?: string | null;
+  projectTitles?: string[];
   isDemo?: boolean;
 };
 
@@ -30,16 +32,30 @@ export function WorkerDetailHeader(props: { model: WorkerDetailHeaderModel }) {
           </details>
         </div>
         <div className="w-full shrink-0 rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-950 lg:max-w-sm">
-          <h2 className="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Status</h2>
+          <h2 className="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Snapshot</h2>
           <dl className="mt-4 space-y-3 text-sm">
             <div className="flex justify-between gap-4">
-              <dt className="text-zinc-500 dark:text-zinc-400">Registry</dt>
-              <dd className={`text-right font-medium capitalize ${BADGE.status} ${registryStatusTone(m.registryLabel)}`}>{m.registryLabel}</dd>
+              <dt className="text-zinc-500 dark:text-zinc-400">Status</dt>
+              <dd className={`text-right font-semibold ${BADGE.status} ${linkbotFleetStatusTone(m.statusLabel)}`}>{m.statusLabel}</dd>
             </div>
-            <div className="flex justify-between gap-4">
-              <dt className="text-zinc-500 dark:text-zinc-400">Presence</dt>
-              <dd className={`text-right font-medium ${BADGE.status} ${presenceTone(m.operationalSummary)}`}>{m.operationalSummary}</dd>
-            </div>
+            {m.lastHeartbeatIso ? (
+              <div className="flex justify-between gap-4">
+                <dt className="text-zinc-500 dark:text-zinc-400">Last heartbeat</dt>
+                <dd className="text-right text-zinc-800 dark:text-zinc-200">{formatFleetHeartbeat(m.lastHeartbeatIso)}</dd>
+              </div>
+            ) : null}
+            {m.primaryModel ? (
+              <div className="flex justify-between gap-4">
+                <dt className="text-zinc-500 dark:text-zinc-400">Primary model</dt>
+                <dd className="text-right font-mono text-xs text-zinc-800 dark:text-zinc-200">{m.primaryModel}</dd>
+              </div>
+            ) : null}
+            {m.projectTitles && m.projectTitles.length > 0 ? (
+              <div className="flex flex-col gap-1">
+                <dt className="text-zinc-500 dark:text-zinc-400">Projects</dt>
+                <dd className="text-sm leading-snug text-zinc-800 dark:text-zinc-200">{m.projectTitles.join(" · ")}</dd>
+              </div>
+            ) : null}
             <div className="flex flex-col gap-1">
               <dt className="text-zinc-500 dark:text-zinc-400">Current activity</dt>
               <dd className="text-sm leading-snug text-zinc-800 dark:text-zinc-200">{m.currentActivity}</dd>

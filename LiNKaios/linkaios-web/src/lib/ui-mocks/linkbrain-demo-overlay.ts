@@ -9,6 +9,8 @@ import {
 import type { MissionRecord } from "@linktrend/shared-types";
 
 import type { LinkbrainOverviewBrain, LinkbrainPageData, MissionMemoryRow } from "@/lib/linkbrain-data";
+import type { LinkbrainTab } from "@/lib/linkbrain-data";
+import { DEMO_BRAIN_AGENTS } from "@/lib/ui-mocks/linkbrain-demo-agents";
 
 const MOCK_MISSION: MissionRecord = {
   id: "00000000-0000-4000-8000-00000000d101",
@@ -84,8 +86,15 @@ const MOCK_OVERVIEW: LinkbrainOverviewBrain = {
 };
 
 /** Enrich LiNKbrain command-centre data for UX review when `LINKAIOS_UI_MOCKS` is on. */
-export function applyLinkbrainUiMockOverlay(data: LinkbrainPageData): LinkbrainPageData {
+export function applyLinkbrainUiMockOverlay(
+  data: LinkbrainPageData,
+  ctx?: { tab?: LinkbrainTab; brainMissionId?: string; brainAgentId?: string },
+): LinkbrainPageData {
   if (data.error) return data;
+
+  const tab = ctx?.tab;
+  const missionId = ctx?.brainMissionId?.trim() || MOCK_MISSION.id;
+  const agentId = ctx?.brainAgentId?.trim() || DEMO_BRAIN_AGENTS[0]!.id;
 
   const recentEntries =
     data.recentEntries.length >= 4
@@ -130,32 +139,82 @@ export function applyLinkbrainUiMockOverlay(data: LinkbrainPageData): LinkbrainP
           ...data.brainDrafts,
         ];
 
+  const companyFixtures: BrainVirtualFileEnriched[] = [
+    mockVirtualFile({
+      id: "00000000-0000-4000-8000-00000000f110",
+      logical_path: "/company/handbook/on-call.md",
+      scope: "company",
+      has_published: true,
+      published_at: "2026-02-20T09:00:00.000Z",
+    }),
+    mockVirtualFile({
+      id: "00000000-0000-4000-8000-00000000f111",
+      logical_path: "/company/rfcs/rfc-014-embedding-pipeline.md",
+      scope: "company",
+      file_kind: "standard",
+      has_published: false,
+      published_at: null,
+    }),
+    mockVirtualFile({
+      id: "00000000-0000-4000-8000-00000000f112",
+      logical_path: "/company/daily-logs/2026-04-10.md",
+      scope: "company",
+      file_kind: "daily_log",
+      has_published: true,
+      published_at: "2026-04-10T23:59:00.000Z",
+    }),
+  ];
+
+  const projectFixtures: BrainVirtualFileEnriched[] = [
+    mockVirtualFile({
+      id: "00000000-0000-4000-8000-00000000f210",
+      logical_path: "/projects/acme-rollout/charter.md",
+      scope: "mission",
+      mission_id: missionId,
+      has_published: true,
+    }),
+    mockVirtualFile({
+      id: "00000000-0000-4000-8000-00000000f211",
+      logical_path: "/projects/acme-rollout/stakeholders.md",
+      scope: "mission",
+      mission_id: missionId,
+      has_published: true,
+    }),
+  ];
+
+  const agentFixtures: BrainVirtualFileEnriched[] = [
+    mockVirtualFile({
+      id: "00000000-0000-4000-8000-00000000f310",
+      logical_path: "/agents/lisa/session-notes.md",
+      scope: "agent",
+      agent_id: agentId,
+      has_published: true,
+    }),
+    mockVirtualFile({
+      id: "00000000-0000-4000-8000-00000000f311",
+      logical_path: "/agents/lisa/daily-logs/2026-04-12.md",
+      scope: "agent",
+      agent_id: agentId,
+      file_kind: "daily_log",
+      has_published: true,
+    }),
+  ];
+
+  const scopedFixtures =
+    tab === "project"
+      ? projectFixtures
+      : tab === "agent"
+        ? agentFixtures
+        : tab === "ask" && ctx?.brainAgentId
+          ? agentFixtures
+          : tab === "ask" && ctx?.brainMissionId
+            ? projectFixtures
+            : companyFixtures;
+
   const brainPartitionFiles =
-    data.brainPartitionFiles.length >= 3
+    data.brainPartitionFiles.length >= 1 && !data.brainMetaError
       ? data.brainPartitionFiles
-      : [
-          mockVirtualFile({
-            id: "00000000-0000-4000-8000-00000000f110",
-            logical_path: "/company/handbook/on-call.md",
-            has_published: true,
-            published_at: "2026-02-20T09:00:00.000Z",
-          }),
-          mockVirtualFile({
-            id: "00000000-0000-4000-8000-00000000f111",
-            logical_path: "/company/rfcs/rfc-014-embedding-pipeline.md",
-            file_kind: "standard",
-            has_published: false,
-            published_at: null,
-          }),
-          mockVirtualFile({
-            id: "00000000-0000-4000-8000-00000000f112",
-            logical_path: "/company/daily-logs/2026-04-10.md",
-            file_kind: "daily_log",
-            has_published: true,
-            published_at: "2026-04-10T23:59:00.000Z",
-          }),
-          ...data.brainPartitionFiles,
-        ];
+      : [...scopedFixtures, ...data.brainPartitionFiles];
 
   const orgNodes: BrainOrgNodeRow[] =
     data.orgNodes.length >= 2
@@ -216,14 +275,11 @@ export function applyLinkbrainUiMockOverlay(data: LinkbrainPageData): LinkbrainP
   const classifications = Array.from(new Set([...data.classifications, "briefing", "incident", "customer"])).sort();
 
   const agentIds = new Set(data.agents.map((a) => a.id));
+  const demoAgents = DEMO_BRAIN_AGENTS.map((a) => ({ id: a.id, display_name: a.display_name }));
   const agents =
     data.agents.length >= 2
-      ? data.agents
-      : [
-          ...(agentIds.has("demo-lisa") ? [] : [{ id: "demo-lisa", display_name: "Lisa (CEO)" }]),
-          ...(agentIds.has("demo-eric") ? [] : [{ id: "demo-eric", display_name: "Eric (CTO)" }]),
-          ...data.agents,
-        ];
+      ? [...demoAgents.filter((d) => !agentIds.has(d.id)), ...data.agents]
+      : [...demoAgents, ...data.agents];
 
   return {
     ...data,
@@ -237,6 +293,7 @@ export function applyLinkbrainUiMockOverlay(data: LinkbrainPageData): LinkbrainP
     agents,
     lightEntries,
     overviewBrain,
+    brainMetaError: data.brainMetaError && data.brainMetaError.includes("invalid input syntax for type uuid") ? null : data.brainMetaError,
     classifications,
     totals: {
       entries: Math.max(data.totals.entries, lightEntries.length),

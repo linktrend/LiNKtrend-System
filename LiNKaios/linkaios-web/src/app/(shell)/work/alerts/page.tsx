@@ -3,6 +3,7 @@ import { DEMO_WORK_ALERTS } from "@/lib/ui-mocks/work-alert-fixtures";
 import { traceToWorkAlert, type WorkAlert } from "@/lib/work-alerts";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
+import { ShellPageHeaderClient } from "@/components/shell-page-header-client";
 import { AlertsInbox } from "../alerts-inbox";
 
 export const dynamic = "force-dynamic";
@@ -51,18 +52,13 @@ export default async function WorkAlertsPage() {
 
   return (
     <main>
-      <header className="border-b border-zinc-200 pb-8 dark:border-zinc-800">
-        <h1 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">Alerts</h1>
-      </header>
+      <ShellPageHeaderClient
+        title="Alerts"
+        subtitle="Problems and warnings that may need you to review or fix something."
+      />
       <div className="mt-8">
         {error ? (
           <p className="mb-4 text-sm text-amber-800 dark:text-amber-200">Alerts could not be loaded from system logs.</p>
-        ) : null}
-        {!error && fromDb.some((a) => a.id.startsWith("trace-")) && !traceAckPersistenceEnabled ? (
-          <p className="mb-4 rounded-lg border border-amber-200 bg-amber-50/80 px-3 py-2 text-xs text-amber-950 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-100" role="status">
-            Alert resolve state is not persisted yet (missing <code className="rounded bg-white/60 px-1 dark:bg-black/20">014_trace_alert_acknowledgments</code> migration or
-            insufficient access). Resolves are kept in this browser session only.
-          </p>
         ) : null}
         <AlertsInbox
           items={merged}

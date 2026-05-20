@@ -2,6 +2,9 @@ import { listMissions } from "@linktrend/linklogic-sdk";
 
 import { fetchMetricsSnapshot } from "@/app/(shell)/metrics/actions";
 import { MetricsDashboard, type MetricsFilterOption } from "@/components/metrics-dashboard";
+import { MetricsGlossary } from "@/components/metrics-glossary";
+import { MetricsHubFooter } from "@/components/metrics-hub-footer";
+import { ShellPageHeaderClient } from "@/components/shell-page-header-client";
 import { buildMetricsSnapshotFromRows, type MetricsSnapshot } from "@/lib/metrics-snapshot";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { DEMO_SIDEBAR_AGENTS, DEMO_SIDEBAR_MISSIONS } from "@/lib/ui-mocks/entities";
@@ -80,10 +83,12 @@ export default async function MetricsPage(props: { searchParams: Promise<{ event
   }
 
   return (
-    <main>
-      <div className="mb-6">
-        <h1 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100">Metrics</h1>
-      </div>
+    <main className="space-y-6">
+      <ShellPageHeaderClient
+        title="Metrics"
+        subtitle="Performance observability — cost, tokens, run time, success/failure, and usage by project, LiNKbot, model, tool, and skill."
+      />
+      <MetricsGlossary />
       <MetricsDashboard
         initialSnapshot={initialSnapshot}
         loadError={loadError}
@@ -92,6 +97,7 @@ export default async function MetricsPage(props: { searchParams: Promise<{ event
         demoMode={demoMode}
         initialEventTypeFilter={eventTypeInit ?? undefined}
       />
+      <MetricsHubFooter />
     </main>
   );
 }

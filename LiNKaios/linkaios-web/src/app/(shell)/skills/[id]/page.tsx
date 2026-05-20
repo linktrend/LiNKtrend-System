@@ -2,6 +2,7 @@ import { getSkillWideDefaultDeclaredTools, listTools, parseStepRecipeEntries } f
 import { notFound } from "next/navigation";
 
 import { getSkillForEditor } from "@/app/(shell)/skills/actions";
+import { DemoSkillDetailView } from "@/components/demo-skill-detail-view";
 import { SkillWorkspace } from "@/components/skill-workspace";
 import { applyDevTableRefAssetMocksIfEmpty } from "@/lib/skill-dev-table-mocks";
 import { getSkillBodyPromptOnly } from "@/lib/skill-markdown";
@@ -12,6 +13,8 @@ import {
   type SkillReferenceTableRow,
 } from "@/lib/skills-admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { isUiMocksEnabled } from "@/lib/ui-mocks/flags";
+import { findDemoSkillFixture } from "@/lib/ui-mocks/skills-tools-catalog-demo";
 
 export const dynamic = "force-dynamic";
 
@@ -20,6 +23,12 @@ const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-
 export default async function SkillDetailPage(props: { params: Promise<{ id: string }> }) {
   const { id } = await props.params;
   if (!UUID_RE.test(id)) notFound();
+
+  if (isUiMocksEnabled()) {
+    const fixture = findDemoSkillFixture(id);
+    if (fixture) return <DemoSkillDetailView skill={fixture} />;
+  }
+
   const { skill, error } = await getSkillForEditor(id);
   if (error || !skill) notFound();
 

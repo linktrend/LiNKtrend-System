@@ -1,6 +1,9 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { WorkerTabSectionHeader } from "@/components/worker-tab-section-header";
+import { isDemoAgentId, DEMO_SIDEBAR_MISSIONS } from "@/lib/ui-mocks/entities";
+import { demoFleetProfile } from "@/lib/demo-fleet-profiles";
 import { missionIdFromSessionMetadata } from "@/lib/session-display";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -69,6 +72,122 @@ export default async function WorkerProjectsPage(props: {
 }) {
   const { id } = await props.params;
   const sp = await props.searchParams;
+
+  if (isDemoAgentId(id)) {
+    const profile = demoFleetProfile(id);
+    const missions = DEMO_SIDEBAR_MISSIONS.filter((m) => m.primary_agent_id === id);
+    const extraTitles = (profile?.projectTitles ?? []).filter((t) => !missions.some((m) => m.title === t));
+    const demoRows: WorkerProjectRow[] = [
+      ...missions.map((m, i) => ({
+        id: String(m.id),
+        projectTitle: String(m.title),
+        projectStatus: String(m.status).replace(/_/g, " "),
+        moduleLabel: String(m.title).toLowerCase().includes("website") ? "LinkSites" : "LiNKapps",
+        projectTypeLabel: i === 0 ? "Delivery" : "Planning",
+        workflowLabel: `autowork.${String(m.id).slice(0, 8)}.pipeline`,
+        issueLabel: "Issue clear",
+        runLabel: "Fixture run",
+        runHref: `/workers/${encodeURIComponent(id)}/sessions`,
+        traceLabel: "Trace fixture",
+        traceHref: `/workers/${encodeURIComponent(id)}/sessions`,
+        assignmentState: (m.status === "running" ? "working" : "assigned") as WorkState,
+        usesSyntheticFields: true,
+      })),
+      ...extraTitles.map((title, i) => ({
+        id: `demo-extra-${id}-${i}`,
+        projectTitle: title,
+        projectStatus: "assigned",
+        moduleLabel: "LinkSites",
+        projectTypeLabel: "Planning",
+        workflowLabel: "autowork.demo.pipeline",
+        issueLabel: "Issue clear",
+        runLabel: "No recent run id",
+        runHref: null,
+        traceLabel: "Trace unavailable",
+        traceHref: null,
+        assignmentState: "assigned" as WorkState,
+        usesSyntheticFields: true,
+      })),
+    ];
+    const stateParam = Array.isArray(sp.state) ? sp.state[0] : sp.state;
+    const stateFilter = PROJECT_FILTERS.includes((stateParam as (typeof PROJECT_FILTERS)[number]) || "all")
+      ? ((stateParam as (typeof PROJECT_FILTERS)[number]) ?? "all")
+      : "all";
+    const visibleRows = stateFilter === "all" ? demoRows : demoRows.filter((r) => r.assignmentState === stateFilter);
+    const displayName = id === "demo-lisa" ? "Lisa (CEO)" : "Eric (CTO)";
+
+    return (
+      <div className="space-y-6">
+        <section>
+          <WorkerTabSectionHeader
+            title="Projects"
+            subtitle={`Projects and module context for ${displayName}. Module, workflow, and issue fields are fixtures until live wiring.`}
+          />
+          <div className="mt-4 flex flex-wrap gap-2">
+            {PROJECT_FILTERS.map((filter) => {
+              const active = filter === stateFilter;
+              const href =
+                filter === "all"
+                  ? `/workers/${encodeURIComponent(id)}/projects`
+                  : `/workers/${encodeURIComponent(id)}/projects?state=${encodeURIComponent(filter)}`;
+              return (
+                <Link
+                  key={filter}
+                  href={href}
+                  className={`rounded-full border px-3 py-1 text-xs font-medium capitalize transition ${
+                    active
+                      ? "border-zinc-900 bg-zinc-900 text-white dark:border-zinc-100 dark:bg-zinc-100 dark:text-zinc-900"
+                      : "border-zinc-300 text-zinc-700 hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-900"
+                  }`}
+                >
+                  {filter}
+                </Link>
+              );
+            })}
+          </div>
+          <div className="mt-4">
+            {!visibleRows.length ? (
+              <p className="text-sm text-zinc-500">No projects match this state filter.</p>
+            ) : (
+              <ul className="space-y-3">
+                {visibleRows.map((row) => (
+                  <li key={row.id} className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
+                    <div className="flex flex-wrap items-start justify-between gap-3">
+                      <div className="min-w-0 flex-1">
+                        <p className="text-xs uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Project</p>
+                        <Link href={`/projects/${row.id}`} className="mt-1 block font-semibold text-zinc-900 hover:underline dark:text-zinc-100">
+                          {row.projectTitle}
+                        </Link>
+                        <p className="mt-1 text-xs capitalize text-zinc-500 dark:text-zinc-400">Status · {row.projectStatus}</p>
+                      </div>
+                      <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-semibold ring-1 capitalize ${stateBadgeStyles(row.assignmentState)}`}>
+                        {row.assignmentState}
+                      </span>
+                    </div>
+                    <dl className="mt-4 grid gap-3 text-sm sm:grid-cols-2 lg:grid-cols-3">
+                      <div>
+                        <dt className="text-xs uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Module</dt>
+                        <dd className="mt-1 font-medium text-zinc-900 dark:text-zinc-100">{row.moduleLabel}</dd>
+                      </div>
+                      <div>
+                        <dt className="text-xs uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Project type</dt>
+                        <dd className="mt-1 font-medium text-zinc-900 dark:text-zinc-100">{row.projectTypeLabel}</dd>
+                      </div>
+                      <div>
+                        <dt className="text-xs uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Workflow</dt>
+                        <dd className="mt-1 font-mono text-xs text-zinc-700 dark:text-zinc-200">{row.workflowLabel}</dd>
+                      </div>
+                    </dl>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </section>
+      </div>
+    );
+  }
+
   const supabase = await createSupabaseServerClient();
   const { data: agent, error: agentErr } = await supabase
     .schema("linkaios")

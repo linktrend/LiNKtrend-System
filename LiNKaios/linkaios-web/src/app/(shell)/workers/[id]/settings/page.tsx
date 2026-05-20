@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { AgentSettingsForm } from "@/components/agent-settings-form";
+import { WorkerTabSectionHeader } from "@/components/worker-tab-section-header";
 import { parseRuntimeSettings } from "@/lib/agent-runtime-settings";
 import { isDemoAgentId } from "@/lib/ui-mocks/entities";
 import { demoAgentRuntimeSettings } from "@/lib/ui-mocks/worker-ui";
@@ -15,12 +16,10 @@ export default async function WorkerSettingsPage(props: { params: Promise<{ id: 
     const initial = demoAgentRuntimeSettings(id);
     return (
       <section className="space-y-4">
-        <div>
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-zinc-500">Settings</h2>
-          <p className="mt-1 max-w-2xl text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
-            Basic LiNKbot settings. Demo data below is illustrative only.
-          </p>
-        </div>
+        <WorkerTabSectionHeader
+          title="Settings"
+          subtitle="Profile, gateway binding, and runtime policy for this LiNKbot. Demo data below is illustrative only."
+        />
         <AgentSettingsForm agentId={id} initial={initial} readonly />
       </section>
     );

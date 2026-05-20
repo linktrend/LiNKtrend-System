@@ -1,11 +1,10 @@
 import Link from "next/link";
-import { Activity, ChevronRight, Gauge, Layers, Shield } from "lucide-react";
+import { Activity, ChevronRight, Gauge, Layers } from "lucide-react";
 
 export default function CockpitLayout({ children }: { children: React.ReactNode }) {
   const navItems = [
     { href: "/cockpit", label: "Dashboard", icon: Gauge },
     { href: "/cockpit/modules", label: "Modules", icon: Layers },
-    { href: "/cockpit/leases", label: "Leases", icon: Shield },
     { href: "/cockpit/runs", label: "Runs", icon: Activity },
   ];
 

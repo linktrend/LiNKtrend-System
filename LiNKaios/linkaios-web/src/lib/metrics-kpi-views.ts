@@ -104,7 +104,7 @@ export function buildKpiCards(view: KpiViewId, s: MetricsSnapshot): KpiCard[] {
     return [
       { slot: 1, label: "Total cost", value: fmtUsd(s.totalCostUsd), context: s.totalTraces ? `${s.totalTraces} runs` : "No data", tone: "neutral" },
       { slot: 2, label: "Cost / successful run", value: fmtUsd(costPerSuccess), context: "Est. non-error runs", tone: costPerSuccess > 0.05 ? "warn" : "neutral" },
-      { slot: 3, label: "AI usage (tokens)", value: fmtTok(s.totalTokens), context: "From payloads", tone: "neutral" },
+      { slot: 3, label: "Tokens", value: fmtTok(s.totalTokens), context: "From payloads", tone: "neutral" },
       { slot: 4, label: "Cost / 1K tokens", value: s.totalTokens > 0 ? fmtUsd(costPer1kTok) : "—", context: "Pricing efficiency", tone: costPer1kTok > 0.02 ? "warn" : "neutral" },
       { slot: 5, label: "Successful runs", value: String(kb.successTraceEstimate), context: "Total − error-like", tone: "neutral" },
       { slot: 6, label: "Success / $", value: successPerUsd >= 1000 ? `${(successPerUsd / 1000).toFixed(1)}k` : successPerUsd.toFixed(1), context: "Runs per USD", tone: "neutral" },

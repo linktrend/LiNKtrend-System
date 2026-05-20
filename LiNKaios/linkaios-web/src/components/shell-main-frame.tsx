@@ -2,6 +2,7 @@
 
 import { AutoBreadcrumbs } from "@/components/auto-breadcrumbs";
 import { BreadcrumbLabelProvider } from "@/components/breadcrumb-label-registry";
+import { ShellAutoPageHeader } from "@/components/shell-auto-page-header";
 
 export function ShellMainFrame(props: { uiMocksEnabled: boolean; children: React.ReactNode }) {
   return (
@@ -18,6 +19,7 @@ export function ShellMainFrame(props: { uiMocksEnabled: boolean; children: React
           </span>
         ) : null}
       </div>
+      <ShellAutoPageHeader />
       <div className="min-h-0 flex-1">{props.children}</div>
     </BreadcrumbLabelProvider>
   );

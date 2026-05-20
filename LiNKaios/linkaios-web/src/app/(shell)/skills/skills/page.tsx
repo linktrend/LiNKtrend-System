@@ -3,6 +3,10 @@ import type { SkillRecord } from "@linktrend/shared-types";
 
 import Link from "next/link";
 
+import { CatalogueSplitSections, splitCatalogueRows } from "@/components/catalogue-sections";
+import { LinkskillsGlossaryBrief } from "@/components/linkskills-glossary";
+import { LinkskillsHubNav } from "@/components/linkskills-hub-nav";
+import { ShellPageHeaderClient } from "@/components/shell-page-header-client";
 import { SkillsCatalogTable, type SkillCatalogRow } from "@/components/skills-catalog-table";
 import { SkillsSemanticDiscovery } from "@/components/skills-semantic-discovery";
 import { readSkillAdminFlags } from "@/lib/skills-admin";
@@ -35,63 +39,58 @@ export default async function SkillsCatalogPage() {
 
   if (error && !uiMocksEnabled) {
     return (
-      <main>
-        <h1 className="text-xl font-semibold text-zinc-900">LiNKskills · Skills</h1>
-        <p className="mt-4 text-sm text-amber-800">The skills catalogue could not be loaded.</p>
+      <main className="space-y-6">
+        <ShellPageHeaderClient title="Skills" subtitle="Packaged procedures in the LinkSkills catalogue." showRefresh={false} />
+        <p className="text-sm text-amber-800 dark:text-amber-200">The skills catalogue could not be loaded.</p>
       </main>
     );
   }
 
   const apiRows = ((data ?? []) as SkillRecord[]).map(toRow);
   const rows = uiMocksEnabled ? mergeSkillCatalogWithDemo(apiRows) : apiRows;
+  const { fixtures, live } = splitCatalogueRows(rows);
 
   return (
     <main className="space-y-8">
-      <header className="border-b border-zinc-200 pb-8 dark:border-zinc-800">
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">LiNKskills · Skills</h1>
-            {error && uiMocksEnabled ? (
-              <p className="mt-3 max-w-3xl rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-950 dark:border-amber-900/50 dark:bg-amber-950/30 dark:text-amber-100">
-                Catalogue data is unavailable; showing sample rows for layout review only.
-              </p>
-            ) : null}
-          </div>
-          <Link href="/skills/skills/new" className={`${BUTTON.primaryRow} h-fit shrink-0`}>
+      <ShellPageHeaderClient
+        title="Skills"
+        subtitle="Packaged procedures — SKILL.md, scripts, references, and declared tools."
+        actions={
+          <Link href="/skills/skills/new" className={`${BUTTON.primaryRow} h-fit shrink-0`} title="Creates a draft skill in Postgres when live DB is available">
             Add Skill
           </Link>
-        </div>
-      </header>
+        }
+      />
+      <LinkskillsHubNav />
 
-      <section className="space-y-8">
-        <div className="rounded-xl border border-zinc-200 bg-zinc-50/80 p-4 text-xs leading-6 text-zinc-700 dark:border-zinc-800 dark:bg-zinc-900/40 dark:text-zinc-300">
-          <p>
-            <strong>Skill</strong> means a packaged ability folder (SKILL.md, scripts, references, assets/templates, examples).{" "}
-            <strong>Capabilities</strong> and <strong>tools</strong> are governed separately and can be approved/enabled without exposing vendor implementation internals.
-          </p>
-          <p className="mt-2">
-            Visibility: this table is <strong>client-visible governance state</strong>. Vendor-only catalog/certification/policy-template surfaces are not exposed here.
-          </p>
-        </div>
-        <p className="max-w-3xl text-xs text-zinc-600 dark:text-zinc-400">
-          Skill <strong>categories</strong> are curated in Postgres (<code className="rounded bg-zinc-100 px-1 dark:bg-zinc-800">linkaios.skill_categories</code>
-          ) and seeded/maintained by migrations or SQL — there is no category authoring UI in LiNKskills v1 yet.
+      {error && uiMocksEnabled ? (
+        <p className="max-w-3xl rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-950 dark:border-amber-900/50 dark:bg-amber-950/30 dark:text-amber-100">
+          Catalogue data is unavailable; showing sample rows for layout review only.
         </p>
-        <SkillsSemanticDiscovery />
-        {rows.length === 0 ? (
-          <div className="mt-2 rounded-xl border border-dashed border-zinc-300 bg-zinc-50/80 p-8 text-center dark:border-zinc-700 dark:bg-zinc-900/40">
+      ) : null}
+
+      <LinkskillsGlossaryBrief kind="skills" />
+      <p className="max-w-3xl text-xs text-zinc-600 dark:text-zinc-400">
+        Skill categories are curated in Postgres (<code className="rounded bg-zinc-100 px-1 dark:bg-zinc-800">linkaios.skill_categories</code>
+        ) — category authoring UI is not in v1 yet.
+      </p>
+
+      <SkillsSemanticDiscovery defaultCollapsed={uiMocksEnabled} />
+
+      <CatalogueSplitSections
+        hasFixtures={fixtures.length > 0}
+        hasLive={live.length > 0}
+        fixtures={<SkillsCatalogTable rows={fixtures} />}
+        live={<SkillsCatalogTable rows={live} />}
+        empty={
+          <div className="rounded-xl border border-dashed border-zinc-300 bg-zinc-50/80 p-8 text-center dark:border-zinc-700 dark:bg-zinc-900/40">
             <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">No skills in catalogue</p>
             <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
-              No skills are available in the catalogue yet. Ask your workspace administrator to publish skills, then
-              refresh this page.
+              No skills are available yet. Ask your workspace administrator to publish skills, then refresh.
             </p>
           </div>
-        ) : (
-          <div className="mt-4">
-            <SkillsCatalogTable rows={rows} />
-          </div>
-        )}
-      </section>
+        }
+      />
     </main>
   );
 }

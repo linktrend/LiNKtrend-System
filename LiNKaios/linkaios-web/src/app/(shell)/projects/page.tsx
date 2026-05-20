@@ -5,8 +5,10 @@ import type { MissionRecord } from "@linktrend/shared-types";
 
 import { ProjectsIndexTable, type ProjectRowModal } from "@/components/projects-index-table";
 import { ProjectsPlaneStrip } from "@/components/projects-plane-strip";
-import { getPlaneBridgeConfig, planeWorkspaceProjectsHref } from "@/lib/plane-links";
+import { ShellPageHeaderClient } from "@/components/shell-page-header-client";
+import { getPlaneBridgeConfig, planeProjectBoardHref, planeWorkspaceProjectsHref } from "@/lib/plane-links";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { BUTTON } from "@/lib/ui-standards";
 import { DEMO_SIDEBAR_MISSIONS } from "@/lib/ui-mocks/entities";
 import { isUiMocksEnabled } from "@/lib/ui-mocks/flags";
 import { DEMO_MISSION_PLANE_BRIDGE, demoMissionsFixtureRows } from "@/lib/ui-mocks/missions-fixtures";
@@ -66,21 +68,15 @@ export default async function ProjectsListPage() {
 
   return (
     <main className="space-y-10">
-      <header className="border-b border-zinc-200 pb-8 dark:border-zinc-800">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <h1 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">Projects</h1>
-          <Link
-            href="/projects/new"
-            className="inline-flex rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
-          >
+      <ShellPageHeaderClient
+        title="Projects"
+        subtitle="All active client work — who leads it, what module it belongs to, and Plane sync status."
+        actions={
+          <Link href="/projects/new" className={BUTTON.primaryRow}>
             New Project
           </Link>
-        </div>
-        <p className="mt-3 max-w-3xl text-sm text-zinc-600 dark:text-zinc-400">
-          Projects are client-specific instances of vendor project types. Plane runs board execution; LiNKaios runs
-          orchestration, approvals, outputs, and traces.
-        </p>
-      </header>
+        }
+      />
 
       <ProjectsPlaneStrip workspaceProjectsHref={planeProjectsHref} />
 
@@ -125,6 +121,7 @@ export default async function ProjectsListPage() {
             rows={merged.map((m): ProjectRowModal => {
               const bridge = uiMocksEnabled ? DEMO_MISSION_PLANE_BRIDGE[String(m.id)] : undefined;
               const code = bridge?.code ?? `…${String(m.id).slice(0, 8)}`;
+              const planeRowHref = planeProjectBoardHref(planeCfg, bridge?.code ?? null);
               const cycle = bridge?.activeCycle ?? "—";
               const open = bridge?.openWorkItems ?? 0;
               const blockers = bridge?.blockers ?? 0;
@@ -141,6 +138,7 @@ export default async function ProjectsListPage() {
                 planeSyncStatus: bridge?.planeSyncStatus ?? "pending",
                 leadLabel: leadLabel(m.primary_agent_id),
                 leadHref: lh,
+                planeRowHref,
                 code,
                 cycle,
                 open,

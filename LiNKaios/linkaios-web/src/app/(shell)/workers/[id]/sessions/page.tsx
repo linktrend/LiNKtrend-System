@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import type { AgentRecord } from "@linktrend/shared-types";
 
 import { SessionsInbox } from "../../../work/sessions-inbox";
+import { WorkerTabSectionHeader } from "@/components/worker-tab-section-header";
 import { isDemoAgentId } from "@/lib/ui-mocks/entities";
 import { DEMO_SESSION_THREADS } from "@/lib/ui-mocks/session-threads";
 import { missionIdFromSessionMetadata } from "@/lib/session-display";
@@ -29,10 +30,10 @@ export default async function WorkerSessionsPage(props: {
     return (
       <div className="space-y-6">
         <section>
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Sessions</h2>
-          <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
-            Each session is a unit of work tied to a project when session metadata includes that project.
-          </p>
+          <WorkerTabSectionHeader
+            title="Sessions"
+            subtitle="Each session is a unit of work. Respond opens the session chat; Stop closes the session."
+          />
           <div className="mt-4">
             <SessionsInbox sessions={threads} />
           </div>

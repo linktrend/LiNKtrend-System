@@ -170,8 +170,8 @@ export function AlertsInbox(props: {
   );
 
   const persistenceNote = props.traceAckPersistenceEnabled
-    ? "Resolve is saved for your workspace (signed-in operators with write access)."
-    : "Resolve uses this browser only until the trace acknowledgments migration is applied or the table is reachable.";
+    ? "When you resolve an alert, that choice is saved for your workspace."
+    : "When you resolve an alert, that choice is saved in this browser only until the database is fully set up.";
 
   return (
     <div className="space-y-4">

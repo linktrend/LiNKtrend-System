@@ -3,9 +3,11 @@ import Link from "next/link";
 import { listBrainDraftsForInbox } from "@linktrend/linklogic-sdk";
 import { AlertTriangle, Brain, MessageSquare, Radio } from "lucide-react";
 
+import { AttentionQueueRow } from "@/components/attention-queue-row";
+import { ShellPageHeaderClient } from "@/components/shell-page-header-client";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { alertToneFromMerged, type WorkRowTone } from "@/lib/overview-dashboard";
-import { buildAttentionFeed, type AttentionFeedItem } from "@/lib/work-attention-feed";
+import { buildAttentionFeed } from "@/lib/work-attention-feed";
 import { DEMO_CHANNEL_THREADS } from "@/lib/ui-mocks/channel-threads";
 import { isUiMocksEnabled } from "@/lib/ui-mocks/flags";
 import { DEMO_SESSION_THREADS } from "@/lib/ui-mocks/session-threads";
@@ -36,37 +38,6 @@ function streamStatusChipClass(tone: WorkRowTone): string {
   if (tone === "attention")
     return `${chipBase} bg-yellow-100 text-yellow-900 ring-yellow-300 dark:bg-yellow-950/50 dark:text-yellow-200 dark:ring-yellow-700`;
   return `${chipBase} bg-emerald-100 text-emerald-800 ring-emerald-300 dark:bg-emerald-950/50 dark:text-emerald-200 dark:ring-emerald-800`;
-}
-
-function queueRowShellClass(item: AttentionFeedItem): string {
-  if (item.kind === "alert" && item.alertSeverity === "critical")
-    return "border-l-4 border-l-red-600 dark:border-l-red-500";
-  if (item.kind === "alert" && item.alertSeverity === "warning")
-    return "border-l-4 border-l-yellow-400 dark:border-l-yellow-400";
-  if (item.kind === "session")
-    return "border-l-4 border-l-yellow-400 dark:border-l-yellow-400";
-  return "border-l-4 border-l-sky-500 dark:border-l-sky-500";
-}
-
-function queueRowHoverClass(item: AttentionFeedItem): string {
-  if (item.kind === "alert" && item.alertSeverity === "critical")
-    return "hover:bg-red-50/80 dark:hover:bg-red-950/40";
-  if (item.kind === "alert" && item.alertSeverity === "warning")
-    return "hover:bg-yellow-50/90 dark:hover:bg-yellow-950/30";
-  if (item.kind === "session")
-    return "hover:bg-yellow-50/90 dark:hover:bg-yellow-950/30";
-  return "hover:bg-sky-50/70 dark:hover:bg-sky-950/25";
-}
-
-function queueItemIconClass(item: AttentionFeedItem): string {
-  if (item.kind === "alert") {
-    if (item.alertSeverity === "critical") return "mt-0.5 h-4 w-4 shrink-0 text-red-600 dark:text-red-400";
-    if (item.alertSeverity === "warning") return "mt-0.5 h-4 w-4 shrink-0 text-yellow-500 dark:text-yellow-400";
-    return "mt-0.5 h-4 w-4 shrink-0 text-sky-600 dark:text-sky-400";
-  }
-  if (item.kind === "message") return "mt-0.5 h-4 w-4 shrink-0 text-sky-600 dark:text-sky-400";
-  if (item.kind === "session") return "mt-0.5 h-4 w-4 shrink-0 text-yellow-500 dark:text-yellow-400";
-  return "mt-0.5 h-4 w-4 shrink-0 text-sky-600 dark:text-sky-400";
 }
 
 export default async function WorkDashboardPage() {
@@ -175,12 +146,10 @@ export default async function WorkDashboardPage() {
 
   return (
     <main className="space-y-8">
-      <header className="border-b border-zinc-200 pb-4 dark:border-zinc-800">
-        <h1 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">All Work</h1>
-        <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-          Routing hub — each row sends you to the right workspace; triage happens on the destination screens.
-        </p>
-      </header>
+      <ShellPageHeaderClient
+        title="All Work"
+        subtitle="Pick a category below, or work through the list of items that need you."
+      />
 
       <section>
         <h2 className="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Work streams</h2>
@@ -263,30 +232,7 @@ export default async function WorkDashboardPage() {
           <ul className="mt-3 divide-y divide-zinc-100 overflow-hidden rounded-xl border border-zinc-200 bg-white dark:divide-zinc-800 dark:border-zinc-800 dark:bg-zinc-950">
             {queue.map((item) => (
               <li key={item.id}>
-                <Link
-                  href={item.href}
-                  className={
-                    "flex flex-col gap-1 px-4 py-3 text-sm transition " +
-                    queueRowShellClass(item) + " " +
-                    queueRowHoverClass(item)
-                  }
-                >
-                  <span className="flex items-start gap-2 font-medium text-zinc-900 dark:text-zinc-100">
-                    {item.kind === "alert" ? (
-                      <AlertTriangle className={queueItemIconClass(item)} aria-hidden />
-                    ) : item.kind === "message" ? (
-                      <MessageSquare className={queueItemIconClass(item)} aria-hidden />
-                    ) : item.kind === "session" ? (
-                      <Radio className={queueItemIconClass(item)} aria-hidden />
-                    ) : (
-                      <Brain className={queueItemIconClass(item)} aria-hidden />
-                    )}
-                    <span className="min-w-0">{item.title}</span>
-                  </span>
-                  {item.subtitle ? (
-                    <span className="line-clamp-2 pl-6 text-xs text-zinc-600 dark:text-zinc-400">{item.subtitle}</span>
-                  ) : null}
-                </Link>
+                <AttentionQueueRow item={item} />
               </li>
             ))}
           </ul>

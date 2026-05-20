@@ -3,6 +3,7 @@ import { DEMO_CHANNEL_THREADS } from "@/lib/ui-mocks/channel-threads";
 import { isUiMocksEnabled } from "@/lib/ui-mocks/flags";
 import { groupZulipIntoThreads } from "@/lib/work-messages";
 
+import { ShellPageHeaderClient } from "@/components/shell-page-header-client";
 import { WorkMessagesWorkspace } from "../work-messages-workspace";
 
 export const dynamic = "force-dynamic";
@@ -44,12 +45,10 @@ export default async function WorkMessagesPage() {
 
   return (
     <main>
-      <header className="border-b border-zinc-200 pb-8 dark:border-zinc-800">
-        <h1 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">Messages</h1>
-        <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
-          Filter threads by channel and LiNKbot.
-        </p>
-      </header>
+      <ShellPageHeaderClient
+        title="Messages"
+        subtitle="Read conversations from your connected channels. To reply, open the channel in Zulip, Slack, or Telegram."
+      />
       <div className="mt-8">
         {error ? (
           <p className="mb-4 text-sm text-amber-800 dark:text-amber-200">

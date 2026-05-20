@@ -18,6 +18,7 @@ export type ProjectRowModal = {
   planeSyncStatus: "synced" | "pending";
   leadLabel: string;
   leadHref: string | null;
+  planeRowHref: string | null;
   code: string;
   cycle: string;
   open: number;
@@ -82,12 +83,13 @@ export function ProjectsIndexTable(props: { rows: ProjectRowModal[]; planeWorksp
                 <td className="px-4 py-3 text-zinc-700 dark:text-zinc-300">{r.moduleName}</td>
                 <td className="px-4 py-3 text-zinc-700 dark:text-zinc-300">{r.projectTypeName}</td>
                 <td className={`px-4 py-3 ${TABLE.thControl}`}>
-                  {props.planeWorkspaceHref ? (
+                  {(r.planeRowHref ?? props.planeWorkspaceHref) ? (
                     <a
-                      href={props.planeWorkspaceHref}
+                      href={r.planeRowHref ?? props.planeWorkspaceHref!}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="inline-flex rounded-lg bg-zinc-900 px-3 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
+                      title={r.planeRowHref ? "Open this project in Plane" : "Open Plane workspace"}
                     >
                       Open in Plane ↗
                     </a>

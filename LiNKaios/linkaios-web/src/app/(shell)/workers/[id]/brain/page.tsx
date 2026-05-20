@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { BookOpen, FileText, Pin } from "lucide-react";
 
+import { WorkerTabSectionHeader } from "@/components/worker-tab-section-header";
 import { isDemoAgentId } from "@/lib/ui-mocks/entities";
 import { DEMO_AGENT_PERSONA, DEMO_AGENT_PERSONA_ENTRIES, MOCK_UI_AGENT_PERSONA_ENTRIES, MOCK_UI_AGENT_PERSONA_LAYERS, type DemoPersonaEntry } from "@/lib/ui-mocks/worker-ui";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -23,10 +24,10 @@ export default async function WorkerBrainPage(props: { params: Promise<{ id: str
     return (
       <div className="space-y-8">
         <section>
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-zinc-500">Persona stack</h2>
-          <p className="mt-1 max-w-2xl text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
-            LiNKbrain layers scoped to this agent — base persona, soul, identity, agent runtime, etc.
-          </p>
+          <WorkerTabSectionHeader
+            title="Persona stack"
+            subtitle="LiNKbrain layers scoped to this agent — base persona, soul, identity, agent runtime, etc."
+          />
           <div className="mt-4 overflow-hidden rounded-xl border border-zinc-200 bg-white">
             <table className="min-w-full divide-y divide-zinc-200 text-sm">
               <thead className="bg-zinc-50 text-left text-xs font-semibold uppercase tracking-wide text-zinc-500">

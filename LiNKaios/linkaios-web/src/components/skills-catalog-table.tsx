@@ -1,6 +1,6 @@
 "use client";
 
-import { Archive, Pencil } from "lucide-react";
+import { Archive, BookOpen, Eye, GitBranch, Pencil, Play } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTransition } from "react";
@@ -48,19 +48,28 @@ export function SkillsCatalogTable(props: { rows: SkillCatalogRow[] }) {
           <tr>
             <th className={`px-4 py-3 ${TABLE.thText}`}>Category</th>
             <th className={`px-4 py-3 ${TABLE.thText}`}>Name</th>
-            <th className={`px-4 py-3 ${TABLE.thText}`}>Type</th>
+            <th className={`px-3 py-3 ${TABLE.thControl}`} title="Type">
+              <div className={TABLE.thControlInner}>
+                <BookOpen className="h-3.5 w-3.5" aria-label="Type" />
+              </div>
+            </th>
             <th className={`px-4 py-3 ${TABLE.thText}`}>Description</th>
-            <th className={`px-4 py-3 ${TABLE.thControl}`}>
-              <div className={TABLE.thControlInner}>Lifecycle</div>
+            <th className={`px-3 py-3 ${TABLE.thControl}`} title="Lifecycle">
+              <div className={TABLE.thControlInner}>
+                <GitBranch className="h-3.5 w-3.5" aria-label="Lifecycle" />
+              </div>
             </th>
-            <th className={`px-4 py-3 ${TABLE.thControl}`}>
-              <div className={TABLE.thControlInner}>Available</div>
+            <th className={`px-3 py-3 ${TABLE.thControl}`} title="Available">
+              <div className={TABLE.thControlInner}>
+                <Eye className="h-3.5 w-3.5" aria-label="Available" />
+              </div>
             </th>
-            <th className={`px-4 py-3 ${TABLE.thControl}`}>
-              <div className={TABLE.thControlInner}>Enabled</div>
+            <th className={`px-3 py-3 ${TABLE.thControl}`} title="Runtime enabled">
+              <div className={TABLE.thControlInner}>
+                <Play className="h-3.5 w-3.5" aria-label="Runtime enabled" />
+              </div>
             </th>
-            <th className={`px-4 py-3 ${TABLE.thText}`}>Updated</th>
-            <th className={`px-4 py-3 ${TABLE.thControl}`}>
+            <th className={`px-3 py-3 ${TABLE.thControl}`}>
               <div className={TABLE.thControlInner}>Actions</div>
             </th>
           </tr>
@@ -86,50 +95,57 @@ export function SkillsCatalogTable(props: { rows: SkillCatalogRow[] }) {
                   ) : null}
                 </div>
               </td>
-              <td className="px-4 py-3 text-sm font-medium text-zinc-900 dark:text-zinc-100">{r.name}</td>
-              <td className="whitespace-nowrap px-4 py-3 text-xs text-zinc-600 dark:text-zinc-400">{r.type}</td>
-              <td className="max-w-xs px-4 py-3 text-xs text-zinc-600 dark:text-zinc-400">{r.description}</td>
-              <td className={`px-4 py-3 ${TABLE.thControl}`}>
+              <td className="px-4 py-3 text-sm font-medium text-zinc-900 dark:text-zinc-100">
+                {r.isFixture ? (
+                  <Link href={`/skills/${r.id}`} className="text-violet-800 hover:underline dark:text-violet-300">
+                    {r.name}
+                  </Link>
+                ) : (
+                  r.name
+                )}
+              </td>
+              <td className={`px-3 py-3 ${TABLE.thControl}`} title="Skill">
+                <div className={TABLE.thControlInner}>
+                  <BookOpen className="h-4 w-4 text-zinc-500 dark:text-zinc-400" aria-hidden />
+                </div>
+              </td>
+              <td className="px-4 py-3 text-xs text-zinc-600 dark:text-zinc-400">{r.description}</td>
+              <td className={`px-3 py-3 ${TABLE.thControl}`}>
                 <div className={TABLE.thControlInner}>
                   <LifecyclePill status={r.status} />
                 </div>
               </td>
-              <td className={`px-4 py-3 ${TABLE.thControl}`}>
-                <div className="flex items-center justify-center gap-2">
+              <td className={`px-3 py-3 ${TABLE.thControl}`}>
+                <div className="flex items-center justify-center gap-1.5">
                   <CatalogueBoolToggle
                     on={r.published}
                     disabled={pending || r.status === "deprecated" || r.isFixture}
                     ariaLabel={`Available: ${r.name}`}
                     onToggle={(pub) => void applyFlags(r.id, pub, pub ? r.runtimeEnabled : false)}
                   />
-                  <span className="text-xs text-zinc-500 dark:text-zinc-400">{r.published ? "On" : "Off"}</span>
                 </div>
               </td>
-              <td className={`px-4 py-3 ${TABLE.thControl}`}>
-                <div className="flex items-center justify-center gap-2">
+              <td className={`px-3 py-3 ${TABLE.thControl}`}>
+                <div className="flex items-center justify-center gap-1.5">
                   <CatalogueBoolToggle
                     on={r.runtimeEnabled}
                     disabled={pending || r.status === "deprecated" || !r.published || r.isFixture}
                     ariaLabel={`Enabled: ${r.name}`}
                     onToggle={(on) => void applyFlags(r.id, r.published, on)}
                   />
-                  <span className={r.published ? "text-xs text-zinc-500 dark:text-zinc-400" : "text-xs text-zinc-400"}>
-                    {r.runtimeEnabled ? "On" : "Off"}
-                  </span>
                 </div>
               </td>
-              <td className="whitespace-nowrap px-4 py-3 text-xs text-zinc-500 dark:text-zinc-400">
-                {r.updated_at?.slice(0, 10) ?? "—"}
-              </td>
-              <td className={`px-4 py-3 ${TABLE.thControl}`}>
+              <td className={`px-3 py-3 ${TABLE.thControl}`}>
                 <div className={CATALOGUE_ACTIONS_ROW_CLASS}>
                   {r.isFixture ? (
-                    <span
-                      className="inline-flex shrink-0 rounded-lg p-2 text-zinc-400 dark:text-zinc-500"
-                      title={`${CATALOGUE_FIXTURE_TITLE} Edit is disabled.`}
+                    <Link
+                      href={`/skills/${r.id}`}
+                      className="inline-flex shrink-0 rounded-lg p-2 text-violet-800 hover:bg-violet-50 dark:text-violet-300 dark:hover:bg-violet-950/50"
+                      title="View demo skill"
+                      aria-label={`View ${r.name}`}
                     >
-                      <Pencil className="h-4 w-4" aria-hidden />
-                    </span>
+                      <Eye className="h-4 w-4" aria-hidden />
+                    </Link>
                   ) : (
                     <Link
                       href={`/skills/${r.id}`}

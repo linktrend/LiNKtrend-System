@@ -5,17 +5,12 @@ import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 
 import {
-  AlertTriangle,
   ArrowRight,
   Bot,
-  Brain,
   Briefcase,
   ChevronDown,
   ChevronUp,
-  Clock3,
   FolderKanban,
-  MessageSquare,
-  Radio,
   ShieldAlert,
   Sparkles,
   Upload,
@@ -23,8 +18,10 @@ import {
   Zap,
 } from "lucide-react";
 
-import { AttentionFeedBadges } from "@/components/attention-feed-badges";
+import { AttentionQueueRow } from "@/components/attention-queue-row";
+import { ShellPageHeader } from "@/components/shell-page-header";
 import type { OverviewData, SystemStatusLevel } from "@/lib/overview-dashboard";
+import { toOperatorSystemIssueLabel } from "@/lib/operator-copy";
 import { BUTTON } from "@/lib/ui-standards";
 
 function statusBarTone(level: SystemStatusLevel): string {
@@ -42,19 +39,26 @@ function statusLabel(level: SystemStatusLevel): string {
 
 function issueIcon(label: string) {
   const lower = label.toLowerCase();
-  if (lower.includes("llm")) return <Zap className="h-4 w-4 shrink-0 text-sky-700 dark:text-sky-300" aria-hidden />;
-  if (lower.includes("tool")) return <Wrench className="h-4 w-4 shrink-0 text-amber-700 dark:text-amber-300" aria-hidden />;
-  return <ShieldAlert className="h-4 w-4 shrink-0 text-red-700 dark:text-red-300" aria-hidden />;
+  if (lower.includes("llm") || lower.includes("assistant")) {
+    return <Zap className="h-4 w-4 shrink-0" aria-hidden />;
+  }
+  if (lower.includes("tool") || lower.includes("skill")) {
+    return <Wrench className="h-4 w-4 shrink-0" aria-hidden />;
+  }
+  return <ShieldAlert className="h-4 w-4 shrink-0" aria-hidden />;
 }
 
 export function OverviewHome(props: { data: OverviewData }) {
   const { data } = props;
   const router = useRouter();
   const [statusOpen, setStatusOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const [now, setNow] = useState(() => Date.now());
   const fetchedAt = data.fetchedAt ? new Date(data.fetchedAt).getTime() : Date.now();
+  const issueCount = data.systemStatus.issues.length;
 
   useEffect(() => {
+    setMounted(true);
     const t = setInterval(() => setNow(Date.now()), 30_000);
     return () => clearInterval(t);
   }, []);
@@ -70,30 +74,43 @@ export function OverviewHome(props: { data: OverviewData }) {
         : "Core connectivity checks look healthy for this snapshot.";
 
   const refreshedLabel = useMemo(() => {
+    if (!mounted) return null;
     const diffSeconds = Math.max(0, Math.round((now - fetchedAt) / 1000));
     if (diffSeconds < 60) return "Refreshed just now";
     const mins = Math.floor(diffSeconds / 60);
     if (mins < 60) return `Refreshed ${mins} min ago`;
     const hrs = Math.floor(mins / 60);
     return `Refreshed ${hrs} hr ago`;
-  }, [now, fetchedAt]);
+  }, [mounted, now, fetchedAt]);
+
+  const systemStatusAriaLabel = `System status: ${statusLabel(data.systemStatus.level)}${
+    issueCount > 0 ? `, ${issueCount} issue${issueCount === 1 ? "" : "s"}` : ", no issues"
+  }`;
 
   return (
     <main className="space-y-8 pb-16">
+      <ShellPageHeader
+        title="Overview"
+        subtitle="See what needs your attention, check team status, and jump to common tasks."
+        refreshedLabel={refreshedLabel}
+        onRefresh={() => router.refresh()}
+      />
+
       <section className={`rounded-xl border p-3 shadow-sm ${statusBarTone(data.systemStatus.level)}`} aria-label="System status">
         <button
           type="button"
           onClick={() => setStatusOpen((s) => !s)}
           className="flex w-full items-center justify-between gap-3 text-left"
           aria-expanded={statusOpen}
+          aria-label={systemStatusAriaLabel}
         >
           <div className="flex min-w-0 flex-1 items-center gap-3">
             <ShieldAlert className="h-5 w-5 shrink-0 opacity-90" aria-hidden />
             <div className="inline-flex min-w-0 items-center gap-2">
               <p className="text-sm font-semibold leading-tight">System: {statusLabel(data.systemStatus.level)}</p>
-              {data.systemStatus.issues.length > 0 ? (
-                <span className="rounded-full bg-black/10 px-2 py-0.5 text-[11px] font-semibold dark:bg-white/15">
-                  {data.systemStatus.issues.length} issue{data.systemStatus.issues.length === 1 ? "" : "s"}
+              {issueCount > 0 ? (
+                <span className="rounded-full bg-black/10 px-2 py-0.5 text-[11px] font-semibold dark:bg-white/15" aria-hidden>
+                  {issueCount} issue{issueCount === 1 ? "" : "s"}
                 </span>
               ) : null}
             </div>
@@ -102,16 +119,19 @@ export function OverviewHome(props: { data: OverviewData }) {
         </button>
         <p className="mt-1 pl-8 text-xs opacity-90">{statusSummary}</p>
 
-        {statusOpen && data.systemStatus.issues.length > 0 ? (
-          <ul className="mt-3 space-y-1.5 border-t border-black/10 pt-3 text-sm dark:border-white/10">
+        {statusOpen && issueCount > 0 ? (
+          <ul className="mt-3 space-y-1 rounded-lg border border-zinc-200 bg-white pt-1 text-sm text-zinc-900 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100">
             {data.systemStatus.issues.map((issue, i) => (
               <li key={`${issue.href}-${i}`}>
-                <Link href={issue.href} className="flex items-center justify-between gap-2 rounded-lg px-2 py-1.5 font-medium hover:bg-black/5 dark:hover:bg-white/10">
+                <Link
+                  href={issue.href}
+                  className="flex items-center justify-between gap-2 rounded-md px-3 py-2 font-medium text-zinc-800 transition hover:bg-zinc-100 dark:text-zinc-100 dark:hover:bg-zinc-900"
+                >
                   <span className="inline-flex min-w-0 items-center gap-2">
                     {issueIcon(issue.label)}
-                    <span className="truncate">{issue.label}</span>
+                    <span className="truncate">{toOperatorSystemIssueLabel(issue.label)}</span>
                   </span>
-                  <span className="inline-flex items-center gap-1 text-xs font-semibold opacity-90">
+                  <span className="inline-flex shrink-0 items-center gap-1 text-xs font-semibold text-zinc-600 dark:text-zinc-300">
                     Fix <ArrowRight className="h-3.5 w-3.5 shrink-0" aria-hidden />
                   </span>
                 </Link>
@@ -120,8 +140,10 @@ export function OverviewHome(props: { data: OverviewData }) {
           </ul>
         ) : null}
 
-        {statusOpen && data.systemStatus.issues.length === 0 ? (
-          <p className="mt-3 border-t border-black/10 pt-3 text-sm opacity-90 dark:border-white/10">No open issues.</p>
+        {statusOpen && issueCount === 0 ? (
+          <p className="mt-3 rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-950">
+            No open issues.
+          </p>
         ) : null}
       </section>
 
@@ -131,39 +153,15 @@ export function OverviewHome(props: { data: OverviewData }) {
           <p className="mt-2 text-amber-900/90 dark:text-amber-100/90">
             {schemaHint ? (
               <>
-                PostgREST may not expose required schemas yet. In Supabase:{" "}
-                <strong>Project Settings → Data API → Exposed schemas</strong>, add{" "}
-                <code className="text-xs">linkaios</code>, <code className="text-xs">bot_runtime</code>,{" "}
-                <code className="text-xs">prism</code>, <code className="text-xs">gateway</code>, then save. Run
-                migrations or <code className="text-xs">services/migrations/ALL_IN_ONE.sql</code> if tables are
-                missing.
+                The database may not be fully set up yet. An administrator needs to expose the required schemas and run
+                migrations before live data can load.
               </>
             ) : (
-              data.setupError
+              toOperatorSystemIssueLabel(data.setupError)
             )}
           </p>
         </section>
       ) : null}
-
-      <header className="flex flex-wrap items-end justify-between gap-4 border-b border-zinc-200 pb-6 dark:border-zinc-800">
-        <div>
-          <h1 className="text-3xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">LiNKaios</h1>
-          <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">Command overview</p>
-          <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-zinc-500 dark:text-zinc-400">
-            <span className="inline-flex items-center gap-1">
-              <Clock3 className="h-3.5 w-3.5" aria-hidden />
-              {refreshedLabel}
-            </span>
-            <button
-              type="button"
-              onClick={() => router.refresh()}
-              className="rounded-md border border-zinc-300 bg-white px-2 py-1 font-medium text-zinc-700 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-200 dark:hover:bg-zinc-800"
-            >
-              Refresh
-            </button>
-          </div>
-        </div>
-      </header>
 
       <section>
         <h2 className="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
@@ -177,37 +175,7 @@ export function OverviewHome(props: { data: OverviewData }) {
           <ul className="mt-3 divide-y divide-zinc-100 overflow-hidden rounded-xl border border-zinc-200 bg-white dark:divide-zinc-800 dark:border-zinc-800 dark:bg-zinc-950">
             {data.attentionItems.map((item) => (
               <li key={item.id}>
-                <Link
-                  href={item.href}
-                  className="flex flex-col gap-1 px-4 py-3 text-sm transition hover:bg-zinc-50 dark:hover:bg-zinc-900/80"
-                >
-                  <AttentionFeedBadges item={item} />
-                  <span className="flex items-start gap-2 font-medium text-zinc-900 dark:text-zinc-100">
-                    {item.kind === "alert" ? (
-                      <AlertTriangle
-                        className={
-                          "mt-0.5 h-4 w-4 shrink-0 " +
-                          (item.alertSeverity === "critical"
-                            ? "text-red-600 dark:text-red-400"
-                            : item.alertSeverity === "warning"
-                              ? "text-amber-600 dark:text-amber-400"
-                              : "text-sky-600 dark:text-sky-400")
-                        }
-                        aria-hidden
-                      />
-                    ) : item.kind === "message" ? (
-                      <MessageSquare className="mt-0.5 h-4 w-4 shrink-0 text-sky-600 dark:text-sky-400" aria-hidden />
-                    ) : item.kind === "session" ? (
-                      <Radio className="mt-0.5 h-4 w-4 shrink-0 text-violet-600 dark:text-violet-400" aria-hidden />
-                    ) : (
-                      <Brain className="mt-0.5 h-4 w-4 shrink-0 text-teal-600 dark:text-teal-400" aria-hidden />
-                    )}
-                    <span className="min-w-0">{item.title}</span>
-                  </span>
-                  {item.subtitle ? (
-                    <span className="line-clamp-2 pl-6 text-xs text-zinc-600 dark:text-zinc-400">{item.subtitle}</span>
-                  ) : null}
-                </Link>
+                <AttentionQueueRow item={item} />
               </li>
             ))}
           </ul>
@@ -225,7 +193,7 @@ export function OverviewHome(props: { data: OverviewData }) {
             <Bot className="h-4 w-4" aria-hidden />
             Workforce summary
           </h2>
-          <dl className="mt-4 grid flex-1 grid-cols-2 content-start gap-3 text-sm sm:grid-cols-3">
+          <dl className="mt-4 grid flex-1 grid-cols-2 content-start gap-3 text-sm">
             <div className="rounded-lg border border-zinc-100 bg-zinc-50/80 px-3 py-2 dark:border-zinc-800 dark:bg-zinc-900/50">
               <dt className="text-xs text-zinc-500 dark:text-zinc-400">LiNKbots</dt>
               <dd className="text-xl font-semibold tabular-nums text-zinc-900 dark:text-zinc-100">{data.workforceSummary.total}</dd>
@@ -242,7 +210,7 @@ export function OverviewHome(props: { data: OverviewData }) {
               <dt className="text-xs text-zinc-500 dark:text-zinc-400">Busy</dt>
               <dd className="text-xl font-semibold tabular-nums text-zinc-900 dark:text-zinc-100">{data.workforceSummary.busy}</dd>
             </div>
-            <div className="rounded-lg border border-zinc-100 bg-zinc-50/80 px-3 py-2 dark:border-zinc-800 dark:bg-zinc-900/50">
+            <div className="col-span-2 rounded-lg border border-zinc-100 bg-zinc-50/80 px-3 py-2 dark:border-zinc-800 dark:bg-zinc-900/50 sm:col-span-1">
               <dt className="text-xs text-zinc-500 dark:text-zinc-400">Idle</dt>
               <dd className="text-xl font-semibold tabular-nums text-zinc-900 dark:text-zinc-100">{data.workforceSummary.idle}</dd>
             </div>
@@ -275,8 +243,8 @@ export function OverviewHome(props: { data: OverviewData }) {
               <span className="font-semibold tabular-nums text-zinc-900 dark:text-zinc-100">{data.workCounts.brainInbox}</span>
             </li>
           </ul>
-          <Link href="/work" className={`${BUTTON.secondaryCardAction} mt-auto`}>
-            Open All Work
+          <Link href="/work/alerts" className={`${BUTTON.secondaryCardAction} mt-auto`}>
+            View work breakdown
           </Link>
         </section>
       </div>
@@ -303,7 +271,7 @@ export function OverviewHome(props: { data: OverviewData }) {
 
       <section>
         <h2 className="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Quick actions</h2>
-        <div className="mt-3 grid grid-cols-1 gap-2 md:grid-cols-2 xl:grid-cols-4">
+        <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-4">
           <Link href="/workers" className={`${BUTTON.primaryRow} w-full justify-center gap-2`}>
             <Sparkles className="h-4 w-4 shrink-0" aria-hidden />
             Add LiNKbot
