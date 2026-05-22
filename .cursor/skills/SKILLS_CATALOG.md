@@ -4,7 +4,7 @@ description: >-
   Progressive-disclosure catalog of project Cursor skills, MCP servers, and related tool/plugin indexes. Agents read this first to select only the relevant skill bodies and tool descriptors for the current task.
 catalog_version: 1
 generated_from: .cursor/skills
-skill_count: 152
+skill_count: 153
 mcp_server_count: 4
 agent_instructions:
   - Read this catalog before opening individual skill folders.
@@ -121,6 +121,11 @@ skill_categories:
       source: linktrend-skills
       description: 'Tailwind CSS v4 principles. CSS-first configuration, container queries, modern patterns, design token architecture.'
       allowed_tools: 'Read, Write, Edit, Glob, Grep'
+    - name: ui-system
+      path: LiNKaios/linkaios-web/docs/ui-system.md
+      source: linktrend-skills
+      description: 'LiNKaios UI system index — shadcn primitives, ui-standards composites, shell chrome, color tokens, BUTTON migration map. Read first for any linkaios-web UI work before opening individual component folders.'
+      allowed_tools: 'Read, Glob, Grep'
     - name: templates
       path: .cursor/skills/app-builder/templates/SKILL.md
       source: linktrend-skills
