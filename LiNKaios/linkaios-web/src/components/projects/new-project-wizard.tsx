@@ -242,6 +242,8 @@ export function NewProjectWizard() {
   const [moduleOrder, setModuleOrder] = useState<string[]>(presetModules);
   const [cadence, setCadence] = useState<Cadence>("once");
   const [projectName, setProjectName] = useState("");
+  const [isLaunching, setIsLaunching] = useState(false);
+  const [launchError, setLaunchError] = useState<string | null>(null);
 
   const suite = suiteId ? getSuiteById(suiteId) : undefined;
   const catalogue = suiteId ? processesForModule(suiteId).filter((p) => p.published) : [];
@@ -271,9 +273,39 @@ export function NewProjectWizard() {
     return projectName.trim().length > 0;
   }
 
-  function launchProject() {
-    const slug = projectName.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "new-project";
-    router.push(`/projects/demo-${slug}?created=1`);
+  async function launchProject() {
+    if (!suiteId || moduleOrder.length === 0 || !canNext()) return;
+
+    setLaunchError(null);
+    setIsLaunching(true);
+
+    try {
+      const res = await fetch("/api/projects", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: projectName.trim(),
+          suiteId,
+          moduleIds: moduleOrder,
+          cadence,
+        }),
+      });
+
+      const payload = (await res.json().catch(() => null)) as
+        | { projectId?: string; error?: string }
+        | null;
+
+      if (!res.ok || !payload?.projectId) {
+        setLaunchError(payload?.error ?? "Could not create the project. Check your entries and try again.");
+        return;
+      }
+
+      router.push(`/projects/${payload.projectId}?created=1`);
+    } catch {
+      setLaunchError("Could not reach LiNKaios. Try again in a moment.");
+    } finally {
+      setIsLaunching(false);
+    }
   }
 
   return (
@@ -410,9 +442,20 @@ export function NewProjectWizard() {
         </section>
       ) : null}
 
+      {launchError ? (
+        <p className="text-sm text-red-600 dark:text-red-400" role="alert">
+          {launchError}
+        </p>
+      ) : null}
+
       <div className="flex flex-wrap items-center gap-3">
+        {step === 0 ? (
+          <Link href="/projects" className={BUTTON.secondaryCompact}>
+            Cancel
+          </Link>
+        ) : null}
         {step > 0 ? (
-          <button type="button" onClick={() => setStep((s) => s - 1)} className={BUTTON.editCompact}>
+          <button type="button" onClick={() => setStep((s) => s - 1)} className={BUTTON.editCompact} disabled={isLaunching}>
             Back
           </button>
         ) : null}
@@ -421,8 +464,13 @@ export function NewProjectWizard() {
             Continue
           </button>
         ) : (
-          <button type="button" disabled={!canNext()} onClick={launchProject} className={BUTTON.approveRow}>
-            Launch project
+          <button
+            type="button"
+            disabled={!canNext() || isLaunching}
+            onClick={() => void launchProject()}
+            className={BUTTON.approveRow}
+          >
+            {isLaunching ? "Launching…" : "Launch project"}
           </button>
         )}
       </div>
