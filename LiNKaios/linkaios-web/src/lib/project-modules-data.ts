@@ -1,3 +1,6 @@
+import {
+  getRegisteredDemoProjectProcessIds,
+} from "@/lib/projects/demo-project-registry";
 import { MODULES_CATALOG_DEMO } from "@/lib/ui-mocks/modules-catalog-demo";
 import { MODULE_PROJECTS } from "@/lib/ui-mocks/module-project-demo";
 import {
@@ -64,6 +67,13 @@ function fallbackRow(projectId: string): ProjectModuleRow | null {
 
 /** Modules included in a live project — ordered list from fixtures or bridge fallback. */
 export function demoProjectModules(projectId: string): ProjectModuleRow[] {
+  const registeredProcessIds = getRegisteredDemoProjectProcessIds(projectId);
+  if (registeredProcessIds) {
+    return registeredProcessIds
+      .map((id, index) => rowFromProcess(id, index + 1))
+      .filter((row): row is ProjectModuleRow => row != null);
+  }
+
   const fixture = MODULE_PROJECTS.find((p) => p.id === projectId);
   if (fixture) {
     return fixture.processIds

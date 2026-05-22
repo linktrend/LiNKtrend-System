@@ -29,6 +29,10 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { isDemoMissionId } from "@/lib/ui-mocks/entities";
 import { isUiMocksEnabled } from "@/lib/ui-mocks/flags";
 import {
+  getRegisteredDemoProject,
+  getRegisteredDemoProjectDetailSpec,
+} from "@/lib/projects/demo-project-registry";
+import {
   DEMO_MISSION_DETAIL_SPECS,
   DEMO_MISSION_PLANE_BRIDGE,
   type DemoMissionDetailSpec,
@@ -139,9 +143,12 @@ export default async function MissionDetailPage(props: {
     notFound();
   }
 
-  const demo = isUiMocksEnabled() ? DEMO_MISSION_DETAIL_SPECS[id] : undefined;
+  const demo = isUiMocksEnabled()
+    ? (getRegisteredDemoProjectDetailSpec(id) ?? DEMO_MISSION_DETAIL_SPECS[id])
+    : undefined;
   if (demo) {
-    const demoBridge = DEMO_MISSION_PLANE_BRIDGE[demo.id];
+    const registered = getRegisteredDemoProject(id);
+    const demoBridge = registered?.planeBridge ?? DEMO_MISSION_PLANE_BRIDGE[demo.id];
     const demoPlaneHref = planeProjectBoardHref(planeCfg, demoBridge?.code ?? null) ?? planeProjectsHref;
     return (
       <main className="space-y-8">
