@@ -5,9 +5,13 @@ alwaysApply: false
 
 # UI And Frontend Standards
 
+**Index:** `LiNKaios/linkaios-web/docs/ui-system.md` — read first for layer map, paths, and BUTTON → shadcn migration table.
+
 Use existing LiNKaios routes and components before creating new UI.
 
-Prefer shadcn/ui, Tailwind, existing `packages/ui`, and reusable patterns from `LiNKapps/packages/ui` / `@starter/ui` where appropriate.
+**New UI in `linkaios-web`:** shadcn/ui primitives from `@/components/ui/*` + LiNKaios composites and tokens from `ui-standards.ts` (data-table, action-queue, summary-metric-card, forms, shell chrome). Do not hand-roll parallel button, table, breadcrumb, or page-title patterns.
+
+Also prefer Tailwind, existing `packages/ui`, and reusable patterns from `LiNKapps/packages/ui` / `@starter/ui` where appropriate for non–linkaios-web surfaces.
 
 Do not rebuild the design system during the MVO.
 
