@@ -92,7 +92,7 @@ const PACKAGES = [
     "marketing",
     "Marketing",
     "Full-funnel marketing operations from strategy through brand governance.",
-    "Run digital marketing, SEO, content distribution, engagement, PR, and brand management as linked processes — with capability leases on publishing and analytics connectors.",
+    "Run digital marketing, SEO, content distribution, engagement, PR, and brand management as linked processes — with capability leases on publishing and analytics capabilities.",
     "Marketing leaders and growth teams managing multi-channel programs.",
     3200,
     [
@@ -135,7 +135,7 @@ const PACKAGES = [
     "finance-accounting",
     "Finance & Accounting",
     "AP, AR, FP&A, and payroll with deterministic controls.",
-    "Run accounts payable, receivable, FP&A, and payroll workflows with strict approval gates, connector leases to ERP systems, and full audit visibility.",
+    "Run accounts payable, receivable, FP&A, and payroll processes with strict approval gates, capability leases to ERP systems, and full audit visibility.",
     "Finance controllers and accounting operations teams.",
     3500,
     [
@@ -170,7 +170,7 @@ const PACKAGES = [
     "administration",
     "Administration",
     "Facilities, records, and executive support operations.",
-    "Facilities management, records and filing, and executive assistance workflows with deterministic scheduling automations and agent-drafted briefings.",
+    "Facilities management, records and filing, and executive assistance processes with deterministic scheduling automations and agent-drafted briefings.",
     "Executive offices and administrative operations teams.",
     1800,
     ["Facilities Management", "Records and Filing", "Executive Assistance"],

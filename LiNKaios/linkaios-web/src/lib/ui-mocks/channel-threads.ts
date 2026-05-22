@@ -72,7 +72,7 @@ export const DEMO_CHANNEL_THREADS: ChannelMessageThread[] = [
     detail: [
       "SupportBot-3 · 06:14\nSubject: New intake — ticket #2091\nIntake form received from Brightfield Co. via the website widget. SLA clock started. Ticket #2091 created. Priority: High.",
       "Maya (operator) · 06:30\nSubject: Assignment\nAssign to LiNKbot-Support and flag for human review if no resolution within 4 hours.",
-      "LiNKbot-Support · 06:45\nSubject: Initial triage complete\nClassified as onboarding configuration issue. Requested CRM connector credentials from tenant admin.",
+      "LiNKbot-Support · 06:45\nSubject: Initial triage complete\nClassified as onboarding configuration issue. Requested CRM capability credentials from tenant admin.",
       "SupportBot-3 · 07:02\nCredentials received. Running capability lease for chatwoot.sync_contact (dry-run mode).",
       "Maya (operator) · 07:18\nApproved dry-run. Proceed to live sync once audit hook confirms.",
     ].join("\n---\n"),

@@ -27,8 +27,8 @@ export const DEFAULT_EXPORT_SCOPES: ExportScopeRow[] = [
   },
   {
     id: "projects",
-    label: "Projects & missions",
-    description: "Project metadata, stages, and mission summaries.",
+    label: "Projects",
+    description: "Project metadata, phases, runs, and summaries.",
     included: true,
   },
   {

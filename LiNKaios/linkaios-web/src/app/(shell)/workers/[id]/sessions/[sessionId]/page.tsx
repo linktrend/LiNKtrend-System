@@ -114,7 +114,7 @@ function SessionDetailShell(props: { agentId: string; row: SessionThreadRow }) {
                   {projectLabel}
                 </Link>
               ) : (
-                <span className="text-zinc-500">Not linked — add mission reference in session metadata when available.</span>
+                <span className="text-zinc-500">Not linked — add project reference in session metadata when available.</span>
               )}
             </dd>
           </div>

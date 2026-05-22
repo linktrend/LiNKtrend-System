@@ -26,7 +26,7 @@ const STATIC_LABELS: Record<string, string> = {
   projects: "Projects",
   skills: "LiNKskills",
   tools: "Tools",
-  connectors: "Connectors",
+  connectors: "Capabilities",
   modules: "Suites",
   suites: "Suites",
   marketplace: "Marketplace",

@@ -38,7 +38,7 @@ export default function DevtoolsMvoProofPage() {
           Local proof route: <span className="font-mono text-xs">{proof.websitefactory.preview.preview_local_route}</span>
         </p>
         <p className="text-sm text-zinc-700 dark:text-zinc-300">Lease refs: {proof.websitefactory.lease_ids.join(", ")}</p>
-        <p className="text-sm text-zinc-700 dark:text-zinc-300">Workflow refs: {proof.websitefactory.workflow_run_ids.join(", ")}</p>
+        <p className="text-sm text-zinc-700 dark:text-zinc-300">Automation refs: {proof.websitefactory.workflow_run_ids.join(", ")}</p>
         <p className="text-sm text-zinc-700 dark:text-zinc-300">Audit refs: {proof.websitefactory.audit_event_ids.join(", ")}</p>
         <p className="text-sm text-zinc-700 dark:text-zinc-300">Bot refs: {proof.websitefactory.bot_refs.join(", ")}</p>
       </section>
@@ -53,7 +53,7 @@ export default function DevtoolsMvoProofPage() {
         </p>
         <p className="text-sm text-zinc-700 dark:text-zinc-300">Task refs: {proof.lexos.tasks.map((t) => t.task_id).join(", ")}</p>
         <p className="text-sm text-zinc-700 dark:text-zinc-300">Trace lease refs: {proof.lexos.trace.lease_ids.join(", ")}</p>
-        <p className="text-sm text-zinc-700 dark:text-zinc-300">Trace workflow refs: {proof.lexos.trace.workflow_run_ids.join(", ")}</p>
+        <p className="text-sm text-zinc-700 dark:text-zinc-300">Trace automation refs: {proof.lexos.trace.workflow_run_ids.join(", ")}</p>
         <p className="text-sm text-zinc-700 dark:text-zinc-300">Trace audit refs: {proof.lexos.trace.audit_event_ids.join(", ")}</p>
       </section>
 

@@ -25,7 +25,7 @@ function planeFieldsForMission(missionId: string): PlaneField[] | null {
   if (!bridge || !spec) return null;
 
   return [
-    { label: "Active cycle", value: spec.cycle },
+    { label: "Active run", value: spec.cycle },
     { label: "Open work items", value: String(bridge.openWorkItems) },
     { label: "Blockers", value: String(bridge.blockers) },
     { label: "Active issue", value: bridge.activeIssue },
@@ -35,7 +35,7 @@ function planeFieldsForMission(missionId: string): PlaneField[] | null {
 }
 
 const PLACEHOLDER_FIELDS: PlaneField[] = [
-  { label: "Active cycle", value: "—" },
+  { label: "Active run", value: "—" },
   { label: "Open work items", value: "—" },
   { label: "Blockers", value: "—" },
   { label: "Active issue", value: "—" },
@@ -58,7 +58,7 @@ export async function ProjectPlaneOverviewSection(props: { missionId: string }) 
       <TitledCardHeader
         icon={KanbanSquare}
         title="Plane"
-        description="Board context from Plane — cycles, work items, blockers, and approval gates — will surface here when the project bridge sync is enabled."
+        description="Board context from Plane — runs, work items, blockers, and approval gates — will surface here when the project bridge sync is enabled."
         titleClassName="text-lg font-medium text-zinc-800 dark:text-zinc-100"
         action={
           planeHref ? (
