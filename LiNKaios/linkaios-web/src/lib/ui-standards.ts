@@ -481,6 +481,13 @@ export const TABLE_COLUMN = {
   usedByModules: "Used By Modules",
   time: "Time",
   event: "Event",
+  streamRouting: "Stream Routing",
+  messageLinks: "Message Links",
+  logEvents: "Log Events",
+  stream: "Stream",
+  topic: "Topic",
+  notes: "Notes",
+  created: "Created",
 } as const;
 
 /** “Open” on dashboard tiles — content width, slightly wider than the label. */

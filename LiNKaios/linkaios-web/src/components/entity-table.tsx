@@ -1,3 +1,9 @@
+/**
+ * @deprecated Prefer dedicated DataTable components with `<colgroup>` widths
+ * (see `.cursor/skills/data-table/SKILL.md` and `components/data-table/README.md`).
+ * Remaining call sites should migrate to typed table presets such as
+ * `gateway-stream-routing-table`, `gateway-message-links-table`, or `traces-log-events-table`.
+ */
 import {
   DataTable,
   DataTableBody,
