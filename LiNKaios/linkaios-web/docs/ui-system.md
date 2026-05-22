@@ -188,7 +188,9 @@ Legacy code applies `className={BUTTON.*}`. New code and migrations should use *
 | `secondaryTight` | `outline` | `sm` | Fixed width Cancel |
 | `ghostTight` | `ghost` | `sm` | Fixed width + Add on cards |
 
-**Migration order:** Wave 3 (`UiButton` bridge) → proof page → Wave 5 mass migration. Until bridge lands, existing `BUTTON.*` class strings remain valid.
+**Migration order:** Wave 3 (`UiButton` bridge) → proof page → Wave 5 mass migration.
+
+**Bridge (PWR-W3-C):** Import `UiButton` from `@/components/ui/button-bridge`. Pass `buttonKey="addRow"` (or any `BUTTON` key) for mapped `variant` + `size`, or keep `className={BUTTON.*}` on `UiButton` during incremental edits. Semantic shadcn names (`variant="approve"`, `variant="add"`, …) resolve through the same map. Proof: projects list empty state (`src/app/(shell)/projects/page.tsx`).
 
 ---
 

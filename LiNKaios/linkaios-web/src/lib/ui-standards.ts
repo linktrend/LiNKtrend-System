@@ -132,6 +132,9 @@ export const COMPANY_FORM_ROW_TOP =
  *
  * **Corners:** these tokens use `rounded-lg` for a consistent control radius. Exceptions are intentional
  * (for example {@link TABS} / {@link screenTabLinkClass} use `rounded-t-md` for tab strips).
+ *
+ * **Migration:** prefer {@link UiButton} with `buttonKey` from `@/components/ui/button-bridge`
+ * (see `docs/ui-system.md` migration table). Legacy `className={BUTTON.*}` remains valid until Wave 5.
  */
 export const BUTTON = {
   /** Primary: use in horizontal toolbars (min width, no forced full width). */
@@ -531,3 +534,6 @@ export const BADGE = {
   sessionFailed: `${pillBadgeFrame} bg-red-100 text-red-900 ring-red-300 dark:bg-red-950/60 dark:text-red-100 dark:ring-red-800`,
   sessionDefault: `${pillBadgeFrame} bg-zinc-100 text-zinc-700 ring-zinc-300 dark:bg-zinc-800 dark:text-zinc-200 dark:ring-zinc-600`,
 } as const;
+
+/** Bridge types for `BUTTON` → shadcn migration (`@/components/ui/button-bridge`). */
+export type { ButtonToken, UiButtonProps, UiButtonVariant } from "@/components/ui/button-bridge";

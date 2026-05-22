@@ -13,6 +13,7 @@ import { getPlaneBridgeConfig, planeWorkspaceProjectsHref } from "@/lib/plane-li
 import { projectIndexRowFromMission } from "@/lib/project-index-rows";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { ProjectSummaryColumnKey } from "@/lib/project-status-ui";
+import { UiButton } from "@/components/ui/button-bridge";
 import { BUTTON } from "@/lib/ui-standards";
 import { DEMO_SIDEBAR_MISSIONS } from "@/lib/ui-mocks/entities";
 import { isUiMocksEnabled } from "@/lib/ui-mocks/flags";
@@ -90,12 +91,12 @@ export default async function ProjectsListPage() {
               Once projects exist in LiNKaios they will appear here automatically.
             </p>
             <div className="mt-4 flex flex-wrap justify-center gap-2">
-              <Link href="/projects/new" className={BUTTON.addRow}>
-                Add Project
-              </Link>
-              <Link href="/suites/marketplace" className={BUTTON.secondaryRow}>
-                Browse Marketplace
-              </Link>
+              <UiButton asChild buttonKey="addRow">
+                <Link href="/projects/new">Add Project</Link>
+              </UiButton>
+              <UiButton asChild buttonKey="secondaryRow">
+                <Link href="/suites/marketplace">Browse Marketplace</Link>
+              </UiButton>
             </div>
           </div>
         ) : (
