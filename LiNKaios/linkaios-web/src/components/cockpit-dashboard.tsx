@@ -15,6 +15,7 @@ import {
   XCircle,
 } from "lucide-react";
 
+import { WorkEmptyState } from "@/app/(shell)/work/work-empty-state";
 import { DomainStatusPill, StatusPill } from "@/components/ui/status-pill";
 import { CockpitSummaryStatsGrid } from "@/components/summary-metric-card";
 import type { CockpitDashboardData, ModuleStatus, LeaseStatus, RunOverview } from "@/lib/cockpit";
@@ -66,7 +67,7 @@ function ModuleStatusCard({ module }: { module: ModuleStatus }) {
         <div>
           <p className="font-medium text-zinc-900 dark:text-zinc-100">{module.module_name}</p>
           <p className="text-xs text-zinc-500 dark:text-zinc-400">
-            {module.plugin_kind} • {module.configured_capabilities.length} capabilities
+            {module.plugin_kind} suite · {module.configured_capabilities.length} capabilities
             {module.missing_capabilities.length > 0 && (
               <span className="ml-1 text-amber-600 dark:text-amber-400">
                 ({module.missing_capabilities.length} missing)
@@ -272,7 +273,12 @@ export function CockpitDashboard({ data }: { data: CockpitDashboardData }) {
           </div>
           <div className="space-y-2">
             {data.recent_runs.length === 0 ? (
-              <p className="text-sm text-zinc-500 dark:text-zinc-400">No recent runs.</p>
+              <WorkEmptyState
+                icon={Activity}
+                title="No recent runs"
+                description="Runs from projects and automations will appear here once activity starts."
+                actions={[{ kind: "link", label: "Open Work", href: "/work" }]}
+              />
             ) : (
               data.recent_runs.slice(0, 5).map((run) => <RunStatusRow key={run.run_id} run={run} />)
             )}
@@ -288,7 +294,12 @@ export function CockpitDashboard({ data }: { data: CockpitDashboardData }) {
           </div>
           <div className="space-y-2">
             {data.recent_leases.length === 0 ? (
-              <p className="text-sm text-zinc-500 dark:text-zinc-400">No recent leases.</p>
+              <WorkEmptyState
+                icon={Shield}
+                title="No recent leases"
+                description="Capability leases from LinkSkills will show here when projects request governed actions."
+                actions={[{ kind: "link", label: "Open leases", href: "/skills/leases" }]}
+              />
             ) : (
               data.recent_leases.slice(0, 5).map((lease) => <LeaseStatusRow key={lease.lease_id} lease={lease} />)
             )}
@@ -305,7 +316,16 @@ export function CockpitDashboard({ data }: { data: CockpitDashboardData }) {
         </div>
         <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
           {data.modules.length === 0 ? (
-            <p className="text-sm text-zinc-500 dark:text-zinc-400">No suites registered.</p>
+            <WorkEmptyState
+              className="sm:col-span-2 lg:col-span-3"
+              icon={Layers}
+              title="No suites registered"
+              description="Subscribe to a suite from the marketplace to see tenant package health here."
+              actions={[
+                { kind: "link", label: "Open My Suites", href: "/suites/my-suites" },
+                { kind: "link", label: "Browse marketplace", href: "/suites/marketplace", variant: "secondary" },
+              ]}
+            />
           ) : (
             data.modules.map((module) => <ModuleStatusCard key={module.module_id} module={module} />)
           )}

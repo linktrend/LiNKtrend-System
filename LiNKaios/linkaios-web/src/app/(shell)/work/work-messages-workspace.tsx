@@ -1,8 +1,9 @@
 "use client";
 
-import { ArrowLeft, ExternalLink } from "lucide-react";
+import { ArrowLeft, ExternalLink, MessageSquare, MessagesSquare } from "lucide-react";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 
+import { WorkEmptyState } from "@/app/(shell)/work/work-empty-state";
 import type { ChannelMessage, ChannelMessageThread } from "@/lib/work-messages";
 import { InsetSelect } from "@/components/forms";
 import { BUTTON, FIELD, FORM, screenTabLinkClass, TABS } from "@/lib/ui-standards";
@@ -169,11 +170,23 @@ export function WorkMessagesWorkspace(props: {
 
   const emptyState =
     filteredThreads.length === 0 ? (
-      <p className="rounded-xl border border-zinc-200 bg-zinc-50 px-4 py-12 text-center text-sm text-zinc-600 dark:border-zinc-800 dark:bg-zinc-900/40 dark:text-zinc-300">
-        {channelThreads.length === 0
-          ? `No ${channelLabel} threads yet.`
-          : "No threads for this LiNKbot filter — try “All LiNKbots” or another LiNKbot."}
-      </p>
+      <WorkEmptyState
+        icon={channelThreads.length === 0 ? MessageSquare : MessagesSquare}
+        title={channelThreads.length === 0 ? `No ${channelLabel} threads yet` : "No threads for this LiNKbot"}
+        description={
+          channelThreads.length === 0
+            ? `Connect ${channelLabel} in platform settings so project streams appear here.`
+            : "Try All LiNKbots or pick another LiNKbot to see matching threads."
+        }
+        actions={
+          channelThreads.length === 0
+            ? [
+                { kind: "link", label: "Open platform settings", href: "/settings/platform" },
+                { kind: "link", label: "View projects", href: "/projects", variant: "secondary" },
+              ]
+            : [{ kind: "button", label: "Show all LiNKbots", onClick: () => setAgentId("all") }]
+        }
+      />
     ) : null;
 
   const gridClass =

@@ -1,9 +1,10 @@
 "use client";
 
-import { AlertCircle, AlertTriangle, Info } from "lucide-react";
+import { AlertCircle, AlertTriangle, Bell, CheckCircle2, Info } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { acknowledgeTraceAlertAction } from "@/app/(shell)/work/alert-acknowledgments-actions";
+import { WorkEmptyState } from "@/app/(shell)/work/work-empty-state";
 import {
   ActionQueueList,
   ActionQueueRow,
@@ -190,9 +191,30 @@ export function AlertsInbox(props: {
       </div>
 
       {visible.length === 0 ? (
-        <p className="rounded-xl border border-zinc-200 bg-white px-4 py-12 text-center text-sm text-zinc-500 dark:border-zinc-800 dark:bg-zinc-950">
-          No alerts in this view.
-        </p>
+        <WorkEmptyState
+          icon={filter === "resolved" ? CheckCircle2 : Bell}
+          title={
+            filter === "resolved"
+              ? "No resolved alerts"
+              : filter === "all"
+                ? "No alerts yet"
+                : `No ${filter} alerts`
+          }
+          description={
+            filter === "all"
+              ? "System traces and governance events will appear here when something needs review."
+              : filter === "resolved"
+                ? "Resolved alerts stay in this view until you clear filters."
+                : "Try another severity filter or show all open alerts."
+          }
+          actions={
+            filter === "all"
+              ? [{ kind: "link", label: "Open system logs", href: "/settings/traces", variant: "secondary" }]
+              : filter !== "resolved"
+                ? [{ kind: "button", label: "Show all alerts", onClick: () => setFilter("all") }]
+                : [{ kind: "button", label: "Show open alerts", onClick: () => setFilter("all") }]
+          }
+        />
       ) : (
         <ActionQueueList>
           {visible.map((a) => {

@@ -1,9 +1,11 @@
 "use client";
 
+import { Bot, Filter } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCallback, useMemo, useState } from "react";
 
 import { stopWorkerSessionAction } from "@/app/(shell)/work/session-actions";
+import { WorkEmptyState } from "@/app/(shell)/work/work-empty-state";
 import { SessionsCatalogTable } from "@/components/sessions-catalog-table";
 import type { SessionThreadRow } from "@/lib/work-sessions";
 
@@ -88,7 +90,29 @@ export function SessionsInbox(props: { sessions: SessionThreadRow[] }) {
         {filterBtn("failed", "Failed")}
       </div>
 
-      <SessionsCatalogTable rows={visible} stoppingId={stoppingId} onStop={(s) => void onStop(s)} />
+      {visible.length === 0 ? (
+        <WorkEmptyState
+          icon={filter === "all" && props.sessions.length === 0 ? Bot : Filter}
+          title={
+            filter === "all" && props.sessions.length === 0 ? "No sessions yet" : "No sessions in this view"
+          }
+          description={
+            filter === "all" && props.sessions.length === 0
+              ? "When LiNKbots start work on a project, their sessions will appear here."
+              : "Try another status filter or show all sessions."
+          }
+          actions={
+            filter === "all" && props.sessions.length === 0
+              ? [
+                  { kind: "link", label: "Open LiNKbots", href: "/workers" },
+                  { kind: "link", label: "View projects", href: "/projects", variant: "secondary" },
+                ]
+              : [{ kind: "button", label: "Show all sessions", onClick: () => setFilter("all") }]
+          }
+        />
+      ) : (
+        <SessionsCatalogTable rows={visible} stoppingId={stoppingId} onStop={(s) => void onStop(s)} />
+      )}
     </div>
   );
 }
