@@ -25,10 +25,22 @@ function pillStatusForAccess(access: ModuleSubscriptionMode): "licensed" | "prev
   return "cancelled";
 }
 
+function suiteCardNavAction(
+  suiteId: string,
+  access: Exclude<ModuleSubscriptionMode, "subscribed">,
+): { href: string; label: "Open suite" | "View catalogue" } {
+  if (access === "preview") {
+    return { href: suiteProfileHref(suiteId, "overview"), label: "Open suite" };
+  }
+  return { href: suiteProfileHref(suiteId, "modules"), label: "View catalogue" };
+}
+
 function ModuleOwnedCardBody(props: { module: ModuleCatalogueItem; access: ModuleSubscriptionMode }) {
   const { module: mod, access } = props;
   const pillStatus = pillStatusForAccess(access);
   const showSubscribe = access === "preview" || access === "expired" || access === "cancelled";
+  const nav =
+    access === "subscribed" ? null : suiteCardNavAction(mod.id, access);
 
   return (
     <>
@@ -46,10 +58,15 @@ function ModuleOwnedCardBody(props: { module: ModuleCatalogueItem; access: Modul
       <p className={MODULE_CARD_DESCRIPTION}>{mod.marketingDescription}</p>
 
       <div className={MODULE_CARD_FOOTER}>
-        {showSubscribe ? (
-          <Link href={suiteProfileHref(mod.id, "subscribe")} className={BUTTON.approveCompact}>
-            Subscribe
-          </Link>
+        {showSubscribe && nav ? (
+          <>
+            <Link href={nav.href} className={BUTTON.secondaryCompact}>
+              {nav.label}
+            </Link>
+            <Link href={suiteProfileHref(mod.id, "subscribe")} className={BUTTON.approveCompact}>
+              Subscribe
+            </Link>
+          </>
         ) : null}
       </div>
     </>
