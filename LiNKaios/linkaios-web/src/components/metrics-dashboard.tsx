@@ -1,36 +1,33 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
 
 import { fetchMetricsSnapshot, type MetricsSnapshot } from "@/app/(shell)/metrics/actions";
+import { RecentRunsTable } from "@/components/metrics-recent-runs-table";
 import type { NamedAmount } from "@/lib/metrics-snapshot";
 import {
   buildKpiCards,
   KPI_VIEW_LABELS,
-  type KpiCard,
-  type KpiTone,
   type KpiViewId,
 } from "@/lib/metrics-kpi-views";
+import { metricsViewFromSearch } from "@/lib/metrics-nav";
+import { MetricsKpiSummaryGrid, SummaryMetricCardSection } from "@/components/summary-metric-card";
 import {
   DEFAULT_METRICS_SCOPE,
   DEMO_METRICS_SCOPE_OPTIONS,
   type MetricsFilterOption,
   type MetricsScopeState,
 } from "@/lib/metrics-scope-filters";
-import { demoMetricsSnapshotForScope } from "@/lib/ui-mocks/metrics-demo-snapshot";
+import { METRICS_ACTIVITY_CATEGORY_OPTIONS, type MetricsActivityCategory } from "@/lib/metrics-filters";
+import { demoMetricsSnapshotFiltered } from "@/lib/ui-mocks/metrics-demo-snapshot";
 import { DomainStatusPill } from "@/components/ui/status-pill";
-import { screenTabLinkClass, TABS } from "@/lib/ui-standards";
+import { formatMetricsCardTitle, screenTabLinkClass, TABLE, TABS } from "@/lib/ui-standards";
 
 export type { MetricsFilterOption } from "@/lib/metrics-scope-filters";
 
 type RangeDays = 1 | 7 | 30;
-type TraceStatusFilter = "all" | "success" | "errors";
-
-function isErrorEvent(eventType: string) {
-  const t = eventType.toLowerCase();
-  return t.includes("error") || t.includes("fail") || t.includes("denied") || t.includes("blocked");
-}
 
 function durationMsFromPayload(p: Record<string, unknown>): number | null {
   for (const k of ["duration_ms", "latency_ms", "total_duration_ms", "elapsed_ms", "response_time_ms"]) {
@@ -48,99 +45,6 @@ function formatDuration(ms: number | null) {
   return `${Math.round(ms)}ms`;
 }
 
-function kpiToneClass(tone: KpiTone) {
-  if (tone === "bad") return "border-red-200 bg-red-50/80 dark:border-red-900/50 dark:bg-red-950/25";
-  if (tone === "warn") return "border-amber-200 bg-amber-50/80 dark:border-amber-900/50 dark:bg-amber-950/25";
-  return "border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950";
-}
-
-function KpiCardGrid(props: { cards: KpiCard[]; viewLabel: string; viewQuestion: string }) {
-  return (
-    <section aria-label={`${props.viewLabel} KPIs`}>
-      <div className="mb-3">
-        <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">{props.viewLabel}</h2>
-        <p className="text-xs text-zinc-500 dark:text-zinc-400">{props.viewQuestion}</p>
-      </div>
-      <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-5">
-        {props.cards.map((c) => (
-          <div key={c.slot} className={`rounded-xl border p-3 shadow-sm ${kpiToneClass(c.tone)}`}>
-            <p className="text-[11px] font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">{c.label}</p>
-            <p className="mt-1 text-lg font-semibold tabular-nums text-zinc-900 dark:text-zinc-50">{c.value}</p>
-            <p className="mt-0.5 text-[11px] leading-snug text-zinc-600 dark:text-zinc-400">{c.context}</p>
-          </div>
-        ))}
-      </div>
-    </section>
-  );
-}
-
-function RecentRunsTable(props: { snapshot: MetricsSnapshot }) {
-  const rows = props.snapshot.runs.slice(0, 20);
-  if (rows.length === 0) {
-    return (
-      <section className="rounded-xl border border-dashed border-zinc-300 bg-zinc-50/80 p-6 text-sm text-zinc-600 dark:border-zinc-700 dark:bg-zinc-900/40 dark:text-zinc-400">
-        No runs in this window. Adjust filters or wait for LiNKbot and automation activity.
-      </section>
-    );
-  }
-
-  return (
-    <section aria-label="Recent runs" className="rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
-      <div className="border-b border-zinc-200 px-4 py-3 dark:border-zinc-800">
-        <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Recent runs</h2>
-        <p className="text-xs text-zinc-500 dark:text-zinc-400">Latest trace events — drill into System logs for payload detail.</p>
-      </div>
-      <div className="overflow-x-auto">
-        <table className="w-full min-w-[720px] text-left text-xs">
-          <thead>
-            <tr className="border-b border-zinc-100 text-[11px] uppercase tracking-wide text-zinc-500 dark:border-zinc-800 dark:text-zinc-400">
-              <th className="px-4 py-2 font-semibold">Time</th>
-              <th className="px-4 py-2 font-semibold">Event</th>
-              <th className="px-4 py-2 font-semibold">Project</th>
-              <th className="px-4 py-2 font-semibold">LiNKbot</th>
-              <th className="px-4 py-2 font-semibold">Model</th>
-              <th className="px-4 py-2 font-semibold text-right">Tokens</th>
-              <th className="px-4 py-2 font-semibold text-right">Cost</th>
-              <th className="px-4 py-2 font-semibold text-right">Duration</th>
-              <th className="px-4 py-2 font-semibold">Status</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800">
-            {rows.map((r) => {
-              const err = isErrorEvent(r.event_type);
-              const dur = durationMsFromPayload(r.payload);
-              return (
-                <tr key={r.id} className="text-zinc-700 dark:text-zinc-300">
-                  <td className="whitespace-nowrap px-4 py-2 tabular-nums text-zinc-500">
-                    {new Date(r.created_at).toLocaleString(undefined, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
-                  </td>
-                  <td className="max-w-[10rem] truncate px-4 py-2 font-mono" title={r.event_type}>
-                    {r.event_type}
-                  </td>
-                  <td className="max-w-[9rem] truncate px-4 py-2">{r.mission_title ?? "—"}</td>
-                  <td className="max-w-[8rem] truncate px-4 py-2">{r.agent_name ?? "—"}</td>
-                  <td className="max-w-[8rem] truncate px-4 py-2">{r.model ?? "—"}</td>
-                  <td className="px-4 py-2 text-right tabular-nums">{r.tokens != null ? formatTokens(r.tokens) : "—"}</td>
-                  <td className="px-4 py-2 text-right tabular-nums">{r.cost_usd != null ? formatUsd(r.cost_usd) : "—"}</td>
-                  <td className="px-4 py-2 text-right tabular-nums">{formatDuration(dur)}</td>
-                  <td className="px-4 py-2">
-                    <DomainStatusPill domain="metric" status={err ? "failed" : "ok"} equalWidth />
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
-      <div className="border-t border-zinc-100 px-4 py-2 dark:border-zinc-800">
-        <Link href="/traces" className="text-xs font-medium text-zinc-600 underline-offset-2 hover:underline dark:text-zinc-400">
-          Open system logs →
-        </Link>
-      </div>
-    </section>
-  );
-}
-
 function formatUsd(n: number) {
   return n.toLocaleString(undefined, { style: "currency", currency: "USD", maximumFractionDigits: 4 });
 }
@@ -152,6 +56,12 @@ function formatTokens(n: number) {
 }
 
 const CHART_COLORS = ["bg-violet-500", "bg-sky-500", "bg-emerald-500", "bg-amber-500", "bg-rose-500", "bg-indigo-500"];
+
+const METRICS_SECTION_TITLE = "text-xs font-semibold text-zinc-500 dark:text-zinc-400";
+
+function MetricsSectionTitle(props: { children: string }) {
+  return <p className={METRICS_SECTION_TITLE}>{formatMetricsCardTitle(props.children)}</p>;
+}
 
 function DailyCountBars(props: { rows: { day: string; count: number }[]; colorClass: string; label: string }) {
   const max = Math.max(...props.rows.map((r) => r.count), 1);
@@ -244,10 +154,11 @@ function CategoryBars(props: { rows: { id: string; label: string; count: number 
 }
 
 function RankedCostTable(props: { title: string; rows: NamedAmount[]; emptyHint: string }) {
+  const title = formatMetricsCardTitle(props.title);
   if (props.rows.length === 0) {
     return (
       <div className="rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950">
-        <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">{props.title}</p>
+        <p className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">{title}</p>
         <p className="mt-3 text-sm text-zinc-500">{props.emptyHint}</p>
       </div>
     );
@@ -255,7 +166,7 @@ function RankedCostTable(props: { title: string; rows: NamedAmount[]; emptyHint:
   const maxCost = Math.max(...props.rows.map((r) => r.cost), 1e-12);
   return (
     <div className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
-      <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">{props.title}</p>
+      <p className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">{title}</p>
       <ul className="mt-3 max-h-72 space-y-2 overflow-y-auto">
         {props.rows.map((r, idx) => (
           <li key={`${r.name}-${idx}`} className="text-xs">
@@ -287,19 +198,13 @@ function SkillToolBreakdown(props: { snapshot: MetricsSnapshot }) {
         className="rounded-xl border border-dashed border-zinc-300 bg-zinc-50/80 p-6 text-sm text-zinc-600 dark:border-zinc-700 dark:bg-zinc-900/40 dark:text-zinc-400"
       >
         No skill or tool identifiers in run payloads for this window. Scope filters and trace enrichment will populate
-        these tables as LinkSkills and capability connectors emit structured metadata.
+        these tables as LinkSkills and capabilities emit structured metadata.
       </section>
     );
   }
   return (
     <section aria-label="Skill and tool usage" className="space-y-3">
-      <div>
-        <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Skill &amp; tool breakdown</h2>
-        <p className="text-xs text-zinc-500 dark:text-zinc-400">
-          Ranked spend from payload <code className="font-mono text-[11px]">skill_id</code> and{" "}
-          <code className="font-mono text-[11px]">tool_name</code> fields — not event-type heuristics.
-        </p>
-      </div>
+      <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Skill &amp; tool breakdown</h2>
       <div className="grid gap-4 lg:grid-cols-2">
         <RankedCostTable
           title="Usage by skill"
@@ -348,27 +253,57 @@ export function MetricsDashboard(props: {
   agents: MetricsFilterOption[];
   missions: MetricsFilterOption[];
   demoMode?: boolean;
-  initialEventTypeFilter?: string | null;
 }) {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const viewFromUrl = metricsViewFromSearch(searchParams.toString());
   const [pending, startTransition] = useTransition();
   const [snapshot, setSnapshot] = useState<MetricsSnapshot>(props.initialSnapshot);
   const [days, setDays] = useState<RangeDays>(30);
   const [agent, setAgent] = useState("all");
   const [mission, setMission] = useState("all");
-  const [eventTypeContains, setEventTypeContains] = useState(props.initialEventTypeFilter ?? "");
   const [modelContains, setModelContains] = useState("");
   const [missionTitleContains, setMissionTitleContains] = useState("");
-  const [traceStatus, setTraceStatus] = useState<TraceStatusFilter>("all");
+  const [activityCategory, setActivityCategory] = useState<MetricsActivityCategory>("all");
   const [scope, setScope] = useState<MetricsScopeState>(DEFAULT_METRICS_SCOPE);
   const [filtersOpen, setFiltersOpen] = useState(true);
-  const [viewTab, setViewTab] = useState<KpiViewId>("cost");
+  const [viewTab, setViewTab] = useState<KpiViewId>(viewFromUrl);
   const [refreshError, setRefreshError] = useState<string | null>(null);
   const skipFetchOnce = useRef(false);
+
+  useEffect(() => {
+    setViewTab(viewFromUrl);
+  }, [viewFromUrl]);
+
+  const selectView = useCallback(
+    (view: KpiViewId) => {
+      setViewTab(view);
+      const params = new URLSearchParams(searchParams.toString());
+      if (view === "cost") {
+        params.delete("view");
+      } else {
+        params.set("view", view);
+      }
+      const qs = params.toString();
+      router.replace(qs ? `/metrics?${qs}` : "/metrics", { scroll: false });
+    },
+    [router, searchParams],
+  );
 
   const runFetch = useCallback(() => {
     if (props.demoMode) {
       setRefreshError(null);
-      setSnapshot(demoMetricsSnapshotForScope(scope));
+      setSnapshot(
+        demoMetricsSnapshotFiltered({
+          scope,
+          days,
+          missionId: mission === "all" ? null : mission,
+          agentId: agent === "all" ? null : agent,
+          modelContains: modelContains.trim() || null,
+          missionTitleContains: missionTitleContains.trim() || null,
+          activityCategory,
+        }),
+      );
       return;
     }
     startTransition(() => {
@@ -377,10 +312,9 @@ export function MetricsDashboard(props: {
           days,
           missionId: mission === "all" ? null : mission,
           agentId: agent === "all" ? null : agent,
-          eventTypeContains: eventTypeContains.trim() || null,
           modelContains: modelContains.trim() || null,
           missionTitleContains: missionTitleContains.trim() || null,
-          traceStatus,
+          activityCategory,
           scope,
         });
         if (!r.ok) {
@@ -391,7 +325,7 @@ export function MetricsDashboard(props: {
         setSnapshot(r.data);
       })();
     });
-  }, [days, agent, mission, eventTypeContains, modelContains, missionTitleContains, traceStatus, scope, props.demoMode]);
+  }, [days, agent, mission, modelContains, missionTitleContains, activityCategory, scope, props.demoMode]);
 
   useEffect(() => {
     if (!skipFetchOnce.current) {
@@ -440,13 +374,6 @@ export function MetricsDashboard(props: {
 
   return (
     <div className="space-y-6">
-      {props.demoMode ? (
-        <div className="flex flex-wrap gap-2">
-          <span className="inline-flex items-center rounded-full border border-zinc-300 bg-zinc-50 px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-zinc-700 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-200">
-            Mock sample data
-          </span>
-        </div>
-      ) : null}
       {loadIssue ? (
         <div
           role="status"
@@ -473,9 +400,6 @@ export function MetricsDashboard(props: {
             Filters {filtersOpen ? "▴" : "▾"}
           </button>
           {pending ? <span className="text-[11px] text-zinc-500">Updating…</span> : null}
-          <span className="text-[11px] text-zinc-500 dark:text-zinc-400">
-            {snapshot.totalTraces} runs · {snapshot.distinctMissions} projects · {snapshot.distinctAgents} LiNKbots
-          </span>
         </div>
 
         {filtersOpen ? (
@@ -525,14 +449,14 @@ export function MetricsDashboard(props: {
                 </select>
               </label>
               <label className="flex flex-col text-xs font-medium text-zinc-600 dark:text-zinc-400">
-                Model contains
+                Model
                 <select
                   className="mt-1 rounded-lg border border-zinc-200 bg-white px-2 py-1.5 text-sm text-zinc-900 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100"
                   value={modelContains}
                   disabled={pending}
                   onChange={(e) => setModelContains(e.target.value)}
                 >
-                  <option value="">All models</option>
+                  <option value="">All</option>
                   {modelOptions
                     .filter(Boolean)
                     .map((m) => (
@@ -554,32 +478,23 @@ export function MetricsDashboard(props: {
                 />
               </label>
               <label className="flex flex-col text-xs font-medium text-zinc-600 dark:text-zinc-400">
-                Run status
+                Activity type
                 <select
                   className="mt-1 rounded-lg border border-zinc-200 bg-white px-2 py-1.5 text-sm text-zinc-900 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100"
-                  value={traceStatus}
+                  value={activityCategory}
                   disabled={pending}
-                  onChange={(e) => setTraceStatus(e.target.value as TraceStatusFilter)}
+                  onChange={(e) => setActivityCategory(e.target.value as MetricsActivityCategory)}
                 >
-                  <option value="all">All</option>
-                  <option value="success">Success-like (hide errors)</option>
-                  <option value="errors">Errors only</option>
+                  {METRICS_ACTIVITY_CATEGORY_OPTIONS.map((o) => (
+                    <option key={o.id} value={o.id}>
+                      {o.label}
+                    </option>
+                  ))}
                 </select>
-              </label>
-              <label className="flex min-w-[12rem] flex-col text-xs font-medium text-zinc-600 dark:text-zinc-400 sm:col-span-2 lg:col-span-3">
-                Event type contains
-                <input
-                  type="search"
-                  placeholder="Filter by event text"
-                  className="mt-1 rounded-lg border border-zinc-200 bg-white px-2 py-1.5 text-sm text-zinc-900 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100"
-                  value={eventTypeContains}
-                  disabled={pending}
-                  onChange={(e) => setEventTypeContains(e.target.value)}
-                />
               </label>
             </div>
             <div className="rounded-lg border border-dashed border-zinc-300 bg-white/60 p-3 dark:border-zinc-700 dark:bg-zinc-900/30">
-              <p className="text-[11px] font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+              <p className="text-[11px] font-semibold text-zinc-500 dark:text-zinc-400">
                 Scope
                 {props.demoMode ? (
                   <span className="ml-2 font-normal normal-case text-zinc-400">· mock dimensions active</span>
@@ -589,21 +504,21 @@ export function MetricsDashboard(props: {
               </p>
               <div className="mt-2 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
                 <ScopeFilterSelect
-                  label="Module"
+                  label="Suite"
                   value={scope.module}
                   options={DEMO_METRICS_SCOPE_OPTIONS.module}
                   disabled={pending}
                   onChange={(module) => setScope((s) => ({ ...s, module }))}
                 />
                 <ScopeFilterSelect
-                  label="Project type"
+                  label="Module"
                   value={scope.projectType}
                   options={DEMO_METRICS_SCOPE_OPTIONS.projectType}
                   disabled={pending}
                   onChange={(projectType) => setScope((s) => ({ ...s, projectType }))}
                 />
                 <ScopeFilterSelect
-                  label="Workflow"
+                  label="Phase"
                   value={scope.workflow}
                   options={DEMO_METRICS_SCOPE_OPTIONS.workflow}
                   disabled={pending}
@@ -629,7 +544,7 @@ export function MetricsDashboard(props: {
             type="button"
             role="tab"
             aria-selected={viewTab === t.id}
-            onClick={() => setViewTab(t.id)}
+            onClick={() => selectView(t.id)}
             className={screenTabLinkClass(viewTab === t.id)}
           >
             {t.label}
@@ -637,7 +552,13 @@ export function MetricsDashboard(props: {
         ))}
       </nav>
 
-      <KpiCardGrid cards={kpiCards} viewLabel={KPI_VIEW_LABELS[viewTab].title} viewQuestion={KPI_VIEW_LABELS[viewTab].question} />
+      <SummaryMetricCardSection
+        title={KPI_VIEW_LABELS[viewTab].title}
+        sentenceTitle
+        aria-label={`${KPI_VIEW_LABELS[viewTab].title} KPIs`}
+      >
+        <MetricsKpiSummaryGrid cards={kpiCards} />
+      </SummaryMetricCardSection>
 
       <SkillToolBreakdown snapshot={snapshot} />
 
@@ -645,7 +566,7 @@ export function MetricsDashboard(props: {
         <section className="space-y-4">
           <div className="grid gap-4 lg:grid-cols-3">
             <div className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
-              <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Runs / day</p>
+              <MetricsSectionTitle>Runs / day</MetricsSectionTitle>
               {snapshot.tracesByDay.length === 0 ? (
                 <p className="mt-4 text-sm text-zinc-500">No data.</p>
               ) : (
@@ -653,7 +574,7 @@ export function MetricsDashboard(props: {
               )}
             </div>
             <div className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
-              <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Tokens / day</p>
+              <MetricsSectionTitle>Tokens / day</MetricsSectionTitle>
               {snapshot.tokensByDay.length === 0 ? (
                 <p className="mt-4 text-sm text-zinc-500">No token fields in this window.</p>
               ) : (
@@ -665,7 +586,7 @@ export function MetricsDashboard(props: {
               )}
             </div>
             <div className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
-              <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Cost / day</p>
+              <MetricsSectionTitle>Cost / day</MetricsSectionTitle>
               {snapshot.costByDay.length === 0 ? (
                 <p className="mt-4 text-sm text-zinc-500">No cost data in this window.</p>
               ) : (
@@ -685,7 +606,7 @@ export function MetricsDashboard(props: {
         <section className="space-y-4">
           <div className="grid gap-4 lg:grid-cols-3">
             <div className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
-              <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Runs / day</p>
+              <MetricsSectionTitle>Runs / day</MetricsSectionTitle>
               {snapshot.tracesByDay.length === 0 ? (
                 <p className="mt-4 text-sm text-zinc-500">No data.</p>
               ) : (
@@ -693,7 +614,7 @@ export function MetricsDashboard(props: {
               )}
             </div>
             <div className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
-              <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Tokens / day</p>
+              <MetricsSectionTitle>Tokens / day</MetricsSectionTitle>
               {snapshot.tokensByDay.length === 0 ? (
                 <p className="mt-4 text-sm text-zinc-500">No token fields in this window.</p>
               ) : (
@@ -705,7 +626,7 @@ export function MetricsDashboard(props: {
               )}
             </div>
             <div className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
-              <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Cost / day</p>
+              <MetricsSectionTitle>Cost / day</MetricsSectionTitle>
               {snapshot.costByDay.length === 0 ? (
                 <p className="mt-4 text-sm text-zinc-500">No cost data in this window.</p>
               ) : (
@@ -724,7 +645,7 @@ export function MetricsDashboard(props: {
         <section className="space-y-4">
           <div className="grid gap-4 lg:grid-cols-2">
             <div className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
-              <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Failure-oriented events</p>
+              <MetricsSectionTitle>Failure-oriented events</MetricsSectionTitle>
               {failureSlices.length === 0 ? (
                 <p className="mt-4 text-sm text-zinc-500">No error-shaped top event types.</p>
               ) : (
@@ -732,13 +653,13 @@ export function MetricsDashboard(props: {
               )}
             </div>
             <div className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
-              <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Error bucket</p>
+              <MetricsSectionTitle>Error bucket</MetricsSectionTitle>
               <CategoryBars rows={snapshot.observabilityCategories.filter((c) => c.id === "error")} />
             </div>
           </div>
           <div className="grid gap-4 lg:grid-cols-2">
             <div className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
-              <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Tool / MCP events</p>
+              <MetricsSectionTitle>Tool / MCP events</MetricsSectionTitle>
               {toolSlices.length === 0 ? (
                 <p className="mt-4 text-sm text-zinc-500">No tool-shaped event types in this window.</p>
               ) : (
@@ -746,7 +667,7 @@ export function MetricsDashboard(props: {
               )}
             </div>
             <div className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
-              <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Top event types</p>
+              <MetricsSectionTitle>Top event types</MetricsSectionTitle>
               {snapshot.eventTypeSlices.length === 0 ? (
                 <p className="mt-4 text-sm text-zinc-500">No data.</p>
               ) : (

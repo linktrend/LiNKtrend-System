@@ -240,7 +240,7 @@ export default async function BrainFileDetailPage(props: {
             ))}
           </ul>
           {(orgRes.data ?? []).length === 0 ? (
-            <p className="text-sm text-zinc-500">No org nodes yet. Add them under Company structure.</p>
+            <p className="text-sm text-zinc-500">No org nodes yet. Add them under LiNKbrain → Org Scope.</p>
           ) : (
             <button
               type="submit"

@@ -440,11 +440,11 @@ export function SkillWorkspace(props: {
           </p>
           <dl className="grid max-w-3xl gap-3 text-sm sm:grid-cols-3">
             <div>
-              <dt className="text-xs font-medium uppercase tracking-wide text-zinc-500">Lifecycle</dt>
+              <dt className="text-xs font-medium text-zinc-500 dark:text-zinc-400">Lifecycle</dt>
               <dd className="mt-0.5 font-medium capitalize text-zinc-900">{props.skillStatus}</dd>
             </div>
             <div>
-              <dt className="text-xs font-medium uppercase tracking-wide text-zinc-500">Version</dt>
+              <dt className="text-xs font-medium text-zinc-500 dark:text-zinc-400">Version</dt>
               <dd className="mt-0.5 font-mono text-zinc-800">{props.version}</dd>
             </div>
           </dl>
@@ -602,7 +602,7 @@ export function SkillWorkspace(props: {
                       />
                     </label>
                     <div className="mt-3 space-y-2">
-                      <p className="text-[11px] font-medium uppercase tracking-wide text-zinc-500">Scripts (optional)</p>
+                      <p className="text-[11px] font-medium text-zinc-500 dark:text-zinc-400">Scripts (optional)</p>
                       <p className="text-xs text-zinc-500">
                         Leave all unchecked to allow <strong>every</strong> skill script for this step. Check specific files to
                         restrict execution to that subset (stored as <code className="rounded bg-zinc-100 px-0.5 dark:bg-zinc-800">script_ids</code>).
@@ -626,7 +626,7 @@ export function SkillWorkspace(props: {
                       </div>
                     </div>
                     <div className="mt-3 space-y-2">
-                      <p className="text-[11px] font-medium uppercase tracking-wide text-zinc-500">References (optional)</p>
+                      <p className="text-[11px] font-medium text-zinc-500 dark:text-zinc-400">References (optional)</p>
                       <p className="text-xs text-zinc-500">
                         Checked rows add to <code className="rounded bg-zinc-100 px-0.5 dark:bg-zinc-800">reference_ids</code>.
                         Rows with matching <code className="rounded bg-zinc-100 px-0.5 dark:bg-zinc-800">step_ordinal</code> in the
@@ -651,7 +651,7 @@ export function SkillWorkspace(props: {
                       </div>
                     </div>
                     <div className="mt-3 space-y-2">
-                      <p className="text-[11px] font-medium uppercase tracking-wide text-zinc-500">Assets (optional)</p>
+                      <p className="text-[11px] font-medium text-zinc-500 dark:text-zinc-400">Assets (optional)</p>
                       <p className="text-xs text-zinc-500">
                         Same pattern as references: <code className="rounded bg-zinc-100 px-0.5 dark:bg-zinc-800">asset_ids</code>{" "}
                         plus table <code className="rounded bg-zinc-100 px-0.5 dark:bg-zinc-800">step_ordinal</code>.

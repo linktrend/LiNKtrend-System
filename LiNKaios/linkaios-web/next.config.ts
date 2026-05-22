@@ -16,6 +16,12 @@ const nextConfig: NextConfig = {
     return [
       { source: "/missions", destination: "/projects", permanent: false },
       { source: "/missions/:path*", destination: "/projects/:path*", permanent: false },
+      { source: "/modules/my-modules", destination: "/suites/my-suites", permanent: false },
+      { source: "/modules/marketplace", destination: "/suites/marketplace", permanent: false },
+      { source: "/modules/project-types/:path*", destination: "/suites/project-types/:path*", permanent: false },
+      { source: "/modules/linkapps/:path*", destination: "/suites/linkapps/:path*", permanent: false },
+      { source: "/modules/:suiteId", destination: "/suites/:suiteId", permanent: false },
+      { source: "/modules", destination: "/suites/my-suites", permanent: false },
     ];
   },
   transpilePackages: [

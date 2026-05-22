@@ -7,7 +7,8 @@ import { DEMO_CHANNEL_THREADS } from "@/lib/ui-mocks/channel-threads";
 import { DEMO_SIDEBAR_AGENTS, DEMO_SIDEBAR_MISSIONS, isDemoAgentId } from "@/lib/ui-mocks/entities";
 import { DEMO_WORK_ALERTS } from "@/lib/ui-mocks/work-alert-fixtures";
 import { traceToWorkAlert, type WorkAlert } from "@/lib/work-alerts";
-import { groupZulipIntoThreads, type ZulipMessageLinkRow } from "@/lib/work-messages";
+import { groupZulipIntoThreads, prepareChannelThreads, type ZulipMessageLinkRow } from "@/lib/work-messages";
+import { getZulipSiteUrlFromEnv } from "@/lib/zulip-links";
 
 export type HealthState = "ok" | "degraded" | "failed";
 
@@ -51,7 +52,12 @@ export type OverviewData = {
     idle: number;
   };
   workCounts: { alerts: number; messages: number; sessions: number; brainInbox: number };
-  projectsSummary: { active: number; needsAttention: number };
+  projectsSummary: {
+    draft: number;
+    active: number;
+    completed: number;
+    needsAttention: number;
+  };
   fleet: BotFleetCard[];
 };
 
@@ -352,10 +358,14 @@ export async function loadOverviewData(
   const crit = alertsMerged.filter((a) => a.severity === "critical").length;
   const warn = alertsMerged.filter((a) => a.severity === "warning").length;
 
+  const zulipSiteUrl = getZulipSiteUrlFromEnv();
   const zRows = (gatewayRows.data ?? []) as unknown as ZulipMessageLinkRow[];
-  const liveThreads = zRows.length ? groupZulipIntoThreads(zRows) : [];
-  const threads = [...(uiMocksEnabled ? DEMO_CHANNEL_THREADS : []), ...liveThreads].sort(
-    (a, b) => new Date(b.lastActivity).getTime() - new Date(a.lastActivity).getTime(),
+  const liveThreads = zRows.length ? groupZulipIntoThreads(zRows, { zulipSiteUrl }) : [];
+  const threads = prepareChannelThreads(
+    [...(uiMocksEnabled ? DEMO_CHANNEL_THREADS : []), ...liveThreads].sort(
+      (a, b) => new Date(b.lastActivity).getTime() - new Date(a.lastActivity).getTime(),
+    ),
+    { zulipSiteUrl },
   );
 
   const agentName = new Map<string, string>();
@@ -435,7 +445,9 @@ export async function loadOverviewData(
   const offline = fleet.filter((f) => f.ux === "offline").length;
   const online = busy + idle;
 
+  const draftProjects = missionsMerged.filter((m) => m.status === "draft").length;
   const activeProjects = missionsMerged.filter((m) => m.status === "running" || m.status === "assigned").length;
+  const completedProjects = missionsMerged.filter((m) => m.status === "completed").length;
   const needsAttentionProjects = missionsMerged.filter(
     (m) => missionTone(m.status) === "risk" || m.status === "draft",
   ).length;
@@ -462,7 +474,9 @@ export async function loadOverviewData(
       brainInbox: brainInboxCount,
     },
     projectsSummary: {
+      draft: draftProjects,
       active: activeProjects,
+      completed: completedProjects,
       needsAttention: needsAttentionProjects,
     },
     fleet,

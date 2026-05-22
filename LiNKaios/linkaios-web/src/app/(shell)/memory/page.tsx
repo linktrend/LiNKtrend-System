@@ -1,9 +1,12 @@
 import Link from "next/link";
 
 import { LinkbrainTabNav } from "@/components/linkbrain/linkbrain-tab-nav";
-import { LinkbrainScopeAbout } from "@/components/linkbrain/linkbrain-scope-about";
 import { MemoryCommandCentre } from "@/components/linkbrain/memory-command-centre";
 import { ShellPageHeaderClient } from "@/components/shell-page-header-client";
+import {
+  inboxItemToSubmissionSource,
+  type InboxSubmissionSource,
+} from "@/components/linkbrain/linkbrain-labels";
 import type { LinkbrainTab } from "@/lib/linkbrain-data";
 import { linkbrainPageTitle, linkbrainTabSubtitle } from "@/lib/linkbrain-page-copy";
 import { loadLinkbrainPageData } from "@/lib/linkbrain-data";
@@ -18,7 +21,7 @@ import type { BrainInboxItemType, BrainRetrieveContextResult, BrainRetrieveStage
 
 export const dynamic = "force-dynamic";
 
-const ORDERED_TABS: readonly LinkbrainTab[] = ["inbox", "project", "agent", "company", "ask"];
+const ORDERED_TABS: readonly LinkbrainTab[] = ["inbox", "project", "agent", "company", "ask", "audit", "orgScope"];
 
 function parseTab(v: string | undefined): LinkbrainTab {
   if (v === "missions") return "project";
@@ -33,8 +36,12 @@ function parseScope(v: string | undefined): "recent" | "all" {
   return v === "all" ? "all" : "recent";
 }
 
-function parseBrainScope(v: string | undefined): BrainScope {
-  if (v === "mission" || v === "agent") return v;
+function parseBrainScopeFromAsk(sp: {
+  b_agent?: string;
+  b_mission?: string;
+}): BrainScope {
+  if (sp.b_agent?.trim()) return "agent";
+  if (sp.b_mission?.trim()) return "mission";
   return "company";
 }
 
@@ -45,6 +52,24 @@ function parseInboxItem(v: string | undefined): BrainInboxItemType | null {
   return null;
 }
 
+const INBOX_SOURCES: Exclude<InboxSubmissionSource, "all">[] = [
+  "human_upload",
+  "human_create",
+  "human_edit",
+  "executioner",
+];
+
+function parseInboxSource(
+  sourceRaw: string | undefined,
+  legacyItemRaw: string | undefined,
+): Exclude<InboxSubmissionSource, "all"> | null {
+  if (sourceRaw && INBOX_SOURCES.includes(sourceRaw as Exclude<InboxSubmissionSource, "all">)) {
+    return sourceRaw as Exclude<InboxSubmissionSource, "all">;
+  }
+  const legacy = parseInboxItem(legacyItemRaw);
+  return legacy ? inboxItemToSubmissionSource(legacy) : null;
+}
+
 export default async function MemoryPage(props: {
   searchParams: Promise<{
     tab?: string;
@@ -52,7 +77,8 @@ export default async function MemoryPage(props: {
     classification?: string;
     agent?: string;
     scope?: string;
-    b_scope?: string;
+    b_company?: string;
+    b_module?: string;
     b_mission?: string;
     b_agent?: string;
     b_path?: string;
@@ -60,6 +86,7 @@ export default async function MemoryPage(props: {
     b_stage?: string;
     b_file?: string;
     b_kind?: string;
+    inbox_source?: string;
     inbox_item?: string;
     inbox_sort?: string;
     org?: string;
@@ -75,7 +102,9 @@ export default async function MemoryPage(props: {
   const agentFilter = uiMocksEnabled ? resolveDemoBrainAgentId(agentFilterRaw) : agentFilterRaw;
   const agentFilterDisplay = agentFilterRaw ?? (agentFilter ? demoBrainAgentSlugForId(agentFilter) : undefined);
   const scope = parseScope(sp.scope);
-  const brainScope = parseBrainScope(sp.b_scope);
+  const brainScope = parseBrainScopeFromAsk(sp);
+  const brainCompanyId = sp.b_company?.trim() || undefined;
+  const brainModuleId = sp.b_module?.trim() || undefined;
   const orgNodeId = sp.org?.trim();
   const brainMissionId =
     sp.b_mission?.trim() ?? (tab === "project" && missionFilter ? missionFilter : undefined);
@@ -84,7 +113,7 @@ export default async function MemoryPage(props: {
     (tab === "agent" && agentFilter ? agentFilter : undefined);
   let sandboxPath = sp.b_path?.trim();
   const sandboxQuery = sp.b_query?.trim();
-  const inboxItemType = parseInboxItem(sp.inbox_item?.trim());
+  const inboxSource = parseInboxSource(sp.inbox_source?.trim(), sp.inbox_item?.trim());
   const inboxSort = sp.inbox_sort === "asc" ? "asc" : "desc";
   const brainFileKindFilter = sp.b_kind?.trim() || null;
   const askSelectedFileId = sp.b_file?.trim() || undefined;
@@ -108,7 +137,7 @@ export default async function MemoryPage(props: {
     brainMissionId,
     brainAgentId,
     orgNodeId,
-    inboxItemType,
+    inboxSource,
     inboxSort,
     brainFileKindFilter,
   });
@@ -144,7 +173,7 @@ export default async function MemoryPage(props: {
         actions={
           <Link
             href="/memory/drafts/new"
-            className={`${BUTTON.primaryRow} h-fit shrink-0`}
+            className={BUTTON.addRow}
             title="Creates a draft in Inbox — not recorded in LiNKbrain until approved"
           >
             Add Knowledge
@@ -163,8 +192,6 @@ export default async function MemoryPage(props: {
           })()}
         </p>
       ) : null}
-
-      <LinkbrainScopeAbout />
 
       <LinkbrainTabNav
         active={tab}
@@ -185,14 +212,15 @@ export default async function MemoryPage(props: {
         classificationFilter={classificationFilter}
         agentFilter={agentFilter}
         scope={scope}
-        brainScope={brainScope}
+        brainCompanyId={brainCompanyId}
+        brainModuleId={brainModuleId}
         brainMissionId={brainMissionId}
         brainAgentId={brainAgentId}
         orgNodeId={orgNodeId}
         sandboxPath={sandboxPath}
         sandboxQuery={sandboxQuery}
         askSelectedFileId={askSelectedFileId}
-        inboxItemType={inboxItemType}
+        inboxSource={inboxSource}
         inboxSort={inboxSort}
         brainFileKindFilter={brainFileKindFilter}
         brainSandbox={brainSandbox}

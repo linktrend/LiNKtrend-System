@@ -1,7 +1,8 @@
 "use client";
 
-import { TrendingUp, TrendingDown, Minus } from "lucide-react";
+import { BarChart3, TrendingDown, TrendingUp, Minus } from "lucide-react";
 
+import { SummaryMetricCard } from "@/components/summary-metric-card/summary-metric-card";
 import type { TraceMetric } from "@/lib/plugins/linkapps/types/trace";
 
 export type TraceMetricCardProps = {
@@ -66,26 +67,21 @@ export function TraceMetricCard(props: TraceMetricCardProps) {
     );
   }
 
+  const trendPreview =
+    metric.previousValue !== undefined ? (
+      <span className={`flex items-center gap-1 ${trendColorClass(metric.trend, metric.upIsGood)}`}>
+        {trendIcon(metric.trend)}
+        <span className="text-zinc-400 dark:text-zinc-500">from {formatValue(metric.previousValue, metric.unit)}</span>
+      </span>
+    ) : undefined;
+
   return (
-    <div
-      className="rounded-lg border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950"
-      role="region"
-      aria-label={metric.label}
-    >
-      <p className="text-xs font-medium text-zinc-500 dark:text-zinc-400">{metric.label}</p>
-      <div className="mt-2 flex items-baseline gap-3">
-        <span className="text-2xl font-semibold text-zinc-900 dark:text-zinc-100">
-          {formatValue(metric.value, metric.unit)}
-        </span>
-        <span className={`flex items-center gap-1 text-xs ${trendColorClass(metric.trend, metric.upIsGood)}`}>
-          {trendIcon(metric.trend)}
-          {metric.previousValue !== undefined && (
-            <span className="text-zinc-400 dark:text-zinc-500">
-              from {formatValue(metric.previousValue, metric.unit)}
-            </span>
-          )}
-        </span>
-      </div>
-    </div>
+    <SummaryMetricCard
+      title={metric.label}
+      icon={BarChart3}
+      metric={formatValue(metric.value, metric.unit)}
+      compactMetric
+      preview={trendPreview}
+    />
   );
 }

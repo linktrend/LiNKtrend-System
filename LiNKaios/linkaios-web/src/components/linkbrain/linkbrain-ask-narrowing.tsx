@@ -26,7 +26,7 @@ export function LinkbrainAskNarrowing(props: {
         retrieve under the same scope rules.
       </p>
       <div>
-        <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Memory scope</label>
+        <label className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Memory scope</label>
         <select
           className="mt-2 w-full max-w-xl rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm dark:border-zinc-600 dark:bg-zinc-950"
           value={props.brainScope}
@@ -52,7 +52,7 @@ export function LinkbrainAskNarrowing(props: {
       </div>
       {props.brainScope === "mission" ? (
         <div>
-          <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Project</label>
+          <label className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Project</label>
           <MemoryProjectSelect
             missions={props.data.missions.map((m) => ({ id: String(m.id), title: m.title }))}
             selectedMissionId={props.brainMissionId ?? props.missionFilter}
@@ -63,7 +63,7 @@ export function LinkbrainAskNarrowing(props: {
       ) : null}
       {props.brainScope === "agent" ? (
         <div>
-          <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">LiNKbot</label>
+          <label className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">LiNKbot</label>
           <MemoryAgentSelect
             agents={props.data.agents}
             selectedAgentId={props.brainAgentId ?? props.agentFilter}

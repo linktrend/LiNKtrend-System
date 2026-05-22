@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { ShellPageHeaderClient } from "@/components/shell-page-header-client";
 import { buildDevtoolsMvoProof } from "@/lib/devtools-mvo-proof";
 
 export const dynamic = "force-dynamic";
@@ -9,18 +10,16 @@ export default function DevtoolsMvoProofPage() {
 
   return (
     <div className="space-y-10">
-      <section className="space-y-3">
-        <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">MVO proof surfaces (dev only)</h2>
-        <p className="max-w-3xl text-sm text-zinc-600 dark:text-zinc-400">
-          Deterministic, no-side-effect proof snapshots for Browser QA. These references are local operator fixtures and
-          do not execute live integrations.
-        </p>
-      </section>
+      <ShellPageHeaderClient
+        title="MVO Proof Surfaces"
+        subtitle="Deterministic, no-side-effect proof snapshots for browser QA — local operator fixtures only."
+      />
 
       <section className="space-y-3 rounded-xl border border-zinc-200 p-4 dark:border-zinc-800">
         <h3 className="text-base font-semibold text-zinc-900 dark:text-zinc-100">WebsiteFactory / LinkSites proof</h3>
         <p className="text-sm text-zinc-700 dark:text-zinc-300">
-          Run: <span className="font-mono text-xs">{proof.websitefactory.run_id}</span> | Status: <span className="font-medium">{proof.websitefactory.status}</span>
+          Run: <span className="font-mono text-xs">{proof.websitefactory.run_id}</span> | Status:{" "}
+          <span className="font-medium">{proof.websitefactory.status}</span>
         </p>
         <ul className="list-disc space-y-1 pl-5 text-sm text-zinc-700 dark:text-zinc-300">
           {proof.websitefactory.timeline.map((stage) => (
@@ -65,7 +64,8 @@ export default function DevtoolsMvoProofPage() {
         </p>
         <p className="text-sm text-zinc-700 dark:text-zinc-300">Squad status: {proof.linkapps.squad_status.status}</p>
         <p className="text-sm text-zinc-700 dark:text-zinc-300">
-          Provider readiness: GitHub {proof.linkapps.provider_readiness.github}, Supabase {proof.linkapps.provider_readiness.supabase}, Plane {proof.linkapps.provider_readiness.plane}
+          Provider readiness: GitHub {proof.linkapps.provider_readiness.github}, Supabase {proof.linkapps.provider_readiness.supabase}, Plane{" "}
+          {proof.linkapps.provider_readiness.plane}
         </p>
         <p className="text-sm text-zinc-700 dark:text-zinc-300">Task refs: {proof.linkapps.tasks.map((t) => t.task_id).join(", ")}</p>
         <p className="text-sm text-zinc-700 dark:text-zinc-300">

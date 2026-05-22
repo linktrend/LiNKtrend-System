@@ -1,20 +1,14 @@
 "use client";
 
-import { Archive, Eye, GitBranch, Pencil, Play, Wrench } from "lucide-react";
-import Link from "next/link";
+import { Archive, Eye, Pencil } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useTransition } from "react";
 
 import { archiveTool, updateToolPublishFlags } from "@/app/(shell)/skills/tools/actions";
-import { CatalogueBoolToggle, LifecyclePill } from "@/components/catalog-ui";
-import {
-  CATALOGUE_ACTIONS_ROW_CLASS,
-  CATALOGUE_FIXTURE_LABEL,
-  CATALOGUE_FIXTURE_TITLE,
-} from "@/components/capability-catalog-shared";
-import { CAPABILITY_CATALOG_TABLE_CLASS, CapabilityCatalogColGroup } from "@/components/capability-catalog-table-layout";
-import { TOOL_TYPE_LABELS } from "@/lib/tools-admin";
-import { TABLE } from "@/lib/ui-standards";
+import { LifecyclePill } from "@/components/catalog-ui";
+import { catalogueRowHighlightClass } from "@/components/capability-catalog-shared";
+import { CapabilityCatalogColGroup, CAPABILITY_CATALOG_TABLE_CLASS } from "@/components/capability-catalog-table-layout";
+import { DataTableIconAction, DataTableShell, DT, TableBoolToggle } from "@/components/data-table";
 
 export type ToolCatalogRow = {
   id: string;
@@ -51,140 +45,98 @@ export function ToolsCatalogTable(props: { rows: ToolCatalogRow[] }) {
   }
 
   return (
-    <div className="overflow-x-auto rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
+    <DataTableShell scrollableBody>
       <table className={CAPABILITY_CATALOG_TABLE_CLASS}>
         <CapabilityCatalogColGroup />
-        <thead className="bg-zinc-50 text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:bg-zinc-900 dark:text-zinc-400">
+        <thead className={DT.thead}>
           <tr>
-            <th className={`px-4 py-3 ${TABLE.thText}`}>Category</th>
-            <th className={`px-4 py-3 ${TABLE.thText}`}>Name</th>
-            <th className={`px-3 py-3 ${TABLE.thControl}`} title="Tool type">
-              <div className={TABLE.thControlInner}>
-                <Wrench className="h-3.5 w-3.5" aria-label="Tool type" />
-              </div>
+            <th className={DT.thTextInset}>Category</th>
+            <th className={DT.thTextInset}>Name</th>
+            <th className={DT.thTextInset}>Description</th>
+            <th className={DT.thControl}>
+              <div className={DT.controlInner}>Lifecycle</div>
             </th>
-            <th className={`px-4 py-3 ${TABLE.thText}`}>Description</th>
-            <th className={`px-3 py-3 ${TABLE.thControl}`} title="Lifecycle">
-              <div className={TABLE.thControlInner}>
-                <GitBranch className="h-3.5 w-3.5" aria-label="Lifecycle" />
-              </div>
+            <th className={DT.thControl}>
+              <div className={DT.controlInner}>Available</div>
             </th>
-            <th className={`px-3 py-3 ${TABLE.thControl}`} title="Available">
-              <div className={TABLE.thControlInner}>
-                <Eye className="h-3.5 w-3.5" aria-label="Available" />
-              </div>
+            <th className={DT.thControl}>
+              <div className={DT.controlInner}>Runtime</div>
             </th>
-            <th className={`px-3 py-3 ${TABLE.thControl}`} title="Runtime enabled">
-              <div className={TABLE.thControlInner}>
-                <Play className="h-3.5 w-3.5" aria-label="Runtime enabled" />
-              </div>
-            </th>
-            <th className={`px-3 py-3 ${TABLE.thControl}`}>
-              <div className={TABLE.thControlInner}>Actions</div>
+            <th className={DT.thControl}>
+              <div className={DT.controlInner}>Actions</div>
             </th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800">
+        <tbody className={DT.tbody}>
           {props.rows.map((r) => (
             <tr
               key={r.id}
               className={
-                (r.isFixture ? "bg-amber-50/40 dark:bg-amber-950/15 " : "") +
-                (r.status === "archived" ? "text-zinc-500 dark:text-zinc-500" : "text-zinc-800 dark:text-zinc-200")
+                catalogueRowHighlightClass(r) +
+                DT.trMultiline +
+                (r.status === "archived" ? " text-zinc-500 dark:text-zinc-500" : " text-zinc-800 dark:text-zinc-200")
               }
             >
-              <td className="px-4 py-3 font-medium text-zinc-900 dark:text-zinc-100">
-                <div className="flex min-w-0 flex-col items-start gap-1">
-                  <span className="whitespace-normal">{r.category}</span>
-                  {r.isFixture ? (
-                    <span
-                      title={CATALOGUE_FIXTURE_TITLE}
-                      className="inline-flex max-w-full cursor-help rounded-full bg-amber-50 px-2 py-0.5 text-left text-[10px] font-medium leading-snug text-amber-900 ring-1 ring-amber-200/90 dark:bg-amber-950/50 dark:text-amber-100 dark:ring-amber-800"
-                    >
-                      {CATALOGUE_FIXTURE_LABEL}
-                    </span>
-                  ) : null}
-                </div>
+              <td className={`${DT.tdClipInset} font-medium text-zinc-900 dark:text-zinc-100`}>
+                <span className={DT.tdTextSpan} title={r.category}>
+                  {r.category}
+                </span>
               </td>
-              <td className="px-4 py-3 text-sm font-medium text-zinc-900 dark:text-zinc-100">{r.name}</td>
-              <td
-                className={`px-3 py-3 ${TABLE.thControl}`}
-                title={TOOL_TYPE_LABELS[r.tool_type] ?? r.tool_type}
-              >
-                <div className={TABLE.thControlInner}>
-                  <Wrench className="h-4 w-4 text-zinc-500 dark:text-zinc-400" aria-hidden />
-                </div>
+              <td className={`${DT.tdClipInset} text-sm font-medium text-zinc-900 dark:text-zinc-100`}>
+                <span className={DT.tdTextSpan} title={r.name}>
+                  {r.name}
+                </span>
               </td>
-              <td className="px-4 py-3 text-xs text-zinc-600 dark:text-zinc-400">{r.description}</td>
-              <td className={`px-3 py-3 ${TABLE.thControl}`}>
-                <div className={TABLE.thControlInner}>
+              <td className={DT.tdClipInset}>
+                <span className={DT.tdWrapSpan} title={r.description}>
+                  {r.description}
+                </span>
+              </td>
+              <td className={DT.tdControl}>
+                <div className={DT.controlInner}>
                   <LifecyclePill status={r.status} />
                 </div>
               </td>
-              <td className={`px-3 py-3 ${TABLE.thControl}`}>
-                <div className="flex items-center justify-center gap-1.5">
-                  <CatalogueBoolToggle
-                    on={r.published}
-                    disabled={pending || r.status !== "approved" || r.isFixture}
-                    ariaLabel={`Available: ${r.name}`}
-                    onToggle={(pub) => void applyFlags(r.id, pub, pub ? r.runtimeEnabled : false)}
-                  />
-                </div>
+              <td className={DT.tdControl}>
+                <TableBoolToggle
+                  on={r.published}
+                  disabled={pending || r.status !== "approved" || r.isFixture}
+                  ariaLabel={`Available: ${r.name}`}
+                  onToggle={(pub) => void applyFlags(r.id, pub, pub ? r.runtimeEnabled : false)}
+                />
               </td>
-              <td className={`px-3 py-3 ${TABLE.thControl}`}>
-                <div className="flex items-center justify-center gap-1.5">
-                  <CatalogueBoolToggle
-                    on={r.runtimeEnabled}
-                    disabled={pending || r.status !== "approved" || !r.published || r.isFixture}
-                    ariaLabel={`Enabled: ${r.name}`}
-                    onToggle={(on) => void applyFlags(r.id, r.published, on)}
-                  />
-                </div>
+              <td className={DT.tdControl}>
+                <TableBoolToggle
+                  on={r.runtimeEnabled}
+                  disabled={pending || r.status !== "approved" || !r.published || r.isFixture}
+                  ariaLabel={`Runtime: ${r.name}`}
+                  onToggle={(on) => void applyFlags(r.id, r.published, on)}
+                />
               </td>
-              <td className={`px-3 py-3 ${TABLE.thControl}`}>
-                <div className={CATALOGUE_ACTIONS_ROW_CLASS}>
-                  {r.isFixture ? (
-                    <span
-                      className="inline-flex shrink-0 rounded-lg p-2 text-zinc-400 dark:text-zinc-500"
-                      title={`${CATALOGUE_FIXTURE_TITLE} Edit is disabled.`}
-                    >
-                      <Pencil className="h-4 w-4" aria-hidden />
-                    </span>
-                  ) : (
-                    <Link
-                      href={`/skills/tools/${r.id}`}
-                      className="inline-flex shrink-0 rounded-lg p-2 text-violet-800 hover:bg-violet-50 dark:text-violet-300 dark:hover:bg-violet-950/50"
-                      title="Edit tool in workspace"
-                      aria-label={`Edit ${r.name}`}
-                    >
-                      <Pencil className="h-4 w-4" aria-hidden />
-                    </Link>
-                  )}
-                  <button
-                    type="button"
+              <td className={DT.tdControl}>
+                <div className={DT.actionsRow}>
+                  <DataTableIconAction icon={Eye} label={`Open ${r.name}`} href={`/skills/tools/${r.id}`} />
+                  <DataTableIconAction
+                    icon={Pencil}
+                    label={`Edit ${r.name}`}
+                    href={r.isFixture ? undefined : `/skills/tools/${r.id}`}
+                    disabled={r.isFixture}
+                  />
+                  <DataTableIconAction
+                    icon={Archive}
+                    label={`Archive ${r.name}`}
                     disabled={pending || r.status !== "approved" || r.isFixture}
-                    title={
-                      r.isFixture
-                        ? "Demo row — cannot archive"
-                        : r.status !== "approved"
-                          ? "Archive is only available for approved tools"
-                          : "Archive (remove from runtime catalogue)"
-                    }
-                    aria-label={`Archive ${r.name}`}
                     onClick={() => {
                       if (r.isFixture || r.status !== "approved") return;
                       void onArchive(r.id);
                     }}
-                    className="inline-flex shrink-0 rounded-lg p-2 text-amber-900 hover:bg-amber-50 disabled:cursor-not-allowed disabled:opacity-40 dark:text-amber-200 dark:hover:bg-amber-950/40"
-                  >
-                    <Archive className="h-4 w-4 shrink-0" aria-hidden />
-                  </button>
+                  />
                 </div>
               </td>
             </tr>
           ))}
         </tbody>
       </table>
-    </div>
+    </DataTableShell>
   );
 }

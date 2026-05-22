@@ -11,7 +11,6 @@ export default async function SettingsGovernancePage() {
 
   return (
     <div>
-      <h2 className="text-lg font-semibold text-zinc-900">Governance preview</h2>
       <GovernanceJsonPreview />
     </div>
   );

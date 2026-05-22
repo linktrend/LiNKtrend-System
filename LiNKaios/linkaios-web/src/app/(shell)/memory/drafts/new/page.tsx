@@ -51,7 +51,7 @@ export default async function NewBrainDraftPage(props: {
       <ShellPageHeaderClient
         title="Add Knowledge"
         subtitle="Creates a draft in Inbox — it is not recorded in LiNKbrain until an operator approves."
-        showRefresh={false}
+       
       />
 
       {sp.err ? (

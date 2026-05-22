@@ -1,134 +1,83 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
-import { BookOpen, FileText, Pin } from "lucide-react";
 
+import { LinkbrainMemoryDocList } from "@/components/linkbrain/linkbrain-memory-doc-row";
 import { WorkerTabSectionHeader } from "@/components/worker-tab-section-header";
-import { isDemoAgentId } from "@/lib/ui-mocks/entities";
-import { DEMO_AGENT_PERSONA, DEMO_AGENT_PERSONA_ENTRIES, MOCK_UI_AGENT_PERSONA_ENTRIES, MOCK_UI_AGENT_PERSONA_LAYERS, type DemoPersonaEntry } from "@/lib/ui-mocks/worker-ui";
+import { loadLinkbrainPageData } from "@/lib/linkbrain-data";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { TABLE } from "@/lib/ui-standards";
+import { isDemoAgentId } from "@/lib/ui-mocks/entities";
+import { isUiMocksEnabled } from "@/lib/ui-mocks/flags";
+import { demoBrainAgentSlugForId, resolveDemoBrainAgentId } from "@/lib/ui-mocks/linkbrain-demo-agents";
+import { applyLinkbrainUiMockOverlay } from "@/lib/ui-mocks/linkbrain-demo-overlay";
+import { BUTTON } from "@/lib/ui-standards";
 
 export const dynamic = "force-dynamic";
 
-function entryIcon(entry: DemoPersonaEntry) {
-  if (entry.type === "pin") return <Pin className="h-4 w-4 text-amber-600 dark:text-amber-400" aria-hidden />;
-  if (entry.type === "note") return <BookOpen className="h-4 w-4 text-sky-600 dark:text-sky-400" aria-hidden />;
-  return <FileText className="h-4 w-4 text-violet-600 dark:text-violet-400" aria-hidden />;
-}
-
 export default async function WorkerBrainPage(props: { params: Promise<{ id: string }> }) {
   const { id } = await props.params;
+  const uiMocksEnabled = isUiMocksEnabled();
+
+  let displayName = id;
+  let brainAgentId = id;
+  let memoryAgentParam = id;
 
   if (isDemoAgentId(id)) {
-    const layers = DEMO_AGENT_PERSONA[id] ?? [];
-    const entries = DEMO_AGENT_PERSONA_ENTRIES[id] ?? [];
-    return (
-      <div className="space-y-8">
-        <section>
-          <WorkerTabSectionHeader
-            title="Persona stack"
-            subtitle="LiNKbrain layers scoped to this agent — base persona, soul, identity, agent runtime, etc."
-          />
-          <div className="mt-4 overflow-hidden rounded-xl border border-zinc-200 bg-white">
-            <table className="min-w-full divide-y divide-zinc-200 text-sm">
-              <thead className="bg-zinc-50 text-left text-xs font-semibold uppercase tracking-wide text-zinc-500">
-                <tr>
-                  <th className={`px-4 py-3 ${TABLE.thText}`}>Layer</th>
-                  <th className={`px-4 py-3 ${TABLE.thText}`}>Summary</th>
-                  <th className={`px-4 py-3 ${TABLE.thText}`}>Updated</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-zinc-100">
-                {layers.map((row) => (
-                  <tr key={row.layer}>
-                    <td className="px-4 py-3 font-medium text-zinc-900">{row.layer}</td>
-                    <td className="max-w-lg px-4 py-3 text-zinc-600">{row.summary}</td>
-                    <td className="whitespace-nowrap px-4 py-3 text-zinc-500">{row.updated}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </section>
-        <section>
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-zinc-500">Entries</h2>
-          <p className="mt-1 max-w-2xl text-xs leading-relaxed text-zinc-600 dark:text-zinc-400 sm:text-sm">
-            Agent-scoped journal and memory entries (UI fixture — not from LiNKbrain storage).
-          </p>
-          <ul className="mt-3 divide-y divide-zinc-200 rounded-xl border border-zinc-200 bg-white text-sm">
-            {entries.map((entry) => (
-              <li key={entry.title} className="px-4 py-3 text-zinc-600 transition hover:bg-zinc-50">
-                <span className="flex items-center justify-between gap-3">
-                  <span className="inline-flex min-w-0 items-center gap-2">
-                    {entryIcon(entry)}
-                    <span className="truncate font-medium text-zinc-900">{entry.title}</span>
-                  </span>
-                  <span className="shrink-0 rounded-full border border-zinc-200 bg-zinc-50 px-2 py-0.5 text-[11px] font-medium uppercase tracking-wide text-zinc-600">
-                    {entry.tag}
-                  </span>
-                </span>
-              </li>
-            ))}
-          </ul>
-        </section>
-      </div>
-    );
+    displayName = id === "demo-lisa" ? "Lisa (CEO)" : "Eric (CTO)";
+    brainAgentId = resolveDemoBrainAgentId(id) ?? id;
+    memoryAgentParam = demoBrainAgentSlugForId(brainAgentId) ?? id;
+  } else {
+    const supabase = await createSupabaseServerClient();
+    const { data: agent, error } = await supabase.schema("linkaios").from("agents").select("id, display_name").eq("id", id).maybeSingle();
+    if (error || !agent) {
+      notFound();
+    }
+    displayName = String((agent as { display_name: string }).display_name);
+    brainAgentId = id;
+    memoryAgentParam = id;
   }
 
   const supabase = await createSupabaseServerClient();
-  const { data: agent, error } = await supabase.schema("linkaios").from("agents").select("id").eq("id", id).maybeSingle();
-  if (error || !agent) {
-    notFound();
+  let data = await loadLinkbrainPageData(supabase, {
+    tab: "agent",
+    agentId: brainAgentId,
+    brainAgentId,
+    scope: "recent",
+    brainScope: "agent",
+  });
+
+  if (uiMocksEnabled && !data.error) {
+    data = applyLinkbrainUiMockOverlay(data, { tab: "agent", brainAgentId });
   }
 
+  const agentTitle = data.agents.find((a) => a.id === brainAgentId)?.display_name ?? displayName;
+  const memoryHref = `/memory?tab=agent&agent=${encodeURIComponent(memoryAgentParam)}`;
+
   return (
-    <div className="space-y-8">
-      <section>
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-zinc-500">Persona stack</h2>
-        <p className="mt-1 max-w-2xl text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
-          LiNKbrain layers for this LiNKbot (preview rows for layout review).
-        </p>
-        <div className="mt-4 overflow-hidden rounded-xl border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950">
-          <table className="min-w-full divide-y divide-zinc-200 text-sm dark:divide-zinc-800">
-            <thead className="bg-zinc-50 text-left text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:bg-zinc-900">
-              <tr>
-                <th className={`px-4 py-3 ${TABLE.thText}`}>Layer</th>
-                <th className={`px-4 py-3 ${TABLE.thText}`}>Summary</th>
-                <th className={`px-4 py-3 ${TABLE.thText}`}>Updated</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800">
-              {MOCK_UI_AGENT_PERSONA_LAYERS.map((row) => (
-                <tr key={row.layer}>
-                  <td className="px-4 py-3 font-medium text-zinc-900 dark:text-zinc-100">{row.layer}</td>
-                  <td className="max-w-lg px-4 py-3 text-zinc-600 dark:text-zinc-400">{row.summary}</td>
-                  <td className="whitespace-nowrap px-4 py-3 text-zinc-500">{row.updated}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
-      <section>
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-zinc-500">Entries</h2>
-        <p className="mt-1 max-w-2xl text-xs leading-relaxed text-zinc-600 dark:text-zinc-400 sm:text-sm">
-          Recent memory-style entries (preview copy for layout review).
-        </p>
-        <ul className="mt-3 divide-y divide-zinc-200 rounded-xl border border-zinc-200 bg-white text-sm dark:divide-zinc-800 dark:border-zinc-800 dark:bg-zinc-950">
-          {MOCK_UI_AGENT_PERSONA_ENTRIES.map((entry) => (
-            <li key={entry.title} className="px-4 py-3 text-zinc-600 transition hover:bg-zinc-50 dark:text-zinc-400 dark:hover:bg-zinc-900/70">
-              <span className="flex items-center justify-between gap-3">
-                <span className="inline-flex min-w-0 items-center gap-2">
-                  {entryIcon(entry)}
-                  <span className="truncate font-medium text-zinc-900 dark:text-zinc-100">{entry.title}</span>
-                </span>
-                <span className="shrink-0 rounded-full border border-zinc-200 bg-zinc-50 px-2 py-0.5 text-[11px] font-medium uppercase tracking-wide text-zinc-600 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300">
-                  {entry.tag}
-                </span>
-              </span>
-            </li>
-          ))}
-        </ul>
-      </section>
+    <div className="space-y-6">
+      <WorkerTabSectionHeader
+        title="LiNKbrain"
+        subtitle={`Approved memory and personality files for ${displayName} — same layout as LiNKbrain → LiNKbot Memory, pre-scoped to this agent. Persona layers (base persona, soul, identity) and daily logs are governed documents in the agent partition. Edit proposals flow through LiNKbrain Inbox before publish.`}
+        actions={
+          <>
+            <Link href={memoryHref} className={`${BUTTON.secondaryRow} h-fit shrink-0`}>
+              Open in LiNKbrain
+            </Link>
+            <Link href="/skills/skills" className={`${BUTTON.secondaryRow} h-fit shrink-0`}>
+              Open in LiNKskills
+            </Link>
+          </>
+        }
+      />
+
+      {data.brainMetaError || data.orgMetaError ? (
+        <p className="text-sm text-amber-800 dark:text-amber-200">{data.brainMetaError ?? data.orgMetaError}</p>
+      ) : null}
+
+      {data.error ? (
+        <p className="text-sm text-red-700 dark:text-red-400">{data.error}</p>
+      ) : (
+        <LinkbrainMemoryDocList files={data.brainPartitionFiles} scopeLabel={agentTitle} agentId={brainAgentId} />
+      )}
     </div>
   );
 }

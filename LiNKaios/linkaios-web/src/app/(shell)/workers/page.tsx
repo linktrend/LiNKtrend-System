@@ -1,9 +1,11 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { Bot } from "lucide-react";
 
 import type { AgentRecord } from "@linktrend/shared-types";
 
 import { FleetOrgChart } from "@/components/fleet-org-chart";
+import { FleetSummaryStatsGrid } from "@/components/summary-metric-card";
 import { demoFleetProfile } from "@/lib/demo-fleet-profiles";
 import { DEMO_SIDEBAR_AGENTS } from "@/lib/ui-mocks/entities";
 import { isUiMocksEnabled } from "@/lib/ui-mocks/flags";
@@ -16,6 +18,7 @@ import {
   type LinkbotFleetStatusLabel,
 } from "@/lib/linkbot-fleet-status";
 import { AddLinkbotOpenButton, AddLinkbotRoot } from "@/components/add-linkbot";
+import { ShellPageHeaderClient } from "@/components/shell-page-header-client";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { BADGE, BUTTON } from "@/lib/ui-standards";
 import { parseRuntimeSettings } from "@/lib/agent-runtime-settings";
@@ -54,23 +57,6 @@ function descriptionFromRuntime(raw: unknown): string | null {
   if (!lp || typeof lp !== "object") return null;
   const d = (lp as Record<string, unknown>).description;
   return typeof d === "string" && d.trim() ? d.trim() : null;
-}
-
-function StatCard(props: { label: string; value: number; tone?: "zinc" | "emerald" | "amber" | "sky" }) {
-  const tone =
-    props.tone === "emerald"
-      ? "text-emerald-700 dark:text-emerald-400"
-      : props.tone === "amber"
-        ? "text-amber-800 dark:text-amber-300"
-        : props.tone === "sky"
-          ? "text-sky-800 dark:text-sky-300"
-          : "text-zinc-900 dark:text-zinc-100";
-  return (
-    <div className="flex flex-1 flex-col rounded-xl border border-zinc-200 bg-white px-4 py-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
-      <p className="text-xs font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">{props.label}</p>
-      <p className={`mt-2 text-2xl font-semibold tabular-nums ${tone}`}>{props.value}</p>
-    </div>
-  );
 }
 
 function passesFilter(row: FleetRow, filter: FleetPresenceFilter): boolean {
@@ -173,9 +159,12 @@ export default async function WorkersPage(props: { searchParams: Promise<{ view?
 
   if (err && !uiMocksEnabled) {
     return (
-      <main>
-        <h1 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100">LiNKbots</h1>
-        <p className="mt-4 text-sm text-red-700 dark:text-red-400">{err.message}</p>
+      <main className="space-y-6">
+        <ShellPageHeaderClient
+          title="LiNKbots"
+          subtitle="Your AI workforce — fleet status, sessions, skills, and configuration."
+        />
+        <p className="text-sm text-red-700 dark:text-red-400">{err.message}</p>
       </main>
     );
   }
@@ -183,13 +172,18 @@ export default async function WorkersPage(props: { searchParams: Promise<{ view?
   return (
     <main className="space-y-6">
       <AddLinkbotRoot />
-      <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
-        <StatCard label="Total" value={fleet.length} />
-        <StatCard label="Online" value={online} tone="emerald" />
-        <StatCard label="Busy" value={busy} tone="sky" />
-        <StatCard label="Idle" value={idle} tone="sky" />
-        <StatCard label="Inactive" value={fleet.filter((a) => a.statusLabel === "Inactive").length} />
-      </div>
+      <ShellPageHeaderClient
+        title="LiNKbots"
+        subtitle="Your AI workforce — fleet status, sessions, skills, and configuration."
+        actions={<AddLinkbotOpenButton className={BUTTON.addRow}>Add LiNKbot</AddLinkbotOpenButton>}
+      />
+      <FleetSummaryStatsGrid
+        total={fleet.length}
+        online={online}
+        busy={busy}
+        idle={idle}
+        inactive={fleet.filter((a) => a.statusLabel === "Inactive").length}
+      />
       <WorkersFleetNav current={view} />
       <FleetPresenceFilterBar current={filter} view={view} />
 
@@ -198,7 +192,7 @@ export default async function WorkersPage(props: { searchParams: Promise<{ view?
           <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">No LiNKbots yet</p>
           <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">Add a LiNKbot to see it listed here.</p>
           <div className="mt-4 flex flex-wrap justify-center gap-2">
-            <AddLinkbotOpenButton className={BUTTON.primaryRow} />
+            <AddLinkbotOpenButton className={BUTTON.addRow} />
             <Link href="/settings/platform" className={BUTTON.secondaryRow}>
               Integration routing
             </Link>
@@ -259,9 +253,12 @@ export default async function WorkersPage(props: { searchParams: Promise<{ view?
                   className="flex h-full flex-col rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm transition hover:border-zinc-300 hover:shadow-md dark:border-zinc-800 dark:bg-zinc-950 dark:hover:border-zinc-700"
                 >
                   <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0">
-                      <p className="truncate text-base font-semibold text-zinc-900 dark:text-zinc-100">{agent.display_name}</p>
-                      <p className="mt-0.5 text-xs font-medium text-violet-700 dark:text-violet-300">Role · {agent.role}</p>
+                    <div className="flex min-w-0 items-start gap-3">
+                      <Bot className="mt-0.5 h-5 w-5 shrink-0 text-zinc-700 dark:text-zinc-300" aria-hidden />
+                      <div className="min-w-0">
+                        <p className="truncate text-base font-semibold text-zinc-900 dark:text-zinc-100">{agent.display_name}</p>
+                        <p className="mt-0.5 text-xs font-medium text-violet-700 dark:text-violet-300">Role · {agent.role}</p>
+                      </div>
                     </div>
                     <span className={`shrink-0 font-semibold ${BADGE.status} ${linkbotFleetStatusTone(agent.statusLabel)}`}>
                       {agent.statusLabel}
@@ -284,7 +281,7 @@ export default async function WorkersPage(props: { searchParams: Promise<{ view?
 
       {fleet.length > 0 && view === "org" ? (
         <section aria-labelledby="fleet-org-heading">
-          <h2 id="fleet-org-heading" className="text-sm font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+          <h2 id="fleet-org-heading" className="text-sm font-semibold text-zinc-500 dark:text-zinc-400">
             Org
           </h2>
           <p className="mt-1 max-w-2xl text-xs text-zinc-500 dark:text-zinc-400">
@@ -297,7 +294,7 @@ export default async function WorkersPage(props: { searchParams: Promise<{ view?
           </div>
           {orgChart.extraAgents.length > 0 ? (
             <div className="mt-6 rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950">
-              <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Unassigned Agents</p>
+              <p className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Unassigned Agents</p>
               <ul className="mt-2 flex flex-wrap gap-2">
                 {orgChart.extraAgents.map((a) => (
                   <li key={a.id}>

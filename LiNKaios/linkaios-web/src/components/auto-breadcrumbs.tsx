@@ -1,9 +1,20 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { useMemo } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
 
 import { useBreadcrumbLabels } from "@/components/breadcrumb-label-registry";
+import {
+  buildModulesBreadcrumbItems,
+  moduleBreadcrumbHubForAccess,
+  parseModuleProfileId,
+} from "@/lib/modules-page-copy";
+import { useModuleSubscriptions } from "@/hooks/use-module-subscriptions";
+import { resolveSettingsSubpageMeta } from "@/lib/shell-page-meta";
+import { enrichShellBreadcrumbs } from "@/lib/shell-breadcrumb-hubs";
+import { fixtureLicensedByModule } from "@/lib/ui-mocks/modules-catalog-demo";
+import { formatUiLabel, SHELL } from "@/lib/ui-standards";
 
 const STATIC_LABELS: Record<string, string> = {
   work: "Work",
@@ -16,8 +27,21 @@ const STATIC_LABELS: Record<string, string> = {
   skills: "LiNKskills",
   tools: "Tools",
   connectors: "Connectors",
-  modules: "Modules",
-  "project-types": "Project types",
+  modules: "Suites",
+  suites: "Suites",
+  marketplace: "Marketplace",
+  "my-modules": "My Suites",
+  "my-suites": "My Suites",
+  "lexos-litigation": "LEXOS Litigation",
+  "research-development": "Research & Development",
+  "finance-accounting": "Finance & Accounting",
+  "human-resources": "Human Resources",
+  "legal-compliance": "Legal & Compliance",
+  "business-development": "Business Development",
+  "software-development": "Software Development",
+  "content-creation": "Content Creation",
+  "customer-success": "Customer Success",
+  "project-types": "Modules",
   linksites: "LinkSites",
   linkapps: "LiNKapps",
   "linktrend-media": "Linktrend Media",
@@ -32,6 +56,7 @@ const STATIC_LABELS: Record<string, string> = {
   settings: "Settings",
   user: "User",
   access: "Access",
+  platform: "Platform",
   traces: "System logs",
   governance: "Governance",
   devtools: "Devtools",
@@ -59,19 +84,46 @@ function segmentLabel(seg: string, fixtureLabelsInNav: boolean, uuidLabels: Reco
   if (STATIC_LABELS[seg]) return STATIC_LABELS[seg];
   if (UUID_RE.test(seg) && uuidLabels[seg]) return uuidLabels[seg]!;
   if (UUID_RE.test(seg)) return `…${seg.slice(0, 8)}`;
-  return seg;
+  return formatUiLabel(seg.replace(/-/g, " "));
 }
 
 export function AutoBreadcrumbs(props: { fixtureLabelsInNav?: boolean }) {
   const fixtureLabelsInNav = Boolean(props.fixtureLabelsInNav);
   const pathname = usePathname() ?? "/";
+  const searchParams = useSearchParams();
   const uuidLabels = useBreadcrumbLabels();
   const parts = pathname.split("/").filter(Boolean);
+  const fixtureLicensed = useMemo(() => fixtureLicensedByModule(), []);
+  const { accessFor } = useModuleSubscriptions(fixtureLicensed);
+  const moduleProfileId = parseModuleProfileId(pathname);
+  const moduleHubForProfile = moduleProfileId
+    ? moduleBreadcrumbHubForAccess(accessFor(moduleProfileId))
+    : null;
 
   const items: { href?: string; label: string }[] = [];
 
-  if (pathname === "/") {
+  if (pathname === "/memory" || pathname.startsWith("/memory/")) {
+    items.push({ href: "/memory?tab=inbox", label: "LiNKbrain" });
+    if (pathname !== "/memory" && pathname !== "/memory/") {
+      let acc = "";
+      for (let i = 1; i < parts.length; i++) {
+        const seg = parts[i]!;
+        acc += `/${seg}`;
+        items.push({ href: `/memory${acc}`, label: segmentLabel(seg, fixtureLabelsInNav, uuidLabels) });
+      }
+    }
+    enrichShellBreadcrumbs(pathname, searchParams, items);
+  } else if (pathname === "/") {
     items.push({ href: "/", label: "LiNKaios" }, { label: "Overview" });
+  } else if (
+    pathname === "/modules" ||
+    pathname.startsWith("/modules/") ||
+    pathname === "/suites" ||
+    pathname.startsWith("/suites/")
+  ) {
+    items.push(
+      ...buildModulesBreadcrumbItems(pathname, searchParams.get("tab"), uuidLabels, moduleHubForProfile),
+    );
   } else {
     items.push({ href: "/", label: "LiNKaios" });
     let acc = "";
@@ -79,27 +131,31 @@ export function AutoBreadcrumbs(props: { fixtureLabelsInNav?: boolean }) {
       const seg = parts[i]!;
       acc += `/${seg}`;
       let label = segmentLabel(seg, fixtureLabelsInNav, uuidLabels);
+      if (parts[0] === "settings" && i === parts.length - 1) {
+        const meta = resolveSettingsSubpageMeta(acc);
+        if (meta) label = formatUiLabel(meta.title);
+      }
       if (parts[0] === "skills" && i === 1 && seg === "skills") label = "Skills";
       if (parts[0] === "skills" && i === 1 && seg === "tools") label = "Tools";
-      if (parts[0] === "skills" && i === 1 && seg === "connectors") label = "Connectors";
+      if (parts[0] === "skills" && i === 1 && seg === "connectors") label = "Capabilities";
       if (parts[0] === "skills" && i === 1 && seg === "leases") label = "Leases";
-      if (parts[0] === "modules" && seg === "project-types") label = "Project types";
       items.push({ href: acc, label });
     }
+    enrichShellBreadcrumbs(pathname, searchParams, items);
   }
 
   return (
-    <nav aria-label="Breadcrumb" className="mb-6 text-left text-sm text-zinc-500 dark:text-zinc-400">
-      <ol className="flex flex-wrap items-center gap-x-1.5 gap-y-1">
+    <nav aria-label="Breadcrumb" className={SHELL.breadcrumbNav}>
+      <ol className={SHELL.breadcrumbList}>
         {items.map((item, i) => {
           const last = i === items.length - 1;
           return (
             <li key={`${item.href ?? "cur"}-${item.label}-${i}`} className="flex items-center gap-1.5">
-              {i > 0 ? <span className="text-zinc-300 dark:text-zinc-600" aria-hidden>/</span> : null}
+              {i > 0 ? <span className={SHELL.breadcrumbSep} aria-hidden>/</span> : null}
               {last || !item.href ? (
-                <span className="font-medium text-zinc-900 dark:text-zinc-100">{item.label}</span>
+                <span className={SHELL.breadcrumbCurrent}>{item.label}</span>
               ) : (
-                <Link href={item.href} className="text-zinc-500 hover:text-zinc-800 hover:underline dark:text-zinc-400 dark:hover:text-zinc-200">
+                <Link href={item.href} className={SHELL.breadcrumbLink}>
                   {item.label}
                 </Link>
               )}

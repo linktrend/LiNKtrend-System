@@ -36,7 +36,7 @@ export default async function BrainDraftEditPage(props: { params: Promise<{ vers
       <ShellPageHeaderClient
         title="Edit Inbox draft"
         subtitle={file?.logical_path ?? "Draft awaiting approval"}
-        showRefresh={false}
+       
       />
       <p className="text-sm text-zinc-600 dark:text-zinc-400">
         Scope: {file?.scope ?? "—"}

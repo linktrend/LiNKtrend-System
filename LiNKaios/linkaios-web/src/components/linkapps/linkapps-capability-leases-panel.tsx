@@ -1,11 +1,23 @@
 import type { CapabilityLeaseRowFixture } from "@/lib/plugins/linkapps/types";
+import {
+  DataTable,
+  DataTableBody,
+  DataTableHead,
+  DataTableRow,
+  DataTableShell,
+  DT,
+} from "@/components/data-table";
+import { StatusPill } from "@/components/ui/status-pill";
 
-function phaseClass(phase: CapabilityLeaseRowFixture["phase"]): string {
-  const base = "rounded-full px-2 py-0.5 text-[11px] font-medium ";
-  if (phase === "denied") return base + "bg-red-100 text-red-800 dark:bg-red-950/60 dark:text-red-200";
-  if (phase === "executed") return base + "bg-emerald-100 text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-200";
-  if (phase === "granted") return base + "bg-amber-100 text-amber-900 dark:bg-amber-950/40 dark:text-amber-100";
-  return base + "bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-200";
+function leasePhaseTone(phase: CapabilityLeaseRowFixture["phase"]): "danger" | "success" | "warning" | "neutral" {
+  if (phase === "denied") return "danger";
+  if (phase === "executed") return "success";
+  if (phase === "granted") return "warning";
+  return "neutral";
+}
+
+function leasePhaseLabel(phase: CapabilityLeaseRowFixture["phase"]): string {
+  return phase.charAt(0).toUpperCase() + phase.slice(1);
 }
 
 export function LinkappsCapabilityLeasesPanel(props: { leases: CapabilityLeaseRowFixture[] }) {
@@ -20,30 +32,46 @@ export function LinkappsCapabilityLeasesPanel(props: { leases: CapabilityLeaseRo
       <p className="mt-1 text-xs text-zinc-600 dark:text-zinc-400">
         Mock-first posture per WP-108. UI never issues leases in MVO.
       </p>
-      <div className="mt-4 overflow-x-auto">
-        <table className="w-full min-w-[32rem] border-collapse text-left text-xs">
-          <thead>
-            <tr className="border-b border-zinc-200 text-zinc-500 dark:border-zinc-700 dark:text-zinc-400">
-              <th className="py-2 pr-3 font-medium">lease_id</th>
-              <th className="py-2 pr-3 font-medium">SKU label</th>
-              <th className="py-2 pr-3 font-medium">phase</th>
-              <th className="py-2 font-medium">retryable</th>
+      <DataTableShell className="mt-4">
+        <DataTable size="sm">
+          <colgroup>
+            <col className="w-[28%]" />
+            <col className="w-[28%]" />
+            <col className="w-[22%]" />
+            <col className="w-[22%]" />
+          </colgroup>
+          <DataTableHead bordered>
+            <tr>
+              <th className={DT.thText}>Lease id</th>
+              <th className={DT.thText}>SKU label</th>
+              <th className={DT.thControl}>
+                <div className={DT.controlInner}>Phase</div>
+              </th>
+              <th className={DT.thText}>Retryable</th>
             </tr>
-          </thead>
-          <tbody>
+          </DataTableHead>
+          <DataTableBody>
             {props.leases.map((row) => (
-              <tr key={row.leaseId} className="border-b border-zinc-100 dark:border-zinc-800">
-                <td className="py-2 pr-3 font-mono text-[11px] text-zinc-900 dark:text-zinc-100">{row.leaseId}</td>
-                <td className="py-2 pr-3 font-mono text-[11px] text-zinc-800 dark:text-zinc-200">{row.skuLabel}</td>
-                <td className="py-2 pr-3">
-                  <span className={phaseClass(row.phase)}>{row.phase}</span>
+              <DataTableRow key={row.leaseId}>
+                <td className={`${DT.tdClip} font-mono text-[11px] text-zinc-900 dark:text-zinc-100`}>
+                  <span className={DT.tdTextSpan}>{row.leaseId}</span>
                 </td>
-                <td className="py-2 text-zinc-700 dark:text-zinc-300">{row.retryable ? "yes" : "no"}</td>
-              </tr>
+                <td className={`${DT.tdClip} font-mono text-[11px]`}>
+                  <span className={DT.tdTextSpan}>{row.skuLabel}</span>
+                </td>
+                <td className={DT.tdControl}>
+                  <div className={DT.controlInner}>
+                    <StatusPill label={leasePhaseLabel(row.phase)} tone={leasePhaseTone(row.phase)} equalWidth />
+                  </div>
+                </td>
+                <td className={DT.tdClip}>
+                  <span className={DT.tdTextSpan}>{row.retryable ? "yes" : "no"}</span>
+                </td>
+              </DataTableRow>
             ))}
-          </tbody>
-        </table>
-      </div>
+          </DataTableBody>
+        </DataTable>
+      </DataTableShell>
     </section>
   );
 }

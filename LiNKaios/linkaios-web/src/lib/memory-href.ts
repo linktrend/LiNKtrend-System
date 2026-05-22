@@ -13,6 +13,7 @@ export function memoryHref(
     brainAgent?: string;
     org?: string;
     inboxItem?: string;
+    inboxSource?: string;
     inboxSort?: string;
     bKind?: string;
   },
@@ -28,6 +29,7 @@ export function memoryHref(
   if (o.brainAgent?.trim()) p.set("b_agent", o.brainAgent.trim());
   if (o.org?.trim()) p.set("org", o.org.trim());
   if (o.inboxItem?.trim()) p.set("inbox_item", o.inboxItem.trim());
+  if (o.inboxSource?.trim()) p.set("inbox_source", o.inboxSource.trim());
   if (o.inboxSort === "asc") p.set("inbox_sort", "asc");
   if (o.bKind?.trim()) p.set("b_kind", o.bKind.trim());
   return `/memory?${p.toString()}`;

@@ -2,8 +2,10 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
+import { CreditCard, ShieldCheck } from "lucide-react";
 
 import { saveAgentRuntimeSettingsAction } from "@/app/(shell)/workers/[id]/runtime-settings-actions";
+import { TitledCardHeader } from "@/components/titled-card-header";
 import {
   APPROVED_MODEL_CATALOG,
   MODEL_CATEGORY_LABELS,
@@ -11,7 +13,8 @@ import {
   type AgentRuntimeSettings,
   type ModelCategoryId,
 } from "@/lib/agent-runtime-settings";
-import { BUTTON, FIELD } from "@/lib/ui-standards";
+import { InsetSelect } from "@/components/forms";
+import { BUTTON, CARD, FIELD, formatCardTitle } from "@/lib/ui-standards";
 
 const PRIMARY_MODEL_ROWS: ModelCategoryId[] = ["heartbeat", "context_lt_100k", "context_gt_100k", "execution"];
 
@@ -27,9 +30,10 @@ function ModelSelect(props: {
   const cloud = APPROVED_MODEL_CATALOG.filter((m) => m.kind === "cloud");
   const local = APPROVED_MODEL_CATALOG.filter((m) => m.kind === "local");
   return (
-    <select
+    <InsetSelect
+      fullWidth={false}
       disabled={props.disabled}
-      className="max-w-[14rem] rounded-lg border border-zinc-200 bg-white px-2.5 py-1.5 text-sm text-zinc-900 shadow-sm disabled:opacity-60 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100 sm:max-w-[15rem]"
+      className="w-[15rem] max-w-full"
       value={props.value}
       onChange={(e) => props.onChange(e.target.value)}
     >
@@ -47,7 +51,7 @@ function ModelSelect(props: {
           </option>
         ))}
       </optgroup>
-    </select>
+    </InsetSelect>
   );
 }
 
@@ -69,9 +73,10 @@ function NullableModelSelect(props: {
           { label: "Local (no API cost)", items: local },
         ];
   return (
-    <select
+    <InsetSelect
+      fullWidth={false}
       disabled={props.disabled}
-      className="max-w-[14rem] rounded-lg border border-zinc-200 bg-white px-2.5 py-1.5 text-sm text-zinc-900 shadow-sm disabled:opacity-60 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100 sm:max-w-[15rem]"
+      className="w-[15rem] max-w-full"
       value={props.value ?? ""}
       onChange={(e) => {
         const v = e.target.value;
@@ -88,13 +93,13 @@ function NullableModelSelect(props: {
           ))}
         </optgroup>
       ))}
-    </select>
+    </InsetSelect>
   );
 }
 
-function CategoryPill(props: { label: string }) {
+function CategoryLabel(props: { label: string }) {
   return (
-    <span className="inline-flex shrink-0 rounded-full bg-zinc-100 px-2.5 py-0.5 text-xs font-medium text-zinc-800 dark:bg-zinc-800 dark:text-zinc-200">
+    <span className="min-w-0 text-sm font-medium text-zinc-800 dark:text-zinc-200 sm:w-40 sm:shrink-0">
       {props.label}
     </span>
   );
@@ -172,7 +177,7 @@ export function AgentModelsForm(props: { agentId: string; initial: AgentRuntimeS
   };
 
   return (
-    <div className="max-w-2xl space-y-6">
+    <div className="space-y-6">
       <p className="text-sm text-zinc-600 dark:text-zinc-400">
         Model selection for the LiNKbot and token usage limits.
       </p>
@@ -186,134 +191,144 @@ export function AgentModelsForm(props: { agentId: string; initial: AgentRuntimeS
 
       <ul className="divide-y divide-zinc-200 dark:divide-zinc-800">
         {PRIMARY_MODEL_ROWS.map((key) => (
-          <li key={key} className="flex flex-col gap-2 py-3 first:pt-0 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
-            <div className="flex min-w-0 flex-wrap items-center gap-2">
-              <CategoryPill label={MODEL_CATEGORY_LABELS[key]} />
+          <li key={key} className="flex flex-col gap-2 py-3 first:pt-0 sm:flex-row sm:items-center sm:gap-4">
+            <CategoryLabel label={MODEL_CATEGORY_LABELS[key]} />
+            <div className="flex min-w-0 items-center gap-2 sm:ml-auto">
               <KindBadge modelId={state.models.primary[key]} />
+              <ModelSelect
+                disabled={props.readonly || pending}
+                value={state.models.primary[key]}
+                onChange={(v) => setPrimary(key, v)}
+              />
             </div>
-            <ModelSelect
-              disabled={props.readonly || pending}
-              value={state.models.primary[key]}
-              onChange={(v) => setPrimary(key, v)}
-            />
           </li>
         ))}
-        <li className="flex flex-col gap-2 py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
-          <div className="flex min-w-0 flex-wrap items-center gap-2">
-            <CategoryPill label="Fallback (Cloud)" />
+        <li className="flex flex-col gap-2 py-3 sm:flex-row sm:items-center sm:gap-4">
+          <CategoryLabel label="Fallback (Cloud)" />
+          <div className="flex min-w-0 items-center gap-2 sm:ml-auto">
             {state.models.fallbackOnline ? (
               <KindBadge modelId={state.models.fallbackOnline} />
             ) : (
-              <span className="text-[10px] font-medium text-zinc-500">None</span>
+              <span className="shrink-0 text-[10px] font-medium text-zinc-500">None</span>
             )}
+            <NullableModelSelect
+              disabled={props.readonly || pending}
+              cloudOnly
+              value={state.models.fallbackOnline}
+              onChange={(v) => setModels({ fallbackOnline: v })}
+            />
           </div>
-          <NullableModelSelect
-            disabled={props.readonly || pending}
-            cloudOnly
-            value={state.models.fallbackOnline}
-            onChange={(v) => setModels({ fallbackOnline: v })}
-          />
         </li>
-        <li className="flex flex-col gap-2 py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
-          <div className="flex min-w-0 flex-wrap items-center gap-2">
-            <CategoryPill label="Fallback (Local)" />
+        <li className="flex flex-col gap-2 py-3 sm:flex-row sm:items-center sm:gap-4">
+          <CategoryLabel label="Fallback (Local)" />
+          <div className="flex min-w-0 items-center gap-2 sm:ml-auto">
             {state.models.fallbackLocal ? (
               <KindBadge modelId={state.models.fallbackLocal} />
             ) : (
-              <span className="text-[10px] font-medium text-zinc-500">None</span>
+              <span className="shrink-0 text-[10px] font-medium text-zinc-500">None</span>
             )}
+            <NullableModelSelect
+              disabled={props.readonly || pending}
+              localOnly
+              value={state.models.fallbackLocal}
+              onChange={(v) => setModels({ fallbackLocal: v })}
+            />
           </div>
-          <NullableModelSelect
-            disabled={props.readonly || pending}
-            localOnly
-            value={state.models.fallbackLocal}
-            onChange={(v) => setModels({ fallbackLocal: v })}
-          />
         </li>
       </ul>
 
-      <fieldset className="space-y-3 rounded-xl border border-zinc-200 p-4 dark:border-zinc-800">
-        <legend className="px-1 text-sm font-semibold text-zinc-900 dark:text-zinc-100">Cloud token spend</legend>
-        <p className="text-xs text-zinc-600 dark:text-zinc-400">
-          Alert when usage crosses the threshold; hard cap stops further cloud calls so the worker can use local models.
-        </p>
-        <label className="flex max-w-xs flex-col gap-1">
-          <span className="text-sm font-medium text-zinc-800 dark:text-zinc-200">Alert threshold (tokens)</span>
-          <input
-            type="number"
-            min={0}
-            step={1}
-            disabled={props.readonly || pending}
-            placeholder="e.g. 500000"
-            className={FIELD.controlCompact}
-            value={state.cloudSpend.tokenAlertThreshold ?? ""}
-            onChange={(e) => {
-              const v = e.target.value;
-              if (v === "") {
-                setSpend({ tokenAlertThreshold: null });
-                return;
-              }
-              const n = Number(v);
-              setSpend({ tokenAlertThreshold: Number.isFinite(n) && n >= 0 ? Math.floor(n) : null });
-            }}
-          />
-        </label>
-        <label className="flex max-w-xs flex-col gap-1">
-          <span className="text-sm font-medium text-zinc-800 dark:text-zinc-200">Hard cap (tokens)</span>
-          <input
-            type="number"
-            min={0}
-            step={1}
-            disabled={props.readonly || pending}
-            placeholder="e.g. 2000000"
-            className={FIELD.controlCompact}
-            value={state.cloudSpend.tokenHardCap ?? ""}
-            onChange={(e) => {
-              const v = e.target.value;
-              if (v === "") {
-                setSpend({ tokenHardCap: null });
-                return;
-              }
-              const n = Number(v);
-              setSpend({ tokenHardCap: Number.isFinite(n) && n >= 0 ? Math.floor(n) : null });
-            }}
-          />
-        </label>
-      </fieldset>
+      <section className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
+        <TitledCardHeader
+          icon={CreditCard}
+          title={formatCardTitle("Cloud token spend")}
+          description="Alert when usage crosses the threshold; hard cap stops further cloud calls so the worker can use local models."
+          titleClassName={CARD.titleMd}
+        />
+        <div className="mt-4 space-y-3">
+          <label className="flex max-w-xs flex-col gap-1">
+            <span className="text-sm font-medium text-zinc-800 dark:text-zinc-200">Alert threshold (tokens)</span>
+            <input
+              type="number"
+              min={0}
+              step={1}
+              disabled={props.readonly || pending}
+              placeholder="e.g. 500000"
+              className={FIELD.controlCompact}
+              value={state.cloudSpend.tokenAlertThreshold ?? ""}
+              onChange={(e) => {
+                const v = e.target.value;
+                if (v === "") {
+                  setSpend({ tokenAlertThreshold: null });
+                  return;
+                }
+                const n = Number(v);
+                setSpend({ tokenAlertThreshold: Number.isFinite(n) && n >= 0 ? Math.floor(n) : null });
+              }}
+            />
+          </label>
+          <label className="flex max-w-xs flex-col gap-1">
+            <span className="text-sm font-medium text-zinc-800 dark:text-zinc-200">Hard cap (tokens)</span>
+            <input
+              type="number"
+              min={0}
+              step={1}
+              disabled={props.readonly || pending}
+              placeholder="e.g. 2000000"
+              className={FIELD.controlCompact}
+              value={state.cloudSpend.tokenHardCap ?? ""}
+              onChange={(e) => {
+                const v = e.target.value;
+                if (v === "") {
+                  setSpend({ tokenHardCap: null });
+                  return;
+                }
+                const n = Number(v);
+                setSpend({ tokenHardCap: Number.isFinite(n) && n >= 0 ? Math.floor(n) : null });
+              }}
+            />
+          </label>
+        </div>
+      </section>
 
-      <fieldset className="space-y-3 rounded-xl border border-zinc-200 p-4 dark:border-zinc-800">
-        <legend className="px-1 text-sm font-semibold text-zinc-900 dark:text-zinc-100">Resilience behaviour</legend>
-        <label className="flex items-start gap-2 text-sm text-zinc-800 dark:text-zinc-200">
-          <input
-            type="checkbox"
-            disabled={props.readonly || pending}
-            checked={state.behavior.autoFallbackOnlineOnPrimaryError}
-            onChange={(e) => setBehavior({ autoFallbackOnlineOnPrimaryError: e.target.checked })}
-            className="mt-1"
-          />
-          <span>Automatically try the fallback online model when the primary cloud model errors.</span>
-        </label>
-        <label className="flex items-start gap-2 text-sm text-zinc-800 dark:text-zinc-200">
-          <input
-            type="checkbox"
-            disabled={props.readonly || pending}
-            checked={state.behavior.forceLocalOnHardCap}
-            onChange={(e) => setBehavior({ forceLocalOnHardCap: e.target.checked })}
-            className="mt-1"
-          />
-          <span>When the cloud token hard cap is reached, stop cloud models and use local fallbacks only.</span>
-        </label>
-        <label className="flex items-start gap-2 text-sm text-zinc-800 dark:text-zinc-200">
-          <input
-            type="checkbox"
-            disabled={props.readonly || pending}
-            checked={state.behavior.cascadeToLocalOnCloudFailure}
-            onChange={(e) => setBehavior({ cascadeToLocalOnCloudFailure: e.target.checked })}
-            className="mt-1"
-          />
-          <span>If all cloud options fail or are exhausted, cascade to the local fallback model.</span>
-        </label>
-      </fieldset>
+      <section className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
+        <TitledCardHeader
+          icon={ShieldCheck}
+          title={formatCardTitle("Resilience behaviour")}
+          titleClassName={CARD.titleMd}
+        />
+        <div className="mt-4 space-y-3">
+          <label className="flex items-start gap-2 text-sm text-zinc-800 dark:text-zinc-200">
+            <input
+              type="checkbox"
+              disabled={props.readonly || pending}
+              checked={state.behavior.autoFallbackOnlineOnPrimaryError}
+              onChange={(e) => setBehavior({ autoFallbackOnlineOnPrimaryError: e.target.checked })}
+              className="mt-1"
+            />
+            <span>Automatically try the fallback online model when the primary cloud model errors.</span>
+          </label>
+          <label className="flex items-start gap-2 text-sm text-zinc-800 dark:text-zinc-200">
+            <input
+              type="checkbox"
+              disabled={props.readonly || pending}
+              checked={state.behavior.forceLocalOnHardCap}
+              onChange={(e) => setBehavior({ forceLocalOnHardCap: e.target.checked })}
+              className="mt-1"
+            />
+            <span>When the cloud token hard cap is reached, stop cloud models and use local fallbacks only.</span>
+          </label>
+          <label className="flex items-start gap-2 text-sm text-zinc-800 dark:text-zinc-200">
+            <input
+              type="checkbox"
+              disabled={props.readonly || pending}
+              checked={state.behavior.cascadeToLocalOnCloudFailure}
+              onChange={(e) => setBehavior({ cascadeToLocalOnCloudFailure: e.target.checked })}
+              className="mt-1"
+            />
+            <span>If all cloud options fail or are exhausted, cascade to the local fallback model.</span>
+          </label>
+        </div>
+      </section>
 
       {message ? (
         <p className={message === "Saved." ? "text-sm text-emerald-700 dark:text-emerald-400" : "text-sm text-red-600"}>

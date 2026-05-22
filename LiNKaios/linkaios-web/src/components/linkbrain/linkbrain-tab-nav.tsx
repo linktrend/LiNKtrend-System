@@ -2,17 +2,10 @@
 
 import Link from "next/link";
 
+import { LINKBRAIN_NAV_TABS } from "@/lib/memory-nav";
 import { memoryHref } from "@/lib/memory-href";
 import type { LinkbrainTab } from "@/lib/linkbrain-data";
 import { screenTabLinkClass, TABS } from "@/lib/ui-standards";
-
-const TABS_LIST: { id: LinkbrainTab; label: string }[] = [
-  { id: "inbox", label: "Inbox" },
-  { id: "project", label: "Project Memory" },
-  { id: "agent", label: "LiNKbot Memory" },
-  { id: "company", label: "Company Memory" },
-  { id: "ask", label: "Ask LiNKbrain" },
-];
 
 export function LinkbrainTabNav(props: {
   active: LinkbrainTab;
@@ -38,7 +31,7 @@ export function LinkbrainTabNav(props: {
 
   return (
     <nav className={TABS.row} aria-label="LiNKbrain sections">
-      {TABS_LIST.map((t) => (
+      {LINKBRAIN_NAV_TABS.map((t) => (
         <Link key={t.id} href={memoryHref(t.id, q)} className={screenTabLinkClass(props.active === t.id)}>
           {t.label}
         </Link>

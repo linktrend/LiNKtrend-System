@@ -18,9 +18,9 @@ export default async function WorkerSettingsPage(props: { params: Promise<{ id: 
       <section className="space-y-4">
         <WorkerTabSectionHeader
           title="Settings"
-          subtitle="Profile, gateway binding, and runtime policy for this LiNKbot. Demo data below is illustrative only."
+          subtitle="Profile, LiNKbrain personality files, and runtime policy for this LiNKbot."
         />
-        <AgentSettingsForm agentId={id} initial={initial} readonly />
+        <AgentSettingsForm agentId={id} initial={initial} readonly={isDemoAgentId(id)} />
       </section>
     );
   }
@@ -31,7 +31,7 @@ export default async function WorkerSettingsPage(props: { params: Promise<{ id: 
   if (error || !agent) {
     return (
       <section className="space-y-4">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-zinc-500">Settings</h2>
+        <h2 className="text-sm font-semibold text-zinc-500 dark:text-zinc-400">Settings</h2>
         <p className="max-w-xl text-sm text-zinc-600 dark:text-zinc-400">
           Settings could not be loaded for this id. Confirm the LiNKbot exists in{" "}
           <code className="rounded bg-zinc-100 px-1 text-xs dark:bg-zinc-800">linkaios.agents</code> and that your account
@@ -49,7 +49,7 @@ export default async function WorkerSettingsPage(props: { params: Promise<{ id: 
   return (
     <section className="space-y-4">
       <div>
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-zinc-500">Settings</h2>
+        <h2 className="text-sm font-semibold text-zinc-500 dark:text-zinc-400">Settings</h2>
         <p className="mt-1 max-w-2xl text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">Basic LiNKbot settings.</p>
       </div>
       <AgentSettingsForm agentId={id} initial={initial} />

@@ -58,7 +58,7 @@ export function NewBrainDraftForm(props: {
       <input type="hidden" name="logicalPath" value={logicalPath} />
 
       <div>
-        <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+        <label className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">
           Legal entity
         </label>
         <select
@@ -75,7 +75,7 @@ export function NewBrainDraftForm(props: {
       </div>
 
       <div>
-        <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+        <label className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">
           Sensitivity
         </label>
         <select
@@ -91,7 +91,7 @@ export function NewBrainDraftForm(props: {
       </div>
 
       <div>
-        <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+        <label className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">
           Document kind
         </label>
         <select
@@ -108,7 +108,7 @@ export function NewBrainDraftForm(props: {
       </div>
 
       <div>
-        <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Scope</label>
+        <label className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Scope</label>
         <select
           name="scope"
           value={scope}
@@ -129,7 +129,7 @@ export function NewBrainDraftForm(props: {
       </div>
 
       <div>
-        <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+        <label className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">
           Virtual file path
         </label>
         <select
@@ -161,7 +161,7 @@ export function NewBrainDraftForm(props: {
 
       {scope === "mission" ?
         <div>
-          <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+          <label className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">
             Project
           </label>
           <select
@@ -190,7 +190,7 @@ export function NewBrainDraftForm(props: {
 
       {scope === "agent" ?
         <div>
-          <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+          <label className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">
             LiNKbot
           </label>
           <select
@@ -218,7 +218,7 @@ export function NewBrainDraftForm(props: {
       )}
 
       <div>
-        <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+        <label className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">
           Initial body (markdown)
         </label>
         <textarea

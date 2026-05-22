@@ -7,7 +7,6 @@ export default async function SettingsTracesPage(props: {
 }) {
   return (
     <div>
-      <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">System logs</h2>
       <TracesView searchParams={props.searchParams} basePath="/settings/traces" />
     </div>
   );

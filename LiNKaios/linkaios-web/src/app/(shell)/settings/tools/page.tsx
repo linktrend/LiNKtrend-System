@@ -1,5 +1,7 @@
 import Link from "next/link";
+import { BookOpen, Clock } from "lucide-react";
 
+import { TitledCardHeader } from "@/components/titled-card-header";
 import { isCommandCentreAdmin } from "@/lib/command-centre-access";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -42,25 +44,18 @@ export default async function SettingsToolsPage() {
 
   return (
     <main className="space-y-8">
-      <header>
-        <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">Tool permissions</h2>
-        <p className="mt-2 max-w-2xl text-sm text-zinc-600 dark:text-zinc-400">
-          Control which tools are allowed for the organization, which defaults apply when no project is selected, and how
-          project-level requests flow. Only <strong>admins</strong> can change org-wide policy.
+      {!isAdmin ? (
+        <p className="text-sm text-amber-800">
+          Signed in as non-admin — org allowlist controls are read-only. Request an admin role in{" "}
+          <Link href="/settings/access" className="underline">
+            Team &amp; permissions
+          </Link>
+          .
         </p>
-        {!isAdmin ? (
-          <p className="mt-3 text-sm text-amber-800">
-            Signed in as non-admin — org allowlist controls are read-only. Request an admin role in{" "}
-            <Link href="/settings/user#team-permissions" className="underline">
-              Team &amp; permissions
-            </Link>
-            .
-          </p>
-        ) : null}
-      </header>
+      ) : null}
 
       <section className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm">
-        <h3 className="text-sm font-semibold uppercase tracking-wide text-zinc-500">Catalog</h3>
+        <TitledCardHeader icon={BookOpen} title="Catalog" titleClassName="text-sm font-semibold text-zinc-500 dark:text-zinc-400" />
         <ul className="mt-4 divide-y divide-zinc-100 rounded-lg border border-zinc-100">
           {(tools ?? []).map((t: ToolRow) => (
             <li key={t.id} className="flex flex-wrap items-center justify-between gap-2 px-3 py-2.5 text-sm">
@@ -130,8 +125,12 @@ export default async function SettingsToolsPage() {
       </section>
 
       <section className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm">
-        <h3 className="text-sm font-semibold uppercase tracking-wide text-zinc-500">Org-wide pending (no mission)</h3>
-        <p className="mt-1 text-xs text-zinc-600">Runtime-block approvals that target org allowlist appear here when created.</p>
+        <TitledCardHeader
+          icon={Clock}
+          title="Org-Wide Pending (No Project)"
+          description="Runtime-block approvals that target org allowlist appear here when created."
+          titleClassName="text-sm font-semibold text-zinc-500 dark:text-zinc-400"
+        />
         <ul className="mt-3 text-sm text-zinc-700">
           {(pendingOrg ?? []).length === 0 ? (
             <li className="text-zinc-500">None.</li>
@@ -144,7 +143,7 @@ export default async function SettingsToolsPage() {
           )}
         </ul>
         <p className="mt-4 text-xs text-zinc-500">
-          Approve org-level requests from the database RPC or extend this page with the same buttons as mission Tools.
+          Approve org-level requests from the database RPC or extend this page with the same buttons as project Tools.
         </p>
       </section>
     </main>

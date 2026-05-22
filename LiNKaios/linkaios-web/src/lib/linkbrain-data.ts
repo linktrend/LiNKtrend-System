@@ -6,7 +6,6 @@ import {
   listBrainVirtualFilesByScopeAndOrgTag,
   listMemoryEntries,
   listMissions,
-  type BrainInboxItemType,
   type BrainInboxRow,
   type BrainLegalEntityRow,
   type BrainOrgNodeRow,
@@ -15,11 +14,12 @@ import {
   type BrainVirtualFileRow,
   type MemoryEntryRow,
 } from "@linktrend/linklogic-sdk";
+import { inboxItemMatchesSource, type InboxSubmissionSource } from "@/components/linkbrain/linkbrain-labels";
 import type { MissionRecord } from "@linktrend/shared-types";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 /** Primary LiNKbrain workspace tabs (legacy `overview` / `library` query values map to Inbox in the page parser). */
-export type LinkbrainTab = "inbox" | "project" | "agent" | "company" | "ask";
+export type LinkbrainTab = "inbox" | "project" | "agent" | "company" | "ask" | "audit" | "orgScope";
 
 export type MissionMemoryRow = {
   mission: MissionRecord;
@@ -80,7 +80,7 @@ export async function loadLinkbrainPageData(
     brainMissionId?: string;
     brainAgentId?: string;
     orgNodeId?: string;
-    inboxItemType?: BrainInboxItemType | null;
+    inboxSource?: Exclude<InboxSubmissionSource, "all"> | null;
     inboxSort?: "asc" | "desc";
     brainFileKindFilter?: string | null;
   },
@@ -193,17 +193,23 @@ export async function loadLinkbrainPageData(
   if (params.tab === "inbox") {
     const { data, error } = await listBrainDraftsForInbox(supabase, {
       limit: 120,
-      inboxItemType: params.inboxItemType ?? null,
+      inboxItemType: null,
       sort: params.inboxSort === "asc" ? "asc" : "desc",
     });
     if (error) brainMetaError = error.message;
-    else brainDrafts = data;
+    else {
+      brainDrafts = data;
+      if (params.inboxSource) {
+        brainDrafts = brainDrafts.filter((d) => inboxItemMatchesSource(d.inbox_item_type, params.inboxSource!));
+      }
+    }
   }
 
   let orgNodes: BrainOrgNodeRow[] = [];
   let legalEntities: BrainLegalEntityRow[] = [];
   let orgMetaError: string | null = null;
-  const needOrg = params.tab === "company" || params.tab === "project" || params.tab === "agent";
+  const needOrg =
+    params.tab === "company" || params.tab === "project" || params.tab === "agent" || params.tab === "orgScope";
   if (needOrg) {
     const [oRes, lRes] = await Promise.all([listBrainOrgNodes(supabase), listBrainLegalEntities(supabase)]);
     if (oRes.error) orgMetaError = oRes.error.message;

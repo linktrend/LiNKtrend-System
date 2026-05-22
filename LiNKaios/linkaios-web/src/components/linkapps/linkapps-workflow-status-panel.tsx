@@ -70,19 +70,19 @@ export function LinkappsWorkflowStatusPanel(props: {
 
       <div className="mt-6 space-y-6">
         <div>
-          <h3 className="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Build logs</h3>
+          <h3 className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Build logs</h3>
           <div className="mt-2">
             <LogList title="build" lines={props.buildLogs} />
           </div>
         </div>
         <div>
-          <h3 className="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Validation</h3>
+          <h3 className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Validation</h3>
           <div className="mt-2">
             <LogList title="validation" lines={props.validationLines} />
           </div>
         </div>
         <div>
-          <h3 className="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Deployment history</h3>
+          <h3 className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Deployment history</h3>
           <div className="mt-2">
             <LogList title="deployment" lines={props.deploymentLines} />
           </div>

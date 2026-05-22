@@ -1,6 +1,13 @@
 import Link from "next/link";
 
 import {
+  DataTable,
+  DataTableBody,
+  DataTableHead,
+  DataTableShell,
+  DT,
+} from "@/components/data-table";
+import {
   commandCentreRoleLabel,
   getCommandCentreRoleForUser,
   getEffectiveCommandCentreRole,
@@ -8,7 +15,7 @@ import {
 } from "@/lib/command-centre-access";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { TABLE } from "@/lib/ui-standards";
+import { formatUiLabel } from "@/lib/ui-standards";
 
 import { RoleRowForm } from "./role-row-form";
 
@@ -34,8 +41,8 @@ export async function TeamPermissionsSection() {
   if (!allowed) {
     return (
       <p className="max-w-xl text-sm text-zinc-600 dark:text-zinc-400">
-        Only workspace <strong>Admins</strong> can change roles here. Ask an Admin if you need a different level of
-        access.
+        Only workspace <strong>Admins</strong> can assign roles on this tab. Review allowed capabilities on the{" "}
+        <strong>Role permissions</strong> tab, or ask an Admin if you need a different level of access.
       </p>
     );
   }
@@ -91,25 +98,33 @@ export async function TeamPermissionsSection() {
         not appear in this human-user table.
       </p>
 
-      <div className="overflow-x-auto rounded-lg border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
-        <table className="min-w-full text-left text-sm">
-          <thead className="bg-zinc-100 text-xs font-medium uppercase tracking-wide text-zinc-600 dark:bg-zinc-900 dark:text-zinc-400">
+      <DataTableShell scrollableBody>
+        <DataTable>
+          <colgroup>
+            <col className="w-[32%]" />
+            <col className="w-[18%]" />
+            <col className="w-[28%]" />
+            <col className="w-[22%]" />
+          </colgroup>
+          <DataTableHead>
             <tr>
-              <th className={`px-3 py-2 ${TABLE.thText}`}>User id</th>
-              <th className={`px-3 py-2 ${TABLE.thText}`}>Email</th>
-              <th className={`px-3 py-2 ${TABLE.thText}`}>Assigned role</th>
-              <th className={`px-3 py-2 ${TABLE.thControl}`}>
-                <div className={TABLE.thControlInner}>Actions</div>
+              <th className={DT.thTextInset}>Email</th>
+              <th className={DT.thTextInset}>Current role</th>
+              <th className={DT.thControl}>
+                <div className={DT.controlInner}>{formatUiLabel("Role")}</div>
+              </th>
+              <th className={DT.thControl}>
+                <div className={DT.controlInner}>{formatUiLabel("Save")}</div>
               </th>
             </tr>
-          </thead>
-          <tbody>
+          </DataTableHead>
+          <DataTableBody>
             {rows.map((row) => (
               <RoleRowForm key={row.userId} row={row} />
             ))}
-          </tbody>
-        </table>
-      </div>
+          </DataTableBody>
+        </DataTable>
+      </DataTableShell>
     </div>
   );
 }

@@ -35,7 +35,7 @@ export default async function WorkerModelsPage(props: { params: Promise<{ id: st
   if (error || !agent) {
     return (
       <section className="space-y-4">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-zinc-500">Models</h2>
+        <h2 className="text-sm font-semibold text-zinc-500 dark:text-zinc-400">Models</h2>
         <p className="max-w-xl text-sm text-zinc-600 dark:text-zinc-400">
           Models could not be loaded for this id. Confirm the LiNKbot exists and your account can read{" "}
           <code className="rounded bg-zinc-100 px-1 text-xs dark:bg-zinc-800">linkaios.agents</code>.
@@ -51,7 +51,10 @@ export default async function WorkerModelsPage(props: { params: Promise<{ id: st
 
   return (
     <section className="space-y-4">
-      <h2 className="text-sm font-semibold uppercase tracking-wide text-zinc-500">Models</h2>
+      <WorkerTabSectionHeader
+        title="Models"
+        subtitle="Model selection for this LiNKbot, plus spend limits and fallback behaviour."
+      />
       <AgentModelsForm agentId={id} initial={initial} />
     </section>
   );

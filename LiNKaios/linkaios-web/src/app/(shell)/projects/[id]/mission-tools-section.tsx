@@ -88,7 +88,7 @@ export async function MissionToolsSection(props: {
     <div className="space-y-8">
       {isAdmin ? (
         <section className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-zinc-500">Project lead</h2>
+          <h2 className="text-sm font-semibold text-zinc-500 dark:text-zinc-400">Project lead</h2>
           <p className="mt-1 max-w-2xl text-xs text-zinc-600 sm:text-sm">
             Some tool changes need sign-off from this lead as well as an organization admin.
           </p>
@@ -115,7 +115,7 @@ export async function MissionToolsSection(props: {
       ) : null}
 
       <section className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-zinc-500">Allowed tools</h2>
+        <h2 className="text-sm font-semibold text-zinc-500 dark:text-zinc-400">Allowed tools</h2>
         <p className="mt-1 max-w-2xl text-xs text-zinc-600 sm:text-sm">Tools this project may use after approvals complete.</p>
         {bErr ? (
           <p className="mt-3 text-sm text-amber-800 dark:text-amber-200">Allowed tools could not be loaded.</p>
@@ -143,7 +143,7 @@ export async function MissionToolsSection(props: {
       </section>
 
       <section className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-zinc-500">Add tool</h2>
+        <h2 className="text-sm font-semibold text-zinc-500 dark:text-zinc-400">Add tool</h2>
         <p className="mt-1 text-xs text-zinc-600 sm:text-sm">Pick from organization-allowed catalog tools not yet on this project.</p>
         {picker.length === 0 ? (
           <p className="mt-3 text-sm text-zinc-500">No eligible tools to add.</p>
@@ -168,7 +168,7 @@ export async function MissionToolsSection(props: {
       </section>
 
       <section className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-zinc-500">Pending approvals</h2>
+        <h2 className="text-sm font-semibold text-zinc-500 dark:text-zinc-400">Pending approvals</h2>
         {pErr ? (
           <p className="mt-3 text-sm text-amber-800 dark:text-amber-200">Pending approvals could not be loaded.</p>
         ) : null}

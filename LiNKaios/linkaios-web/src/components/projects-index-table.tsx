@@ -1,212 +1,191 @@
 "use client";
 
-import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { Check, ExternalLink, Eye, Loader2, RefreshCw } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
 
-import { projectStatusDisplay } from "@/lib/project-status-ui";
-import { BUTTON, STACK, TABLE } from "@/lib/ui-standards";
+import {
+  DataTable,
+  DataTableBody,
+  DataTableEmptyRow,
+  DataTableHead,
+  DataTableIconAction,
+  DataTableRow,
+  DataTableShell,
+  DT,
+} from "@/components/data-table";
+import type { ProjectIndexRow } from "@/lib/project-index-rows";
+import { TABLE_COLUMN } from "@/lib/ui-standards";
 
-export type ProjectRowModal = {
-  id: string;
+/** @deprecated Use ProjectIndexRow */
+export type ProjectRowModal = ProjectIndexRow;
+
+type SyncState = "synced" | "pending" | "syncing";
+
+function PlaneSyncControl(props: {
+  status: SyncState;
   title: string;
-  status: string;
-  moduleName: string;
-  projectTypeName: string;
-  workflowName: string;
-  activeIssue: string;
-  approvalGate: string;
-  planeSyncStatus: "synced" | "pending";
-  leadLabel: string;
-  leadHref: string | null;
-  planeRowHref: string | null;
-  code: string;
-  cycle: string;
-  open: number;
-  blockers: number;
-  updated: string;
-  hasBridge: boolean;
-};
+  onSync: () => void;
+}) {
+  if (props.status === "synced") {
+    return (
+      <span title="Synced to Plane">
+        <Check className="h-5 w-5 text-emerald-600 dark:text-emerald-400" aria-label="Synced to Plane" />
+      </span>
+    );
+  }
 
-function activitySummary(open: number, blockers: number, hasBridge: boolean) {
-  if (!hasBridge) return "Activity not synced yet";
-  if (blockers > 0) return `${open} open · ${blockers} blocker(s)`;
-  if (open > 0) return `${open} open items`;
-  return "Clear — no open items";
-}
-
-export function ProjectsIndexTable(props: { rows: ProjectRowModal[]; planeWorkspaceHref: string | null }) {
-  const [open, setOpen] = useState<ProjectRowModal | null>(null);
-  const dlg = useRef<HTMLDialogElement>(null);
-
-  useEffect(() => {
-    const el = dlg.current;
-    if (!el) return;
-    if (open) {
-      el.showModal();
-    } else if (el.open) {
-      el.close();
-    }
-  }, [open]);
+  if (props.status === "syncing") {
+    return (
+      <span title="Syncing with Plane…">
+        <Loader2
+          className="h-5 w-5 animate-spin text-zinc-500 dark:text-zinc-400"
+          aria-label="Syncing with Plane"
+        />
+      </span>
+    );
+  }
 
   return (
-    <>
-      <div className="mt-4 overflow-x-auto rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
-        <table className="min-w-[720px] w-full divide-y divide-zinc-200 text-left text-sm dark:divide-zinc-800">
-          <thead className="bg-zinc-50 text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:bg-zinc-900 dark:text-zinc-400">
-            <tr>
-              <th className={`px-4 py-3 ${TABLE.thText}`}>Name</th>
-              <th className={`px-4 py-3 ${TABLE.thText}`}>Module</th>
-              <th className={`px-4 py-3 ${TABLE.thText}`}>Project type</th>
-              <th className={`px-4 py-3 ${TABLE.thControl}`}>
-                <div className={TABLE.thControlInner}>Plane</div>
-              </th>
-              <th className={`px-4 py-3 ${TABLE.thText}`}>Workflow / Issue</th>
-              <th className={`px-4 py-3 ${TABLE.thText}`}>Approval</th>
-              <th className={`px-4 py-3 ${TABLE.thText}`}>LiNKbot</th>
-              <th className={`px-4 py-3 ${TABLE.thText}`}>Plane sync</th>
-              <th className={`px-4 py-3 ${TABLE.thControl}`}>
-                <div className={TABLE.thControlInner}>Details</div>
-              </th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800">
-            {props.rows.map((r) => (
-              <tr key={r.id} className="text-zinc-800 hover:bg-zinc-50/80 dark:text-zinc-200 dark:hover:bg-zinc-900/60">
-                <td className="px-4 py-3">
-                  <Link
-                    href={`/projects/${encodeURIComponent(r.id)}`}
-                    className="font-semibold text-zinc-900 underline-offset-2 hover:underline dark:text-zinc-100"
-                  >
-                    {r.title}
-                  </Link>
-                </td>
-                <td className="px-4 py-3 text-zinc-700 dark:text-zinc-300">{r.moduleName}</td>
-                <td className="px-4 py-3 text-zinc-700 dark:text-zinc-300">{r.projectTypeName}</td>
-                <td className={`px-4 py-3 ${TABLE.thControl}`}>
-                  {(r.planeRowHref ?? props.planeWorkspaceHref) ? (
-                    <a
-                      href={r.planeRowHref ?? props.planeWorkspaceHref!}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex rounded-lg bg-zinc-900 px-3 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
-                      title={r.planeRowHref ? "Open this project in Plane" : "Open Plane workspace"}
-                    >
-                      Open in Plane ↗
-                    </a>
-                  ) : (
-                    <span className="text-xs text-zinc-400">—</span>
-                  )}
-                </td>
-                <td className="max-w-[14rem] px-4 py-3 text-xs text-zinc-700 dark:text-zinc-300">
-                  <p className="font-medium">{r.workflowName}</p>
-                  <p className="mt-1 text-zinc-500 dark:text-zinc-400">Issue: {r.activeIssue}</p>
-                </td>
-                <td className="px-4 py-3 text-xs text-zinc-600 dark:text-zinc-400">{r.approvalGate}</td>
-                <td className="px-4 py-3">
-                  {r.leadHref ? (
-                    <Link href={r.leadHref} className="text-violet-800 underline-offset-2 hover:underline dark:text-violet-300">
-                      {r.leadLabel}
-                    </Link>
-                  ) : (
-                    <span className="text-zinc-500">—</span>
-                  )}
-                </td>
-                <td className="max-w-[14rem] px-4 py-3 text-xs text-zinc-600 dark:text-zinc-400">
-                  <p>{r.planeSyncStatus === "synced" ? "Synced to Plane" : "Pending Plane mapping"}</p>
-                  <p className="mt-1">{activitySummary(r.open, r.blockers, r.hasBridge)}</p>
-                </td>
-                <td className={`px-4 py-3 ${TABLE.thControl}`}>
-                  <button
-                    type="button"
-                    className={`${BUTTON.ghostRow} text-xs`}
-                    onClick={() => setOpen(r)}
-                  >
-                    Summary
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+    <button
+      type="button"
+      onClick={props.onSync}
+      title={`Sync ${props.title} with Plane`}
+      aria-label={`Sync ${props.title} with Plane`}
+      className="inline-flex h-5 w-5 items-center justify-center rounded-md text-amber-500 transition hover:text-amber-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400/80 dark:text-amber-400 dark:hover:text-amber-300"
+    >
+      <RefreshCw className="h-5 w-5" aria-hidden />
+    </button>
+  );
+}
 
-      <dialog
-        ref={dlg}
-        className="w-[min(100vw-2rem,28rem)] rounded-2xl border border-zinc-200 bg-white p-6 text-sm shadow-2xl backdrop:bg-black/40 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-100"
-        onCancel={(e) => {
-          e.preventDefault();
-          setOpen(null);
-        }}
-      >
-        {open ? (
-          <div className="space-y-4">
-            <div className="flex items-start justify-between gap-3">
-              <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">{open.title}</h2>
-              <button
-                type="button"
-                className="rounded-md px-2 py-1 text-xs text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800"
-                onClick={() => setOpen(null)}
-                aria-label="Close"
-              >
-                ✕
-              </button>
-            </div>
-            <dl className="space-y-2 text-sm">
-              <div className="flex justify-between gap-4">
-                <dt className="text-zinc-500">Status</dt>
-                <dd className="font-medium">{projectStatusDisplay(open.status)}</dd>
-              </div>
-              <div className="flex justify-between gap-4">
-                <dt className="text-zinc-500">Module</dt>
-                <dd className="text-right font-medium">{open.moduleName}</dd>
-              </div>
-              <div className="flex justify-between gap-4">
-                <dt className="text-zinc-500">Project type</dt>
-                <dd className="text-right font-medium">{open.projectTypeName}</dd>
-              </div>
-              <div className="flex justify-between gap-4">
-                <dt className="text-zinc-500">Assigned LiNKbots</dt>
-                <dd className="text-right font-medium">
-                  {open.leadHref ? (
-                    <Link href={open.leadHref} className="text-violet-800 underline dark:text-violet-300">
-                      {open.leadLabel}
-                    </Link>
-                  ) : (
-                    "—"
-                  )}
-                </dd>
-              </div>
-              <div className="flex justify-between gap-4">
-                <dt className="text-zinc-500">Activity</dt>
-                <dd className="text-right text-xs font-medium text-zinc-800 dark:text-zinc-200">
-                  {activitySummary(open.open, open.blockers, open.hasBridge)}
-                </dd>
-              </div>
-              <div className="flex justify-between gap-4">
-                <dt className="text-zinc-500">Last updated</dt>
-                <dd className="text-xs text-zinc-600">{open.updated}</dd>
-              </div>
-            </dl>
-            <div className={`mx-auto w-full border-t border-zinc-100 pt-4 dark:border-zinc-800 ${STACK.actions}`}>
-              {props.planeWorkspaceHref ? (
-                <a
-                  href={props.planeWorkspaceHref}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={BUTTON.primaryBlock}
-                >
-                  Open in Plane ↗
-                </a>
-              ) : (
-                <p className="text-center text-xs text-zinc-500">Plane is not connected for this deployment.</p>
-              )}
-              <Link href={`/projects/${encodeURIComponent(open.id)}`} className={BUTTON.secondaryBlock}>
-                Open in LiNKaios
-              </Link>
-            </div>
-          </div>
-        ) : null}
-      </dialog>
-    </>
+/** Body cell text — inherits row `text-sm`; multiline clamp without smaller/muted override. */
+const PROJECT_TABLE_CELL = "block min-w-0 line-clamp-3 leading-snug";
+
+export function ProjectsIndexTable(props: {
+  rows: ProjectIndexRow[];
+  planeWorkspaceHref: string | null;
+  /** When false, omits Suite column (suite-scoped project lists). Default true. */
+  showSuiteColumn?: boolean;
+  emptyMessage?: string;
+}) {
+  const showSuite = props.showSuiteColumn !== false;
+  const [syncById, setSyncById] = useState<Record<string, SyncState>>({});
+
+  useEffect(() => {
+    setSyncById(Object.fromEntries(props.rows.map((r) => [r.id, r.planeSyncStatus])));
+  }, [props.rows]);
+
+  const syncProject = useCallback(async (row: ProjectIndexRow) => {
+    setSyncById((prev) => {
+      if (prev[row.id] === "synced" || prev[row.id] === "syncing") return prev;
+      return { ...prev, [row.id]: "syncing" };
+    });
+
+    try {
+      const res = await fetch(`/api/projects/${encodeURIComponent(row.id)}/plane-sync`, { method: "POST" });
+      if (!res.ok) throw new Error("sync failed");
+      setSyncById((prev) => ({ ...prev, [row.id]: "synced" }));
+    } catch {
+      setSyncById((prev) => ({ ...prev, [row.id]: "pending" }));
+    }
+  }, []);
+
+  return (
+    <DataTableShell scrollableBody className="mt-4">
+      <DataTable>
+        <colgroup>
+          {showSuite ? (
+            <>
+              <col className="w-[20%]" />
+              <col className="w-[12%]" />
+              <col className="w-[22%]" />
+              <col className="w-[22%]" />
+              <col className="w-[11%]" />
+              <col className="w-[13%]" />
+            </>
+          ) : (
+            <>
+              <col className="w-[24%]" />
+              <col className="w-[24%]" />
+              <col className="w-[24%]" />
+              <col className="w-[13%]" />
+              <col className="w-[15%]" />
+            </>
+          )}
+        </colgroup>
+        <DataTableHead>
+          <tr>
+            <th className={DT.thTextInset}>{TABLE_COLUMN.name}</th>
+            {showSuite ? <th className={DT.thTextInset}>{TABLE_COLUMN.suite}</th> : null}
+            <th className={DT.thTextInset}>{TABLE_COLUMN.phase}</th>
+            <th className={DT.thTextInset}>{TABLE_COLUMN.issue}</th>
+            <th className={DT.thControl}>
+              <div className={DT.controlInner}>{TABLE_COLUMN.planeSync}</div>
+            </th>
+            <th className={DT.thControl}>
+              <div className={DT.controlInner}>{TABLE_COLUMN.actions}</div>
+            </th>
+          </tr>
+        </DataTableHead>
+        <DataTableBody>
+          {props.rows.length === 0 ? (
+            <DataTableEmptyRow colSpan={showSuite ? 6 : 5}>
+              {props.emptyMessage ?? "No projects yet."}
+            </DataTableEmptyRow>
+          ) : (
+            props.rows.map((r) => {
+              const planeHref = r.planeProjectHref ?? props.planeWorkspaceHref;
+              const syncStatus = syncById[r.id] ?? r.planeSyncStatus;
+              return (
+                <DataTableRow key={r.id} multiline>
+                  <td className={DT.tdClipInset}>
+                    <span className={PROJECT_TABLE_CELL} title={r.title}>
+                      {r.title}
+                    </span>
+                  </td>
+                  {showSuite ? (
+                    <td className={DT.tdClipInset}>
+                      <span className={PROJECT_TABLE_CELL} title={r.suiteName}>
+                        {r.suiteName}
+                      </span>
+                    </td>
+                  ) : null}
+                  <td className={DT.tdClipInset}>
+                    <span className={PROJECT_TABLE_CELL} title={r.phaseName}>
+                      {r.phaseName}
+                    </span>
+                  </td>
+                  <td className={DT.tdClipInset}>
+                    <span className={PROJECT_TABLE_CELL} title={r.activeIssue}>
+                      {r.activeIssue}
+                    </span>
+                  </td>
+                  <td className={DT.tdControl}>
+                    <div className={DT.controlInner}>
+                      <PlaneSyncControl status={syncStatus} title={r.title} onSync={() => void syncProject(r)} />
+                    </div>
+                  </td>
+                  <td className={DT.tdControl}>
+                    <div className={DT.actionsRow}>
+                      <DataTableIconAction
+                        icon={Eye}
+                        label={`Open ${r.title} in LiNKaios`}
+                        href={`/projects/${encodeURIComponent(r.id)}`}
+                      />
+                      <DataTableIconAction
+                        icon={ExternalLink}
+                        label={planeHref ? `Open ${r.title} in Plane` : "Plane is not connected"}
+                        href={planeHref ?? undefined}
+                        disabled={!planeHref}
+                      />
+                    </div>
+                  </td>
+                </DataTableRow>
+              );
+            })
+          )}
+        </DataTableBody>
+      </DataTable>
+    </DataTableShell>
   );
 }

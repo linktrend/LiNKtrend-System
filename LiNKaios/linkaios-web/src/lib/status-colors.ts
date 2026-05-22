@@ -57,11 +57,77 @@ export const STATUS_TONE = {
   },
 } as const;
 
+/** Extra horizontal space beyond the longest label glyph count (`ch` units). Keeps pills only slightly wider than text. */
+export const STATUS_PILL_PADDING_CH = 2;
+
+/** Work stream corner pills — longest label in the set sizes every pill in the row. */
+export const WORK_STREAM_STATUS_LABELS = {
+  ok: "OK",
+  review: "Review",
+  needsAction: "Needs action",
+} as const;
+
+/** Every possible work-stream pill label — width is always sized from the longest (Needs action). */
+export const WORK_STREAM_STATUS_PILL_LABELS = [
+  WORK_STREAM_STATUS_LABELS.needsAction,
+  WORK_STREAM_STATUS_LABELS.review,
+  WORK_STREAM_STATUS_LABELS.ok,
+] as const;
+
+/** Catalogue lifecycle column — equal width from longest label in the set. */
+export const LIFECYCLE_PILL_LABELS = ["Draft", "Approved", "Deprecated", "Archived"] as const;
+
+/** Attention / action queue row pills (type + severity). */
+export const ATTENTION_FEED_PILL_LABELS = [
+  "Alert",
+  "Message",
+  "Session",
+  "LiNKbrain",
+  "Critical",
+  "Warning",
+] as const;
+
+/** Session inbox table status column. */
+export const SESSION_DISPLAY_PILL_LABELS = ["Running", "Waiting", "Completed", "Failed"] as const;
+
+/** Billing invoice history — Paid / Unpaid status column. */
+export const BILLING_INVOICE_STATUS_PILL_LABELS = ["Paid", "Unpaid"] as const;
+
+/** Compute equal pill width from the longest label in a visual group (GLOBAL-001). */
+export function statusPillEqualWidthCh(labels: readonly string[]): number {
+  if (labels.length === 0) return 4;
+  const maxLen = Math.max(...labels.map((label) => label.length));
+  return Math.max(maxLen + STATUS_PILL_PADDING_CH, 4);
+}
+
+/** Fixed width class — every pill in the group renders at exactly this width (GLOBAL-001). */
+export function statusPillEqualWidthClass(labels: readonly string[]): string {
+  return `w-[${statusPillEqualWidthCh(labels)}ch] min-w-[${statusPillEqualWidthCh(labels)}ch] max-w-[${statusPillEqualWidthCh(labels)}ch]`;
+}
+
+/** Inline width lock — use with {@link StatusPill} when Tailwind arbitrary classes may not apply. */
+export function statusPillEqualWidthStyle(labels: readonly string[]): {
+  width: string;
+  minWidth: string;
+  maxWidth: string;
+} {
+  const width = `${statusPillEqualWidthCh(labels)}ch`;
+  return { width, minWidth: width, maxWidth: width };
+}
+
+/** All display labels for a {@link StatusDomain} — used for table-column equal width. */
+export function domainStatusPillLabels(domain: StatusDomain): string[] {
+  const domainMap = DOMAIN_STATUS_MAP[domain] ?? DOMAIN_STATUS_MAP.generic!;
+  const labels = new Set<string>();
+  for (const spec of Object.values(domainMap)) {
+    if (spec.label) labels.add(spec.label);
+  }
+  return [...labels];
+}
+
 /** Canonical pill classes — bold label, ring darker than fill (GLOBAL-001). */
 export const STATUS_PILL = {
-  base: "inline-flex shrink-0 items-center justify-center rounded-full px-2.5 py-0.5 text-xs font-semibold ring-1 tabular-nums",
-  equalWidth: "min-w-[5.5rem]",
-  wideEqualWidth: "min-w-[7.25rem]",
+  base: "inline-flex shrink-0 items-center justify-center rounded-full px-2.5 py-0.5 text-xs font-semibold ring-1 tabular-nums whitespace-nowrap",
   tone: {
     info: "bg-sky-50 text-sky-900 ring-sky-300 dark:bg-sky-950/50 dark:text-sky-100 dark:ring-sky-700",
     success: "bg-emerald-50 text-emerald-900 ring-emerald-300 dark:bg-emerald-950/50 dark:text-emerald-100 dark:ring-emerald-700",
@@ -173,7 +239,10 @@ const DOMAIN_STATUS_MAP: Partial<Record<StatusDomain, Record<string, PillSpec>>>
     degraded: { tone: "warning", label: "Degraded" },
   },
   module: {
-    licensed: { tone: "success", label: "Licensed" },
+    licensed: { tone: "success", label: "Subscribed" },
+    preview: { tone: "info", label: "Preview" },
+    expired: { tone: "warning", label: "Expired" },
+    cancelled: { tone: "neutral", label: "Cancelled" },
     active: { tone: "success", label: "Active" },
     trial: { tone: "info", label: "Trial" },
     unavailable: { tone: "neutral", label: "Unavailable" },

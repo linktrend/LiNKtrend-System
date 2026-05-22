@@ -4,7 +4,7 @@ import { ShellMainFrame } from "@/components/shell-main-frame";
 import { ShellSidebar, type SidebarUser } from "@/components/shell-sidebar";
 import { ThemeRoot } from "@/components/theme-root";
 import { Menu } from "lucide-react";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 
 export function ShellLayout(props: {
   children: React.ReactNode;
@@ -16,7 +16,9 @@ export function ShellLayout(props: {
   return (
     <ThemeRoot>
       <div className="flex min-h-screen bg-zinc-50 text-zinc-900 dark:bg-zinc-950 dark:text-zinc-100">
-        <ShellSidebar user={props.sidebarUser} mobileOpen={mobileNavOpen} onMobileOpenChange={setMobileNavOpen} />
+        <Suspense fallback={null}>
+          <ShellSidebar user={props.sidebarUser} mobileOpen={mobileNavOpen} onMobileOpenChange={setMobileNavOpen} />
+        </Suspense>
         <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto">
           <div className="mx-auto flex w-full max-w-6xl flex-1 flex-col px-6 py-8">
             <div className="mb-4 md:hidden">

@@ -1,17 +1,16 @@
-/**
- * Legacy App Factory dashboard path — unified with module catalogue drill-down.
- * `/modules/linkapps` now resolves to the LiNKapps module hub (same as `/modules/[moduleId]`).
- */
+import { notFound } from "next/navigation";
 
-import ModuleDetailPage from "../[moduleId]/page";
+import { ModuleProfileClient } from "@/components/modules/module-profile-client";
+import { getPublishedSuite } from "@/lib/suites-page-copy";
 
-export const dynamic = "force-dynamic";
+function first(q: string | string[] | undefined): string | undefined {
+  return Array.isArray(q) ? q[0] : q;
+}
 
-export default async function LinkappsUnifiedModulePage(props: {
-  searchParams: Promise<{ audience?: string | string[] }>;
-}) {
-  return ModuleDetailPage({
-    params: Promise.resolve({ moduleId: "linkapps" }),
-    searchParams: props.searchParams,
-  });
+/** Legacy `/modules/linkapps` — canonical profile at `/suites/linkapps`. */
+export default async function LegacyLinkappsSuitePage(props: { searchParams: Promise<{ tab?: string | string[] }> }) {
+  const searchParams = await props.searchParams;
+  const suite = getPublishedSuite("linkapps");
+  if (!suite) notFound();
+  return <ModuleProfileClient suite={suite} initialTab={first(searchParams.tab)} />;
 }

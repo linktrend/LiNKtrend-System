@@ -24,7 +24,7 @@ export function MemoryProjectSelect(props: {
   const tab = props.memoryTab ?? "project";
   return (
     <select
-      className="mt-2 w-full max-w-xl rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 shadow-sm dark:border-zinc-600 dark:bg-zinc-950 dark:text-zinc-100"
+      className="w-full max-w-xl rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 shadow-sm dark:border-zinc-600 dark:bg-zinc-950 dark:text-zinc-100"
       value={props.selectedMissionId ?? ""}
       aria-label="Select project"
       onChange={(e) => {
@@ -63,7 +63,7 @@ export function MemoryAgentSelect(props: {
   const tab = props.memoryTab ?? "agent";
   return (
     <select
-      className="mt-2 w-full max-w-xl rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 shadow-sm dark:border-zinc-600 dark:bg-zinc-950 dark:text-zinc-100"
+      className="w-full max-w-xl rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 shadow-sm dark:border-zinc-600 dark:bg-zinc-950 dark:text-zinc-100"
       value={props.selectedAgentId ?? ""}
       aria-label="Select LiNKbot"
       onChange={(e) => {
@@ -109,7 +109,7 @@ export function MemoryScopeToggle(props: {
   };
   return (
     <div className="mt-3 flex flex-wrap items-center gap-2 text-sm" role="group" aria-label="How many entries to load">
-      <span className="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Show</span>
+      <span className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Show</span>
       <Link
         href={memoryHref(props.tab, { ...q, scope: "recent" })}
         className={`rounded-full border px-3 py-1 text-xs font-medium ${
@@ -141,11 +141,11 @@ export function CompanyOrgNarrowSelect(props: {
   const router = useRouter();
   return (
     <div>
-      <label className="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
-        Org tag (narrow company list)
+      <label className="mb-2 block text-xs font-semibold text-zinc-500 dark:text-zinc-400">
+        Department / office
       </label>
       <select
-        className="mt-2 w-full max-w-xl rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm dark:border-zinc-600 dark:bg-zinc-950 dark:text-zinc-100"
+        className="w-full max-w-xl rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm dark:border-zinc-600 dark:bg-zinc-950 dark:text-zinc-100"
         value={props.selectedOrgId ?? ""}
         aria-label="Filter by organisation node"
         onChange={(e) => {
@@ -153,18 +153,17 @@ export function CompanyOrgNarrowSelect(props: {
           router.push(memoryHref("company", { org: v || undefined, brainScope: "company" }));
         }}
       >
-        <option value="">All company-scoped documents</option>
+        <option value="">All company documents</option>
         {props.nodes.map((n) => (
           <option key={n.id} value={n.id}>
-            [{n.dimension}] {n.label}
+            {n.label}
           </option>
         ))}
       </select>
-      <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-        Tags are many-to-many; the primary anchor is still <span className="font-medium">company</span> scope. Manage
-        structure on{" "}
+      <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
+        Narrow to a department or office from{" "}
         <Link href="/company" className="text-sky-700 underline dark:text-sky-400">
-          Company
+          Company settings
         </Link>
         .
       </p>

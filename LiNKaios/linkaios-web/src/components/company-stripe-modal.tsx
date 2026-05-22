@@ -4,7 +4,8 @@ import { useEffect, useId, useRef } from "react";
 
 import { COMPANY_SECTION_COPY } from "@/lib/company-page-copy";
 import { STRIPE_PLAN_OPTIONS } from "@/lib/company-fixtures";
-import { BUTTON, FIELD } from "@/lib/ui-standards";
+import { FormField, FormSelect } from "@/components/forms";
+import { BUTTON } from "@/lib/ui-standards";
 
 /** TODO(UIUX-COMP-021): Replace stub with Stripe Checkout / Customer Portal — provider: Stripe. */
 
@@ -51,20 +52,20 @@ export function CompanyStripeModal(props: {
         <p className="mt-3 text-sm font-medium text-zinc-900 dark:text-zinc-100">{props.moduleName}</p>
 
         {isSubscribe ? (
-          <label className="mt-4 block">
-            <span className={FIELD.label}>{COMPANY_SECTION_COPY.modules.planLabel}</span>
-            <select
-              value={props.plan}
-              onChange={(e) => props.onPlanChange(e.target.value)}
-              className={`mt-1 ${FIELD.control}`}
-            >
-              {STRIPE_PLAN_OPTIONS.map((p) => (
-                <option key={p} value={p}>
-                  {p}
-                </option>
-              ))}
-            </select>
-          </label>
+          <div className="mt-4">
+            <FormField id="stripe-plan" label={COMPANY_SECTION_COPY.modules.planLabel}>
+              {({ id, invalid, describedBy }) => (
+                <FormSelect
+                  id={id}
+                  invalid={invalid}
+                  describedBy={describedBy}
+                  value={props.plan}
+                  onChange={props.onPlanChange}
+                  options={STRIPE_PLAN_OPTIONS.map((p) => ({ value: p, label: p }))}
+                />
+              )}
+            </FormField>
+          </div>
         ) : (
           <p className="mt-4 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-950 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-100">
             This will mark the subscription as canceled in the UI preview. No Stripe API call is made.

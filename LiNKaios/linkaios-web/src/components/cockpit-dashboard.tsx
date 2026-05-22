@@ -3,7 +3,6 @@
 import Link from "next/link";
 import {
   Activity,
-  Bot,
   CheckCircle2,
   ChevronRight,
   Clock,
@@ -17,6 +16,7 @@ import {
 } from "lucide-react";
 
 import { DomainStatusPill, StatusPill } from "@/components/ui/status-pill";
+import { CockpitSummaryStatsGrid } from "@/components/summary-metric-card";
 import type { CockpitDashboardData, ModuleStatus, LeaseStatus, RunOverview } from "@/lib/cockpit";
 import { BUTTON } from "@/lib/ui-standards";
 
@@ -161,20 +161,20 @@ export function CockpitDashboard({ data }: { data: CockpitDashboardData }) {
           <div className="flex min-w-0 flex-1 items-start gap-3">
             <Gauge className="mt-0.5 h-5 w-5 shrink-0 opacity-90" aria-hidden />
             <div className="min-w-0">
-              <p className="text-[10px] font-semibold uppercase tracking-wide opacity-80">Cross-plane health</p>
+              <p className="text-[10px] font-semibold opacity-80">Cross-plane health</p>
               <div className="mt-1 flex flex-wrap items-center gap-2">
-                <DomainStatusPill domain="metric" status={systemHealthMetricStatus(data.system_health)} wideEqualWidth />
+                <DomainStatusPill domain="metric" status={systemHealthMetricStatus(data.system_health)} />
               </div>
               <p className="mt-1 text-sm opacity-90">
                 {data.health_issues.length > 0
                   ? data.health_issues.join(" • ")
-                  : "All systems operational. Drill into Overview, Modules, Projects, or Work for details."}
+                  : "All systems operational. Drill into Overview, Suites, Projects, or Work for details."}
               </p>
             </div>
           </div>
           <div className="flex shrink-0 gap-4 text-xs">
             <div className="text-right">
-              <p className="opacity-80">Modules</p>
+              <p className="opacity-80">Suites</p>
               <p className="font-semibold">
                 {data.enabled_module_count}/{data.total_module_count}
               </p>
@@ -199,7 +199,7 @@ export function CockpitDashboard({ data }: { data: CockpitDashboardData }) {
         <div>
           <h1 className="text-2xl font-semibold text-zinc-900 dark:text-zinc-100">Cross-plane summary</h1>
           <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-            Snapshot across planes — open Overview, Modules, Projects, or Work for the canonical homes.
+            Snapshot across planes — open Overview, Suites, Projects, or Work for the canonical homes.
           </p>
         </div>
         <p className="text-xs text-zinc-400 dark:text-zinc-500">
@@ -219,12 +219,12 @@ export function CockpitDashboard({ data }: { data: CockpitDashboardData }) {
           </div>
         </Link>
         <Link
-          href="/modules"
+          href="/suites/my-suites"
           className="flex items-center gap-3 rounded-xl border border-zinc-200 bg-white p-4 shadow-sm transition hover:border-zinc-300 dark:border-zinc-800 dark:bg-zinc-950 dark:hover:border-zinc-700"
         >
           <Layers className="h-5 w-5 text-zinc-500 dark:text-zinc-400" aria-hidden />
           <div>
-            <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Modules</p>
+            <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Suites</p>
             <p className="text-xs text-zinc-500 dark:text-zinc-400">Tenant packages &amp; health</p>
           </div>
         </Link>
@@ -250,72 +250,17 @@ export function CockpitDashboard({ data }: { data: CockpitDashboardData }) {
         </Link>
       </section>
 
-      <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
-          <div className="flex items-center gap-2 text-xs font-medium text-zinc-500 dark:text-zinc-400">
-            <Layers className="h-4 w-4" />
-            Modules
-          </div>
-          <p className="mt-2 text-2xl font-semibold tabular-nums text-zinc-900 dark:text-zinc-100">
-            {data.enabled_module_count}
-            <span className="text-sm font-normal text-zinc-500">/{data.total_module_count}</span>
-          </p>
-          <Link href="/modules" className={`${BUTTON.secondaryCardAction} mt-3`}>
-            Open modules
-          </Link>
-        </div>
-
-        <div className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
-          <div className="flex items-center gap-2 text-xs font-medium text-zinc-500 dark:text-zinc-400">
-            <Shield className="h-4 w-4" />
-            Active Leases
-          </div>
-          <p className="mt-2 text-2xl font-semibold tabular-nums text-zinc-900 dark:text-zinc-100">
-            {data.active_lease_count}
-          </p>
-          {data.tripped_kill_switch_count > 0 && (
-            <p className="mt-1 text-xs text-red-600 dark:text-red-400">
-              {data.tripped_kill_switch_count} kill switch tripped
-            </p>
-          )}
-          <Link href="/skills/leases" className={`${BUTTON.secondaryCardAction} mt-3`}>
-            Open leases
-          </Link>
-        </div>
-
-        <div className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
-          <div className="flex items-center gap-2 text-xs font-medium text-zinc-500 dark:text-zinc-400">
-            <Activity className="h-4 w-4" />
-            Running
-          </div>
-          <p className="mt-2 text-2xl font-semibold tabular-nums text-zinc-900 dark:text-zinc-100">
-            {data.running_run_count}
-          </p>
-          {data.failed_run_count > 0 && (
-            <p className="mt-1 text-xs text-red-600 dark:text-red-400">{data.failed_run_count} failed (24h)</p>
-          )}
-          <Link href="/work" className={`${BUTTON.secondaryCardAction} mt-3`}>
-            Open work
-          </Link>
-        </div>
-
-        <div className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
-          <div className="flex items-center gap-2 text-xs font-medium text-zinc-500 dark:text-zinc-400">
-            <Bot className="h-4 w-4" />
-            Workers
-          </div>
-          <p className="mt-2 text-2xl font-semibold tabular-nums text-zinc-900 dark:text-zinc-100">
-            {data.online_worker_count}
-            <span className="text-sm font-normal text-zinc-500">/{data.worker_sessions.length}</span>
-          </p>
-          {data.busy_worker_count > 0 && (
-            <p className="mt-1 text-xs text-sky-600 dark:text-sky-400">{data.busy_worker_count} busy</p>
-          )}
-          <Link href="/workers" className={`${BUTTON.secondaryCardAction} mt-3`}>
-            Open LiNKbots
-          </Link>
-        </div>
-      </section>
+      <CockpitSummaryStatsGrid
+        enabledModuleCount={data.enabled_module_count}
+        totalModuleCount={data.total_module_count}
+        activeLeaseCount={data.active_lease_count}
+        trippedKillSwitchCount={data.tripped_kill_switch_count}
+        runningRunCount={data.running_run_count}
+        failedRunCount={data.failed_run_count}
+        onlineWorkerCount={data.online_worker_count}
+        workerSessionCount={data.worker_sessions.length}
+        busyWorkerCount={data.busy_worker_count}
+      />
 
       <div className="grid gap-8 lg:grid-cols-2">
         <section>
@@ -353,14 +298,14 @@ export function CockpitDashboard({ data }: { data: CockpitDashboardData }) {
 
       <section>
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Module Health</h2>
-          <Link href="/modules" className="text-xs font-medium text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-300">
-            Open modules
+          <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Suite health</h2>
+          <Link href="/suites/my-suites" className="text-xs font-medium text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-300">
+            Open suites
           </Link>
         </div>
         <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
           {data.modules.length === 0 ? (
-            <p className="text-sm text-zinc-500 dark:text-zinc-400">No modules registered.</p>
+            <p className="text-sm text-zinc-500 dark:text-zinc-400">No suites registered.</p>
           ) : (
             data.modules.map((module) => <ModuleStatusCard key={module.module_id} module={module} />)
           )}

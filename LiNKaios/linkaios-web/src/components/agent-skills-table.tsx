@@ -2,11 +2,29 @@
 
 import { useState } from "react";
 
-import { CatalogueBoolToggle } from "@/components/catalog-ui";
-import { TABLE } from "@/lib/ui-standards";
+import {
+  DataTable,
+  DataTableBody,
+  DataTableHead,
+  DataTableRow,
+  DataTableShell,
+  DT,
+  TableBoolToggle,
+} from "@/components/data-table";
+import { StatusPill } from "@/components/ui/status-pill";
 import type { DemoAgentSkillRow } from "@/lib/ui-mocks/worker-ui";
 
 type Row = DemoAgentSkillRow & { agentName?: string };
+
+function skillStatusTone(status: Row["status"]): "success" | "info" | "neutral" {
+  if (status === "enabled") return "success";
+  if (status === "pending") return "info";
+  return "neutral";
+}
+
+function skillStatusLabel(status: Row["status"]): string {
+  return status.charAt(0).toUpperCase() + status.slice(1);
+}
 
 export function AgentSkillsTable(props: { rows: Row[] }) {
   const [on, setOn] = useState<Record<string, boolean>>(() =>
@@ -20,62 +38,70 @@ export function AgentSkillsTable(props: { rows: Row[] }) {
   const showAgent = props.rows.some((r) => r.agentName != null);
 
   return (
-    <div className="overflow-hidden rounded-xl border border-zinc-200 bg-white">
-      <table className="min-w-full divide-y divide-zinc-200 text-sm">
-        <thead className="bg-zinc-50 text-left text-xs font-semibold uppercase tracking-wide text-zinc-500">
+    <DataTableShell scrollableBody>
+      <DataTable>
+        <colgroup>
+          {showAgent ? <col className="w-[14%]" /> : null}
+          <col className="w-[14%]" />
+          <col className="w-[32%]" />
+          <col className="w-[12%]" />
+          <col className="w-[12%]" />
+          <col className="w-[14%]" />
+          <col className="w-[10%]" />
+        </colgroup>
+        <DataTableHead>
           <tr>
-            {showAgent ? (
-              <th className={`px-4 py-3 ${TABLE.thText}`}>LiNKbot</th>
-            ) : null}
-            <th className={`px-4 py-3 ${TABLE.thText}`}>Category</th>
-            <th className={`px-4 py-3 ${TABLE.thText}`}>Description</th>
-            <th className={`px-4 py-3 ${TABLE.thControl}`}>
-              <div className={TABLE.thControlInner}>Status</div>
+            {showAgent ? <th className={DT.thTextInset}>LiNKbot</th> : null}
+            <th className={DT.thTextInset}>Category</th>
+            <th className={DT.thTextInset}>Description</th>
+            <th className={DT.thControl}>
+              <div className={DT.controlInner}>Status</div>
             </th>
-            <th className={`px-4 py-3 ${TABLE.thText}`}>Version</th>
-            <th className={`px-4 py-3 ${TABLE.thText}`}>Updated</th>
-            <th className={`px-4 py-3 ${TABLE.thControl}`}>
-              <div className={TABLE.thControlInner}>On</div>
+            <th className={DT.thTextInset}>Version</th>
+            <th className={DT.thTextInset}>Updated</th>
+            <th className={DT.thControl}>
+              <div className={DT.controlInner}>On</div>
             </th>
           </tr>
-        </thead>
-        <tbody className="divide-y divide-zinc-100">
+        </DataTableHead>
+        <DataTableBody>
           {props.rows.map((r) => (
-            <tr key={r.id} className="text-zinc-800">
-              {showAgent ? <td className="px-4 py-3 text-zinc-600">{r.agentName ?? "—"}</td> : null}
-              <td className="px-4 py-3 font-medium text-zinc-900">{r.category}</td>
-              <td className="max-w-md px-4 py-3 text-zinc-600">{r.description}</td>
-              <td className={`px-4 py-3 ${TABLE.thControl}`}>
-                <div className={TABLE.thControlInner}>
-                  <span
-                    className={
-                      "rounded-full px-2 py-0.5 text-xs font-medium ring-1 " +
-                      (r.status === "enabled"
-                        ? "bg-emerald-50 text-emerald-900 ring-emerald-300 dark:bg-emerald-950/40 dark:text-emerald-100 dark:ring-emerald-700"
-                        : r.status === "pending"
-                          ? "bg-sky-50 text-sky-900 ring-sky-300 dark:bg-sky-950/40 dark:text-sky-100 dark:ring-sky-700"
-                          : "bg-zinc-100 text-zinc-700 ring-zinc-300 dark:bg-zinc-800 dark:text-zinc-200 dark:ring-zinc-600")
-                    }
-                  >
-                    {r.status}
-                  </span>
+            <DataTableRow key={r.id} multiline>
+              {showAgent ? (
+                <td className={DT.tdClipInset}>
+                  <span className={DT.tdTextSpan}>{r.agentName ?? "—"}</span>
+                </td>
+              ) : null}
+              <td className={`${DT.tdClipInset} font-medium text-zinc-900 dark:text-zinc-100`}>
+                <span className={DT.tdTextSpan}>{r.category}</span>
+              </td>
+              <td className={DT.tdClipInset}>
+                <span className={DT.tdWrapSpan} title={r.description}>
+                  {r.description}
+                </span>
+              </td>
+              <td className={DT.tdControl}>
+                <div className={DT.controlInner}>
+                  <StatusPill label={skillStatusLabel(r.status)} tone={skillStatusTone(r.status)} equalWidth />
                 </div>
               </td>
-              <td className="px-4 py-3 font-mono text-xs">{r.version}</td>
-              <td className="px-4 py-3 text-zinc-600">{r.updated}</td>
-              <td className={`px-4 py-3 ${TABLE.thControl}`}>
-                <div className={TABLE.thControlInner}>
-                  <CatalogueBoolToggle
+              <td className={`${DT.tdClipInset} font-mono text-xs`}>
+                <span className={DT.tdTextSpan}>{r.version}</span>
+              </td>
+              <td className={DT.tdClipInset}>
+                <span className={DT.tdTextSpan}>{r.updated}</span>
+              </td>
+              <td className={DT.tdControl}>
+                <TableBoolToggle
                   on={on[r.id] ?? false}
                   onToggle={(next) => setOn((s) => ({ ...s, [r.id]: next }))}
                   ariaLabel={`Toggle skill ${r.category}`}
-                  />
-                </div>
+                />
               </td>
-            </tr>
+            </DataTableRow>
           ))}
-        </tbody>
-      </table>
-    </div>
+        </DataTableBody>
+      </DataTable>
+    </DataTableShell>
   );
 }

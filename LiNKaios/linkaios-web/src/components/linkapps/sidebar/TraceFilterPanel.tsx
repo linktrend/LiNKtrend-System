@@ -87,7 +87,7 @@ export function TraceFilterPanel(props: TraceFilterPanelProps) {
 
       {/* Vertical filter */}
       <div className="space-y-1.5">
-        <span className="text-[10px] font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-500">
+        <span className="text-[10px] font-medium text-zinc-500 dark:text-zinc-500">
           Vertical
         </span>
         <div className="flex flex-wrap gap-1">
@@ -115,7 +115,7 @@ export function TraceFilterPanel(props: TraceFilterPanelProps) {
 
       {/* Stage filter */}
       <div className="space-y-1.5">
-        <span className="text-[10px] font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-500">
+        <span className="text-[10px] font-medium text-zinc-500 dark:text-zinc-500">
           Stage
         </span>
         <div className="flex flex-wrap gap-1">
@@ -143,7 +143,7 @@ export function TraceFilterPanel(props: TraceFilterPanelProps) {
 
       {/* Outcome filter */}
       <div className="space-y-1.5">
-        <span className="text-[10px] font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-500">
+        <span className="text-[10px] font-medium text-zinc-500 dark:text-zinc-500">
           Outcome
         </span>
         <div className="flex flex-wrap gap-1">
@@ -171,7 +171,7 @@ export function TraceFilterPanel(props: TraceFilterPanelProps) {
 
       {/* Time bucket */}
       <div className="space-y-1.5">
-        <span className="flex items-center gap-1 text-[10px] font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-500">
+        <span className="flex items-center gap-1 text-[10px] font-medium text-zinc-500 dark:text-zinc-500">
           <Calendar className="h-3 w-3" aria-hidden />
           Bucket
         </span>

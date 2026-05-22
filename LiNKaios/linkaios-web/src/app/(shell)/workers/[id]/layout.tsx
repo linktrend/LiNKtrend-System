@@ -4,7 +4,7 @@ import type { AgentRecord } from "@linktrend/shared-types";
 
 import { WorkerBreadcrumbRegister } from "@/components/worker-breadcrumb-register";
 import { WorkerDetailHeader } from "@/components/worker-detail-header";
-import { WorkerSubnav } from "@/components/worker-subnav";
+import { WorkerSubnav, WorkerTabContent } from "@/components/worker-subnav";
 import { isDemoAgentId } from "@/lib/ui-mocks/entities";
 import { isUiMocksEnabled } from "@/lib/ui-mocks/flags";
 import { demoWorkerHeaderModel, liveWorkerHeaderModel } from "@/lib/worker-header-model";
@@ -31,10 +31,9 @@ export default async function WorkerLayout(props: { children: React.ReactNode; p
     );
     return (
       <main className="space-y-6">
-        <WorkerBreadcrumbRegister agentId={id} displayName={isLisa ? "Lisa (CEO)" : "Eric (CTO)"} />
         <WorkerDetailHeader model={model} />
         <WorkerSubnav agentId={id} />
-        {props.children}
+        <WorkerTabContent>{props.children}</WorkerTabContent>
       </main>
     );
   }
@@ -69,7 +68,7 @@ export default async function WorkerLayout(props: { children: React.ReactNode; p
       <WorkerBreadcrumbRegister agentId={id} displayName={a.display_name} />
       <WorkerDetailHeader model={model} />
       <WorkerSubnav agentId={id} />
-      {props.children}
+      <WorkerTabContent>{props.children}</WorkerTabContent>
     </main>
   );
 }
