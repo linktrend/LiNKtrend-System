@@ -1,4 +1,11 @@
-/** POST /api/projects — pre-wiring create contract (stub today). */
+/**
+ * POST /api/projects — pre-wiring create contract (stub today).
+ *
+ * Create responses expose `projectId` (canonical). Legacy `missionId` is not returned here
+ * until other mission-keyed routes are unified; plane-sync and brain bridges use dual fields.
+ *
+ * @deprecated API JSON field `missionId` is removed in Phase D; use `projectId`.
+ */
 
 export type ProjectCadence = "once" | "continuous";
 
@@ -12,7 +19,13 @@ export type CreateProjectRequest = {
 };
 
 export type CreateProjectResponse = {
+  /** Canonical LiNKaios project id (Phase A–C wiring). */
   projectId: string;
+  /**
+   * Legacy alias — same value as `projectId`.
+   * @deprecated Removed in Phase D; use `projectId`.
+   */
+  missionId: string;
   planeBootstrap: PlaneBootstrapStatus;
   createdAt: string;
 };

@@ -109,6 +109,7 @@ describe("createProjectStub", () => {
     const result = createProjectStub(input);
 
     expect(result.projectId).toMatch(/^proj-/);
+    expect(result.missionId).toBe(result.projectId);
     expect(result.planeBootstrap).toBe("stub");
     expect(result.createdAt).toMatch(/^\d{4}-\d{2}-\d{2}T/);
 

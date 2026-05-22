@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 
 import { getPublishedVirtualFileBody, type BrainScope } from "@linktrend/linklogic-sdk";
 
+import { resolveMissionIdFromRecord } from "@/lib/api/project-mission-id";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 
 function unauthorized() {
@@ -29,7 +30,9 @@ export async function POST(req: Request) {
   const body = (await req.json().catch(() => null)) as {
     scope?: unknown;
     logicalPath?: unknown;
+    /** @deprecated Prefer `projectId` — removed in Phase D. */
     missionId?: unknown;
+    projectId?: unknown;
     agentId?: unknown;
   } | null;
   const logicalPath = typeof body?.logicalPath === "string" ? body.logicalPath.trim() : "";
@@ -37,7 +40,10 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "logicalPath is required" }, { status: 400 });
   }
   const scope = parseScope(body?.scope);
-  const missionId = typeof body?.missionId === "string" && body.missionId.trim() ? body.missionId.trim() : null;
+  const missionId =
+    body && typeof body === "object" && !Array.isArray(body)
+      ? resolveMissionIdFromRecord(body as Record<string, unknown>)
+      : null;
   const agentId = typeof body?.agentId === "string" && body.agentId.trim() ? body.agentId.trim() : null;
 
   const supabase = getSupabaseAdmin();

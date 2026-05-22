@@ -12,6 +12,8 @@ import { randomUUID } from "node:crypto";
 import { getSuiteById } from "@/lib/suites-page-copy";
 import { MODULES_CATALOG_DEMO, processesForModule } from "@/lib/ui-mocks/modules-catalog-demo";
 
+import { withMissionIdAlias } from "@/lib/api/project-mission-id";
+
 import { registerDemoProject } from "./demo-project-registry";
 import type {
   CreateProjectRequest,
@@ -110,11 +112,11 @@ export function createProjectStub(input: CreateProjectRequest): CreateProjectRes
     createdAt,
   });
 
-  return {
+  return withMissionIdAlias({
     projectId,
     planeBootstrap: "stub",
     createdAt,
-  };
+  });
 }
 
 /** Resolve suite/module labels for tests without hitting the registry. */

@@ -7,6 +7,7 @@ import {
   type BrainScope,
 } from "@linktrend/linklogic-sdk";
 
+import { resolveMissionIdFromRecord } from "@/lib/api/project-mission-id";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 
 function unauthorized() {
@@ -41,7 +42,9 @@ export async function POST(req: Request) {
     scope?: unknown;
     logicalPath?: unknown;
     query?: unknown;
+    /** @deprecated Prefer `projectId` — removed in Phase D. */
     missionId?: unknown;
+    projectId?: unknown;
     agentId?: unknown;
     topK?: unknown;
     stage?: unknown;
@@ -53,7 +56,10 @@ export async function POST(req: Request) {
   }
 
   const scope = parseScope(body?.scope);
-  const missionId = typeof body?.missionId === "string" && body.missionId.trim() ? body.missionId.trim() : null;
+  const missionId =
+    body && typeof body === "object" && !Array.isArray(body)
+      ? resolveMissionIdFromRecord(body as Record<string, unknown>)
+      : null;
   const agentId = typeof body?.agentId === "string" && body.agentId.trim() ? body.agentId.trim() : null;
   const topK = typeof body?.topK === "number" && body.topK > 0 && body.topK <= 24 ? body.topK : 6;
 

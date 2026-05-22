@@ -26,11 +26,13 @@ describe("POST /api/projects route", () => {
 
     const body = (await res.json()) as {
       projectId: string;
+      missionId: string;
       planeBootstrap: string;
       createdAt: string;
     };
 
     expect(body.projectId).toMatch(/^proj-/);
+    expect(body.missionId).toBe(body.projectId);
     expect(body.planeBootstrap).toBe("stub");
     expect(getRegisteredDemoProjectDetailSpec(body.projectId)?.title).toBe("Curl-ready project");
   });
