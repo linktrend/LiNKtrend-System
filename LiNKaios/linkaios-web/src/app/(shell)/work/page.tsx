@@ -1,5 +1,7 @@
 import { listBrainDraftsForInbox } from "@linktrend/linklogic-sdk";
+import { Inbox } from "lucide-react";
 
+import { WorkEmptyState } from "@/app/(shell)/work/work-empty-state";
 import { AttentionQueueRow, ActionQueueList } from "@/components/action-queue";
 import { ShellPageHeaderClient } from "@/components/shell-page-header-client";
 import { SummaryMetricCardGrid, WorkStreamCard } from "@/components/work-stream-card";
@@ -174,9 +176,16 @@ export default async function WorkDashboardPage() {
       <section>
         <h2 className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Action queue</h2>
         {queue.length === 0 ? (
-          <p className="mt-3 rounded-lg border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm text-zinc-600 dark:border-zinc-800 dark:bg-zinc-900/40 dark:text-zinc-300">
-            Nothing in the queue right now.
-          </p>
+          <WorkEmptyState
+            className="mt-3"
+            icon={Inbox}
+            title="Nothing in the queue"
+            description="When alerts, messages, or sessions need attention they will show up here."
+            actions={[
+              { kind: "link", label: "Open alerts", href: "/work/alerts" },
+              { kind: "link", label: "View projects", href: "/projects", variant: "secondary" },
+            ]}
+          />
         ) : (
           <ActionQueueList className="mt-3">
             {queue.map((item) => (

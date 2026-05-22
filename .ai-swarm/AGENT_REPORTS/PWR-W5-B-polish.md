@@ -3,7 +3,6 @@
 - **Date:** 2026-05-22
 - **Branch:** `dev/pwr-w5-b-polish`
 - **Base:** `origin/development`
-- **Commit:** _(see git log — two commits: cherry-pick + work/cockpit completion)_
 - **IDE/Agent:** Cursor (frontend-specialist subagent)
 
 ## Status
