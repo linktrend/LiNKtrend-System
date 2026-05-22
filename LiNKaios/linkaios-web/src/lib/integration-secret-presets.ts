@@ -175,7 +175,7 @@ export const INTEGRATION_SECRET_PROVIDERS: IntegrationSecretProviderOption[] = [
   },
   {
     key: "n8n_gateway",
-    label: "Workflow gateway",
+    label: "Automation gateway",
     categoryId: "other",
     slug: "N8N_WEBHOOK_SECRET",
     provider: "gateway",

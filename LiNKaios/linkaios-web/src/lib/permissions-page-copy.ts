@@ -101,7 +101,7 @@ export const CLIENT_ROLES = [
   {
     id: "operator",
     label: "Operator",
-    summary: "Day-to-day execution — run missions and use operator tools without billing or role management.",
+    summary: "Day-to-day execution — run projects and use operator tools without billing or role management.",
   },
   {
     id: "viewer",

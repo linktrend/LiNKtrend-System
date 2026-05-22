@@ -7,7 +7,7 @@ export default function LinkappsFactoryPage() {
     <div className="space-y-6">
       <ShellPageHeaderClient
         title="LiNKapps App Factory"
-        subtitle="Blueprint intake, squad monitor, capability leases, LiNKautowork workflow visibility, and handoff outputs (fixture-only MVO scaffold)."
+        subtitle="Blueprint intake, squad monitor, capability leases, LiNKautowork automation visibility, and handoff outputs (fixture-only MVO scaffold)."
       />
       <LinkappsAppFactoryDashboard data={LINKAPPS_FACTORY_DEMO_FIXTURE} />
     </div>

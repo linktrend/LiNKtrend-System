@@ -41,7 +41,7 @@ export function LinkappsWorkflowStatusPanel(props: {
       aria-labelledby="linkapps-workflow-heading"
     >
       <h2 id="linkapps-workflow-heading" className="text-sm font-semibold text-zinc-900 dark:text-zinc-50">
-        Workflow status (LiNKautowork)
+        Automation status (LiNKautowork)
       </h2>
       <p className="mt-1 text-xs text-zinc-600 dark:text-zinc-400">
         Maps manifest stages to deterministic runs. Build / validation / deployment are fixture sub-panels (

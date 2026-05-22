@@ -175,8 +175,8 @@ export const MODULES_CATALOG_DEMO: ModulesCatalogModel = {
               description:
                 "Task template with input and output contracts. Defines governed inputs, expected outputs, and audit hooks for this issue. LiNKbots and automations reference these contracts when executing the issue.",
               inputContract: "Lead CSV row or CRM id; tenant module lease",
-              outputContract: "Normalized lead record with mission_id",
-              executors: [{ kind: "automation", name: "Lead import workflow", description: "Parse CSV or CRM webhook and normalize lead fields into tenant schema." }],
+              outputContract: "Normalized lead record with project_id",
+              executors: [{ kind: "automation", name: "Lead import automation", description: "Parse CSV or CRM webhook and normalize lead fields into tenant schema." }],
             },
             {
               id: "t-intake-2",
@@ -216,7 +216,7 @@ export const MODULES_CATALOG_DEMO: ModulesCatalogModel = {
               executors: [
                 {
                   kind: "hybrid",
-                  name: "Studio Manager + copy workflow",
+                  name: "Studio Manager + copy automation",
                   description: "Studio Manager orchestrates template choice; copy automation generates governed page content.",
                 },
               ],
@@ -226,7 +226,7 @@ export const MODULES_CATALOG_DEMO: ModulesCatalogModel = {
               title: "Publish preview site",
               inputContract: "Copy package + Payload mirror refs",
               outputContract: "Preview URL + verification report",
-              executors: [{ kind: "automation", name: "Preview publish workflow", description: "Write artifact package, sync Payload mirror, and verify preview URL health checks." }],
+              executors: [{ kind: "automation", name: "Preview publish automation", description: "Write artifact package, sync Payload mirror, and verify preview URL health checks." }],
             },
           ],
         },
@@ -252,7 +252,7 @@ export const MODULES_CATALOG_DEMO: ModulesCatalogModel = {
               inputContract: "Live site URL + audit capability lease",
               outputContract: "Audit JSON + executive summary",
               executors: [
-                { kind: "automation", name: "SEO audit workflow", description: "Crawl site, run Lighthouse and on-page SEO checks, emit structured audit JSON." },
+                { kind: "automation", name: "SEO audit automation", description: "Crawl site, run Lighthouse and on-page SEO checks, emit structured audit JSON." },
                 { kind: "agent", name: "SEO Analyst", description: "Summarize audit findings and prioritize refresh recommendations for the client." },
               ],
             },
@@ -313,7 +313,7 @@ export const MODULES_CATALOG_DEMO: ModulesCatalogModel = {
               title: "Create Plane milestone map",
               inputContract: "Approved ADR + module phase map",
               outputContract: "Plane project + phase tasks",
-              executors: [{ kind: "automation", name: "Plane bootstrap workflow" }],
+              executors: [{ kind: "automation", name: "Plane bootstrap automation" }],
             },
           ],
         },

@@ -19,7 +19,7 @@ export type SupportedIntegrationRow = {
 export const SUPPORTED_INTEGRATIONS: SupportedIntegrationRow[] = [
   { id: "chatwoot", name: "Chatwoot", category: "CRM", status: "available" },
   { id: "plane", name: "Plane", category: "Projects", status: "available" },
-  { id: "n8n", name: "n8n", category: "Automation", status: "available" },
+  { id: "n8n", name: "LiNKautowork", category: "Automation", status: "available" },
   { id: "postmark", name: "Postmark", category: "Email", status: "available" },
   { id: "zulip", name: "Zulip", category: "Messaging", status: "beta" },
   { id: "digitalocean", name: "DigitalOcean", category: "Infrastructure", status: "available" },

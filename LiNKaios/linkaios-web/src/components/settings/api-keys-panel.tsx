@@ -246,7 +246,7 @@ export function ApiKeysPanel(props: { initialRows: IntegrationSecretRow[]; canMa
   function remove(id: string) {
     if (
       !confirm(
-        "Remove this credential? LiNKbots and workflows that use it may fail until you add a replacement.",
+        "Remove this credential? LiNKbots and automations that use it may fail until you add a replacement.",
       )
     ) {
       return;
