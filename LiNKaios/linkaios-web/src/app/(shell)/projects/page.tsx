@@ -89,18 +89,12 @@ export default async function ProjectsListPage() {
             <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
               Once projects exist in LiNKaios they will appear here automatically.
             </p>
-            <div className="mt-4 flex flex-wrap justify-center gap-3">
-              <Link
-                href="/workers"
-                className="inline-flex rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
-              >
-                LiNKbots
+            <div className="mt-4 flex flex-wrap justify-center gap-2">
+              <Link href="/projects/new" className={BUTTON.addRow}>
+                Add Project
               </Link>
-              <Link
-                href="/settings/traces"
-                className="inline-flex rounded-lg border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-800 hover:bg-zinc-100 dark:border-zinc-600 dark:text-zinc-200 dark:hover:bg-zinc-800"
-              >
-                System logs
+              <Link href="/suites/marketplace" className={BUTTON.secondaryRow}>
+                Browse Marketplace
               </Link>
             </div>
           </div>

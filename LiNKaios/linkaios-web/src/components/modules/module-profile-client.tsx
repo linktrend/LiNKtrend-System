@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo } from "react";
+import { useRouter } from "next/navigation";
+import { useEffect, useMemo } from "react";
 
 import { useRegisterBreadcrumbLabel } from "@/components/breadcrumb-label-registry";
 import { ModuleCheckoutPanel } from "@/components/modules/module-checkout-panel";
@@ -29,12 +30,20 @@ import {
 import { screenTabLinkClass, BUTTON } from "@/lib/ui-standards";
 
 export function ModuleProfileClient(props: { suite: ModuleCatalogueItem; initialTab: string | undefined }) {
+  const router = useRouter();
   const fixtureLicensed = useMemo(() => fixtureLicensedByModule(), []);
   const { accessFor, startPreview, subscribe } = useModuleSubscriptions(fixtureLicensed);
 
   const access = accessFor(props.suite.id);
   const owned = access === "subscribed" || access === "preview";
   const tab = parseSuiteProfileTab(props.initialTab, owned);
+  const initialTabRaw = props.initialTab?.trim();
+
+  useEffect(() => {
+    if (!owned && initialTabRaw === "projects") {
+      router.replace(suiteProfileHref(props.suite.id, "overview"), { scroll: false });
+    }
+  }, [owned, initialTabRaw, props.suite.id, router]);
   const tabs = suiteProfileTabs(owned);
   const moduleTemplates = modulesForSuite(props.suite.id);
   const samples = sampleOutputsForModule(props.suite.id);
