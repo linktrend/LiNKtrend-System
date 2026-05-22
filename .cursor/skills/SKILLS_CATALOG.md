@@ -71,6 +71,22 @@ skill_categories:
       path: .cursor/skills/frontend-design/SKILL.md
       source: linktrend-skills
       description: 'Create distinctive, production-grade frontend interfaces with high design quality. Generates creative, polished code that avoids generic AI aesthetics. Use when the user asks to build web components, pages, artifacts, posters, or applications, or when any design skill requires project context.'
+    - name: summary-metric-cards
+      path: .cursor/skills/summary-metric-cards/SKILL.md
+      source: linktrend-skills
+      description: 'LiNKaios dashboard stat/stream/lifecycle summary tiles — SummaryMetricCard, preset grids, SUMMARY_METRIC_CARD tokens, status pill alignment. Use when adding KPI rows, migrating inline stat grids, or building work-stream-style cards.'
+    - name: personal-information-forms
+      path: .cursor/skills/personal-information-forms/SKILL.md
+      source: linktrend-skills
+      description: 'LiNKaios form system — FormField label spacing, FormSelect/InsetSelect chevron inset, FormTextarea; plus PII name/address/phone groups. Use for any settings or modal form in linkaios-web.'
+    - name: data-table
+      path: .cursor/skills/data-table/SKILL.md
+      source: linktrend-skills
+      description: 'LiNKaios columnar HTML tables (Family A) — DataTableShell, DT classes, TableBoolToggle, DataTableIconAction, catalogue col groups. Use when building or migrating catalogues, indexes, audit logs, settings lists.'
+    - name: action-queue
+      path: .cursor/skills/action-queue/SKILL.md
+      source: linktrend-skills
+      description: 'LiNKaios feed-style attention rows (Family B) — ActionQueueList, ActionQueueRow, accent stripe, single vs multi-action rules. Use for alerts inbox and work attention feeds, not columnar tables.'
     - name: intelligent-routing
       path: .cursor/skills/intelligent-routing/SKILL.md
       source: linktrend-skills
