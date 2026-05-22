@@ -15,6 +15,7 @@ import {
 } from "@/lib/command-centre-access";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { PERMISSIONS_PAGE_COPY } from "@/lib/permissions-page-copy";
 import { formatUiLabel } from "@/lib/ui-standards";
 
 import { RoleRowForm } from "./role-row-form";
@@ -40,10 +41,7 @@ export async function TeamPermissionsSection() {
   const allowed = await isCommandCentreAdmin(supabase, { userId: user.id, email: user.email });
   if (!allowed) {
     return (
-      <p className="max-w-xl text-sm text-zinc-600 dark:text-zinc-400">
-        Only workspace <strong>Admins</strong> can assign roles on this tab. Review allowed capabilities on the{" "}
-        <strong>Role permissions</strong> tab, or ask an Admin if you need a different level of access.
-      </p>
+      <p className="max-w-xl text-sm text-zinc-600 dark:text-zinc-400">{PERMISSIONS_PAGE_COPY.nonAdminNote}</p>
     );
   }
 
@@ -89,13 +87,8 @@ export async function TeamPermissionsSection() {
 
   return (
     <div className="space-y-4">
-      <p className="text-sm text-zinc-600 dark:text-zinc-400">
-        Your role: <strong>{commandCentreRoleLabel(selfRole)}</strong>
-      </p>
       <p className="max-w-2xl text-sm text-zinc-600 dark:text-zinc-400">
-        <strong>Admin</strong> can manage settings and roles. <strong>Operator</strong> can use day-to-day controls.{" "}
-        <strong>Viewer</strong> is read-only. LiNKbot service accounts are managed on the Linktrend vendor side and do
-        not appear in this human-user table.
+        Your role: <strong>{commandCentreRoleLabel(selfRole)}</strong>. {PERMISSIONS_PAGE_COPY.adminNote}
       </p>
 
       <DataTableShell scrollableBody>
