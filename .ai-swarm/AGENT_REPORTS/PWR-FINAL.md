@@ -2,7 +2,7 @@
 
 - **Date:** 2026-05-22
 - **Branch:** `development` (pushed to origin)
-- **Tip SHA:** _(see git log -1 after final commit)_
+- **Tip SHA:** 0984ac25c3649e0d7e4eca4a95560ed48f5e4bce
 
 ## Summary
 
