@@ -13,6 +13,7 @@ import {
 } from "@/components/data-table";
 import { TableBoolToggle } from "@/components/data-table/table-bool-toggle";
 import { TitledCardHeader } from "@/components/titled-card-header";
+import { StubPageNotice } from "@/components/stub-badge";
 import {
   appendBackupHistory,
   EVENT_DATA_SETTINGS_CHANGED,
@@ -86,6 +87,7 @@ export function DataSettingsPage() {
 
   return (
     <div className="space-y-6">
+      <StubPageNotice message="Retention and backup controls are stored in this browser only. No remote backup jobs run in the MVO build." />
       {flash ? (
         <p
           role="status"

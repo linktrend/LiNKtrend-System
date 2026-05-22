@@ -14,6 +14,7 @@ import {
 } from "@/components/data-table";
 import { FormField, FormSelect, FormTextInput, FormTextarea } from "@/components/forms";
 import { TitledCardHeader } from "@/components/titled-card-header";
+import { StubPageNotice } from "@/components/stub-badge";
 import {
   EVENT_INTEGRATION_REQUESTS_CHANGED,
   readIntegrationRequests,
@@ -58,6 +59,7 @@ export function IntegrationsSettingsPage() {
 
   return (
     <div className="space-y-6">
+      <StubPageNotice message="Integration requests are recorded locally for review. No external software is connected from this screen in MVO." />
       {flash ? (
         <p
           role="status"

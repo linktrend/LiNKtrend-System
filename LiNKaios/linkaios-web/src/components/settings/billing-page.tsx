@@ -16,6 +16,7 @@ import {
 } from "@/components/data-table";
 import { TitledCardHeader } from "@/components/titled-card-header";
 import { StatusPill } from "@/components/ui/status-pill";
+import { StubPageNotice } from "@/components/stub-badge";
 import { modulesForCompany, resolveCompanyFixture } from "@/lib/company-fixtures";
 import {
   BILLING_STUB_COPY,
@@ -416,6 +417,7 @@ export function BillingPage() {
 
   return (
     <div className="space-y-6">
+      <StubPageNotice message="Billing uses local demo fixtures only. No charges, invoices, or payment methods are sent to a processor." />
       <BillingTabNav active={activeTab} />
 
       {activeTab === "overview" ? <BillingOverviewPanel methods={methods} /> : null}

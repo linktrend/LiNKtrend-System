@@ -1,5 +1,6 @@
 import { isCommandCentreAdmin } from "@/lib/command-centre-access";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { PlaneSyncStubPanel } from "@/components/stub-badge";
 import { BUTTON } from "@/lib/ui-standards";
 
 import {
@@ -86,6 +87,8 @@ export async function MissionToolsSection(props: {
 
   return (
     <div className="space-y-8">
+      <PlaneSyncStubPanel missionId={props.missionId} canWrite={props.canWrite} />
+
       {isAdmin ? (
         <section className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm">
           <h2 className="text-sm font-semibold text-zinc-500 dark:text-zinc-400">Project lead</h2>

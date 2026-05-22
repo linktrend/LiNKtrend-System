@@ -21,6 +21,7 @@ import {
 
 import { DeleteAccountCard } from "@/components/settings/delete-account-card";
 import { SettingCard, SettingCardFacts } from "@/components/settings/setting-card";
+import { StubBadge } from "@/components/stub-badge";
 import { modulesForCompany, resolveCompanyFixture } from "@/lib/company-fixtures";
 import { operatorFullName, readOperatorProfile, type OperatorProfile } from "@/lib/operator-profile";
 import {
@@ -272,6 +273,7 @@ export function SettingsHub(props: {
             description="Current plan and billing information."
             actionLabel="Manage Billing"
             href="/settings/billing"
+            titleAction={<StubBadge />}
           >
             <PlanBillingSummary />
           </SettingCard>
@@ -362,6 +364,7 @@ export function SettingsHub(props: {
             description="Export a portable copy of your workspace data."
             actionLabel="Export Data"
             href="/settings/data-export"
+            titleAction={<StubBadge />}
           >
             <DataExportSummary />
           </SettingCard>
@@ -372,6 +375,7 @@ export function SettingsHub(props: {
             description="Data retention policy, backup and restore settings."
             actionLabel="Manage Data Settings"
             href="/settings/data-settings"
+            titleAction={<StubBadge />}
           >
             <DataSettingsSummary />
           </SettingCard>
@@ -382,6 +386,7 @@ export function SettingsHub(props: {
             description="Request capabilities for software not yet supported in LiNKaios."
             actionLabel="Manage Integrations"
             href="/settings/integrations"
+            titleAction={<StubBadge />}
           >
             <IntegrationsSummary />
           </SettingCard>

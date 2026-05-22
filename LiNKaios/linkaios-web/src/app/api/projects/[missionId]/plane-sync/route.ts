@@ -14,6 +14,9 @@ export async function POST(_req: Request, ctx: { params: Promise<{ missionId: st
   }
 
   return NextResponse.json({
+    status: "stub" as const,
+    message:
+      "Demo response — Plane sync is not connected in MVO. Operator intent was recorded locally; no changes were sent to Plane.",
     missionId: missionId.trim(),
     planeSyncStatus: "synced" as const,
   });

@@ -20,6 +20,7 @@ import {
   type ExportRequestRow,
 } from "@/lib/data-export-preferences";
 import { FormField, FormSelect } from "@/components/forms";
+import { StubPageNotice } from "@/components/stub-badge";
 import { BUTTON, formatUiLabel } from "@/lib/ui-standards";
 
 function statusTone(status: ExportRequestRow["status"]): string {
@@ -49,6 +50,7 @@ export function DataExportSettingsPage() {
 
   return (
     <div className="space-y-6">
+      <StubPageNotice message="Export requests are stored in this browser only. No archive is generated or emailed in the MVO build." />
       {flash ? (
         <p
           role="status"
