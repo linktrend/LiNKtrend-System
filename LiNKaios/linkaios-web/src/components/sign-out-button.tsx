@@ -5,7 +5,7 @@ import { useState } from "react";
 
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
-export function SignOutButton(props: { className?: string }) {
+export function SignOutButton(props: { className?: string; redirectTo?: string }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
@@ -14,7 +14,7 @@ export function SignOutButton(props: { className?: string }) {
     try {
       const supabase = createSupabaseBrowserClient();
       await supabase.auth.signOut();
-      router.replace("/login");
+      router.replace(props.redirectTo ?? "/login");
       router.refresh();
     } finally {
       setLoading(false);

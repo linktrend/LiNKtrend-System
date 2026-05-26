@@ -1,14 +1,14 @@
 "use client";
 
-import { ADMIN_BASE_PATH, LICENSEE_HOME_PATH } from "@/lib/app-surface";
+import { ADMIN_BASE_PATH, ADMIN_LOGIN_PATH, LICENSEE_HOME_PATH, LICENSEE_LOGIN_PATH } from "@/lib/app-surface";
 import { BUTTON } from "@/lib/ui-standards";
 
 function userHref(signedIn: boolean): string {
-  return signedIn ? LICENSEE_HOME_PATH : `/?next=${encodeURIComponent(LICENSEE_HOME_PATH)}#sign-in`;
+  return signedIn ? LICENSEE_HOME_PATH : `${LICENSEE_LOGIN_PATH}?next=${encodeURIComponent(LICENSEE_HOME_PATH)}`;
 }
 
 function adminHref(signedIn: boolean): string {
-  return signedIn ? ADMIN_BASE_PATH : `/?next=${encodeURIComponent(ADMIN_BASE_PATH)}#sign-in`;
+  return signedIn ? ADMIN_BASE_PATH : `/admin/login?next=${encodeURIComponent(ADMIN_BASE_PATH)}`;
 }
 
 function go(event: React.MouseEvent<HTMLAnchorElement>, href: string) {
