@@ -9,11 +9,8 @@ import {
   isPublicLandingPath,
   LICENSEE_LOGIN_PATH,
   licensorMirrorPath,
-  postLoginDestination,
 } from "@/lib/app-surface";
 import { LICENSEES_HUB_PATH } from "@/lib/company-page-copy";
-import { isBootstrapAdminEmail } from "@/lib/command-centre-shared";
-import { allowAdminSurfaceForReview } from "@/lib/ui-mocks/flags";
 
 function isTruthy(value: string | undefined): boolean {
   return value === "1" || value === "true";
@@ -97,26 +94,12 @@ export async function middleware(request: NextRequest) {
   }
 
   if (user) {
-    const isLicensor = isBootstrapAdminEmail(user.email);
-
     if (!isAdminPathname(path) && isLicensorOnlyLicenseePath(path)) {
       const redirectUrl = request.nextUrl.clone();
       const mirror = licensorMirrorPath(path);
       redirectUrl.pathname = mirror.split("?")[0] ?? mirror;
       const mirrorQs = mirror.includes("?") ? mirror.split("?")[1] : "";
       redirectUrl.search = mirrorQs ? `?${mirrorQs}` : request.nextUrl.search;
-      return NextResponse.redirect(redirectUrl);
-    }
-
-    if (path === LICENSEE_LOGIN_PATH || path.startsWith("/login/") || path === ADMIN_LOGIN_PATH) {
-      const redirectUrl = request.nextUrl.clone();
-      const onAdminLogin = path === ADMIN_LOGIN_PATH;
-      redirectUrl.pathname = postLoginDestination({
-        isLicensor,
-        nextPath: request.nextUrl.searchParams.get("next"),
-        allowAdminDestination: allowAdminSurfaceForReview() || onAdminLogin,
-      });
-      redirectUrl.search = "";
       return NextResponse.redirect(redirectUrl);
     }
   }
