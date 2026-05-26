@@ -3,16 +3,24 @@
 import { Suspense } from "react";
 
 import { LoginForm } from "@/app/(auth)/login/login-form";
-import { LoginLegalSection, useLoginLegalAcceptance } from "@/components/auth/login-legal-section";
+import { useLoginLegalAcceptance } from "@/components/auth/login-legal-section";
+import { LOGIN_LEGAL_COPY } from "@/lib/login-legal-copy";
 import { ADMIN_BASE_PATH } from "@/lib/app-surface";
 
 function AdminLoginPanelInner() {
   const [accepted, setAccepted] = useLoginLegalAcceptance(true);
+  const year = new Date().getFullYear();
 
   return (
     <>
-      <LoginForm defaultNext={ADMIN_BASE_PATH} legalAccepted={accepted} />
-      <LoginLegalSection accepted={accepted} onAcceptedChange={setAccepted} />
+      <LoginForm
+        defaultNext={ADMIN_BASE_PATH}
+        legalAccepted={accepted}
+        onLegalAcceptedChange={setAccepted}
+      />
+      <p className="mt-6 text-center text-xs text-zinc-500 dark:text-zinc-400">
+        {LOGIN_LEGAL_COPY.copyright(year)}
+      </p>
     </>
   );
 }

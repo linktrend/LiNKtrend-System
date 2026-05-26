@@ -7,7 +7,7 @@ import { TYPE } from "@/lib/ui-standards";
 export function LoginPageShell(props: {
   eyebrow: string;
   title: string;
-  subtitle: string;
+  subtitle?: string;
   children: React.ReactNode;
   devAdminLoginHref?: string;
 }) {
@@ -20,7 +20,9 @@ export function LoginPageShell(props: {
         <div className="w-full max-w-md rounded-2xl border border-zinc-200 bg-white p-8 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
           <p className="text-xs font-semibold uppercase tracking-widest text-sky-700 dark:text-sky-400">{props.eyebrow}</p>
           <h1 className={`mt-3 ${TYPE.pageTitle}`}>{props.title}</h1>
-          <p className="mt-3 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">{props.subtitle}</p>
+          {props.subtitle ? (
+            <p className="mt-3 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">{props.subtitle}</p>
+          ) : null}
           <Suspense fallback={<p className="mt-8 text-sm text-zinc-500">Loading…</p>}>{props.children}</Suspense>
         </div>
       </div>
