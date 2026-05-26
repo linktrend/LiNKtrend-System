@@ -4,7 +4,8 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 
 import { createAgentAction } from "@/app/(shell)/workers/actions";
-import { BUTTON, FIELD } from "@/lib/ui-standards";
+import { InsetSelect } from "@/components/forms";
+import { BUTTON, FIELD, FORM } from "@/lib/ui-standards";
 
 export const ADD_LINKBOT_OPEN_EVENT = "linktrend:add-linkbot-open";
 
@@ -91,22 +92,22 @@ export function AddLinkbotRoot({ autoOpen }: { autoOpen?: boolean }) {
         }}
       >
         {err ? <p className="text-sm text-red-700 dark:text-red-400">{err}</p> : null}
-        <label className="block">
+        <label className={`block ${FORM.fieldStack}`}>
           <span className={FIELD.label}>Display name</span>
           <input
             name="display_name"
             required
             autoComplete="off"
             placeholder="e.g. Field LiNKbot — Acme"
-            className={`mt-1 w-full ${FIELD.control}`}
+            className={`w-full ${FIELD.control}`}
           />
         </label>
-        <label className="block max-w-[13rem]">
+        <label className={`max-w-[13rem] ${FORM.fieldStack}`}>
           <span className={FIELD.label}>Initial status</span>
-          <select name="status" defaultValue="inactive" className={`mt-1 w-full ${FIELD.controlCompact}`}>
+          <InsetSelect compact name="status" defaultValue="inactive">
             <option value="inactive">Inactive</option>
             <option value="active">Active</option>
-          </select>
+          </InsetSelect>
         </label>
         <div className="flex flex-wrap justify-end gap-2 pt-1">
           <button type="button" className={BUTTON.secondaryRow} onClick={close} disabled={pending}>

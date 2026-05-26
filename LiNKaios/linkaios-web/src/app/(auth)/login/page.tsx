@@ -1,19 +1,16 @@
-import { Suspense } from "react";
+import { LoginPageShell } from "@/components/auth/login-page-shell";
+import { LicenseeLoginPanel } from "@/components/auth/licensee-login-panel";
+import { ADMIN_LOGIN_PATH } from "@/lib/app-surface";
 
-import { PageIntro } from "@/components/page-intro";
-
-import { LoginForm } from "./login-form";
-
-export const dynamic = "force-dynamic";
-
-export default function LoginPage() {
+export default function LicenseeLoginPage() {
   return (
-    <main className="mx-auto flex min-h-[60vh] max-w-lg flex-col justify-center px-6 py-16">
-      <h1 className="text-2xl font-semibold text-zinc-900">LiNKaios sign in</h1>
-      <PageIntro className="mt-2 max-w-xl">Sign in to LiNKtrend&apos;s Agentic Interactive Operating System, LiNKaios</PageIntro>
-      <Suspense fallback={<p className="mt-8 text-sm text-zinc-500">Loading…</p>}>
-        <LoginForm />
-      </Suspense>
-    </main>
+    <LoginPageShell
+      eyebrow="LiNKtrend"
+      title="LiNKaios"
+      subtitle="Sign in to your organisation workspace — missions, workers, memory, and day-to-day execution."
+      devAdminLoginHref={ADMIN_LOGIN_PATH}
+    >
+      <LicenseeLoginPanel />
+    </LoginPageShell>
   );
 }

@@ -1,11 +1,30 @@
 "use client";
 
-import { AlertCircle, AlertTriangle, Info } from "lucide-react";
+import { AlertCircle, AlertTriangle, Bell, CheckCircle2, Info } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 
 import { acknowledgeTraceAlertAction } from "@/app/(shell)/work/alert-acknowledgments-actions";
+import { WorkEmptyState } from "@/app/(shell)/work/work-empty-state";
+import {
+  ActionQueueList,
+  ActionQueueRow,
+  accentFromAlert,
+  actionQueueIconClass,
+} from "@/components/action-queue";
+import { useAppRole } from "@/components/role-preview-provider";
+import { useAppSurface } from "@/components/app-surface-provider";
 import { StatusPill } from "@/components/ui/status-pill";
 import { WorkInboxModal } from "@/components/work-inbox-modal";
+import { resolveLicenseeIdForCompany } from "@/lib/licensor-licensee-profile";
+import { resolveLicenseeRegistry } from "@/lib/licensee-registry";
+import { linkskillsRequestToWorkAlert, readLinkskillsRequests } from "@/lib/linkskills-requests";
+import {
+  EVENT_SUPPORT_TICKETS_CHANGED,
+  readOpenSupportTicketsForLicensor,
+  readSupportTicketsForLicensee,
+  supportTicketToWorkAlert,
+} from "@/lib/support-tickets";
 import type { WorkAlert } from "@/lib/work-alerts";
 
 const RESOLVED_STORAGE_KEY = "linkaios_work_alerts_resolved_ids_v1";
@@ -52,39 +71,44 @@ function initialResolvedSet(props: { traceAckPersistenceEnabled: boolean; initia
 
 function severityLabel(sev: WorkAlert["severity"]) {
   switch (sev) {
-    case "critical": return "Critical";
-    case "warning": return "Warning";
-    default: return "Info";
+    case "critical":
+      return "Critical";
+    case "warning":
+      return "Warning";
+    default:
+      return "Info";
   }
 }
 
-function severityIconClass(sev: WorkAlert["severity"], isResolved: boolean): string {
-  if (isResolved) return "mt-0.5 h-4 w-4 shrink-0 text-emerald-500 dark:text-emerald-400";
-  if (sev === "critical") return "mt-0.5 h-4 w-4 shrink-0 text-red-600 dark:text-red-400";
-  if (sev === "warning") return "mt-0.5 h-4 w-4 shrink-0 text-yellow-500 dark:text-yellow-400";
-  return "mt-0.5 h-4 w-4 shrink-0 text-sky-500 dark:text-sky-400";
-}
-
-function rowShell(sev: WorkAlert["severity"], isResolved: boolean): string {
-  if (isResolved) return "border-l-4 border-l-emerald-500 dark:border-l-emerald-500";
-  if (sev === "critical") return "border-l-4 border-l-red-600 dark:border-l-red-500";
-  if (sev === "warning") return "border-l-4 border-l-yellow-400 dark:border-l-yellow-400";
-  return "border-l-4 border-l-sky-500 dark:border-l-sky-500";
-}
-
-function rowHover(sev: WorkAlert["severity"], isResolved: boolean): string {
-  if (isResolved) return "hover:bg-emerald-50/70 dark:hover:bg-emerald-950/30";
-  if (sev === "critical") return "hover:bg-red-50/80 dark:hover:bg-red-950/30";
-  if (sev === "warning") return "hover:bg-yellow-50/90 dark:hover:bg-yellow-950/25";
-  return "hover:bg-sky-50/70 dark:hover:bg-sky-950/25";
-}
-
-function goToFixHref(a: WorkAlert): string {
+function goToFixHref(a: WorkAlert, opts: { isLicensor: boolean; appHref: (path: string) => string }): string {
+  if (a.id.startsWith("st-")) {
+    return opts.isLicensor ? opts.appHref("/admin/licensees?tab=support") : opts.appHref("/settings/support");
+  }
   const blob = `${a.title} ${a.summary} ${a.source}`.toLowerCase();
-  if (blob.includes("gateway") || blob.includes("zulip") || blob.includes("stream")) return "/settings/platform";
-  if (blob.includes("brain") || blob.includes("memory") || blob.includes("draft")) return "/memory?tab=inbox";
-  if (blob.includes("skill") || blob.includes("tool")) return "/skills/skills";
-  return "/workers";
+  if (a.id.startsWith("lsr-")) return opts.appHref("/skills/skills");
+  if (blob.includes("gateway") || blob.includes("zulip") || blob.includes("stream")) return opts.appHref("/settings/platform");
+  if (blob.includes("brain") || blob.includes("memory") || blob.includes("draft")) return opts.appHref("/memory?tab=inbox");
+  if (blob.includes("skill") || blob.includes("tool")) return opts.appHref("/skills/skills");
+  return opts.appHref("/workers");
+}
+
+function viewAlertHref(a: WorkAlert, opts: { isLicensor: boolean; appHref: (path: string) => string }): string {
+  if (a.id.startsWith("st-")) {
+    return opts.isLicensor ? opts.appHref("/admin/licensees?tab=support") : opts.appHref("/settings/support");
+  }
+  return opts.appHref("/settings/traces");
+}
+
+function alertIcon(a: WorkAlert, isResolved: boolean) {
+  const accent = accentFromAlert(a.severity, isResolved);
+  const iconClass = actionQueueIconClass(accent);
+  if (isResolved) {
+    return <AlertCircle className={iconClass} aria-hidden />;
+  }
+  if (a.severity === "critical" || a.severity === "warning") {
+    return <AlertTriangle className={iconClass} aria-hidden />;
+  }
+  return <Info className={iconClass} aria-hidden />;
 }
 
 export function AlertsInbox(props: {
@@ -96,6 +120,48 @@ export function AlertsInbox(props: {
   const [filter, setFilter] = useState<AlertFilter>("all");
   const [resolved, setResolved] = useState(() => initialResolvedSet(props));
   const [resolveError, setResolveError] = useState<string | null>(null);
+  const [requestAlerts, setRequestAlerts] = useState<WorkAlert[]>([]);
+  const [supportAlerts, setSupportAlerts] = useState<WorkAlert[]>([]);
+  const searchParams = useSearchParams();
+  const { kind } = useAppRole();
+  const { href: appHref } = useAppSurface();
+  const isLicensor = kind === "licensor";
+  const companyId = searchParams.get("companyId");
+  const licenseeId = resolveLicenseeIdForCompany(companyId ?? "xyz-marketing");
+
+  useEffect(() => {
+    const sync = () => {
+      setRequestAlerts(
+        readLinkskillsRequests()
+          .filter((r) => r.status === "open")
+          .map(linkskillsRequestToWorkAlert),
+      );
+    };
+    sync();
+    window.addEventListener("linkaios-linkskills-requests-changed", sync);
+    return () => window.removeEventListener("linkaios-linkskills-requests-changed", sync);
+  }, []);
+
+  useEffect(() => {
+    const sync = () => {
+      const tickets = isLicensor
+        ? readOpenSupportTicketsForLicensor()
+        : readSupportTicketsForLicensee(licenseeId).filter((t) => t.status !== "resolved");
+      setSupportAlerts(
+        tickets.map((t) =>
+          supportTicketToWorkAlert(t, resolveLicenseeRegistry(t.licenseeId)?.name ?? t.licenseeId),
+        ),
+      );
+    };
+    sync();
+    window.addEventListener(EVENT_SUPPORT_TICKETS_CHANGED, sync);
+    return () => window.removeEventListener(EVENT_SUPPORT_TICKETS_CHANGED, sync);
+  }, [isLicensor, licenseeId]);
+
+  const allItems = useMemo(() => {
+    const merged = [...props.items, ...requestAlerts, ...supportAlerts];
+    return merged.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  }, [props.items, requestAlerts, supportAlerts]);
 
   useEffect(() => {
     if (!props.traceAckPersistenceEnabled) {
@@ -128,7 +194,7 @@ export function AlertsInbox(props: {
   );
 
   const visible = useMemo(() => {
-    return props.items.filter((a) => {
+    return allItems.filter((a) => {
       const isResolved = resolved.has(a.id);
       if (filter === "resolved") return isResolved;
       if (isResolved) return false;
@@ -137,7 +203,7 @@ export function AlertsInbox(props: {
       if (filter === "info") return a.severity !== "critical" && a.severity !== "warning";
       return true;
     });
-  }, [props.items, filter, resolved]);
+  }, [allItems, filter, resolved]);
 
   const filterBtnClass = (f: AlertFilter): string => {
     const active = filter === f;
@@ -189,48 +255,56 @@ export function AlertsInbox(props: {
         {filterBtn("resolved", "Resolved")}
       </div>
 
-      <ul className="divide-y divide-zinc-200 overflow-hidden rounded-xl border border-zinc-200 bg-white dark:divide-zinc-800 dark:border-zinc-800 dark:bg-zinc-950">
-        {visible.length === 0 ? (
-          <li className="px-4 py-12 text-center text-sm text-zinc-500">No alerts in this view.</li>
-        ) : (
-          visible.map((a) => {
+      {visible.length === 0 ? (
+        <WorkEmptyState
+          icon={filter === "resolved" ? CheckCircle2 : Bell}
+          title={
+            filter === "resolved"
+              ? "No resolved alerts"
+              : filter === "all"
+                ? "No alerts yet"
+                : `No ${filter} alerts`
+          }
+          description={
+            filter === "all"
+              ? "System traces and governance events will appear here when something needs review."
+              : filter === "resolved"
+                ? "Resolved alerts stay in this view until you clear filters."
+                : "Try another severity filter or show all open alerts."
+          }
+          actions={
+            filter === "all"
+              ? [{ kind: "link", label: "Open system logs", href: "/settings/traces", variant: "secondary" }]
+              : filter !== "resolved"
+                ? [{ kind: "button", label: "Show all alerts", onClick: () => setFilter("all") }]
+                : [{ kind: "button", label: "Show open alerts", onClick: () => setFilter("all") }]
+          }
+        />
+      ) : (
+        <ActionQueueList>
+          {visible.map((a) => {
             const isResolved = resolved.has(a.id);
+            const accent = accentFromAlert(a.severity, isResolved);
             return (
               <li key={a.id}>
-                <button
-                  type="button"
-                  onClick={() => setSelected(a)}
-                  className={
-                    "flex w-full items-start gap-3 px-4 py-4 text-left transition " +
-                    rowShell(a.severity, isResolved) + " " +
-                    rowHover(a.severity, isResolved)
-                  }
-                >
-                  <span aria-hidden>
-                    {isResolved ? (
-                      <AlertCircle className={severityIconClass(a.severity, true)} />
-                    ) : a.severity === "critical" ? (
-                      <AlertTriangle className={severityIconClass(a.severity, false)} />
-                    ) : a.severity === "warning" ? (
-                      <AlertTriangle className={severityIconClass(a.severity, false)} />
-                    ) : (
-                      <Info className={severityIconClass(a.severity, false)} />
-                    )}
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="font-medium text-zinc-900 dark:text-zinc-100">{a.title}</span>
+                <ActionQueueRow
+                  accent={accent}
+                  icon={alertIcon(a, isResolved)}
+                  title={
+                    <span className="inline-flex min-w-0 flex-wrap items-center gap-2">
+                      <span className="truncate">{a.title}</span>
                       {isResolved ? <StatusPill label="Resolved" tone="success" /> : null}
-                    </div>
-                    <p className="mt-1 line-clamp-2 text-sm text-zinc-600 dark:text-zinc-400">{a.summary}</p>
-                    <p className="mt-2 text-xs text-zinc-400">{formatRelativeTime(a.createdAt)}</p>
-                  </div>
-                </button>
+                    </span>
+                  }
+                  subtitle={a.summary}
+                  meta={formatRelativeTime(a.createdAt)}
+                  onRowClick={() => setSelected(a)}
+                />
               </li>
             );
-          })
-        )}
-      </ul>
+          })}
+        </ActionQueueList>
+      )}
 
       <WorkInboxModal
         open={selected != null}
@@ -257,14 +331,14 @@ export function AlertsInbox(props: {
                   label: "View",
                   variant: "secondary" as const,
                   onClick: () => {
-                    window.location.href = "/settings/traces";
+                    window.location.href = viewAlertHref(selected, { isLicensor, appHref });
                   },
                 },
                 {
                   label: "Go to fix",
                   variant: "secondary" as const,
                   onClick: () => {
-                    window.location.href = goToFixHref(selected);
+                    window.location.href = goToFixHref(selected, { isLicensor, appHref });
                   },
                 },
               ]

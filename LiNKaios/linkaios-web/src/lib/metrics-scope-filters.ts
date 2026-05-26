@@ -19,19 +19,19 @@ export const DEFAULT_METRICS_SCOPE: MetricsScopeState = {
 /** Mock scope dimensions for Phase B filter stubs (UIUX-MET-M001). */
 export const DEMO_METRICS_SCOPE_OPTIONS: Record<MetricsScopeKey, MetricsFilterOption[]> = {
   module: [
-    { id: "all", label: "All modules" },
+    { id: "all", label: "All suites" },
     { id: "linksites", label: "LinkSites" },
     { id: "lexos-litigation", label: "LEXOS · Litigation" },
     { id: "linkapps", label: "LiNKapps" },
   ],
   projectType: [
-    { id: "all", label: "All project types" },
+    { id: "all", label: "All modules" },
     { id: "website-factory", label: "Website factory" },
     { id: "content-channel", label: "Content channel" },
     { id: "app-build", label: "App build" },
   ],
   workflow: [
-    { id: "all", label: "All workflows" },
+    { id: "all", label: "All phases" },
     { id: "lead-to-preview", label: "Lead → preview site" },
     { id: "copy-generation", label: "Copy generation" },
     { id: "publish-handoff", label: "Publish handoff" },

@@ -1,67 +1,49 @@
 "use client";
 
-import { Moon, Sun } from "lucide-react";
 import { useEffect, useState } from "react";
 
-import { setThemeChoice, type ThemeChoice } from "@/components/theme-root";
+import {
+  cycleTheme,
+  EVENT_APPEARANCE_THEMES_CHANGED,
+  getThemeIcon,
+  readActiveThemeId,
+  resolveThemeProfile,
+} from "@/lib/appearance-themes";
 
-function readMode(): ThemeChoice {
-  if (typeof window === "undefined") return "light";
-  const v = window.localStorage.getItem("linkaios-theme");
-  if (v === "light" || v === "dark") return v;
-  if (v === "system") {
-    const next = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-    window.localStorage.setItem("linkaios-theme", next);
-    return next;
-  }
-  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+const toolbarButtonClass =
+  "inline-flex h-8 w-8 items-center justify-center rounded-lg border border-zinc-200 bg-white text-zinc-700 transition hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-300 dark:hover:bg-zinc-900";
+
+function themeIconClass(iconId: string): string {
+  if (iconId === "Sun") return "h-4 w-4 text-amber-400";
+  if (iconId === "Moon") return "h-4 w-4 text-blue-500";
+  return "h-4 w-4";
 }
 
-export function ThemeSwitcher(props: { compact?: boolean }) {
-  const [mode, setMode] = useState<ThemeChoice>("light");
+/** Single theme button — shows the active icon and cycles rotation themes on press. */
+export function ThemeToggleButton() {
+  const [activeId, setActiveId] = useState("light");
 
   useEffect(() => {
-    setMode(readMode());
+    const sync = () => setActiveId(readActiveThemeId());
+    sync();
+    window.addEventListener(EVENT_APPEARANCE_THEMES_CHANGED, sync);
+    return () => window.removeEventListener(EVENT_APPEARANCE_THEMES_CHANGED, sync);
   }, []);
 
-  function pick(next: ThemeChoice) {
-    setMode(next);
-    setThemeChoice(next);
-  }
+  const activeTheme = resolveThemeProfile(activeId);
+  if (!activeTheme) return null;
+
+  const Icon = getThemeIcon(activeTheme.icon);
 
   return (
-    <div
-      className={
-        props.compact
-          ? "flex w-full items-center justify-between px-2 py-1"
-          : "mb-2 flex w-full items-center justify-between px-2 py-1.5"
-      }
+    <button
+      type="button"
+      className={toolbarButtonClass}
+      aria-label={`Cycle theme (currently ${activeTheme.name})`}
+      title={`${activeTheme.name} — click to cycle themes`}
+      onClick={() => cycleTheme()}
     >
-      <span className="text-sm font-medium text-zinc-800 dark:text-zinc-100">Theme</span>
-      <div className="flex shrink-0 items-center gap-0.5" role="group" aria-label="Theme">
-        <button
-          type="button"
-          onClick={() => pick("light")}
-          aria-pressed={mode === "light"}
-          aria-label="Sun appearance"
-          className={`p-1.5 text-amber-600 outline-none transition dark:text-amber-400 ${
-            mode === "light" ? "opacity-100" : "opacity-45 hover:opacity-80"
-          }`}
-        >
-          <Sun className="h-4 w-4" aria-hidden />
-        </button>
-        <button
-          type="button"
-          onClick={() => pick("dark")}
-          aria-pressed={mode === "dark"}
-          aria-label="Moon appearance"
-          className={`p-1.5 text-sky-800 outline-none transition dark:text-sky-300 ${
-            mode === "dark" ? "opacity-100" : "opacity-45 hover:opacity-80"
-          }`}
-        >
-          <Moon className="h-4 w-4" aria-hidden />
-        </button>
-      </div>
-    </div>
+      <Icon className={themeIconClass(activeTheme.icon)} aria-hidden />
+    </button>
   );
 }

@@ -1,7 +1,9 @@
 import Link from "next/link";
 
-import { EntityTable } from "@/components/entity-table";
+import { TracesLogEventsTable } from "@/components/traces-log-events-table";
+import { InsetSelect } from "@/components/forms";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { FIELD, FORM } from "@/lib/ui-standards";
 
 const MISSION_ID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
@@ -48,7 +50,7 @@ export async function TracesView(props: TracesViewProps) {
   const tableRows = (data ?? []).map((row) => ({
     event_type: row.event_type,
     project: row.mission_id,
-    created_at: row.created_at,
+    created_at: row.created_at ?? "",
   }));
 
   return (
@@ -74,16 +76,12 @@ export async function TracesView(props: TracesViewProps) {
             className="mt-1 w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 shadow-sm dark:border-zinc-600 dark:bg-zinc-950 dark:text-zinc-100"
           />
         </label>
-        <label className="block min-w-[8rem] text-sm text-zinc-800 dark:text-zinc-200">
-          Prefix
-          <select
-            name="event_prefix"
-            defaultValue={eventPrefix}
-            className="mt-1 w-full rounded-md border border-zinc-300 bg-white px-2 py-2 text-sm text-zinc-900 dark:border-zinc-600 dark:bg-zinc-950 dark:text-zinc-100"
-          >
+        <label className={`block min-w-[8rem] ${FORM.fieldStack}`}>
+          <span className={`${FIELD.label} text-sm text-zinc-800 dark:text-zinc-200`}>Prefix</span>
+          <InsetSelect compact name="event_prefix" defaultValue={eventPrefix}>
             <option value="">(none)</option>
             <option value="tool">tool.*</option>
-          </select>
+          </InsetSelect>
         </label>
         <button
           type="submit"
@@ -103,12 +101,7 @@ export async function TracesView(props: TracesViewProps) {
         {!error && (data ?? []).length === 0 ? (
           <p className="mb-4 text-sm text-zinc-600 dark:text-zinc-400">No rows match the current filters.</p>
         ) : null}
-        <EntityTable
-          title="Log events"
-          rows={tableRows as Record<string, unknown>[]}
-          columns={["event_type", "project", "created_at"]}
-          columnHeaders={["Event", "Project", "Time"]}
-        />
+        <TracesLogEventsTable rows={tableRows} />
       </div>
     </div>
   );

@@ -1,6 +1,7 @@
-import Link from "next/link";
+import { BookOpen, Clock } from "lucide-react";
 
-import { isCommandCentreAdmin } from "@/lib/command-centre-access";
+import { TitledCardHeader } from "@/components/titled-card-header";
+import { requireLicensorOperator } from "@/lib/licensor-access";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 import {
@@ -17,12 +18,9 @@ export const dynamic = "force-dynamic";
 type ToolRow = { id: string; name: string; status: string; tool_type: string };
 
 export default async function SettingsToolsPage() {
+  await requireLicensorOperator();
+
   const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  const isAdmin =
-    user?.id != null ? await isCommandCentreAdmin(supabase, { userId: user.id, email: user.email }) : false;
 
   const { data: tools } = await supabase.schema("linkaios").from("tools").select("id, name, status, tool_type").order("name");
 
@@ -42,25 +40,8 @@ export default async function SettingsToolsPage() {
 
   return (
     <main className="space-y-8">
-      <header>
-        <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">Tool permissions</h2>
-        <p className="mt-2 max-w-2xl text-sm text-zinc-600 dark:text-zinc-400">
-          Control which tools are allowed for the organization, which defaults apply when no project is selected, and how
-          project-level requests flow. Only <strong>admins</strong> can change org-wide policy.
-        </p>
-        {!isAdmin ? (
-          <p className="mt-3 text-sm text-amber-800">
-            Signed in as non-admin — org allowlist controls are read-only. Request an admin role in{" "}
-            <Link href="/settings/user#team-permissions" className="underline">
-              Team &amp; permissions
-            </Link>
-            .
-          </p>
-        ) : null}
-      </header>
-
       <section className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm">
-        <h3 className="text-sm font-semibold uppercase tracking-wide text-zinc-500">Catalog</h3>
+        <TitledCardHeader icon={BookOpen} title="Catalog" titleClassName="text-sm font-semibold text-zinc-500 dark:text-zinc-400" />
         <ul className="mt-4 divide-y divide-zinc-100 rounded-lg border border-zinc-100">
           {(tools ?? []).map((t: ToolRow) => (
             <li key={t.id} className="flex flex-wrap items-center justify-between gap-2 px-3 py-2.5 text-sm">
@@ -73,11 +54,7 @@ export default async function SettingsToolsPage() {
               <div className="flex flex-wrap gap-2">
                 {orgSet.has(t.id) ? (
                   <form action={removeOrgAllowlistTool.bind(null, t.id)}>
-                    <button
-                      type="submit"
-                      disabled={!isAdmin}
-                      className="rounded border border-zinc-300 px-2 py-1 text-xs disabled:opacity-40"
-                    >
+                    <button type="submit" className="rounded border border-zinc-300 px-2 py-1 text-xs">
                       Remove from org allowlist
                     </button>
                   </form>
@@ -85,7 +62,7 @@ export default async function SettingsToolsPage() {
                   <form action={addOrgAllowlistTool.bind(null, t.id)}>
                     <button
                       type="submit"
-                      disabled={!isAdmin || t.status === "archived"}
+                      disabled={t.status === "archived"}
                       className="rounded bg-zinc-900 px-2 py-1 text-xs text-white disabled:opacity-40"
                     >
                       Allow at org
@@ -94,7 +71,7 @@ export default async function SettingsToolsPage() {
                 )}
                 {mlSet.has(t.id) ? (
                   <form action={removeMissionlessDefaultTool.bind(null, t.id)}>
-                    <button type="submit" disabled={!isAdmin} className="rounded border px-2 py-1 text-xs disabled:opacity-40">
+                    <button type="submit" className="rounded border px-2 py-1 text-xs">
                       Remove project-agnostic default
                     </button>
                   </form>
@@ -102,7 +79,7 @@ export default async function SettingsToolsPage() {
                   <form action={addMissionlessDefaultTool.bind(null, t.id)}>
                     <button
                       type="submit"
-                      disabled={!isAdmin || !orgSet.has(t.id)}
+                      disabled={!orgSet.has(t.id)}
                       className="rounded border border-emerald-200 px-2 py-1 text-xs text-emerald-900 disabled:opacity-40"
                     >
                       Default without project
@@ -111,14 +88,14 @@ export default async function SettingsToolsPage() {
                 )}
                 {t.status !== "archived" && t.status === "approved" ? (
                   <form action={archiveCatalogTool.bind(null, t.id)}>
-                    <button type="submit" disabled={!isAdmin} className="rounded border px-2 py-1 text-xs disabled:opacity-40">
+                    <button type="submit" className="rounded border px-2 py-1 text-xs">
                       Archive
                     </button>
                   </form>
                 ) : null}
                 {t.status === "draft" ? (
                   <form action={deleteDraftCatalogTool.bind(null, t.id)}>
-                    <button type="submit" disabled={!isAdmin} className="rounded border border-red-200 px-2 py-1 text-xs text-red-800 disabled:opacity-40">
+                    <button type="submit" className="rounded border border-red-200 px-2 py-1 text-xs text-red-800">
                       Delete draft
                     </button>
                   </form>
@@ -130,8 +107,12 @@ export default async function SettingsToolsPage() {
       </section>
 
       <section className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm">
-        <h3 className="text-sm font-semibold uppercase tracking-wide text-zinc-500">Org-wide pending (no mission)</h3>
-        <p className="mt-1 text-xs text-zinc-600">Runtime-block approvals that target org allowlist appear here when created.</p>
+        <TitledCardHeader
+          icon={Clock}
+          title="Org-Wide Pending (No Project)"
+          description="Runtime-block approvals that target org allowlist appear here when created."
+          titleClassName="text-sm font-semibold text-zinc-500 dark:text-zinc-400"
+        />
         <ul className="mt-3 text-sm text-zinc-700">
           {(pendingOrg ?? []).length === 0 ? (
             <li className="text-zinc-500">None.</li>
@@ -144,7 +125,7 @@ export default async function SettingsToolsPage() {
           )}
         </ul>
         <p className="mt-4 text-xs text-zinc-500">
-          Approve org-level requests from the database RPC or extend this page with the same buttons as mission Tools.
+          Approve org-level requests from the database RPC or extend this page with the same buttons as project Tools.
         </p>
       </section>
     </main>

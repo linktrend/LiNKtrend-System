@@ -63,9 +63,9 @@ export default async function VentureDetailPage({ params }: VentureDetailPagePro
     <div className="space-y-6">
       {/* Breadcrumb */}
       <div className="flex items-center gap-2 text-sm text-muted-foreground">
-        <Link href="/modules/linkapps" className="hover:underline">LiNKapps</Link>
+        <Link href="/suites/linkapps" className="hover:underline">LiNKapps</Link>
         <span>/</span>
-        <Link href="/modules/linkapps/ventures" className="hover:underline">Ventures</Link>
+        <Link href="/suites/linkapps/ventures" className="hover:underline">Ventures</Link>
         <span>/</span>
         <span className="text-foreground">{venture.name}</span>
       </div>
@@ -91,7 +91,7 @@ export default async function VentureDetailPage({ params }: VentureDetailPagePro
         </div>
         <div className="flex gap-2">
           <Link
-            href={`/modules/linkapps/ventures/${id}/logs`}
+            href={`/suites/linkapps/ventures/${id}/logs`}
             className="inline-flex items-center justify-center rounded-md border px-3 py-1.5 text-sm hover:bg-muted"
           >
             View Logs
@@ -148,7 +148,7 @@ export default async function VentureDetailPage({ params }: VentureDetailPagePro
             <SquadMemberRow role="Backend Specialist" botId={venture.squad.backendSpecialist} status="active" />
           </div>
           <div className="mt-4 pt-4 border-t">
-            <Link href={`/modules/linkapps/ventures/${id}/squad`} className="text-sm text-primary hover:underline">
+            <Link href={`/suites/linkapps/ventures/${id}/squad`} className="text-sm text-primary hover:underline">
               Manage squad →
             </Link>
           </div>

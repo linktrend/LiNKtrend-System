@@ -22,7 +22,7 @@ export function LinkbrainWorkspaceFooter(props: { overviewBrain: LinkbrainOvervi
           ·
         </span>
         <span className="text-zinc-500 dark:text-zinc-500" title="Planned — PM-006">
-          Workflow memory (planned)
+          Phase memory (planned)
         </span>
       </div>
       {ob ? (

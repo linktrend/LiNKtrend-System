@@ -3,12 +3,18 @@ import Link from "next/link";
 import { listMissions } from "@linktrend/linklogic-sdk";
 import type { MissionRecord } from "@linktrend/shared-types";
 
-import { ProjectsIndexTable, type ProjectRowModal } from "@/components/projects-index-table";
-import { ProjectsPlaneStrip } from "@/components/projects-plane-strip";
+import { AddProjectHeaderAction } from "@/components/role-gated-ui";
+import { ProjectsIndexTable } from "@/components/projects-index-table";
 import { ShellPageHeaderClient } from "@/components/shell-page-header-client";
-import { getPlaneBridgeConfig, planeProjectBoardHref, planeWorkspaceProjectsHref } from "@/lib/plane-links";
+import {
+  ProjectLifecycleSummaryGrid,
+  SummaryMetricCardSection,
+} from "@/components/summary-metric-card";
+import { getPlaneBridgeConfig, planeWorkspaceProjectsHref } from "@/lib/plane-links";
+import { projectIndexRowFromMission } from "@/lib/project-index-rows";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { BUTTON } from "@/lib/ui-standards";
+import type { ProjectSummaryColumnKey } from "@/lib/project-status-ui";
+import { UiButton } from "@/components/ui/button-bridge";
 import { DEMO_SIDEBAR_MISSIONS } from "@/lib/ui-mocks/entities";
 import { isUiMocksEnabled } from "@/lib/ui-mocks/flags";
 import { DEMO_MISSION_PLANE_BRIDGE, demoMissionsFixtureRows } from "@/lib/ui-mocks/missions-fixtures";
@@ -16,7 +22,7 @@ import { DEMO_MISSION_PLANE_BRIDGE, demoMissionsFixtureRows } from "@/lib/ui-moc
 export const dynamic = "force-dynamic";
 
 const COLUMN_ORDER: {
-  key: string;
+  key: ProjectSummaryColumnKey;
   title: string;
   statuses: MissionRecord["status"][];
 }[] = [
@@ -25,18 +31,6 @@ const COLUMN_ORDER: {
   { key: "completed", title: "Completed", statuses: ["completed"] },
   { key: "attention", title: "Attention", statuses: ["failed", "cancelled"] },
 ];
-
-function leadLabel(id: string | null) {
-  if (id === "demo-lisa") return "Lisa (CEO)";
-  if (id === "demo-eric") return "Eric (CTO)";
-  if (!id) return "—";
-  return `LiNKbot …${id.slice(0, 8)}`;
-}
-
-function leadHref(id: string | null) {
-  if (!id) return null;
-  return `/workers/${id}/sessions`;
-}
 
 export default async function ProjectsListPage() {
   const supabase = await createSupabaseServerClient();
@@ -48,9 +42,12 @@ export default async function ProjectsListPage() {
 
   if (error) {
     return (
-      <main>
-        <h1 className="text-xl font-semibold text-zinc-900 dark:text-zinc-100">Projects</h1>
-        <p className="mt-4 text-sm text-red-700 dark:text-red-400">{error.message}</p>
+      <main className="space-y-6">
+        <ShellPageHeaderClient
+          title="Projects"
+          subtitle="Pipeline by lifecycle stage — suite, phase, and active issue for each project."
+        />
+        <p className="text-sm text-red-700 dark:text-red-400">{error.message}</p>
       </main>
     );
   }
@@ -65,88 +62,47 @@ export default async function ProjectsListPage() {
     ...col,
     items: merged.filter((m) => col.statuses.includes(m.status)),
   }));
+  const lifecycleCounts = Object.fromEntries(
+    byColumn.map((col) => [col.key, col.items.length]),
+  ) as Record<ProjectSummaryColumnKey, number>;
 
   return (
     <main className="space-y-10">
       <ShellPageHeaderClient
         title="Projects"
-        subtitle="All active client work — who leads it, what module it belongs to, and Plane sync status."
-        actions={
-          <Link href="/projects/new" className={BUTTON.primaryRow}>
-            New Project
-          </Link>
-        }
+        subtitle="Pipeline by lifecycle stage — suite, phase, and active issue for each project."
+        actions={<AddProjectHeaderAction />}
       />
 
-      <ProjectsPlaneStrip workspaceProjectsHref={planeProjectsHref} />
-
-      <section aria-label="Lifecycle summary">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">At a glance</h2>
-        <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {byColumn.map((col) => (
-            <div key={col.key} className="rounded-xl border border-zinc-200 bg-white px-4 py-3 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
-              <p className="text-xs font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">{col.title}</p>
-              <p className="mt-1 text-2xl font-semibold tabular-nums text-zinc-900 dark:text-zinc-100">{col.items.length}</p>
-            </div>
-          ))}
-        </div>
-      </section>
+      <SummaryMetricCardSection title="At a glance" aria-label="Lifecycle summary">
+        <ProjectLifecycleSummaryGrid counts={lifecycleCounts} />
+      </SummaryMetricCardSection>
 
       <section aria-label="All projects">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">All projects</h2>
+        <h2 className="text-sm font-semibold text-zinc-500 dark:text-zinc-400">All projects</h2>
         {merged.length === 0 ? (
           <div className="mt-6 rounded-xl border border-dashed border-zinc-300 bg-zinc-50/80 p-8 text-center dark:border-zinc-700 dark:bg-zinc-900/40">
             <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">No projects yet</p>
             <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
               Once projects exist in LiNKaios they will appear here automatically.
             </p>
-            <div className="mt-4 flex flex-wrap justify-center gap-3">
-              <Link
-                href="/workers"
-                className="inline-flex rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
-              >
-                LiNKbots
-              </Link>
-              <Link
-                href="/settings/traces"
-                className="inline-flex rounded-lg border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-800 hover:bg-zinc-100 dark:border-zinc-600 dark:text-zinc-200 dark:hover:bg-zinc-800"
-              >
-                System logs
-              </Link>
+            <div className="mt-4 flex flex-wrap justify-center gap-2">
+              <AddProjectHeaderAction />
+              <UiButton asChild buttonKey="secondaryRow">
+                <Link href="/suites/marketplace">Browse Marketplace</Link>
+              </UiButton>
             </div>
           </div>
         ) : (
           <ProjectsIndexTable
             planeWorkspaceHref={planeProjectsHref}
-            rows={merged.map((m): ProjectRowModal => {
-              const bridge = uiMocksEnabled ? DEMO_MISSION_PLANE_BRIDGE[String(m.id)] : undefined;
-              const code = bridge?.code ?? `…${String(m.id).slice(0, 8)}`;
-              const planeRowHref = planeProjectBoardHref(planeCfg, bridge?.code ?? null);
-              const cycle = bridge?.activeCycle ?? "—";
-              const open = bridge?.openWorkItems ?? 0;
-              const blockers = bridge?.blockers ?? 0;
-              const lh = leadHref(m.primary_agent_id);
-              return {
-                id: String(m.id),
-                title: m.title,
-                status: m.status,
-                moduleName: bridge?.moduleName ?? "Unmapped module",
-                projectTypeName: bridge?.projectTypeName ?? "Unmapped project type",
-                workflowName: bridge?.workflowName ?? "Workflow pending",
-                activeIssue: bridge?.activeIssue ?? "No active issue linked",
-                approvalGate: bridge?.approvalGate ?? "Approval policy pending",
-                planeSyncStatus: bridge?.planeSyncStatus ?? "pending",
-                leadLabel: leadLabel(m.primary_agent_id),
-                leadHref: lh,
-                planeRowHref,
-                code,
-                cycle,
-                open,
-                blockers,
-                updated: m.updated_at?.slice(0, 10) ?? "—",
-                hasBridge: Boolean(bridge),
-              };
-            })}
+            rows={merged.map((m) =>
+              projectIndexRowFromMission(
+                m,
+                planeCfg,
+                uiMocksEnabled ? DEMO_MISSION_PLANE_BRIDGE[String(m.id)] : undefined,
+              ),
+            )}
           />
         )}
       </section>

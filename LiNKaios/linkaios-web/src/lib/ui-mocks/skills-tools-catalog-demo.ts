@@ -10,7 +10,7 @@ export const DEMO_SKILL_CATALOG_ROWS: SkillCatalogRow[] = [
     name: "linktrend.exec_briefing",
     type: "Skill",
     category: "Strategy",
-    description: "Synthesise mission deltas into a one-page exec briefing with citations.",
+    description: "Synthesise project deltas into a one-page exec briefing with citations.",
     published: true,
     runtimeEnabled: true,
     status: "approved",

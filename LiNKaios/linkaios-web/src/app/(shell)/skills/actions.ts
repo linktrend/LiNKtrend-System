@@ -30,6 +30,7 @@ import {
   writeSkillScripts,
   type SkillScriptRow,
 } from "@/lib/skills-admin";
+import { applyGoldenTemplateName, loadGoldenSkillTemplateMarkdown } from "@/lib/load-golden-skill-template";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -96,6 +97,7 @@ export async function createSkill(input: {
   name: string;
   category: string;
   description: string;
+  useGoldenTemplate?: boolean;
 }): Promise<CreateSkillResult> {
   const gate = await assertWriter();
   if (!gate.ok) return { ok: false, error: gate.error };
@@ -129,11 +131,14 @@ export async function createSkill(input: {
     .eq("slug", "general")
     .maybeSingle();
   const categoryId = (catMatch as { id?: string } | null)?.id ?? (genCat as { id?: string } | null)?.id ?? null;
+  const bodyMarkdown = input.useGoldenTemplate
+    ? applyGoldenTemplateName(loadGoldenSkillTemplateMarkdown(), name)
+    : `# ${name.replace(/-/g, " ")}\n\n`;
   const insertRow: Record<string, unknown> = {
     name,
     version: 1,
     status: "draft",
-    body_markdown: `# ${name}\n\n`,
+    body_markdown: bodyMarkdown,
     metadata,
     default_declared_tools: [] as string[],
   };

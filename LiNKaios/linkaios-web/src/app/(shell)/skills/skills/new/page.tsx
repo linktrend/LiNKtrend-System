@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { ShellPageHeaderClient } from "@/components/shell-page-header-client";
 import { SkillCreateForm } from "@/components/skill-create-form";
 
 export const dynamic = "force-dynamic";
@@ -12,12 +13,10 @@ export default function NewSkillPage() {
           ← Skills catalogue
         </Link>
       </div>
-      <header className="border-b border-zinc-200 pb-6 dark:border-zinc-800">
-        <h1 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">Add Skill</h1>
-        <p className="mt-2 max-w-2xl text-sm text-zinc-600 dark:text-zinc-400">
-          Creates a draft you can open to edit the prompt, tools, and files.
-        </p>
-      </header>
+      <ShellPageHeaderClient
+        title="Add Skill"
+        subtitle="Create a draft using the golden skill template (frontmatter, body, references, scripts) or a minimal blank scaffold."
+      />
       <SkillCreateForm />
     </main>
   );

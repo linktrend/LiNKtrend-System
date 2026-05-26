@@ -1,20 +1,21 @@
-import Link from "next/link";
-
 import { listBrainDraftsForInbox } from "@linktrend/linklogic-sdk";
-import { AlertTriangle, Brain, MessageSquare, Radio } from "lucide-react";
+import { Inbox } from "lucide-react";
 
-import { AttentionQueueRow } from "@/components/attention-queue-row";
-import { StatusPill } from "@/components/ui/status-pill";
+import { WorkEmptyState } from "@/app/(shell)/work/work-empty-state";
+import { AttentionQueueRow, ActionQueueList } from "@/components/action-queue";
 import { ShellPageHeaderClient } from "@/components/shell-page-header-client";
+import { SummaryMetricCardGrid, WorkStreamCard } from "@/components/work-stream-card";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { alertToneFromMerged, type WorkRowTone } from "@/lib/overview-dashboard";
+import { WORK_STREAM_STATUS_PILL_LABELS } from "@/lib/status-colors";
 import { buildAttentionFeed } from "@/lib/work-attention-feed";
 import { DEMO_CHANNEL_THREADS } from "@/lib/ui-mocks/channel-threads";
 import { isUiMocksEnabled } from "@/lib/ui-mocks/flags";
 import { DEMO_SESSION_THREADS } from "@/lib/ui-mocks/session-threads";
 import { DEMO_WORK_ALERTS } from "@/lib/ui-mocks/work-alert-fixtures";
 import { traceToWorkAlert } from "@/lib/work-alerts";
-import { groupZulipIntoThreads } from "@/lib/work-messages";
+import { groupZulipIntoThreads, prepareChannelThreads } from "@/lib/work-messages";
+import { getZulipSiteUrlFromEnv } from "@/lib/zulip-links";
 import { missionIdFromSessionMetadata } from "@/lib/session-display";
 import { mapWorkerSessionsToThreads } from "@/lib/work-sessions";
 
@@ -22,16 +23,6 @@ export const dynamic = "force-dynamic";
 
 function streamToneClass(_tone: WorkRowTone): string {
   return "border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950";
-}
-
-function WorkStreamStatusPill(props: { tone: WorkRowTone }) {
-  if (props.tone === "critical") {
-    return <StatusPill label="Needs action" tone="danger" equalWidth />;
-  }
-  if (props.tone === "attention") {
-    return <StatusPill label="Review" tone="warning" equalWidth />;
-  }
-  return <StatusPill label="OK" tone="success" equalWidth />;
 }
 
 export default async function WorkDashboardPage() {
@@ -86,9 +77,13 @@ export default async function WorkDashboardPage() {
     (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
   );
 
-  const zulipThreads = zulipRes.data?.length ? groupZulipIntoThreads(zulipRes.data) : [];
-  const messagesMerged = [...(uiMocksEnabled ? DEMO_CHANNEL_THREADS : []), ...zulipThreads].sort(
-    (a, b) => new Date(b.lastActivity).getTime() - new Date(a.lastActivity).getTime(),
+  const zulipSiteUrl = getZulipSiteUrlFromEnv();
+  const zulipThreads = zulipRes.data?.length ? groupZulipIntoThreads(zulipRes.data, { zulipSiteUrl }) : [];
+  const messagesMerged = prepareChannelThreads(
+    [...(uiMocksEnabled ? DEMO_CHANNEL_THREADS : []), ...zulipThreads].sort(
+      (a, b) => new Date(b.lastActivity).getTime() - new Date(a.lastActivity).getTime(),
+    ),
+    { zulipSiteUrl },
   );
 
   const agentName = new Map<string, string>();
@@ -137,7 +132,6 @@ export default async function WorkDashboardPage() {
   const running = runningSessionsRes.error ? 0 : runningSessionsRes.count ?? 0;
   const sessTone: WorkRowTone = runningSessionsRes.error ? "critical" : running > 0 ? "ok" : "attention";
   const brainTone: WorkRowTone = brainCount > 0 ? "attention" : "ok";
-
   return (
     <main className="space-y-8">
       <ShellPageHeaderClient
@@ -146,90 +140,60 @@ export default async function WorkDashboardPage() {
       />
 
       <section>
-        <h2 className="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Work streams</h2>
-        <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          <Link
-            href="/work/alerts"
-            className={`flex flex-col rounded-xl border p-4 shadow-sm transition hover:-translate-y-px hover:shadow-md ${streamToneClass(alertTone)}`}
-          >
-            <div className="flex items-start justify-between gap-2">
-              <span className="flex min-w-0 items-center gap-2 text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
-                <AlertTriangle className="h-4 w-4 shrink-0" aria-hidden />
-                Alerts
-              </span>
-              <WorkStreamStatusPill tone={alertTone} />
-            </div>
-            <p className="mt-3 text-3xl font-semibold tabular-nums text-zinc-900 dark:text-zinc-50">{alertsMerged.length}</p>
-            <p className="mt-2 line-clamp-2 text-xs text-zinc-600 dark:text-zinc-400">
-              {alertsMerged[0]?.title ?? "—"}
-            </p>
-          </Link>
-
-          <Link
-            href="/work/messages"
-            className={`flex flex-col rounded-xl border p-4 shadow-sm transition hover:-translate-y-px hover:shadow-md ${streamToneClass(msgTone)}`}
-          >
-            <div className="flex items-start justify-between gap-2">
-              <span className="flex min-w-0 items-center gap-2 text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
-                <MessageSquare className="h-4 w-4 shrink-0" aria-hidden />
-                Messages
-              </span>
-              <WorkStreamStatusPill tone={msgTone} />
-            </div>
-            <p className="mt-3 text-3xl font-semibold tabular-nums text-zinc-900 dark:text-zinc-50">{messagesMerged.length}</p>
-            <p className="mt-2 line-clamp-2 text-xs text-zinc-600 dark:text-zinc-400">
-              {messagesMerged[0] ? `${messagesMerged[0].channel}: ${messagesMerged[0].subject}` : "—"}
-            </p>
-          </Link>
-
-          <Link
-            href="/work/sessions"
-            className={`flex flex-col rounded-xl border p-4 shadow-sm transition hover:-translate-y-px hover:shadow-md ${streamToneClass(sessTone)}`}
-          >
-            <div className="flex items-start justify-between gap-2">
-              <span className="flex min-w-0 items-center gap-2 text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
-                <Radio className="h-4 w-4 shrink-0" aria-hidden />
-                Sessions
-              </span>
-              <WorkStreamStatusPill tone={sessTone} />
-            </div>
-            <p className="mt-3 text-3xl font-semibold tabular-nums text-zinc-900 dark:text-zinc-50">{sessionsMerged.length}</p>
-            <p className="mt-2 line-clamp-2 text-xs text-zinc-600 dark:text-zinc-400">
-              {sessionsMerged[0] ? `${sessionsMerged[0].agentName} — ${sessionsMerged[0].label}` : "—"}
-            </p>
-          </Link>
-
-          <Link
-            href="/memory?tab=inbox"
-            className={`flex flex-col rounded-xl border p-4 shadow-sm transition hover:-translate-y-px hover:shadow-md ${streamToneClass(brainTone)}`}
-          >
-            <div className="flex items-start justify-between gap-2">
-              <span className="flex min-w-0 items-center gap-2 text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
-                <Brain className="h-4 w-4 shrink-0" aria-hidden />
-                LiNKbrain Inbox
-              </span>
-              <WorkStreamStatusPill tone={brainTone} />
-            </div>
-            <p className="mt-3 text-3xl font-semibold tabular-nums text-zinc-900 dark:text-zinc-50">{brainCount}</p>
-            <p className="mt-2 line-clamp-2 text-xs text-zinc-600 dark:text-zinc-400">{brainPreviewLine}</p>
-          </Link>
-        </div>
+        <h2 className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Work streams</h2>
+        <SummaryMetricCardGrid className="mt-3" statusPillLabels={WORK_STREAM_STATUS_PILL_LABELS}>
+          <WorkStreamCard
+            kind="alerts"
+            tone={alertTone}
+            surfaceClass={streamToneClass(alertTone)}
+            count={alertsMerged.length}
+            preview={alertsMerged[0]?.title ?? "—"}
+          />
+          <WorkStreamCard
+            kind="messages"
+            tone={msgTone}
+            surfaceClass={streamToneClass(msgTone)}
+            count={messagesMerged.length}
+            preview={messagesMerged[0] ? `${messagesMerged[0].channel}: ${messagesMerged[0].subject}` : "—"}
+          />
+          <WorkStreamCard
+            kind="sessions"
+            tone={sessTone}
+            surfaceClass={streamToneClass(sessTone)}
+            count={sessionsMerged.length}
+            preview={sessionsMerged[0] ? `${sessionsMerged[0].agentName} — ${sessionsMerged[0].label}` : "—"}
+          />
+          <WorkStreamCard
+            kind="brain"
+            tone={brainTone}
+            surfaceClass={streamToneClass(brainTone)}
+            count={brainCount}
+            preview={brainPreviewLine}
+          />
+        </SummaryMetricCardGrid>
       </section>
 
       <section>
-        <h2 className="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Action queue</h2>
+        <h2 className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Action queue</h2>
         {queue.length === 0 ? (
-          <p className="mt-3 rounded-lg border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm text-zinc-600 dark:border-zinc-800 dark:bg-zinc-900/40 dark:text-zinc-300">
-            Nothing in the queue right now.
-          </p>
+          <WorkEmptyState
+            className="mt-3"
+            icon={Inbox}
+            title="Nothing in the queue"
+            description="When alerts, messages, or sessions need attention they will show up here."
+            actions={[
+              { kind: "link", label: "Open alerts", href: "/work/alerts" },
+              { kind: "link", label: "View projects", href: "/projects", variant: "secondary" },
+            ]}
+          />
         ) : (
-          <ul className="mt-3 divide-y divide-zinc-100 overflow-hidden rounded-xl border border-zinc-200 bg-white dark:divide-zinc-800 dark:border-zinc-800 dark:bg-zinc-950">
+          <ActionQueueList className="mt-3">
             {queue.map((item) => (
               <li key={item.id}>
                 <AttentionQueueRow item={item} />
               </li>
             ))}
-          </ul>
+          </ActionQueueList>
         )}
       </section>
 

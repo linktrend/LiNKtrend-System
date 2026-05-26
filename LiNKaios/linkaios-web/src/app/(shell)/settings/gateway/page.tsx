@@ -1,11 +1,13 @@
 import { GatewayDashboard } from "@/components/gateway-dashboard";
+import { requireLicensorOperator } from "@/lib/licensor-access";
 
 export const dynamic = "force-dynamic";
 
-export default function SettingsGatewayPage() {
+export default async function SettingsGatewayPage() {
+  await requireLicensorOperator();
+
   return (
     <main>
-      <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">Integration routing</h2>
       <GatewayDashboard />
     </main>
   );

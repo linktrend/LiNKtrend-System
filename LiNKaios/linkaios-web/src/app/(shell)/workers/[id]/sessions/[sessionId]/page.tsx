@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 
 import type { AgentRecord } from "@linktrend/shared-types";
 
+import { SessionInteractionPanel } from "@/components/session-interaction-panel";
+import { SessionBreadcrumbRegister } from "@/components/session-breadcrumb-register";
 import { DEMO_SESSION_THREADS } from "@/lib/ui-mocks/session-threads";
 import { isDemoAgentId } from "@/lib/ui-mocks/entities";
 import { isUiMocksEnabled } from "@/lib/ui-mocks/flags";
@@ -88,6 +90,7 @@ function SessionDetailShell(props: { agentId: string; row: SessionThreadRow }) {
 
   return (
     <div className="space-y-8">
+      <SessionBreadcrumbRegister sessionId={row.id} title={row.sessionTitle} />
       <header className="border-b border-zinc-200 pb-6 dark:border-zinc-800">
         <p className="text-sm text-zinc-500 dark:text-zinc-400">
           <Link href="/workers" className="text-sky-700 underline dark:text-sky-400">
@@ -103,27 +106,27 @@ function SessionDetailShell(props: { agentId: string; row: SessionThreadRow }) {
         <h1 className="mt-3 text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">{row.sessionTitle}</h1>
         <dl className="mt-4 grid gap-3 text-sm sm:grid-cols-2">
           <div>
-            <dt className="text-xs font-semibold uppercase tracking-wide text-zinc-500">Agent</dt>
+            <dt className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Agent</dt>
             <dd className="mt-1 text-zinc-900 dark:text-zinc-100">{agentName}</dd>
           </div>
           <div>
-            <dt className="text-xs font-semibold uppercase tracking-wide text-zinc-500">Project</dt>
+            <dt className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Project</dt>
             <dd className="mt-1 text-zinc-900 dark:text-zinc-100">
               {projectLabel && row.projectId ? (
                 <Link href={`/projects/${encodeURIComponent(row.projectId)}`} className="text-sky-700 underline dark:text-sky-400">
                   {projectLabel}
                 </Link>
               ) : (
-                <span className="text-zinc-500">Not linked — add mission reference in session metadata when available.</span>
+                <span className="text-zinc-500">Not linked — add project reference in session metadata when available.</span>
               )}
             </dd>
           </div>
           <div>
-            <dt className="text-xs font-semibold uppercase tracking-wide text-zinc-500">Status</dt>
+            <dt className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Status</dt>
             <dd className="mt-1 capitalize text-zinc-900 dark:text-zinc-100">{display}</dd>
           </div>
           <div>
-            <dt className="text-xs font-semibold uppercase tracking-wide text-zinc-500">Last activity</dt>
+            <dt className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Last activity</dt>
             <dd className="mt-1 text-zinc-800 dark:text-zinc-200">{new Date(row.lastActivityAt).toLocaleString()}</dd>
           </div>
         </dl>
@@ -134,7 +137,7 @@ function SessionDetailShell(props: { agentId: string; row: SessionThreadRow }) {
       </header>
 
       <section className="rounded-xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
-        <h2 className="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Timeline</h2>
+        <h2 className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Timeline</h2>
         <ol className="mt-4 space-y-3 border-l border-zinc-200 pl-4 dark:border-zinc-700">
           {timeline.map((step, i) => (
             <li key={i} className="relative">
@@ -149,7 +152,7 @@ function SessionDetailShell(props: { agentId: string; row: SessionThreadRow }) {
       </section>
 
       <section className="rounded-xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
-        <h2 className="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Outputs</h2>
+        <h2 className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Outputs</h2>
         <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
           Structured outputs from tools and gateway transcripts will render here when the runtime records them.
         </p>
@@ -158,29 +161,7 @@ function SessionDetailShell(props: { agentId: string; row: SessionThreadRow }) {
         </pre>
       </section>
 
-      <section className="rounded-xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
-        <h2 className="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Interaction</h2>
-        <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
-          Send messages into this session once your gateway bridges operator chat to bot runtime. For OpenClaw-native
-          flows, use the interface below.
-        </p>
-        <textarea
-          disabled
-          rows={4}
-          className="mt-4 w-full max-w-xl rounded-lg border border-dashed border-zinc-300 bg-zinc-50 px-3 py-2 text-sm text-zinc-500 dark:border-zinc-700 dark:bg-zinc-900/40 dark:text-zinc-400"
-          placeholder="Messaging not connected for this session…"
-        />
-        <p className="mt-3">
-          <a
-            href={openclaw}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-sm font-medium text-sky-700 underline dark:text-sky-400"
-          >
-            Open Native UI
-          </a>
-        </p>
-      </section>
+      <SessionInteractionPanel nativeUiHref={openclaw} />
     </div>
   );
 }

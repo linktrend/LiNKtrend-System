@@ -14,6 +14,7 @@ export function SkillCreateForm() {
   const [name, setName] = useState("");
   const [category, setCategory] = useState("General");
   const [description, setDescription] = useState("");
+  const [useGoldenTemplate, setUseGoldenTemplate] = useState(true);
 
   function submit() {
     setErr(null);
@@ -24,7 +25,7 @@ export function SkillCreateForm() {
     }
     startTransition(() => {
       void (async () => {
-        const r = await createSkill({ name: n, category, description });
+        const r = await createSkill({ name: n, category, description, useGoldenTemplate });
         if (!r.ok) {
           setErr("error" in r ? r.error : "Could not create skill.");
           return;
@@ -67,6 +68,22 @@ export function SkillCreateForm() {
           className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm dark:border-zinc-600 dark:bg-zinc-900 dark:text-zinc-100"
         />
       </div>
+      <label className="flex items-start gap-3 rounded-lg border border-zinc-200 bg-zinc-50/80 p-3 text-sm dark:border-zinc-700 dark:bg-zinc-900/50">
+        <input
+          type="checkbox"
+          checked={useGoldenTemplate}
+          onChange={(e) => setUseGoldenTemplate(e.target.checked)}
+          disabled={pending}
+          className="mt-0.5"
+        />
+        <span>
+          <span className="font-medium text-zinc-900 dark:text-zinc-100">Seed from golden skill template</span>
+          <span className="mt-1 block text-zinc-600 dark:text-zinc-400">
+            Pre-fills frontmatter, decision tree, references, scripts, and tooling sections from the LiNKskills golden
+            template. Turn off for a minimal blank draft.
+          </span>
+        </span>
+      </label>
       {err ? <p className="text-sm text-red-700 dark:text-red-300">{err}</p> : null}
       <button
         type="button"

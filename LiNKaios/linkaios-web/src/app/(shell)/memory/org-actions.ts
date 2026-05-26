@@ -24,7 +24,7 @@ async function requireWriter() {
 export async function createBrainOrgNodeFromForm(formData: FormData): Promise<void> {
   const { supabase, user, error } = await requireWriter();
   if (error || !user) {
-    redirect(`/company?err=${encodeURIComponent(error ?? "unauthorized")}`);
+    redirect(`/memory?tab=orgScope&err=${encodeURIComponent(error ?? "unauthorized")}`);
   }
   const dimension = String(formData.get("dimension") ?? "").trim();
   const label = String(formData.get("label") ?? "").trim();
@@ -33,7 +33,7 @@ export async function createBrainOrgNodeFromForm(formData: FormData): Promise<vo
   const validToRaw = String(formData.get("validTo") ?? "").trim();
   const validTo = validToRaw ? validToRaw : null;
   if (!dimension || !label) {
-    redirect(`/company?err=${encodeURIComponent("dimension and label are required")}`);
+    redirect(`/memory?tab=orgScope&err=${encodeURIComponent("dimension and label are required")}`);
   }
   const { error: cErr } = await createBrainOrgNode(supabase, {
     dimension,
@@ -42,35 +42,31 @@ export async function createBrainOrgNodeFromForm(formData: FormData): Promise<vo
     validFrom,
     validTo,
   });
-  revalidatePath("/company");
-  revalidatePath("/memory/company-structure");
   revalidatePath("/memory");
   if (cErr) {
-    redirect(`/company?err=${encodeURIComponent(cErr.message)}`);
+    redirect(`/memory?tab=orgScope&err=${encodeURIComponent(cErr.message)}`);
   }
-  redirect("/company");
+  redirect("/memory?tab=orgScope");
 }
 
 export async function updateBrainOrgNodeDatesFromForm(formData: FormData): Promise<void> {
   const { supabase, user, error } = await requireWriter();
   if (error || !user) {
-    redirect(`/company?err=${encodeURIComponent(error ?? "unauthorized")}`);
+    redirect(`/memory?tab=orgScope&err=${encodeURIComponent(error ?? "unauthorized")}`);
   }
   const id = String(formData.get("id") ?? "").trim();
   const validFrom = String(formData.get("validFrom") ?? "").trim();
   const validToRaw = String(formData.get("validTo") ?? "").trim();
   if (!id || !validFrom) {
-    redirect(`/company?err=${encodeURIComponent("id and validFrom required")}`);
+    redirect(`/memory?tab=orgScope&err=${encodeURIComponent("id and validFrom required")}`);
   }
   const { error: uErr } = await updateBrainOrgNode(supabase, id, {
     valid_from: validFrom,
     valid_to: validToRaw ? validToRaw : null,
   });
-  revalidatePath("/company");
-  revalidatePath("/memory/company-structure");
   revalidatePath("/memory");
   if (uErr) {
-    redirect(`/company?err=${encodeURIComponent(uErr.message)}`);
+    redirect(`/memory?tab=orgScope&err=${encodeURIComponent(uErr.message)}`);
   }
-  redirect("/company");
+  redirect("/memory?tab=orgScope");
 }

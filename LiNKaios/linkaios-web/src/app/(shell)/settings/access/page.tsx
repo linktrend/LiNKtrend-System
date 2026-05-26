@@ -1,6 +1,24 @@
-import { redirect } from "next/navigation";
+import { Suspense } from "react";
 
-/** Merged into User → Team & permissions (UIUX-SET-002). */
+import { LicensorTenantSettingsGuard } from "@/components/settings/licensor-tenant-settings-guard";
+import { PermissionsPageShell } from "@/components/settings/permissions-page-shell";
+
+import { TeamPermissionsSection } from "./team-permissions-section";
+
+export const dynamic = "force-dynamic";
+
 export default function SettingsAccessPage() {
-  redirect("/settings/user#team-permissions");
+  return (
+    <LicensorTenantSettingsGuard>
+      <Suspense fallback={<p className="text-sm text-zinc-500">Loading permissions…</p>}>
+        <PermissionsPageShell
+          teamPanel={
+            <Suspense fallback={<p className="text-sm text-zinc-500">Loading team members…</p>}>
+              <TeamPermissionsSection />
+            </Suspense>
+          }
+        />
+      </Suspense>
+    </LicensorTenantSettingsGuard>
+  );
 }

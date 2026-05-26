@@ -1,27 +1,22 @@
 import { listSkills, listTools } from "@linktrend/linklogic-sdk";
 import type { SkillRecord, ToolRecord } from "@linktrend/shared-types";
 
-import { CapabilitiesHubCards, type CapabilitiesHubSliceStats } from "@/components/capabilities-hub-cards";
-import { LinkskillsGlossaryFull } from "@/components/linkskills-glossary";
+import { CapabilitiesHubCards } from "@/components/capabilities-hub-cards";
 import { LinkskillsHubNav } from "@/components/linkskills-hub-nav";
 import { ShellPageHeaderClient } from "@/components/shell-page-header-client";
 import type { SkillCatalogRow } from "@/components/skills-catalog-table";
 import type { ToolCatalogRow } from "@/components/tools-catalog-table";
+import { loadLeaseStatus } from "@/lib/cockpit";
+import { computeCapabilitiesSliceStats, computeLeasesHubStats, type CapabilitiesSliceStatRow } from "@/lib/capabilities-slice-stats";
 import { readSkillAdminFlags } from "@/lib/skills-admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { connectorHubStats, DEMO_CONNECTOR_CATALOG_ROWS } from "@/lib/ui-mocks/capability-connectors-demo";
 import { isUiMocksEnabled } from "@/lib/ui-mocks/flags";
+import { DEMO_LEASE_ROWS } from "@/lib/ui-mocks/leases-demo";
 import { mergeSkillCatalogWithDemo, mergeToolCatalogWithDemo } from "@/lib/ui-mocks/skills-tools-catalog-demo";
 import { readToolAdminFlags } from "@/lib/tools-admin";
 
 export const dynamic = "force-dynamic";
-
-type StatRow = {
-  status: string;
-  published: boolean;
-  runtimeEnabled: boolean;
-  isFixture?: boolean;
-};
 
 function skillToRow(s: SkillRecord): SkillCatalogRow {
   const flags = readSkillAdminFlags(s);
@@ -53,19 +48,6 @@ function toolToRow(t: ToolRecord): ToolCatalogRow {
   };
 }
 
-function hubSliceStats(rows: StatRow[], sunsetStatuses: Set<string>, sunsetLabel: string): CapabilitiesHubSliceStats {
-  return {
-    total: rows.length,
-    approved: rows.filter((r) => r.status === "approved").length,
-    draft: rows.filter((r) => r.status === "draft").length,
-    sunset: rows.filter((r) => sunsetStatuses.has(r.status)).length,
-    sunsetLabel,
-    publishedOn: rows.filter((r) => r.published).length,
-    runtimeOn: rows.filter((r) => r.runtimeEnabled).length,
-    fixtures: rows.filter((r) => r.isFixture).length,
-  };
-}
-
 export default async function SkillsCapabilitiesHubPage() {
   const supabase = await createSupabaseServerClient();
   const uiMocksEnabled = isUiMocksEnabled();
@@ -84,8 +66,8 @@ export default async function SkillsCapabilitiesHubPage() {
       <main className="space-y-6">
         <ShellPageHeaderClient
           title="LiNKskills"
-          subtitle="Skills, tools, capability connectors, and governance in one place."
-          showRefresh={false}
+          subtitle="Skills, tools, governed capabilities, and leases in one place."
+         
         />
         <p className="text-sm text-amber-800 dark:text-amber-200">
           Capabilities could not be loaded. Check your connection and database migrations, then refresh.
@@ -99,33 +81,43 @@ export default async function SkillsCapabilitiesHubPage() {
   const skillRows = mergeSkillCatalogWithDemo(((skillsRes.data ?? []) as SkillRecord[]).map(skillToRow));
   const toolRows = mergeToolCatalogWithDemo(((toolsRes.data ?? []) as ToolRecord[]).map(toolToRow));
 
-  const skillsStats = hubSliceStats(
-    skillRows.map((r) => ({
-      status: r.status,
-      published: r.published,
-      runtimeEnabled: r.runtimeEnabled,
-      isFixture: r.isFixture,
-    })),
+  const skillsStats = computeCapabilitiesSliceStats(
+    skillRows.map(
+      (r): CapabilitiesSliceStatRow => ({
+        status: r.status,
+        published: r.published,
+        runtimeEnabled: r.runtimeEnabled,
+        isFixture: r.isFixture,
+      }),
+    ),
     new Set(["deprecated"]),
     "Deprecated",
   );
-  const toolsStats = hubSliceStats(
-    toolRows.map((r) => ({
-      status: r.status,
-      published: r.published,
-      runtimeEnabled: r.runtimeEnabled,
-      isFixture: r.isFixture,
-    })),
+  const toolsStats = computeCapabilitiesSliceStats(
+    toolRows.map(
+      (r): CapabilitiesSliceStatRow => ({
+        status: r.status,
+        published: r.published,
+        runtimeEnabled: r.runtimeEnabled,
+        isFixture: r.isFixture,
+      }),
+    ),
     new Set(["archived"]),
     "Archived",
   );
   const connectorsStats = connectorHubStats(DEMO_CONNECTOR_CATALOG_ROWS);
 
+  let leaseRows = await loadLeaseStatus(supabase, "default", { time_range: "24h" });
+  if (uiMocksEnabled && leaseRows.length === 0) {
+    leaseRows = DEMO_LEASE_ROWS;
+  }
+  const leasesStats = computeLeasesHubStats(leaseRows);
+
   return (
     <main className="space-y-8">
       <ShellPageHeaderClient
         title="LiNKskills"
-        subtitle="Compare catalogue health for skills, tools, connectors, and leases."
+        subtitle="Compare catalogue health for skills, tools, capabilities, and leases."
       />
       <LinkskillsHubNav />
 
@@ -135,8 +127,7 @@ export default async function SkillsCapabilitiesHubPage() {
         </p>
       ) : null}
 
-      <LinkskillsGlossaryFull />
-      <CapabilitiesHubCards skills={skillsStats} tools={toolsStats} connectors={connectorsStats} />
+      <CapabilitiesHubCards skills={skillsStats} tools={toolsStats} connectors={connectorsStats} leases={leasesStats} />
     </main>
   );
 }

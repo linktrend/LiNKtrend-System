@@ -26,6 +26,11 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { canWriteCommandCentre, getCommandCentreRoleForUser } from "@/lib/command-centre-access";
+import {
+  automationMemoryItemTags,
+  parseMemoryTagsFromForm,
+  type MemoryItemTags,
+} from "@/lib/memory-item-tags";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -122,6 +127,16 @@ function parseFileKind(v: string): BrainFileKind {
   return "standard";
 }
 
+function resolveCreationMemoryTags(
+  formData: FormData,
+  fileKind: BrainFileKind,
+): { ok: true; tags: MemoryItemTags } | { ok: false; error: string } {
+  if (fileKind === "librarian") {
+    return { ok: true, tags: automationMemoryItemTags() };
+  }
+  return parseMemoryTagsFromForm(formData);
+}
+
 export async function rejectBrainDraftFromForm(formData: FormData): Promise<void> {
   const versionId = String(formData.get("versionId") ?? "").trim();
   if (!versionId) return;
@@ -169,6 +184,10 @@ export async function createQuickNoteDraftAction(formData: FormData): Promise<vo
   if (!noteBody) {
     redirect(`/memory?tab=${formData.get("returnTab") ?? "project"}&err=${encodeURIComponent("Note text is required")}`);
   }
+  const tagResult = parseMemoryTagsFromForm(formData);
+  if (!tagResult.ok) {
+    redirect(`/memory?tab=${formData.get("returnTab") ?? "project"}&err=${encodeURIComponent(tagResult.error)}`);
+  }
   const logicalPath = `inbox/quick-${randomUUID()}.md`;
   const { data: file, error: fErr } = await getOrCreateBrainVirtualFile(supabase, {
     scope,
@@ -178,6 +197,7 @@ export async function createQuickNoteDraftAction(formData: FormData): Promise<vo
     legalEntityId,
     sensitivity,
     fileKind: "quick_note",
+    memoryTags: tagResult.tags,
   });
   if (fErr || !file) {
     redirect(`/memory?tab=project&err=${encodeURIComponent(fErr?.message ?? "virtual file")}`);
@@ -213,6 +233,11 @@ export async function createBrainDraftFromPathAction(formData: FormData): Promis
     redirect(`/memory/drafts/new?err=${encodeURIComponent("logicalPath is required")}`);
   }
 
+  const tagResult = resolveCreationMemoryTags(formData, fileKind);
+  if (!tagResult.ok) {
+    redirect(`/memory/drafts/new?err=${encodeURIComponent(tagResult.error)}`);
+  }
+
   const { data: file, error: fErr } = await getOrCreateBrainVirtualFile(supabase, {
     scope,
     logicalPath,
@@ -221,6 +246,7 @@ export async function createBrainDraftFromPathAction(formData: FormData): Promis
     legalEntityId,
     sensitivity,
     fileKind,
+    memoryTags: tagResult.tags,
   });
   if (fErr || !file) {
     redirect(`/memory/drafts/new?err=${encodeURIComponent(fErr?.message ?? "could not open virtual file")}`);
@@ -296,6 +322,11 @@ export async function uploadBrainBinaryFromForm(formData: FormData): Promise<voi
   const sensitivity = parseSensitivity(String(formData.get("sensitivity") ?? "internal"));
   const returnTab = String(formData.get("returnTab") ?? "project");
 
+  const tagResult = parseMemoryTagsFromForm(formData);
+  if (!tagResult.ok) {
+    redirect(`/memory?tab=${encodeURIComponent(returnTab)}&err=${encodeURIComponent(tagResult.error)}`);
+  }
+
   const admin = getSupabaseAdmin();
   const logicalPath = `uploads/${randomUUID()}-${safeUploadFilename(raw.name)}`;
   const objectPath = `${user.id}/${randomUUID()}-${safeUploadFilename(raw.name)}`;
@@ -320,6 +351,7 @@ export async function uploadBrainBinaryFromForm(formData: FormData): Promise<voi
     legalEntityId,
     sensitivity,
     fileKind: "upload",
+    memoryTags: tagResult.tags,
   });
   if (fErr || !file) {
     await admin.storage.from("brain-uploads").remove([objectPath]);

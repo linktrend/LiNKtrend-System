@@ -37,5 +37,7 @@ export function ThemeRoot(props: { children: React.ReactNode }) {
 
 export function setThemeChoice(choice: ThemeChoice) {
   window.localStorage.setItem("linkaios-theme", choice);
+  window.localStorage.setItem("linkaios-active-theme-id", choice);
   applyTheme(choice);
+  window.dispatchEvent(new Event("linkaios-appearance-themes-changed"));
 }

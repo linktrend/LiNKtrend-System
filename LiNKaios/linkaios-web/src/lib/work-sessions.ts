@@ -48,9 +48,9 @@ function humanSessionPreview(metadata: Record<string, unknown>, agentName: strin
         : typeof metadata.channel === "string"
           ? metadata.channel
           : null;
-  if (topic?.trim()) return topic.trim().slice(0, 140);
-  if (projectTitle) return `Linked to ${projectTitle}.`;
-  return `Session with ${agentName}.`;
+  if (topic?.trim()) return topic.trim().slice(0, 60);
+  if (projectTitle) return "Project-linked";
+  return `With ${agentName}`.slice(0, 60);
 }
 
 export function mapWorkerSessionsToThreads(

@@ -20,12 +20,13 @@ import {
 } from "@/app/(shell)/skills/actions";
 import { useRegisterBreadcrumbLabel } from "@/components/breadcrumb-label-registry";
 import { LifecyclePill } from "@/components/catalog-ui";
+import { InsetSelect } from "@/components/forms";
 import type {
   SkillAssetTableRow,
   SkillReferenceTableRow,
   SkillScriptRow,
 } from "@/lib/skills-admin";
-import { BUTTON, FIELD } from "@/lib/ui-standards";
+import { BUTTON, FIELD, FORM } from "@/lib/ui-standards";
 import type { SkillStepRecipeEntry } from "@linktrend/linklogic-sdk";
 import type { SkillStatus } from "@linktrend/shared-types";
 
@@ -440,11 +441,11 @@ export function SkillWorkspace(props: {
           </p>
           <dl className="grid max-w-3xl gap-3 text-sm sm:grid-cols-3">
             <div>
-              <dt className="text-xs font-medium uppercase tracking-wide text-zinc-500">Lifecycle</dt>
+              <dt className="text-xs font-medium text-zinc-500 dark:text-zinc-400">Lifecycle</dt>
               <dd className="mt-0.5 font-medium capitalize text-zinc-900">{props.skillStatus}</dd>
             </div>
             <div>
-              <dt className="text-xs font-medium uppercase tracking-wide text-zinc-500">Version</dt>
+              <dt className="text-xs font-medium text-zinc-500 dark:text-zinc-400">Version</dt>
               <dd className="mt-0.5 font-mono text-zinc-800">{props.version}</dd>
             </div>
           </dl>
@@ -463,13 +464,12 @@ export function SkillWorkspace(props: {
         </header>
 
         <div className="max-w-3xl space-y-4 rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950">
-          <div>
-            <label className={`block text-xs font-medium text-zinc-600 dark:text-zinc-400`}>Category (FK)</label>
-            <select
+          <label className={`block ${FORM.fieldStack}`}>
+            <span className={`${FIELD.label} text-xs text-zinc-600 dark:text-zinc-400`}>Category (FK)</span>
+            <InsetSelect
               value={categoryId ?? ""}
               onChange={(e) => setCategoryId(e.target.value || null)}
               disabled={pending}
-              className={`mt-1 block w-full ${FIELD.control}`}
             >
               <option value="">—</option>
               {props.categories.map((c) => (
@@ -477,8 +477,8 @@ export function SkillWorkspace(props: {
                   {c.title}
                 </option>
               ))}
-            </select>
-          </div>
+            </InsetSelect>
+          </label>
           <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400">
             Description
             <textarea
@@ -602,7 +602,7 @@ export function SkillWorkspace(props: {
                       />
                     </label>
                     <div className="mt-3 space-y-2">
-                      <p className="text-[11px] font-medium uppercase tracking-wide text-zinc-500">Scripts (optional)</p>
+                      <p className="text-[11px] font-medium text-zinc-500 dark:text-zinc-400">Scripts (optional)</p>
                       <p className="text-xs text-zinc-500">
                         Leave all unchecked to allow <strong>every</strong> skill script for this step. Check specific files to
                         restrict execution to that subset (stored as <code className="rounded bg-zinc-100 px-0.5 dark:bg-zinc-800">script_ids</code>).
@@ -626,7 +626,7 @@ export function SkillWorkspace(props: {
                       </div>
                     </div>
                     <div className="mt-3 space-y-2">
-                      <p className="text-[11px] font-medium uppercase tracking-wide text-zinc-500">References (optional)</p>
+                      <p className="text-[11px] font-medium text-zinc-500 dark:text-zinc-400">References (optional)</p>
                       <p className="text-xs text-zinc-500">
                         Checked rows add to <code className="rounded bg-zinc-100 px-0.5 dark:bg-zinc-800">reference_ids</code>.
                         Rows with matching <code className="rounded bg-zinc-100 px-0.5 dark:bg-zinc-800">step_ordinal</code> in the
@@ -651,7 +651,7 @@ export function SkillWorkspace(props: {
                       </div>
                     </div>
                     <div className="mt-3 space-y-2">
-                      <p className="text-[11px] font-medium uppercase tracking-wide text-zinc-500">Assets (optional)</p>
+                      <p className="text-[11px] font-medium text-zinc-500 dark:text-zinc-400">Assets (optional)</p>
                       <p className="text-xs text-zinc-500">
                         Same pattern as references: <code className="rounded bg-zinc-100 px-0.5 dark:bg-zinc-800">asset_ids</code>{" "}
                         plus table <code className="rounded bg-zinc-100 px-0.5 dark:bg-zinc-800">step_ordinal</code>.
@@ -763,10 +763,10 @@ export function SkillWorkspace(props: {
           </button>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <label className="text-xs font-medium text-zinc-600 dark:text-zinc-400">
-            Add
-            <select
-              className="ml-2 rounded-lg border border-zinc-300 bg-white px-2 py-1.5 text-sm text-zinc-900 dark:border-zinc-600 dark:bg-zinc-900 dark:text-zinc-100"
+          <label className={`inline-flex items-center gap-2 ${FORM.fieldStack}`}>
+            <span className={`${FIELD.label} text-xs text-zinc-600 dark:text-zinc-400`}>Add</span>
+            <InsetSelect
+              compact
               disabled={pending || addableTools.length === 0}
               defaultValue=""
               onChange={(e) => {
@@ -782,7 +782,7 @@ export function SkillWorkspace(props: {
                   {n}
                 </option>
               ))}
-            </select>
+            </InsetSelect>
           </label>
         </div>
         {declaredDraft.length === 0 ? (
@@ -935,21 +935,20 @@ export function SkillWorkspace(props: {
                       className={`mt-1 block w-full ${FIELD.control}`}
                     />
                   </label>
-                  <label className="block text-xs font-medium text-zinc-600">
-                    Kind
-                    <select
+                  <label className={`block ${FORM.fieldStack}`}>
+                    <span className={`${FIELD.label} text-xs text-zinc-600`}>Kind</span>
+                    <InsetSelect
                       value={r.kind}
                       onChange={(e) => {
                         const v = e.target.value as SkillReferenceTableRow["kind"];
                         setRefRows((rows) => rows.map((x, i) => (i === idx ? { ...x, kind: v } : x)));
                       }}
                       disabled={pending}
-                      className={`mt-1 block w-full ${FIELD.control}`}
                     >
                       <option value="brain_path">brain_path</option>
                       <option value="storage_uri">storage_uri</option>
                       <option value="tool_name">tool_name</option>
-                    </select>
+                    </InsetSelect>
                   </label>
                   <label className="block text-xs font-medium text-zinc-600">
                     Target

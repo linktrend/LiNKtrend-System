@@ -227,7 +227,7 @@ export const MOCK_UI_AGENT_SKILLS_ROWS: DemoAgentSkillRow[] = [
 export const MOCK_UI_AGENT_PERSONA_LAYERS: DemoPersonaLayer[] = [
   { layer: "Base persona", summary: "Direct, evidence-first tone; avoids speculation.", updated: "2026-04-02" },
   { layer: "Soul", summary: "Patient with ambiguity; asks one clarifying question when needed.", updated: "2026-04-05" },
-  { layer: "Identity", summary: "Mission-aligned operator — prioritises customer outcomes.", updated: "2026-04-09" },
+  { layer: "Identity", summary: "Project-aligned operator — prioritises customer outcomes.", updated: "2026-04-09" },
   { layer: "Agent", summary: "Default tools: memory_search, project_board (preview fixture).", updated: "2026-04-12" },
 ];
 

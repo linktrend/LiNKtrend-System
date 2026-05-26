@@ -41,6 +41,16 @@ Then implement working code that is:
 - Visually striking and memorable
 - Cohesive with a clear aesthetic point-of-view
 - Meticulously refined in every detail
+- **Minimal in copy** — labels and layout carry meaning; no hint panels or role essays unless the user asks
+
+## LiNKaios copy discipline
+
+Follow `.cursor/rules/07-ui-and-frontend-standards.mdc` **No UI hint panels**:
+
+- Do not add intro paragraphs, role-definition cards with long summaries, or section descriptions that explain what the UI already shows
+- Put role/permission nuance in code comments or agent rules (`app-roles.ts`), not on overview pages
+- Permission matrices: capability **name + checkmarks** only
+- Access denied: one short line (`Super Admin only.`) — not a paragraph
 
 ## Frontend Aesthetics Guidelines
 
@@ -145,3 +155,78 @@ Match implementation complexity to the aesthetic vision. Maximalist designs need
 Interpret creatively and make unexpected choices that feel genuinely designed for the context. No design should be the same. Vary between light and dark themes, different fonts, different aesthetics. NEVER converge on common choices across generations.
 
 Remember: {{model}} is capable of extraordinary creative work. Don't hold back—show what can truly be created when thinking outside the box and committing fully to a distinctive vision.
+
+---
+
+## LiNKtrend LiNKaios shell (mandatory when editing `linkaios-web`)
+
+### Page chrome
+
+Every shell route uses centralized tokens from `LiNKaios/linkaios-web/src/lib/ui-standards.ts`:
+
+- `SHELL.breadcrumbRow`, `SHELL.breadcrumbNav`, `SHELL.pageHeader`, `SHELL.pageTitle`, `SHELL.pageSubtitle`
+- `ShellPageHeader` / `ShellPageHeaderClient` for the title block — Title Case via `formatShellPageTitle()`, one-line subtitle
+- Do **not** duplicate breadcrumbs or page titles in page content; add routes with custom headers to `suppressesAutoShellPageHeader()` in `lib/shell-page-meta.ts`
+
+See `.cursor/rules/07-ui-and-frontend-standards.mdc` for the full shell chrome rule.
+
+### Title Case for headings and labels
+
+Use **Title Case** (first letter of each word capitalized) for:
+
+- Section card headings (`Basic Information`, `Contact Details`)
+- Form and read-only field labels (`Display Name`, `Phone Number`, `User Type`)
+- Nav / sidebar / tab labels (`Privacy & Data`)
+
+Use `formatUiLabel()` from `ui-standards.ts` when converting snake_case or draft copy — do not leave sentence-case labels like `Display name` or CSS `uppercase` on field titles.
+
+**Not** Title Case: page subtitles (sentence case), status pills, helper text, placeholders.
+
+See `.cursor/rules/07-ui-and-frontend-standards.mdc` § Title Case for headings and labels.
+
+### Table headers
+
+For tables in the LiNKaios web shell, use `TABLE` tokens from `LiNKaios/linkaios-web/src/lib/ui-standards.ts`:
+
+- `<thead className={TABLE.thead}>` — **Title Case** column titles, semibold, **never** `uppercase` or ALL CAPS
+- Labels like `Issue`, `Project Type`, `Plane Sync` — first letter of **each word** capitalized (LiNK* product names preserved via `formatTableColumnLabel()`)
+- Use `TABLE_COLUMN.*` or `formatTableColumnLabel()` from `ui-standards.ts`
+- Header cells must show visible text (no icon-only / `sr-only` column titles)
+
+See `.cursor/rules/07-ui-and-frontend-standards.mdc` for the full table header rule.
+
+### Status pills (GLOBAL-001)
+
+- Use `StatusPill` / `DomainStatusPill` — never ad-hoc badge classes
+- **Equal width per group** — fixed `w-[Nch]` from longest **possible** label in the option set (`WORK_STREAM_STATUS_PILL_LABELS`, domain maps, etc.)
+- Pass `equalWidthLabels`, `StatusPillWidthProvider` + `equalWidth`, or `DomainStatusPill equalWidth`
+- Sentence-case labels, `font-semibold`, soft fill + ring
+
+### Summary metric cards
+
+- Use `SummaryMetricCard` + `SummaryMetricCardGrid` + `SUMMARY_METRIC_CARD` tokens from `@/components/summary-metric-card`
+- Corner badges: `statusPillLabels` with **all possible labels** + `equalWidthLabels` on each pill
+- Icon + Title Case title on **one line**, fully visible below the badge (`mt-0`, card `pt-4`, no truncate)
+- Primary metric, optional preview (`ReactNode`), optional footer; grid stretch aligns metric/preview rows
+- Reuse preset grids (`FleetSummaryStatsGrid`, `ProjectLifecycleSummaryGrid`, etc.) — see `.cursor/rules/07-ui-and-frontend-standards.mdc`
+- Never rebuild inline stat tile grids on new pages
+
+### Data Table (Family A)
+
+- Use `DataTableShell` + `DataTable` + `DT.*` from `@/components/data-table`
+- `table-fixed` + colgroup; clip/truncate text; `TableBoolToggle` + `DataTableIconAction`
+- See `.cursor/skills/data-table/SKILL.md`
+
+### Action Queue (Family B)
+
+- Use `ActionQueueList` + `ActionQueueRow` from `@/components/action-queue` — not HTML tables
+- Single action: row click; multiple actions: icon rail only
+- See `.cursor/skills/action-queue/SKILL.md`
+
+### Add buttons (page headers)
+
+- Page-level **create** affordances: **`BUTTON.addRow`** from `ui-standards.ts` (outlined black zinc — same family as `editRow` / `approveOutlineRow`)
+- Label format: **`Add {Entity}`** — Add Project, Add LiNKbot, Add Skill, Add Tool, Add Company, Add Knowledge
+- Pass via `ShellPageHeaderClient` `actions` prop; header places actions on the **subtitle row** (`SHELL.pageSubtitleRow`) so the button baseline aligns with the subtitle — not the title
+- Do not use `BUTTON.primaryRow` (solid fill) for page-header add actions
+

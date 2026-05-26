@@ -176,11 +176,11 @@ export function ToolWorkspace(props: {
         </p>
         <dl className="grid max-w-3xl gap-3 text-sm sm:grid-cols-2">
           <div>
-            <dt className="text-xs font-medium uppercase tracking-wide text-zinc-500">Category</dt>
+            <dt className="text-xs font-medium text-zinc-500 dark:text-zinc-400">Category</dt>
             <dd className="mt-0.5 font-medium text-zinc-900 dark:text-zinc-100">{props.record.category}</dd>
           </div>
           <div>
-            <dt className="text-xs font-medium uppercase tracking-wide text-zinc-500">Version</dt>
+            <dt className="text-xs font-medium text-zinc-500 dark:text-zinc-400">Version</dt>
             <dd className="mt-0.5 font-mono text-zinc-800 dark:text-zinc-200">{props.record.version}</dd>
           </div>
         </dl>
