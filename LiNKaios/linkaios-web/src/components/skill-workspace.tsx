@@ -20,12 +20,13 @@ import {
 } from "@/app/(shell)/skills/actions";
 import { useRegisterBreadcrumbLabel } from "@/components/breadcrumb-label-registry";
 import { LifecyclePill } from "@/components/catalog-ui";
+import { InsetSelect } from "@/components/forms";
 import type {
   SkillAssetTableRow,
   SkillReferenceTableRow,
   SkillScriptRow,
 } from "@/lib/skills-admin";
-import { BUTTON, FIELD } from "@/lib/ui-standards";
+import { BUTTON, FIELD, FORM } from "@/lib/ui-standards";
 import type { SkillStepRecipeEntry } from "@linktrend/linklogic-sdk";
 import type { SkillStatus } from "@linktrend/shared-types";
 
@@ -463,13 +464,12 @@ export function SkillWorkspace(props: {
         </header>
 
         <div className="max-w-3xl space-y-4 rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950">
-          <div>
-            <label className={`block text-xs font-medium text-zinc-600 dark:text-zinc-400`}>Category (FK)</label>
-            <select
+          <label className={`block ${FORM.fieldStack}`}>
+            <span className={`${FIELD.label} text-xs text-zinc-600 dark:text-zinc-400`}>Category (FK)</span>
+            <InsetSelect
               value={categoryId ?? ""}
               onChange={(e) => setCategoryId(e.target.value || null)}
               disabled={pending}
-              className={`mt-1 block w-full ${FIELD.control}`}
             >
               <option value="">—</option>
               {props.categories.map((c) => (
@@ -477,8 +477,8 @@ export function SkillWorkspace(props: {
                   {c.title}
                 </option>
               ))}
-            </select>
-          </div>
+            </InsetSelect>
+          </label>
           <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400">
             Description
             <textarea
@@ -763,10 +763,10 @@ export function SkillWorkspace(props: {
           </button>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <label className="text-xs font-medium text-zinc-600 dark:text-zinc-400">
-            Add
-            <select
-              className="ml-2 rounded-lg border border-zinc-300 bg-white px-2 py-1.5 text-sm text-zinc-900 dark:border-zinc-600 dark:bg-zinc-900 dark:text-zinc-100"
+          <label className={`inline-flex items-center gap-2 ${FORM.fieldStack}`}>
+            <span className={`${FIELD.label} text-xs text-zinc-600 dark:text-zinc-400`}>Add</span>
+            <InsetSelect
+              compact
               disabled={pending || addableTools.length === 0}
               defaultValue=""
               onChange={(e) => {
@@ -782,7 +782,7 @@ export function SkillWorkspace(props: {
                   {n}
                 </option>
               ))}
-            </select>
+            </InsetSelect>
           </label>
         </div>
         {declaredDraft.length === 0 ? (
@@ -935,21 +935,20 @@ export function SkillWorkspace(props: {
                       className={`mt-1 block w-full ${FIELD.control}`}
                     />
                   </label>
-                  <label className="block text-xs font-medium text-zinc-600">
-                    Kind
-                    <select
+                  <label className={`block ${FORM.fieldStack}`}>
+                    <span className={`${FIELD.label} text-xs text-zinc-600`}>Kind</span>
+                    <InsetSelect
                       value={r.kind}
                       onChange={(e) => {
                         const v = e.target.value as SkillReferenceTableRow["kind"];
                         setRefRows((rows) => rows.map((x, i) => (i === idx ? { ...x, kind: v } : x)));
                       }}
                       disabled={pending}
-                      className={`mt-1 block w-full ${FIELD.control}`}
                     >
                       <option value="brain_path">brain_path</option>
                       <option value="storage_uri">storage_uri</option>
                       <option value="tool_name">tool_name</option>
-                    </select>
+                    </InsetSelect>
                   </label>
                   <label className="block text-xs font-medium text-zinc-600">
                     Target

@@ -1,4 +1,5 @@
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { requireLicensorOperator } from "@/lib/licensor-access";
 import { PrismSummaryStatsGrid } from "@/components/summary-metric-card";
 import {
   DataTable,
@@ -24,6 +25,8 @@ function formatAge(iso: string | null): string {
 }
 
 export default async function SettingsPrismPage() {
+  await requireLicensorOperator();
+
   const supabase = await createSupabaseServerClient();
 
   const since24h = new Date(Date.now() - 86_400_000).toISOString();

@@ -3,7 +3,9 @@
 import type { LucideIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 
+import { useAppRole } from "@/components/role-preview-provider";
 import { TitledCardHeader } from "@/components/titled-card-header";
+import { canEditCompanyProfile } from "@/lib/app-roles";
 import { BUTTON, CARD, formatCardTitle } from "@/lib/ui-standards";
 
 export function CompanyEditableCard(props: {
@@ -18,7 +20,9 @@ export function CompanyEditableCard(props: {
   onCancelEdit?: () => void;
   saveDisabled?: boolean;
 }) {
-  const editable = Boolean(props.editContent);
+  const { kind, role } = useAppRole();
+  const canEdit = canEditCompanyProfile(kind, role);
+  const editable = Boolean(props.editContent) && canEdit;
   const [editing, setEditing] = useState(false);
   const [savedFlash, setSavedFlash] = useState(false);
 

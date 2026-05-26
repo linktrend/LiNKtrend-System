@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { ShellPageHeaderClient } from "@/components/shell-page-header-client";
+import { LICENSEE_HOME_PATH } from "@/lib/app-surface";
 import { BUTTON } from "@/lib/ui-standards";
 
 export default function ShellNotFound() {
@@ -15,7 +16,7 @@ export default function ShellNotFound() {
           Check the URL or use the sidebar to find the screen you need.
         </p>
         <div className="mt-4">
-          <Link href="/" className={BUTTON.primaryRow}>
+          <Link href={LICENSEE_HOME_PATH} className={BUTTON.primaryRow}>
             Back to overview
           </Link>
         </div>

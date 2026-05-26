@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 
 import type { AgentRecord } from "@linktrend/shared-types";
 
+import { SessionInteractionPanel } from "@/components/session-interaction-panel";
+import { SessionBreadcrumbRegister } from "@/components/session-breadcrumb-register";
 import { DEMO_SESSION_THREADS } from "@/lib/ui-mocks/session-threads";
 import { isDemoAgentId } from "@/lib/ui-mocks/entities";
 import { isUiMocksEnabled } from "@/lib/ui-mocks/flags";
@@ -88,6 +90,7 @@ function SessionDetailShell(props: { agentId: string; row: SessionThreadRow }) {
 
   return (
     <div className="space-y-8">
+      <SessionBreadcrumbRegister sessionId={row.id} title={row.sessionTitle} />
       <header className="border-b border-zinc-200 pb-6 dark:border-zinc-800">
         <p className="text-sm text-zinc-500 dark:text-zinc-400">
           <Link href="/workers" className="text-sky-700 underline dark:text-sky-400">
@@ -158,29 +161,7 @@ function SessionDetailShell(props: { agentId: string; row: SessionThreadRow }) {
         </pre>
       </section>
 
-      <section className="rounded-xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
-        <h2 className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Interaction</h2>
-        <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
-          Send messages into this session once your gateway bridges operator chat to bot runtime. For OpenClaw-native
-          flows, use the interface below.
-        </p>
-        <textarea
-          disabled
-          rows={4}
-          className="mt-4 w-full max-w-xl rounded-lg border border-dashed border-zinc-300 bg-zinc-50 px-3 py-2 text-sm text-zinc-500 dark:border-zinc-700 dark:bg-zinc-900/40 dark:text-zinc-400"
-          placeholder="Messaging not connected for this session…"
-        />
-        <p className="mt-3">
-          <a
-            href={openclaw}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-sm font-medium text-sky-700 underline dark:text-sky-400"
-          >
-            Open Native UI
-          </a>
-        </p>
-      </section>
+      <SessionInteractionPanel nativeUiHref={openclaw} />
     </div>
   );
 }

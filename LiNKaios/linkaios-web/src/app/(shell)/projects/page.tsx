@@ -3,6 +3,7 @@ import Link from "next/link";
 import { listMissions } from "@linktrend/linklogic-sdk";
 import type { MissionRecord } from "@linktrend/shared-types";
 
+import { AddProjectHeaderAction } from "@/components/role-gated-ui";
 import { ProjectsIndexTable } from "@/components/projects-index-table";
 import { ShellPageHeaderClient } from "@/components/shell-page-header-client";
 import {
@@ -14,7 +15,6 @@ import { projectIndexRowFromMission } from "@/lib/project-index-rows";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { ProjectSummaryColumnKey } from "@/lib/project-status-ui";
 import { UiButton } from "@/components/ui/button-bridge";
-import { BUTTON } from "@/lib/ui-standards";
 import { DEMO_SIDEBAR_MISSIONS } from "@/lib/ui-mocks/entities";
 import { isUiMocksEnabled } from "@/lib/ui-mocks/flags";
 import { DEMO_MISSION_PLANE_BRIDGE, demoMissionsFixtureRows } from "@/lib/ui-mocks/missions-fixtures";
@@ -71,11 +71,7 @@ export default async function ProjectsListPage() {
       <ShellPageHeaderClient
         title="Projects"
         subtitle="Pipeline by lifecycle stage — suite, phase, and active issue for each project."
-        actions={
-          <Link href="/projects/new" className={BUTTON.addRow}>
-            Add Project
-          </Link>
-        }
+        actions={<AddProjectHeaderAction />}
       />
 
       <SummaryMetricCardSection title="At a glance" aria-label="Lifecycle summary">
@@ -91,9 +87,7 @@ export default async function ProjectsListPage() {
               Once projects exist in LiNKaios they will appear here automatically.
             </p>
             <div className="mt-4 flex flex-wrap justify-center gap-2">
-              <UiButton asChild buttonKey="addRow">
-                <Link href="/projects/new">Add Project</Link>
-              </UiButton>
+              <AddProjectHeaderAction />
               <UiButton asChild buttonKey="secondaryRow">
                 <Link href="/suites/marketplace">Browse Marketplace</Link>
               </UiButton>

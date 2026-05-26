@@ -77,8 +77,28 @@ Capitalize the **first letter of each word** in user-visible titles and labels.
 
 - Page subtitles — one sentence, sentence case
 - Status pill labels — sentence case (`Review`, `Needs action`)
-- Body copy, helper text, placeholders, and toast sentences
+- Body copy, placeholders, and toast sentences — keep minimal; see **No UI hint panels** below
 - Short button verbs alone (`Save`, `Edit`, `Cancel`) — entity buttons use Title Case nouns (`Add Project`)
+
+## No UI hint panels (mandatory)
+
+The UI speaks through labels, layout, and affordances — not explanatory essays.
+
+**Do not add unless the user explicitly asks:**
+
+- Intro paragraphs above feature sections (“User does X, Admin does Y…”)
+- Role-definition cards with long summaries on overview or dashboard pages
+- Helper banners that restate what the page already shows
+- `TitledCardHeader` / section `description` props that explain obvious functionality
+- Matrix or table sub-lines that duplicate the row title
+
+**Where detail belongs:**
+
+- **Agent / dev guidance** — file-level comments, `app-roles.ts` agent reference block, skills, rules (not rendered UI)
+- **Settings reference** — permission matrix row **titles only** (checks show allow/deny); no paragraph under each row
+- **Errors and blockers** — one short inline message when action fails or access is denied (e.g. `Super Admin only.`)
+
+**Default:** implement the control or surface; use Title Case labels and standard components; skip the tutorial copy.
 
 **Rules:**
 

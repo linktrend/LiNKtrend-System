@@ -135,6 +135,7 @@ export type {
   BrainIndexCardRow,
   BrainInboxItemType,
   BrainInboxRow,
+  BrainMemoryTags,
   BrainScope,
   BrainSensitivity,
   BrainVirtualFileEnriched,

@@ -21,6 +21,7 @@ export function PersonalAddressFields(props: {
   required?: Partial<Record<keyof PersonalAddressValue, boolean>>;
   validationState?: Partial<Record<keyof PersonalAddressValue, FieldValidationState>>;
   submitted?: boolean;
+  layout?: "row" | "card";
 }) {
   const subdivisions = useMemo(() => subdivisionsForCountry(props.value.country), [props.value.country]);
   const postalOptions = useMemo(
@@ -59,7 +60,7 @@ export function PersonalAddressFields(props: {
   }
 
   return (
-    <div className={FORM.fieldGroup}>
+    <div className={props.layout === "card" ? FORM.fieldGroupCard : FORM.fieldGroup}>
       <FormField id={`${props.idPrefix}-street-1`} label="Street Address">
         {({ id, describedBy }) => (
           <FormTextInput id={id} describedBy={describedBy} value={props.value.streetAddress1} onChange={(streetAddress1) => patch({ streetAddress1 })} />

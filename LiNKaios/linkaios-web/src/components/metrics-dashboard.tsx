@@ -5,6 +5,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
 
 import { fetchMetricsSnapshot, type MetricsSnapshot } from "@/app/(shell)/metrics/actions";
+import { InsetSelect } from "@/components/forms";
+import { useAppSurface } from "@/components/app-surface-provider";
 import { RecentRunsTable } from "@/components/metrics-recent-runs-table";
 import type { NamedAmount } from "@/lib/metrics-snapshot";
 import {
@@ -13,6 +15,7 @@ import {
   type KpiViewId,
 } from "@/lib/metrics-kpi-views";
 import { metricsViewFromSearch } from "@/lib/metrics-nav";
+import { buildLicensorCostKpiCards, LICENSOR_COST_VIEW_QUESTION } from "@/lib/metrics-licensor-kpi-views";
 import { MetricsKpiSummaryGrid, SummaryMetricCardSection } from "@/components/summary-metric-card";
 import {
   DEFAULT_METRICS_SCOPE,
@@ -23,7 +26,7 @@ import {
 import { METRICS_ACTIVITY_CATEGORY_OPTIONS, type MetricsActivityCategory } from "@/lib/metrics-filters";
 import { demoMetricsSnapshotFiltered } from "@/lib/ui-mocks/metrics-demo-snapshot";
 import { DomainStatusPill } from "@/components/ui/status-pill";
-import { formatMetricsCardTitle, screenTabLinkClass, TABLE, TABS } from "@/lib/ui-standards";
+import { formatMetricsCardTitle, screenTabLinkClass, TABLE, TABS, FIELD, FORM } from "@/lib/ui-standards";
 
 export type { MetricsFilterOption } from "@/lib/metrics-scope-filters";
 
@@ -229,10 +232,10 @@ function ScopeFilterSelect(props: {
   onChange: (value: string) => void;
 }) {
   return (
-    <label className="flex flex-col text-xs font-medium text-zinc-600 dark:text-zinc-400">
-      {props.label}
-      <select
-        className="mt-1 rounded-lg border border-zinc-200 bg-white px-2 py-1.5 text-sm text-zinc-900 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100"
+    <label className={FORM.fieldStack}>
+      <span className={`${FIELD.label} text-xs text-zinc-600 dark:text-zinc-400`}>{props.label}</span>
+      <InsetSelect
+        compact
         value={props.value}
         disabled={props.disabled}
         onChange={(e) => props.onChange(e.target.value)}
@@ -242,7 +245,7 @@ function ScopeFilterSelect(props: {
             {o.label}
           </option>
         ))}
-      </select>
+      </InsetSelect>
     </label>
   );
 }
@@ -256,6 +259,7 @@ export function MetricsDashboard(props: {
 }) {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const { isAdmin } = useAppSurface();
   const viewFromUrl = metricsViewFromSearch(searchParams.toString());
   const [pending, startTransition] = useTransition();
   const [snapshot, setSnapshot] = useState<MetricsSnapshot>(props.initialSnapshot);
@@ -362,7 +366,13 @@ export function MetricsDashboard(props: {
     [snapshot.eventTypeSlices],
   );
 
-  const kpiCards = useMemo(() => buildKpiCards(viewTab, snapshot), [viewTab, snapshot]);
+  const kpiCards = useMemo(() => {
+    if (isAdmin && viewTab === "cost") return buildLicensorCostKpiCards(snapshot);
+    return buildKpiCards(viewTab, snapshot);
+  }, [isAdmin, viewTab, snapshot]);
+
+  const kpiQuestion =
+    isAdmin && viewTab === "cost" ? LICENSOR_COST_VIEW_QUESTION : KPI_VIEW_LABELS[viewTab].question;
 
   const viewTabs: { id: KpiViewId; label: string }[] = [
     { id: "cost", label: "Cost" },
@@ -405,93 +415,59 @@ export function MetricsDashboard(props: {
         {filtersOpen ? (
           <div className="mt-3 space-y-4">
             <div className="grid max-h-[min(50vh,14rem)] gap-3 overflow-y-auto sm:grid-cols-2 lg:grid-cols-3">
-              <label className="flex flex-col text-xs font-medium text-zinc-600 dark:text-zinc-400">
-                Time range
-                <select
-                  className="mt-1 rounded-lg border border-zinc-200 bg-white px-2 py-1.5 text-sm text-zinc-900 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100"
-                  value={String(days)}
-                  disabled={pending}
-                  onChange={(e) => setDays(Number(e.target.value) as RangeDays)}
-                >
-                  <option value="1">Last 24 hours</option>
-                  <option value="7">Last 7 days</option>
-                  <option value="30">Last 30 days</option>
-                </select>
-              </label>
-              <label className="flex flex-col text-xs font-medium text-zinc-600 dark:text-zinc-400">
-                Project
-                <select
-                  className="mt-1 rounded-lg border border-zinc-200 bg-white px-2 py-1.5 text-sm text-zinc-900 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100"
-                  value={mission}
-                  disabled={pending}
-                  onChange={(e) => setMission(e.target.value)}
-                >
-                  {props.missions.map((m) => (
-                    <option key={m.id} value={m.id}>
-                      {m.label}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label className="flex flex-col text-xs font-medium text-zinc-600 dark:text-zinc-400">
-                LiNKbot
-                <select
-                  className="mt-1 rounded-lg border border-zinc-200 bg-white px-2 py-1.5 text-sm text-zinc-900 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100"
-                  value={agent}
-                  disabled={pending}
-                  onChange={(e) => setAgent(e.target.value)}
-                >
-                  {props.agents.map((a) => (
-                    <option key={a.id} value={a.id}>
-                      {a.label}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label className="flex flex-col text-xs font-medium text-zinc-600 dark:text-zinc-400">
-                Model
-                <select
-                  className="mt-1 rounded-lg border border-zinc-200 bg-white px-2 py-1.5 text-sm text-zinc-900 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100"
-                  value={modelContains}
-                  disabled={pending}
-                  onChange={(e) => setModelContains(e.target.value)}
-                >
-                  <option value="">All</option>
-                  {modelOptions
-                    .filter(Boolean)
-                    .map((m) => (
-                      <option key={m} value={m}>
-                        {m}
-                      </option>
-                    ))}
-                </select>
-              </label>
-              <label className="flex flex-col text-xs font-medium text-zinc-600 dark:text-zinc-400">
-                Project title contains
+              <ScopeFilterSelect
+                label="Time range"
+                value={String(days)}
+                disabled={pending}
+                options={[
+                  { id: "1", label: "Last 24 hours" },
+                  { id: "7", label: "Last 7 days" },
+                  { id: "30", label: "Last 30 days" },
+                ]}
+                onChange={(v) => setDays(Number(v) as RangeDays)}
+              />
+              <ScopeFilterSelect
+                label="Project"
+                value={mission}
+                disabled={pending}
+                options={props.missions}
+                onChange={setMission}
+              />
+              <ScopeFilterSelect
+                label="LiNKbot"
+                value={agent}
+                disabled={pending}
+                options={props.agents}
+                onChange={setAgent}
+              />
+              <ScopeFilterSelect
+                label="Model"
+                value={modelContains}
+                disabled={pending}
+                options={[
+                  { id: "", label: "All" },
+                  ...modelOptions.filter(Boolean).map((m) => ({ id: m, label: m })),
+                ]}
+                onChange={setModelContains}
+              />
+              <label className={`flex flex-col ${FORM.fieldStack}`}>
+                <span className={`${FIELD.label} text-xs text-zinc-600 dark:text-zinc-400`}>Project title contains</span>
                 <input
                   type="search"
                   placeholder="Substring match"
-                  className="mt-1 rounded-lg border border-zinc-200 bg-white px-2 py-1.5 text-sm text-zinc-900 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100"
+                  className="rounded-lg border border-zinc-200 bg-white px-2 py-1.5 text-sm text-zinc-900 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100"
                   value={missionTitleContains}
                   disabled={pending}
                   onChange={(e) => setMissionTitleContains(e.target.value)}
                 />
               </label>
-              <label className="flex flex-col text-xs font-medium text-zinc-600 dark:text-zinc-400">
-                Activity type
-                <select
-                  className="mt-1 rounded-lg border border-zinc-200 bg-white px-2 py-1.5 text-sm text-zinc-900 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100"
-                  value={activityCategory}
-                  disabled={pending}
-                  onChange={(e) => setActivityCategory(e.target.value as MetricsActivityCategory)}
-                >
-                  {METRICS_ACTIVITY_CATEGORY_OPTIONS.map((o) => (
-                    <option key={o.id} value={o.id}>
-                      {o.label}
-                    </option>
-                  ))}
-                </select>
-              </label>
+              <ScopeFilterSelect
+                label="Activity type"
+                value={activityCategory}
+                disabled={pending}
+                options={METRICS_ACTIVITY_CATEGORY_OPTIONS}
+                onChange={(v) => setActivityCategory(v as MetricsActivityCategory)}
+              />
             </div>
             <div className="rounded-lg border border-dashed border-zinc-300 bg-white/60 p-3 dark:border-zinc-700 dark:bg-zinc-900/30">
               <p className="text-[11px] font-semibold text-zinc-500 dark:text-zinc-400">
@@ -557,6 +533,7 @@ export function MetricsDashboard(props: {
         sentenceTitle
         aria-label={`${KPI_VIEW_LABELS[viewTab].title} KPIs`}
       >
+        <p className="mb-3 text-sm text-zinc-600 dark:text-zinc-400">{kpiQuestion}</p>
         <MetricsKpiSummaryGrid cards={kpiCards} />
       </SummaryMetricCardSection>
 

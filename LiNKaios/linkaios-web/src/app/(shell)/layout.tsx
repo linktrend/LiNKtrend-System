@@ -1,3 +1,4 @@
+import { RolePreviewProvider } from "@/components/role-preview-provider";
 import { ShellLayout } from "@/components/shell-layout";
 import { isUiMocksEnabled } from "@/lib/ui-mocks/flags";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -19,8 +20,10 @@ export default async function ShellAppLayout({ children }: { children: React.Rea
     : null;
 
   return (
-    <ShellLayout sidebarUser={sidebarUser} uiMocksEnabled={uiMocksEnabled}>
-      {children}
-    </ShellLayout>
+    <RolePreviewProvider surface="licensee">
+      <ShellLayout sidebarUser={sidebarUser} uiMocksEnabled={uiMocksEnabled} surface="licensee">
+        {children}
+      </ShellLayout>
+    </RolePreviewProvider>
   );
 }

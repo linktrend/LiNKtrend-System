@@ -18,6 +18,9 @@ import { BUTTON, CARD, FIELD, formatCardTitle } from "@/lib/ui-standards";
 
 const PRIMARY_MODEL_ROWS: ModelCategoryId[] = ["heartbeat", "context_lt_100k", "context_gt_100k", "execution"];
 
+/** Fixed width for every model picker — wrapper ensures fallback rows match primary rows. */
+const MODEL_SELECT_WRAP = "w-[15rem] max-w-full shrink-0";
+
 function jsonSig(s: AgentRuntimeSettings): string {
   return JSON.stringify(serialiseRuntimeSettings(s));
 }
@@ -30,13 +33,13 @@ function ModelSelect(props: {
   const cloud = APPROVED_MODEL_CATALOG.filter((m) => m.kind === "cloud");
   const local = APPROVED_MODEL_CATALOG.filter((m) => m.kind === "local");
   return (
-    <InsetSelect
-      fullWidth={false}
-      disabled={props.disabled}
-      className="w-[15rem] max-w-full"
-      value={props.value}
-      onChange={(e) => props.onChange(e.target.value)}
-    >
+    <div className={MODEL_SELECT_WRAP}>
+      <InsetSelect
+        fullWidth
+        disabled={props.disabled}
+        value={props.value}
+        onChange={(e) => props.onChange(e.target.value)}
+      >
       <optgroup label="Cloud (API cost)">
         {cloud.map((m) => (
           <option key={m.id} value={m.id}>
@@ -52,6 +55,7 @@ function ModelSelect(props: {
         ))}
       </optgroup>
     </InsetSelect>
+    </div>
   );
 }
 
@@ -73,16 +77,16 @@ function NullableModelSelect(props: {
           { label: "Local (no API cost)", items: local },
         ];
   return (
-    <InsetSelect
-      fullWidth={false}
-      disabled={props.disabled}
-      className="w-[15rem] max-w-full"
-      value={props.value ?? ""}
-      onChange={(e) => {
-        const v = e.target.value;
-        props.onChange(v === "" ? null : v);
-      }}
-    >
+    <div className={MODEL_SELECT_WRAP}>
+      <InsetSelect
+        fullWidth
+        disabled={props.disabled}
+        value={props.value ?? ""}
+        onChange={(e) => {
+          const v = e.target.value;
+          props.onChange(v === "" ? null : v);
+        }}
+      >
       <option value="">None</option>
       {groups.map((g) => (
         <optgroup key={g.label} label={g.label}>
@@ -94,6 +98,7 @@ function NullableModelSelect(props: {
         </optgroup>
       ))}
     </InsetSelect>
+    </div>
   );
 }
 
@@ -125,6 +130,18 @@ function KindBadge(props: { modelId: string }) {
       }
     >
       {cloud ? "Cloud" : "Local"}
+    </span>
+  );
+}
+
+function ModelKindSlot(props: { modelId: string | null }) {
+  return (
+    <span className="inline-flex w-14 shrink-0 justify-end">
+      {props.modelId ? (
+        <KindBadge modelId={props.modelId} />
+      ) : (
+        <span className="text-[10px] font-medium text-zinc-500">None</span>
+      )}
     </span>
   );
 }
@@ -194,7 +211,7 @@ export function AgentModelsForm(props: { agentId: string; initial: AgentRuntimeS
           <li key={key} className="flex flex-col gap-2 py-3 first:pt-0 sm:flex-row sm:items-center sm:gap-4">
             <CategoryLabel label={MODEL_CATEGORY_LABELS[key]} />
             <div className="flex min-w-0 items-center gap-2 sm:ml-auto">
-              <KindBadge modelId={state.models.primary[key]} />
+              <ModelKindSlot modelId={state.models.primary[key]} />
               <ModelSelect
                 disabled={props.readonly || pending}
                 value={state.models.primary[key]}
@@ -206,11 +223,7 @@ export function AgentModelsForm(props: { agentId: string; initial: AgentRuntimeS
         <li className="flex flex-col gap-2 py-3 sm:flex-row sm:items-center sm:gap-4">
           <CategoryLabel label="Fallback (Cloud)" />
           <div className="flex min-w-0 items-center gap-2 sm:ml-auto">
-            {state.models.fallbackOnline ? (
-              <KindBadge modelId={state.models.fallbackOnline} />
-            ) : (
-              <span className="shrink-0 text-[10px] font-medium text-zinc-500">None</span>
-            )}
+            <ModelKindSlot modelId={state.models.fallbackOnline} />
             <NullableModelSelect
               disabled={props.readonly || pending}
               cloudOnly
@@ -222,11 +235,7 @@ export function AgentModelsForm(props: { agentId: string; initial: AgentRuntimeS
         <li className="flex flex-col gap-2 py-3 sm:flex-row sm:items-center sm:gap-4">
           <CategoryLabel label="Fallback (Local)" />
           <div className="flex min-w-0 items-center gap-2 sm:ml-auto">
-            {state.models.fallbackLocal ? (
-              <KindBadge modelId={state.models.fallbackLocal} />
-            ) : (
-              <span className="shrink-0 text-[10px] font-medium text-zinc-500">None</span>
-            )}
+            <ModelKindSlot modelId={state.models.fallbackLocal} />
             <NullableModelSelect
               disabled={props.readonly || pending}
               localOnly

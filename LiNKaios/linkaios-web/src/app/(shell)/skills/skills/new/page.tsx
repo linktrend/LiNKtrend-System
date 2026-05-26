@@ -15,7 +15,7 @@ export default function NewSkillPage() {
       </div>
       <ShellPageHeaderClient
         title="Add Skill"
-        subtitle="Creates a draft you can open to edit the prompt, tools, and files."
+        subtitle="Create a draft using the golden skill template (frontmatter, body, references, scripts) or a minimal blank scaffold."
       />
       <SkillCreateForm />
     </main>

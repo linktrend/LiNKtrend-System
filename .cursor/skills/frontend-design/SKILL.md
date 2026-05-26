@@ -41,6 +41,16 @@ Then implement working code that is:
 - Visually striking and memorable
 - Cohesive with a clear aesthetic point-of-view
 - Meticulously refined in every detail
+- **Minimal in copy** — labels and layout carry meaning; no hint panels or role essays unless the user asks
+
+## LiNKaios copy discipline
+
+Follow `.cursor/rules/07-ui-and-frontend-standards.mdc` **No UI hint panels**:
+
+- Do not add intro paragraphs, role-definition cards with long summaries, or section descriptions that explain what the UI already shows
+- Put role/permission nuance in code comments or agent rules (`app-roles.ts`), not on overview pages
+- Permission matrices: capability **name + checkmarks** only
+- Access denied: one short line (`Super Admin only.`) — not a paragraph
 
 ## Frontend Aesthetics Guidelines
 

@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { AgentModelsForm } from "@/components/agent-models-form";
+import { WorkerRoleAwareModelsForm } from "@/components/worker-role-aware-forms";
 import { WorkerTabSectionHeader } from "@/components/worker-tab-section-header";
 import { isDemoAgentId } from "@/lib/ui-mocks/entities";
 import { demoAgentRuntimeSettings } from "@/lib/ui-mocks/worker-ui";
@@ -20,7 +20,7 @@ export default async function WorkerModelsPage(props: { params: Promise<{ id: st
           title="Models"
           subtitle="Models this LiNKbot may use by task category, plus spend limits and fallbacks (demo — read only)."
         />
-        <AgentModelsForm agentId={id} initial={initial} readonly />
+        <WorkerRoleAwareModelsForm agentId={id} initial={initial} forceReadonly />
       </section>
     );
   }
@@ -55,7 +55,7 @@ export default async function WorkerModelsPage(props: { params: Promise<{ id: st
         title="Models"
         subtitle="Model selection for this LiNKbot, plus spend limits and fallback behaviour."
       />
-      <AgentModelsForm agentId={id} initial={initial} />
+      <WorkerRoleAwareModelsForm agentId={id} initial={initial} />
     </section>
   );
 }

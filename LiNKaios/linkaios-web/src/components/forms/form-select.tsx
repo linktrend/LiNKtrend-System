@@ -3,9 +3,16 @@
 import { formInputClassName } from "@/components/forms/form-field";
 import { FIELD, FORM } from "@/lib/ui-standards";
 
-export function selectControlClass(opts?: { compact?: boolean; fullWidth?: boolean }): string {
+export function selectControlClass(opts?: { compact?: boolean; count?: boolean; fullWidth?: boolean }): string {
+  if (opts?.count) return FIELD.selectCount;
   if (opts?.compact) return FIELD.selectCompact;
   return opts?.fullWidth === false ? FIELD.select : FIELD.selectFull;
+}
+
+function selectChevronWrapClass(opts?: { compact?: boolean; count?: boolean; fullWidth?: boolean }): string {
+  if (opts?.count || opts?.compact) return `${FORM.selectChevronWrap} w-fit`;
+  if (opts?.fullWidth === false) return `${FORM.selectChevronWrap} w-full max-w-xl`;
+  return `${FORM.selectChevronWrap} w-full min-w-0`;
 }
 
 /** Native `<select>` with inset chevron — use when `FormSelect` options API is too rigid. */
@@ -27,9 +34,13 @@ export function InsetSelect({
     fullWidth: compact ? false : (fullWidth ?? true),
   });
   const chevron = compact ? FORM.selectChevronCompact : FORM.selectChevron;
+  const wrapClass = selectChevronWrapClass({
+    compact,
+    fullWidth: compact ? false : (fullWidth ?? true),
+  });
 
   return (
-    <div className={FORM.selectChevronWrap}>
+    <div className={wrapClass}>
       <select
         {...rest}
         className={formInputClassName([base, className].filter(Boolean).join(" "), Boolean(invalid))}
@@ -51,13 +62,20 @@ export function FormSelect(props: {
   placeholder?: string;
   fullWidth?: boolean;
   compact?: boolean;
+  /** Fixed narrow width for 0–N count dropdowns */
+  count?: boolean;
   disabled?: boolean;
 }) {
-  const base = selectControlClass({ compact: props.compact, fullWidth: props.fullWidth });
+  const base = selectControlClass({ compact: props.compact, count: props.count, fullWidth: props.fullWidth });
   const chevron = props.compact ? FORM.selectChevronCompact : FORM.selectChevron;
+  const wrapClass = selectChevronWrapClass({
+    compact: props.compact,
+    count: props.count,
+    fullWidth: props.fullWidth,
+  });
 
   return (
-    <div className={FORM.selectChevronWrap}>
+    <div className={wrapClass}>
       <select
         id={props.id}
         value={props.value}

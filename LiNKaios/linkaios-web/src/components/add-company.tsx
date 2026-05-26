@@ -1,14 +1,26 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef } from "react";
 
+import { useAppRole } from "@/components/role-preview-provider";
+import { canAddLegalEntity } from "@/lib/app-roles";
 import { BUTTON, FIELD } from "@/lib/ui-standards";
 
 export const ADD_COMPANY_OPEN_EVENT = "linktrend:add-company-open";
 
+function notifyCompanyProposal() {
+  window.dispatchEvent(
+    new CustomEvent("linkaios-toast", {
+      detail: "Company proposal sent to Super Admin for confirmation.",
+    }),
+  );
+}
+
 export function AddCompanyRoot() {
   const dlg = useRef<HTMLDialogElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
+  const { kind, role } = useAppRole();
+  const canAdd = canAddLegalEntity(kind, role);
 
   const close = useCallback(() => {
     dlg.current?.close();
@@ -35,20 +47,23 @@ export function AddCompanyRoot() {
     >
       <div className="flex items-start justify-between gap-3">
         <h2 id="add-company-title" className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
-          Add company
+          {canAdd ? "Add company" : "Propose company"}
         </h2>
         <button type="button" className="rounded-md px-2 py-1 text-xs text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800" onClick={close} aria-label="Close">
           ✕
         </button>
       </div>
       <p className="mt-2 text-xs leading-relaxed text-zinc-600 dark:text-zinc-400">
-        Register a new licensee company. This preview form does not persist yet — use Switch company to preview existing fixtures.
+        {canAdd
+          ? "Register a new licensee company. This preview form does not persist yet — use Switch company to preview existing fixtures."
+          : "Fill in the company details. A Super Admin must confirm before it is added to your workspace topology."}
       </p>
       <form
         ref={formRef}
         className="mt-5 space-y-4"
         onSubmit={(e) => {
           e.preventDefault();
+          if (!canAdd) notifyCompanyProposal();
           close();
         }}
       >
@@ -65,7 +80,7 @@ export function AddCompanyRoot() {
             Cancel
           </button>
           <button type="submit" className={BUTTON.primaryRow}>
-            Add company (preview)
+            {canAdd ? "Add company (preview)" : "Submit for Super Admin approval"}
           </button>
         </div>
       </form>
@@ -74,13 +89,17 @@ export function AddCompanyRoot() {
 }
 
 export function AddCompanyOpenButton(props: { className?: string; children?: React.ReactNode }) {
+  const { kind, role } = useAppRole();
+  const canAdd = canAddLegalEntity(kind, role);
+  const label = props.children ?? (canAdd ? "Add company" : "Propose company");
+
   return (
     <button
       type="button"
       className={props.className}
       onClick={() => window.dispatchEvent(new Event(ADD_COMPANY_OPEN_EVENT))}
     >
-      {props.children ?? "Add company"}
+      {label}
     </button>
   );
 }

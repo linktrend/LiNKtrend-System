@@ -11,7 +11,7 @@ Single entry point for humans and agents building LiNKaios shell UI in `linkaios
 
 | Layer | Location | Use for |
 |-------|----------|---------|
-| **Color / theme** | `src/app/globals.css` | CSS variables (`--background`, `--foreground`, shadcn semantic tokens after init) |
+| **Color / theme** | `src/app/globals.css`, `src/app/layout.tsx` | CSS variables, **Inter** sans stack, shadcn semantic tokens |
 | **Behavior tokens** | `src/lib/ui-standards.ts`, `src/lib/ui-theme.ts`, `src/lib/status-colors.ts` | Layout, tables, forms, shell chrome, status semantics |
 | **Primitives** | `src/components/ui/` | shadcn/ui building blocks (Button, Input, Card, Dialog, …) |
 | **Composites** | `src/components/data-table/`, `action-queue/`, `summary-metric-card/`, `forms/` | Opinionated LiNKaios patterns — prefer these over one-off markup |
@@ -65,6 +65,7 @@ Central export surface for layout and copy formatters:
 
 | Export | Purpose |
 |--------|---------|
+| `TYPE` | Five-level type scale — page title, section, subsection, body (`text-sm` default), caption |
 | `FIELD`, `FORM` | Form labels, controls, select chevrons, validation spacing |
 | `BUTTON` | Legacy button class strings — migrate to shadcn `Button` (see table) |
 | `TABLE`, `DATA_TABLE`, `DT` | Columnar table headers and cell classes |

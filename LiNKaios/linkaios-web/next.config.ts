@@ -22,6 +22,8 @@ const nextConfig: NextConfig = {
       { source: "/modules/linkapps/:path*", destination: "/suites/linkapps/:path*", permanent: false },
       { source: "/modules/:suiteId", destination: "/suites/:suiteId", permanent: false },
       { source: "/modules", destination: "/suites/my-suites", permanent: false },
+      { source: "/licensees", destination: "/admin/licensees", permanent: false },
+      { source: "/licensees/:path*", destination: "/admin/licensees/:path*", permanent: false },
     ];
   },
   transpilePackages: [

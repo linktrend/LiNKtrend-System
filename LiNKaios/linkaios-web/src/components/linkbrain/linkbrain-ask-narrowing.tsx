@@ -3,8 +3,10 @@
 import { useRouter } from "next/navigation";
 
 import { MemoryAgentSelect, MemoryProjectSelect } from "@/components/linkbrain/linkbrain-filters";
-import { memoryHref } from "@/lib/memory-href";
+import { InsetSelect } from "@/components/forms";
+import { useMemoryHref } from "@/hooks/use-memory-href";
 import type { LinkbrainPageData } from "@/lib/linkbrain-data";
+import { FIELD, FORM } from "@/lib/ui-standards";
 import type { BrainScope } from "@linktrend/linklogic-sdk";
 
 /** Narrow Ask LiNKbrain retrieval — scope + project/LiNKbot before document/question. */
@@ -18,6 +20,7 @@ export function LinkbrainAskNarrowing(props: {
   orgNodeId?: string;
 }) {
   const router = useRouter();
+  const hrefForTab = useMemoryHref();
 
   return (
     <div className="space-y-4 rounded-xl border border-zinc-200 bg-zinc-50/80 p-4 dark:border-zinc-800 dark:bg-zinc-900/40">
@@ -25,16 +28,16 @@ export function LinkbrainAskNarrowing(props: {
         Narrow where to search first — LiNKbrain can be large. This preview shows what LiNKbots and automations would
         retrieve under the same scope rules.
       </p>
-      <div>
-        <label className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Memory scope</label>
-        <select
-          className="mt-2 w-full max-w-xl rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm dark:border-zinc-600 dark:bg-zinc-950"
+      <label className={`block max-w-xl ${FORM.fieldStack}`}>
+        <span className={`${FIELD.label} text-xs text-zinc-500 dark:text-zinc-400`}>Memory scope</span>
+        <InsetSelect
+          fullWidth={false}
           value={props.brainScope}
           aria-label="Retrieval scope"
           onChange={(e) => {
             const scope = e.target.value as BrainScope;
             router.push(
-              memoryHref("ask", {
+              hrefForTab("ask", {
                 brainScope: scope === "company" ? undefined : scope,
                 brainMission: scope === "mission" ? props.brainMissionId : undefined,
                 brainAgent: scope === "agent" ? props.brainAgentId : undefined,
@@ -48,29 +51,29 @@ export function LinkbrainAskNarrowing(props: {
           <option value="company">Company memory</option>
           <option value="mission">Project memory</option>
           <option value="agent">LiNKbot memory</option>
-        </select>
-      </div>
+        </InsetSelect>
+      </label>
       {props.brainScope === "mission" ? (
-        <div>
-          <label className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Project</label>
+        <label className={`block max-w-xl ${FORM.fieldStack}`}>
+          <span className={`${FIELD.label} text-xs text-zinc-500 dark:text-zinc-400`}>Project</span>
           <MemoryProjectSelect
             missions={props.data.missions.map((m) => ({ id: String(m.id), title: m.title }))}
             selectedMissionId={props.brainMissionId ?? props.missionFilter}
             memoryTab="ask"
             brainScope="mission"
           />
-        </div>
+        </label>
       ) : null}
       {props.brainScope === "agent" ? (
-        <div>
-          <label className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">LiNKbot</label>
+        <label className={`block max-w-xl ${FORM.fieldStack}`}>
+          <span className={`${FIELD.label} text-xs text-zinc-500 dark:text-zinc-400`}>LiNKbot</span>
           <MemoryAgentSelect
             agents={props.data.agents}
             selectedAgentId={props.brainAgentId ?? props.agentFilter}
             memoryTab="ask"
             brainScope="agent"
           />
-        </div>
+        </label>
       ) : null}
     </div>
   );

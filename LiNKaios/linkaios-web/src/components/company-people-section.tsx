@@ -48,6 +48,7 @@ function CountSelect(props: {
       </label>
       <FormSelect
         id={props.id}
+        count
         value={String(props.value)}
         onChange={(value) => props.onChange(Number(value))}
         options={props.options.map((option) => ({ value: String(option), label: String(option) }))}

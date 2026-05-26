@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { AgentSettingsForm } from "@/components/agent-settings-form";
+import { WorkerRoleAwareSettingsForm } from "@/components/worker-role-aware-forms";
 import { WorkerTabSectionHeader } from "@/components/worker-tab-section-header";
 import { parseRuntimeSettings } from "@/lib/agent-runtime-settings";
 import { isDemoAgentId } from "@/lib/ui-mocks/entities";
@@ -20,7 +20,7 @@ export default async function WorkerSettingsPage(props: { params: Promise<{ id: 
           title="Settings"
           subtitle="Profile, LiNKbrain personality files, and runtime policy for this LiNKbot."
         />
-        <AgentSettingsForm agentId={id} initial={initial} readonly={isDemoAgentId(id)} />
+        <WorkerRoleAwareSettingsForm agentId={id} initial={initial} forceReadonly={isDemoAgentId(id)} />
       </section>
     );
   }
@@ -52,7 +52,7 @@ export default async function WorkerSettingsPage(props: { params: Promise<{ id: 
         <h2 className="text-sm font-semibold text-zinc-500 dark:text-zinc-400">Settings</h2>
         <p className="mt-1 max-w-2xl text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">Basic LiNKbot settings.</p>
       </div>
-      <AgentSettingsForm agentId={id} initial={initial} />
+      <WorkerRoleAwareSettingsForm agentId={id} initial={initial} />
     </section>
   );
 }

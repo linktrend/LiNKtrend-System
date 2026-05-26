@@ -3,6 +3,7 @@
 import Link from "next/link";
 
 import { ShellPageHeaderClient } from "@/components/shell-page-header-client";
+import { LICENSEE_HOME_PATH } from "@/lib/app-surface";
 import { BUTTON } from "@/lib/ui-standards";
 
 export default function ShellError(props: { error: Error & { digest?: string }; reset: () => void }) {
@@ -19,7 +20,7 @@ export default function ShellError(props: { error: Error & { digest?: string }; 
           <button type="button" onClick={props.reset} className={BUTTON.secondaryRow}>
             Retry
           </button>
-          <Link href="/" className={BUTTON.primaryRow}>
+          <Link href={LICENSEE_HOME_PATH} className={BUTTON.primaryRow}>
             Back to overview
           </Link>
         </div>

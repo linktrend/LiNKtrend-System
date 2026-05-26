@@ -1,3 +1,5 @@
+import type { AppRoleTier } from "@/lib/app-roles";
+
 export type SettingsHubTabId = "account" | "security" | "preferences" | "data" | "platform";
 
 export const SETTINGS_HUB_TABS: { id: SettingsHubTabId; label: string }[] = [
@@ -22,6 +24,14 @@ export function settingsHubTabHref(id: SettingsHubTabId): string {
 
 export function settingsHubTabLabel(id: SettingsHubTabId): string {
   return SETTINGS_HUB_TABS.find((tab) => tab.id === id)?.label ?? id;
+}
+
+export function visibleSettingsHubTabs(showPlatformTab: boolean, role?: AppRoleTier) {
+  let tabs = showPlatformTab ? SETTINGS_HUB_TABS : SETTINGS_HUB_TABS.filter((t) => t.id !== "platform");
+  if (role === "user") {
+    tabs = tabs.filter((t) => t.id === "account" || t.id === "preferences");
+  }
+  return tabs;
 }
 
 /** Parent Settings hub tab for a settings sub-route (null on `/settings` hub only). */
@@ -53,7 +63,7 @@ function isPlatformSubRoute(path: string): boolean {
 }
 
 export function matchSettingsHubTab(id: SettingsHubTabId, path: string, search?: string): boolean {
-  if (id === "account" && (path === "/settings/user" || path === "/settings/billing" || path.startsWith("/settings/billing/"))) {
+  if (id === "account" && (path === "/settings/user" || path === "/settings/billing" || path.startsWith("/settings/billing/") || path === "/settings/support" || path.startsWith("/settings/support/"))) {
     return true;
   }
 

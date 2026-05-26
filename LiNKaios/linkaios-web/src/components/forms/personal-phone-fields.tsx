@@ -10,9 +10,10 @@ export function PersonalPhoneFields(props: {
   idPrefix: string;
   value: PersonalPhoneValue;
   onChange: (patch: Partial<PersonalPhoneValue>) => void;
+  layout?: "row" | "card";
 }) {
   return (
-    <div className={FORM.fieldGroup}>
+    <div className={props.layout === "card" ? FORM.fieldGroupCard : FORM.fieldGroup}>
       <FormField id={`${props.idPrefix}-phone-code`} label="Country Code">
         {({ id, describedBy }) => (
           <FormSelect

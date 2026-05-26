@@ -5,7 +5,9 @@ import { useEffect, useState, useTransition } from "react";
 import type { ToolType } from "@linktrend/shared-types";
 
 import { createTool } from "@/app/(shell)/skills/tools/actions";
+import { InsetSelect } from "@/components/forms";
 import { TOOL_TYPE_LABELS } from "@/lib/tools-admin";
+import { FIELD, FORM } from "@/lib/ui-standards";
 
 const TYPES: ToolType[] = ["executable_bundle", "http", "registry_reference", "plugin", "mcp_server"];
 
@@ -68,21 +70,16 @@ export function ToolCreateForm() {
 
   return (
     <div className="max-w-2xl space-y-6 rounded-xl border border-zinc-200 bg-white p-6 shadow-sm">
-      <div className="space-y-2">
-        <label className="block text-sm font-medium text-zinc-800">Tool type</label>
-        <select
-          value={toolType}
-          disabled={pending}
-          onChange={(e) => setToolType(e.target.value as ToolType)}
-          className="w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900"
-        >
+      <label className={FORM.fieldStack}>
+        <span className={`${FIELD.label} text-sm text-zinc-800`}>Tool type</span>
+        <InsetSelect value={toolType} disabled={pending} onChange={(e) => setToolType(e.target.value as ToolType)}>
           {TYPES.map((t) => (
             <option key={t} value={t}>
               {TOOL_TYPE_LABELS[t] ?? t}
             </option>
           ))}
-        </select>
-      </div>
+        </InsetSelect>
+      </label>
       <div className="space-y-2">
         <label className="block text-sm font-medium text-zinc-800">Name (slug)</label>
         <input

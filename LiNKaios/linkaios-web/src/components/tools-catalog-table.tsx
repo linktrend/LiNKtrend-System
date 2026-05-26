@@ -9,6 +9,9 @@ import { LifecyclePill } from "@/components/catalog-ui";
 import { catalogueRowHighlightClass } from "@/components/capability-catalog-shared";
 import { CapabilityCatalogColGroup, CAPABILITY_CATALOG_TABLE_CLASS } from "@/components/capability-catalog-table-layout";
 import { DataTableIconAction, DataTableShell, DT, TableBoolToggle } from "@/components/data-table";
+import { useAppRole } from "@/components/role-preview-provider";
+import { canEditLinkskillsCatalogue, canToggleTenantSkillOrTool } from "@/lib/app-roles";
+import { useOrgToolPolicy } from "@/lib/org-tool-policy";
 
 export type ToolCatalogRow = {
   id: string;
@@ -27,6 +30,10 @@ export type ToolCatalogRow = {
 export function ToolsCatalogTable(props: { rows: ToolCatalogRow[] }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
+  const { kind, role } = useAppRole();
+  const canEditCatalogue = canEditLinkskillsCatalogue(kind, role);
+  const canToggleTenant = canToggleTenantSkillOrTool(kind, role);
+  const { hydrated, orgEnabledById, setOrgEnabled } = useOrgToolPolicy(props.rows);
 
   async function applyFlags(id: string, published: boolean, runtimeEnabled: boolean) {
     startTransition(async () => {
@@ -44,6 +51,8 @@ export function ToolsCatalogTable(props: { rows: ToolCatalogRow[] }) {
     });
   }
 
+  const availableColumnLabel = kind === "licensor" ? "Published" : "For Company";
+
   return (
     <DataTableShell scrollableBody>
       <table className={CAPABILITY_CATALOG_TABLE_CLASS}>
@@ -57,7 +66,7 @@ export function ToolsCatalogTable(props: { rows: ToolCatalogRow[] }) {
               <div className={DT.controlInner}>Lifecycle</div>
             </th>
             <th className={DT.thControl}>
-              <div className={DT.controlInner}>Available</div>
+              <div className={DT.controlInner}>{availableColumnLabel}</div>
             </th>
             <th className={DT.thControl}>
               <div className={DT.controlInner}>Runtime</div>
@@ -68,73 +77,97 @@ export function ToolsCatalogTable(props: { rows: ToolCatalogRow[] }) {
           </tr>
         </thead>
         <tbody className={DT.tbody}>
-          {props.rows.map((r) => (
-            <tr
-              key={r.id}
-              className={
-                catalogueRowHighlightClass(r) +
-                DT.trMultiline +
-                (r.status === "archived" ? " text-zinc-500 dark:text-zinc-500" : " text-zinc-800 dark:text-zinc-200")
-              }
-            >
-              <td className={`${DT.tdClipInset} font-medium text-zinc-900 dark:text-zinc-100`}>
-                <span className={DT.tdTextSpan} title={r.category}>
-                  {r.category}
-                </span>
-              </td>
-              <td className={`${DT.tdClipInset} text-sm font-medium text-zinc-900 dark:text-zinc-100`}>
-                <span className={DT.tdTextSpan} title={r.name}>
-                  {r.name}
-                </span>
-              </td>
-              <td className={DT.tdClipInset}>
-                <span className={DT.tdWrapSpan} title={r.description}>
-                  {r.description}
-                </span>
-              </td>
-              <td className={DT.tdControl}>
-                <div className={DT.controlInner}>
-                  <LifecyclePill status={r.status} />
-                </div>
-              </td>
-              <td className={DT.tdControl}>
-                <TableBoolToggle
-                  on={r.published}
-                  disabled={pending || r.status !== "approved" || r.isFixture}
-                  ariaLabel={`Available: ${r.name}`}
-                  onToggle={(pub) => void applyFlags(r.id, pub, pub ? r.runtimeEnabled : false)}
-                />
-              </td>
-              <td className={DT.tdControl}>
-                <TableBoolToggle
-                  on={r.runtimeEnabled}
-                  disabled={pending || r.status !== "approved" || !r.published || r.isFixture}
-                  ariaLabel={`Runtime: ${r.name}`}
-                  onToggle={(on) => void applyFlags(r.id, r.published, on)}
-                />
-              </td>
-              <td className={DT.tdControl}>
-                <div className={DT.actionsRow}>
-                  <DataTableIconAction icon={Eye} label={`Open ${r.name}`} href={`/skills/tools/${r.id}`} />
-                  <DataTableIconAction
-                    icon={Pencil}
-                    label={`Edit ${r.name}`}
-                    href={r.isFixture ? undefined : `/skills/tools/${r.id}`}
-                    disabled={r.isFixture}
-                  />
-                  <DataTableIconAction
-                    icon={Archive}
-                    label={`Archive ${r.name}`}
-                    disabled={pending || r.status !== "approved" || r.isFixture}
-                    onClick={() => {
-                      if (r.isFixture || r.status !== "approved") return;
-                      void onArchive(r.id);
+          {props.rows.map((r) => {
+            const tenantEnabled = hydrated ? (orgEnabledById.get(r.id) ?? r.published) : r.published;
+            const displayPublished = kind === "licensee" ? tenantEnabled : r.published;
+
+            return (
+              <tr
+                key={r.id}
+                className={
+                  catalogueRowHighlightClass(r) +
+                  DT.trMultiline +
+                  (r.status === "archived" ? " text-zinc-500 dark:text-zinc-500" : " text-zinc-800 dark:text-zinc-200")
+                }
+              >
+                <td className={`${DT.tdClipInset} font-medium text-zinc-900 dark:text-zinc-100`}>
+                  <span className={DT.tdTextSpan} title={r.category}>
+                    {r.category}
+                  </span>
+                </td>
+                <td className={`${DT.tdClipInset} text-sm font-medium text-zinc-900 dark:text-zinc-100`}>
+                  <span className={DT.tdTextSpan} title={r.name}>
+                    {r.name}
+                  </span>
+                </td>
+                <td className={DT.tdClipInset}>
+                  <span className={DT.tdWrapSpan} title={r.description}>
+                    {r.description}
+                  </span>
+                </td>
+                <td className={DT.tdControl}>
+                  <div className={DT.controlInner}>
+                    <LifecyclePill status={r.status} />
+                  </div>
+                </td>
+                <td className={DT.tdControl}>
+                  <TableBoolToggle
+                    on={displayPublished}
+                    disabled={
+                      pending ||
+                      r.status !== "approved" ||
+                      r.isFixture ||
+                      (kind === "licensee" ? !canToggleTenant : !canEditCatalogue)
+                    }
+                    ariaLabel={`${availableColumnLabel}: ${r.name}`}
+                    onToggle={(pub) => {
+                      if (kind === "licensee") {
+                        setOrgEnabled(r.id, pub);
+                        return;
+                      }
+                      void applyFlags(r.id, pub, pub ? r.runtimeEnabled : false);
                     }}
                   />
-                </div>
-              </td>
-            </tr>
-          ))}
+                </td>
+                <td className={DT.tdControl}>
+                  <TableBoolToggle
+                    on={r.runtimeEnabled}
+                    disabled={
+                      canEditCatalogue
+                        ? pending || r.status !== "approved" || !r.published || r.isFixture
+                        : true
+                    }
+                    ariaLabel={`Runtime: ${r.name}`}
+                    onToggle={(on) => void applyFlags(r.id, r.published, on)}
+                  />
+                </td>
+                <td className={DT.tdControl}>
+                  <div className={DT.actionsRow}>
+                    <DataTableIconAction icon={Eye} label={`Open ${r.name}`} href={`/skills/tools/${r.id}`} />
+                    {canEditCatalogue ? (
+                      <>
+                        <DataTableIconAction
+                          icon={Pencil}
+                          label={`Edit ${r.name}`}
+                          href={r.isFixture ? undefined : `/skills/tools/${r.id}`}
+                          disabled={r.isFixture}
+                        />
+                        <DataTableIconAction
+                          icon={Archive}
+                          label={`Archive ${r.name}`}
+                          disabled={pending || r.status !== "approved" || r.isFixture}
+                          onClick={() => {
+                            if (r.isFixture || r.status !== "approved") return;
+                            void onArchive(r.id);
+                          }}
+                        />
+                      </>
+                    ) : null}
+                  </div>
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </DataTableShell>

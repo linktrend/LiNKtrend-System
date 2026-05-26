@@ -3,8 +3,14 @@
 import { BookOpen, FileText } from "lucide-react";
 
 import { memoryDocSubtitle, memoryDocTitle } from "@/components/linkbrain/linkbrain-doc-display";
+import {
+  CollectiveSourceBadge,
+  isCollectiveMemoryFile,
+  submissionSourceFromFileKind,
+} from "@/components/linkbrain/collective-memory-source";
 import { MemoryDocIconAction } from "@/components/linkbrain/linkbrain-inbox-row";
 import { LinkbrainStatusPill } from "@/components/linkbrain/linkbrain-status-pill";
+import { useMemoryPath } from "@/hooks/use-memory-href";
 import type { BrainVirtualFileEnriched } from "@linktrend/linklogic-sdk";
 
 export function LinkbrainMemoryDocRow(props: {
@@ -12,9 +18,11 @@ export function LinkbrainMemoryDocRow(props: {
   scopeLabel: string;
   missionId?: string;
   agentId?: string;
+  licensorCollective?: boolean;
 }) {
   const f = props.file;
   const Icon = f.file_kind === "daily_log" ? BookOpen : FileText;
+  const hrefForPath = useMemoryPath();
 
   return (
     <li
@@ -28,6 +36,15 @@ export function LinkbrainMemoryDocRow(props: {
         <div className="min-w-0">
           <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">{memoryDocTitle(f.file_kind)}</p>
           <p className="mt-0.5 truncate text-xs text-zinc-500 dark:text-zinc-400">{memoryDocSubtitle(f.logical_path)}</p>
+          {props.licensorCollective && isCollectiveMemoryFile(f) ? (
+            <div className="mt-1.5">
+              <CollectiveSourceBadge
+                provenance={f.collective.provenance}
+                tags={f.collective.tags}
+                submissionSource={submissionSourceFromFileKind(f.file_kind)}
+              />
+            </div>
+          ) : null}
           <p className="mt-1 text-xs capitalize text-zinc-500 dark:text-zinc-400">Sensitivity: {f.sensitivity}</p>
         </div>
       </div>
@@ -37,9 +54,9 @@ export function LinkbrainMemoryDocRow(props: {
         ) : (
           <LinkbrainStatusPill label="Draft only" tone="draft" />
         )}
-        <MemoryDocIconAction href={`/memory/files/${f.id}`} label="View document" icon="view" />
+        <MemoryDocIconAction href={hrefForPath(`/memory/files/${f.id}`)} label="View document" icon="view" />
         <MemoryDocIconAction
-          href={`/memory/files/${f.id}#governance`}
+          href={hrefForPath(`/memory/files/${f.id}#governance`)}
           label="Edit document"
           icon="edit"
           title="Edits go through Inbox approval"
@@ -54,9 +71,16 @@ export function LinkbrainMemoryDocList(props: {
   scopeLabel: string;
   missionId?: string;
   agentId?: string;
+  licensorCollective?: boolean;
 }) {
   if (props.files.length === 0) {
-    return <p className="text-sm text-zinc-500 dark:text-zinc-400">No governed documents in this partition yet.</p>;
+    return (
+      <p className="text-sm text-zinc-500 dark:text-zinc-400">
+        {props.licensorCollective
+          ? "No collective documents match these filters yet."
+          : "No governed documents in this partition yet."}
+      </p>
+    );
   }
   return (
     <ul className="space-y-2">
@@ -67,6 +91,7 @@ export function LinkbrainMemoryDocList(props: {
           scopeLabel={props.scopeLabel}
           missionId={props.missionId}
           agentId={props.agentId}
+          licensorCollective={props.licensorCollective}
         />
       ))}
     </ul>

@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useMemo } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 
+import { useAppSurface } from "@/components/app-surface-provider";
+import { useAppRole } from "@/components/role-preview-provider";
 import { useBreadcrumbLabels } from "@/components/breadcrumb-label-registry";
 import {
   buildModulesBreadcrumbItems,
@@ -52,6 +54,7 @@ const STATIC_LABELS: Record<string, string> = {
   memory: "LiNKbrain",
   metrics: "Metrics",
   company: "Company",
+  licensees: "Licensees",
   gateway: "Integration routing",
   settings: "Settings",
   user: "User",
@@ -76,13 +79,19 @@ const DEMO_MISSION_LABEL: Record<string, string> = {
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
-function segmentLabel(seg: string, fixtureLabelsInNav: boolean, uuidLabels: Record<string, string>): string {
+function segmentLabel(
+  seg: string,
+  fixtureLabelsInNav: boolean,
+  uuidLabels: Record<string, string>,
+  prevSeg?: string,
+): string {
   if (fixtureLabelsInNav) {
     if (DEMO_AGENT_LABEL[seg]) return DEMO_AGENT_LABEL[seg];
     if (DEMO_MISSION_LABEL[seg]) return DEMO_MISSION_LABEL[seg];
   }
   if (STATIC_LABELS[seg]) return STATIC_LABELS[seg];
   if (UUID_RE.test(seg) && uuidLabels[seg]) return uuidLabels[seg]!;
+  if (UUID_RE.test(seg) && prevSeg === "sessions") return "Session";
   if (UUID_RE.test(seg)) return `…${seg.slice(0, 8)}`;
   return formatUiLabel(seg.replace(/-/g, " "));
 }
@@ -91,57 +100,70 @@ export function AutoBreadcrumbs(props: { fixtureLabelsInNav?: boolean }) {
   const fixtureLabelsInNav = Boolean(props.fixtureLabelsInNav);
   const pathname = usePathname() ?? "/";
   const searchParams = useSearchParams();
+  const { href: appHref, routePath } = useAppSurface();
+  const { kind } = useAppRole();
+  const route = routePath(pathname);
   const uuidLabels = useBreadcrumbLabels();
-  const parts = pathname.split("/").filter(Boolean);
+  const parts = route.split("/").filter(Boolean);
   const fixtureLicensed = useMemo(() => fixtureLicensedByModule(), []);
   const { accessFor } = useModuleSubscriptions(fixtureLicensed);
-  const moduleProfileId = parseModuleProfileId(pathname);
+  const moduleProfileId = parseModuleProfileId(route);
   const moduleHubForProfile = moduleProfileId
     ? moduleBreadcrumbHubForAccess(accessFor(moduleProfileId))
     : null;
 
   const items: { href?: string; label: string }[] = [];
 
-  if (pathname === "/memory" || pathname.startsWith("/memory/")) {
-    items.push({ href: "/memory?tab=inbox", label: "LiNKbrain" });
-    if (pathname !== "/memory" && pathname !== "/memory/") {
+  if (route === "/memory" || route.startsWith("/memory/")) {
+    items.push({ href: appHref("/memory?tab=inbox"), label: "LiNKbrain" });
+    if (route !== "/memory" && route !== "/memory/") {
       let acc = "";
       for (let i = 1; i < parts.length; i++) {
         const seg = parts[i]!;
         acc += `/${seg}`;
-        items.push({ href: `/memory${acc}`, label: segmentLabel(seg, fixtureLabelsInNav, uuidLabels) });
+        const prev = i > 0 ? parts[i - 1] : undefined;
+        items.push({ href: appHref(`/memory${acc}`), label: segmentLabel(seg, fixtureLabelsInNav, uuidLabels, prev) });
       }
     }
-    enrichShellBreadcrumbs(pathname, searchParams, items);
-  } else if (pathname === "/") {
-    items.push({ href: "/", label: "LiNKaios" }, { label: "Overview" });
+    enrichShellBreadcrumbs(route, searchParams, items, kind);
+  } else if (route === "/app" || route === "/app/") {
+    items.push({ href: appHref("/app"), label: "LiNKaios" }, { label: "Overview" });
   } else if (
-    pathname === "/modules" ||
-    pathname.startsWith("/modules/") ||
-    pathname === "/suites" ||
-    pathname.startsWith("/suites/")
+    route === "/modules" ||
+    route.startsWith("/modules/") ||
+    route === "/suites" ||
+    route.startsWith("/suites/")
   ) {
     items.push(
-      ...buildModulesBreadcrumbItems(pathname, searchParams.get("tab"), uuidLabels, moduleHubForProfile),
+      ...buildModulesBreadcrumbItems(route, searchParams.get("tab"), uuidLabels, moduleHubForProfile).map((item) =>
+        item.href ? { ...item, href: appHref(item.href) } : item,
+      ),
     );
   } else {
-    items.push({ href: "/", label: "LiNKaios" });
+    items.push({ href: appHref("/app"), label: "LiNKaios" });
     let acc = "";
     for (let i = 0; i < parts.length; i++) {
       const seg = parts[i]!;
       acc += `/${seg}`;
-      let label = segmentLabel(seg, fixtureLabelsInNav, uuidLabels);
+      const prev = i > 0 ? parts[i - 1] : undefined;
+      let label = segmentLabel(seg, fixtureLabelsInNav, uuidLabels, prev);
       if (parts[0] === "settings" && i === parts.length - 1) {
-        const meta = resolveSettingsSubpageMeta(acc);
-        if (meta) label = formatUiLabel(meta.title);
+        if (acc === "/settings/access" && kind === "licensor") {
+          label = formatUiLabel("Operator roles & permissions");
+        } else if (acc === "/settings/api-keys" && kind === "licensor") {
+          label = formatUiLabel("Platform secrets");
+        } else {
+          const meta = resolveSettingsSubpageMeta(acc);
+          if (meta) label = formatUiLabel(meta.title);
+        }
       }
       if (parts[0] === "skills" && i === 1 && seg === "skills") label = "Skills";
       if (parts[0] === "skills" && i === 1 && seg === "tools") label = "Tools";
       if (parts[0] === "skills" && i === 1 && seg === "connectors") label = "Capabilities";
       if (parts[0] === "skills" && i === 1 && seg === "leases") label = "Leases";
-      items.push({ href: acc, label });
+      items.push({ href: appHref(acc), label });
     }
-    enrichShellBreadcrumbs(pathname, searchParams, items);
+    enrichShellBreadcrumbs(route, searchParams, items, kind);
   }
 
   return (
@@ -155,7 +177,7 @@ export function AutoBreadcrumbs(props: { fixtureLabelsInNav?: boolean }) {
               {last || !item.href ? (
                 <span className={SHELL.breadcrumbCurrent}>{item.label}</span>
               ) : (
-                <Link href={item.href} className={SHELL.breadcrumbLink}>
+                <Link href={appHref(item.href)} className={SHELL.breadcrumbLink}>
                   {item.label}
                 </Link>
               )}

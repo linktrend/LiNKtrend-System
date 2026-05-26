@@ -1,5 +1,5 @@
 import { createBrainOrgNodeFromForm, updateBrainOrgNodeDatesFromForm } from "@/app/(shell)/memory/org-actions";
-import { InsetSelect } from "@/components/forms";
+import { FormDatePicker, InsetSelect } from "@/components/forms";
 import { BUTTON, COMPANY_FORM_ROW, COMPANY_FORM_ROW_TOP, FIELD } from "@/lib/ui-standards";
 
 import type { BrainOrgNodeRow } from "@linktrend/linklogic-sdk";
@@ -51,13 +51,13 @@ export function CompanyOrgEditor(props: { nodes: BrainOrgNodeRow[] | null }) {
             <label htmlFor="org-valid-from" className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
               Valid from
             </label>
-            <input id="org-valid-from" name="validFrom" type="date" className={FIELD.controlFull} />
+            <FormDatePicker id="org-valid-from" name="validFrom" required placeholder="Select start date" />
           </div>
           <div className={COMPANY_FORM_ROW}>
             <label htmlFor="org-valid-to" className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
               Valid to (optional)
             </label>
-            <input id="org-valid-to" name="validTo" type="date" className={FIELD.controlFull} />
+            <FormDatePicker id="org-valid-to" name="validTo" placeholder="Select end date (optional)" />
           </div>
           <div className={COMPANY_FORM_ROW}>
             <span className="hidden sm:block" aria-hidden />
@@ -91,25 +91,23 @@ export function CompanyOrgEditor(props: { nodes: BrainOrgNodeRow[] | null }) {
                     <label htmlFor={`valid-from-${n.id}`} className="pt-2 text-sm font-medium text-zinc-500 dark:text-zinc-400">
                       Valid from
                     </label>
-                    <input
+                    <FormDatePicker
                       id={`valid-from-${n.id}`}
                       name="validFrom"
-                      type="date"
                       defaultValue={n.valid_from?.slice(0, 10)}
                       required
-                      className={FIELD.controlFull}
+                      placeholder="Select start date"
                     />
                   </div>
                   <div className={COMPANY_FORM_ROW_TOP}>
                     <label htmlFor={`valid-to-${n.id}`} className="pt-2 text-sm font-medium text-zinc-500 dark:text-zinc-400">
                       Valid to
                     </label>
-                    <input
+                    <FormDatePicker
                       id={`valid-to-${n.id}`}
                       name="validTo"
-                      type="date"
                       defaultValue={n.valid_to?.slice(0, 10) ?? ""}
-                      className={FIELD.controlFull}
+                      placeholder="Select end date (optional)"
                     />
                   </div>
                   <div className={COMPANY_FORM_ROW}>

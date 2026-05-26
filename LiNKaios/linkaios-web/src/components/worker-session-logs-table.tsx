@@ -6,14 +6,20 @@ import { useMemo, useState } from "react";
 import { Download, Eye } from "lucide-react";
 
 import { DataTableIconAction, DT } from "@/components/data-table";
+import { InsetSelect } from "@/components/forms";
 import { StatusPill } from "@/components/ui/status-pill";
+import {
+  WORKER_SESSION_LOGS_TABLE_CLASS,
+  WorkerSessionLogsColGroup,
+} from "@/components/worker-session-logs-table-layout";
 import { downloadCsv } from "@/lib/csv-download";
 import {
   formatSessionCost,
   formatSessionDuration,
   type SessionLogRow,
 } from "@/lib/session-logs";
-import { BUTTON, DATA_TABLE } from "@/lib/ui-standards";
+import { SESSION_DISPLAY_PILL_LABELS } from "@/lib/status-colors";
+import { BUTTON, DATA_TABLE, TABLE_COLUMN } from "@/lib/ui-standards";
 
 type StatusFilter = "all" | "completed" | "failed";
 type DaysFilter = "7" | "30" | "90" | "all";
@@ -99,7 +105,7 @@ export function WorkerSessionLogsTable(props: { rows: SessionLogRow[] }) {
   }
 
   return (
-    <section aria-label="Closed session logs" className={DATA_TABLE.shell}>
+    <section aria-label="Closed session logs" className={`${DATA_TABLE.shell} min-w-0`}>
       <div className="space-y-3 border-b border-zinc-200 px-4 py-3 dark:border-zinc-800">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
@@ -121,64 +127,59 @@ export function WorkerSessionLogsTable(props: { rows: SessionLogRow[] }) {
             aria-label="Search session logs"
             className="min-w-[12rem] flex-1 rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 shadow-sm outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 dark:border-zinc-600 dark:bg-zinc-950 dark:text-zinc-100"
           />
-          <select
-            value={daysFilter}
-            onChange={(e) => setDaysFilter(e.target.value as DaysFilter)}
-            aria-label="Time window"
-            className="rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm dark:border-zinc-600 dark:bg-zinc-950"
-          >
-            <option value="7">Last 7 days</option>
-            <option value="30">Last 30 days</option>
-            <option value="90">Last 90 days</option>
-            <option value="all">All loaded</option>
-          </select>
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
-            aria-label="Session status"
-            className="rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm dark:border-zinc-600 dark:bg-zinc-950"
-          >
-            <option value="all">All statuses</option>
-            <option value="completed">Completed</option>
-            <option value="failed">Failed</option>
-          </select>
-          {channels.length > 0 ? (
-            <select
-              value={channelFilter}
-              onChange={(e) => setChannelFilter(e.target.value)}
-              aria-label="Channel"
-              className="rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm dark:border-zinc-600 dark:bg-zinc-950"
+          <div className="shrink-0 max-w-[13rem]">
+            <InsetSelect
+              compact
+              value={daysFilter}
+              onChange={(e) => setDaysFilter(e.target.value as DaysFilter)}
+              aria-label="Time window"
             >
-              <option value="all">All channels</option>
-              {channels.map((c) => (
-                <option key={c} value={c}>
-                  {c}
-                </option>
-              ))}
-            </select>
+              <option value="7">Last 7 days</option>
+              <option value="30">Last 30 days</option>
+              <option value="90">Last 90 days</option>
+              <option value="all">All loaded</option>
+            </InsetSelect>
+          </div>
+          <div className="shrink-0 max-w-[13rem]">
+            <InsetSelect
+              compact
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
+              aria-label="Session status"
+            >
+              <option value="all">All statuses</option>
+              <option value="completed">Completed</option>
+              <option value="failed">Failed</option>
+            </InsetSelect>
+          </div>
+          {channels.length > 0 ? (
+            <div className="shrink-0 max-w-[13rem]">
+              <InsetSelect
+                compact
+                value={channelFilter}
+                onChange={(e) => setChannelFilter(e.target.value)}
+                aria-label="Channel"
+              >
+                <option value="all">All channels</option>
+                {channels.map((c) => (
+                  <option key={c} value={c}>
+                    {c}
+                  </option>
+                ))}
+              </InsetSelect>
+            </div>
           ) : null}
         </div>
       </div>
 
-      <div className={DATA_TABLE.scrollBody}>
-        <table className={`${DATA_TABLE.table} text-xs`}>
-          <colgroup>
-            <col className="w-[18%]" />
-            <col className="w-[8%]" />
-            <col className="w-[14%]" />
-            <col className="w-[11%]" />
-            <col className="w-[11%]" />
-            <col className="w-[8%]" />
-            <col className="w-[8%]" />
-            <col className="w-[7%]" />
-            <col className="w-[7%]" />
-            <col className="w-[8%]" />
-          </colgroup>
+      <div className={`${DATA_TABLE.scrollBody} min-w-0`}>
+        <table className={`${WORKER_SESSION_LOGS_TABLE_CLASS} text-xs`}>
+          <WorkerSessionLogsColGroup />
           <thead className={DT.theadBordered}>
             <tr>
               <th className={DT.thText}>Session</th>
               <th className={DT.thText}>Channel</th>
-              <th className={DT.thText}>Project</th>
+              <th className={DT.thText}>{TABLE_COLUMN.project}</th>
               <th className={DT.thText}>Started</th>
               <th className={DT.thText}>Ended</th>
               <th className={DT.thText}>Duration</th>
@@ -186,14 +187,17 @@ export function WorkerSessionLogsTable(props: { rows: SessionLogRow[] }) {
               <th className={DT.thText}>Tools</th>
               <th className={DT.thText}>Cost</th>
               <th className={DT.thControl}>
-                <div className={DT.controlInner}>Status</div>
+                <div className={DT.controlInner}>{TABLE_COLUMN.status}</div>
+              </th>
+              <th className={DT.thControl}>
+                <div className={DT.controlInner}>{TABLE_COLUMN.actions}</div>
               </th>
             </tr>
           </thead>
           <tbody className={DT.tbody}>
             {filtered.length === 0 ? (
               <tr>
-                <td colSpan={10} className={DT.emptyCell}>
+                <td colSpan={11} className={DT.emptyCell}>
                   No closed sessions match these filters.
                 </td>
               </tr>
@@ -206,27 +210,48 @@ export function WorkerSessionLogsTable(props: { rows: SessionLogRow[] }) {
                     </Link>
                   </td>
                   <td className={DT.tdClip}>
-                    <span className={DT.tdTextSpan}>{row.channel ?? "—"}</span>
+                    <span className={DT.tdTextSpan} title={row.channel ?? undefined}>
+                      {row.channel ?? "—"}
+                    </span>
                   </td>
                   <td className={DT.tdClip}>
-                    <span className={DT.tdTextSpan}>{row.projectTitle ?? "—"}</span>
+                    <span className={DT.tdTextSpan} title={row.projectTitle ?? undefined}>
+                      {row.projectTitle ?? "—"}
+                    </span>
                   </td>
-                  <td className={`${DT.tdClip} whitespace-nowrap text-zinc-500`}>{formatWhen(row.startedAt)}</td>
-                  <td className={`${DT.tdClip} whitespace-nowrap text-zinc-500`}>{formatWhen(row.endedAt)}</td>
-                  <td className={`${DT.tdClip} tabular-nums text-zinc-700 dark:text-zinc-300`}>
-                    {formatSessionDuration(row.durationMs)}
+                  <td className={DT.tdClip}>
+                    <span className={`${DT.tdTextSpan} whitespace-nowrap text-zinc-500`} title={formatWhen(row.startedAt)}>
+                      {formatWhen(row.startedAt)}
+                    </span>
                   </td>
-                  <td className={`${DT.tdClip} tabular-nums text-zinc-700 dark:text-zinc-300`}>
-                    {row.userMessages + row.assistantMessages}
+                  <td className={DT.tdClip}>
+                    <span className={`${DT.tdTextSpan} whitespace-nowrap text-zinc-500`} title={formatWhen(row.endedAt)}>
+                      {formatWhen(row.endedAt)}
+                    </span>
                   </td>
-                  <td className={`${DT.tdClip} tabular-nums text-zinc-700 dark:text-zinc-300`}>{row.toolCalls}</td>
-                  <td className={`${DT.tdClip} tabular-nums text-zinc-700 dark:text-zinc-300`}>{formatSessionCost(row.costUsd)}</td>
+                  <td className={DT.tdNumeric}>
+                    <span className={DT.tdTextSpan}>{formatSessionDuration(row.durationMs)}</span>
+                  </td>
+                  <td className={DT.tdNumeric}>
+                    <span className={DT.tdTextSpan}>{row.userMessages + row.assistantMessages}</span>
+                  </td>
+                  <td className={DT.tdNumeric}>
+                    <span className={DT.tdTextSpan}>{row.toolCalls}</span>
+                  </td>
+                  <td className={DT.tdNumeric}>
+                    <span className={DT.tdTextSpan}>{formatSessionCost(row.costUsd)}</span>
+                  </td>
                   <td className={DT.tdControl}>
-                    <div className={DT.actionsRow}>
+                    <div className={DT.controlInner}>
                       <StatusPill
                         label={row.status === "failed" ? "Failed" : "Completed"}
                         tone={statusTone(row.status)}
+                        equalWidthLabels={SESSION_DISPLAY_PILL_LABELS}
                       />
+                    </div>
+                  </td>
+                  <td className={DT.tdControl}>
+                    <div className={DT.actionsRow}>
                       <DataTableIconAction icon={Eye} label={`Open ${row.sessionTitle}`} href={row.openHref} />
                     </div>
                   </td>

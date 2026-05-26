@@ -1,9 +1,7 @@
 import { listSkills } from "@linktrend/linklogic-sdk";
 import type { SkillRecord } from "@linktrend/shared-types";
 
-import Link from "next/link";
-
-import { CapabilitiesCatalogStatsGrid } from "@/components/summary-metric-card";
+import { AddSkillHeaderAction } from "@/components/linkskills-header-actions";
 import { LinkskillsHubNav } from "@/components/linkskills-hub-nav";
 import { ShellPageHeaderClient } from "@/components/shell-page-header-client";
 import { SkillsCatalogTable, type SkillCatalogRow } from "@/components/skills-catalog-table";
@@ -13,7 +11,7 @@ import { readSkillAdminFlags } from "@/lib/skills-admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { isUiMocksEnabled } from "@/lib/ui-mocks/flags";
 import { mergeSkillCatalogWithDemo } from "@/lib/ui-mocks/skills-tools-catalog-demo";
-import { BUTTON } from "@/lib/ui-standards";
+import { CapabilitiesCatalogStatsGrid } from "@/components/summary-metric-card";
 
 export const dynamic = "force-dynamic";
 
@@ -70,11 +68,7 @@ export default async function SkillsCatalogPage() {
       <ShellPageHeaderClient
         title="Skills"
         subtitle="Governed procedure packages — SKILL.md playbooks, scripts, references, and declared tool bindings LiNKbots invoke when leases allow."
-        actions={
-          <Link href="/skills/skills/new" className={BUTTON.addRow} title="Creates a draft skill in Postgres when live DB is available">
-            Add Skill
-          </Link>
-        }
+        actions={<AddSkillHeaderAction />}
       />
       <LinkskillsHubNav />
 

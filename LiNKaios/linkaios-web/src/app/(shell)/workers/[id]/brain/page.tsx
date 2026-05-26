@@ -58,14 +58,9 @@ export default async function WorkerBrainPage(props: { params: Promise<{ id: str
         title="LiNKbrain"
         subtitle={`Approved memory and personality files for ${displayName} — same layout as LiNKbrain → LiNKbot Memory, pre-scoped to this agent. Persona layers (base persona, soul, identity) and daily logs are governed documents in the agent partition. Edit proposals flow through LiNKbrain Inbox before publish.`}
         actions={
-          <>
-            <Link href={memoryHref} className={`${BUTTON.secondaryRow} h-fit shrink-0`}>
-              Open in LiNKbrain
-            </Link>
-            <Link href="/skills/skills" className={`${BUTTON.secondaryRow} h-fit shrink-0`}>
-              Open in LiNKskills
-            </Link>
-          </>
+          <Link href={memoryHref} className={`${BUTTON.secondaryRow} h-fit shrink-0`}>
+            Open in LiNKbrain
+          </Link>
         }
       />
 

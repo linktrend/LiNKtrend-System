@@ -1,6 +1,6 @@
 import type { LucideIcon } from "lucide-react";
 
-import { CARD } from "@/lib/ui-standards";
+import { CARD, TYPE } from "@/lib/ui-standards";
 
 export function CardBodyInset(props: { children: React.ReactNode; className?: string }) {
   return <div className={props.className ? `${CARD.contentInset} ${props.className}` : CARD.contentInset}>{props.children}</div>;
@@ -33,7 +33,7 @@ export function TitledCardHeader(props: {
           </div>
           {props.action}
         </div>
-        {props.description ? <p className="text-sm text-zinc-600 dark:text-zinc-400">{props.description}</p> : null}
+        {props.description ? <p className={CARD.description}>{props.description}</p> : null}
       </div>
     );
   }
@@ -53,7 +53,7 @@ export function TitledCardHeader(props: {
           {props.action}
         </div>
         {descriptionBlock ? (
-          <p className={`${CARD.contentInset} min-w-0 text-sm text-zinc-600 dark:text-zinc-400`}>{props.description}</p>
+          <p className={`${CARD.contentInset} min-w-0 ${TYPE.bodyMuted}`}>{props.description}</p>
         ) : null}
       </div>
     );

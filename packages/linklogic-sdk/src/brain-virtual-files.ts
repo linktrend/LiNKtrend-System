@@ -8,6 +8,12 @@ export type BrainScope = "company" | "mission" | "agent";
 export type BrainSensitivity = "public" | "internal" | "confidential" | "restricted";
 export type BrainFileKind = "standard" | "daily_log" | "upload" | "librarian" | "quick_note";
 
+export type BrainMemoryTags = {
+  industry?: string;
+  pattern?: string;
+  useCase?: string;
+};
+
 export type BrainVirtualFileRow = {
   id: string;
   logical_path: string;
@@ -18,6 +24,8 @@ export type BrainVirtualFileRow = {
   legal_entity_id: string;
   sensitivity: string;
   file_kind: string;
+  /** Set at creation on the licensee side; validated before anonymisation. */
+  memory_tags?: BrainMemoryTags | Record<string, unknown> | null;
 };
 
 export type BrainVirtualFileEnriched = BrainVirtualFileRow & {
@@ -49,6 +57,8 @@ export type BrainInboxRow = BrainFileVersionRow & {
   inbox_item_type: BrainInboxItemType;
   /** Published/predecessor body for diff when this draft is an edit proposal. */
   predecessor_body: string | null;
+  /** Collective tags assigned when the virtual file was first created. */
+  memory_tags?: BrainMemoryTags | null;
 };
 
 export function normaliseBrainInboxItemType(
@@ -78,6 +88,7 @@ export async function getOrCreateBrainVirtualFile(
     legalEntityId?: string | null;
     sensitivity?: BrainSensitivity | string | null;
     fileKind?: BrainFileKind | string | null;
+    memoryTags?: BrainMemoryTags | null;
   },
 ): Promise<{ data: BrainVirtualFileRow | null; error: Error | null }> {
   const { mission_id, agent_id } = scopeParams(params.scope, params.missionId, params.agentId);
@@ -93,7 +104,7 @@ export async function getOrCreateBrainVirtualFile(
   if (selErr) return { data: null, error: new Error(selErr.message) };
   if (existing) return { data: existing as BrainVirtualFileRow, error: null };
 
-  const insertRow = {
+  const insertRow: Record<string, unknown> = {
     logical_path: params.logicalPath,
     scope: params.scope,
     mission_id,
@@ -102,6 +113,9 @@ export async function getOrCreateBrainVirtualFile(
     sensitivity: (params.sensitivity as string) || "internal",
     file_kind: (params.fileKind as string) || "standard",
   };
+  if (params.memoryTags && Object.keys(params.memoryTags).length > 0) {
+    insertRow.memory_tags = params.memoryTags;
+  }
   const { data: created, error: insErr } = await client
     .schema("linkaios")
     .from("brain_virtual_files")
@@ -295,7 +309,7 @@ export async function listBrainDraftsForInbox(
   const { data: files, error: fErr } = await client
     .schema("linkaios")
     .from("brain_virtual_files")
-    .select("id, logical_path, scope, mission_id, agent_id, file_kind, sensitivity")
+    .select("id, logical_path, scope, mission_id, agent_id, file_kind, sensitivity, memory_tags")
     .in("id", fileIds);
   if (fErr) return { data: [], error: new Error(fErr.message) };
   const predBodyMap = new Map<string, string>();
@@ -327,6 +341,7 @@ export async function listBrainDraftsForInbox(
       sensitivity: f?.sensitivity ?? "internal",
       inbox_item_type: normaliseBrainInboxItemType(fk, hasPred),
       predecessor_body,
+      memory_tags: (f?.memory_tags as BrainMemoryTags | null | undefined) ?? null,
     };
   });
   if (opts?.inboxItemType) {

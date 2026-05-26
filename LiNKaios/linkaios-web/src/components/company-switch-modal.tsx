@@ -3,6 +3,8 @@
 import { useEffect, useRef } from "react";
 
 import { COMPANY_FIXTURES } from "@/lib/company-fixtures";
+import { companiesVisibleInTopology } from "@/lib/tenant-topology";
+import { useTenantTopology } from "@/hooks/use-tenant-topology";
 import { BUTTON } from "@/lib/ui-standards";
 
 export function CompanySwitchModal(props: {
@@ -12,12 +14,19 @@ export function CompanySwitchModal(props: {
   onSelect: (companyId: string) => void;
 }) {
   const closeRef = useRef<HTMLButtonElement>(null);
+  const { mode: topologyMode } = useTenantTopology();
 
   useEffect(() => {
     if (props.open) closeRef.current?.focus();
   }, [props.open]);
 
   if (!props.open) return null;
+
+  const visibleIds = companiesVisibleInTopology(
+    topologyMode,
+    COMPANY_FIXTURES.map((c) => c.id),
+  );
+  const options = COMPANY_FIXTURES.filter((c) => visibleIds.includes(c.id));
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4" role="presentation">
@@ -32,10 +41,10 @@ export function CompanySwitchModal(props: {
           Switch company
         </h2>
         <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
-          Choose which licensee organization you are working in. Profile details live under Company.
+          Choose which legal entity you are working in. Profile details live under Company.
         </p>
         <ul className="mt-4 space-y-2">
-          {COMPANY_FIXTURES.map((c) => {
+          {options.map((c) => {
             const active = c.id === props.activeCompanyId;
             return (
               <li key={c.id}>

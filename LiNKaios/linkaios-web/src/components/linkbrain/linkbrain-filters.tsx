@@ -3,10 +3,14 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
+import { useAppSurface } from "@/components/app-surface-provider";
+import { InsetSelect } from "@/components/forms";
+import { useMemoryHref } from "@/hooks/use-memory-href";
 import { memoryHref } from "@/lib/memory-href";
 import type { LinkbrainTab } from "@/lib/linkbrain-data";
 
 import type { BrainOrgNodeRow } from "@linktrend/linklogic-sdk";
+import { FIELD, FORM } from "@/lib/ui-standards";
 
 export { memoryHref } from "@/lib/memory-href";
 
@@ -20,17 +24,18 @@ export function MemoryProjectSelect(props: {
   brainScope?: string;
 }) {
   const router = useRouter();
+  const hrefForTab = useMemoryHref();
   const sc = props.scope === "all" ? "all" : undefined;
   const tab = props.memoryTab ?? "project";
   return (
-    <select
-      className="w-full max-w-xl rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 shadow-sm dark:border-zinc-600 dark:bg-zinc-950 dark:text-zinc-100"
+    <InsetSelect
+      fullWidth={false}
       value={props.selectedMissionId ?? ""}
       aria-label="Select project"
       onChange={(e) => {
         const v = e.target.value.trim();
         router.push(
-          memoryHref(tab, {
+          hrefForTab(tab, {
             mission: v || undefined,
             classification: props.classification,
             scope: sc,
@@ -46,7 +51,7 @@ export function MemoryProjectSelect(props: {
           {m.title}
         </option>
       ))}
-    </select>
+    </InsetSelect>
   );
 }
 
@@ -59,17 +64,18 @@ export function MemoryAgentSelect(props: {
   brainScope?: string;
 }) {
   const router = useRouter();
+  const hrefForTab = useMemoryHref();
   const sc = props.scope === "all" ? "all" : undefined;
   const tab = props.memoryTab ?? "agent";
   return (
-    <select
-      className="w-full max-w-xl rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 shadow-sm dark:border-zinc-600 dark:bg-zinc-950 dark:text-zinc-100"
+    <InsetSelect
+      fullWidth={false}
       value={props.selectedAgentId ?? ""}
       aria-label="Select LiNKbot"
       onChange={(e) => {
         const v = e.target.value.trim();
         router.push(
-          memoryHref(tab, {
+          hrefForTab(tab, {
             agent: v || undefined,
             classification: props.classification,
             scope: sc,
@@ -85,7 +91,7 @@ export function MemoryAgentSelect(props: {
           {a.display_name}
         </option>
       ))}
-    </select>
+    </InsetSelect>
   );
 }
 
@@ -99,6 +105,7 @@ export function MemoryScopeToggle(props: {
   brainAgent?: string;
   org?: string;
 }) {
+  const hrefForTab = useMemoryHref();
   const q = {
     mission: props.mission,
     agent: props.agent,
@@ -111,7 +118,7 @@ export function MemoryScopeToggle(props: {
     <div className="mt-3 flex flex-wrap items-center gap-2 text-sm" role="group" aria-label="How many entries to load">
       <span className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Show</span>
       <Link
-        href={memoryHref(props.tab, { ...q, scope: "recent" })}
+        href={hrefForTab(props.tab, { ...q, scope: "recent" })}
         className={`rounded-full border px-3 py-1 text-xs font-medium ${
           props.scope === "recent"
             ? "border-zinc-900 bg-zinc-900 text-white dark:border-zinc-100 dark:bg-zinc-100 dark:text-zinc-900"
@@ -121,7 +128,7 @@ export function MemoryScopeToggle(props: {
         Recent
       </Link>
       <Link
-        href={memoryHref(props.tab, { ...q, scope: "all" })}
+        href={hrefForTab(props.tab, { ...q, scope: "all" })}
         className={`rounded-full border px-3 py-1 text-xs font-medium ${
           props.scope === "all"
             ? "border-zinc-900 bg-zinc-900 text-white dark:border-zinc-100 dark:bg-zinc-100 dark:text-zinc-900"
@@ -139,31 +146,35 @@ export function CompanyOrgNarrowSelect(props: {
   selectedOrgId?: string;
 }) {
   const router = useRouter();
+  const hrefForTab = useMemoryHref();
+  const { href: appHref, isAdmin } = useAppSurface();
   return (
     <div>
-      <label className="mb-2 block text-xs font-semibold text-zinc-500 dark:text-zinc-400">
-        Department / office
+      <label className={FORM.fieldStack}>
+        <span className={`${FIELD.label} text-xs text-zinc-500 dark:text-zinc-400`}>Department / office</span>
+        <div className="max-w-xl">
+          <InsetSelect
+            fullWidth={false}
+            value={props.selectedOrgId ?? ""}
+            aria-label="Filter by organisation node"
+            onChange={(e) => {
+              const v = e.target.value.trim();
+              router.push(hrefForTab("company", { org: v || undefined, brainScope: "company" }));
+            }}
+          >
+            <option value="">All company documents</option>
+            {props.nodes.map((n) => (
+              <option key={n.id} value={n.id}>
+                {n.label}
+              </option>
+            ))}
+          </InsetSelect>
+        </div>
       </label>
-      <select
-        className="w-full max-w-xl rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm dark:border-zinc-600 dark:bg-zinc-950 dark:text-zinc-100"
-        value={props.selectedOrgId ?? ""}
-        aria-label="Filter by organisation node"
-        onChange={(e) => {
-          const v = e.target.value.trim();
-          router.push(memoryHref("company", { org: v || undefined, brainScope: "company" }));
-        }}
-      >
-        <option value="">All company documents</option>
-        {props.nodes.map((n) => (
-          <option key={n.id} value={n.id}>
-            {n.label}
-          </option>
-        ))}
-      </select>
       <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
         Narrow to a department or office from{" "}
-        <Link href="/company" className="text-sky-700 underline dark:text-sky-400">
-          Company settings
+        <Link href={appHref(isAdmin ? "/licensees" : "/company")} className="text-sky-700 underline dark:text-sky-400">
+          {isAdmin ? "Licensee profile" : "Company settings"}
         </Link>
         .
       </p>

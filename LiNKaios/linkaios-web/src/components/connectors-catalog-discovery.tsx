@@ -1,25 +1,57 @@
 "use client";
 
-import { useCallback, useMemo, useState, useTransition } from "react";
+import { useCallback, useEffect, useMemo, useState, useTransition } from "react";
 
 import { CapabilityConnectorsTable } from "@/components/capability-connectors-table";
 import { CatalogSearchField } from "@/components/catalog-search-field";
+import {
+  readRegisteredCapabilities,
+  type RegisteredCapabilityRow,
+} from "@/lib/linkskills-requests";
 import type { ConnectorCatalogRow } from "@/lib/ui-mocks/capability-connectors-demo";
+
+function registeredToCatalogRow(r: RegisteredCapabilityRow): ConnectorCatalogRow {
+  return {
+    id: `repo-${r.id}`,
+    name: r.name,
+    capabilityScope: r.capabilityScope,
+    status: r.status,
+    targetSoftware: r.targetSoftware,
+    usedBy: r.usedBy,
+  };
+}
 
 function matchesConnectorQuery(row: ConnectorCatalogRow, query: string): boolean {
   const haystack = [row.name, row.targetSoftware, row.usedBy, row.capabilityScope].join(" ").toLowerCase();
   return haystack.includes(query);
 }
 
-export function ConnectorsCatalogDiscovery(props: { rows: ConnectorCatalogRow[] }) {
+export function ConnectorsCatalogDiscovery(props: { seedRows: ConnectorCatalogRow[] }) {
   const [q, setQ] = useState("");
   const [activeQuery, setActiveQuery] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
+  const [registeredRows, setRegisteredRows] = useState<ConnectorCatalogRow[]>([]);
+
+  useEffect(() => {
+    const sync = () => setRegisteredRows(readRegisteredCapabilities().map(registeredToCatalogRow));
+    sync();
+    window.addEventListener("linkaios-capability-catalog-changed", sync);
+    return () => window.removeEventListener("linkaios-capability-catalog-changed", sync);
+  }, []);
+
+  const allRows = useMemo(() => {
+    const byId = new Map<string, ConnectorCatalogRow>();
+    for (const row of props.seedRows) byId.set(row.id, row);
+    for (const row of registeredRows) {
+      if (!byId.has(row.id.replace(/^repo-/, ""))) byId.set(row.id, row);
+    }
+    return [...byId.values()];
+  }, [props.seedRows, registeredRows]);
 
   const filteredRows = useMemo(() => {
-    if (!activeQuery) return props.rows;
-    return props.rows.filter((row) => matchesConnectorQuery(row, activeQuery));
-  }, [activeQuery, props.rows]);
+    if (!activeQuery) return allRows;
+    return allRows.filter((row) => matchesConnectorQuery(row, activeQuery));
+  }, [activeQuery, allRows]);
 
   const runSearch = useCallback(() => {
     const t = q.trim().toLowerCase();
@@ -57,7 +89,12 @@ export function ConnectorsCatalogDiscovery(props: { rows: ConnectorCatalogRow[] 
           </button>
         </p>
       ) : null}
-      <CapabilityConnectorsTable rows={filteredRows} />
+      <CapabilityConnectorsTable
+        rows={filteredRows}
+        onArchiveRegistered={() => {
+          setRegisteredRows(readRegisteredCapabilities().map(registeredToCatalogRow));
+        }}
+      />
     </section>
   );
 }

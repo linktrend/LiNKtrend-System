@@ -25,7 +25,7 @@ export default async function SettingsIndexPage() {
     <>
       <ShellPageHeaderClient
         title="Settings"
-        subtitle="Account, security, preferences, data integrations, and platform controls for your workspace."
+        subtitle="Account, security, preferences, and data integrations for your workspace."
       />
       <SettingsHub
         platformPanel={<SettingsPlatformPanel />}

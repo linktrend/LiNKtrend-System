@@ -4,7 +4,6 @@ import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import {
-  ArrowLeftRight,
   X,
   BarChart3,
   Bot,
@@ -22,17 +21,30 @@ import {
 } from "lucide-react";
 
 import { ModulesSidebarSection } from "@/components/modules/modules-sidebar-section";
+import { LicensorSuitesSidebarSection } from "@/components/modules/licensor-suites-sidebar-section";
 
-import { CompanySwitchModal } from "@/components/company-switch-modal";
+import { useAppRole } from "@/components/role-preview-provider";
+import { SidebarRoleBadge } from "@/components/sidebar-role-preview";
+import { SidebarLicensorScope } from "@/components/sidebar-licensor-scope";
+import { useAppSurface } from "@/components/app-surface-provider";
+import { SidebarActiveContext } from "@/components/sidebar-active-context";
 import { SignOutButton } from "@/components/sign-out-button";
-import { companyOverviewHref } from "@/lib/company-page-copy";
-import { COMPANY_DEFAULT_FIXTURE_ID, resolveCompanyFixture } from "@/lib/company-fixtures";
-import { SETTINGS_SIDEBAR_ITEMS, settingsSectionActive } from "@/lib/settings-nav";
+import { ADMIN_BASE_PATH, LICENSEE_HOME_PATH, stripAppBasePath } from "@/lib/app-surface";
+import { canSeeNavSection, visibleLinkbrainTabs } from "@/lib/app-roles";
+import { linkbrainTabLabel } from "@/lib/linkbrain-page-copy";
+import { effectiveBrandId, parseLicenseeContext } from "@/lib/licensee-context";
+import { memoryHref } from "@/lib/memory-href";
+import { settingsSectionActive, settingsSidebarItems } from "@/lib/settings-nav";
+import { useTenantTopology } from "@/hooks/use-tenant-topology";
 import { METRICS_SIDEBAR_ITEMS, metricsSectionActive } from "@/lib/metrics-nav";
 import { MEMORY_SIDEBAR_ITEMS, memorySectionActive } from "@/lib/memory-nav";
 import { COMPANY_SIDEBAR_ITEMS, companySectionActive } from "@/lib/company-nav";
 
-export type SidebarUser = { email: string | null; displayName: string | null; avatarUrl: string | null };
+export type SidebarUser = {
+  email: string | null;
+  displayName: string | null;
+  avatarUrl: string | null;
+};
 
 function navLinkClass(active: boolean) {
   return (
@@ -107,7 +119,10 @@ function SidebarUserBlock(props: { user: SidebarUser }) {
         )}
       </div>
       <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-semibold leading-tight text-zinc-900 dark:text-zinc-100">{primary}</p>
+        <div className="flex min-w-0 items-center gap-2">
+          <p className="min-w-0 truncate text-sm font-semibold leading-tight text-zinc-900 dark:text-zinc-100">{primary}</p>
+          <SidebarRoleBadge />
+        </div>
         {secondary ? (
           <p className="mt-0.5 truncate text-xs leading-tight text-zinc-500 dark:text-zinc-400">{secondary}</p>
         ) : user.email && primary !== user.email ? (
@@ -136,21 +151,27 @@ export function ShellSidebar(props: {
   user: SidebarUser | null;
   mobileOpen?: boolean;
   onMobileOpenChange?: (open: boolean) => void;
+  surface?: "licensee" | "admin";
 }) {
   const pathname = usePathname() ?? "/";
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [openAccordion, setOpenAccordion] = useState<AccordionKey>(() => accordionKeyForPath(pathname));
-  const [companyModalOpen, setCompanyModalOpen] = useState(false);
+  const { href: appHref, routePath, isAdmin } = useAppSurface();
+  const { kind, role } = useAppRole();
+  const route = routePath(pathname);
+  const show = (section: Parameters<typeof canSeeNavSection>[2]) => canSeeNavSection(kind, role, section);
+  const [openAccordion, setOpenAccordion] = useState<AccordionKey>(() => accordionKeyForPath(route));
 
-  const companyId = searchParams.get("companyId") ?? COMPANY_DEFAULT_FIXTURE_ID;
-  const activeCompany = resolveCompanyFixture(companyId);
+  const { mode: topologyMode } = useTenantTopology();
+  const licenseeCtx = parseLicenseeContext(searchParams, topologyMode);
+  const { companyId } = licenseeCtx;
+  const brandForLinks = effectiveBrandId(licenseeCtx);
 
   useEffect(() => {
-    const k = accordionKeyForPath(pathname);
+    const k = accordionKeyForPath(route);
     if (k) setOpenAccordion((cur) => (cur === k ? cur : k));
     if (props.mobileOpen) props.onMobileOpenChange?.(false);
-  }, [pathname, props.mobileOpen, props.onMobileOpenChange]);
+  }, [route, props.mobileOpen, props.onMobileOpenChange]);
 
   const workOpen = openAccordion === "work";
   const agentsOpen = openAccordion === "agents";
@@ -165,19 +186,26 @@ export function ShellSidebar(props: {
     setOpenAccordion((cur) => (cur === key ? null : key));
   };
 
-  const settingsActive = settingsSectionActive(pathname);
-  const metricsActive = metricsSectionActive(pathname);
-  const memoryActive = memorySectionActive(pathname);
-  const companyActive = companySectionActive(pathname);
+  const settingsActive = settingsSectionActive(route);
+  const metricsActive = metricsSectionActive(route);
+  const memoryActive = memorySectionActive(route);
+  const companyActive = companySectionActive(route);
   const subMenuRail = "ml-2 mt-0.5 border-l border-sky-500/35 pl-2 dark:border-sky-400/35";
 
   const mobileOpen = props.mobileOpen ?? false;
   const setMobileOpen = props.onMobileOpenChange ?? (() => {});
+  const homePath = isAdmin ? ADMIN_BASE_PATH : LICENSEE_HOME_PATH;
+  const settingsNavItems = settingsSidebarItems(isAdmin, role).map((item) => ({
+    ...item,
+    href: appHref(item.href),
+    match: (path: string, search?: string) => item.match(routePath(path), search),
+  }));
 
-  const selectCompany = (id: string) => {
-    setCompanyModalOpen(false);
-    router.push(companyOverviewHref(id));
-  };
+  const linkbotsFleetLabel = "All LiNKbots";
+  const visibleMemoryTabs = visibleLinkbrainTabs(kind, role);
+
+  const memoryLink = (tab: (typeof MEMORY_SIDEBAR_ITEMS)[number]["id"]) =>
+    appHref(memoryHref(tab, { companyId, brandId: brandForLinks ?? undefined }));
 
   return (
     <>
@@ -196,11 +224,13 @@ export function ShellSidebar(props: {
         }
       >
         <div className="flex h-[4.5rem] shrink-0 items-center justify-between border-b border-zinc-100 px-4 dark:border-zinc-800">
-          <Link href="/" className="flex min-w-0 items-center gap-2.5" aria-label="LiNKaios home">
+          <Link href={homePath} className="flex min-w-0 items-center gap-2.5" aria-label="LiNKaios home">
             <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-zinc-900 text-[11px] font-bold tracking-tight text-white dark:bg-zinc-100 dark:text-zinc-900">
               LK
             </span>
-            <span className="truncate text-sm font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">LiNKaios</span>
+            <span className="truncate text-sm font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
+              {isAdmin ? "LiNKaios Admin" : "LiNKaios"}
+            </span>
           </Link>
           <button
             type="button"
@@ -213,299 +243,312 @@ export function ShellSidebar(props: {
         </div>
 
         <nav className="min-h-0 flex-1 space-y-0.5 overflow-y-auto overscroll-contain px-2 py-3" aria-label="Primary">
-          <Link href="/" className={navLinkClass(pathname === "/")}>
-            <LayoutDashboard className="h-4 w-4 shrink-0 opacity-85" aria-hidden />
-            Overview
-          </Link>
+          {show("overview") ? (
+            <Link href={homePath} className={navLinkClass(route === stripAppBasePath(homePath) || pathname === homePath)}>
+              <LayoutDashboard className="h-4 w-4 shrink-0 opacity-85" aria-hidden />
+              Overview
+            </Link>
+          ) : null}
 
-          <div className="mt-1">
-            <button
-              type="button"
-              onClick={() => toggle("work")}
-              className={
-                "flex w-full items-center justify-between gap-2 rounded-md px-3 py-2 text-left text-sm font-medium text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800 " +
-                (pathname.startsWith("/work") ? "bg-zinc-100 text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100" : "")
-              }
-              aria-expanded={workOpen}
-            >
-              <span className="flex items-center gap-2">
-                <Briefcase className="h-4 w-4 shrink-0 opacity-85" aria-hidden />
-                Work
-              </span>
-              {workOpen ? <ChevronDown className="h-4 w-4 text-zinc-400" aria-hidden /> : <ChevronRight className="h-4 w-4 text-zinc-400" aria-hidden />}
-            </button>
-            {workOpen ? (
-              <div className={subMenuRail}>
-                <Link href="/work" className={footerSubLinkClass(pathname === "/work" || pathname === "/work/")}>
-                  All Work
-                </Link>
-                <Link href="/work/alerts" className={subLinkClass(pathname === "/work/alerts")}>
-                  Alerts
-                </Link>
-                <Link href="/work/messages" className={subLinkClass(pathname === "/work/messages")}>
-                  Messages
-                </Link>
-                <Link href="/work/sessions" className={subLinkClass(pathname === "/work/sessions")}>
-                  Sessions
-                </Link>
-              </div>
-            ) : null}
-          </div>
+          {show("work") ? (
+            <div className="mt-1">
+              <button
+                type="button"
+                onClick={() => toggle("work")}
+                className={
+                  "flex w-full items-center justify-between gap-2 rounded-md px-3 py-2 text-left text-sm font-medium text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800 " +
+                  (route.startsWith("/work") ? "bg-zinc-100 text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100" : "")
+                }
+                aria-expanded={workOpen}
+              >
+                <span className="flex items-center gap-2">
+                  <Briefcase className="h-4 w-4 shrink-0 opacity-85" aria-hidden />
+                  Work
+                </span>
+                {workOpen ? <ChevronDown className="h-4 w-4 text-zinc-400" aria-hidden /> : <ChevronRight className="h-4 w-4 text-zinc-400" aria-hidden />}
+              </button>
+              {workOpen ? (
+                <div className={subMenuRail}>
+                  <Link href={appHref("/work")} className={footerSubLinkClass(route === "/work" || route === "/work/")}>
+                    All Work
+                  </Link>
+                  <Link href={appHref("/work/alerts")} className={subLinkClass(route === "/work/alerts")}>
+                    Alerts
+                  </Link>
+                  <Link href={appHref("/work/messages")} className={subLinkClass(route === "/work/messages")}>
+                    Messages
+                  </Link>
+                  <Link href={appHref("/work/sessions")} className={subLinkClass(route === "/work/sessions")}>
+                    Sessions
+                  </Link>
+                </div>
+              ) : null}
+            </div>
+          ) : null}
 
-          <div className="mt-1">
-            <button
-              type="button"
-              onClick={() => toggle("projects")}
-              className={
-                "flex w-full items-center justify-between gap-2 rounded-md px-3 py-2 text-left text-sm font-medium text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800 " +
-                (pathname.startsWith("/projects") ? "bg-zinc-100 text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100" : "")
-              }
-              aria-expanded={projectsOpen}
-            >
-              <span className="flex items-center gap-2">
-                <FolderKanban className="h-4 w-4 shrink-0 opacity-85" aria-hidden />
-                Projects
-              </span>
-              {projectsOpen ? <ChevronDown className="h-4 w-4 text-zinc-400" aria-hidden /> : <ChevronRight className="h-4 w-4 text-zinc-400" aria-hidden />}
-            </button>
-            {projectsOpen ? (
-              <div className={subMenuRail}>
-                <Link href="/projects" className={footerSubLinkClass(pathname === "/projects")}>
-                  All Projects
-                </Link>
-                {placeholderSubItem("Recent", "recent")}
-                {placeholderSubItem("Pinned", "pinned")}
-              </div>
-            ) : null}
-          </div>
+          {show("projects") ? (
+            <div className="mt-1">
+              <button
+                type="button"
+                onClick={() => toggle("projects")}
+                className={
+                  "flex w-full items-center justify-between gap-2 rounded-md px-3 py-2 text-left text-sm font-medium text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800 " +
+                  (route.startsWith("/projects") ? "bg-zinc-100 text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100" : "")
+                }
+                aria-expanded={projectsOpen}
+              >
+                <span className="flex items-center gap-2">
+                  <FolderKanban className="h-4 w-4 shrink-0 opacity-85" aria-hidden />
+                  Projects
+                </span>
+                {projectsOpen ? <ChevronDown className="h-4 w-4 text-zinc-400" aria-hidden /> : <ChevronRight className="h-4 w-4 text-zinc-400" aria-hidden />}
+              </button>
+              {projectsOpen ? (
+                <div className={subMenuRail}>
+                  <Link href={appHref("/projects")} className={footerSubLinkClass(route === "/projects")}>
+                    All Projects
+                  </Link>
+                  {placeholderSubItem("Recent", "recent")}
+                  {placeholderSubItem("Pinned", "pinned")}
+                </div>
+              ) : null}
+            </div>
+          ) : null}
 
-          <ModulesSidebarSection />
+          {show("suites") ? (isAdmin ? <LicensorSuitesSidebarSection /> : <ModulesSidebarSection />) : null}
 
-          <div className="mt-1">
-            <button
-              type="button"
-              onClick={() => toggle("metrics")}
-              className={
-                "flex w-full items-center justify-between gap-2 rounded-md px-3 py-2 text-left text-sm font-medium text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800 " +
-                (metricsActive ? "bg-zinc-100 text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100" : "")
-              }
-              aria-expanded={metricsOpen}
-            >
-              <span className="flex items-center gap-2">
-                <BarChart3 className="h-4 w-4 shrink-0 opacity-85" aria-hidden />
-                Metrics
-              </span>
+          {show("metrics") ? (
+            <div className="mt-1">
+              <button
+                type="button"
+                onClick={() => toggle("metrics")}
+                className={
+                  "flex w-full items-center justify-between gap-2 rounded-md px-3 py-2 text-left text-sm font-medium text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800 " +
+                  (metricsActive ? "bg-zinc-100 text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100" : "")
+                }
+                aria-expanded={metricsOpen}
+              >
+                <span className="flex items-center gap-2">
+                  <BarChart3 className="h-4 w-4 shrink-0 opacity-85" aria-hidden />
+                  Metrics
+                </span>
+                {metricsOpen ? (
+                  <ChevronDown className="h-4 w-4 text-zinc-400" aria-hidden />
+                ) : (
+                  <ChevronRight className="h-4 w-4 text-zinc-400" aria-hidden />
+                )}
+              </button>
               {metricsOpen ? (
-                <ChevronDown className="h-4 w-4 text-zinc-400" aria-hidden />
-              ) : (
-                <ChevronRight className="h-4 w-4 text-zinc-400" aria-hidden />
-              )}
-            </button>
-            {metricsOpen ? (
-              <div className={subMenuRail}>
-                {METRICS_SIDEBAR_ITEMS.map((item) => (
-                  <Link
-                    key={item.id}
-                    href={item.href}
-                    className={subLinkClass(item.match(pathname, searchParams.toString()))}
-                  >
-                    {item.label}
+                <div className={subMenuRail}>
+                  {METRICS_SIDEBAR_ITEMS.map((item) => (
+                    <Link
+                      key={item.id}
+                      href={appHref(item.href)}
+                      className={subLinkClass(item.match(route, searchParams.toString()))}
+                    >
+                      {item.label}
+                    </Link>
+                  ))}
+                </div>
+              ) : null}
+            </div>
+          ) : null}
+
+          {show("linkbots") ? (
+            <div className="mt-1">
+              <button
+                type="button"
+                onClick={() => toggle("agents")}
+                className={
+                  "flex w-full items-center justify-between gap-2 rounded-md px-3 py-2 text-left text-sm font-medium text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800 " +
+                  (route.startsWith("/workers") ? "bg-zinc-100 text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100" : "")
+                }
+                aria-expanded={agentsOpen}
+              >
+                <span className="flex items-center gap-2">
+                  <Bot className="h-4 w-4 shrink-0 opacity-85" aria-hidden />
+                  LiNKbots
+                </span>
+                {agentsOpen ? <ChevronDown className="h-4 w-4 text-zinc-400" aria-hidden /> : <ChevronRight className="h-4 w-4 text-zinc-400" aria-hidden />}
+              </button>
+              {agentsOpen ? (
+                <div className={subMenuRail}>
+                  <Link href={appHref("/workers")} className={footerSubLinkClass(route === "/workers")}>
+                    {linkbotsFleetLabel}
                   </Link>
-                ))}
-              </div>
-            ) : null}
-          </div>
+                  {placeholderSubItem("Recent", "recent")}
+                  {placeholderSubItem("Pinned", "pinned")}
+                </div>
+              ) : null}
+            </div>
+          ) : null}
 
-          <div className="mt-1">
-            <button
-              type="button"
-              onClick={() => toggle("agents")}
-              className={
-                "flex w-full items-center justify-between gap-2 rounded-md px-3 py-2 text-left text-sm font-medium text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800 " +
-                (pathname.startsWith("/workers") ? "bg-zinc-100 text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100" : "")
-              }
-              aria-expanded={agentsOpen}
-            >
-              <span className="flex items-center gap-2">
-                <Bot className="h-4 w-4 shrink-0 opacity-85" aria-hidden />
-                LiNKbots
-              </span>
-              {agentsOpen ? <ChevronDown className="h-4 w-4 text-zinc-400" aria-hidden /> : <ChevronRight className="h-4 w-4 text-zinc-400" aria-hidden />}
-            </button>
-            {agentsOpen ? (
-              <div className={subMenuRail}>
-                <Link href="/workers" className={footerSubLinkClass(pathname === "/workers")}>
-                  All LiNKbots
-                </Link>
-                {placeholderSubItem("Recent", "recent")}
-                {placeholderSubItem("Pinned", "pinned")}
-              </div>
-            ) : null}
-          </div>
+          {show("linkskills") ? (
+            <div className="mt-1">
+              <button
+                type="button"
+                onClick={() => toggle("skills")}
+                className={
+                  "flex w-full items-center justify-between gap-2 rounded-md px-3 py-2 text-left text-sm font-medium text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800 " +
+                  (route.startsWith("/skills") ? "bg-zinc-100 text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100" : "")
+                }
+                aria-expanded={skillsOpen}
+              >
+                <span className="flex items-center gap-2">
+                  <Wrench className="h-4 w-4 shrink-0 opacity-85" aria-hidden />
+                  LiNKskills
+                </span>
+                {skillsOpen ? <ChevronDown className="h-4 w-4 text-zinc-400" aria-hidden /> : <ChevronRight className="h-4 w-4 text-zinc-400" aria-hidden />}
+              </button>
+              {skillsOpen ? (
+                <div className={subMenuRail}>
+                  <Link href={appHref("/skills")} className={footerSubLinkClass(route === "/skills" || route === "/skills/")}>
+                    Overview
+                  </Link>
+                  <Link
+                    href={appHref("/skills/skills")}
+                    className={subLinkClass(
+                      route.startsWith("/skills/skills") ||
+                        /^\/skills\/[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}(\/|$)/i.test(route),
+                    )}
+                  >
+                    Skills
+                  </Link>
+                  <Link href={appHref("/skills/tools")} className={subLinkClass(route.startsWith("/skills/tools"))}>
+                    Tools
+                  </Link>
+                  <Link href={appHref("/skills/connectors")} className={subLinkClass(route.startsWith("/skills/connectors"))}>
+                    Capabilities
+                  </Link>
+                  <Link href={appHref("/skills/leases")} className={subLinkClass(route.startsWith("/skills/leases"))}>
+                    Leases
+                  </Link>
+                </div>
+              ) : null}
+            </div>
+          ) : null}
 
-          <div className="mt-1">
-            <button
-              type="button"
-              onClick={() => toggle("skills")}
-              className={
-                "flex w-full items-center justify-between gap-2 rounded-md px-3 py-2 text-left text-sm font-medium text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800 " +
-                (pathname.startsWith("/skills") ? "bg-zinc-100 text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100" : "")
-              }
-              aria-expanded={skillsOpen}
-            >
-              <span className="flex items-center gap-2">
-                <Wrench className="h-4 w-4 shrink-0 opacity-85" aria-hidden />
-                LiNKskills
-              </span>
-              {skillsOpen ? <ChevronDown className="h-4 w-4 text-zinc-400" aria-hidden /> : <ChevronRight className="h-4 w-4 text-zinc-400" aria-hidden />}
-            </button>
-            {skillsOpen ? (
-              <div className={subMenuRail}>
-                <Link href="/skills" className={footerSubLinkClass(pathname === "/skills" || pathname === "/skills/")}>
-                  Overview
-                </Link>
-                <Link
-                  href="/skills/skills"
-                  className={subLinkClass(
-                    pathname.startsWith("/skills/skills") ||
-                      /^\/skills\/[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}(\/|$)/i.test(pathname),
-                  )}
-                >
-                  Skills
-                </Link>
-                <Link href="/skills/tools" className={subLinkClass(pathname.startsWith("/skills/tools"))}>
-                  Tools
-                </Link>
-                <Link href="/skills/connectors" className={subLinkClass(pathname.startsWith("/skills/connectors"))}>
-                  Capabilities
-                </Link>
-                <Link href="/skills/leases" className={subLinkClass(pathname.startsWith("/skills/leases"))}>
-                  Leases
-                </Link>
-              </div>
-            ) : null}
-          </div>
-
-          <div className="mt-1">
-            <button
-              type="button"
-              onClick={() => toggle("memory")}
-              className={
-                "flex w-full items-center justify-between gap-2 rounded-md px-3 py-2 text-left text-sm font-medium text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800 " +
-                (memoryActive ? "bg-zinc-100 text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100" : "")
-              }
-              aria-expanded={memoryOpen}
-            >
-              <span className="flex items-center gap-2">
-                <Brain className="h-4 w-4 shrink-0 opacity-85" aria-hidden />
-                LiNKbrain
-              </span>
+          {show("linkbrain") ? (
+            <div className="mt-1">
+              <button
+                type="button"
+                onClick={() => toggle("memory")}
+                className={
+                  "flex w-full items-center justify-between gap-2 rounded-md px-3 py-2 text-left text-sm font-medium text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800 " +
+                  (memoryActive ? "bg-zinc-100 text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100" : "")
+                }
+                aria-expanded={memoryOpen}
+              >
+                <span className="flex items-center gap-2">
+                  <Brain className="h-4 w-4 shrink-0 opacity-85" aria-hidden />
+                  LiNKbrain
+                </span>
+                {memoryOpen ? (
+                  <ChevronDown className="h-4 w-4 text-zinc-400" aria-hidden />
+                ) : (
+                  <ChevronRight className="h-4 w-4 text-zinc-400" aria-hidden />
+                )}
+              </button>
               {memoryOpen ? (
-                <ChevronDown className="h-4 w-4 text-zinc-400" aria-hidden />
-              ) : (
-                <ChevronRight className="h-4 w-4 text-zinc-400" aria-hidden />
-              )}
-            </button>
-            {memoryOpen ? (
-              <div className={subMenuRail}>
-                {MEMORY_SIDEBAR_ITEMS.map((item) => (
-                  <Link
-                    key={item.id}
-                    href={item.href}
-                    className={subLinkClass(item.match(pathname, searchParams.toString()))}
-                  >
-                    {item.label}
-                  </Link>
-                ))}
-              </div>
-            ) : null}
-          </div>
+                <div className={subMenuRail}>
+                  {MEMORY_SIDEBAR_ITEMS.filter((item) => visibleMemoryTabs.includes(item.id)).map((item) => (
+                    <Link
+                      key={item.id}
+                      href={memoryLink(item.id)}
+                      className={subLinkClass(item.match(route, searchParams.toString()))}
+                    >
+                      {linkbrainTabLabel(item.id, kind)}
+                    </Link>
+                  ))}
+                </div>
+              ) : null}
+            </div>
+          ) : null}
 
-          <div className="mt-1">
-            <button
-              type="button"
-              onClick={() => toggle("company")}
-              className={
-                "flex w-full items-center justify-between gap-2 rounded-md px-3 py-2 text-left text-sm font-medium text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800 " +
-                (companyActive ? "bg-zinc-100 text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100" : "")
-              }
-              aria-expanded={companyOpen}
-            >
-              <span className="flex items-center gap-2">
-                <Building2 className="h-4 w-4 shrink-0 opacity-85" aria-hidden />
-                Company
-              </span>
+          {show("company") ? (
+            <div className="mt-1">
+              <button
+                type="button"
+                onClick={() => toggle("company")}
+                className={
+                  "flex w-full items-center justify-between gap-2 rounded-md px-3 py-2 text-left text-sm font-medium text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800 " +
+                  (companyActive ? "bg-zinc-100 text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100" : "")
+                }
+                aria-expanded={companyOpen}
+              >
+                <span className="flex items-center gap-2">
+                  <Building2 className="h-4 w-4 shrink-0 opacity-85" aria-hidden />
+                  {kind === "licensor" ? "Licensees" : "Company"}
+                </span>
+                {companyOpen ? (
+                  <ChevronDown className="h-4 w-4 text-zinc-400" aria-hidden />
+                ) : (
+                  <ChevronRight className="h-4 w-4 text-zinc-400" aria-hidden />
+                )}
+              </button>
               {companyOpen ? (
-                <ChevronDown className="h-4 w-4 text-zinc-400" aria-hidden />
-              ) : (
-                <ChevronRight className="h-4 w-4 text-zinc-400" aria-hidden />
-              )}
-            </button>
-            {companyOpen ? (
-              <div className={subMenuRail}>
-                {COMPANY_SIDEBAR_ITEMS.map((item) => (
-                  <Link
-                    key={item.id}
-                    href={item.href(companyId)}
-                    className={subLinkClass(item.match(pathname, searchParams.toString()))}
-                  >
-                    {item.label}
-                  </Link>
-                ))}
-              </div>
-            ) : null}
-          </div>
+                <div className={subMenuRail}>
+                  {kind === "licensor" ? (
+                    <Link href={appHref("/licensees")} className={subLinkClass(companyActive)}>
+                      Licensee Registry
+                    </Link>
+                  ) : (
+                    COMPANY_SIDEBAR_ITEMS.map((item) => (
+                      <Link
+                        key={item.id}
+                        href={appHref(item.href(companyId, licenseeCtx.brandId ?? brandForLinks))}
+                        className={subLinkClass(item.match(pathname, searchParams.toString()))}
+                      >
+                        {item.label}
+                      </Link>
+                    ))
+                  )}
+                </div>
+              ) : null}
+            </div>
+          ) : null}
 
-          <div className="mt-1">
-            <button
-              type="button"
-              onClick={() => toggle("settings")}
-              className={
-                "flex w-full items-center justify-between gap-2 rounded-md px-3 py-2 text-left text-sm font-medium text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800 " +
-                (settingsActive ? "bg-zinc-100 text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100" : "")
-              }
-              aria-expanded={settingsOpen}
-            >
-              <span className="flex items-center gap-2">
-                <Settings className="h-4 w-4 shrink-0 opacity-85" aria-hidden />
-                Settings
-              </span>
+          {show("settings") ? (
+            <div className="mt-1">
+              <button
+                type="button"
+                onClick={() => toggle("settings")}
+                className={
+                  "flex w-full items-center justify-between gap-2 rounded-md px-3 py-2 text-left text-sm font-medium text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800 " +
+                  (settingsActive ? "bg-zinc-100 text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100" : "")
+                }
+                aria-expanded={settingsOpen}
+              >
+                <span className="flex items-center gap-2">
+                  <Settings className="h-4 w-4 shrink-0 opacity-85" aria-hidden />
+                  Settings
+                </span>
+                {settingsOpen ? (
+                  <ChevronDown className="h-4 w-4 text-zinc-400" aria-hidden />
+                ) : (
+                  <ChevronRight className="h-4 w-4 text-zinc-400" aria-hidden />
+                )}
+              </button>
               {settingsOpen ? (
-                <ChevronDown className="h-4 w-4 text-zinc-400" aria-hidden />
-              ) : (
-                <ChevronRight className="h-4 w-4 text-zinc-400" aria-hidden />
-              )}
-            </button>
-            {settingsOpen ? (
-              <div className={subMenuRail}>
-                {SETTINGS_SIDEBAR_ITEMS.map((item) => (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className={subLinkClass(item.match(pathname, searchParams.toString()))}
-                  >
-                    {item.label}
-                  </Link>
-                ))}
-              </div>
-            ) : null}
-          </div>
+                <div className={subMenuRail}>
+                  {settingsNavItems.map((item) => (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      className={subLinkClass(item.match(pathname, searchParams.toString()))}
+                    >
+                      {item.label}
+                    </Link>
+                  ))}
+                </div>
+              ) : null}
+            </div>
+          ) : null}
         </nav>
 
         <div className="shrink-0 border-t border-zinc-200 bg-zinc-50/80 dark:border-zinc-800 dark:bg-zinc-900/40">
-          <div className="px-2 py-3">
-            <div className="flex w-full items-center justify-between px-2 py-1">
-              <span className="text-sm font-medium text-zinc-800 dark:text-zinc-100">Switch Company</span>
-              <button
-                type="button"
-                onClick={() => setCompanyModalOpen(true)}
-                className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-zinc-200 text-zinc-700 transition hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
-                aria-label={`Switch company — current: ${activeCompany.displayName}`}
-                title={`Current: ${activeCompany.displayName}`}
-              >
-                <ArrowLeftRight className="h-3.5 w-3.5" aria-hidden />
-              </button>
-            </div>
+          <div className="space-y-3 px-2 py-3">
+            {isAdmin ? <SidebarLicensorScope /> : <SidebarActiveContext />}
           </div>
           {props.user ? (
             <>
@@ -517,13 +560,6 @@ export function ShellSidebar(props: {
           ) : null}
         </div>
       </aside>
-
-      <CompanySwitchModal
-        open={companyModalOpen}
-        activeCompanyId={companyId}
-        onClose={() => setCompanyModalOpen(false)}
-        onSelect={selectCompany}
-      />
     </>
   );
 }

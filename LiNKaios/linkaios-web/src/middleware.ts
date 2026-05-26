@@ -1,11 +1,33 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
+import {
+  ADMIN_BASE_PATH,
+  ADMIN_LOGIN_PATH,
+  isAdminPathname,
+  isLicensorOnlyLicenseePath,
+  isPublicLandingPath,
+  LICENSEE_LOGIN_PATH,
+  licensorMirrorPath,
+  postLoginDestination,
+} from "@/lib/app-surface";
+import { LICENSEES_HUB_PATH } from "@/lib/company-page-copy";
+import { isBootstrapAdminEmail } from "@/lib/command-centre-shared";
+import { allowAdminSurfaceForReview } from "@/lib/ui-mocks/flags";
+
 function isTruthy(value: string | undefined): boolean {
   return value === "1" || value === "true";
 }
 
 export async function middleware(request: NextRequest) {
+  const path = request.nextUrl.pathname;
+
+  if (path === LICENSEES_HUB_PATH || path.startsWith(`${LICENSEES_HUB_PATH}/`)) {
+    const redirectUrl = request.nextUrl.clone();
+    redirectUrl.pathname = `${ADMIN_BASE_PATH}${path}`;
+    return NextResponse.redirect(redirectUrl);
+  }
+
   let supabaseResponse = NextResponse.next({ request });
 
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -35,15 +57,13 @@ export async function middleware(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const path = request.nextUrl.pathname;
-  const isLogin = path === "/login" || path.startsWith("/login/");
+  const isLanding = isPublicLandingPath(path);
   const isAuthPath = path.startsWith("/auth/");
   const isPublicHealth = path.startsWith("/api/health");
+  const isPublicAuthLogin = path === "/api/auth/login";
   const isPublicBrainApi = path.startsWith("/api/brain/");
-  /** Cron / automation: handler validates `LINKAIOS_CRON_SECRET`; must not require operator cookies. */
   const isInternalBrainEmbed = path.startsWith("/api/internal/brain-embed");
   const isInternalSkillEmbed = path.startsWith("/api/internal/skill-embed");
-  /** Handler validates `Authorization: Bearer` against `BOT_SKILLS_API_SECRET` or `BOT_BRAIN_API_SECRET` — not anonymous. */
   const isPublicSkillsExecution = path.startsWith("/api/skills/execution");
   const kernelServiceSecret = process.env.BOT_KERNEL_API_SECRET?.trim();
   const isKernelServiceBypassEnabled = isTruthy(process.env.LINKAIOS_ENABLE_MVO_SERVICE_BYPASS);
@@ -59,9 +79,10 @@ export async function middleware(request: NextRequest) {
 
   if (
     !user &&
-    !isLogin &&
+    !isLanding &&
     !isAuthPath &&
     !isPublicHealth &&
+    !isPublicAuthLogin &&
     !isPublicBrainApi &&
     !isInternalBrainEmbed &&
     !isInternalSkillEmbed &&
@@ -70,16 +91,34 @@ export async function middleware(request: NextRequest) {
     !isDevAuthBypassRoute
   ) {
     const redirectUrl = request.nextUrl.clone();
-    redirectUrl.pathname = "/login";
+    redirectUrl.pathname = isAdminPathname(path) ? ADMIN_LOGIN_PATH : LICENSEE_LOGIN_PATH;
     redirectUrl.searchParams.set("next", path);
     return NextResponse.redirect(redirectUrl);
   }
 
-  if (user && isLogin) {
-    const redirectUrl = request.nextUrl.clone();
-    redirectUrl.pathname = "/";
-    redirectUrl.search = "";
-    return NextResponse.redirect(redirectUrl);
+  if (user) {
+    const isLicensor = isBootstrapAdminEmail(user.email);
+
+    if (!isAdminPathname(path) && isLicensorOnlyLicenseePath(path)) {
+      const redirectUrl = request.nextUrl.clone();
+      const mirror = licensorMirrorPath(path);
+      redirectUrl.pathname = mirror.split("?")[0] ?? mirror;
+      const mirrorQs = mirror.includes("?") ? mirror.split("?")[1] : "";
+      redirectUrl.search = mirrorQs ? `?${mirrorQs}` : request.nextUrl.search;
+      return NextResponse.redirect(redirectUrl);
+    }
+
+    if (path === LICENSEE_LOGIN_PATH || path.startsWith("/login/") || path === ADMIN_LOGIN_PATH) {
+      const redirectUrl = request.nextUrl.clone();
+      const onAdminLogin = path === ADMIN_LOGIN_PATH;
+      redirectUrl.pathname = postLoginDestination({
+        isLicensor,
+        nextPath: request.nextUrl.searchParams.get("next"),
+        allowAdminDestination: allowAdminSurfaceForReview() || onAdminLogin,
+      });
+      redirectUrl.search = "";
+      return NextResponse.redirect(redirectUrl);
+    }
   }
 
   return supabaseResponse;

@@ -19,6 +19,7 @@ import { WorkEmptyState } from "@/app/(shell)/work/work-empty-state";
 import { DomainStatusPill, StatusPill } from "@/components/ui/status-pill";
 import { CockpitSummaryStatsGrid } from "@/components/summary-metric-card";
 import type { CockpitDashboardData, ModuleStatus, LeaseStatus, RunOverview } from "@/lib/cockpit";
+import { LICENSEE_HOME_PATH } from "@/lib/app-surface";
 import { BUTTON } from "@/lib/ui-standards";
 
 function healthTone(level: CockpitDashboardData["system_health"]): string {
@@ -210,7 +211,7 @@ export function CockpitDashboard({ data }: { data: CockpitDashboardData }) {
 
       <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <Link
-          href="/"
+          href={LICENSEE_HOME_PATH}
           className="flex items-center gap-3 rounded-xl border border-zinc-200 bg-white p-4 shadow-sm transition hover:border-zinc-300 dark:border-zinc-800 dark:bg-zinc-950 dark:hover:border-zinc-700"
         >
           <LayoutDashboard className="h-5 w-5 text-zinc-500 dark:text-zinc-400" aria-hidden />

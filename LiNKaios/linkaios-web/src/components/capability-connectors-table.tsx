@@ -1,5 +1,6 @@
 "use client";
 
+import { Archive, Eye } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 import { ConnectorStatusPill } from "@/components/catalog-ui";
@@ -9,8 +10,12 @@ import {
   DataTableHead,
   DataTableRow,
   DataTableShell,
+  DataTableIconAction,
   DT,
 } from "@/components/data-table";
+import { useAppRole } from "@/components/role-preview-provider";
+import { canEditLinkskillsCatalogue } from "@/lib/app-roles";
+import { archiveRegisteredCapability } from "@/lib/linkskills-requests";
 import type { ConnectorCatalogRow } from "@/lib/ui-mocks/capability-connectors-demo";
 import { BUTTON, TABLE_COLUMN } from "@/lib/ui-standards";
 
@@ -20,7 +25,12 @@ function scopePreview(scope: string, max = 48): string {
   return `${oneLine.slice(0, max - 1)}…`;
 }
 
-export function CapabilityConnectorsTable(props: { rows: ConnectorCatalogRow[] }) {
+export function CapabilityConnectorsTable(props: {
+  rows: ConnectorCatalogRow[];
+  onArchiveRegistered?: (id: string) => void;
+}) {
+  const { kind, role } = useAppRole();
+  const canEdit = canEditLinkskillsCatalogue(kind, role);
   const [scopeModal, setScopeModal] = useState<{ name: string; scope: string } | null>(null);
   const dlg = useRef<HTMLDialogElement>(null);
 
@@ -39,11 +49,12 @@ export function CapabilityConnectorsTable(props: { rows: ConnectorCatalogRow[] }
       <DataTableShell scrollableBody>
         <DataTable>
           <colgroup>
-            <col className="w-[17%]" />
-            <col className="w-[24%]" />
-            <col className="w-[18%]" />
-            <col className="w-[17%]" />
-            <col className="w-[14%]" />
+            <col className="w-[15%]" />
+            <col className="w-[22%]" />
+            <col className="w-[16%]" />
+            <col className="w-[16%]" />
+            <col className="w-[12%]" />
+            {canEdit ? <col className="w-[12%]" /> : null}
           </colgroup>
           <DataTableHead>
             <tr>
@@ -54,6 +65,11 @@ export function CapabilityConnectorsTable(props: { rows: ConnectorCatalogRow[] }
               <th className={DT.thControl}>
                 <div className={DT.controlInner}>{TABLE_COLUMN.status}</div>
               </th>
+              {canEdit ? (
+                <th className={DT.thControl}>
+                  <div className={DT.controlInner}>Actions</div>
+                </th>
+              ) : null}
             </tr>
           </DataTableHead>
           <DataTableBody>
@@ -89,6 +105,29 @@ export function CapabilityConnectorsTable(props: { rows: ConnectorCatalogRow[] }
                     <ConnectorStatusPill status={r.status} />
                   </div>
                 </td>
+                {canEdit ? (
+                  <td className={DT.tdControl}>
+                    <div className={DT.actionsRow}>
+                      <DataTableIconAction
+                        icon={Eye}
+                        label={`View scope for ${r.name}`}
+                        onClick={() => setScopeModal({ name: r.name, scope: r.capabilityScope })}
+                      />
+                      {r.id.startsWith("repo-") ? (
+                        <DataTableIconAction
+                          icon={Archive}
+                          label={`Archive ${r.name}`}
+                          tone="danger"
+                          onClick={() => {
+                            if (!window.confirm(`Remove ${r.name} from the platform catalogue?`)) return;
+                            archiveRegisteredCapability(r.id.replace(/^repo-/, ""));
+                            props.onArchiveRegistered?.(r.id);
+                          }}
+                        />
+                      ) : null}
+                    </div>
+                  </td>
+                ) : null}
               </DataTableRow>
             ))}
           </DataTableBody>

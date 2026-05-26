@@ -1,17 +1,36 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Banknote, Building2, MapPin } from "lucide-react";
 
 import { CompanyPeopleSection } from "@/components/company-people-section";
+import {
+  CompanyCorporateBasicFields,
+  CompanyCorporateContactFields,
+  CompanyCorporateFinancialFields,
+} from "@/components/company-corporate-fields";
 import { CompanyEditableCard } from "@/components/company-editable-card";
-import { CompanyFieldGrid, CompanyFormFields } from "@/components/company-form-fields";
-import { corporateProfileForCompany, type CompanyFixture } from "@/lib/company-fixtures";
+import { CompanyFieldGrid } from "@/components/company-form-fields";
+import {
+  corporateProfileForCompany,
+  formatFinancialFilingDisplay,
+  formatShareCapitalDisplay,
+  mergeCorporateProfile,
+  type CompanyFixture,
+  type CorporateProfileFixture,
+} from "@/lib/company-fixtures";
+import { formatIsoDateDisplay } from "@/lib/date-field-utils";
+import { formatPersonalAddressNatural, formatPersonalPhoneDisplay } from "@/lib/personal-contact-display";
+
+function formatAddressDisplay(address: CorporateProfileFixture["registeredOffice"]): string {
+  const lines = formatPersonalAddressNatural(address);
+  return lines.length > 0 ? lines.join(" · ") : "—";
+}
 
 export function CompanyOverviewPanel(props: { company: CompanyFixture }) {
   const seed = corporateProfileForCompany(props.company.id);
   const [profile, setProfile] = useState(seed);
-  const [draft, setDraft] = useState<Record<string, string>>({});
+  const [draft, setDraft] = useState<Partial<CorporateProfileFixture>>({});
 
   useEffect(() => {
     const next = corporateProfileForCompany(props.company.id);
@@ -19,13 +38,27 @@ export function CompanyOverviewPanel(props: { company: CompanyFixture }) {
     setDraft({});
   }, [props.company.id]);
 
-  function setDraftField(key: string, value: string) {
-    setDraft((d) => ({ ...d, [key]: value }));
-  }
+  const merged = useMemo(() => mergeCorporateProfile(profile, draft), [profile, draft]);
 
-  function val(key: keyof typeof profile, fallback = ""): string {
-    const k = String(key);
-    return draft[k] ?? String(profile[key] ?? fallback);
+  function patchDraft(next: Partial<CorporateProfileFixture>) {
+    setDraft((current) => {
+      const updated: Partial<CorporateProfileFixture> = { ...current, ...next };
+      if (next.registeredOffice) {
+        updated.registeredOffice = {
+          ...profile.registeredOffice,
+          ...current.registeredOffice,
+          ...next.registeredOffice,
+        };
+      }
+      if (next.principalPlace) {
+        updated.principalPlace = {
+          ...profile.principalPlace,
+          ...current.principalPlace,
+          ...next.principalPlace,
+        };
+      }
+      return updated;
+    });
   }
 
   return (
@@ -35,33 +68,18 @@ export function CompanyOverviewPanel(props: { company: CompanyFixture }) {
         title="Basic corporate information"
         description="Registered identity, dates, and primary business activities."
         required
-        editContent={
-          <CompanyFormFields
-            fields={[
-              { key: "registeredName", label: "Company name", value: profile.registeredName },
-              { key: "tradingNames", label: "Trading names / aliases", value: profile.tradingNames },
-              { key: "registrationNumber", label: "Registration / ID number", value: profile.registrationNumber },
-              { key: "incorporationDate", label: "Date of incorporation", value: profile.incorporationDate },
-              { key: "financialYearEnd", label: "Financial year end", value: profile.financialYearEnd },
-              { key: "agmDueDate", label: "AGM due date", value: profile.agmDueDate },
-              { key: "businessActivities", label: "Business activities", value: profile.businessActivities, multiline: true },
-              { key: "industryCode", label: "Industry classification", value: profile.industryCode },
-            ]}
-            values={draft}
-            onChange={setDraftField}
-          />
-        }
+        editContent={<CompanyCorporateBasicFields profile={merged} onChange={patchDraft} />}
       >
         <CompanyFieldGrid
           rows={[
-            { label: "Company name", value: val("registeredName") },
-            { label: "Trading names", value: val("tradingNames") },
-            { label: "Registration number", value: val("registrationNumber") },
-            { label: "Incorporated", value: val("incorporationDate") },
-            { label: "Financial year end", value: val("financialYearEnd") },
-            { label: "AGM due", value: val("agmDueDate") },
+            { label: "Company name", value: merged.registeredName },
+            { label: "Trading names", value: merged.tradingNames },
+            { label: "Registration number", value: merged.registrationNumber },
+            { label: "Incorporated", value: formatIsoDateDisplay(merged.incorporationDate) },
+            { label: "Financial year end", value: merged.financialYearEnd },
+            { label: "AGM due", value: formatIsoDateDisplay(merged.agmDueDate) },
             { label: "Industry", value: props.company.industry },
-            { label: "Activities", value: val("businessActivities") },
+            { label: "Activities", value: merged.businessActivities },
           ]}
         />
       </CompanyEditableCard>
@@ -71,56 +89,38 @@ export function CompanyOverviewPanel(props: { company: CompanyFixture }) {
         title="Addresses & contacts"
         description="Registered office, principal place of business, and official contact channels."
         required
-        editContent={
-          <CompanyFormFields
-            fields={[
-              { key: "registeredOffice", label: "Registered office", value: profile.registeredOffice, multiline: true },
-              { key: "principalPlace", label: "Principal place of business", value: profile.principalPlace, multiline: true },
-              { key: "phone", label: "Phone", value: profile.phone },
-              { key: "email", label: "Email", value: profile.email },
-              { key: "website", label: "Website", value: profile.website },
-            ]}
-            values={draft}
-            onChange={setDraftField}
-          />
-        }
+        editContent={<CompanyCorporateContactFields profile={merged} onChange={patchDraft} />}
       >
         <CompanyFieldGrid
           rows={[
-            { label: "Registered office", value: val("registeredOffice") },
-            { label: "Principal place of business", value: val("principalPlace") },
-            { label: "Phone", value: val("phone") },
-            { label: "Email", value: val("email") },
+            { label: "Registered office", value: formatAddressDisplay(merged.registeredOffice) },
+            { label: "Principal place of business", value: formatAddressDisplay(merged.principalPlace) },
+            {
+              label: "Phone",
+              value: formatPersonalPhoneDisplay(merged.phoneCountryCode, merged.phoneNumber),
+            },
+            { label: "Email", value: merged.email },
             {
               label: "Website",
-              value: val("website", props.company.website),
-              href: val("website", props.company.website) || undefined,
+              value: merged.website || props.company.website,
+              href: merged.website || props.company.website || undefined,
             },
           ]}
         />
       </CompanyEditableCard>
 
-      <CompanyPeopleSection companyId={props.company.id} seedProfile={profile} />
+      <CompanyPeopleSection companyId={props.company.id} seedProfile={merged} />
 
       <CompanyEditableCard
         icon={Banknote}
         title="Capital & financials"
         description="Share capital structure and links to mandatory filings."
-        editContent={
-          <CompanyFormFields
-            fields={[
-              { key: "shareCapital", label: "Share capital", value: profile.shareCapital, multiline: true },
-              { key: "financialFilings", label: "Financial documents / filings", value: profile.financialFilings, multiline: true },
-            ]}
-            values={draft}
-            onChange={setDraftField}
-          />
-        }
+        editContent={<CompanyCorporateFinancialFields profile={merged} onChange={patchDraft} />}
       >
         <CompanyFieldGrid
           rows={[
-            { label: "Share capital", value: val("shareCapital") },
-            { label: "Filings", value: val("financialFilings") },
+            { label: "Share capital", value: formatShareCapitalDisplay(merged) },
+            { label: "Filings", value: formatFinancialFilingDisplay(merged, formatIsoDateDisplay) },
           ]}
         />
       </CompanyEditableCard>

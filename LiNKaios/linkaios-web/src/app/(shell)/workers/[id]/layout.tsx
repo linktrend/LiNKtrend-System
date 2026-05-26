@@ -31,6 +31,7 @@ export default async function WorkerLayout(props: { children: React.ReactNode; p
     );
     return (
       <main className="space-y-6">
+        <WorkerBreadcrumbRegister agentId={id} displayName={model.displayName} />
         <WorkerDetailHeader model={model} />
         <WorkerSubnav agentId={id} />
         <WorkerTabContent>{props.children}</WorkerTabContent>

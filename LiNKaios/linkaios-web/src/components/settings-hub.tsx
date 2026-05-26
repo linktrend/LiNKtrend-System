@@ -5,6 +5,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 
 import {
   Bell,
+  Headphones,
   CreditCard,
   Database,
   Eye,
@@ -19,9 +20,12 @@ import {
   User,
 } from "lucide-react";
 
+import { useAppRole } from "@/components/role-preview-provider";
+import { canManageBilling, canDeleteWorkspaceAccount } from "@/lib/app-roles";
 import { DeleteAccountCard } from "@/components/settings/delete-account-card";
 import { SettingCard, SettingCardFacts } from "@/components/settings/setting-card";
 import { StubBadge } from "@/components/stub-badge";
+import { useAppSurface } from "@/components/app-surface-provider";
 import { modulesForCompany, resolveCompanyFixture } from "@/lib/company-fixtures";
 import { operatorFullName, readOperatorProfile, type OperatorProfile } from "@/lib/operator-profile";
 import {
@@ -40,8 +44,21 @@ import {
   SUPPORTED_INTEGRATIONS,
 } from "@/lib/integration-requests";
 import {
+  VAULTWARDEN_REPO,
+  VAULTWARDEN_SECRETS_COPY,
+  vaultwardenPublicUrl,
+} from "@/lib/vaultwarden-config";
+import {
+  EVENT_SUPPORT_TICKETS_CHANGED,
+  readSupportTicketsForLicensee,
+  SUPPORT_BACKEND_LABEL,
+  SUPPORT_BACKEND_REPO,
+} from "@/lib/support-tickets";
+import { resolveLicenseeIdForCompany } from "@/lib/licensor-licensee-profile";
+import {
   SETTINGS_HUB_TABS,
   parseSettingsHubTab,
+  visibleSettingsHubTabs,
   type SettingsHubTabId,
 } from "@/lib/settings-hub-tabs";
 import { EVENT_2FA_CHANGED, readTwoFactorState } from "@/lib/two-factor-copy";
@@ -188,7 +205,43 @@ function IntegrationsSummary() {
   );
 }
 
-function ApiKeysSummaryLine() {
+function SupportSummary() {
+  const searchParams = useSearchParams();
+  const companyId = searchParams.get("companyId");
+  const licenseeId = resolveLicenseeIdForCompany(companyId ?? "xyz-marketing");
+  const [openCount, setOpenCount] = useState(0);
+
+  useEffect(() => {
+    const sync = () => {
+      const open = readSupportTicketsForLicensee(licenseeId).filter((t) => t.status !== "resolved").length;
+      setOpenCount(open);
+    };
+    sync();
+    window.addEventListener(EVENT_SUPPORT_TICKETS_CHANGED, sync);
+    return () => window.removeEventListener(EVENT_SUPPORT_TICKETS_CHANGED, sync);
+  }, [licenseeId]);
+
+  return (
+    <SettingCardFacts
+      rows={[
+        { label: "Open tickets", value: openCount > 0 ? `${openCount} open` : "none open" },
+        { label: "Backend", value: `${SUPPORT_BACKEND_LABEL} (${SUPPORT_BACKEND_REPO})` },
+      ]}
+    />
+  );
+}
+
+function ApiKeysSummaryLine(props: { licensor?: boolean }) {
+  if (props.licensor) {
+    return (
+      <SettingCardFacts
+        rows={[
+          { label: "Store", value: VAULTWARDEN_REPO },
+          { label: "Examples", value: "LLM · Stripe · database" },
+        ]}
+      />
+    );
+  }
   return (
     <SettingCardFacts
       rows={[
@@ -205,15 +258,26 @@ export function SettingsHub(props: {
   operatorEmail: string;
   operatorDisplayName?: string | null;
   operatorAvatarUrl?: string | null;
+  showPlatformTab?: boolean;
 }) {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const { isAdmin, href: appHref } = useAppSurface();
+  const { role, kind } = useAppRole();
+  const showPlatformTab = props.showPlatformTab === true || isAdmin;
+  const showBilling = kind === "licensee" && canManageBilling(kind, role);
+  const showDeleteAccount = canDeleteWorkspaceAccount(kind, role);
   const tabFromUrl = parseSettingsHubTab(searchParams.get("tab"));
   const [activeTab, setActiveTab] = useState<SettingsHubTabId>(tabFromUrl);
 
   useEffect(() => {
+    if (!showPlatformTab && tabFromUrl === "platform") {
+      router.replace(appHref("/settings"), { scroll: false });
+      setActiveTab("account");
+      return;
+    }
     setActiveTab(tabFromUrl);
-  }, [tabFromUrl]);
+  }, [tabFromUrl, showPlatformTab, router]);
 
   const selectTab = useCallback(
     (tab: SettingsHubTabId) => {
@@ -225,12 +289,12 @@ export function SettingsHub(props: {
         params.set("tab", tab);
       }
       const qs = params.toString();
-      router.replace(qs ? `/settings?${qs}` : "/settings", { scroll: false });
+      router.replace(appHref(qs ? `/settings?${qs}` : "/settings"), { scroll: false });
     },
     [router, searchParams],
   );
 
-  const tabs = SETTINGS_HUB_TABS;
+  const tabs = visibleSettingsHubTabs(showPlatformTab, role);
 
   return (
     <div className="space-y-6">
@@ -252,13 +316,13 @@ export function SettingsHub(props: {
       </nav>
 
       {activeTab === "account" ? (
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        <div className="grid gap-4 md:grid-cols-2">
           <SettingCard
             icon={User}
             title="Profile Information"
             description="Your operator identity and sign-in email."
             actionLabel="Edit Profile"
-            href="/settings/user"
+            href={appHref("/settings/user")}
           >
             <ProfileInformationSummary
               email={props.operatorEmail}
@@ -267,67 +331,93 @@ export function SettingsHub(props: {
             />
           </SettingCard>
 
-          <SettingCard
-            icon={CreditCard}
-            title="Plan & Billing"
-            description="Current plan and billing information."
-            actionLabel="Manage Billing"
-            href="/settings/billing"
-            titleAction={<StubBadge />}
-          >
-            <PlanBillingSummary />
-          </SettingCard>
+          {showBilling ? (
+            <SettingCard
+              icon={CreditCard}
+              title="Plan & Billing"
+              description="Current plan and billing information."
+              actionLabel="Manage Billing"
+              href={appHref("/settings/billing")}
+              titleAction={<StubBadge />}
+            >
+              <PlanBillingSummary />
+            </SettingCard>
+          ) : null}
 
-          <DeleteAccountCard />
+          {kind === "licensee" ? (
+            <SettingCard
+              icon={Headphones}
+              title="Support"
+              description="Ticket history and escalation when page help cannot resolve your issue."
+              actionLabel="View support"
+              href={appHref("/settings/support")}
+            >
+              <SupportSummary />
+            </SettingCard>
+          ) : null}
+
+          {showDeleteAccount ? <DeleteAccountCard /> : null}
         </div>
       ) : null}
 
       {activeTab === "security" ? (
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          <SettingCard
-            icon={Lock}
-            title="Login Credentials"
-            description="Choose password, magic link, or passkey — one active sign-in method at a time."
-            actionLabel="Manage sign-in"
-            href="/settings/login-credentials"
-          />
+        <div className="space-y-6">
+          <div className="grid gap-4 md:grid-cols-2">
+            <SettingCard
+              icon={Lock}
+              title="Login Credentials"
+              description="Choose password, magic link, or passkey — one active sign-in method at a time."
+              actionLabel="Manage sign-in"
+              href={appHref("/settings/login-credentials")}
+            />
 
-          <SettingCard
-            icon={Shield}
-            title="Two-Factor Authentication"
-            description="Add an extra verification step at sign-in."
-            actionLabel="Manage 2FA"
-            href="/settings/two-factor"
-          >
-            <TwoFactorStatusLine />
-          </SettingCard>
+            <SettingCard
+              icon={Shield}
+              title="Two-Factor Authentication"
+              description="Add an extra verification step at sign-in."
+              actionLabel="Manage 2FA"
+              href={appHref("/settings/two-factor")}
+            >
+              <TwoFactorStatusLine />
+            </SettingCard>
 
-          <SettingCard
-            icon={Key}
-            title="User Roles & Permissions"
-            description="Workspace Admins assign Admin, Operator, or Viewer roles to client users."
-            actionLabel="Manage permissions"
-            href="/settings/access"
-          />
+            {kind === "licensee" ? (
+              <SettingCard
+                icon={Key}
+                title="User Roles & Permissions"
+                description="Workspace Admins assign Admin, Operator, or Viewer roles to client users."
+                actionLabel="Manage permissions"
+                href={appHref("/settings/access")}
+              />
+            ) : (
+              <SettingCard
+                icon={Key}
+                title="Operator Roles & Permissions"
+                description="LiNKtrend staff who can access the Admin app — User, Admin, and Super Admin platform tiers."
+                actionLabel="Manage permissions"
+                href={appHref("/settings/access")}
+              />
+            )}
 
-          <SettingCard
-            icon={FileText}
-            title="Session & Activity Logs"
-            description="Your sign-in sessions, devices, locations, and security activity history."
-            actionLabel="View sessions & activity"
-            href="/settings/sessions"
-          />
+            <SettingCard
+              icon={FileText}
+              title="Session & Activity Logs"
+              description="Your sign-in sessions, devices, locations, and security activity history."
+              actionLabel="View sessions & activity"
+              href={appHref("/settings/sessions")}
+            />
+          </div>
         </div>
       ) : null}
 
       {activeTab === "preferences" ? (
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        <div className="grid gap-4 md:grid-cols-2">
           <SettingCard
             icon={Globe}
             title="Locale"
             description="Language and regional formatting."
             actionLabel="Manage Locale Settings"
-            href="/settings/locale"
+            href={appHref("/settings/locale")}
           />
 
           <SettingCard
@@ -335,7 +425,7 @@ export function SettingsHub(props: {
             title="Theme & Appearance"
             description="Light, dark, or system appearance."
             actionLabel="Customize Appearance"
-            href="/settings/appearance"
+            href={appHref("/settings/appearance")}
           />
 
           <SettingCard
@@ -343,7 +433,7 @@ export function SettingsHub(props: {
             title="Notification Preferences"
             description="Email and in-app notification toggles."
             actionLabel="Manage Notifications"
-            href="/settings/notifications"
+            href={appHref("/settings/notifications")}
           />
 
           <SettingCard
@@ -351,19 +441,23 @@ export function SettingsHub(props: {
             title="Privacy Settings"
             description="Data sharing and analytics tracking."
             actionLabel="Manage Privacy"
-            href="/settings/privacy"
+            href={appHref("/settings/privacy")}
           />
         </div>
       ) : null}
 
       {activeTab === "data" ? (
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        <div className="grid gap-4 md:grid-cols-2">
           <SettingCard
             icon={Upload}
             title="Data Export"
-            description="Export a portable copy of your workspace data."
+            description={
+              kind === "licensor"
+                ? "Export platform audit bundles and licensor registry snapshots for compliance and disaster recovery."
+                : "Export a portable copy of your workspace data."
+            }
             actionLabel="Export Data"
-            href="/settings/data-export"
+            href={appHref("/settings/data-export")}
             titleAction={<StubBadge />}
           >
             <DataExportSummary />
@@ -372,33 +466,48 @@ export function SettingsHub(props: {
           <SettingCard
             icon={Database}
             title="Data Settings"
-            description="Data retention policy, backup and restore settings."
+            description={
+              kind === "licensor"
+                ? "Platform-wide retention, backup schedules, and restore policies for LiNKaios operator data."
+                : "Data retention policy, backup and restore settings."
+            }
             actionLabel="Manage Data Settings"
-            href="/settings/data-settings"
+            href={appHref("/settings/data-settings")}
             titleAction={<StubBadge />}
           >
             <DataSettingsSummary />
           </SettingCard>
 
-          <SettingCard
-            icon={Link2}
-            title="Integrations"
-            description="Request capabilities for software not yet supported in LiNKaios."
-            actionLabel="Manage Integrations"
-            href="/settings/integrations"
-            titleAction={<StubBadge />}
-          >
-            <IntegrationsSummary />
-          </SettingCard>
+          {kind === "licensee" ? (
+            <SettingCard
+              icon={Link2}
+              title="Integrations"
+              description="Request capabilities for software not yet supported in LiNKaios."
+              actionLabel="Manage Integrations"
+              href={appHref("/settings/integrations")}
+              titleAction={<StubBadge />}
+            >
+              <IntegrationsSummary />
+            </SettingCard>
+          ) : null}
 
           <SettingCard
             icon={Key}
-            title="API Access"
-            description="Add API keys and secrets from external providers — LLMs, banks, CRMs, and other software LiNKaios connects to."
-            actionLabel="Manage credentials"
-            href="/settings/api-keys"
+            title={kind === "licensor" ? VAULTWARDEN_SECRETS_COPY.title : "API Access"}
+            description={
+              kind === "licensor"
+                ? VAULTWARDEN_SECRETS_COPY.cardDescription
+                : "Add API keys and secrets from external providers — LLMs, banks, CRMs, and other software LiNKaios connects to."
+            }
+            actionLabel={kind === "licensor" ? VAULTWARDEN_SECRETS_COPY.openAction : "Manage credentials"}
+            href={
+              kind === "licensor"
+                ? vaultwardenPublicUrl() || appHref("/settings/api-keys")
+                : appHref("/settings/api-keys")
+            }
+            external={kind === "licensor" && Boolean(vaultwardenPublicUrl())}
           >
-            <ApiKeysSummaryLine />
+            <ApiKeysSummaryLine licensor={kind === "licensor"} />
           </SettingCard>
         </div>
       ) : null}

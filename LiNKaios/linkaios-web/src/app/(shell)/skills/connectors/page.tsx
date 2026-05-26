@@ -1,3 +1,4 @@
+import { AddCapabilityHeaderAction } from "@/components/linkskills-header-actions";
 import { ConnectorsCatalogDiscovery } from "@/components/connectors-catalog-discovery";
 import { LinkskillsHubNav } from "@/components/linkskills-hub-nav";
 import { ShellPageHeaderClient } from "@/components/shell-page-header-client";
@@ -14,6 +15,7 @@ export default function SkillsConnectorsPage() {
       <ShellPageHeaderClient
         title="Capabilities"
         subtitle="Capability registry — governed bridges to external software."
+        actions={<AddCapabilityHeaderAction />}
       />
       <LinkskillsHubNav />
 
@@ -24,7 +26,7 @@ export default function SkillsConnectorsPage() {
         pending={stats.pending}
       />
 
-      <ConnectorsCatalogDiscovery rows={DEMO_CONNECTOR_CATALOG_ROWS} />
+      <ConnectorsCatalogDiscovery seedRows={DEMO_CONNECTOR_CATALOG_ROWS} />
     </main>
   );
 }

@@ -84,7 +84,7 @@ export function CompanyOrgStructurePanel() {
       <CompanyEditableCard
         icon={Users}
         title="People organisation chart"
-        description="Directors, officers, and department leads. Edit people on Overview; edit department leads below."
+        description="CEO and leadership hierarchy with directors, officers, and department leads. Edit people on Overview; edit department leads below."
       >
         <CompanyPeopleOrgChart
           companyId={company.id}

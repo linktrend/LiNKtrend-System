@@ -1,9 +1,18 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { Eye, FileEdit, FileText, Pencil, Upload } from "lucide-react";
 import Link from "next/link";
 
 import { publishBrainDraftFromInboxForm, rejectBrainDraftFromForm } from "@/app/(shell)/memory/brain-actions";
+import { useAppRole } from "@/components/role-preview-provider";
+import {
+  CollectiveSourceBadge,
+  isCollectiveInboxDraft,
+  MemoryItemMetadataLines,
+  submissionSourceFromInboxType,
+} from "@/components/linkbrain/collective-memory-source";
+import { memoryTagsFromJson } from "@/lib/memory-item-tags";
 import {
   inboxBodyPreviewLabel,
   inboxReviewSubtitle,
@@ -11,6 +20,13 @@ import {
   inboxSubmittedByLine,
 } from "@/components/linkbrain/linkbrain-doc-display";
 import type { LinkbrainPageData } from "@/lib/linkbrain-data";
+import {
+  EVENT_BRAIN_INBOX_USER_PENDING_CHANGED,
+  isBrainInboxUserPending,
+  markBrainInboxUserPending,
+} from "@/lib/brain-inbox-user-pending";
+import { canApproveBrainInbox } from "@/lib/app-roles";
+import { useMemoryPath } from "@/hooks/use-memory-href";
 import { BUTTON } from "@/lib/ui-standards";
 
 import { summarizeBrainInboxTextDiff, type BrainInboxRow } from "@linktrend/linklogic-sdk";
@@ -34,9 +50,75 @@ function inboxContextLine(d: BrainInboxRow, data: LinkbrainPageData): string {
   return `Scope: ${d.scope}`;
 }
 
-export function LinkbrainInboxRow(props: { draft: BrainInboxRow; data: LinkbrainPageData }) {
+function notifyUserInboxAction(label: string) {
+  if (typeof window === "undefined") return;
+  window.dispatchEvent(
+    new CustomEvent("linkaios-toast", {
+      detail: `Your ${label} was sent to an Admin or Super Admin for approval.`,
+    }),
+  );
+}
+
+function UserInboxModerationActions(props: { versionId: string }) {
+  const [pending, setPending] = useState(false);
+  const hrefForPath = useMemoryPath();
+
+  useEffect(() => {
+    const sync = () => setPending(isBrainInboxUserPending(props.versionId));
+    sync();
+    window.addEventListener(EVENT_BRAIN_INBOX_USER_PENDING_CHANGED, sync);
+    return () => window.removeEventListener(EVENT_BRAIN_INBOX_USER_PENDING_CHANGED, sync);
+  }, [props.versionId]);
+
+  if (pending) {
+    return <span className="text-xs text-zinc-500 dark:text-zinc-400">Awaiting Admin approval</span>;
+  }
+
+  return (
+    <>
+      <Link
+        href={hrefForPath(`/memory/drafts/${props.versionId}`)}
+        className={BUTTON.editRow}
+        onClick={() => {
+          markBrainInboxUserPending(props.versionId);
+        }}
+      >
+        Edit
+      </Link>
+      <button
+        type="button"
+        className={BUTTON.approveOutlineRow}
+        onClick={() => {
+          markBrainInboxUserPending(props.versionId);
+          notifyUserInboxAction("approval");
+        }}
+      >
+        Approve
+      </button>
+      <button
+        type="button"
+        className={BUTTON.rejectOutlineRow}
+        onClick={() => {
+          markBrainInboxUserPending(props.versionId);
+          notifyUserInboxAction("rejection");
+        }}
+      >
+        Reject
+      </button>
+    </>
+  );
+}
+
+export function LinkbrainInboxRow(props: {
+  draft: BrainInboxRow;
+  data: LinkbrainPageData;
+  licensorCollective?: boolean;
+}) {
   const d = props.draft;
   const Icon = inboxIcon(d.inbox_item_type);
+  const { kind, role } = useAppRole();
+  const canModerate = canApproveBrainInbox(kind, role);
+  const hrefForPath = useMemoryPath();
 
   return (
     <li
@@ -62,8 +144,21 @@ export function LinkbrainInboxRow(props: { draft: BrainInboxRow; data: Linkbrain
       <p className="px-4 pt-2 text-xs text-zinc-600 dark:text-zinc-300">
         {inboxSubmittedByLine(d)} · {inboxContextLine(d, props.data)}
       </p>
+      {props.licensorCollective && isCollectiveInboxDraft(d) ? (
+        <div className="px-4 pt-2">
+          <CollectiveSourceBadge
+            provenance={d.collective.provenance}
+            tags={d.collective.tags}
+            submissionSource={submissionSourceFromInboxType(d.inbox_item_type)}
+          />
+        </div>
+      ) : (
+        <div className="px-4 pt-2">
+          <MemoryItemMetadataLines submissionType={d.inbox_item_type} tags={memoryTagsFromJson(d.memory_tags)} />
+        </div>
+      )}
       <p className="px-4 pt-2 text-[11px] font-semibold text-zinc-500 dark:text-zinc-400">
-        {inboxBodyPreviewLabel(d)}
+        {props.licensorCollective ? "Anonymised body" : inboxBodyPreviewLabel(d)}
       </p>
       <p className="line-clamp-6 px-4 pt-1 text-sm leading-relaxed text-zinc-800 dark:text-zinc-200">{d.body}</p>
       <div className="flex flex-wrap items-center gap-3 px-4 pb-3 pt-2 text-xs text-zinc-500">
@@ -74,21 +169,27 @@ export function LinkbrainInboxRow(props: { draft: BrainInboxRow; data: Linkbrain
         <span className="capitalize">Sensitivity: {d.sensitivity}</span>
       </div>
       <div className="flex flex-wrap items-center gap-3 border-t border-zinc-100 px-4 py-3 dark:border-zinc-800">
-        <Link href={`/memory/drafts/${d.id}`} className={BUTTON.editRow}>
-          Edit
-        </Link>
-        <form action={publishBrainDraftFromInboxForm} className="inline">
-          <input type="hidden" name="versionId" value={d.id} />
-          <button type="submit" className={BUTTON.approveOutlineRow}>
-            Approve
-          </button>
-        </form>
-        <form action={rejectBrainDraftFromForm} className="inline">
-          <input type="hidden" name="versionId" value={d.id} />
-          <button type="submit" className={BUTTON.rejectOutlineRow}>
-            Reject
-          </button>
-        </form>
+        {canModerate ? (
+          <>
+            <Link href={hrefForPath(`/memory/drafts/${d.id}`)} className={BUTTON.editRow}>
+              Edit
+            </Link>
+            <form action={publishBrainDraftFromInboxForm} className="inline">
+              <input type="hidden" name="versionId" value={d.id} />
+              <button type="submit" className={BUTTON.approveOutlineRow}>
+                Approve
+              </button>
+            </form>
+            <form action={rejectBrainDraftFromForm} className="inline">
+              <input type="hidden" name="versionId" value={d.id} />
+              <button type="submit" className={BUTTON.rejectOutlineRow}>
+                Reject
+              </button>
+            </form>
+          </>
+        ) : (
+          <UserInboxModerationActions versionId={d.id} />
+        )}
       </div>
     </li>
   );

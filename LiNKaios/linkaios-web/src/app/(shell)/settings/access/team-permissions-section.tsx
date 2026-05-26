@@ -8,8 +8,6 @@ import {
   DT,
 } from "@/components/data-table";
 import {
-  commandCentreRoleLabel,
-  getCommandCentreRoleForUser,
   getEffectiveCommandCentreRole,
   isCommandCentreAdmin,
 } from "@/lib/command-centre-access";
@@ -80,17 +78,8 @@ export async function TeamPermissionsSection() {
     }),
   );
 
-  const selfRole = await getCommandCentreRoleForUser(supabase, {
-    userId: user.id,
-    email: user.email,
-  });
-
   return (
     <div className="space-y-4">
-      <p className="max-w-2xl text-sm text-zinc-600 dark:text-zinc-400">
-        Your role: <strong>{commandCentreRoleLabel(selfRole)}</strong>. {PERMISSIONS_PAGE_COPY.adminNote}
-      </p>
-
       <DataTableShell scrollableBody>
         <DataTable>
           <colgroup>

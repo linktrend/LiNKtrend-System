@@ -2,23 +2,34 @@
 
 import { ShellMainFrame } from "@/components/shell-main-frame";
 import { ShellSidebar, type SidebarUser } from "@/components/shell-sidebar";
+import { AppSurfaceProvider } from "@/components/app-surface-provider";
+import { AppToastListener } from "@/components/app-toast-listener";
 import { ThemeRoot } from "@/components/theme-root";
 import { Menu } from "lucide-react";
 import { Suspense, useState } from "react";
+import type { AppSurface } from "@/lib/app-surface";
 
 export function ShellLayout(props: {
   children: React.ReactNode;
   sidebarUser: SidebarUser | null;
   uiMocksEnabled: boolean;
+  surface?: AppSurface;
 }) {
+  const surface = props.surface ?? "licensee";
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   return (
     <ThemeRoot>
-      <div className="flex min-h-screen bg-zinc-50 text-zinc-900 dark:bg-zinc-950 dark:text-zinc-100">
-        <Suspense fallback={null}>
-          <ShellSidebar user={props.sidebarUser} mobileOpen={mobileNavOpen} onMobileOpenChange={setMobileNavOpen} />
-        </Suspense>
+      <AppSurfaceProvider surface={surface}>
+        <div className="flex min-h-screen bg-zinc-50 text-zinc-900 dark:bg-zinc-950 dark:text-zinc-100">
+          <Suspense fallback={null}>
+            <ShellSidebar
+              user={props.sidebarUser}
+              mobileOpen={mobileNavOpen}
+              onMobileOpenChange={setMobileNavOpen}
+              surface={surface}
+            />
+          </Suspense>
         <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto">
           <div className="mx-auto flex w-full max-w-6xl flex-1 flex-col px-6 py-8">
             <div className="mb-4 md:hidden">
@@ -36,8 +47,10 @@ export function ShellLayout(props: {
             </div>
             <ShellMainFrame uiMocksEnabled={props.uiMocksEnabled}>{props.children}</ShellMainFrame>
           </div>
+        <AppToastListener />
         </div>
-      </div>
+        </div>
+      </AppSurfaceProvider>
     </ThemeRoot>
   );
 }

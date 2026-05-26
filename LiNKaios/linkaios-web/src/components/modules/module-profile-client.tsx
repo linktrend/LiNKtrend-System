@@ -10,6 +10,8 @@ import { ModuleOverviewPanel } from "@/components/modules/module-overview-panel"
 import { ModuleProcessTree } from "@/components/modules/module-process-tree";
 import { ModuleProjectsTab } from "@/components/modules/module-projects-tab";
 import { ModuleSampleOutputsList } from "@/components/modules/module-sample-outputs-list";
+import { ModuleAccessRequestPanel } from "@/components/role-gated-ui";
+import { useAppRole } from "@/components/role-preview-provider";
 import { ShellPageHeaderClient } from "@/components/shell-page-header-client";
 import { useModuleSubscriptions } from "@/hooks/use-module-subscriptions";
 import {
@@ -28,9 +30,12 @@ import {
   type SuiteProfileTab,
 } from "@/lib/suites-page-copy";
 import { screenTabLinkClass, BUTTON } from "@/lib/ui-standards";
+import { canSubscribeOrPreviewSuite } from "@/lib/app-roles";
 
 export function ModuleProfileClient(props: { suite: ModuleCatalogueItem; initialTab: string | undefined }) {
   const router = useRouter();
+  const { kind, role } = useAppRole();
+  const canCheckout = canSubscribeOrPreviewSuite(kind, role);
   const fixtureLicensed = useMemo(() => fixtureLicensedByModule(), []);
   const { accessFor, startPreview, subscribe } = useModuleSubscriptions(fixtureLicensed);
 
@@ -92,20 +97,28 @@ export function ModuleProfileClient(props: { suite: ModuleCatalogueItem; initial
       {tab === "projects" && owned ? <ModuleProjectsTab suiteId={props.suite.id} /> : null}
       {tab === "sample-outputs" ? <ModuleSampleOutputsList rows={samples} owned={owned} /> : null}
       {tab === "preview" && !owned ? (
-        <ModuleCheckoutPanel
-          module={props.suite}
-          mode="preview"
-          onPreview={() => startPreview(props.suite.id)}
-          onSubscribe={() => subscribe(props.suite.id)}
-        />
+        canCheckout ? (
+          <ModuleCheckoutPanel
+            module={props.suite}
+            mode="preview"
+            onPreview={() => startPreview(props.suite.id)}
+            onSubscribe={() => subscribe(props.suite.id)}
+          />
+        ) : (
+          <ModuleAccessRequestPanel suiteName={props.suite.name} mode="preview" />
+        )
       ) : null}
       {tab === "subscribe" && !owned ? (
-        <ModuleCheckoutPanel
-          module={props.suite}
-          mode="subscribe"
-          onPreview={() => startPreview(props.suite.id)}
-          onSubscribe={() => subscribe(props.suite.id)}
-        />
+        canCheckout ? (
+          <ModuleCheckoutPanel
+            module={props.suite}
+            mode="subscribe"
+            onPreview={() => startPreview(props.suite.id)}
+            onSubscribe={() => subscribe(props.suite.id)}
+          />
+        ) : (
+          <ModuleAccessRequestPanel suiteName={props.suite.name} mode="subscribe" />
+        )
       ) : null}
     </main>
   );

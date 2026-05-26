@@ -1,8 +1,7 @@
-import Link from "next/link";
 import { BookOpen, Clock } from "lucide-react";
 
 import { TitledCardHeader } from "@/components/titled-card-header";
-import { isCommandCentreAdmin } from "@/lib/command-centre-access";
+import { requireLicensorOperator } from "@/lib/licensor-access";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 import {
@@ -19,12 +18,9 @@ export const dynamic = "force-dynamic";
 type ToolRow = { id: string; name: string; status: string; tool_type: string };
 
 export default async function SettingsToolsPage() {
+  await requireLicensorOperator();
+
   const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  const isAdmin =
-    user?.id != null ? await isCommandCentreAdmin(supabase, { userId: user.id, email: user.email }) : false;
 
   const { data: tools } = await supabase.schema("linkaios").from("tools").select("id, name, status, tool_type").order("name");
 
@@ -44,16 +40,6 @@ export default async function SettingsToolsPage() {
 
   return (
     <main className="space-y-8">
-      {!isAdmin ? (
-        <p className="text-sm text-amber-800">
-          Signed in as non-admin — org allowlist controls are read-only. Request an admin role in{" "}
-          <Link href="/settings/access" className="underline">
-            Team &amp; permissions
-          </Link>
-          .
-        </p>
-      ) : null}
-
       <section className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm">
         <TitledCardHeader icon={BookOpen} title="Catalog" titleClassName="text-sm font-semibold text-zinc-500 dark:text-zinc-400" />
         <ul className="mt-4 divide-y divide-zinc-100 rounded-lg border border-zinc-100">
@@ -68,11 +54,7 @@ export default async function SettingsToolsPage() {
               <div className="flex flex-wrap gap-2">
                 {orgSet.has(t.id) ? (
                   <form action={removeOrgAllowlistTool.bind(null, t.id)}>
-                    <button
-                      type="submit"
-                      disabled={!isAdmin}
-                      className="rounded border border-zinc-300 px-2 py-1 text-xs disabled:opacity-40"
-                    >
+                    <button type="submit" className="rounded border border-zinc-300 px-2 py-1 text-xs">
                       Remove from org allowlist
                     </button>
                   </form>
@@ -80,7 +62,7 @@ export default async function SettingsToolsPage() {
                   <form action={addOrgAllowlistTool.bind(null, t.id)}>
                     <button
                       type="submit"
-                      disabled={!isAdmin || t.status === "archived"}
+                      disabled={t.status === "archived"}
                       className="rounded bg-zinc-900 px-2 py-1 text-xs text-white disabled:opacity-40"
                     >
                       Allow at org
@@ -89,7 +71,7 @@ export default async function SettingsToolsPage() {
                 )}
                 {mlSet.has(t.id) ? (
                   <form action={removeMissionlessDefaultTool.bind(null, t.id)}>
-                    <button type="submit" disabled={!isAdmin} className="rounded border px-2 py-1 text-xs disabled:opacity-40">
+                    <button type="submit" className="rounded border px-2 py-1 text-xs">
                       Remove project-agnostic default
                     </button>
                   </form>
@@ -97,7 +79,7 @@ export default async function SettingsToolsPage() {
                   <form action={addMissionlessDefaultTool.bind(null, t.id)}>
                     <button
                       type="submit"
-                      disabled={!isAdmin || !orgSet.has(t.id)}
+                      disabled={!orgSet.has(t.id)}
                       className="rounded border border-emerald-200 px-2 py-1 text-xs text-emerald-900 disabled:opacity-40"
                     >
                       Default without project
@@ -106,14 +88,14 @@ export default async function SettingsToolsPage() {
                 )}
                 {t.status !== "archived" && t.status === "approved" ? (
                   <form action={archiveCatalogTool.bind(null, t.id)}>
-                    <button type="submit" disabled={!isAdmin} className="rounded border px-2 py-1 text-xs disabled:opacity-40">
+                    <button type="submit" className="rounded border px-2 py-1 text-xs">
                       Archive
                     </button>
                   </form>
                 ) : null}
                 {t.status === "draft" ? (
                   <form action={deleteDraftCatalogTool.bind(null, t.id)}>
-                    <button type="submit" disabled={!isAdmin} className="rounded border border-red-200 px-2 py-1 text-xs text-red-800 disabled:opacity-40">
+                    <button type="submit" className="rounded border border-red-200 px-2 py-1 text-xs text-red-800">
                       Delete draft
                     </button>
                   </form>

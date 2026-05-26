@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import {
@@ -7,6 +6,7 @@ import {
   proposeEditFromPublishedForm,
   saveBrainFileOrgTagsFromForm,
 } from "@/app/(shell)/memory/brain-actions";
+import { MemoryTabLink } from "@/components/linkbrain/memory-surface-links";
 import { PageIntro } from "@/components/page-intro";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -253,13 +253,13 @@ export default async function BrainFileDetailPage(props: {
       </section>
 
       <p className="text-sm">
-        <Link href="/memory?tab=inbox" className="text-sky-700 underline dark:text-sky-400">
+        <MemoryTabLink tab="inbox" className="text-sky-700 underline dark:text-sky-400">
           Back to Inbox
-        </Link>
+        </MemoryTabLink>
         <span className="mx-2 text-zinc-300">·</span>
-        <Link href="/memory?tab=project" className="text-sky-700 underline dark:text-sky-400">
+        <MemoryTabLink tab="project" className="text-sky-700 underline dark:text-sky-400">
           LiNKbrain home
-        </Link>
+        </MemoryTabLink>
       </p>
     </main>
   );

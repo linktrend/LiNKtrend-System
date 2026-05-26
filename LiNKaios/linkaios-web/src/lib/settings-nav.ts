@@ -2,6 +2,7 @@ import {
   SETTINGS_HUB_TABS,
   matchSettingsHubTab,
   settingsHubTabHref,
+  visibleSettingsHubTabs,
   type SettingsHubTabId,
 } from "@/lib/settings-hub-tabs";
 
@@ -12,6 +13,16 @@ export type SettingsNavItem = {
 };
 
 /** Sidebar sections for Settings — mirrors Settings hub tabs. */
+export function settingsSidebarItems(showPlatformTab = false, role?: import("@/lib/app-roles").AppRoleTier): SettingsNavItem[] {
+  const tabs = visibleSettingsHubTabs(showPlatformTab, role);
+  return tabs.map((tab) => ({
+    href: settingsHubTabHref(tab.id),
+    label: tab.label,
+    match: (path, search) => matchSettingsHubTab(tab.id, path, search),
+  }));
+}
+
+/** @deprecated Use settingsSidebarItems(showPlatformTab) — kept for static imports during migration. */
 export const SETTINGS_SIDEBAR_ITEMS: SettingsNavItem[] = SETTINGS_HUB_TABS.map((tab) => ({
   href: settingsHubTabHref(tab.id),
   label: tab.label,

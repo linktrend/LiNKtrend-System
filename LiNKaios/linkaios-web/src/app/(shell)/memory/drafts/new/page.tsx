@@ -1,6 +1,5 @@
-import Link from "next/link";
-
 import { NewBrainDraftForm } from "@/components/linkbrain/new-brain-draft-form";
+import { MemoryTabLink } from "@/components/linkbrain/memory-surface-links";
 import { ShellPageHeaderClient } from "@/components/shell-page-header-client";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { isUiMocksEnabled } from "@/lib/ui-mocks/flags";
@@ -83,9 +82,9 @@ export default async function NewBrainDraftPage(props: {
       />
 
       <p className="text-sm text-zinc-500 dark:text-zinc-400">
-        <Link href="/memory?tab=inbox" className="text-sky-700 underline dark:text-sky-400">
+        <MemoryTabLink tab="inbox" className="text-sky-700 underline dark:text-sky-400">
           Back to Inbox
-        </Link>
+        </MemoryTabLink>
       </p>
     </main>
   );

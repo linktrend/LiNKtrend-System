@@ -4,8 +4,28 @@
  *
  * Cross-page **dimensions** for attention-queue pills live in `ui-theme.ts` (`ATTENTION_QUEUE_BADGE`).
  */
+
+/**
+ * Five-level type scale — default UI body is {@link TYPE.body} (`text-sm`).
+ * Prefer these over ad hoc `text-*` classes in new UI; shell/card/table tokens compose from here.
+ */
+export const TYPE = {
+  pageTitle: "text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100",
+  sectionTitle: "text-lg font-semibold tracking-tight text-zinc-900 dark:text-zinc-100",
+  subsectionTitle: "text-base font-semibold text-zinc-900 dark:text-zinc-100",
+  tabLabel: "text-sm font-semibold",
+  body: "text-sm text-zinc-900 dark:text-zinc-100",
+  bodyMedium: "text-sm font-medium text-zinc-800 dark:text-zinc-200",
+  bodyMuted: "text-sm text-zinc-600 dark:text-zinc-400",
+  caption: "text-xs text-zinc-500 dark:text-zinc-400",
+  captionSemibold: "text-xs font-semibold text-zinc-600 dark:text-zinc-400",
+  /** Large KPI numerals on summary metric cards — not a heading level. */
+  metricDisplay: "text-3xl font-semibold leading-none tabular-nums text-zinc-900 dark:text-zinc-50",
+  metricDisplayCompact: "text-2xl font-semibold leading-none tabular-nums text-zinc-900 dark:text-zinc-100",
+} as const;
+
 export const FIELD = {
-  label: "text-sm font-medium text-zinc-800 dark:text-zinc-200",
+  label: TYPE.bodyMedium,
   /** Default width for stacked form fields on a screen */
   control:
     "w-full max-w-xl rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 shadow-sm outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 disabled:opacity-60 dark:border-zinc-600 dark:bg-zinc-950 dark:text-zinc-100",
@@ -34,6 +54,9 @@ export const FIELD = {
   /** Table / toolbar selects — inset chevron via {@link FORM.selectChevronCompact} */
   selectCompact:
     "w-full max-w-[13rem] appearance-none rounded-md border border-zinc-200 bg-white py-1.5 pl-2 pr-8 text-xs text-zinc-900 shadow-sm outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 disabled:opacity-60 dark:border-zinc-600 dark:bg-zinc-950 dark:text-zinc-100",
+  /** Numeric count pickers (directors, officers, shareholders) — fixed narrow width */
+  selectCount:
+    "w-[5.25rem] shrink-0 appearance-none rounded-lg border border-zinc-200 bg-white py-2 pl-3 pr-8 text-sm text-zinc-900 shadow-sm outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 disabled:opacity-60 dark:border-zinc-600 dark:bg-zinc-950 dark:text-zinc-100",
 } as const;
 
 /** Personal-information form layout, validation, and requirement hints. */
@@ -41,7 +64,7 @@ export const FORM = {
   labelRow: "mb-1.5 flex items-baseline justify-between gap-2",
   requiredMark: "shrink-0 text-xs font-normal text-rose-600 dark:text-rose-400",
   requiredAsterisk: "text-rose-600 dark:text-rose-400",
-  hint: "mt-1 text-xs text-zinc-500 dark:text-zinc-400",
+  hint: `mt-1 ${TYPE.caption}`,
   error: "mt-1 text-xs text-rose-600 dark:text-rose-400",
   validationList: "mt-1.5 space-y-0.5",
   validationItem: "flex items-center gap-1.5 text-xs",
@@ -58,7 +81,11 @@ export const FORM = {
   selectChevronCompact:
     "pointer-events-none absolute right-2.5 top-1/2 h-0 w-0 -translate-y-1/2 border-x-[4px] border-x-transparent border-t-[5px] border-t-zinc-500 dark:border-t-zinc-400",
   fieldGroup: "grid gap-4 md:grid-cols-2",
+  /** Single-column field stack for narrow cards */
+  fieldGroupCard: "grid min-w-0 gap-4 grid-cols-1 [&>*]:min-w-0",
   nameGroup: "grid gap-4 md:grid-cols-4",
+  /** Name block inside narrow cards (~half-width columns) — 2×2 grid, not viewport 4-col */
+  nameGroupCard: "grid min-w-0 gap-4 grid-cols-1 sm:grid-cols-2 [&>*]:min-w-0",
 } as const;
 
 /** Read-only profile / settings field grids (view mode). */
@@ -67,7 +94,7 @@ export const PROFILE = {
   readonlyFieldItem: "w-max shrink-0",
   readonlyFieldItemWide: "w-max max-w-[16rem] shrink-0",
   readonlyLabel: "text-xs leading-none",
-  readonlyValue: "text-sm leading-snug text-zinc-900 dark:text-zinc-100",
+  readonlyValue: `${TYPE.body} leading-snug`,
   /** Four-column read-only grid — columns hug content; skip columns via col-start (e.g. Username → col 3). */
   viewGrid4Col:
     "grid grid-cols-[repeat(4,max-content)] items-start gap-x-10 gap-y-6",
@@ -102,14 +129,14 @@ export const PROFILE_CARD = {
   heroMetaStack: "flex flex-col gap-4",
   heroStatsGrid:
     "grid w-full shrink-0 auto-rows-fr grid-cols-3 gap-3 sm:max-w-md xl:w-[26rem]",
-  sectionTitle: "text-base font-semibold tracking-tight text-zinc-900 dark:text-zinc-100",
-  sectionDescription: "mt-0.5 text-sm text-zinc-500 dark:text-zinc-400",
+  sectionTitle: `${TYPE.subsectionTitle} tracking-tight`,
+  sectionDescription: `mt-0.5 ${TYPE.bodyMuted}`,
   accessRow:
     "flex w-full items-center justify-between gap-3 rounded-lg px-3 py-2.5 text-left transition hover:bg-zinc-50 dark:hover:bg-zinc-900/60",
-  accessRowLabel: "text-sm font-medium text-zinc-800 dark:text-zinc-200",
-  accessRowMeta: "text-xs tabular-nums text-zinc-500 dark:text-zinc-400",
+  accessRowLabel: TYPE.bodyMedium,
+  accessRowMeta: `${TYPE.caption} tabular-nums`,
   editLink:
-    "text-xs font-medium text-zinc-500 transition hover:text-zinc-800 dark:text-zinc-400 dark:hover:text-zinc-200",
+    `${TYPE.caption} font-medium transition hover:text-zinc-800 dark:hover:text-zinc-200`,
 } as const;
 
 /** Label + value row layout for company profile cards */
@@ -239,9 +266,9 @@ export const STACK = {
  * - Icon-only affordances belong in row cells; header cells still include the text label.
  */
 export const TABLE = {
-  thead: "bg-zinc-50 text-xs font-semibold text-zinc-600 dark:bg-zinc-900 dark:text-zinc-400",
+  thead: `bg-zinc-50 ${TYPE.captionSemibold} dark:bg-zinc-900 dark:text-zinc-400`,
   theadBordered:
-    "border-b border-zinc-200 bg-zinc-50 text-xs font-semibold text-zinc-600 dark:border-zinc-800 dark:bg-zinc-900/60 dark:text-zinc-400",
+    `border-b border-zinc-200 bg-zinc-50 ${TYPE.captionSemibold} dark:border-zinc-800 dark:bg-zinc-900/60 dark:text-zinc-400`,
   thText: "text-left font-semibold",
   thControl: "text-center font-semibold",
   thNumeric: "text-right font-semibold",
@@ -311,22 +338,26 @@ export const ACTION_QUEUE = {
 export const SHELL = {
   /** Breadcrumb + refresh/help toolbar row (LiNKaios / Work). */
   breadcrumbRow: "mb-4 flex min-h-[1.75rem] items-center justify-between gap-3",
-  breadcrumbNav: "text-left text-sm text-zinc-500 dark:text-zinc-400",
+  breadcrumbNav: `text-left ${TYPE.bodyMuted}`,
   breadcrumbList: "flex flex-wrap items-center gap-x-1.5 gap-y-1",
   breadcrumbSep: "text-zinc-300 dark:text-zinc-600",
   breadcrumbLink:
     "text-zinc-500 hover:text-zinc-800 hover:underline dark:text-zinc-400 dark:hover:text-zinc-200",
-  breadcrumbCurrent: "font-medium text-zinc-900 dark:text-zinc-100",
+  breadcrumbCurrent: `font-medium text-zinc-900 dark:text-zinc-100`,
   /** Wrapper when the auto header injects above page content. */
   autoPageHeaderWrap: "mb-8",
   pageHeader: "pb-2",
-  pageTitle: "text-3xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100",
+  pageTitle: TYPE.pageTitle,
   /** Subtitle row — subtitle and header actions share a baseline (actions align with subtitle bottom). */
   pageSubtitleRow: "mt-1 flex flex-wrap items-end justify-between gap-x-4 gap-y-2",
-  pageSubtitle: "min-w-0 flex-1 text-sm text-zinc-500 dark:text-zinc-400",
+  pageSubtitle: `min-w-0 flex-1 ${TYPE.bodyMuted}`,
   /** @deprecated Use {@link SHELL.pageSubtitleRow} + {@link SHELL.pageSubtitle}. */
   pageActionsRow: "flex flex-wrap items-start justify-between gap-4",
   pageActions: "flex shrink-0 flex-wrap items-center gap-2",
+  /** Licensor admin — tenant scope row directly under the page subtitle. */
+  licensorScopeRow: "mt-3 flex flex-wrap items-center gap-2 text-sm",
+  licensorScopePrefix: "text-zinc-600 dark:text-zinc-400",
+  licensorScopeName: "font-medium text-zinc-900 dark:text-zinc-100",
 } as const;
 
 /**
@@ -336,9 +367,9 @@ export const SHELL = {
 export const CARD = {
   titleIconWrap: "mt-0.5 shrink-0 text-zinc-700 dark:text-zinc-300",
   titleIcon: "h-5 w-5",
-  title: "text-lg font-semibold tracking-tight text-zinc-900 dark:text-zinc-100",
-  titleMd: "text-base font-semibold text-zinc-900 dark:text-zinc-100",
-  description: "mt-1 text-sm text-zinc-600 dark:text-zinc-400",
+  title: TYPE.sectionTitle,
+  titleMd: TYPE.subsectionTitle,
+  description: `mt-1 ${TYPE.bodyMuted}`,
   /** Align card body with description when header uses title icon (w-5 + gap-3). */
   contentInset: "pl-8",
 } as const;
@@ -364,12 +395,12 @@ export const SUMMARY_METRIC_CARD = {
   titleIcon: "h-4 w-4 shrink-0 text-zinc-500 dark:text-zinc-400",
   titleText: "whitespace-nowrap text-xs font-semibold leading-4 text-zinc-700 dark:text-zinc-300",
   body: "mt-3 flex min-h-0 flex-1 flex-col",
-  metric: "shrink-0 text-3xl font-semibold leading-none tabular-nums text-zinc-900 dark:text-zinc-50",
-  metricCompact: "shrink-0 text-2xl font-semibold leading-none tabular-nums text-zinc-900 dark:text-zinc-100",
+  metric: `shrink-0 ${TYPE.metricDisplay}`,
+  metricCompact: `shrink-0 ${TYPE.metricDisplayCompact}`,
   preview: "mt-2 min-h-[2rem] flex-1 line-clamp-2 text-xs leading-4 text-zinc-600 dark:text-zinc-400",
   footer: "mt-auto shrink-0 pt-3",
-  sectionLabel: "text-xs font-semibold text-zinc-500 dark:text-zinc-400",
-  sectionLabelWithIcon: "flex items-center gap-2 text-xs font-semibold text-zinc-500 dark:text-zinc-400",
+  sectionLabel: `${TYPE.captionSemibold} text-zinc-500 dark:text-zinc-400`,
+  sectionLabelWithIcon: `flex items-center gap-2 ${TYPE.captionSemibold} text-zinc-500 dark:text-zinc-400`,
   /** Space between section label and card grid. */
   sectionContentGap: "mt-3",
 } as const;
@@ -508,7 +539,7 @@ export const TABS = {
  */
 export function screenTabLinkClass(active: boolean): string {
   const base =
-    "inline-flex min-h-[2.75rem] min-w-[5rem] items-center justify-center rounded-t-md border border-b-0 px-4 py-2.5 text-sm font-semibold transition";
+    `inline-flex min-h-[2.75rem] min-w-[5rem] items-center justify-center rounded-t-md border border-b-0 px-4 py-2.5 ${TYPE.tabLabel} transition`;
   if (active) {
     return (
       base +

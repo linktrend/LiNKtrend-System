@@ -2,6 +2,7 @@
 
 import { AlertCircle, AlertTriangle, Bell, CheckCircle2, Info } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 
 import { acknowledgeTraceAlertAction } from "@/app/(shell)/work/alert-acknowledgments-actions";
 import { WorkEmptyState } from "@/app/(shell)/work/work-empty-state";
@@ -11,8 +12,19 @@ import {
   accentFromAlert,
   actionQueueIconClass,
 } from "@/components/action-queue";
+import { useAppRole } from "@/components/role-preview-provider";
+import { useAppSurface } from "@/components/app-surface-provider";
 import { StatusPill } from "@/components/ui/status-pill";
 import { WorkInboxModal } from "@/components/work-inbox-modal";
+import { resolveLicenseeIdForCompany } from "@/lib/licensor-licensee-profile";
+import { resolveLicenseeRegistry } from "@/lib/licensee-registry";
+import { linkskillsRequestToWorkAlert, readLinkskillsRequests } from "@/lib/linkskills-requests";
+import {
+  EVENT_SUPPORT_TICKETS_CHANGED,
+  readOpenSupportTicketsForLicensor,
+  readSupportTicketsForLicensee,
+  supportTicketToWorkAlert,
+} from "@/lib/support-tickets";
 import type { WorkAlert } from "@/lib/work-alerts";
 
 const RESOLVED_STORAGE_KEY = "linkaios_work_alerts_resolved_ids_v1";
@@ -68,12 +80,23 @@ function severityLabel(sev: WorkAlert["severity"]) {
   }
 }
 
-function goToFixHref(a: WorkAlert): string {
+function goToFixHref(a: WorkAlert, opts: { isLicensor: boolean; appHref: (path: string) => string }): string {
+  if (a.id.startsWith("st-")) {
+    return opts.isLicensor ? opts.appHref("/admin/licensees?tab=support") : opts.appHref("/settings/support");
+  }
   const blob = `${a.title} ${a.summary} ${a.source}`.toLowerCase();
-  if (blob.includes("gateway") || blob.includes("zulip") || blob.includes("stream")) return "/settings/platform";
-  if (blob.includes("brain") || blob.includes("memory") || blob.includes("draft")) return "/memory?tab=inbox";
-  if (blob.includes("skill") || blob.includes("tool")) return "/skills/skills";
-  return "/workers";
+  if (a.id.startsWith("lsr-")) return opts.appHref("/skills/skills");
+  if (blob.includes("gateway") || blob.includes("zulip") || blob.includes("stream")) return opts.appHref("/settings/platform");
+  if (blob.includes("brain") || blob.includes("memory") || blob.includes("draft")) return opts.appHref("/memory?tab=inbox");
+  if (blob.includes("skill") || blob.includes("tool")) return opts.appHref("/skills/skills");
+  return opts.appHref("/workers");
+}
+
+function viewAlertHref(a: WorkAlert, opts: { isLicensor: boolean; appHref: (path: string) => string }): string {
+  if (a.id.startsWith("st-")) {
+    return opts.isLicensor ? opts.appHref("/admin/licensees?tab=support") : opts.appHref("/settings/support");
+  }
+  return opts.appHref("/settings/traces");
 }
 
 function alertIcon(a: WorkAlert, isResolved: boolean) {
@@ -97,6 +120,48 @@ export function AlertsInbox(props: {
   const [filter, setFilter] = useState<AlertFilter>("all");
   const [resolved, setResolved] = useState(() => initialResolvedSet(props));
   const [resolveError, setResolveError] = useState<string | null>(null);
+  const [requestAlerts, setRequestAlerts] = useState<WorkAlert[]>([]);
+  const [supportAlerts, setSupportAlerts] = useState<WorkAlert[]>([]);
+  const searchParams = useSearchParams();
+  const { kind } = useAppRole();
+  const { href: appHref } = useAppSurface();
+  const isLicensor = kind === "licensor";
+  const companyId = searchParams.get("companyId");
+  const licenseeId = resolveLicenseeIdForCompany(companyId ?? "xyz-marketing");
+
+  useEffect(() => {
+    const sync = () => {
+      setRequestAlerts(
+        readLinkskillsRequests()
+          .filter((r) => r.status === "open")
+          .map(linkskillsRequestToWorkAlert),
+      );
+    };
+    sync();
+    window.addEventListener("linkaios-linkskills-requests-changed", sync);
+    return () => window.removeEventListener("linkaios-linkskills-requests-changed", sync);
+  }, []);
+
+  useEffect(() => {
+    const sync = () => {
+      const tickets = isLicensor
+        ? readOpenSupportTicketsForLicensor()
+        : readSupportTicketsForLicensee(licenseeId).filter((t) => t.status !== "resolved");
+      setSupportAlerts(
+        tickets.map((t) =>
+          supportTicketToWorkAlert(t, resolveLicenseeRegistry(t.licenseeId)?.name ?? t.licenseeId),
+        ),
+      );
+    };
+    sync();
+    window.addEventListener(EVENT_SUPPORT_TICKETS_CHANGED, sync);
+    return () => window.removeEventListener(EVENT_SUPPORT_TICKETS_CHANGED, sync);
+  }, [isLicensor, licenseeId]);
+
+  const allItems = useMemo(() => {
+    const merged = [...props.items, ...requestAlerts, ...supportAlerts];
+    return merged.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  }, [props.items, requestAlerts, supportAlerts]);
 
   useEffect(() => {
     if (!props.traceAckPersistenceEnabled) {
@@ -129,7 +194,7 @@ export function AlertsInbox(props: {
   );
 
   const visible = useMemo(() => {
-    return props.items.filter((a) => {
+    return allItems.filter((a) => {
       const isResolved = resolved.has(a.id);
       if (filter === "resolved") return isResolved;
       if (isResolved) return false;
@@ -138,7 +203,7 @@ export function AlertsInbox(props: {
       if (filter === "info") return a.severity !== "critical" && a.severity !== "warning";
       return true;
     });
-  }, [props.items, filter, resolved]);
+  }, [allItems, filter, resolved]);
 
   const filterBtnClass = (f: AlertFilter): string => {
     const active = filter === f;
@@ -266,14 +331,14 @@ export function AlertsInbox(props: {
                   label: "View",
                   variant: "secondary" as const,
                   onClick: () => {
-                    window.location.href = "/settings/traces";
+                    window.location.href = viewAlertHref(selected, { isLicensor, appHref });
                   },
                 },
                 {
                   label: "Go to fix",
                   variant: "secondary" as const,
                   onClick: () => {
-                    window.location.href = goToFixHref(selected);
+                    window.location.href = goToFixHref(selected, { isLicensor, appHref });
                   },
                 },
               ]

@@ -6,11 +6,16 @@ import {
 } from "@/lib/billing-page-copy";
 import {
   COMPANY_DEFAULT_TAB,
+  COMPANY_HUB_PATH,
   COMPANY_TABS,
   companyTabHref,
   companyTabFromSearch,
+  isCompanyHubPath,
+  isLicenseesHubPath,
+  LICENSEES_ADMIN_HUB_PATH,
 } from "@/lib/company-page-copy";
 import { linkbrainPageTitle } from "@/lib/linkbrain-page-copy";
+import type { AppActorKind } from "@/lib/app-roles";
 import { linkbrainTabHref, memorySubRouteTabForPath, parseLinkbrainTab } from "@/lib/memory-nav";
 import { linkskillsHubTabMeta, linkskillsHubTabNeedsBreadcrumb } from "@/lib/linkskills-hub-tabs";
 import { metricsViewFromSearch, metricsViewHref } from "@/lib/metrics-nav";
@@ -126,13 +131,18 @@ export function enrichSkillsBreadcrumbs(pathname: string, items: BreadcrumbItem[
   insertBeforeLeaf(items, { href: hub.href, label: formatUiLabel(hub.label) });
 }
 
-export function enrichMemoryBreadcrumbs(pathname: string, searchParams: URLSearchParams, items: BreadcrumbItem[]) {
+export function enrichMemoryBreadcrumbs(
+  pathname: string,
+  searchParams: URLSearchParams,
+  items: BreadcrumbItem[],
+  actorKind: AppActorKind = "licensee",
+) {
   if (!pathname.startsWith("/memory") || items.length === 0) return;
 
   if (pathname === "/memory" || pathname === "/memory/") {
     const tab = parseLinkbrainTab(searchParams.get("tab"));
     if (tab !== "inbox") {
-      items.push({ label: formatUiLabel(linkbrainPageTitle(tab)) });
+      items.push({ label: formatUiLabel(linkbrainPageTitle(tab, actorKind)) });
     }
     return;
   }
@@ -140,21 +150,22 @@ export function enrichMemoryBreadcrumbs(pathname: string, searchParams: URLSearc
   const hubTab = memorySubRouteTabForPath(pathname);
   if (!hubTab) return;
 
-  const hubLabel = formatUiLabel(linkbrainPageTitle(hubTab));
+  const hubLabel = formatUiLabel(linkbrainPageTitle(hubTab, actorKind));
   if (itemHasLabel(items, hubLabel)) return;
 
   insertBeforeLeaf(items, { href: linkbrainTabHref(hubTab), label: hubLabel });
 }
 
 export function enrichCompanyBreadcrumbs(pathname: string, searchParams: URLSearchParams, items: BreadcrumbItem[]) {
-  if (pathname !== "/company" && pathname !== "/company/") return;
+  if (!isCompanyHubPath(pathname)) return;
   const tab = companyTabFromSearch(searchParams.toString());
   if (tab === COMPANY_DEFAULT_TAB) return;
 
   const tabLabel = COMPANY_TABS.find((entry) => entry.id === tab)?.label;
   if (!tabLabel) return;
 
-  appendInnerTab(items, companyTabHref(COMPANY_DEFAULT_TAB, searchParams.get("companyId")), tabLabel);
+  const hubPath = isLicenseesHubPath(pathname) ? LICENSEES_ADMIN_HUB_PATH : COMPANY_HUB_PATH;
+  appendInnerTab(items, companyTabHref(COMPANY_DEFAULT_TAB, searchParams.get("companyId"), null, hubPath), tabLabel);
 }
 
 export function enrichMetricsBreadcrumbs(pathname: string, searchParams: URLSearchParams, items: BreadcrumbItem[]) {
@@ -214,10 +225,15 @@ export function enrichWorkBreadcrumbs(pathname: string, items: BreadcrumbItem[])
   insertBeforeLeaf(items, { href: section.href, label: formatUiLabel(section.label) });
 }
 
-export function enrichShellBreadcrumbs(pathname: string, searchParams: URLSearchParams, items: BreadcrumbItem[]) {
+export function enrichShellBreadcrumbs(
+  pathname: string,
+  searchParams: URLSearchParams,
+  items: BreadcrumbItem[],
+  actorKind: AppActorKind = "licensee",
+) {
   enrichSettingsBreadcrumbs(pathname, searchParams, items);
   enrichSkillsBreadcrumbs(pathname, items);
-  enrichMemoryBreadcrumbs(pathname, searchParams, items);
+  enrichMemoryBreadcrumbs(pathname, searchParams, items, actorKind);
   enrichCompanyBreadcrumbs(pathname, searchParams, items);
   enrichMetricsBreadcrumbs(pathname, searchParams, items);
   enrichProjectBreadcrumbs(pathname, searchParams, items);

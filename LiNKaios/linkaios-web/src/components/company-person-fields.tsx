@@ -17,7 +17,6 @@ import {
   type CompanyShareholder,
 } from "@/lib/company-people";
 import { EMAIL_VALIDATION_RULES } from "@/lib/form-validation";
-import { FORM } from "@/lib/ui-standards";
 
 function personToName(person: CompanyPersonContact) {
   return {
@@ -64,6 +63,7 @@ export function CompanyPersonFields(props: {
       <div className={props.heading || props.children ? "mt-4 space-y-4" : "space-y-4"}>
         <PersonalNameFields
           idPrefix={idPrefix}
+          layout="card"
           value={personToName(person)}
           onChange={(patch) => onChange(patch)}
           submitted={props.submitted}
@@ -71,12 +71,13 @@ export function CompanyPersonFields(props: {
 
         <PersonalAddressFields
           idPrefix={idPrefix}
+          layout="card"
           value={personToAddress(person)}
           onChange={(patch) => onChange(patch)}
           submitted={props.submitted}
         />
 
-        <PersonalPhoneFields idPrefix={idPrefix} value={personToPhone(person)} onChange={(patch) => onChange(patch)} />
+        <PersonalPhoneFields idPrefix={idPrefix} layout="card" value={personToPhone(person)} onChange={(patch) => onChange(patch)} />
 
         <FormField
           id={`${idPrefix}-email`}
@@ -133,7 +134,7 @@ export function CompanyOfficerFields(props: {
       submitted={props.submitted}
       onChange={(patch) => props.onChange({ ...props.officer, ...patch })}
     >
-      <div className={FORM.fieldGroup}>
+      <div className="space-y-4">
         <FormField id={`officer-${props.index}-role`} label="Officer Role" required>
           {({ id, describedBy }) => (
             <FormSelect
@@ -148,13 +149,12 @@ export function CompanyOfficerFields(props: {
         {props.officer.role === "other" ? (
           <FormField id={`officer-${props.index}-role-label`} label="Role Label">
             {({ id, describedBy }) => (
-              <input
+              <FormTextInput
                 id={id}
-                aria-describedby={describedBy}
+                describedBy={describedBy}
                 value={props.officer.roleLabel}
-                onChange={(event) => props.onChange({ ...props.officer, roleLabel: event.target.value })}
+                onChange={(roleLabel) => props.onChange({ ...props.officer, roleLabel })}
                 placeholder="General counsel"
-                className="block w-full min-w-0 rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 shadow-sm outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-500 dark:border-zinc-600 dark:bg-zinc-950 dark:text-zinc-100"
               />
             )}
           </FormField>

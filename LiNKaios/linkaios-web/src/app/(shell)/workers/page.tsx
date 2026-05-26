@@ -17,8 +17,9 @@ import {
   linkbotFleetStatusTone,
   type LinkbotFleetStatusLabel,
 } from "@/lib/linkbot-fleet-status";
-import { AddLinkbotOpenButton, AddLinkbotRoot } from "@/components/add-linkbot";
-import { ShellPageHeaderClient } from "@/components/shell-page-header-client";
+import { AddLinkbotHeaderAction } from "@/components/role-gated-ui";
+import { AddLinkbotRoot } from "@/components/add-linkbot";
+import { WorkersPageHeader } from "@/components/workers-page-header";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { BADGE, BUTTON } from "@/lib/ui-standards";
 import { parseRuntimeSettings } from "@/lib/agent-runtime-settings";
@@ -160,10 +161,7 @@ export default async function WorkersPage(props: { searchParams: Promise<{ view?
   if (err && !uiMocksEnabled) {
     return (
       <main className="space-y-6">
-        <ShellPageHeaderClient
-          title="LiNKbots"
-          subtitle="Your AI workforce — fleet status, sessions, skills, and configuration."
-        />
+        <WorkersPageHeader />
         <p className="text-sm text-red-700 dark:text-red-400">{err.message}</p>
       </main>
     );
@@ -172,11 +170,7 @@ export default async function WorkersPage(props: { searchParams: Promise<{ view?
   return (
     <main className="space-y-6">
       <AddLinkbotRoot />
-      <ShellPageHeaderClient
-        title="LiNKbots"
-        subtitle="Your AI workforce — fleet status, sessions, skills, and configuration."
-        actions={<AddLinkbotOpenButton className={BUTTON.addRow}>Add LiNKbot</AddLinkbotOpenButton>}
-      />
+      <WorkersPageHeader />
       <FleetSummaryStatsGrid
         total={fleet.length}
         online={online}
@@ -192,7 +186,7 @@ export default async function WorkersPage(props: { searchParams: Promise<{ view?
           <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">No LiNKbots yet</p>
           <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">Add a LiNKbot to see it listed here.</p>
           <div className="mt-4 flex flex-wrap justify-center gap-2">
-            <AddLinkbotOpenButton className={BUTTON.addRow} />
+            <AddLinkbotHeaderAction className={BUTTON.addRow} />
             <Link href="/settings/platform" className={BUTTON.secondaryRow}>
               Integration routing
             </Link>

@@ -15,6 +15,8 @@ export function PersonalNameFields(props: {
   required?: Partial<Record<keyof PersonalNameValue, boolean>>;
   validationState?: Partial<Record<keyof PersonalNameValue, FieldValidationState>>;
   submitted?: boolean;
+  /** `row` = four columns on desktop (full-width forms). `card` = 2×2 grid for narrow panels. */
+  layout?: "row" | "card";
 }) {
   const required = {
     nameTitle: false,
@@ -39,7 +41,7 @@ export function PersonalNameFields(props: {
   }
 
   return (
-    <div className={FORM.nameGroup}>
+    <div className={props.layout === "card" ? FORM.nameGroupCard : FORM.nameGroup}>
       <FormField id={`${props.idPrefix}-name-title`} label="Title">
         {({ id, describedBy }) => (
           <FormSelect

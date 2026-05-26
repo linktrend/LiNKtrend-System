@@ -1,0 +1,11 @@
+{
+  "name": "github-repo-management",
+  "tool_type": "registry_reference",
+  "category": "Developer platform",
+  "description": "Governed GitHub repository operations via cap.github.repo_management.",
+  "implementation": {
+    "registry_url": "LiNKskills/capability-connectors/cap.github.repo_management.yaml",
+    "package_name": "cap.github.repo_management",
+    "version_constraint": ">=1.0.0"
+  }
+}

@@ -22,6 +22,7 @@ export type StatusDomain =
   | "metric"
   | "module"
   | "subscription"
+  | "support"
   | "generic";
 
 export const STATUS_TONE = {
@@ -87,11 +88,23 @@ export const ATTENTION_FEED_PILL_LABELS = [
   "Warning",
 ] as const;
 
+/** Support ticket queue — Open (needs attention) / In progress / Resolved. */
+export const SUPPORT_TICKET_PILL_LABELS = ["In progress", "Open", "Resolved"] as const;
+
 /** Session inbox table status column. */
 export const SESSION_DISPLAY_PILL_LABELS = ["Running", "Waiting", "Completed", "Failed"] as const;
 
 /** Billing invoice history — Paid / Unpaid status column. */
 export const BILLING_INVOICE_STATUS_PILL_LABELS = ["Paid", "Unpaid"] as const;
+
+/** Licensor suite builder publish column — Draft / Ready / Published. */
+export const LICENSOR_SUITE_PUBLISH_PILL_LABELS = ["Published", "Ready", "Draft"] as const;
+
+/** Marketplace listing column on Stripe products screen. */
+export const MARKETPLACE_LISTED_PILL_LABELS = ["Not listed", "Listed"] as const;
+
+/** App role tier column — Super Admin / Admin / User. */
+export const ROLE_TIER_PILL_LABELS = ["Super Admin", "Admin", "User"] as const;
 
 /** Compute equal pill width from the longest label in a visual group (GLOBAL-001). */
 export function statusPillEqualWidthCh(labels: readonly string[]): number {
@@ -253,6 +266,11 @@ const DOMAIN_STATUS_MAP: Partial<Record<StatusDomain, Record<string, PillSpec>>>
     past_due: { tone: "warning", label: "Past due" },
     canceled: { tone: "neutral", label: "Canceled" },
     not_subscribed: { tone: "neutral", label: "Not subscribed" },
+  },
+  support: {
+    open: { tone: "danger", label: "Open" },
+    in_progress: { tone: "active", label: "In progress" },
+    resolved: { tone: "success", label: "Resolved" },
   },
   generic: {
     ok: { tone: "success", label: "OK" },

@@ -1,3 +1,5 @@
+import { stripAppBasePath } from "@/lib/app-surface";
+
 /** Title + subtitle for shared shell page headers (breadcrumb leaf = title). */
 
 export type ShellPageMeta = {
@@ -33,6 +35,10 @@ const EXACT: Record<string, ShellPageMeta> = {
   "/metrics": {
     title: "Metrics",
     subtitle: "Performance observability — cost, tokens, run time, success/failure, and usage by project, LiNKbot, model, tool, and skill.",
+  },
+  "/licensees": {
+    title: "Licensees",
+    subtitle: "Tenant registry — overview, companies & brands, billing, and Chatwoot support per licensee.",
   },
   "/company": {
     title: "Company",
@@ -76,6 +82,10 @@ const SETTINGS_SUBPAGE: Record<string, ShellPageMeta> = {
   "/settings/billing": {
     title: "Billing",
     subtitle: "Payment methods, LiNKaios subscription, suite licenses, and invoices.",
+  },
+  "/settings/support": {
+    title: "Support",
+    subtitle: "Ticket history and escalation — backed by Chatwoot (link-chatwoot) when the connector is live.",
   },
   "/settings/access": {
     title: "User roles & permissions",
@@ -135,11 +145,11 @@ const SETTINGS_SUBPAGE: Record<string, ShellPageMeta> = {
   },
   "/settings/platform": {
     title: "Platform",
-    subtitle: "Power-operator areas — routing, tool policy, traces, cleanup, and runtime sessions.",
+    subtitle: "Power-operator areas — routing, traces, LiNKguard cleanup, and development proof surfaces.",
   },
   "/settings/prism": {
-    title: "Data Cleanup",
-    subtitle: "Automated cleanup worker health and recent activity.",
+    title: "LiNKguard",
+    subtitle: "Automated cleanup worker health and recent activity from the LiNKguard sidecar.",
   },
   "/settings/tools": {
     title: "Tool Permissions",
@@ -231,37 +241,46 @@ export function resolveSettingsSubpageMeta(pathname: string): ShellPageMeta | nu
   };
 }
 
+function shellRoutePath(pathname: string): string {
+  const route = stripAppBasePath(pathname);
+  if (route === "/admin" || route === "/admin/") return "/";
+  return route;
+}
+
 /** Routes that render their own page header inside page content or a section layout. */
 export function suppressesAutoShellPageHeader(pathname: string): boolean {
-  if (pathname === "/") return true;
-  if (pathname === "/work" || pathname.startsWith("/work/")) return true;
-  if (/^\/workers\/[^/]+/.test(pathname)) return true;
-  if (pathname === "/workers") return true;
-  if (pathname === "/projects") return true;
-  if (pathname.startsWith("/projects/")) return true;
-  if (pathname === "/skills" || pathname.startsWith("/skills/")) return true;
-  if (pathname === "/memory" || pathname.startsWith("/memory/")) return true;
-  if (pathname === "/modules" || pathname.startsWith("/modules/")) return true;
-  if (pathname === "/suites" || pathname.startsWith("/suites/")) return true;
-  if (pathname === "/metrics") return true;
-  if (pathname === "/company" || pathname.startsWith("/company/")) return true;
-  if (pathname === "/settings" || pathname.startsWith("/settings/")) return true;
-  if (pathname === "/linkapps" || pathname.startsWith("/linkapps/")) return true;
-  if (pathname === "/devtools" || pathname.startsWith("/devtools/")) return true;
+  const route = shellRoutePath(pathname);
+  if (route === "/" || route === "/app" || route === "/app/") return true;
+  if (route === "/work" || route.startsWith("/work/")) return true;
+  if (/^\/workers\/[^/]+/.test(route)) return true;
+  if (route === "/workers") return true;
+  if (route === "/projects") return true;
+  if (route.startsWith("/projects/")) return true;
+  if (route === "/skills" || route.startsWith("/skills/")) return true;
+  if (route === "/memory" || route.startsWith("/memory/")) return true;
+  if (route === "/modules" || route.startsWith("/modules/")) return true;
+  if (route === "/suites" || route.startsWith("/suites/")) return true;
+  if (route === "/metrics") return true;
+  if (route === "/company" || route.startsWith("/company/")) return true;
+  if (route === "/licensees" || route.startsWith("/licensees/")) return true;
+  if (route === "/settings" || route.startsWith("/settings/")) return true;
+  if (route === "/linkapps" || route.startsWith("/linkapps/")) return true;
+  if (route === "/devtools" || route.startsWith("/devtools/")) return true;
   return false;
 }
 
 export function resolveShellPageMeta(pathname: string): ShellPageMeta | null {
   if (suppressesAutoShellPageHeader(pathname)) return null;
 
-  const exact = EXACT[pathname];
+  const route = shellRoutePath(pathname);
+  const exact = EXACT[route];
   if (exact) return exact;
 
   for (const row of PREFIX) {
-    if (pathname.startsWith(row.prefix)) return row.meta;
+    if (route.startsWith(row.prefix)) return row.meta;
   }
 
-  const parts = pathname.split("/").filter(Boolean);
+  const parts = route.split("/").filter(Boolean);
   if (parts.length === 0) return null;
 
   const leaf = parts[parts.length - 1]!;

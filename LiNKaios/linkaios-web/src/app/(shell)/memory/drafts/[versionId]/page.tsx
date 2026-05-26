@@ -1,7 +1,7 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { BrainDraftEditor } from "@/components/brain-draft-editor";
+import { MemoryTabLink } from "@/components/linkbrain/memory-surface-links";
 import { ShellPageHeaderClient } from "@/components/shell-page-header-client";
 import { publishBrainDraftFromForm } from "@/app/(shell)/memory/brain-actions";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -70,9 +70,9 @@ export default async function BrainDraftEditPage(props: { params: Promise<{ vers
       </form>
 
       <p className="text-sm">
-        <Link href="/memory?tab=inbox" className="text-sky-700 underline dark:text-sky-400">
+        <MemoryTabLink tab="inbox" className="text-sky-700 underline dark:text-sky-400">
           Back to Inbox
-        </Link>
+        </MemoryTabLink>
       </p>
     </main>
   );

@@ -1,6 +1,8 @@
 import { ApiAccessSettingsPage } from "@/components/settings/api-access-settings-page";
+import { VaultwardenSecretsPage } from "@/components/settings/vaultwarden-secrets-page";
 import { listIntegrationSecretsAction } from "@/components/settings/integration-secrets-actions";
 import { isCommandCentreAdmin } from "@/lib/command-centre-access";
+import { isLicensorOperator } from "@/lib/licensor-access";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
@@ -10,6 +12,10 @@ export default async function SettingsApiKeysPage() {
   const {
     data: { user },
   } = await supabase.auth.getUser();
+
+  if (isLicensorOperator(user?.email)) {
+    return <VaultwardenSecretsPage />;
+  }
 
   const canManage =
     user?.id != null ? await isCommandCentreAdmin(supabase, { userId: user.id, email: user.email }) : false;

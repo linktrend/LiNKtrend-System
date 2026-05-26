@@ -7,6 +7,7 @@ import { useEffect, useMemo, useState } from "react";
 import { ChevronDown, ChevronRight, Layers3 } from "lucide-react";
 
 import { useModuleSubscriptions } from "@/hooks/use-module-subscriptions";
+import { useAppSurface } from "@/components/app-surface-provider";
 import { fixtureLicensedByModule, MODULES_CATALOG_DEMO } from "@/lib/ui-mocks/modules-catalog-demo";
 
 function subLinkClass(active: boolean) {
@@ -30,7 +31,9 @@ function isSuiteProfilePath(pathname: string): boolean {
 
 export function ModulesSidebarSection() {
   const pathname = usePathname() ?? "/";
-  const suitesPath = pathname.startsWith("/suites") || pathname.startsWith("/modules");
+  const { href: appHref, routePath } = useAppSurface();
+  const route = routePath(pathname);
+  const suitesPath = route.startsWith("/suites") || route.startsWith("/modules");
   const [open, setOpen] = useState(suitesPath);
   const fixtureLicensed = useMemo(() => fixtureLicensedByModule(), []);
   const { accessFor } = useModuleSubscriptions(fixtureLicensed);
@@ -44,12 +47,12 @@ export function ModulesSidebarSection() {
     if (suitesPath) setOpen(true);
   }, [suitesPath]);
 
-  const marketplaceActive = pathname === "/suites/marketplace" || pathname === "/modules/marketplace";
+  const marketplaceActive = route === "/suites/marketplace" || route === "/modules/marketplace";
   const mySuitesActive =
-    pathname === "/suites/my-suites" ||
-    pathname === "/modules/my-modules" ||
-    pathname === "/suites" ||
-    pathname === "/modules";
+    route === "/suites/my-suites" ||
+    route === "/modules/my-modules" ||
+    route === "/suites" ||
+    route === "/modules";
 
   return (
     <div className="mt-1">
@@ -70,18 +73,18 @@ export function ModulesSidebarSection() {
       </button>
       {open ? (
         <div className={subMenuRail}>
-          <Link href="/suites/marketplace" className={subLinkClass(marketplaceActive)}>
+          <Link href={appHref("/suites/marketplace")} className={subLinkClass(marketplaceActive)}>
             Marketplace
           </Link>
-          <Link href="/suites/my-suites" className={subLinkClass(mySuitesActive)}>
+          <Link href={appHref("/suites/my-suites")} className={subLinkClass(mySuitesActive)}>
             My Suites
           </Link>
           {ownedSuites.map((suite) => {
             const profileActive =
-              pathname === `/suites/${suite.id}` ||
-              (pathname.startsWith(`/suites/${suite.id}?`) && isSuiteProfilePath(pathname));
+              route === `/suites/${suite.id}` ||
+              (route.startsWith(`/suites/${suite.id}?`) && isSuiteProfilePath(pathname));
             return (
-              <Link key={suite.id} href={`/suites/${suite.id}`} className={subLinkClass(profileActive)}>
+              <Link key={suite.id} href={appHref(`/suites/${suite.id}`)} className={subLinkClass(profileActive)}>
                 {suite.name}
               </Link>
             );

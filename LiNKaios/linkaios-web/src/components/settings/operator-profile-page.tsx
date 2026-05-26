@@ -15,8 +15,10 @@ import { OperatorProfileHero } from "@/components/settings/profile/operator-prof
 import { OperatorProfileSectionCard } from "@/components/settings/profile/operator-profile-section-card";
 import { OperatorWorkspaceAccessCard } from "@/components/settings/profile/operator-workspace-access-card";
 import {
+  FormDatePicker,
   FormField,
   FormTextInput,
+  formatDateRangeDisplay,
   PersonalAddressFields,
   PersonalAddressReadOnly,
   PersonalNameFields,
@@ -524,7 +526,7 @@ export function OperatorProfilePage({
                             ) : null}
                           </p>
                           <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                            {[entry.start_date, entry.end_date].filter(Boolean).join(" – ") || "Dates not provided"}
+                            {formatDateRangeDisplay(entry.start_date, entry.end_date)}
                           </p>
                           {entry.description ? (
                             <p className="text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">{entry.description}</p>
@@ -697,20 +699,24 @@ export function OperatorProfilePage({
                         </div>
                         <div>
                           <ProfileLabel>Start Date</ProfileLabel>
-                          <input
-                            className={FIELD.control}
-                            placeholder="Jan 2020"
+                          <FormDatePicker
+                            id={`work-start-${entry.id}`}
+                            fullWidth={false}
                             value={entry.start_date}
-                            onChange={(e) => updateWork(entry.id, "start_date", e.target.value)}
+                            onChange={(start_date) => updateWork(entry.id, "start_date", start_date)}
+                            placeholder="Select start date"
                           />
                         </div>
                         <div>
                           <ProfileLabel>End Date</ProfileLabel>
-                          <input
-                            className={FIELD.control}
-                            placeholder="Present"
+                          <FormDatePicker
+                            id={`work-end-${entry.id}`}
+                            fullWidth={false}
                             value={entry.end_date}
-                            onChange={(e) => updateWork(entry.id, "end_date", e.target.value)}
+                            onChange={(end_date) => updateWork(entry.id, "end_date", end_date)}
+                            placeholder="Select end date"
+                            allowPresent
+                            presentLabel="Present (current role)"
                           />
                         </div>
                         <div className="md:col-span-2">

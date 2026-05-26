@@ -6,27 +6,38 @@ import { useEffect, useMemo, useState } from "react";
 import {
   ArrowRight,
   Bot,
+  Building2,
   ChevronDown,
   ChevronUp,
   FolderKanban,
   Layers3,
+  Network,
   ShieldAlert,
   Sparkles,
   Upload,
+  UserPlus,
   Wrench,
   Zap,
 } from "lucide-react";
 
 import { AttentionQueueRow } from "@/components/action-queue";
+import { CompanySummaryPanel } from "@/components/company-summary-panel";
+import { LicenseeOnboardingBanner, LicenseeOnboardingWizard } from "@/components/onboarding/licensee-onboarding-wizard";
+import { useAppRole } from "@/components/role-preview-provider";
 import { ShellPageHeader } from "@/components/shell-page-header";
 import {
   OverviewProjectsSummaryGrid,
   OverviewWorkforceSummaryGrid,
   SummaryMetricCardSection,
 } from "@/components/summary-metric-card";
+import { useLicenseeContext } from "@/hooks/use-licensee-context";
+import { resolveCompanyFixture, COMPANY_DEFAULT_FIXTURE_ID, modulesForCompany } from "@/lib/company-fixtures";
+import {
+  useOnboardingProgress,
+  type LicenseeOnboardingStepId,
+} from "@/lib/onboarding-progress";
 import type { OverviewData, SystemStatusLevel } from "@/lib/overview-dashboard";
 import { toOperatorSystemIssueLabel } from "@/lib/operator-copy";
-import { COMPANY_DEFAULT_FIXTURE_ID, modulesForCompany } from "@/lib/company-fixtures";
 import { BUTTON } from "@/lib/ui-standards";
 
 function statusBarTone(level: SystemStatusLevel): string {
@@ -53,8 +64,99 @@ function issueIcon(label: string) {
   return <ShieldAlert className="h-4 w-4 shrink-0" aria-hidden />;
 }
 
+const GOVERNANCE_CHECKLIST: {
+  stepId: LicenseeOnboardingStepId;
+  title: string;
+  description: string;
+  href: string;
+  icon: typeof Network;
+}[] = [
+  {
+    stepId: "organisation",
+    title: "Confirm company structure",
+    description: "Legal entities and brands match how you operate.",
+    href: "/company",
+    icon: Network,
+  },
+  {
+    stepId: "invite-admin",
+    title: "Invite Admin",
+    description: "Add an executive who can supervise projects and bots.",
+    href: "/settings/access",
+    icon: UserPlus,
+  },
+  {
+    stepId: "first-suite",
+    title: "Subscribe first suite",
+    description: "Product packages include LiNKbots, automations, and skills for live work.",
+    href: "/suites/marketplace",
+    icon: Layers3,
+  },
+  {
+    stepId: "integration",
+    title: "Connect an integration",
+    description: "Link CRM, email, or other tools your suites need to run.",
+    href: "/skills/connectors",
+    icon: Sparkles,
+  },
+];
+
+function GovernanceChecklist() {
+  const { progress, hydrated, complete } = useOnboardingProgress();
+  if (!hydrated || complete) return null;
+
+  const pending = GOVERNANCE_CHECKLIST.filter((item) => !progress.completedSteps.includes(item.stepId));
+  if (pending.length === 0) return null;
+
+  return (
+    <section className="space-y-3" aria-label="Setup checklist">
+      <div className="flex items-center gap-2">
+        <Building2 className="h-4 w-4 text-zinc-500 dark:text-zinc-400" aria-hidden />
+        <h2 className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Setup checklist</h2>
+      </div>
+      <div className="grid gap-3 sm:grid-cols-2">
+        {pending.map((item) => (
+          <Link
+            key={item.stepId}
+            href={item.href}
+            className="group flex flex-col gap-2 rounded-xl border border-zinc-200 bg-white p-4 shadow-sm transition hover:border-zinc-300 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-950 dark:hover:border-zinc-700 dark:hover:bg-zinc-900/60"
+          >
+            <span className="inline-flex items-center gap-2 text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+              <item.icon className="h-4 w-4 shrink-0 text-zinc-600 group-hover:text-zinc-900 dark:text-zinc-400 dark:group-hover:text-zinc-100" aria-hidden />
+              {item.title}
+            </span>
+            <span className="text-xs text-zinc-500 dark:text-zinc-400">{item.description}</span>
+            <span className="inline-flex items-center gap-1 text-xs font-semibold text-sky-700 dark:text-sky-400">
+              Open <ArrowRight className="h-3.5 w-3.5" aria-hidden />
+            </span>
+          </Link>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function OrganisationSnapshot() {
+  const { companyId } = useLicenseeContext();
+  const company = resolveCompanyFixture(companyId);
+
+  return (
+    <section className="space-y-3" aria-label="Organisation snapshot">
+      <h2 className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Organisation snapshot</h2>
+      <CompanySummaryPanel company={company} />
+    </section>
+  );
+}
+
 export function OverviewHome(props: { data: OverviewData }) {
   const { data } = props;
+  const { role } = useAppRole();
+  const isSuperAdmin = role === "super_admin";
+  const isAdmin = role === "admin";
+  const isUser = role === "user";
+  const showOrgSnapshot = isAdmin || isSuperAdmin;
+  const showSummaryGrids = !isUser;
+
   const [statusOpen, setStatusOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [now, setNow] = useState(() => Date.now());
@@ -96,11 +198,21 @@ export function OverviewHome(props: { data: OverviewData }) {
 
   return (
     <main className="space-y-8 pb-16">
+      {isSuperAdmin ? <LicenseeOnboardingWizard /> : null}
+
       <ShellPageHeader
         title="Overview"
-        subtitle="See what needs your attention, check team status, and jump to common tasks."
+        subtitle={
+          isUser
+            ? "Your work inbox and alerts — jump in where you are needed."
+            : "See what needs your attention, check team status, and jump to common tasks."
+        }
         refreshedLabel={refreshedLabel}
       />
+
+      {isSuperAdmin ? <LicenseeOnboardingBanner /> : null}
+
+      {isSuperAdmin ? <GovernanceChecklist /> : null}
 
       <section className={`rounded-xl border p-3 shadow-sm ${statusBarTone(data.systemStatus.level)}`} aria-label="System status">
         <button
@@ -191,89 +303,97 @@ export function OverviewHome(props: { data: OverviewData }) {
         )}
       </section>
 
-      <div className="flex flex-col gap-6">
-        <section className="flex flex-col rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
-          <SummaryMetricCardSection title="Workforce summary" icon={<Bot className="h-4 w-4" aria-hidden />}>
-            <OverviewWorkforceSummaryGrid
-              total={data.workforceSummary.total}
-              online={data.workforceSummary.online}
-              offline={data.workforceSummary.offline}
-              busy={data.workforceSummary.busy}
-              idle={data.workforceSummary.idle}
-              className="mt-4 grid-cols-2 sm:grid-cols-3 lg:grid-cols-5"
-            />
-          </SummaryMetricCardSection>
-          <Link href="/workers" className={`${BUTTON.secondaryCardAction} mt-4`}>
-            View LiNKbots
-          </Link>
-        </section>
+      {showOrgSnapshot ? <OrganisationSnapshot /> : null}
 
-        <section className="flex flex-col rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
-          <h2 className="flex items-center gap-2 text-xs font-semibold text-zinc-500 dark:text-zinc-400">
-            <Layers3 className="h-4 w-4" aria-hidden />
-            Suites at a glance
-          </h2>
-          <ul className="mt-4 space-y-2 text-sm">
-            <li className="flex items-center justify-between rounded-lg border border-emerald-200 bg-emerald-50/60 px-3 py-2 dark:border-emerald-900/40 dark:bg-emerald-950/20">
-              <span className="text-emerald-900 dark:text-emerald-100">Active subscriptions</span>
-              <span className="font-semibold tabular-nums text-emerald-950 dark:text-emerald-50">{activeModules}</span>
-            </li>
-            <li className="flex items-center justify-between rounded-lg border border-sky-200 bg-sky-50/60 px-3 py-2 dark:border-sky-900/40 dark:bg-sky-950/20">
-              <span className="text-sky-900 dark:text-sky-100">On trial</span>
-              <span className="font-semibold tabular-nums text-sky-950 dark:text-sky-50">{trialingModules}</span>
-            </li>
-            <li className="flex items-center justify-between rounded-lg border border-zinc-100 px-3 py-2 dark:border-zinc-800">
-              <span className="text-zinc-600 dark:text-zinc-400">Catalogue size</span>
-              <span className="font-semibold tabular-nums text-zinc-900 dark:text-zinc-100">{moduleRows.length}</span>
-            </li>
-          </ul>
-          <Link href="/suites/my-suites" className={`${BUTTON.secondaryCardAction} mt-4`}>
-            Manage suites
-          </Link>
-        </section>
-      </div>
+      {showSummaryGrids ? (
+        <>
+          <div className="flex flex-col gap-6">
+            <section className="flex flex-col rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
+              <SummaryMetricCardSection title="Workforce summary" icon={<Bot className="h-4 w-4" aria-hidden />}>
+                <OverviewWorkforceSummaryGrid
+                  total={data.workforceSummary.total}
+                  online={data.workforceSummary.online}
+                  offline={data.workforceSummary.offline}
+                  busy={data.workforceSummary.busy}
+                  idle={data.workforceSummary.idle}
+                  className="mt-4 grid-cols-2 sm:grid-cols-3 lg:grid-cols-5"
+                />
+              </SummaryMetricCardSection>
+              <Link href="/workers" className={`${BUTTON.secondaryCardAction} mt-4`}>
+                View LiNKbots
+              </Link>
+            </section>
 
-      <section className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
-        <SummaryMetricCardSection
-          title="Projects summary"
-          icon={<FolderKanban className="h-4 w-4" aria-hidden />}
-        >
-          <OverviewProjectsSummaryGrid
-            draft={data.projectsSummary.draft}
-            active={data.projectsSummary.active}
-            completed={data.projectsSummary.completed}
-            needsAttention={data.projectsSummary.needsAttention}
-            className="mt-4 grid-cols-2 lg:grid-cols-4"
-          />
-        </SummaryMetricCardSection>
-        <Link href="/projects" className={`${BUTTON.secondaryCardAction} mt-4`}>
-          View projects
-        </Link>
-      </section>
+            <section className="flex flex-col rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
+              <h2 className="flex items-center gap-2 text-xs font-semibold text-zinc-500 dark:text-zinc-400">
+                <Layers3 className="h-4 w-4" aria-hidden />
+                Suites at a glance
+              </h2>
+              <ul className="mt-4 space-y-2 text-sm">
+                <li className="flex items-center justify-between rounded-lg border border-emerald-200 bg-emerald-50/60 px-3 py-2 dark:border-emerald-900/40 dark:bg-emerald-950/20">
+                  <span className="text-emerald-900 dark:text-emerald-100">Active subscriptions</span>
+                  <span className="font-semibold tabular-nums text-emerald-950 dark:text-emerald-50">{activeModules}</span>
+                </li>
+                <li className="flex items-center justify-between rounded-lg border border-sky-200 bg-sky-50/60 px-3 py-2 dark:border-sky-900/40 dark:bg-sky-950/20">
+                  <span className="text-sky-900 dark:text-sky-100">On trial</span>
+                  <span className="font-semibold tabular-nums text-sky-950 dark:text-sky-50">{trialingModules}</span>
+                </li>
+                <li className="flex items-center justify-between rounded-lg border border-zinc-100 px-3 py-2 dark:border-zinc-800">
+                  <span className="text-zinc-600 dark:text-zinc-400">Catalogue size</span>
+                  <span className="font-semibold tabular-nums text-zinc-900 dark:text-zinc-100">{moduleRows.length}</span>
+                </li>
+              </ul>
+              <Link href="/suites/my-suites" className={`${BUTTON.secondaryCardAction} mt-4`}>
+                Manage suites
+              </Link>
+            </section>
+          </div>
 
-      <section>
-        <h2 className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Quick actions</h2>
-        <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
-          {[
-            { href: "/workers", icon: Sparkles, title: "Add LiNKbot", hint: "Deploy a new fleet worker" },
-            { href: "/projects/new", icon: FolderKanban, title: "Create project", hint: "Start client work in a suite module" },
-            { href: "/skills/skills", icon: Wrench, title: "Add skill", hint: "Publish a governed procedure" },
-            { href: "/memory?tab=inbox&inbox_source=human_upload", icon: Upload, title: "Upload to LiNKbrain", hint: "Send company knowledge to inbox" },
-          ].map((action) => (
-            <Link
-              key={action.href}
-              href={action.href}
-              className="group flex flex-col gap-2 rounded-xl border border-zinc-200 bg-white px-4 py-3 shadow-sm transition hover:border-zinc-300 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-950 dark:hover:border-zinc-700 dark:hover:bg-zinc-900/60"
+          <section className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
+            <SummaryMetricCardSection
+              title="Projects summary"
+              icon={<FolderKanban className="h-4 w-4" aria-hidden />}
             >
-              <span className="inline-flex items-center gap-2 text-sm font-semibold text-zinc-900 dark:text-zinc-100">
-                <action.icon className="h-4 w-4 shrink-0 text-zinc-600 group-hover:text-zinc-900 dark:text-zinc-400 dark:group-hover:text-zinc-100" aria-hidden />
-                {action.title}
-              </span>
-              <span className="text-xs text-zinc-500 dark:text-zinc-400">{action.hint}</span>
+              <OverviewProjectsSummaryGrid
+                draft={data.projectsSummary.draft}
+                active={data.projectsSummary.active}
+                completed={data.projectsSummary.completed}
+                needsAttention={data.projectsSummary.needsAttention}
+                className="mt-4 grid-cols-2 lg:grid-cols-4"
+              />
+            </SummaryMetricCardSection>
+            <Link href="/projects" className={`${BUTTON.secondaryCardAction} mt-4`}>
+              View projects
             </Link>
-          ))}
-        </div>
-      </section>
+          </section>
+        </>
+      ) : null}
+
+      {!isUser ? (
+        <section>
+          <h2 className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Quick actions</h2>
+          <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            {[
+              { href: "/workers", icon: Sparkles, title: "Add LiNKbot", hint: "Deploy a new fleet worker" },
+              { href: "/projects/new", icon: FolderKanban, title: "Create project", hint: "Start client work in a suite module" },
+              { href: "/skills/skills", icon: Wrench, title: "Add skill", hint: "Publish a governed procedure" },
+              { href: "/memory?tab=inbox&inbox_source=human_upload", icon: Upload, title: "Upload to LiNKbrain", hint: "Send company knowledge to inbox" },
+            ].map((action) => (
+              <Link
+                key={action.href}
+                href={action.href}
+                className="group flex flex-col gap-2 rounded-xl border border-zinc-200 bg-white px-4 py-3 shadow-sm transition hover:border-zinc-300 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-950 dark:hover:border-zinc-700 dark:hover:bg-zinc-900/60"
+              >
+                <span className="inline-flex items-center gap-2 text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+                  <action.icon className="h-4 w-4 shrink-0 text-zinc-600 group-hover:text-zinc-900 dark:text-zinc-400 dark:group-hover:text-zinc-100" aria-hidden />
+                  {action.title}
+                </span>
+                <span className="text-xs text-zinc-500 dark:text-zinc-400">{action.hint}</span>
+              </Link>
+            ))}
+          </div>
+        </section>
+      ) : null}
     </main>
   );
 }

@@ -6,6 +6,7 @@ import {
   type ModuleCatalogueItem,
   type ModuleProcess,
 } from "@/lib/ui-mocks/modules-catalog-demo";
+import { LICENSEE_HOME_PATH } from "@/lib/app-surface";
 import { formatShellPageTitle } from "@/lib/ui-standards";
 
 export type ModuleProcessTreeVariant = "catalogue" | "operational";
@@ -148,7 +149,7 @@ export function buildSuitesBreadcrumbItems(
 ): BreadcrumbItem[] {
   const normalized = pathname.replace(/^\/modules\b/, "/suites").replace(/\/my-modules\b/, "/my-suites");
   const parts = normalized.split("/").filter(Boolean);
-  const items: BreadcrumbItem[] = [{ href: "/", label: "LiNKaios" }];
+  const items: BreadcrumbItem[] = [{ href: LICENSEE_HOME_PATH, label: "LiNKaios" }];
 
   if (parts.length <= 1) {
     items.push({ label: "My Suites" });

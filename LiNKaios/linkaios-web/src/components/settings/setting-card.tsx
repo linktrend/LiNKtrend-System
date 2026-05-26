@@ -33,6 +33,8 @@ export type SettingCardProps = {
   description: string;
   actionLabel: string;
   href?: string;
+  /** Open href in a new tab — use for external operator tools (e.g. Vaultwarden). */
+  external?: boolean;
   onClick?: () => void;
   titleAction?: React.ReactNode;
   children?: React.ReactNode;
@@ -40,9 +42,14 @@ export type SettingCardProps = {
   lockedHint?: string;
 };
 
+function isExternalHref(href: string): boolean {
+  return /^https?:\/\//i.test(href);
+}
+
 export function SettingCard(props: SettingCardProps) {
   const actionClass = `${BUTTON.secondaryCardAction} mt-6`;
   const Icon = props.icon;
+  const openExternal = props.external ?? (props.href ? isExternalHref(props.href) : false);
 
   return (
     <article className="flex h-full flex-col rounded-xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
@@ -67,9 +74,15 @@ export function SettingCard(props: SettingCardProps) {
           {props.actionLabel}
         </span>
       ) : props.href ? (
-        <Link href={props.href} className={actionClass}>
-          {props.actionLabel}
-        </Link>
+        openExternal ? (
+          <a href={props.href} target="_blank" rel="noopener noreferrer" className={actionClass}>
+            {props.actionLabel}
+          </a>
+        ) : (
+          <Link href={props.href} className={actionClass}>
+            {props.actionLabel}
+          </Link>
+        )
       ) : (
         <button type="button" onClick={props.onClick ?? (() => {})} className={actionClass}>
           {props.actionLabel}

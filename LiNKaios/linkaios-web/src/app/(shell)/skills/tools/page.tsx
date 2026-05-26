@@ -1,8 +1,7 @@
-import Link from "next/link";
-
 import { listTools } from "@linktrend/linklogic-sdk";
 import type { ToolRecord } from "@linktrend/shared-types";
 
+import { AddToolHeaderAction } from "@/components/linkskills-header-actions";
 import { CapabilitiesCatalogStatsGrid } from "@/components/summary-metric-card";
 import { LinkskillsHubNav } from "@/components/linkskills-hub-nav";
 import { ShellPageHeaderClient } from "@/components/shell-page-header-client";
@@ -13,7 +12,6 @@ import { readToolAdminFlags } from "@/lib/tools-admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { isUiMocksEnabled } from "@/lib/ui-mocks/flags";
 import { mergeToolCatalogWithDemo } from "@/lib/ui-mocks/skills-tools-catalog-demo";
-import { BUTTON } from "@/lib/ui-standards";
 
 export const dynamic = "force-dynamic";
 
@@ -70,11 +68,7 @@ export default async function SkillsToolsPage() {
       <ShellPageHeaderClient
         title="Tools"
         subtitle="Callable API, script, MCP, and browser actions — governed by leases and policy."
-        actions={
-          <Link href="/skills/tools/new" className={BUTTON.addRow} title="Creates a draft tool in Postgres when live DB is available">
-            Add Tool
-          </Link>
-        }
+        actions={<AddToolHeaderAction />}
       />
       <LinkskillsHubNav />
 
