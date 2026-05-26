@@ -1,9 +1,9 @@
 import { listMissions } from "@linktrend/linklogic-sdk";
+import { BarChart3 } from "lucide-react";
 
 import { fetchMetricsSnapshot } from "@/app/(shell)/metrics/actions";
+import { WorkEmptyState } from "@/app/(shell)/work/work-empty-state";
 import { MetricsDashboard, type MetricsFilterOption } from "@/components/metrics-dashboard";
-import { MetricsGlossary } from "@/components/metrics-glossary";
-import { MetricsHubFooter } from "@/components/metrics-hub-footer";
 import { ShellPageHeaderClient } from "@/components/shell-page-header-client";
 import { buildMetricsSnapshotFromRows, type MetricsSnapshot } from "@/lib/metrics-snapshot";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -27,9 +27,7 @@ function emptyMetricsSnapshot(days: number): MetricsSnapshot {
   });
 }
 
-export default async function MetricsPage(props: { searchParams: Promise<{ event?: string }> }) {
-  const { event: eventParam } = await props.searchParams;
-  const eventTypeInit = eventParam?.trim() || null;
+export default async function MetricsPage() {
   const uiMocksEnabled = isUiMocksEnabled();
 
   const supabase = await createSupabaseServerClient();
@@ -62,7 +60,6 @@ export default async function MetricsPage(props: { searchParams: Promise<{ event
     days: 30,
     missionId: null,
     agentId: null,
-    eventTypeContains: eventTypeInit,
   });
 
   let initialSnapshot: MetricsSnapshot;
@@ -86,18 +83,26 @@ export default async function MetricsPage(props: { searchParams: Promise<{ event
     <main className="space-y-6">
       <ShellPageHeaderClient
         title="Metrics"
-        subtitle="Performance observability — cost, tokens, run time, success/failure, and usage by project, LiNKbot, model, tool, and skill."
+        subtitle="Performance observability — cost, tokens, run time, success and failure, and usage by project, LiNKbot, model, tool, and skill."
       />
-      <MetricsGlossary />
+      {!demoMode && !loadError && initialSnapshot.totalTraces === 0 ? (
+        <WorkEmptyState
+          icon={BarChart3}
+          title="No run activity yet"
+          description="Launch a project or start a LiNKbot session to populate cost, token, and reliability charts."
+          actions={[
+            { kind: "link", label: "Add project", href: "/projects/new" },
+            { kind: "link", label: "Open LiNKbots", href: "/workers", variant: "secondary" },
+          ]}
+        />
+      ) : null}
       <MetricsDashboard
         initialSnapshot={initialSnapshot}
         loadError={loadError}
         agents={agentOpts}
         missions={missionOpts}
         demoMode={demoMode}
-        initialEventTypeFilter={eventTypeInit ?? undefined}
       />
-      <MetricsHubFooter />
     </main>
   );
 }

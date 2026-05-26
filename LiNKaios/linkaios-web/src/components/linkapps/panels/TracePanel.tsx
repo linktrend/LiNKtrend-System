@@ -9,6 +9,7 @@ import {
   MOCK_TRACE_QUERY_RESPONSE,
 } from "@/lib/plugins/linkapps/trace-fixtures";
 import { TraceMetricCard } from "@/components/linkapps/sidebar/TraceMetricCard";
+import { SummaryMetricCardGrid } from "@/components/summary-metric-card";
 
 type TraceDetailRowProps = {
   label: string;
@@ -85,11 +86,11 @@ export function TracePanel(props: TracePanelProps) {
 
       {/* Metrics grid */}
       <section aria-label="Trace metrics">
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <SummaryMetricCardGrid className="gap-4">
           {MOCK_TRACE_METRICS.map((metric) => (
             <TraceMetricCard key={metric.label} metric={metric} />
           ))}
-        </div>
+        </SummaryMetricCardGrid>
       </section>
 
       {/* Selected trace details */}

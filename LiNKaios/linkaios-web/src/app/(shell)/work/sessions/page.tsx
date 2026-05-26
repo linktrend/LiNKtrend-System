@@ -53,7 +53,7 @@ export default async function WorkSessionsPage() {
     <main>
       <ShellPageHeaderClient
         title="Sessions"
-        subtitle="See what each LiNKbot is doing. Respond opens that bot's session chat; Stop ends the session."
+        subtitle="See what each LiNKbot is doing. Use the message icon to open the session workspace when waiting; Stop ends the session."
       />
       <div className="mt-8">
         {err ? <p className="mb-4 text-sm text-red-700 dark:text-red-400">Could not load sessions: {err.message}</p> : null}

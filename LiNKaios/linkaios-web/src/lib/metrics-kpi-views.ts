@@ -1,8 +1,17 @@
-import { durationStatsFromSample, type MetricsSnapshot } from "@/lib/metrics-snapshot";
+import {
+  durationStatsFromSample,
+  periodTrendFromDailySeries,
+  type DailyValue,
+  type MetricsSnapshot,
+} from "@/lib/metrics-snapshot";
 
 export type KpiViewId = "cost" | "performance" | "reliability";
 
 export type KpiTone = "neutral" | "warn" | "bad";
+
+export type KpiTrend = {
+  pct: number;
+};
 
 export type KpiCard = {
   slot: number;
@@ -10,6 +19,7 @@ export type KpiCard = {
   value: string;
   context: string;
   tone: KpiTone;
+  trend?: KpiTrend | null;
 };
 
 function fmtUsd(n: number) {
@@ -42,30 +52,108 @@ function windowHours(fromIso: string, toIso: string): number {
   return Math.max(1 / 60, (b - a) / (1000 * 60 * 60));
 }
 
-function topSpendRow(
-  rows: { name: string; cost: number }[],
-  totalCost: number,
-): { primary: string; secondary: string; tone: KpiTone } {
-  const top = rows[0];
-  if (!top || totalCost <= 0) return { primary: "—", secondary: "No spend", tone: "neutral" };
-  const pct = (top.cost / totalCost) * 100;
-  const short = top.name.length > 22 ? `${top.name.slice(0, 20)}…` : top.name;
-  return { primary: `${pct.toFixed(0)}%`, secondary: `${short} · ${fmtUsd(top.cost)}`, tone: "neutral" };
+function trendFromSeries(rows: DailyValue[]): KpiTrend | null {
+  const t = periodTrendFromDailySeries(rows);
+  return t.pct != null ? { pct: t.pct } : null;
 }
 
-/** Positional KPI strip: same 10 slots across Cost / Performance / Reliability. */
+function allDaysFromSnapshot(s: MetricsSnapshot): string[] {
+  const set = new Set<string>();
+  for (const d of s.tracesByDay) set.add(d.day);
+  for (const d of s.costByDay) set.add(d.day);
+  for (const d of s.tokensByDay) set.add(d.day);
+  return [...set].sort();
+}
+
+function costPer1mTokensSeries(s: MetricsSnapshot): DailyValue[] {
+  const costByDay = new Map(s.costByDay.map((d) => [d.day, d.cost]));
+  const tokByDay = new Map(s.tokensByDay.map((d) => [d.day, d.tokens]));
+  const days = allDaysFromSnapshot(s);
+  return days
+    .map((day) => {
+      const tokens = tokByDay.get(day) ?? 0;
+      const cost = costByDay.get(day) ?? 0;
+      return { day, value: tokens > 0 ? (cost / tokens) * 1_000_000 : 0 };
+    })
+    .filter((d) => d.value > 0);
+}
+
+function costPerSuccessSeries(s: MetricsSnapshot): DailyValue[] {
+  const costByDay = new Map(s.costByDay.map((d) => [d.day, d.cost]));
+  const successByDay = new Map(s.successTracesByDay.map((d) => [d.day, d.count]));
+  const days = allDaysFromSnapshot(s);
+  return days
+    .map((day) => {
+      const successes = successByDay.get(day) ?? 0;
+      const cost = costByDay.get(day) ?? 0;
+      return { day, value: successes > 0 ? cost / successes : 0 };
+    })
+    .filter((d) => d.value > 0);
+}
+
+function wastedCostPctSeries(s: MetricsSnapshot): DailyValue[] {
+  const costByDay = new Map(s.costByDay.map((d) => [d.day, d.cost]));
+  const errByDay = new Map(s.errorCostByDay.map((d) => [d.day, d.cost]));
+  const days = allDaysFromSnapshot(s);
+  return days
+    .map((day) => {
+      const total = costByDay.get(day) ?? 0;
+      const err = errByDay.get(day) ?? 0;
+      return { day, value: total > 0 ? (err / total) * 100 : 0 };
+    })
+    .filter((d) => d.value > 0 || (costByDay.get(d.day) ?? 0) > 0);
+}
+
+function topSpendLeader(
+  rows: { name: string; cost: number }[],
+  entityLabel: string,
+): { primary: string; secondary: string; tone: KpiTone } {
+  const top = rows[0];
+  if (!top || top.cost <= 0) {
+    return { primary: "—", secondary: `No ${entityLabel} spend`, tone: "neutral" };
+  }
+  const second = rows[1];
+  const short = top.name.length > 24 ? `${top.name.slice(0, 22)}…` : top.name;
+  const secondary =
+    second && second.cost > 0
+      ? `${short} · +${(((top.cost - second.cost) / second.cost) * 100).toFixed(0)}% vs #2`
+      : short;
+  return { primary: fmtUsd(top.cost), secondary, tone: "neutral" };
+}
+
+function totalCostContext(s: MetricsSnapshot): string {
+  if (s.totalTraces === 0) return "No activity in window";
+  const parts: string[] = ["All spend in window"];
+  if (s.distinctMissions > 0) parts.push(`${s.distinctMissions} projects`);
+  if (s.distinctAgents > 0) parts.push(`${s.distinctAgents} LiNKbots`);
+  return parts.join(" · ");
+}
+
+function card(
+  slot: number,
+  label: string,
+  value: string,
+  context: string,
+  tone: KpiTone,
+  trend?: KpiTrend | null,
+): KpiCard {
+  return { slot, label, value, context, tone, trend: trend ?? undefined };
+}
+
+/** Positional KPI strip: 12 cards (4×3 grid) per Cost / Performance / Reliability view. */
+export const KPI_CARDS_PER_VIEW = 12;
+
 export function buildKpiCards(view: KpiViewId, s: MetricsSnapshot): KpiCard[] {
   const kb = s.kpiBase;
   const total = Math.max(1, s.totalTraces);
-  const costPer1kTok = s.totalTokens > 0 ? (s.totalCostUsd / s.totalTokens) * 1000 : 0;
+  const costPer1mTok = s.totalTokens > 0 ? (s.totalCostUsd / s.totalTokens) * 1_000_000 : 0;
   const costPerSuccess = kb.successTraceEstimate > 0 ? s.totalCostUsd / kb.successTraceEstimate : 0;
-  const successPerUsd = s.totalCostUsd > 0 ? kb.successTraceEstimate / s.totalCostUsd : 0;
   const wastedPct = s.totalCostUsd > 0 ? (kb.errorCostUsd / s.totalCostUsd) * 100 : 0;
   const trend = kb.costTrendPct;
   const trendTone: KpiTone =
     trend != null && trend > 15 ? "bad" : trend != null && trend > 5 ? "warn" : "neutral";
 
-  const successRate = ((kb.successTraceEstimate / total) * 100);
+  const successRate = (kb.successTraceEstimate / total) * 100;
   const srTone: KpiTone = successRate < 88 ? "bad" : successRate < 94 ? "warn" : "neutral";
 
   const { avgMs, p50Ms, p95Ms } = durationStatsFromSample(kb.durationsMsSample);
@@ -91,62 +179,133 @@ export function buildKpiCards(view: KpiViewId, s: MetricsSnapshot): KpiCard[] {
   const tfrTone: KpiTone = toolFailRate > 12 ? "bad" : toolFailRate > 5 ? "warn" : "neutral";
   const mfrTone: KpiTone = modelFailRate > 12 ? "bad" : modelFailRate > 5 ? "warn" : "neutral";
 
-  const topAgent = topSpendRow(
+  const topAgent = topSpendLeader(
     s.costByAgent.map((r) => ({ name: r.name, cost: r.cost })),
-    s.totalCostUsd,
+    "LiNKbot",
   );
-  const topModel = topSpendRow(
+  const topModel = topSpendLeader(
     s.costByModel.map((r) => ({ name: r.name, cost: r.cost })),
-    s.totalCostUsd,
+    "model",
   );
+  const topModelName = s.costByModel[0]?.name ?? "—";
+  const topProject = topSpendLeader(
+    s.costByMission.map((r) => ({ name: r.name, cost: r.cost })),
+    "project",
+  );
+
+  const costDaily = s.costByDay.map((d) => ({ day: d.day, value: d.cost }));
+  const tokenDaily = s.tokensByDay.map((d) => ({ day: d.day, value: d.tokens }));
+  const successDaily = s.successTracesByDay.map((d) => ({ day: d.day, value: d.count }));
+  const runDaily = s.tracesByDay.map((d) => ({ day: d.day, value: d.count }));
 
   if (view === "cost") {
     return [
-      { slot: 1, label: "Total cost", value: fmtUsd(s.totalCostUsd), context: s.totalTraces ? `${s.totalTraces} runs` : "No data", tone: "neutral" },
-      { slot: 2, label: "Cost / successful run", value: fmtUsd(costPerSuccess), context: "Est. non-error runs", tone: costPerSuccess > 0.05 ? "warn" : "neutral" },
-      { slot: 3, label: "Tokens", value: fmtTok(s.totalTokens), context: "From payloads", tone: "neutral" },
-      { slot: 4, label: "Cost / 1K tokens", value: s.totalTokens > 0 ? fmtUsd(costPer1kTok) : "—", context: "Pricing efficiency", tone: costPer1kTok > 0.02 ? "warn" : "neutral" },
-      { slot: 5, label: "Successful runs", value: String(kb.successTraceEstimate), context: "Total − error-like", tone: "neutral" },
-      { slot: 6, label: "Success / $", value: successPerUsd >= 1000 ? `${(successPerUsd / 1000).toFixed(1)}k` : successPerUsd.toFixed(1), context: "Runs per USD", tone: "neutral" },
-      { slot: 7, label: "Cost trend", value: trend == null ? "—" : fmtPct(trend), context: "2nd half vs 1st half of days", tone: trendTone },
-      { slot: 8, label: "Top cost agent", value: topAgent.primary, context: topAgent.secondary, tone: topAgent.tone },
-      { slot: 9, label: "Top cost model", value: topModel.primary, context: topModel.secondary, tone: topModel.tone },
-      { slot: 10, label: "Wasted cost %", value: `${wastedPct.toFixed(1)}%`, context: "Error-like rows’ cost / total", tone: wastedPct > 12 ? "bad" : wastedPct > 5 ? "warn" : "neutral" },
+      card(1, "Total cost", fmtUsd(s.totalCostUsd), totalCostContext(s), "neutral", trendFromSeries(costDaily)),
+      card(2, "Tokens", fmtTok(s.totalTokens), "From payloads", "neutral", trendFromSeries(tokenDaily)),
+      card(
+        3,
+        "Cost per 1M tokens",
+        s.totalTokens > 0 ? fmtUsd(costPer1mTok) : "—",
+        "Pricing efficiency",
+        costPer1mTok > 20 ? "warn" : "neutral",
+        trendFromSeries(costPer1mTokensSeries(s)),
+      ),
+      card(
+        4,
+        "Successful runs",
+        String(kb.successTraceEstimate),
+        "Total − error-like",
+        "neutral",
+        trendFromSeries(successDaily),
+      ),
+      card(
+        5,
+        "Cost per successful run",
+        fmtUsd(costPerSuccess),
+        "Est. non-error runs",
+        costPerSuccess > 0.05 ? "warn" : "neutral",
+        trendFromSeries(costPerSuccessSeries(s)),
+      ),
+      card(
+        6,
+        "Cost trend",
+        trend == null ? "—" : fmtPct(trend),
+        kb.costTrendLabel || "Period comparison",
+        trendTone,
+        trend != null ? { pct: trend } : null,
+      ),
+      card(7, "Top cost agent", topAgent.primary, topAgent.secondary, topAgent.tone, null),
+      card(
+        8,
+        "Top cost model",
+        topModel.primary,
+        topModelName !== "—" ? `${topModelName} · most expensive model` : topModel.secondary,
+        topModel.tone,
+        null,
+      ),
+      card(
+        9,
+        "Wasted cost %",
+        `${wastedPct.toFixed(1)}%`,
+        "Error-like cost / total spend",
+        wastedPct > 12 ? "bad" : wastedPct > 5 ? "warn" : "neutral",
+        trendFromSeries(wastedCostPctSeries(s)),
+      ),
+      card(10, "Top cost project", topProject.primary, topProject.secondary, topProject.tone, null),
+      card(
+        11,
+        "Error cost",
+        fmtUsd(kb.errorCostUsd),
+        "Spend on error-like rows",
+        kb.errorCostUsd > s.totalCostUsd * 0.12 ? "bad" : kb.errorCostUsd > s.totalCostUsd * 0.05 ? "warn" : "neutral",
+        trendFromSeries(s.errorCostByDay.map((d) => ({ day: d.day, value: d.cost }))),
+      ),
+      card(
+        12,
+        "Total activity",
+        String(s.totalTraces),
+        "All runs in filtered window",
+        "neutral",
+        trendFromSeries(runDaily),
+      ),
     ];
   }
 
   if (view === "performance") {
     return [
-      { slot: 1, label: "Tasks (LLM-like)", value: String(kb.llmTraces), context: "Heuristic bucket", tone: "neutral" },
-      { slot: 2, label: "Run success rate", value: `${successRate.toFixed(1)}%`, context: "Non-error / total", tone: srTone },
-      { slot: 3, label: "Avg duration", value: fmtDur(avgMs), context: durHint, tone: avgMs != null && avgMs > 120_000 ? "warn" : "neutral" },
-      { slot: 4, label: "Median (P50)", value: fmtDur(p50Ms), context: "Payload latency", tone: "neutral" },
-      { slot: 5, label: "P95 duration", value: fmtDur(p95Ms), context: "Tail latency", tone: p95Ms != null && p95Ms > 300_000 ? "bad" : "neutral" },
-      { slot: 6, label: "Retries / run", value: retriesPerTask.toFixed(2), context: "Retry signals in events", tone: rtTone },
-      { slot: 7, label: "Steps proxy", value: stepsProxy.toFixed(2), context: "Tool / LLM ratio", tone: stepsProxy > 6 ? "warn" : "neutral" },
-      { slot: 8, label: "Handoffs proxy", value: handoffProxy.toFixed(2), context: "Gateway / LLM ratio", tone: "neutral" },
-      { slot: 9, label: "First-pass proxy", value: `${firstPass.toFixed(0)}%`, context: "1 − retries/success", tone: firstPass < 75 ? "warn" : "neutral" },
-      { slot: 10, label: "Throughput", value: throughput.toFixed(1), context: "Successful runs / hour", tone: "neutral" },
+      card(1, "Tasks (LLM-like)", String(kb.llmTraces), "Heuristic bucket", "neutral", trendFromSeries(runDaily)),
+      card(2, "Run success rate", `${successRate.toFixed(1)}%`, "Non-error / total", srTone, trendFromSeries(successDaily)),
+      card(3, "Avg duration", fmtDur(avgMs), durHint, avgMs != null && avgMs > 120_000 ? "warn" : "neutral", trendFromSeries(runDaily)),
+      card(4, "Median (P50)", fmtDur(p50Ms), "Payload latency", "neutral", trendFromSeries(runDaily)),
+      card(5, "P95 duration", fmtDur(p95Ms), "Tail latency", p95Ms != null && p95Ms > 300_000 ? "bad" : "neutral", trendFromSeries(runDaily)),
+      card(6, "Retries / run", retriesPerTask.toFixed(2), "Retry signals in events", rtTone, trendFromSeries(runDaily)),
+      card(7, "Steps proxy", stepsProxy.toFixed(2), "Tool / LLM ratio", stepsProxy > 6 ? "warn" : "neutral", trendFromSeries(runDaily)),
+      card(8, "Handoffs proxy", handoffProxy.toFixed(2), "Gateway / LLM ratio", "neutral", trendFromSeries(runDaily)),
+      card(9, "First-pass proxy", `${firstPass.toFixed(0)}%`, "1 − retries/success", firstPass < 75 ? "warn" : "neutral", trendFromSeries(successDaily)),
+      card(10, "Throughput", throughput.toFixed(1), "Successful runs / hour", "neutral", trendFromSeries(successDaily)),
+      card(11, "Total runs", String(s.totalTraces), "All activity in window", "neutral", trendFromSeries(runDaily)),
+      card(12, "Tool runs", String(kb.toolTraces), "Tool / MCP / invoke-like", "neutral", trendFromSeries(runDaily)),
     ];
   }
 
-  // reliability
   const retryRate = (kb.retryTraces / total) * 100;
   const rrTone: KpiTone = retryRate > 20 ? "bad" : retryRate > 12 ? "warn" : "neutral";
   const timeoutRate = (kb.timeoutTraces / total) * 100;
   const errRate = (kb.nonTimeoutErrorTraces / total) * 100;
 
   return [
-    { slot: 1, label: "Failure rate", value: `${failRate.toFixed(1)}%`, context: "Error-like / runs", tone: frTone },
-    { slot: 2, label: "Incidents (proxy)", value: String(s.errorEvents), context: "Error-shaped runs", tone: s.errorEvents > total * 0.08 ? "bad" : "neutral" },
-    { slot: 3, label: "Timeout rate", value: `${timeoutRate.toFixed(1)}%`, context: "`timeout` in event", tone: timeoutRate > 4 ? "warn" : "neutral" },
-    { slot: 4, label: "Non-timeout errors", value: `${errRate.toFixed(1)}%`, context: "fail / denied / blocked", tone: errRate > 6 ? "bad" : errRate > 2 ? "warn" : "neutral" },
-    { slot: 5, label: "Stuck runs", value: "—", context: "See worker sessions", tone: "neutral" },
-    { slot: 6, label: "Retry rate", value: `${retryRate.toFixed(1)}%`, context: "retry in event_type", tone: rrTone },
-    { slot: 7, label: "Human intervention", value: "—", context: "Not captured in metrics yet", tone: "neutral" },
-    { slot: 8, label: "Tool failure rate", value: `${toolFailRate.toFixed(1)}%`, context: "Tool errors / tool runs", tone: tfrTone },
-    { slot: 9, label: "Model failure rate", value: `${modelFailRate.toFixed(1)}%`, context: "LLM errors / LLM runs", tone: mfrTone },
-    { slot: 10, label: "MTTR", value: "—", context: "Needs incident timestamps", tone: "neutral" },
+    card(1, "Failure rate", `${failRate.toFixed(1)}%`, "Error-like / runs", frTone, trendFromSeries(runDaily)),
+    card(2, "Incidents (proxy)", String(s.errorEvents), "Error-shaped runs", s.errorEvents > total * 0.08 ? "bad" : "neutral", trendFromSeries(runDaily)),
+    card(3, "Timeout rate", `${timeoutRate.toFixed(1)}%`, "`timeout` in event", timeoutRate > 4 ? "warn" : "neutral", trendFromSeries(runDaily)),
+    card(4, "Non-timeout errors", `${errRate.toFixed(1)}%`, "fail / denied / blocked", errRate > 6 ? "bad" : errRate > 2 ? "warn" : "neutral", trendFromSeries(runDaily)),
+    card(5, "Stuck runs", "—", "See worker sessions", "neutral", null),
+    card(6, "Retry rate", `${retryRate.toFixed(1)}%`, "retry in event_type", rrTone, trendFromSeries(runDaily)),
+    card(7, "Human intervention", "—", "Not captured in metrics yet", "neutral", null),
+    card(8, "Tool failure rate", `${toolFailRate.toFixed(1)}%`, "Tool errors / tool runs", tfrTone, trendFromSeries(runDaily)),
+    card(9, "Model failure rate", `${modelFailRate.toFixed(1)}%`, "LLM errors / LLM runs", mfrTone, trendFromSeries(runDaily)),
+    card(10, "MTTR", "—", "Needs incident timestamps", "neutral", null),
+    card(11, "Successful runs", String(kb.successTraceEstimate), "Total − error-like", "neutral", trendFromSeries(successDaily)),
+    card(12, "Total runs", String(s.totalTraces), "All activity in window", "neutral", trendFromSeries(runDaily)),
   ];
 }
 

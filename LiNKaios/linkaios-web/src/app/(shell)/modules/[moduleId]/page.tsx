@@ -1,25 +1,12 @@
-import { ModulesCatalogue } from "@/components/modules-catalogue";
-import { ModulesHubLayout } from "@/components/modules-hub-layout";
-import type { AudienceMode } from "@/lib/ui-mocks/modules-catalog-demo";
+import { redirect } from "next/navigation";
 
-export const dynamic = "force-dynamic";
-
-function first(q: string | string[] | undefined): string | undefined {
-  return Array.isArray(q) ? q[0] : q;
-}
-
-export default async function ModuleDetailPage(props: {
+export default async function LegacyModuleProfileRedirect(props: {
   params: Promise<{ moduleId: string }>;
-  searchParams: Promise<{ audience?: string | string[] }>;
+  searchParams: Promise<{ tab?: string | string[] }>;
 }) {
-  const params = await props.params;
-  const searchParams = await props.searchParams;
-  const audienceRaw = first(searchParams.audience);
-  const audience: AudienceMode = audienceRaw === "vendor" ? "vendor" : "client";
-
-  return (
-    <ModulesHubLayout browse="module" audience={audience} moduleId={params.moduleId}>
-      <ModulesCatalogue browse="module" audience={audience} moduleId={params.moduleId} />
-    </ModulesHubLayout>
-  );
+  const { moduleId } = await props.params;
+  const sp = await props.searchParams;
+  const tab = Array.isArray(sp.tab) ? sp.tab[0] : sp.tab;
+  const qs = tab ? `?tab=${encodeURIComponent(tab === "processes" ? "modules" : tab)}` : "";
+  redirect(`/suites/${moduleId}${qs}`);
 }

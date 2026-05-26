@@ -1,6 +1,7 @@
 "use server";
 
 import { buildMetricsSnapshotFromRows, type MetricsSnapshot } from "@/lib/metrics-snapshot";
+import { matchesActivityCategory, type MetricsActivityCategory } from "@/lib/metrics-filters";
 import { scopePayloadMatches, type MetricsScopeState } from "@/lib/metrics-scope-filters";
 import { modelFromPayload } from "@/lib/trace-metrics";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -18,10 +19,9 @@ export async function fetchMetricsSnapshot(input: {
   days: number;
   missionId: string | null;
   agentId: string | null;
-  eventTypeContains?: string | null;
   modelContains?: string | null;
   missionTitleContains?: string | null;
-  traceStatus?: "all" | "success" | "errors";
+  activityCategory?: MetricsActivityCategory;
   scope?: Partial<MetricsScopeState>;
 }): Promise<{ ok: true; data: MetricsSnapshot } | { ok: false; error: string }> {
   const supabase = await createSupabaseServerClient();
@@ -47,7 +47,6 @@ export async function fetchMetricsSnapshot(input: {
           agentNames: new Map(),
           fromIso,
           toIso,
-          eventTypeContains: input.eventTypeContains,
         }),
       };
     }
@@ -60,7 +59,6 @@ export async function fetchMetricsSnapshot(input: {
           agentNames: new Map(),
           fromIso,
           toIso,
-          eventTypeContains: input.eventTypeContains,
         }),
       };
     }
@@ -79,11 +77,6 @@ export async function fetchMetricsSnapshot(input: {
     q = q.eq("mission_id", input.missionId);
   } else if (missionIdsForAgent) {
     q = q.in("mission_id", missionIdsForAgent);
-  }
-
-  const et = input.eventTypeContains?.trim();
-  if (et) {
-    q = q.ilike("event_type", `%${et}%`);
   }
 
   const { data: rows, error } = await q;
@@ -121,17 +114,9 @@ export async function fetchMetricsSnapshot(input: {
   }
 
   let filtered = list;
-  const status = input.traceStatus ?? "all";
-  if (status === "success") {
-    filtered = filtered.filter((r) => {
-      const t = r.event_type.toLowerCase();
-      return !(t.includes("error") || t.includes("fail") || t.includes("denied") || t.includes("blocked"));
-    });
-  } else if (status === "errors") {
-    filtered = filtered.filter((r) => {
-      const t = r.event_type.toLowerCase();
-      return t.includes("error") || t.includes("fail") || t.includes("denied") || t.includes("blocked");
-    });
+  const activity = input.activityCategory ?? "all";
+  if (activity !== "all") {
+    filtered = filtered.filter((r) => matchesActivityCategory(r.event_type, activity));
   }
   const mc = input.modelContains?.trim().toLowerCase();
   if (mc) {
@@ -170,7 +155,6 @@ export async function fetchMetricsSnapshot(input: {
     agentNames,
     fromIso,
     toIso,
-    eventTypeContains: null,
   });
 
   return { ok: true, data };

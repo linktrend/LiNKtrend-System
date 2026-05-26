@@ -1,0 +1,73 @@
+import type { LeaseStatus } from "@/lib/cockpit";
+
+const now = Date.now();
+
+export type DemoLeaseRow = LeaseStatus & { mission_id: string | null };
+
+/** Fixture leases for LiNKskills UI review when `lease_registry` has no rows. */
+export const DEMO_LEASE_ROWS: DemoLeaseRow[] = [
+  {
+    lease_id: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+    capability: "cap.payload.local_sync",
+    status: "executed",
+    tenant_id: "default",
+    mission_id: "demo-smb",
+    run_id: "run-demo-01",
+    stage_id: "stage-preview",
+    requested_at: new Date(now - 3_600_000).toISOString(),
+    granted_at: new Date(now - 3_590_000).toISOString(),
+    executed_at: new Date(now - 3_500_000).toISOString(),
+    expires_at: new Date(now + 86_400_000).toISOString(),
+    kill_switch_state: "open",
+    ledger_entry_id: "ledger-demo-01",
+    audit_event_id: "audit-demo-01",
+  },
+  {
+    lease_id: "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb",
+    capability: "plane.task.create",
+    status: "granted",
+    tenant_id: "default",
+    mission_id: "demo-smb",
+    run_id: "run-demo-02",
+    stage_id: null,
+    requested_at: new Date(now - 7_200_000).toISOString(),
+    granted_at: new Date(now - 7_150_000).toISOString(),
+    executed_at: null,
+    expires_at: new Date(now + 172_800_000).toISOString(),
+    kill_switch_state: "open",
+    ledger_entry_id: "ledger-demo-02",
+    audit_event_id: null,
+  },
+  {
+    lease_id: "cccccccc-cccc-4ccc-8ccc-cccccccccccc",
+    capability: "cap.stripe.product_management",
+    status: "requires_approval",
+    tenant_id: "default",
+    mission_id: "demo-ai-edu",
+    run_id: null,
+    stage_id: null,
+    requested_at: new Date(now - 900_000).toISOString(),
+    granted_at: null,
+    executed_at: null,
+    expires_at: null,
+    kill_switch_state: "open",
+    ledger_entry_id: null,
+    audit_event_id: null,
+  },
+  {
+    lease_id: "dddddddd-dddd-4ddd-8ddd-dddddddddddd",
+    capability: "cap.github.repo_management",
+    status: "denied",
+    tenant_id: "default",
+    mission_id: "demo-mission-1",
+    run_id: "run-demo-04",
+    stage_id: null,
+    requested_at: new Date(now - 400_000).toISOString(),
+    granted_at: null,
+    executed_at: null,
+    expires_at: null,
+    kill_switch_state: "tripped",
+    ledger_entry_id: null,
+    audit_event_id: "audit-demo-deny",
+  },
+];

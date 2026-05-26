@@ -1,0 +1,11 @@
+{
+  "name": "plane-task-write",
+  "tool_type": "registry_reference",
+  "category": "Project tracking",
+  "description": "Create or update Plane tasks through the governed capability connector.",
+  "implementation": {
+    "registry_url": "LiNKskills/capability-connectors/cap.plane.execution_tracking.yaml",
+    "package_name": "cap.plane.execution_tracking",
+    "version_constraint": ">=1.0.0"
+  }
+}

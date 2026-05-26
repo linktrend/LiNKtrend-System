@@ -1,7 +1,8 @@
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { DEMO_CHANNEL_THREADS } from "@/lib/ui-mocks/channel-threads";
 import { isUiMocksEnabled } from "@/lib/ui-mocks/flags";
-import { groupZulipIntoThreads } from "@/lib/work-messages";
+import { groupZulipIntoThreads, prepareChannelThreads } from "@/lib/work-messages";
+import { getZulipSiteUrlFromEnv } from "@/lib/zulip-links";
 
 import { ShellPageHeaderClient } from "@/components/shell-page-header-client";
 import { WorkMessagesWorkspace } from "../work-messages-workspace";
@@ -24,9 +25,13 @@ export default async function WorkMessagesPage() {
   ]);
 
   const { data: rows, error } = zulipRes;
-  const fromDb = !error && rows?.length ? groupZulipIntoThreads(rows) : [];
-  const merged = [...(uiMocksEnabled ? DEMO_CHANNEL_THREADS : []), ...fromDb].sort(
-    (a, b) => new Date(b.lastActivity).getTime() - new Date(a.lastActivity).getTime(),
+  const zulipSiteUrl = getZulipSiteUrlFromEnv();
+  const fromDb = !error && rows?.length ? groupZulipIntoThreads(rows, { zulipSiteUrl }) : [];
+  const merged = prepareChannelThreads(
+    [...(uiMocksEnabled ? DEMO_CHANNEL_THREADS : []), ...fromDb].sort(
+      (a, b) => new Date(b.lastActivity).getTime() - new Date(a.lastActivity).getTime(),
+    ),
+    { zulipSiteUrl },
   );
 
   const agents =
@@ -47,11 +52,11 @@ export default async function WorkMessagesPage() {
     <main>
       <ShellPageHeaderClient
         title="Messages"
-        subtitle="Read conversations from your connected channels. To reply, open the channel in Zulip, Slack, or Telegram."
+        subtitle="Threads from connected channels, newest first. Open a channel product to reply in Zulip, Slack, or Telegram."
       />
       <div className="mt-8">
         {error ? (
-          <p className="mb-4 text-sm text-amber-800 dark:text-amber-200">
+          <p className="mb-4 rounded-lg border border-amber-200 bg-amber-50/90 px-3 py-2 text-sm text-amber-950 dark:border-amber-800 dark:bg-amber-950/35 dark:text-amber-100" role="status">
             Channel data could not be loaded. Showing fixtures only if enabled; otherwise the workspace may be empty.
           </p>
         ) : null}

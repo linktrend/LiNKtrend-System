@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { AgentModelsForm } from "@/components/agent-models-form";
+import { WorkerRoleAwareModelsForm } from "@/components/worker-role-aware-forms";
 import { WorkerTabSectionHeader } from "@/components/worker-tab-section-header";
 import { isDemoAgentId } from "@/lib/ui-mocks/entities";
 import { demoAgentRuntimeSettings } from "@/lib/ui-mocks/worker-ui";
@@ -20,7 +20,7 @@ export default async function WorkerModelsPage(props: { params: Promise<{ id: st
           title="Models"
           subtitle="Models this LiNKbot may use by task category, plus spend limits and fallbacks (demo — read only)."
         />
-        <AgentModelsForm agentId={id} initial={initial} readonly />
+        <WorkerRoleAwareModelsForm agentId={id} initial={initial} forceReadonly />
       </section>
     );
   }
@@ -35,7 +35,7 @@ export default async function WorkerModelsPage(props: { params: Promise<{ id: st
   if (error || !agent) {
     return (
       <section className="space-y-4">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-zinc-500">Models</h2>
+        <h2 className="text-sm font-semibold text-zinc-500 dark:text-zinc-400">Models</h2>
         <p className="max-w-xl text-sm text-zinc-600 dark:text-zinc-400">
           Models could not be loaded for this id. Confirm the LiNKbot exists and your account can read{" "}
           <code className="rounded bg-zinc-100 px-1 text-xs dark:bg-zinc-800">linkaios.agents</code>.
@@ -51,8 +51,11 @@ export default async function WorkerModelsPage(props: { params: Promise<{ id: st
 
   return (
     <section className="space-y-4">
-      <h2 className="text-sm font-semibold uppercase tracking-wide text-zinc-500">Models</h2>
-      <AgentModelsForm agentId={id} initial={initial} />
+      <WorkerTabSectionHeader
+        title="Models"
+        subtitle="Model selection for this LiNKbot, plus spend limits and fallback behaviour."
+      />
+      <WorkerRoleAwareModelsForm agentId={id} initial={initial} />
     </section>
   );
 }

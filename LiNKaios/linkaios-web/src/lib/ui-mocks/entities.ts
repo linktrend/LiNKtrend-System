@@ -50,6 +50,11 @@ const DEMO_MISSION_PAGE_IDS = new Set<string>([
   "demo-mission-2",
 ]);
 
+/** Stub projects created via POST /api/projects use the proj- prefix. */
+export function isStubCreatedProjectId(id: string): boolean {
+  return id.startsWith("proj-");
+}
+
 export function isDemoMissionId(id: string): boolean {
-  return DEMO_MISSION_PAGE_IDS.has(id);
+  return DEMO_MISSION_PAGE_IDS.has(id) || isStubCreatedProjectId(id);
 }

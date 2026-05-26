@@ -1,5 +1,6 @@
 import { createBrainOrgNodeFromForm, updateBrainOrgNodeDatesFromForm } from "@/app/(shell)/memory/org-actions";
-import { BUTTON, FIELD } from "@/lib/ui-standards";
+import { FormDatePicker, InsetSelect } from "@/components/forms";
+import { BUTTON, COMPANY_FORM_ROW, COMPANY_FORM_ROW_TOP, FIELD } from "@/lib/ui-standards";
 
 import type { BrainOrgNodeRow } from "@linktrend/linklogic-sdk";
 
@@ -14,41 +15,53 @@ export function CompanyOrgEditor(props: { nodes: BrainOrgNodeRow[] | null }) {
           <strong>Category</strong> is the type of grouping (for example Region or Department).{" "}
           <strong>Team or unit name</strong> is the label people will see.
         </p>
-        <form action={createBrainOrgNodeFromForm} className="mt-4 grid gap-3 sm:grid-cols-2">
-          <div className="sm:col-span-2">
-            <label className="text-xs font-semibold uppercase text-zinc-500 dark:text-zinc-400">Category</label>
-            <input name="dimension" required placeholder="e.g. Region" className={`mt-1 ${FIELD.control}`} />
+        <form action={createBrainOrgNodeFromForm} className="mt-4 grid gap-4">
+          <div className={COMPANY_FORM_ROW}>
+            <label htmlFor="org-dimension" className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
+              Category
+            </label>
+            <input id="org-dimension" name="dimension" required placeholder="e.g. Region" className={FIELD.controlFull} />
           </div>
-          <div className="sm:col-span-2">
-            <label className="text-xs font-semibold uppercase text-zinc-500 dark:text-zinc-400">Team or unit name</label>
+          <div className={COMPANY_FORM_ROW}>
+            <label htmlFor="org-label" className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
+              Team or unit name
+            </label>
             <input
+              id="org-label"
               name="label"
               required
               placeholder="e.g. Customer success — Americas"
-              className={`mt-1 ${FIELD.control}`}
+              className={FIELD.controlFull}
             />
           </div>
-          <div className="sm:col-span-2">
-            <label className="text-xs font-semibold uppercase text-zinc-500 dark:text-zinc-400">Reports under (optional)</label>
-            <select name="parentId" defaultValue="" className={`mt-1 ${FIELD.control} text-sm`}>
+          <div className={COMPANY_FORM_ROW}>
+            <label htmlFor="org-parent" className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
+              Reports under (optional)
+            </label>
+            <InsetSelect id="org-parent" name="parentId" defaultValue="">
               <option value="">— Top level —</option>
               {nodes.map((n) => (
                 <option key={n.id} value={n.id}>
                   [{n.dimension}] {n.label}
                 </option>
               ))}
-            </select>
+            </InsetSelect>
           </div>
-          <div>
-            <label className="text-xs font-semibold uppercase text-zinc-500 dark:text-zinc-400">Valid from</label>
-            <input name="validFrom" type="date" className={`mt-1 ${FIELD.control}`} />
+          <div className={COMPANY_FORM_ROW}>
+            <label htmlFor="org-valid-from" className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
+              Valid from
+            </label>
+            <FormDatePicker id="org-valid-from" name="validFrom" required placeholder="Select start date" />
           </div>
-          <div className="sm:col-span-2">
-            <label className="text-xs font-semibold uppercase text-zinc-500 dark:text-zinc-400">Valid to (optional)</label>
-            <input name="validTo" type="date" className={`mt-1 ${FIELD.control}`} />
+          <div className={COMPANY_FORM_ROW}>
+            <label htmlFor="org-valid-to" className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
+              Valid to (optional)
+            </label>
+            <FormDatePicker id="org-valid-to" name="validTo" placeholder="Select end date (optional)" />
           </div>
-          <div className="sm:col-span-2 max-w-xl">
-            <button type="submit" className={BUTTON.primaryBlock}>
+          <div className={COMPANY_FORM_ROW}>
+            <span className="hidden sm:block" aria-hidden />
+            <button type="submit" className={BUTTON.primaryRow}>
               Save entry
             </button>
           </div>
@@ -72,30 +85,37 @@ export function CompanyOrgEditor(props: { nodes: BrainOrgNodeRow[] | null }) {
                 <p className="mt-1 text-xs text-zinc-600 dark:text-zinc-400">
                   Effective {n.valid_from} → {n.valid_to ?? "open-ended"}
                 </p>
-                <form action={updateBrainOrgNodeDatesFromForm} className="mt-3 flex flex-wrap items-end gap-2">
+                <form action={updateBrainOrgNodeDatesFromForm} className="mt-4 grid gap-4">
                   <input type="hidden" name="id" value={n.id} />
-                  <div>
-                    <label className="text-xs text-zinc-500 dark:text-zinc-400">Valid from</label>
-                    <input
+                  <div className={COMPANY_FORM_ROW_TOP}>
+                    <label htmlFor={`valid-from-${n.id}`} className="pt-2 text-sm font-medium text-zinc-500 dark:text-zinc-400">
+                      Valid from
+                    </label>
+                    <FormDatePicker
+                      id={`valid-from-${n.id}`}
                       name="validFrom"
-                      type="date"
                       defaultValue={n.valid_from?.slice(0, 10)}
                       required
-                      className={`mt-0.5 block ${FIELD.controlCompact}`}
+                      placeholder="Select start date"
                     />
                   </div>
-                  <div>
-                    <label className="text-xs text-zinc-500 dark:text-zinc-400">Valid to</label>
-                    <input
+                  <div className={COMPANY_FORM_ROW_TOP}>
+                    <label htmlFor={`valid-to-${n.id}`} className="pt-2 text-sm font-medium text-zinc-500 dark:text-zinc-400">
+                      Valid to
+                    </label>
+                    <FormDatePicker
+                      id={`valid-to-${n.id}`}
                       name="validTo"
-                      type="date"
                       defaultValue={n.valid_to?.slice(0, 10) ?? ""}
-                      className={`mt-0.5 block ${FIELD.controlCompact}`}
+                      placeholder="Select end date (optional)"
                     />
                   </div>
-                  <button type="submit" className={`${BUTTON.secondaryRow} text-xs`}>
-                    Update dates
-                  </button>
+                  <div className={COMPANY_FORM_ROW}>
+                    <span className="hidden sm:block" aria-hidden />
+                    <button type="submit" className={BUTTON.secondaryRow}>
+                      Update dates
+                    </button>
+                  </div>
                 </form>
               </li>
             ))

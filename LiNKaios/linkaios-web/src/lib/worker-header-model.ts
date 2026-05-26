@@ -23,10 +23,8 @@ export function demoWorkerHeaderModel(
     role,
     description: bio,
     statusLabel: opts?.statusLabel ?? profile?.statusLabel ?? "Online",
-    currentActivity: opts?.activity ?? profile?.currentActivity ?? "Demo fixture — no live gateway session.",
     lastHeartbeatIso: profile?.lastHeartbeatIso ?? null,
     primaryModel: profile?.primaryModel ?? DEMO_AGENT_MODEL_DEFAULTS[id]?.execution ?? null,
-    projectTitles: profile?.projectTitles ?? [],
     isDemo: true,
   };
 }
@@ -45,11 +43,7 @@ export function liveWorkerHeaderModel(agent: AgentRecord, sessions: SessionLite[
     .filter((s) => String(s.agent_id) === String(agent.id))
     .sort((a, b) => new Date(b.started_at).getTime() - new Date(a.started_at).getTime())[0];
   const running = sessions.some((s) => s.status === "running");
-  const currentActivity = running
-    ? "Executing a live worker session (runtime reports status running)."
-    : agent.status === "active"
-      ? "Idle — ready for the next scheduled or on-demand session."
-      : "Not accepting new sessions while registry status is not active.";
+  void running;
 
   const primaryModel = parsed.models.primary.execution?.trim() || null;
 
@@ -59,7 +53,6 @@ export function liveWorkerHeaderModel(agent: AgentRecord, sessions: SessionLite[
     role,
     description,
     statusLabel,
-    currentActivity,
     lastHeartbeatIso: latest?.last_heartbeat ?? null,
     primaryModel,
   };

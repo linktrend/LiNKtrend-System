@@ -1,213 +1,137 @@
 "use client";
 
-import Link from "next/link";
-import { useSearchParams } from "next/navigation";
-import { Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useEffect } from "react";
 
-import { CompanyGlossary } from "@/components/company-glossary";
-import { CompanyLocationsPanel } from "@/components/company-locations-panel";
-import { CompanyModulesPanel } from "@/components/company-modules-panel";
-import { CompanyOrgEditor } from "@/components/company-org-editor";
-import { CompanyPeopleCard } from "@/components/company-people-card";
-import { CompanyProfilePanel } from "@/components/company-profile-panel";
+import { AddBrandOpenButton, AddBrandRoot } from "@/components/add-brand";
+import { AddCompanyOpenButton, AddCompanyRoot } from "@/components/add-company";
+import { BrandSwitcher } from "@/components/brand-switcher";
+import { CompanyBrandPanel } from "@/components/company-brand-panel";
+import { CompanyEntityPanel } from "@/components/company-entity-panel";
 import { CompanySubNav } from "@/components/company-sub-nav";
 import { CompanySwitcher } from "@/components/company-switcher";
+import { LicensorLicenseeTabContent } from "@/components/licensor/licensor-licensee-tab-content";
 import { ShellPageHeaderClient } from "@/components/shell-page-header-client";
+import { useAppSurface } from "@/components/app-surface-provider";
+import { useAppRole, useLicensorScope } from "@/components/role-preview-provider";
+import { useLicenseeContext } from "@/hooks/use-licensee-context";
 import {
   COMPANY_DEFAULT_TAB,
   COMPANY_PAGE_HEADER,
-  COMPANY_SECTION_COPY,
-  isCompanyTabId,
+  LICENSEE_PROFILE_PAGE_HEADER,
+  normalizeCompanyTab,
+  normalizeLicensorLicenseeTab,
 } from "@/lib/company-page-copy";
 import { resolveCompanyFixture } from "@/lib/company-fixtures";
+import { appendLicenseeContext } from "@/lib/licensee-context";
+import { resolveLicenseeIdForCompany } from "@/lib/licensor-licensee-profile";
+import { ALL_LICENSEES_SCOPE } from "@/lib/app-roles";
+import { canEditCompanyProfile } from "@/lib/app-roles";
 import { BUTTON } from "@/lib/ui-standards";
 
-import type { BrainLegalEntityRow, BrainOrgNodeRow } from "@linktrend/linklogic-sdk";
-
-function CompanyTabContent(props: {
-  tab: string;
-  companyId: string;
-  orgLoadFailed: boolean;
-  primaryEntity?: BrainLegalEntityRow;
-  nodes: BrainOrgNodeRow[] | null;
-  companyKnowledgeCount: number | null;
-  companyKnowledgePreview: { id: string; path: string }[];
-  inboxHref: string;
-  companyMemoryHref: string;
-}) {
+function CompanyTabContent(props: { tab: string; companyId: string; brandId: string | null }) {
+  const tab = normalizeCompanyTab(props.tab);
   const company = resolveCompanyFixture(props.companyId);
-  const tab = isCompanyTabId(props.tab) ? props.tab : COMPANY_DEFAULT_TAB;
 
-  if (tab === "overview") {
-    return (
-      <>
-        <CompanyProfilePanel
-          company={company}
-          orgLoadFailed={props.orgLoadFailed}
-          primaryEntity={props.primaryEntity}
-        />
-        <CompanyPeopleCard company={company} />
-      </>
-    );
+  if (tab === "brand") {
+    return <CompanyBrandPanel companyId={props.companyId} brandId={props.brandId} />;
   }
 
-  if (tab === "locations") {
-    return <CompanyLocationsPanel />;
-  }
-
-  if (tab === "organization") {
-    return (
-      <section
-        className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-950"
-        aria-labelledby="org-structure-heading"
-      >
-        <h2
-          id="org-structure-heading"
-          className="text-sm font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400"
-        >
-          {COMPANY_SECTION_COPY.organization.title}
-        </h2>
-        <p className="mt-2 max-w-3xl text-sm text-zinc-600 dark:text-zinc-400">
-          {COMPANY_SECTION_COPY.organization.body}
-        </p>
-        <div className="mt-6">
-          <CompanyOrgEditor nodes={props.nodes} />
-        </div>
-      </section>
-    );
-  }
-
-  if (tab === "modules") {
-    return <CompanyModulesPanel />;
-  }
-
-  return (
-    <section
-      className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-950"
-      aria-labelledby="company-knowledge-heading"
-    >
-      <h2
-        id="company-knowledge-heading"
-        className="text-sm font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400"
-      >
-        {COMPANY_SECTION_COPY.knowledge.title}
-      </h2>
-      <p className="mt-2 max-w-3xl text-sm text-zinc-600 dark:text-zinc-400">{COMPANY_SECTION_COPY.knowledge.body}</p>
-      <p className="mt-3 text-sm text-zinc-700 dark:text-zinc-300">
-        {props.companyKnowledgeCount == null ? (
-          <span className="text-zinc-500">Published company files could not be counted right now.</span>
-        ) : (
-          <>
-            <span className="font-medium text-zinc-900 dark:text-zinc-100">{props.companyKnowledgeCount}</span>
-            <span className="text-zinc-600 dark:text-zinc-400">
-              {" "}
-              published company {props.companyKnowledgeCount === 1 ? "file" : "files"} in LiNKbrain
-            </span>
-          </>
-        )}
-      </p>
-      {props.companyKnowledgePreview.length > 0 ? (
-        <ul className="mt-4 space-y-1 rounded-lg border border-zinc-200 bg-zinc-50/80 px-3 py-2 text-sm dark:border-zinc-800 dark:bg-zinc-900/40">
-          {props.companyKnowledgePreview.map((f) => (
-            <li key={f.id} className="truncate font-mono text-xs text-zinc-700 dark:text-zinc-300">
-              {f.path}
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <p className="mt-3 text-sm text-zinc-500 dark:text-zinc-400">{COMPANY_SECTION_COPY.knowledge.emptyPreview}</p>
-      )}
-      <div className="mt-4 flex flex-wrap gap-3">
-        <Link href={props.inboxHref} className={BUTTON.primaryRow}>
-          {COMPANY_SECTION_COPY.knowledge.addLabel}
-        </Link>
-        <Link href={props.companyMemoryHref} className={BUTTON.secondaryRow}>
-          {COMPANY_SECTION_COPY.knowledge.viewLabel}
-        </Link>
-      </div>
-    </section>
-  );
+  return <CompanyEntityPanel company={company} />;
 }
 
-function CompanyPageShellInner(props: {
-  orgLoadFailed: boolean;
-  primaryEntity?: BrainLegalEntityRow;
-  nodes: BrainOrgNodeRow[] | null;
-  companyKnowledgeCount: number | null;
-  companyKnowledgePreview: { id: string; path: string }[];
-  inboxHref: string;
-  companyMemoryHref: string;
-  uiMocks: boolean;
-  isVendorOperator: boolean;
-}) {
+function CompanyPageShellInner() {
+  const router = useRouter();
   const searchParams = useSearchParams();
-  const tab = searchParams.get("tab") ?? COMPANY_DEFAULT_TAB;
-  const companyId = searchParams.get("companyId") ?? resolveCompanyFixture(null).id;
+  const rawTab = searchParams.get("tab");
+  const { companyId, brandId, effectiveBrandId, display } = useLicenseeContext();
+  const { kind, role } = useAppRole();
+  const { isAdmin } = useAppSurface();
+  const { scope: licensorScope } = useLicensorScope();
+  const canEdit = canEditCompanyProfile(kind, role);
+  const company = resolveCompanyFixture(companyId);
+  const isLicensorLicenseeView = isAdmin && kind === "licensor";
+  const pageHeader = isLicensorLicenseeView ? LICENSEE_PROFILE_PAGE_HEADER : COMPANY_PAGE_HEADER;
+  const licensorTab = normalizeLicensorLicenseeTab(rawTab);
+  const licenseeTab = normalizeCompanyTab(rawTab ?? COMPANY_DEFAULT_TAB);
+  const licensorLicenseeId =
+    licensorScope !== ALL_LICENSEES_SCOPE ? licensorScope : resolveLicenseeIdForCompany(companyId);
+
+  useEffect(() => {
+    if (isLicensorLicenseeView) return;
+    if (rawTab === "modules") {
+      router.replace(appendLicenseeContext("/suites/my-suites", { companyId, brandId: effectiveBrandId }));
+      return;
+    }
+    if (rawTab === "overview") {
+      router.replace(appendLicenseeContext("/app", { companyId, brandId: effectiveBrandId }));
+    }
+  }, [router, rawTab, companyId, effectiveBrandId, isLicensorLicenseeView]);
+
+  if (!isLicensorLicenseeView && rawTab === "modules") {
+    return <main className="p-6 text-sm text-zinc-500">Redirecting to suites…</main>;
+  }
+
+  if (!isLicensorLicenseeView && rawTab === "overview") {
+    return <main className="p-6 text-sm text-zinc-500">Redirecting to overview…</main>;
+  }
+
+  const headerAction =
+    !isLicensorLicenseeView && canEdit
+      ? licenseeTab === "company"
+        ? (
+            <AddCompanyOpenButton className={BUTTON.addRow} />
+          )
+        : licenseeTab === "brand"
+          ? (
+              <AddBrandOpenButton className={BUTTON.addRow} />
+            )
+          : null
+      : null;
 
   return (
     <main className="space-y-6">
-      <ShellPageHeaderClient title={COMPANY_PAGE_HEADER.title} subtitle={COMPANY_PAGE_HEADER.subtitle} />
-      <div className="flex flex-wrap items-center gap-2">
-        <span className="inline-flex rounded-full border border-emerald-300 bg-emerald-50 px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wide text-emerald-900 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-100">
-          Licensee company
-        </span>
-        {props.isVendorOperator ? (
-          <span className="inline-flex rounded-full border border-indigo-300 bg-indigo-50 px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wide text-indigo-900 dark:border-indigo-800 dark:bg-indigo-950/40 dark:text-indigo-100">
-            Linktrend operator view
-          </span>
-        ) : null}
-      </div>
-      <CompanySwitcher />
-      {props.uiMocks ? (
-        <p className="text-xs font-medium uppercase tracking-wide text-amber-800 dark:text-amber-200">
-          LINKAIOS_UI_MOCKS — fixture companies &amp; Stripe stub active
-        </p>
+      {!isLicensorLicenseeView ? (
+        <>
+          <AddCompanyRoot />
+          <AddBrandRoot />
+        </>
       ) : null}
-      <CompanyGlossary />
+      <ShellPageHeaderClient title={pageHeader.title} subtitle={pageHeader.subtitle} actions={headerAction} />
       <CompanySubNav />
 
-      {props.orgLoadFailed ? (
-        <div
-          role="alert"
-          className="rounded-lg border border-amber-200 bg-amber-50/90 px-4 py-3 text-sm text-amber-950 dark:border-amber-800 dark:bg-amber-950/35 dark:text-amber-100"
-        >
-          <p className="font-medium">Company data could not be loaded right now.</p>
-          <p className="mt-1 text-xs leading-relaxed opacity-90">
-            This is usually a temporary connectivity or permissions issue, not an empty company profile. Try again
-            shortly, confirm you are signed in, and verify LiNKbrain organization migrations are applied.
-          </p>
+      {!isLicensorLicenseeView && licenseeTab === "company" ? (
+        <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end">
+          <CompanySwitcher />
         </div>
       ) : null}
 
-      <CompanyTabContent
-        tab={tab}
-        companyId={companyId}
-        orgLoadFailed={props.orgLoadFailed}
-        primaryEntity={props.primaryEntity}
-        nodes={props.nodes}
-        companyKnowledgeCount={props.companyKnowledgeCount}
-        companyKnowledgePreview={props.companyKnowledgePreview}
-        inboxHref={props.inboxHref}
-        companyMemoryHref={props.companyMemoryHref}
-      />
+      {!isLicensorLicenseeView && licenseeTab === "brand" && display.showBrandSwitcher ? (
+        <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end">
+          <CompanySwitcher />
+          <BrandSwitcher companyId={companyId} />
+        </div>
+      ) : null}
+
+      {!isLicensorLicenseeView && licenseeTab === "brand" && !display.showBrandSwitcher ? (
+        <p className="text-sm text-zinc-600 dark:text-zinc-400">
+          Brand profile for <span className="font-medium text-zinc-900 dark:text-zinc-100">{company.displayName}</span>.
+        </p>
+      ) : null}
+
+      {isLicensorLicenseeView ? (
+        <LicensorLicenseeTabContent tab={licensorTab} licenseeId={licensorLicenseeId} />
+      ) : (
+        <CompanyTabContent tab={licenseeTab} companyId={companyId} brandId={brandId} />
+      )}
     </main>
   );
 }
 
-export function CompanyPageShell(props: {
-  orgLoadFailed: boolean;
-  primaryEntity?: BrainLegalEntityRow;
-  nodes: BrainOrgNodeRow[] | null;
-  companyKnowledgeCount: number | null;
-  companyKnowledgePreview: { id: string; path: string }[];
-  inboxHref: string;
-  companyMemoryHref: string;
-  uiMocks: boolean;
-  isVendorOperator: boolean;
-}) {
+export function CompanyPageShell() {
   return (
     <Suspense fallback={<main className="p-6 text-sm text-zinc-500">Loading company…</main>}>
-      <CompanyPageShellInner {...props} />
+      <CompanyPageShellInner />
     </Suspense>
   );
 }

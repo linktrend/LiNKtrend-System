@@ -1,13 +1,15 @@
 import { TracesView } from "@/components/traces-view";
+import { requireLicensorOperator } from "@/lib/licensor-access";
 
 export const dynamic = "force-dynamic";
 
 export default async function SettingsTracesPage(props: {
   searchParams: Promise<{ project?: string; mission?: string; event?: string }>;
 }) {
+  await requireLicensorOperator();
+
   return (
     <div>
-      <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">System logs</h2>
       <TracesView searchParams={props.searchParams} basePath="/settings/traces" />
     </div>
   );

@@ -1,8 +1,8 @@
-import { redirect } from "next/navigation";
-
-import { ApiKeysPanel } from "@/app/(shell)/settings/api-keys/api-keys-panel";
-import { listIntegrationSecretsAction } from "@/app/(shell)/settings/api-keys/actions";
+import { ApiAccessSettingsPage } from "@/components/settings/api-access-settings-page";
+import { VaultwardenSecretsPage } from "@/components/settings/vaultwarden-secrets-page";
+import { listIntegrationSecretsAction } from "@/components/settings/integration-secrets-actions";
 import { isCommandCentreAdmin } from "@/lib/command-centre-access";
+import { isLicensorOperator } from "@/lib/licensor-access";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
@@ -12,26 +12,16 @@ export default async function SettingsApiKeysPage() {
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user?.id) redirect("/login");
 
-  const canManage = await isCommandCentreAdmin(supabase, { userId: user.id, email: user.email });
-  const list = canManage ? await listIntegrationSecretsAction() : { ok: false as const, error: "not admin" };
-  const initialRows = list.ok ? list.rows : [];
+  if (isLicensorOperator(user?.email)) {
+    return <VaultwardenSecretsPage />;
+  }
 
-  return (
-    <div>
-      <p className="text-sm text-zinc-500 dark:text-zinc-400">
-        <span className="text-zinc-900 dark:text-zinc-200">Settings</span>
-        <span className="mx-2">/</span>
-        <span className="text-zinc-900 dark:text-zinc-200">Integrations</span>
-      </p>
-      <h2 className="mt-2 text-lg font-semibold text-zinc-900 dark:text-zinc-100">Integrations</h2>
-      <p className="mt-2 max-w-2xl text-sm text-zinc-600 dark:text-zinc-400">
-        API keys and secrets for integrations your workspace uses. Only Admins can view or edit this list.
-      </p>
-      <div className="mt-8">
-        <ApiKeysPanel initialRows={initialRows} canManage={canManage} />
-      </div>
-    </div>
-  );
+  const canManage =
+    user?.id != null ? await isCommandCentreAdmin(supabase, { userId: user.id, email: user.email }) : false;
+
+  const secretsResult = canManage ? await listIntegrationSecretsAction() : null;
+  const initialRows = secretsResult?.ok ? secretsResult.rows : [];
+
+  return <ApiAccessSettingsPage initialIntegrationSecrets={initialRows} canManageSecrets={canManage} />;
 }

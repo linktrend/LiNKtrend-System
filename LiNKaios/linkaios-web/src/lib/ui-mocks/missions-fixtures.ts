@@ -8,6 +8,10 @@ export type DemoMissionDetailSpec = {
   id: string;
   title: string;
   tagline: string;
+  /** What this project is meant to accomplish. */
+  description: string;
+  /** Deliverables the project should produce when complete. */
+  expectedOutputs: string[];
   status: string;
   moduleName: string;
   projectTypeName: string;
@@ -58,7 +62,7 @@ export const DEMO_MISSION_PLANE_BRIDGE: Record<
     blockers: 0,
     moduleName: "Linktrend Media",
     projectTypeName: "Curriculum campaign",
-    workflowName: "Content production cycle",
+    workflowName: "Content production",
     activeIssue: "Legal copy approval",
     approvalGate: "Vendor legal sign-off",
     planeSyncStatus: "synced",
@@ -116,6 +120,14 @@ export const DEMO_MISSION_DETAIL_SPECS: Record<string, DemoMissionDetailSpec> = 
     id: "demo-smb",
     title: "SMB Website Builder",
     tagline: "Fixture project for portfolio and delivery previews.",
+    description:
+      "Turn inbound SMB leads into a branded preview website — from lead import through template selection, AI-generated copy, artifact packaging, and publish-ready client handoff.",
+    expectedOutputs: [
+      "Published preview site URL for client review",
+      "CRM lead record with updated pipeline stage",
+      "Plane issues for remaining QA and approval work",
+      "Full audit trail across LinkSkills leases and LiNKautowork runs",
+    ],
     status: "running",
     moduleName: "LinkSites",
     projectTypeName: "WebsiteFactory MVO",
@@ -134,10 +146,18 @@ export const DEMO_MISSION_DETAIL_SPECS: Record<string, DemoMissionDetailSpec> = 
     id: "demo-ai-edu",
     title: "Ai Edu Channel",
     tagline: "Fixture project for curriculum and stakeholder comms.",
+    description:
+      "Produce and publish curriculum episodes for the Ai Edu channel — scripting, legal review, asset ingest, and coordinated release across video and LMS surfaces.",
+    expectedOutputs: [
+      "Approved episode scripts and metadata packages",
+      "Published channel assets with legal sign-off",
+      "Editorial calendar tasks synced to Plane",
+      "Stakeholder comms pack for each release window",
+    ],
     status: "assigned",
     moduleName: "Linktrend Media",
     projectTypeName: "Curriculum campaign",
-    workflowName: "Content production cycle",
+    workflowName: "Content production",
     activeIssue: "Legal copy approval",
     approvalGate: "Vendor legal sign-off",
     planeSyncStatus: "synced",
@@ -152,6 +172,14 @@ export const DEMO_MISSION_DETAIL_SPECS: Record<string, DemoMissionDetailSpec> = 
     id: "demo-mission-1",
     title: "Northwind modernisation",
     tagline: "Fixture programme with mixed activity signals.",
+    description:
+      "Migrate Northwind's legacy customer portal to the new LiNKapps stack with phased cutover, data parity checks, and executive release gates.",
+    expectedOutputs: [
+      "Production-ready app release on the new platform",
+      "Migration runbook and rollback plan",
+      "Signed data parity and security attestations",
+      "Post-cutover hypercare issue backlog in Plane",
+    ],
     status: "running",
     moduleName: "LiNKapps",
     projectTypeName: "App relaunch",
@@ -169,6 +197,14 @@ export const DEMO_MISSION_DETAIL_SPECS: Record<string, DemoMissionDetailSpec> = 
     id: "demo-mission-2",
     title: "Platform reliability sprint",
     tagline: "Fixture infra programme with waiting-session patterns.",
+    description:
+      "Stabilise platform reliability during a hotfix window — triage incidents, validate patches in canary, and align on-call runbooks with observed failure modes.",
+    expectedOutputs: [
+      "Resolved P1/P2 incidents with postmortem notes",
+      "Validated patch set promoted through canary",
+      "Updated on-call runbooks and escalation paths",
+      "Reliability KPI snapshot for the sprint window",
+    ],
     status: "assigned",
     moduleName: "LEXOS Litigation",
     projectTypeName: "Matter operations",

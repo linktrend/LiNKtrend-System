@@ -15,7 +15,7 @@ export function DemoSkillDetailView(props: { skill: SkillCatalogRow }) {
       <ShellPageHeaderClient
         title={s.name}
         subtitle="Demo skill — read-only layout preview. Live skills open in the full workspace editor."
-        showRefresh={false}
+       
       />
       <LinkskillsHubNav />
 

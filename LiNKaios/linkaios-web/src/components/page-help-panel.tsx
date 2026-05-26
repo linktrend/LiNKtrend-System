@@ -48,7 +48,7 @@ export function PageHelpPanel(props: {
       >
         <header className="flex items-start justify-between gap-3 border-b border-zinc-200 px-5 py-4 dark:border-zinc-800">
           <div className="min-w-0">
-            <p className="text-xs font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Page help</p>
+            <p className="text-xs font-medium text-zinc-500 dark:text-zinc-400">Page help</p>
             <h2 id={titleId} className="mt-1 text-lg font-semibold text-zinc-900 dark:text-zinc-100">
               {props.content.title}
             </h2>

@@ -5,11 +5,11 @@ import { useState } from "react";
 
 const METRICS_IA_CRUMB = [
   { label: "LiNKtrend", hint: "Tenant / studio" },
-  { label: "Module", hint: "LinkSites, LEXOS, LiNKapps…" },
-  { label: "Project type", hint: "Process template (website factory, litigation intake…)" },
+  { label: "Suite", hint: "LinkSites, LEXOS, LiNKapps…" },
+  { label: "Module", hint: "Vendor recipe (website factory, litigation intake…)" },
   { label: "Project", hint: "Plane-backed work container" },
-  { label: "Workflow", hint: "LiNKautowork or module stage chain" },
-  { label: "Issue", hint: "Task or ticket within the workflow" },
+  { label: "Phase", hint: "Stage group within a module" },
+  { label: "Issue", hint: "Task or ticket within the phase" },
   { label: "Run", hint: "Single trace event (LLM, tool, skill, automation)" },
 ] as const;
 
@@ -36,7 +36,7 @@ export function MetricsGlossary() {
         <div className="space-y-2 border-t border-zinc-200 px-4 pb-4 pt-3 text-xs leading-6 text-zinc-700 dark:border-zinc-800 dark:text-zinc-300">
           <p>
             Metrics aggregates <strong>runs</strong> (trace events) across projects, LiNKbots, automations, models, tools,
-            and skills. Use filters to narrow the window; scope filters (module, project type, workflow, issue) slice runs
+            and skills. Use filters to narrow the window; scope filters (suite, module, phase, issue) slice runs
             when trace payloads carry structured metadata.
           </p>
           <p>
@@ -52,7 +52,7 @@ export function MetricsGlossary() {
             className="mt-3 rounded-lg border border-zinc-200 bg-white/80 px-3 py-2.5 dark:border-zinc-700 dark:bg-zinc-950/50"
             aria-label="Metrics hierarchy"
           >
-            <p className="text-[10px] font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+            <p className="text-[10px] font-semibold text-zinc-500 dark:text-zinc-400">
               How metrics roll up (future drill-down IA)
             </p>
             <ol className="mt-2 flex flex-wrap items-center gap-1 text-[11px]">
@@ -73,7 +73,7 @@ export function MetricsGlossary() {
               ))}
             </ol>
             <p className="mt-2 text-[11px] leading-relaxed text-zinc-500 dark:text-zinc-400">
-              Each level narrows the next: pick a module to see its project types, then workflows, then issues, then individual
+              Each level narrows the next: pick a suite to see its modules, then phases, then issues, then individual
               runs. Phase B exposes scope filters as stubs; full tree navigation is backlog UIUX-MET-H001.
             </p>
           </div>

@@ -1,8 +1,8 @@
 export const PRODUCT_MODEL_HIERARCHY = [
+  "Suite",
   "Module",
-  "Project Type",
   "Project",
-  "Workflow",
+  "Phase",
   "Issue",
   "Run",
   "Trace",
@@ -62,7 +62,7 @@ export const PRODUCT_VISIBILITY_MARKERS: readonly ProductVisibilityMarker[] = [
     id: "protected_ip_hidden",
     label: "Protected IP hidden",
     audience: "client",
-    description: "Protected project-type and workflow internals are not shown.",
+    description: "Protected module and phase internals are not shown.",
   },
   {
     id: "client_company_memory",
@@ -110,7 +110,7 @@ export const PRODUCT_STATUS_TONE_GUIDANCE: Readonly<Record<ProductStatusDomain, 
   project_type: {
     tone: "neutral",
     className: STATUS_TONE_STYLES.neutral,
-    guidance: "Use neutral styling in client view; do not expose protected internals.",
+    guidance: "Use neutral styling in client view; do not expose protected module internals.",
   },
   project: {
     tone: "progress",
@@ -120,7 +120,7 @@ export const PRODUCT_STATUS_TONE_GUIDANCE: Readonly<Record<ProductStatusDomain, 
   workflow: {
     tone: "progress",
     className: STATUS_TONE_STYLES.progress,
-    guidance: "Emphasize step state and blockers, not hidden implementation detail.",
+    guidance: "Emphasize phase step state and blockers, not hidden implementation detail.",
   },
   issue: {
     tone: "attention",

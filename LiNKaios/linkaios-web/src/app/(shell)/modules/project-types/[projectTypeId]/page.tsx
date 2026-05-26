@@ -1,25 +1,12 @@
-import { ModulesCatalogue } from "@/components/modules-catalogue";
-import { ModulesHubLayout } from "@/components/modules-hub-layout";
-import type { AudienceMode } from "@/lib/ui-mocks/modules-catalog-demo";
+import { redirect } from "next/navigation";
 
-export const dynamic = "force-dynamic";
+import { MODULES_CATALOG_DEMO } from "@/lib/ui-mocks/modules-catalog-demo";
 
-function first(q: string | string[] | undefined): string | undefined {
-  return Array.isArray(q) ? q[0] : q;
-}
-
-export default async function ProjectTypeDetailPage(props: {
-  params: Promise<{ projectTypeId: string }>;
-  searchParams: Promise<{ audience?: string | string[] }>;
-}) {
-  const params = await props.params;
-  const searchParams = await props.searchParams;
-  const audienceRaw = first(searchParams.audience);
-  const audience: AudienceMode = audienceRaw === "vendor" ? "vendor" : "client";
-
-  return (
-    <ModulesHubLayout browse="project-type" audience={audience} projectTypeId={params.projectTypeId}>
-      <ModulesCatalogue browse="project-type" audience={audience} projectTypeId={params.projectTypeId} />
-    </ModulesHubLayout>
-  );
+export default async function LegacyModulesProjectTypePage(props: { params: Promise<{ projectTypeId: string }> }) {
+  const { projectTypeId } = await props.params;
+  const process = MODULES_CATALOG_DEMO.processes.find((p) => p.id === projectTypeId);
+  if (process) {
+    redirect(`/suites/${process.moduleId}?tab=modules`);
+  }
+  redirect("/suites/my-suites");
 }

@@ -1,5 +1,4 @@
 import { redirect } from "next/navigation";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import type { AgentRecord } from "@linktrend/shared-types";
@@ -38,12 +37,6 @@ export default async function WorkerSessionsPage(props: {
             <SessionsInbox sessions={threads} />
           </div>
         </section>
-        <p className="text-xs text-zinc-500 dark:text-zinc-400">
-          <Link href={`/workers/${encodeURIComponent(id)}/projects`} className="font-medium text-sky-700 underline dark:text-sky-400">
-            Open Projects tab
-          </Link>{" "}
-          for projects where this LiNKbot is primary.
-        </p>
       </div>
     );
   }
@@ -85,20 +78,14 @@ export default async function WorkerSessionsPage(props: {
   return (
     <div className="space-y-6">
       <section>
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Sessions</h2>
-        <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
-          Sessions are runtime work units. Open a row for timeline, outputs, and interaction notes.
-        </p>
+        <WorkerTabSectionHeader
+          title="Sessions"
+          subtitle="Sessions are runtime work units. Open a row for timeline, outputs, and interaction notes."
+        />
         <div className="mt-4">
           <SessionsInbox sessions={threads} />
         </div>
       </section>
-      <p className="text-xs text-zinc-500 dark:text-zinc-400">
-        <Link href={`/workers/${encodeURIComponent(id)}/projects`} className="font-medium text-sky-700 underline dark:text-sky-400">
-          Open Projects tab
-        </Link>{" "}
-        for missions where this LiNKbot is primary.
-      </p>
     </div>
   );
 }

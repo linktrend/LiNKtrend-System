@@ -10,7 +10,7 @@ export default function SkillsLeasesPage() {
     <main className="space-y-8">
       <ShellPageHeaderClient
         title="Leases"
-        subtitle="Capability lease lifecycle — what LinkSkills granted, denied, or executed for tools, connectors, and side effects."
+        subtitle="Capability lease lifecycle — what LinkSkills granted, denied, or executed for tools, capabilities, and side effects."
       />
       <LinkskillsHubNav />
       <LinkskillsGlossaryBrief kind="leases" />

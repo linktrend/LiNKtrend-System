@@ -67,6 +67,7 @@ priority: CRITICAL
 | User asks for feature | Write it directly |
 | User reports bug | Fix it, don't explain |
 | No clear requirement | Ask, don't assume |
+| LiNKaios UI copy | Labels + layout only — no hint panels or role essays (see `07-ui-and-frontend-standards.mdc`) |
 
 ---
 

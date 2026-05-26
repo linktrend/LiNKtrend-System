@@ -2,7 +2,7 @@ import type { SessionThreadRow } from "../work-sessions";
 
 export const DEMO_SESSION_THREADS: SessionThreadRow[] = [
   {
-    id: "demo-session-1",
+    id: "a0000001-0000-4000-8000-000000000001",
     agentId: "demo-lisa",
     agentName: "Lisa (CEO)",
     label: "Q3 portfolio review",
@@ -20,10 +20,10 @@ export const DEMO_SESSION_THREADS: SessionThreadRow[] = [
       "Fixture OpenClaw-style session transcript placeholder. Live session chats from the gateway will appear here " +
       "once wired (distinct from channel message threads).",
     metadata: { mission_id: "demo-mission-1", session_title: "Q3 portfolio review" },
-    openHref: "/workers/demo-lisa/sessions/demo-session-1",
+    openHref: "/workers/demo-lisa/sessions/a0000001-0000-4000-8000-000000000001",
   },
   {
-    id: "demo-session-2",
+    id: "a0000002-0000-4000-8000-000000000002",
     agentId: "demo-eric",
     agentName: "Eric (CTO)",
     label: "Infra spike",
@@ -39,6 +39,6 @@ export const DEMO_SESSION_THREADS: SessionThreadRow[] = [
     lastActivityAt: new Date(Date.now() - 30 * 1000).toISOString(),
     detail: "Fixture session — shows how session-scoped agent chats differ from Slack/Telegram channel threads.",
     metadata: { mission_id: "demo-mission-2", session_title: "Infra spike" },
-    openHref: "/workers/demo-eric/sessions/demo-session-2",
+    openHref: "/workers/demo-eric/sessions/a0000002-0000-4000-8000-000000000002",
   },
 ];

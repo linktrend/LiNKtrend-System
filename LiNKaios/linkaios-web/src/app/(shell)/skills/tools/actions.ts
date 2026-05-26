@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 
 import type { ToolRecord, ToolType } from "@linktrend/shared-types";
 
+import type { RepoToolCandidate } from "@/lib/linkskills-repo-discovery";
 import { mergeToolMetadata } from "@/lib/tools-admin";
 import { canWriteCommandCentre, getCommandCentreRoleForUser } from "@/lib/command-centre-access";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -43,6 +44,16 @@ export async function getToolForEditor(toolId: string): Promise<{ tool: ToolReco
 }
 
 export type CreateToolResult = { ok: true; id: string } | { ok: false; error: string };
+
+export async function registerToolFromRepoAction(candidate: RepoToolCandidate): Promise<CreateToolResult> {
+  return createTool({
+    name: candidate.name,
+    tool_type: candidate.toolType as ToolType,
+    category: candidate.category,
+    description: candidate.description,
+    implementation: candidate.implementation,
+  });
+}
 
 export async function createTool(input: {
   name: string;

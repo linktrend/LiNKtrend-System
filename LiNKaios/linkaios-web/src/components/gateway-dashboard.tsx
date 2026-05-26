@@ -1,4 +1,5 @@
-import { EntityTable } from "@/components/entity-table";
+import { GatewayMessageLinksTable } from "@/components/gateway-message-links-table";
+import { GatewayStreamRoutingTable } from "@/components/gateway-stream-routing-table";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 function fmtTs(v: unknown): string {
@@ -55,21 +56,11 @@ export async function GatewayDashboard() {
       </p>
 
       <div className="mt-8">
-        <EntityTable
-          title="Stream routing"
-          rows={routingRows as Record<string, unknown>[]}
-          columns={["stream", "project", "notes", "created"]}
-          columnHeaders={["Stream", "Project", "Notes", "Created"]}
-        />
+        <GatewayStreamRoutingTable rows={routingRows} />
       </div>
 
       <div className="mt-10">
-        <EntityTable
-          title="Message links"
-          rows={linkRows as Record<string, unknown>[]}
-          columns={["stream", "topic", "project", "created"]}
-          columnHeaders={["Stream", "Topic", "Project", "Created"]}
-        />
+        <GatewayMessageLinksTable rows={linkRows} />
       </div>
     </>
   );

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { Code, Cpu, Crown, Globe, type LucideIcon } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
 
 import type { FleetOrgEdge, FleetOrgNode, OrgChartIcon } from "@/lib/fleet-org-chart-layout";
@@ -8,38 +9,21 @@ import type { FleetOrgEdge, FleetOrgNode, OrgChartIcon } from "@/lib/fleet-org-c
 const W = 1000;
 const H = 560;
 
+const ORG_CHART_ICONS: Record<OrgChartIcon, LucideIcon> = {
+  crown: Crown,
+  globe: Globe,
+  chip: Cpu,
+  code: Code,
+};
+
 function IconGlyph(props: { kind: OrgChartIcon; className?: string }) {
-  const cn =
-    props.className ?? "h-5 w-5 text-zinc-500 dark:text-zinc-300";
-  switch (props.kind) {
-    case "crown":
-      return (
-        <svg className={cn} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden>
-          <path d="M4 10l2.5 8h11L20 10l-4 2-4-6-4 6-4-2z" />
-        </svg>
-      );
-    case "globe":
-      return (
-        <svg className={cn} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden>
-          <circle cx="12" cy="12" r="9" />
-          <path d="M3 12h18M12 3a16 16 0 000 18" />
-        </svg>
-      );
-    case "chip":
-      return (
-        <svg className={cn} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden>
-          <rect x="7" y="7" width="10" height="10" rx="2" />
-          <path d="M7 11H4M20 11h-3M7 13H4M20 13h-3M11 7V4M13 7V4M11 20v-3M13 20v-3" />
-        </svg>
-      );
-    case "code":
-    default:
-      return (
-        <svg className={cn} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden>
-          <path d="M8 9l-3 3 3 3M16 9l3 3-3 3M13 7l-2 10" />
-        </svg>
-      );
-  }
+  const Icon = ORG_CHART_ICONS[props.kind];
+  return (
+    <Icon
+      className={props.className ?? "h-5 w-5 text-zinc-500 dark:text-zinc-300"}
+      aria-hidden
+    />
+  );
 }
 
 function kindFrame(kind: FleetOrgNode["kind"]): string {
@@ -65,7 +49,7 @@ function OrgCard(props: { node: FleetOrgNode }) {
           <IconGlyph kind={n.icon} />
         </div>
         <div className="min-w-0 flex-1">
-          <p className="text-[9px] font-bold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">{kindLabel(n.kind)}</p>
+          <p className="text-[9px] font-bold text-zinc-500 dark:text-zinc-400">{kindLabel(n.kind)}</p>
           <p className="text-sm font-semibold tracking-tight text-zinc-900 dark:text-white">{n.title}</p>
           <p className="mt-0.5 text-[11px] leading-snug text-zinc-600 dark:text-zinc-400">{n.subtitle}</p>
           <p className="mt-2 flex items-center gap-1.5 text-[11px] text-zinc-700 dark:text-zinc-300">

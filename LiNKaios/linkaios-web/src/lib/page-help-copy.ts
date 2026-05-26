@@ -20,7 +20,7 @@ const COMPANY_TAB_HELP: Record<string, PageHelpContent> = {
   overview: help(
     "Company — Overview",
     "Your licensed organization at a glance: legal identity, display name, industry, and who works here.",
-    "Use this tab to confirm the active company profile before LiNKbots or modules rely on company context.",
+    "Use this tab to confirm the active company profile before LiNKbots or suites rely on company context.",
   ),
   locations: help(
     "Company — Locations",
@@ -33,8 +33,8 @@ const COMPANY_TAB_HELP: Record<string, PageHelpContent> = {
     "Edit structure here when you need LiNKbots and memory retrieval to respect internal hierarchy.",
   ),
   modules: help(
-    "Company — Modules",
-    "Tenant-enabled business packages subscribed for this company.",
+    "Company — Suites",
+    "Subscribed product suites enabled for this company.",
     "Review what is active, what is pending, and subscription status before starting governed projects.",
   ),
   knowledge: help(
@@ -50,25 +50,35 @@ const SETTINGS_HELP: Record<string, PageHelpContent> = {
     "Your personal account: display name, email preferences, and sign-in context.",
     "Changes here affect only your operator identity, not tenant-wide permissions.",
   ),
+  "/settings/billing": help(
+    "Settings — Billing",
+    "Manage payment methods, LiNKaios workspace subscription, suite licenses, and invoice history.",
+    "Demo billing only — no real Stripe charges until production keys are connected.",
+  ),
+  "/settings/login-credentials": help(
+    "Settings — Login credentials",
+    "Pick one primary sign-in method: password, magic link, or passkey.",
+    "Profile name and email are edited on the User page; this screen only controls authentication.",
+  ),
+  "/settings/two-factor": help(
+    "Settings — Two-factor authentication",
+    "Enable TOTP via an authenticator app and save backup codes for account recovery.",
+    "Demo mode stores preferences locally; production uses Supabase Auth MFA.",
+  ),
+  "/settings/sessions": help(
+    "Settings — Sessions & activity",
+    "Review devices where you are signed in, revoke unfamiliar sessions, and inspect login history.",
+    "Shows only the current operator account — not workspace-wide system traces.",
+  ),
   "/settings/access": help(
-    "Settings — Access",
-    "Who can sign in and what roles they hold across LiNKaios.",
-    "Use this area when onboarding teammates or tightening who may approve protected actions.",
+    "Settings — Roles & permissions",
+    "Workspace Admins assign Admin, Operator, or Viewer to human users in this client organization.",
+    "LiNKbot service accounts and Linktrend vendor operators are not managed here.",
   ),
   "/settings/governance": help(
     "Settings — Governance",
     "Policies that gate LiNKbot actions, approvals, and capability usage.",
     "Review when you need stricter control over side effects such as email, publishing, or CRM writes.",
-  ),
-  "/settings/api-keys": help(
-    "Settings — Integrations",
-    "API keys and outbound integration credentials for connected systems.",
-    "Rotate keys here; secrets are never shown again after creation.",
-  ),
-  "/settings/privacy": help(
-    "Settings — Privacy & data",
-    "Data retention, export, and privacy controls for the tenant.",
-    "Use when answering compliance questions about what LiNKtrend stores and for how long.",
   ),
   "/settings/gateway": help(
     "Settings — Integration routing",
@@ -87,7 +97,7 @@ const SETTINGS_HELP: Record<string, PageHelpContent> = {
   ),
   "/settings/traces": help(
     "Settings — System logs",
-    "Recent trace events for debugging missions, skills, and workflows.",
+    "Recent trace events for debugging projects, skills, and automations.",
     "Filter by severity when investigating failures or audit gaps.",
   ),
   "/settings/tools": help(
@@ -105,18 +115,18 @@ const SETTINGS_HELP: Record<string, PageHelpContent> = {
 const EXACT: Record<string, PageHelpContent> = {
   "/": help(
     "Overview",
-    "Your command-centre home: what needs attention, active missions, and quick paths into Work, Projects, and LiNKbrain.",
+    "Your command-centre home: what needs attention, active projects, and quick paths into Work, Projects, and LiNKbrain.",
     "Start here each session before diving into a specific plane.",
   ),
   "/work": help(
     "Work",
     "Unified attention queue across alerts, LiNKbot sessions, and channel messages.",
-    "Prioritize items that block missions or need chairman approval before opening detail pages.",
+    "Prioritize items that block projects or need chairman approval before opening detail pages.",
   ),
   "/work/alerts": help(
     "Work — Alerts",
-    "Operational alerts derived from traces, governance, and mission health.",
-    "Triage critical items first; each row links to the underlying mission or LiNKbot context.",
+    "Operational alerts derived from traces, governance, and project health.",
+    "Triage critical items first; each row links to the underlying project or LiNKbot context.",
   ),
   "/work/messages": help(
     "Work — Messages",
@@ -125,18 +135,18 @@ const EXACT: Record<string, PageHelpContent> = {
   ),
   "/work/sessions": help(
     "Work — Sessions",
-    "Active and recent LiNKbot execution sessions tied to missions.",
+    "Active and recent LiNKbot execution sessions tied to projects.",
     "Open a session to see reasoning steps, tool calls, and whether the run is still in progress.",
   ),
   "/projects": help(
     "Projects",
-    "Governed containers for live work — each project binds module type, LiNKbots, memory scope, and tasks.",
-    "Create projects only from enabled module project types; ad-hoc process shapes are not supported yet.",
+    "Governed containers for live work — each project binds modules, LiNKbots, memory scope, and issues.",
+    "Create projects only from enabled modules; ad-hoc phase shapes are not supported yet.",
   ),
   "/projects/new": help(
     "New project",
-    "Pick a governed project type so workflows, template tasks, and capability rules are known upfront.",
-    "The type defines what LiNKautowork and LiNKbots are allowed to do for this engagement.",
+    "Pick a governed module so phases, template issues, and capability rules are known upfront.",
+    "The module defines what LiNKautowork and LiNKbots are allowed to do for this engagement.",
   ),
   "/memory": help(
     "LiNKbrain",
@@ -145,12 +155,12 @@ const EXACT: Record<string, PageHelpContent> = {
   ),
   "/skills": help(
     "LiNKskills",
-    "Company catalog of skills, tools, scripts, and connectors LiNKbots may run under lease.",
+    "Company catalog of skills, tools, scripts, and capabilities LiNKbots may run under lease.",
     "Certification and runtime enablement live here; execution still requires an active capability lease per action.",
   ),
   "/skills/tools": help(
     "LiNKskills — Tools",
-    "Registered tools (APIs, scripts, connectors) with runtime flags and publication state.",
+    "Registered tools (APIs, scripts, capabilities) with runtime flags and publication state.",
     "Disable tools here when you need an immediate kill switch without deleting history.",
   ),
   "/skills/skills": help(
@@ -159,24 +169,44 @@ const EXACT: Record<string, PageHelpContent> = {
     "Draft skills stay unavailable until published and, where required, certified.",
   ),
   "/skills/connectors": help(
-    "LiNKskills — Connectors",
-    "Capability connectors to external software — auth boundary, contract, and lease hooks only.",
+    "LiNKskills — Capabilities",
+    "Governed capabilities to external software — auth boundary, contract, and lease hooks only.",
     "Business setup inside Odoo, Plane, or CRM systems is configured in those products, not invented here.",
   ),
   "/skills/leases": help(
     "LiNKskills — Leases",
-    "Active and historical capability leases granting side-effect permissions for a mission or run.",
+    "Active and historical capability leases granting side-effect permissions for a project or run.",
     "Every protected external action should trace back to a lease row for audit.",
   ),
-  "/modules": help(
-    "Modules",
-    "Tenant-enabled business packages and their pre-defined project types.",
-    "Browse modules, inspect project types, then start governed projects — live execution appears under Projects.",
+  "/suites": help(
+    "Suites",
+    "Subscribed product suites — manage owned suites or browse the marketplace.",
+    "My Suites lists subscriptions; Marketplace is where you preview and subscribe.",
   ),
-  "/modules/project-types": help(
-    "Project types",
-    "Pre-defined process templates across modules — each bundles workflows and template tasks.",
-    "Operators start projects from these types; new process shapes require module architecture work.",
+  "/suites/my-suites": help(
+    "My Suites",
+    "Subscribed and preview suites active for your tenant.",
+    "Open a suite to browse modules, projects, and outputs.",
+  ),
+  "/suites/marketplace": help(
+    "Marketplace",
+    "Suites published by Linktrend available to preview or subscribe.",
+    "Demo checkout activates preview or subscription locally for MVO proof.",
+  ),
+  "/modules": help(
+    "Suites",
+    "Subscribed product suites — manage owned suites or browse the marketplace.",
+    "Canonical routes live under /suites; /modules redirects for compatibility.",
+  ),
+  "/modules/my-modules": help(
+    "My Suites",
+    "Subscribed and preview suites active for your tenant.",
+    "Open a suite to browse modules, projects, and outputs.",
+  ),
+  "/modules/marketplace": help(
+    "Marketplace",
+    "Suites published by Linktrend available to preview or subscribe.",
+    "Demo checkout activates preview or subscription locally for MVO proof.",
   ),
   "/metrics": help(
     "Metrics",
@@ -185,23 +215,23 @@ const EXACT: Record<string, PageHelpContent> = {
   ),
   "/cockpit": help(
     "Cockpit",
-    "Cross-plane health: module status, workflow runs, and system signals.",
+    "Cross-plane health: suite status, automation runs, and system signals.",
     "Leases and skill detail remain under LiNKskills; this view is for operational situational awareness.",
   ),
   "/cockpit/modules": help(
     "Cockpit — Modules",
     "Runtime health and activation status per tenant module.",
-    "Check here when a module workflow is not scheduling or reports degraded dependencies.",
+    "Check here when module phases are not scheduling or report degraded dependencies.",
   ),
   "/cockpit/runs": help(
-    "Cockpit — Workflow runs",
+    "Cockpit — Automation runs",
     "Deterministic LiNKautowork executions with status, idempotency keys, and audit linkage.",
     "Contrast with LiNKbot sessions when you need repeatable automation rather than reasoning.",
   ),
   "/cockpit/leases": help(
     "Cockpit — Leases",
     "Shortcut to in-flight capability leases across the tenant.",
-    "Revoke or inspect leases when a connector misbehaves or a mission must be frozen.",
+    "Revoke or inspect leases when a capability misbehaves or a project must be frozen.",
   ),
   "/company": COMPANY_TAB_HELP.overview!,
   "/workers": help(
@@ -211,17 +241,17 @@ const EXACT: Record<string, PageHelpContent> = {
   ),
   "/workers/new": help(
     "New LiNKbot",
-    "Register a new role-bound worker with runtime adapter and mission profile.",
+    "Register a new role-bound worker with runtime adapter and project profile.",
     "Choose the role carefully — it determines default skills, channels, and governance envelopes.",
   ),
   "/traces": help(
     "System logs",
     "Recent trace and audit events for debugging across planes.",
-    "Correlate timestamps with mission IDs when escalating production incidents.",
+    "Correlate timestamps with project IDs when escalating production incidents.",
   ),
   "/gateway": help(
     "Integration routing",
-    "Configure how inbound channels route to LiNKbots and modules.",
+    "Configure how inbound channels route to LiNKbots and suites.",
     "Misconfigured routing is a common cause of silent message loss.",
   ),
   ...SETTINGS_HELP,
@@ -253,18 +283,26 @@ const PREFIX: { prefix: string; content: PageHelpContent }[] = [
     ),
   },
   {
+    prefix: "/suites/",
+    content: help(
+      "Suites",
+      "Suite-specific module catalogue, projects, and sample outputs.",
+      "Return to My Suites to switch subscribed products.",
+    ),
+  },
+  {
     prefix: "/modules/",
     content: help(
-      "Modules",
-      "Module-specific configuration and project-type templates.",
-      "Return to the modules hub to switch business packages.",
+      "Suites",
+      "Suite-specific module catalogue, projects, and sample outputs.",
+      "Return to My Suites to switch subscribed products.",
     ),
   },
   {
     prefix: "/projects/",
     content: help(
       "Project",
-      "Single governed project: missions, tasks, memory scope, and LiNKbot assignments.",
+      "Single governed project: phases, issues, memory scope, and LiNKbot assignments.",
       "Use the project header actions for refresh; trace links appear when runs emit events.",
     ),
   },
@@ -280,14 +318,14 @@ const PREFIX: { prefix: string; content: PageHelpContent }[] = [
     prefix: "/cockpit/",
     content: help(
       "Cockpit",
-      "Cross-plane operations — module health, workflow runs, and lease shortcuts.",
+      "Cross-plane operations — suite health, automation runs, and lease shortcuts.",
     ),
   },
 ];
 
 function linkbrainTabHelp(tab: string | null): PageHelpContent | null {
   const normalized = tab === "missions" ? "project" : tab === "sandbox" ? "ask" : tab;
-  const valid: LinkbrainTab[] = ["inbox", "project", "agent", "company", "ask"];
+  const valid: LinkbrainTab[] = ["inbox", "project", "agent", "company", "ask", "audit", "orgScope"];
   if (!normalized || !valid.includes(normalized as LinkbrainTab)) return null;
   const t = normalized as LinkbrainTab;
   return help(

@@ -1,332 +1,140 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import {
-  getMissionById,
-  listManifestsForMission,
-  listMemoryEntries,
-} from "@linktrend/linklogic-sdk";
+import { getMissionById } from "@linktrend/linklogic-sdk";
 
-import { EntityTable } from "@/components/entity-table";
+import { LeadLinkbotAffordance } from "@/components/lead-linkbot-affordance";
+import { ProjectDetailMetaGrid } from "@/components/project-detail-meta-grid";
 import { ProjectDetailTabNav } from "@/components/project-detail-tab-nav";
+import { ProjectModulesPanel } from "@/components/project-modules-panel";
+import { ProjectIssuesPanel } from "@/components/project-issues-panel";
+import { ProjectOverviewPanel } from "@/components/project-overview-panel";
+import {
+  ProjectLeasesPanel,
+  ProjectLinkbotsAutomationsPanel,
+} from "@/components/project-linkbots-automations-panel";
+import { ProjectRunsPanel } from "@/components/project-runs-panel";
+import { ProjectWorkflowProgress } from "@/components/project-workflow-progress";
+import { ProjectWorkflowsPanel } from "@/components/project-workflows-panel";
 import { ShellPageHeaderClient } from "@/components/shell-page-header-client";
-import { parseProjectTab, type ProjectTabId } from "@/lib/project-tabs";
-import { projectStatusDisplay } from "@/lib/project-status-ui";
-import { ProjectsPlaneStrip } from "@/components/projects-plane-strip";
-import { canWriteCommandCentre, getCommandCentreRoleForUser } from "@/lib/command-centre-access";
+import { StatusPill } from "@/components/ui/status-pill";
 import { getPlaneBridgeConfig, planeProjectBoardHref, planeWorkspaceProjectsHref } from "@/lib/plane-links";
+import { parseProjectTab, type ProjectTabId } from "@/lib/project-tabs";
+import {
+  PROJECT_LIFECYCLE_PILL_LABELS,
+  projectStatusDisplay,
+  projectStatusPillTone,
+  projectWorkflowProgressPercent,
+} from "@/lib/project-status-ui";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { isDemoMissionId } from "@/lib/ui-mocks/entities";
 import { isUiMocksEnabled } from "@/lib/ui-mocks/flags";
+import {
+  getRegisteredDemoProject,
+  getRegisteredDemoProjectDetailSpec,
+} from "@/lib/projects/demo-project-registry";
 import {
   DEMO_MISSION_DETAIL_SPECS,
   DEMO_MISSION_PLANE_BRIDGE,
   type DemoMissionDetailSpec,
 } from "@/lib/ui-mocks/missions-fixtures";
 
-import { AppendMemoryForm } from "./append-memory-form";
-import { MissionToolsSection } from "./mission-tools-section";
-
 export const dynamic = "force-dynamic";
 
-function Section({
-  title,
-  description,
-  children,
-}: {
-  title: string;
-  description?: string;
-  children: React.ReactNode;
+function ProjectLifecycleStatusPill(props: { status: string }) {
+  const label = projectStatusDisplay(props.status);
+  return (
+    <StatusPill
+      label={label}
+      tone={projectStatusPillTone(label)}
+      equalWidthLabels={PROJECT_LIFECYCLE_PILL_LABELS}
+    />
+  );
+}
+
+function DemoMissionTabs(props: {
+  spec: DemoMissionDetailSpec;
+  tab: ProjectTabId;
+  missionId: string;
 }) {
-  return (
-    <section className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm">
-      <h2 className="text-sm font-semibold uppercase tracking-wide text-zinc-500">{title}</h2>
-      {description ? (
-        <p className="mt-1 max-w-2xl text-xs leading-relaxed text-zinc-600 dark:text-zinc-400 sm:text-sm">{description}</p>
-      ) : null}
-      <div className="mt-4">{children}</div>
-    </section>
-  );
-}
-
-function DemoMissionTabs(props: { spec: DemoMissionDetailSpec; tab: ProjectTabId; planeProjectsHref: string | null }) {
-  const { spec, tab, planeProjectsHref } = props;
+  const { spec, tab, missionId } = props;
 
   if (tab === "overview") {
-    return (
-      <div className="grid gap-6 lg:grid-cols-2">
-        <Section title="Objectives">
-          <ul className="list-disc space-y-2 pl-5 text-sm text-zinc-700">
-            <li>Ship weekly milestones with clear acceptance checks.</li>
-            <li>Keep human approvals on high-risk automations.</li>
-          </ul>
-        </Section>
-        <Section title="Risks & alerts">
-          <p className="text-sm text-zinc-600">No sample alerts for this preview project.</p>
-          <Link
-            href="/settings/traces"
-            className="mt-3 inline-flex text-sm font-medium text-sky-700 underline dark:text-sky-400"
-          >
-            System logs
-          </Link>
-        </Section>
-      </div>
-    );
+    return <ProjectOverviewPanel missionId={missionId} title={spec.title} />;
   }
 
-  if (tab === "work-items") {
-    return (
-      <div className="space-y-6">
-        <Section title="Work items">
-          <dl className="grid gap-4 sm:grid-cols-3">
-            <div className="rounded-xl border border-zinc-100 bg-zinc-50 px-4 py-3">
-              <dt className="text-xs font-medium uppercase tracking-wide text-zinc-500">Open</dt>
-              <dd className="mt-1 text-xl font-semibold text-zinc-900">{spec.openWorkItems}</dd>
-            </div>
-            <div className="rounded-xl border border-zinc-100 bg-zinc-50 px-4 py-3">
-              <dt className="text-xs font-medium uppercase tracking-wide text-zinc-500">Blockers</dt>
-              <dd className="mt-1 text-xl font-semibold text-zinc-900">{spec.blockers}</dd>
-            </div>
-            <div className="rounded-xl border border-zinc-100 bg-zinc-50 px-4 py-3">
-              <dt className="text-xs font-medium uppercase tracking-wide text-zinc-500">Board</dt>
-              <dd className="mt-1">
-                {planeProjectsHref ? (
-                  <a
-                    href={planeProjectsHref}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex rounded-lg bg-zinc-900 px-3 py-2 text-sm font-semibold text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
-                  >
-                    Open in Plane ↗
-                  </a>
-                ) : (
-                  <span className="text-sm text-zinc-500">Plane is not connected.</span>
-                )}
-              </dd>
-            </div>
-          </dl>
-        </Section>
-        <Section title="Plane sync and approvals">
-          <p className="text-sm text-zinc-700">
-            Plane sync: <span className="font-medium">{spec.planeSyncStatus === "synced" ? "Synced" : "Pending"}</span>
-          </p>
-          <p className="mt-2 text-sm text-zinc-700">
-            Approval gate: <span className="font-medium">{spec.approvalGate}</span>
-          </p>
-        </Section>
-      </div>
-    );
+  if (tab === "modules") {
+    return <ProjectModulesPanel missionId={missionId} />;
   }
 
-  if (tab === "cycles") {
-    return (
-      <Section title="Cycles">
-        <p className="text-sm text-zinc-700">
-          <span className="font-medium">Current:</span> {spec.cycle}
-        </p>
-        {planeProjectsHref ? (
-          <a
-            href={planeProjectsHref}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mt-4 inline-flex rounded-lg bg-zinc-900 px-4 py-2 text-sm font-semibold text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
-          >
-            Open in Plane ↗
-          </a>
-        ) : null}
-      </Section>
-    );
+  if (tab === "phases") {
+    return <ProjectWorkflowsPanel missionId={missionId} />;
+  }
+
+  if (tab === "issues") {
+    return <ProjectIssuesPanel missionId={missionId} />;
+  }
+
+  if (tab === "agents") {
+    return <ProjectLinkbotsAutomationsPanel missionId={missionId} primaryAgentId={spec.leadId} />;
+  }
+
+  if (tab === "leases") {
+    return <ProjectLeasesPanel missionId={missionId} />;
+  }
+
+  if (tab === "runs") {
+    return <ProjectRunsPanel missionId={missionId} />;
+  }
+
+  return null;
+}
+
+function LiveMissionTabs(props: {
+  mission: { id: string; title: string; primary_agent_id: string | null };
+  tab: ProjectTabId;
+}) {
+  const { mission, tab } = props;
+
+  if (tab === "overview") {
+    return <ProjectOverviewPanel missionId={mission.id} title={mission.title} />;
+  }
+
+  if (tab === "modules") {
+    return <ProjectModulesPanel missionId={mission.id} />;
+  }
+
+  if (tab === "phases") {
+    return <ProjectWorkflowsPanel missionId={mission.id} />;
+  }
+
+  if (tab === "issues") {
+    return <ProjectIssuesPanel missionId={mission.id} />;
   }
 
   if (tab === "agents") {
     return (
-      <Section title="LiNKbots">
-        <p className="text-sm text-zinc-600">
-          Lead:{" "}
-          <Link href={`/workers/${spec.leadId}/sessions`} className="font-semibold text-violet-800 underline">
-            {spec.leadName}
-          </Link>
-        </p>
-      </Section>
+      <ProjectLinkbotsAutomationsPanel missionId={mission.id} primaryAgentId={mission.primary_agent_id} />
     );
   }
 
-  if (tab === "tools") {
-    return (
-      <Section title="Tool permissions">
-        <p className="text-sm text-zinc-600">Open a live project to manage tools for this workspace.</p>
-      </Section>
-    );
+  if (tab === "leases") {
+    return <ProjectLeasesPanel missionId={mission.id} />;
   }
 
-  /* activity */
-  return (
-    <Section title="Activity">
-      <p className="mb-3 text-sm text-zinc-600">Outputs and traces stay in LiNKaios for orchestration visibility.</p>
-      <Link href="/settings/traces" className="inline-flex text-sm font-medium text-sky-700 underline dark:text-sky-400">
-        System logs
-      </Link>
-    </Section>
-  );
-}
-
-type LiveMissionParts = {
-  mission: {
-    id: string;
-    title: string;
-    status: string;
-    primary_agent_id: string | null;
-  };
-  manifests: Awaited<ReturnType<typeof listManifestsForMission>>;
-  memory: Awaited<ReturnType<typeof listMemoryEntries>>;
-  canWrite: boolean;
-};
-
-function LiveMissionTabs(
-  props: LiveMissionParts & {
-    tab: ProjectTabId;
-    planeProjectsHref: string | null;
-    highlightRequestId?: string | null;
-  },
-) {
-  const { mission, manifests, memory, canWrite, tab, planeProjectsHref, highlightRequestId } = props;
-
-  if (tab === "overview") {
-    return (
-      <div className="space-y-6">
-        <div className="grid gap-6 lg:grid-cols-3">
-          <Section title="Overview">
-            <p className="text-sm text-zinc-600">Goals and narrative for this project.</p>
-          </Section>
-          <Section title="Manifests">
-            {manifests.error ? (
-              <p className="text-sm text-amber-800 dark:text-amber-200">Manifest history could not be loaded.</p>
-            ) : (
-              <EntityTable
-                title="Versions"
-                rows={(manifests.data ?? []) as Record<string, unknown>[]}
-                columns={["version", "created_at"]}
-              />
-            )}
-          </Section>
-          <Section title="Activity">
-            <Link
-              href={`/settings/traces?project=${mission.id}`}
-              className="inline-flex text-sm font-medium text-sky-700 underline dark:text-sky-400"
-            >
-              System logs for this project
-            </Link>
-          </Section>
-        </div>
-
-        <Section title="LiNKbrain">
-          <p className="mb-4 text-sm">
-            <Link href={`/memory?tab=project&mission=${mission.id}`} className="font-medium text-zinc-900 underline">
-              Open full memory view
-            </Link>
-          </p>
-          <AppendMemoryForm missionId={mission.id} canWrite={canWrite} />
-          {memory.error ? (
-            <p className="mt-2 text-sm text-amber-800 dark:text-amber-200">Memory entries could not be loaded.</p>
-          ) : (
-            <div className="mt-4">
-              <EntityTable
-                title="Entries"
-                rows={(memory.data ?? []) as Record<string, unknown>[]}
-                columns={["classification", "body", "created_at"]}
-              />
-            </div>
-          )}
-        </Section>
-      </div>
-    );
+  if (tab === "runs") {
+    return <ProjectRunsPanel missionId={mission.id} />;
   }
 
-  if (tab === "work-items") {
-    return (
-      <Section title="Work items">
-        {planeProjectsHref ? (
-          <a
-            href={planeProjectsHref}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex rounded-lg bg-zinc-900 px-4 py-2 text-sm font-semibold text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
-          >
-            Open in Plane ↗
-          </a>
-        ) : (
-          <p className="text-sm text-zinc-500">Plane is not connected.</p>
-        )}
-      </Section>
-    );
-  }
-
-  if (tab === "cycles") {
-    return (
-      <Section title="Cycles">
-        {planeProjectsHref ? (
-          <a
-            href={planeProjectsHref}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex rounded-lg bg-zinc-900 px-4 py-2 text-sm font-semibold text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
-          >
-            Open in Plane ↗
-          </a>
-        ) : (
-          <p className="text-sm text-zinc-500">Plane is not connected.</p>
-        )}
-      </Section>
-    );
-  }
-
-  if (tab === "agents") {
-    return (
-      <Section title="LiNKbots">
-        {mission.primary_agent_id ? (
-          <p className="text-sm text-zinc-700">
-            Lead LiNKbot:{" "}
-            <Link
-              href={`/workers/${mission.primary_agent_id}/sessions`}
-              className="font-semibold text-violet-800 underline"
-            >
-              Open worker →
-            </Link>
-          </p>
-        ) : (
-          <p className="text-sm text-zinc-500">No primary LiNKbot assigned.</p>
-        )}
-      </Section>
-    );
-  }
-
-  if (tab === "tools") {
-    return (
-      <MissionToolsSection missionId={mission.id} highlightRequestId={highlightRequestId ?? null} canWrite={canWrite} />
-    );
-  }
-
-  return (
-    <Section title="Activity">
-      <Link
-        href={`/settings/traces?project=${mission.id}`}
-        className="inline-flex text-sm font-medium text-sky-700 underline dark:text-sky-400"
-      >
-        System logs for this project
-      </Link>
-    </Section>
-  );
+  return null;
 }
 
 export default async function MissionDetailPage(props: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ tab?: string | string[]; request?: string | string[] }>;
+  searchParams: Promise<{ tab?: string | string[] }>;
 }) {
   const { id } = await props.params;
   const sp = await props.searchParams;
   const tab = parseProjectTab(sp.tab);
-  const rawReq = Array.isArray(sp.request) ? sp.request[0] : sp.request;
-  const highlightRequestId = rawReq?.trim() || null;
 
   const planeCfg = getPlaneBridgeConfig();
   const planeProjectsHref = planeWorkspaceProjectsHref(planeCfg);
@@ -335,9 +143,12 @@ export default async function MissionDetailPage(props: {
     notFound();
   }
 
-  const demo = isUiMocksEnabled() ? DEMO_MISSION_DETAIL_SPECS[id] : undefined;
+  const demo = isUiMocksEnabled()
+    ? (getRegisteredDemoProjectDetailSpec(id) ?? DEMO_MISSION_DETAIL_SPECS[id])
+    : undefined;
   if (demo) {
-    const demoBridge = DEMO_MISSION_PLANE_BRIDGE[demo.id];
+    const registered = getRegisteredDemoProject(id);
+    const demoBridge = registered?.planeBridge ?? DEMO_MISSION_PLANE_BRIDGE[demo.id];
     const demoPlaneHref = planeProjectBoardHref(planeCfg, demoBridge?.code ?? null) ?? planeProjectsHref;
     return (
       <main className="space-y-8">
@@ -356,83 +167,32 @@ export default async function MissionDetailPage(props: {
                   Open in Plane ↗
                 </a>
               ) : null}
-              <span className="inline-flex rounded-full bg-amber-50 px-2.5 py-1 text-xs font-semibold text-amber-900 ring-1 ring-amber-300 dark:bg-amber-950/40 dark:text-amber-100 dark:ring-amber-800">
-                Sample project
-              </span>
-              <span className="inline-flex rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-900 ring-1 ring-emerald-300 dark:bg-emerald-950/40 dark:text-emerald-100 dark:ring-emerald-800">
-                {projectStatusDisplay(demo.status)}
-              </span>
+              <ProjectLifecycleStatusPill status={demo.status} />
             </>
           }
         />
-        <dl className="grid gap-4 sm:grid-cols-3">
-            <div className="rounded-xl border border-zinc-100 bg-zinc-50 px-4 py-3">
-              <dt className="text-xs font-medium uppercase tracking-wide text-zinc-500">Module</dt>
-              <dd className="mt-1 text-sm font-semibold text-zinc-900">{demo.moduleName}</dd>
-            </div>
-            <div className="rounded-xl border border-zinc-100 bg-zinc-50 px-4 py-3">
-              <dt className="text-xs font-medium uppercase tracking-wide text-zinc-500">Project type</dt>
-              <dd className="mt-1 text-sm font-semibold text-zinc-900">{demo.projectTypeName}</dd>
-            </div>
-            <div className="rounded-xl border border-zinc-100 bg-zinc-50 px-4 py-3">
-              <dt className="text-xs font-medium uppercase tracking-wide text-zinc-500">Lead LiNKbot</dt>
-              <dd className="mt-1 text-sm font-semibold text-zinc-900">
-                <Link href={`/workers/${demo.leadId}/sessions`} className="text-violet-800 underline">
-                  {demo.leadName}
-                </Link>
-              </dd>
-            </div>
-            <div className="rounded-xl border border-zinc-100 bg-zinc-50 px-4 py-3">
-              <dt className="text-xs font-medium uppercase tracking-wide text-zinc-500">Project id</dt>
-              <dd className="mt-1 text-xs text-zinc-700">{demo.id}</dd>
-            </div>
-            <div className="rounded-xl border border-zinc-100 bg-zinc-50 px-4 py-3">
-              <dt className="text-xs font-medium uppercase tracking-wide text-zinc-500">Cycle</dt>
-              <dd className="mt-1 text-sm font-semibold text-zinc-900">{demo.cycle}</dd>
-            </div>
-            <div className="rounded-xl border border-zinc-100 bg-zinc-50 px-4 py-3">
-              <dt className="text-xs font-medium uppercase tracking-wide text-zinc-500">Workflow</dt>
-              <dd className="mt-1 text-sm font-semibold text-zinc-900">{demo.workflowName}</dd>
-            </div>
-            <div className="rounded-xl border border-zinc-100 bg-zinc-50 px-4 py-3">
-              <dt className="text-xs font-medium uppercase tracking-wide text-zinc-500">Active issue</dt>
-              <dd className="mt-1 text-sm font-semibold text-zinc-900">{demo.activeIssue}</dd>
-            </div>
-            <div className="rounded-xl border border-zinc-100 bg-zinc-50 px-4 py-3">
-              <dt className="text-xs font-medium uppercase tracking-wide text-zinc-500">Approvals</dt>
-              <dd className="mt-1 text-sm font-semibold text-zinc-900">{demo.approvalGate}</dd>
-            </div>
-          </dl>
-          {demo.vendorOnlyNote ? (
-            <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900 dark:border-amber-900/40 dark:bg-amber-950/20 dark:text-amber-100">
-              Vendor-only section: {demo.vendorOnlyNote}
-            </p>
-          ) : null}
-
-        <ProjectsPlaneStrip workspaceProjectsHref={planeProjectsHref} />
+        <ProjectDetailMetaGrid
+          items={[
+            { label: "Project ID", value: demo.id },
+            { label: "Suite", value: demo.moduleName },
+            { label: "Module", value: demo.projectTypeName },
+            {
+              label: "Lead LiNKbot",
+              value: <LeadLinkbotAffordance workerId={demo.leadId} name={demo.leadName} />,
+            },
+          ]}
+        />
+        <ProjectWorkflowProgress percent={projectWorkflowProgressPercent(demo.status)} />
 
         <ProjectDetailTabNav missionId={id} tab={tab} />
 
-        <DemoMissionTabs spec={demo} tab={tab} planeProjectsHref={planeProjectsHref} />
+        <DemoMissionTabs spec={demo} tab={tab} missionId={id} />
       </main>
     );
   }
 
   const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  const role =
-    user?.id != null
-      ? await getCommandCentreRoleForUser(supabase, { userId: user.id, email: user.email })
-      : "operator";
-  const canWrite = canWriteCommandCentre(role);
-
-  const [{ data: mission, error: mErr }, manifests, memory] = await Promise.all([
-    getMissionById(supabase, id),
-    listManifestsForMission(supabase, id),
-    listMemoryEntries(supabase, { missionId: id, limit: 100 }),
-  ]);
+  const { data: mission, error: mErr } = await getMissionById(supabase, id);
 
   if (mErr || !mission) {
     notFound();
@@ -459,50 +219,31 @@ export default async function MissionDetailPage(props: {
                 Open in Plane ↗
               </a>
             ) : null}
-            <span className="inline-flex rounded-full bg-zinc-100 px-2.5 py-1 text-xs font-semibold text-zinc-800 ring-1 ring-zinc-300 dark:bg-zinc-800 dark:text-zinc-200 dark:ring-zinc-600">
-              {projectStatusDisplay(m.status)}
-            </span>
-            {m.primary_agent_id ? (
-              <Link
-                href={`/workers/${m.primary_agent_id}/sessions`}
-                className="inline-flex rounded-full bg-sky-50 px-2.5 py-1 text-xs font-semibold text-sky-900 ring-1 ring-sky-300 hover:bg-sky-100 dark:bg-sky-950/40 dark:text-sky-100 dark:ring-sky-800"
-              >
-                Lead LiNKbot
-              </Link>
-            ) : null}
+            <ProjectLifecycleStatusPill status={m.status} />
           </>
         }
       />
-      <dl className="grid gap-4 sm:grid-cols-3">
-          <div className="rounded-xl border border-zinc-100 bg-zinc-50 px-4 py-3">
-            <dt className="text-xs font-medium uppercase tracking-wide text-zinc-500">Module</dt>
-            <dd className="mt-1 text-sm font-semibold text-zinc-900">{bridge?.moduleName ?? "Unmapped module"}</dd>
-          </div>
-          <div className="rounded-xl border border-zinc-100 bg-zinc-50 px-4 py-3">
-            <dt className="text-xs font-medium uppercase tracking-wide text-zinc-500">Project type</dt>
-            <dd className="mt-1 text-sm font-semibold text-zinc-900">
-              {bridge?.projectTypeName ?? "Unmapped project type"}
-            </dd>
-          </div>
-          <div className="rounded-xl border border-zinc-100 bg-zinc-50 px-4 py-3">
-            <dt className="text-xs font-medium uppercase tracking-wide text-zinc-500">Protected internals</dt>
-            <dd className="mt-1 text-xs text-zinc-700">Client view hides vendor-only workflow internals.</dd>
-          </div>
-        </dl>
+      <ProjectDetailMetaGrid
+        items={[
+          { label: "Project ID", value: m.id },
+          { label: "Suite", value: bridge?.moduleName ?? "Unmapped suite" },
+          { label: "Module", value: bridge?.projectTypeName ?? "Unmapped module" },
+          {
+            label: "Lead LiNKbot",
+            value: m.primary_agent_id ? (
+              <LeadLinkbotAffordance workerId={m.primary_agent_id} name="LiNKbot" />
+            ) : (
+              "—"
+            ),
+          },
+        ]}
+      />
 
-      <ProjectsPlaneStrip workspaceProjectsHref={planeProjectsHref} />
+      <ProjectWorkflowProgress percent={projectWorkflowProgressPercent(m.status)} />
 
       <ProjectDetailTabNav missionId={m.id} tab={tab} />
 
-      <LiveMissionTabs
-        mission={m}
-        manifests={manifests}
-        memory={memory}
-        canWrite={canWrite}
-        tab={tab}
-        planeProjectsHref={planeProjectsHref}
-        highlightRequestId={highlightRequestId}
-      />
+      <LiveMissionTabs mission={m} tab={tab} />
     </main>
   );
 }

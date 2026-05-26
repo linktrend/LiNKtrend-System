@@ -1,56 +1,170 @@
 "use client";
 
-import { Cable } from "lucide-react";
+import { Archive, Eye } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 
 import { ConnectorStatusPill } from "@/components/catalog-ui";
+import {
+  DataTable,
+  DataTableBody,
+  DataTableHead,
+  DataTableRow,
+  DataTableShell,
+  DataTableIconAction,
+  DT,
+} from "@/components/data-table";
+import { useAppRole } from "@/components/role-preview-provider";
+import { canEditLinkskillsCatalogue } from "@/lib/app-roles";
+import { archiveRegisteredCapability } from "@/lib/linkskills-requests";
 import type { ConnectorCatalogRow } from "@/lib/ui-mocks/capability-connectors-demo";
-import { TABLE } from "@/lib/ui-standards";
+import { BUTTON, TABLE_COLUMN } from "@/lib/ui-standards";
 
-const TABLE_CLASS = "table-fixed min-w-[880px] w-full divide-y divide-zinc-200 text-left text-sm dark:divide-zinc-800";
+function scopePreview(scope: string, max = 48): string {
+  const oneLine = scope.replace(/\s+/g, " ").trim();
+  if (oneLine.length <= max) return oneLine;
+  return `${oneLine.slice(0, max - 1)}…`;
+}
 
-export function CapabilityConnectorsTable(props: { rows: ConnectorCatalogRow[] }) {
+export function CapabilityConnectorsTable(props: {
+  rows: ConnectorCatalogRow[];
+  onArchiveRegistered?: (id: string) => void;
+}) {
+  const { kind, role } = useAppRole();
+  const canEdit = canEditLinkskillsCatalogue(kind, role);
+  const [scopeModal, setScopeModal] = useState<{ name: string; scope: string } | null>(null);
+  const dlg = useRef<HTMLDialogElement>(null);
+
+  useEffect(() => {
+    const el = dlg.current;
+    if (!el) return;
+    if (scopeModal) {
+      el.showModal();
+    } else if (el.open) {
+      el.close();
+    }
+  }, [scopeModal]);
+
   return (
-    <div className="overflow-x-auto rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
-      <table className={TABLE_CLASS}>
-        <colgroup>
-          <col className="w-[14%]" />
-          <col className="w-[22%]" />
-          <col className="w-[12%]" />
-          <col className="w-[16%]" />
-          <col className="w-[36%]" />
-        </colgroup>
-        <thead className="bg-zinc-50 text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:bg-zinc-900 dark:text-zinc-400">
-          <tr>
-            <th className={`px-4 py-3 ${TABLE.thText}`}>
-              <span className="inline-flex items-center gap-1.5">
-                <Cable className="h-3.5 w-3.5" aria-hidden />
-                Connector
-              </span>
-            </th>
-            <th className={`px-4 py-3 ${TABLE.thText}`}>Capability scope</th>
-            <th className={`px-4 py-3 ${TABLE.thControl}`}>
-              <div className={TABLE.thControlInner}>Status</div>
-            </th>
-            <th className={`px-4 py-3 ${TABLE.thText}`}>Target software</th>
-            <th className={`px-4 py-3 ${TABLE.thText}`}>Used by</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800">
-          {props.rows.map((r) => (
-            <tr key={r.id} className="text-zinc-800 dark:text-zinc-200">
-              <td className="px-4 py-3 text-sm font-medium text-zinc-900 dark:text-zinc-100">{r.name}</td>
-              <td className="px-4 py-3 font-mono text-xs text-zinc-600 dark:text-zinc-400">{r.capabilityScope}</td>
-              <td className={`px-4 py-3 ${TABLE.thControl}`}>
-                <div className={TABLE.thControlInner}>
-                  <ConnectorStatusPill status={r.status} />
-                </div>
-              </td>
-              <td className="px-4 py-3 text-xs text-zinc-600 dark:text-zinc-400">{r.targetSoftware}</td>
-              <td className="px-4 py-3 text-xs text-zinc-600 dark:text-zinc-400">{r.usedBy}</td>
+    <>
+      <DataTableShell scrollableBody>
+        <DataTable>
+          <colgroup>
+            <col className="w-[15%]" />
+            <col className="w-[22%]" />
+            <col className="w-[16%]" />
+            <col className="w-[16%]" />
+            <col className="w-[12%]" />
+            {canEdit ? <col className="w-[12%]" /> : null}
+          </colgroup>
+          <DataTableHead>
+            <tr>
+              <th className={DT.thTextInset}>{TABLE_COLUMN.capability}</th>
+              <th className={DT.thTextInset}>Scope</th>
+              <th className={DT.thTextInset}>{TABLE_COLUMN.targetSoftware}</th>
+              <th className={DT.thTextInset}>{TABLE_COLUMN.usedByModules}</th>
+              <th className={DT.thControl}>
+                <div className={DT.controlInner}>{TABLE_COLUMN.status}</div>
+              </th>
+              {canEdit ? (
+                <th className={DT.thControl}>
+                  <div className={DT.controlInner}>Actions</div>
+                </th>
+              ) : null}
             </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+          </DataTableHead>
+          <DataTableBody>
+            {props.rows.map((r) => (
+              <DataTableRow key={r.id} multiline>
+                <td className={`${DT.tdClipInset} text-sm font-medium text-zinc-900 dark:text-zinc-100`}>
+                  <span className={DT.tdTextSpan} title={r.name}>
+                    {r.name}
+                  </span>
+                </td>
+                <td className={DT.tdClipInset}>
+                  <button
+                    type="button"
+                    className="block w-full text-left text-xs leading-snug text-zinc-600 underline-offset-2 hover:text-zinc-900 hover:underline dark:text-zinc-400 dark:hover:text-zinc-200"
+                    title={r.capabilityScope}
+                    onClick={() => setScopeModal({ name: r.name, scope: r.capabilityScope })}
+                  >
+                    <span className={DT.tdWrapSpan}>{scopePreview(r.capabilityScope)}</span>
+                  </button>
+                </td>
+                <td className={DT.tdClipInset}>
+                  <span className={DT.tdWrapSpan} title={r.targetSoftware}>
+                    {r.targetSoftware}
+                  </span>
+                </td>
+                <td className={DT.tdClipInset}>
+                  <span className={DT.tdWrapSpan} title={r.usedBy}>
+                    {r.usedBy}
+                  </span>
+                </td>
+                <td className={DT.tdControl}>
+                  <div className={DT.controlInner}>
+                    <ConnectorStatusPill status={r.status} />
+                  </div>
+                </td>
+                {canEdit ? (
+                  <td className={DT.tdControl}>
+                    <div className={DT.actionsRow}>
+                      <DataTableIconAction
+                        icon={Eye}
+                        label={`View scope for ${r.name}`}
+                        onClick={() => setScopeModal({ name: r.name, scope: r.capabilityScope })}
+                      />
+                      {r.id.startsWith("repo-") ? (
+                        <DataTableIconAction
+                          icon={Archive}
+                          label={`Archive ${r.name}`}
+                          tone="danger"
+                          onClick={() => {
+                            if (!window.confirm(`Remove ${r.name} from the platform catalogue?`)) return;
+                            archiveRegisteredCapability(r.id.replace(/^repo-/, ""));
+                            props.onArchiveRegistered?.(r.id);
+                          }}
+                        />
+                      ) : null}
+                    </div>
+                  </td>
+                ) : null}
+              </DataTableRow>
+            ))}
+          </DataTableBody>
+        </DataTable>
+      </DataTableShell>
+
+      <dialog
+        ref={dlg}
+        className="w-[min(100vw-2rem,32rem)] rounded-2xl border border-zinc-200 bg-white p-6 text-sm shadow-2xl backdrop:bg-black/40 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-100"
+        onCancel={(e) => {
+          e.preventDefault();
+          setScopeModal(null);
+        }}
+      >
+        {scopeModal ? (
+          <div className="space-y-4">
+            <div className="flex items-start justify-between gap-3">
+              <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">Capability scope</h2>
+              <button
+                type="button"
+                className="rounded-md px-2 py-1 text-xs text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+                onClick={() => setScopeModal(null)}
+                aria-label="Close"
+              >
+                ✕
+              </button>
+            </div>
+            <p className="text-xs text-zinc-500 dark:text-zinc-400">{scopeModal.name}</p>
+            <pre className="max-h-[min(50vh,24rem)] overflow-auto rounded-lg border border-zinc-200 bg-zinc-50 p-3 font-mono text-xs text-zinc-800 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-200">
+              {scopeModal.scope}
+            </pre>
+            <button type="button" className={BUTTON.secondaryBlock} onClick={() => setScopeModal(null)}>
+              Close
+            </button>
+          </div>
+        ) : null}
+      </dialog>
+    </>
   );
 }

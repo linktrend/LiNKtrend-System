@@ -71,11 +71,51 @@ export type MetricsKpiBase = {
   /** Sum of first vs second half of calendar days in window (cost). */
   costFirstHalfUsd: number;
   costSecondHalfUsd: number;
-  /** % change second half vs first half of days in window; null if not computable. */
+  /** % change for cost trend (month-over-month, week-over-week, or period fallback). */
   costTrendPct: number | null;
+  /** Human-readable label for `costTrendPct` (e.g. "Month over month"). */
+  costTrendLabel: string;
   llmErrorTraces: number;
   toolErrorTraces: number;
 };
+
+export type DailyValue = { day: string; value: number };
+
+/** Trend from daily series: prefers month-over-month, then week-over-week, then half-window split. */
+export function periodTrendFromDailySeries(rows: DailyValue[]): { pct: number | null; label: string } {
+  if (rows.length === 0) return { pct: null, label: "" };
+
+  const byMonth = new Map<string, number>();
+  for (const r of rows) {
+    const month = r.day.slice(0, 7);
+    byMonth.set(month, (byMonth.get(month) ?? 0) + r.value);
+  }
+  const months = [...byMonth.entries()].sort(([a], [b]) => a.localeCompare(b));
+  if (months.length >= 2) {
+    const prev = months[months.length - 2]![1];
+    const cur = months[months.length - 1]![1];
+    const pct = prev > 0 ? ((cur - prev) / prev) * 100 : cur > 0 ? 100 : 0;
+    return { pct, label: "Month over month" };
+  }
+
+  const sorted = [...rows].sort((a, b) => a.day.localeCompare(b.day));
+  if (sorted.length >= 14) {
+    const prev7 = sorted.slice(-14, -7).reduce((s, r) => s + r.value, 0);
+    const last7 = sorted.slice(-7).reduce((s, r) => s + r.value, 0);
+    const pct = prev7 > 0 ? ((last7 - prev7) / prev7) * 100 : last7 > 0 ? 100 : 0;
+    return { pct, label: "Week over week" };
+  }
+
+  if (sorted.length >= 2) {
+    const mid = Math.floor(sorted.length / 2);
+    const first = sorted.slice(0, mid).reduce((s, r) => s + r.value, 0);
+    const second = sorted.slice(mid).reduce((s, r) => s + r.value, 0);
+    const pct = first > 0 ? ((second - first) / first) * 100 : second > 0 ? 100 : 0;
+    return { pct, label: "Period over period" };
+  }
+
+  return { pct: null, label: "" };
+}
 
 export type MetricsSnapshot = {
   fromIso: string;
@@ -87,6 +127,8 @@ export type MetricsSnapshot = {
   totalCostUsd: number;
   totalTokens: number;
   tracesByDay: { day: string; count: number }[];
+  successTracesByDay: { day: string; count: number }[];
+  errorCostByDay: { day: string; cost: number }[];
   tokensByDay: { day: string; tokens: number }[];
   costByDay: { day: string; cost: number }[];
   eventTypeSlices: { name: string; count: number }[];
@@ -151,6 +193,8 @@ export function buildMetricsSnapshotFromRows(input: {
     : input.rows;
 
   const byDay = new Map<string, number>();
+  const byDaySuccess = new Map<string, number>();
+  const byDayErrorCost = new Map<string, number>();
   const byDayTokens = new Map<string, number>();
   const byDayCost = new Map<string, number>();
   const byType = new Map<string, number>();
@@ -198,6 +242,9 @@ export function buildMetricsSnapshotFromRows(input: {
     if (isErr) {
       errorEvents += 1;
       errorCostUsd += cost;
+      byDayErrorCost.set(day, (byDayErrorCost.get(day) ?? 0) + cost);
+    } else {
+      byDaySuccess.set(day, (byDaySuccess.get(day) ?? 0) + 1);
     }
     if (et.includes("timeout")) timeoutTraces += 1;
     if (isErr && !et.includes("timeout")) nonTimeoutErrorTraces += 1;
@@ -223,7 +270,7 @@ export function buildMetricsSnapshotFromRows(input: {
     const agentId = mm?.agent_id ? String(mm.agent_id) : null;
     if (agentId) agentIdsSeen.add(agentId);
     const agentKey = agentId ?? "__unscoped__";
-    const agentLabel = agentId ? input.agentNames.get(agentId) ?? `Agent ${agentId.slice(0, 8)}…` : "Unscoped / no mission";
+    const agentLabel = agentId ? input.agentNames.get(agentId) ?? `Agent ${agentId.slice(0, 8)}…` : "Unscoped / no project";
     agentLabels.set(agentKey, agentLabel);
 
     const mkey = model ?? "__unknown_model__";
@@ -274,6 +321,14 @@ export function buildMetricsSnapshotFromRows(input: {
     .sort(([a], [b]) => a.localeCompare(b))
     .map(([day, count]) => ({ day, count }));
 
+  const successTracesByDay = [...byDaySuccess.entries()]
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([day, count]) => ({ day, count }));
+
+  const errorCostByDay = [...byDayErrorCost.entries()]
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([day, cost]) => ({ day, cost }));
+
   const tokensByDay = [...byDayTokens.entries()]
     .sort(([a], [b]) => a.localeCompare(b))
     .map(([day, tokens]) => ({ day, tokens }));
@@ -282,21 +337,15 @@ export function buildMetricsSnapshotFromRows(input: {
     .sort(([a], [b]) => a.localeCompare(b))
     .map(([day, cost]) => ({ day, cost }));
 
-  const dayCosts = [...costByDay];
-  let costFirstHalfUsd = 0;
-  let costSecondHalfUsd = 0;
-  let costTrendPct: number | null = null;
-  if (dayCosts.length >= 2) {
-    const mid = Math.floor(dayCosts.length / 2);
-    costFirstHalfUsd = dayCosts.slice(0, mid).reduce((s, d) => s + d.cost, 0);
-    costSecondHalfUsd = dayCosts.slice(mid).reduce((s, d) => s + d.cost, 0);
-    costTrendPct =
-      costFirstHalfUsd > 0
-        ? ((costSecondHalfUsd - costFirstHalfUsd) / costFirstHalfUsd) * 100
-        : costSecondHalfUsd > 0
-          ? 100
-          : 0;
-  }
+  const costTrend = periodTrendFromDailySeries(costByDay.map((d) => ({ day: d.day, value: d.cost })));
+  const costFirstHalfUsd = costByDay.length
+    ? costByDay.slice(0, Math.floor(costByDay.length / 2)).reduce((s, d) => s + d.cost, 0)
+    : 0;
+  const costSecondHalfUsd = costByDay.length
+    ? costByDay.slice(Math.floor(costByDay.length / 2)).reduce((s, d) => s + d.cost, 0)
+    : 0;
+  const costTrendPct = costTrend.pct;
+  const costTrendLabel = costTrend.label;
 
   const successTraceEstimate = Math.max(0, list.length - errorEvents);
   const kpiBase: MetricsKpiBase = {
@@ -313,6 +362,7 @@ export function buildMetricsSnapshotFromRows(input: {
     costFirstHalfUsd,
     costSecondHalfUsd,
     costTrendPct,
+    costTrendLabel,
     llmErrorTraces,
     toolErrorTraces,
   };
@@ -371,6 +421,8 @@ export function buildMetricsSnapshotFromRows(input: {
     totalCostUsd,
     totalTokens,
     tracesByDay,
+    successTracesByDay,
+    errorCostByDay,
     tokensByDay,
     costByDay,
     eventTypeSlices,
