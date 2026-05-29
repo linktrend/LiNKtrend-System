@@ -11,7 +11,7 @@ Agents must discover available help before executing work, without loading unnec
 
 After reading `.cursor/rules/` and before substantive planning or coding:
 
-1. Read `.cursor/skills/SKILLS_CATALOG.md`.
+1. Read `dev-swarm/skills/SKILLS_CATALOG.md` (IDE index: `.cursor/skills/SKILLS_CATALOG.md`).
 2. Select the skills whose category, name, or description fits the user request.
 3. Read only the selected skill `SKILL.md` files and any directly referenced files required for the task.
 4. If the task can use an MCP server, inspect the relevant MCP descriptor folder first:

@@ -26,6 +26,6 @@ Known reuse anchors:
 
 If existing code is useful, wire or adapt it.
 
-If existing code is unusable, document why in `.ai-swarm/DECISIONS.md` before rebuilding.
+If existing code is unusable, document why in `dev-swarm/command-center/DECISIONS.md` before rebuilding.
 
 Do not preserve architectural debt merely because code exists.
