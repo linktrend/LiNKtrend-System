@@ -17,12 +17,15 @@ Complete every step in order. Confirm each checkbox before the install agent pro
 
 ## 2. GitHub labels
 
-Create labels from [contracts/labels.md](../contracts/labels.md):
+**Agent runs** (Chairman confirms output):
 
-- [ ] `swarm:ready`, `swarm:review-ready`, `swarm:merge-ready`, `swarm:blocked`, `swarm:done`
-- [ ] `runtime:cursor`, `runtime:codex`
-- [ ] `tier:standard`, `tier:critical`
-- [ ] `swarm:chairman-stop`, `swarm:program-active`
+```bash
+dev-swarm/scripts/install-labels.sh
+```
+
+Creates/updates all labels from [contracts/labels.md](../contracts/labels.md) via `gh` (idempotent).
+
+- [ ] Script exited 0; `gh label list` shows `swarm:*`, `runtime:*`, `tier:*`
 
 ## 3. GitHub Actions (optional guard)
 

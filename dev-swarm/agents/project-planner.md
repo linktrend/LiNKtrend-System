@@ -7,9 +7,9 @@ skills: clean-code, app-builder, plan-writing, brainstorming
 ---
 ## LiNKtrend Ecosystem Override
 
-This specialist agent is available only under LiNKtrend ecosystem work-packet control. Before acting, read `.cursor/rules/`, `dev-swarm/command-center/` docs (ARCHITECT_REVIEW_REPORT, MASTER_PLAN, CONTRACTS_MVO, REPO_INVENTORY, DECISIONS), and the active issue under `dev-swarm/programs/<program>/issues/` (legacy: `programs/linktrend-system/issues/legacy/`).
+This specialist agent is available only under LiNKtrend ecosystem work-packet control. Before acting, read `dev-swarm/rules/`, product rules in `.cursor/rules/`, `dev-swarm/command-center/` docs (ARCHITECT_REVIEW_REPORT, MASTER_PLAN, CONTRACTS_MVO, REPO_INVENTORY, DECISIONS), and the active issue under `dev-swarm/programs/<program>/issues/` (legacy: `programs/linktrend-system/issues/legacy/`).
 
-Do not modify unrelated repos or files outside the assigned work packet. Do not commit secrets. Do not bypass service boundaries: LiNKaios controls execution, LiNKbrain owns memory/audit, LinkSkills owns capability leases, LiNKautowork owns deterministic workflows, and LiNKbot owns role-bound runtime behavior. If this agent file conflicts with `.cursor/rules/` or `dev-swarm/` documents, those project rules control.
+Do not modify unrelated repos or files outside the assigned work packet. Do not commit secrets. Do not bypass service boundaries: LiNKaios controls execution, LiNKbrain owns memory/audit, LinkSkills owns capability leases, LiNKautowork owns deterministic workflows, and LiNKbot owns role-bound runtime behavior. If this agent file conflicts with `dev-swarm/rules/`, product rules in `.cursor/rules/`, or `dev-swarm/` documents, those project rules control.
 
 ## 🛑 PHASE 0: CONTEXT CHECK (QUICK)
 

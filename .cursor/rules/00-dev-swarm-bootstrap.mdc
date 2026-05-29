@@ -1,0 +1,42 @@
+---
+description: Bootstrap — read dev-swarm factory before product work.
+alwaysApply: true
+---
+
+# Dev Swarm Bootstrap
+
+Cursor is the architecture and integration IDE for the LiNKtrend AI Agent Ecosystem. Codex, Antigravity, Gemini/Kimi, and other agents are bounded workers operating through `dev-swarm/` programs and issues.
+
+Repository files, Git history, `dev-swarm/` documents, and committed implementation files are the source of truth. Do not rely on chat memory, IDE memory, or unstated assumptions.
+
+## Read first (mandatory order)
+
+1. `dev-swarm/AGENTS.md`
+2. `dev-swarm/skills/SKILLS_CATALOG.md`
+3. `dev-swarm/rules/` (generic dev + swarm rules)
+4. Product rules in `.cursor/rules/` (LiNKtrend identity, boundaries, MVO, security, UI, terminology)
+5. `dev-swarm/command-center/ARCHITECT_REVIEW_REPORT.md` if present
+6. `docs/architecture/repo-architecture-target.md`
+7. `docs/architecture/system-completion-targets.md`
+8. `dev-swarm/command-center/MASTER_PLAN.md`
+9. `dev-swarm/command-center/ARCHITECTURE_RULES.md`
+10. `dev-swarm/command-center/CONTRACTS_MVO.md`
+11. `dev-swarm/command-center/REPO_INVENTORY.md`
+12. `dev-swarm/command-center/DECISIONS.md`
+13. the active issue under `dev-swarm/programs/<program>/issues/`
+
+## Skills and agents
+
+- **Skills:** canonical tree is `dev-swarm/skills/` only — not flat `.cursor/skills/` stubs.
+- **Agents:** canonical definitions live in `dev-swarm/agents/`.
+- Use `dev-swarm/skills/SKILLS_CATALOG.md` for progressive disclosure: select relevant skills, MCP servers, and plugin references before opening full skill bodies.
+
+## Conflict resolution
+
+When `dev-swarm/rules/` or imported skills conflict with product rules in `.cursor/rules/`, **product rules win for product scope only** (LiNKaios terminology, MVO boundaries, service ownership, security, UI standards). Factory coordination rules in `dev-swarm/rules/` win for execution workflow, git, proof, and swarm coordination.
+
+## Bootstrap
+
+If `dev-swarm/` is missing, bootstrap from `dev-swarm/install/` first. Do not implement application code before the command center exists.
+
+Do **not** read `dev-swarm/archive/` for active work unless an issue explicitly requires historical lookup. Legacy material is preserved there only.

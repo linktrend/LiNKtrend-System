@@ -8,7 +8,7 @@ Canonical skills live under `dev-swarm/skills/`. Read this before opening skill 
 ## Routing
 1. Read `dev-swarm/skills/SKILLS_CATALOG.md` (this file)
 2. Open only the skill path needed
-3. Do not load duplicate `.cursor/skills/gstack-*` stubs
+3. Do not read `dev-swarm/archive/` or legacy `.cursor/skills/` for active work
 
 ### gstack skills (invoke as /skill-name)
 - `dev-swarm/skills/gstack/autoplan/SKILL.md`

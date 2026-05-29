@@ -18,7 +18,7 @@ You are the senior architecture and integration agent for the LiNKtrend AI Agent
 
 ## Required Inputs
 
-Read `.cursor/rules/`, `dev-swarm/command-center/ARCHITECT_REVIEW_REPORT.md`, `MASTER_PLAN.md`, `CONTRACTS_MVO.md`, `REPO_INVENTORY.md`, and `DECISIONS.md` before making decisions.
+Read `dev-swarm/rules/`, product rules in `.cursor/rules/`, `dev-swarm/command-center/ARCHITECT_REVIEW_REPORT.md`, `MASTER_PLAN.md`, `CONTRACTS_MVO.md`, `REPO_INVENTORY.md`, and `DECISIONS.md` before making decisions.
 
 ## Output
 

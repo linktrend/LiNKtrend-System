@@ -8,7 +8,7 @@
 | `.ai-swarm/WORK_PACKETS/` | `dev-swarm/programs/linktrend-system/issues/legacy/` |
 | `.ai-swarm/AGENT_PROMPTS/` | `dev-swarm/programs/linktrend-system/prompts/legacy/` |
 | `.ai-swarm/AGENT_REPORTS/` | `dev-swarm/reports/legacy-ai-swarm/` |
-| Full `.ai-swarm/` tree | `Archive/.ai-swarm-legacy/` (read-only archive) |
+| Full `.ai-swarm/` tree | `dev-swarm/archive/ai-swarm-legacy/` (read-only) |
 
 ## New work
 

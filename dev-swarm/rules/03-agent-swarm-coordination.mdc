@@ -5,11 +5,11 @@ alwaysApply: true
 
 # Agent Swarm Coordination
 
-Agents coordinate through `dev-swarm/`, not chat memory.
+Agents coordinate through `dev-swarm/` (programs, issues, STATE, reports), not chat memory. Legacy material is under `dev-swarm/archive/` (read-only; do not use for active work).
 
-Every agent must read its assigned work packet and update its agent report before stopping.
+Every agent must read its assigned issue spec and update its agent report before stopping.
 
-Each work packet must define:
+Each issue must define:
 
 - objective
 - repo/worktree
@@ -55,9 +55,11 @@ An Integrator checkpoint is required before launching any wave that depends on p
 
 If two agents need to edit the same file, stop and escalate to the Integrator.
 
-All significant decisions go into `dev-swarm/command-center/DECISIONS.md` (or program-specific decision log under `dev-swarm/programs/`).
+All significant decisions go into `dev-swarm/command-center/DECISIONS.md` (legacy archive: `dev-swarm/archive/ai-swarm-legacy/DECISIONS.md`).
 
-GitHub is the source of truth. At the end of every Cursor, Codex, Antigravity, or other agent work packet:
+Read `dev-swarm/SPEC.md` and `dev-swarm/skills/SKILLS_CATALOG.md` for factory rules and skills.
+
+GitHub is the source of truth. At the end of every Cursor, Codex, Antigravity, or other agent issue:
 
 - commit the completed work on the packet branch
 - push the packet branch to GitHub
@@ -74,7 +76,7 @@ Stable branches are `main`, `staging`, and `development`. Work starts on short-l
 
 After the user and Integrator define a work stage through brainstorming, Q&A, and approval, execution should follow this default loop:
 
-1. When the user says `execute`, the Integrator writes prompt files for all work packets needed to complete the approved stage, normally under `dev-swarm/programs/<program>/prompts/` (legacy: `dev-swarm/programs/linktrend-system/prompts/legacy/`).
+1. When the user says `execute`, the Integrator writes prompt files under `dev-swarm/programs/<program>/prompts/` (legacy: `dev-swarm/programs/linktrend-system/prompts/legacy/`).
 2. Each prompt file must include branch/worktree instructions, clean-status verification, source-of-truth context, allowed/prohibited files, proof requirements, report updates, and commit/push instructions.
 3. The Integrator gives the user launch waves with model/tool guidance, for example: `WP-042 (Codex)`, `WP-043 (Codex)`, `WP-044 (Codex)`, `WP-045 (Codex)`, plus one-line copy/paste commands.
 4. The user launches the agents. When the user says `Done`, the Integrator fetches branches, reviews each agent's work, verifies proof, fixes or amends integration issues, updates future prompt files if needed, merges approved packet branches through `development`, and gives the next wave.

@@ -1,11 +1,11 @@
-# Dev Swarm skills routing (post-curation)
+# Dev Swarm skills routing
 
-**Canonical tree:** `dev-swarm/skills/`  
+**Canonical:** `dev-swarm/skills/`  
 **Catalog:** `dev-swarm/skills/SKILLS_CATALOG.md`  
-**Merge history:** `dev-swarm/skills/MERGE-LOG.md`
+**Merge history:** `dev-swarm/skills/MERGE-LOG.md`  
+**Legacy copies:** `dev-swarm/archive/cursor-skills-legacy/` (read-only)
 
-Do not load `.cursor/skills/gstack-*` flat duplicates — they are redirect stubs.  
-Do not bulk-read every skill; use the catalog.
+Agents must not load skills from `.cursor/skills/` (archived).
 
 ## By role
 
@@ -15,6 +15,6 @@ Do not bulk-read every skill; use the catalog.
 | Orchestrator | `linktrend/plan-writing`, `linktrend/parallel-agents` |
 | Executor | `linktrend/clean-code`, `linktrend/bash-linux`, `gstack/review` (optional) |
 | Reviewer | `linktrend/code-review-checklist`, `gstack/review`, `linktrend/systematic-debugging` |
-| Integrator | `linktrend/architecture`, `gstack/` merge tools as needed |
+| Integrator | `linktrend/architecture`, `gstack/` as needed |
 
 Paths are under `dev-swarm/skills/`.

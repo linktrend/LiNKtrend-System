@@ -13,9 +13,15 @@ Portable AI software factory for building products inside any Git repository.
 
 ## LiNKtrend-System
 
-This repo hosts Dev Swarm to finish LiNKtrend development. Product code lives outside `dev-swarm/` (LiNKaios, modules, etc.). Legacy `.ai-swarm/` is archived at `Archive/.ai-swarm-legacy/`. Active packets live under `programs/linktrend-system/issues/legacy/`. See `programs/linktrend-system/MIGRATION.md`.
+This repo hosts Dev Swarm to finish LiNKtrend development. Product code lives outside `dev-swarm/` (LiNKaios, modules, etc.).
 
-**Skills:** canonical tree is `dev-swarm/skills/` (`gstack/` + `linktrend/`). See `skills/MERGE-LOG.md`.
+**Legacy (read-only):** `dev-swarm/archive/` — former `.ai-swarm`, `.cursor/skills`, `.cursor/agents`, `.cursor/rules` copies. Do not use for active work.
+
+**Active work:** `programs/linktrend-system/issues/` (legacy WP files renamed as issues). See `programs/linktrend-system/MIGRATION.md`.
+
+**Skills:** `dev-swarm/skills/` only. Catalog: `skills/SKILLS_CATALOG.md`. Merge history: `skills/MERGE-LOG.md`.
+
+**Cursor:** `.cursor/rules/00-dev-swarm-bootstrap.mdc` + LiNKtrend product rules only. Skills/agents/rules for factory live in `dev-swarm/`.
 
 ## Bootstrap vs runtime
 
