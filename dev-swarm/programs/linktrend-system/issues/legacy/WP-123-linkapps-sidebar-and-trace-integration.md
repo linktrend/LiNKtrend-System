@@ -15,8 +15,8 @@ Integrate the existing LiNKapps factory dashboard into LiNKaios navigation and t
 - `apps/linkaios-web/src/app/**`
 - `apps/linkaios-web/src/components/**`
 - `apps/linkaios-web/src/lib/plugins/linkapps/**`
-- `.ai-swarm/LINKAPPS_SIDEBAR_TRACE_INTEGRATION.md`
-- `.ai-swarm/AGENT_REPORTS/WP-123-linkapps-sidebar-and-trace-integration.md`
+- `dev-swarm/command-center/LINKAPPS_SIDEBAR_TRACE_INTEGRATION.md`
+- `dev-swarm/reports/legacy-ai-swarm/WP-123-linkapps-sidebar-and-trace-integration.md`
 
 ## Prohibited files
 
@@ -28,8 +28,8 @@ Integrate the existing LiNKapps factory dashboard into LiNKaios navigation and t
 
 - `apps/linkaios-web/src/app/(shell)/linkapps/factory/page.tsx`
 - `apps/linkaios-web/src/components/linkapps/**`
-- `.ai-swarm/LINKAPPS_LINKBRAIN_EVENT_SCHEMA.md`
-- `.ai-swarm/LINKAPPS_AUTOWORK_WORKFLOW_PACK.md`
+- `dev-swarm/command-center/LINKAPPS_LINKBRAIN_EVENT_SCHEMA.md`
+- `dev-swarm/command-center/LINKAPPS_AUTOWORK_WORKFLOW_PACK.md`
 
 ## Steps
 

@@ -2,12 +2,12 @@
 
 Use this folder only for active, not-yet-launched prompt payloads.
 
-Older packet prompts were moved to `.ai-swarm/archive/legacy-work-packets-pre-architecture-cleanup/AGENT_PROMPTS/` because they contain pre-cleanup folder paths such as `plugins/vertical`, `LiNKbot/runtime-adapters/openclaw/bot-runtime`, and older product casing. They are historical evidence, not launch instructions.
+Older packet prompts were moved to `dev-swarm/command-center/archive/legacy-work-packets-pre-architecture-cleanup/AGENT_PROMPTS/` because they contain pre-cleanup folder paths such as `plugins/vertical`, `LiNKbot/runtime-adapters/openclaw/bot-runtime`, and older product casing. They are historical evidence, not launch instructions.
 
 New prompts must use:
 
 - `docs/architecture/repo-architecture-target.md`
-- `.ai-swarm/REPO_INVENTORY.md`
+- `dev-swarm/command-center/REPO_INVENTORY.md`
 - `.cursor/rules/01-ecosystem-boundaries.mdc`
 - `.cursor/rules/03-agent-swarm-coordination.mdc`
 

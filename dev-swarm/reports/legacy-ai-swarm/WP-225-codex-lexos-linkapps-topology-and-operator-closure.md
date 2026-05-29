@@ -15,7 +15,7 @@ WP-223-based snapshot still lacked packet-required topology artifacts. Imported 
 - `docs/architecture/repo-architecture-target.md`
 - `modules/lexos/litigation/workflow.md` (from WP-211)
 - `modules/linkapps/workflow.md` (from WP-211)
-- Required context reports `WP-220` and `WP-221` copied into `.ai-swarm/AGENT_REPORTS/` for packet context read surface.
+- Required context reports `WP-220` and `WP-221` copied into `dev-swarm/reports/legacy-ai-swarm/` for packet context read surface.
 
 ## Regression Gate Before Feature Edits
 Ran required pre-edit gate and fixed WP-223-known type regressions before implementing WP-225 feature surfaces:
@@ -57,9 +57,9 @@ Implemented both operator flows as focused typed server helpers (no live provide
 - `modules/linkapps/manifest.yaml`
 - `modules/linkapps/workflow.md`
 - `docs/architecture/repo-architecture-target.md`
-- `.ai-swarm/AGENT_REPORTS/WP-220-lexos-litigation-operator-flow.md`
-- `.ai-swarm/AGENT_REPORTS/WP-221-linkapps-app-factory-operator-flow.md`
-- `.ai-swarm/AGENT_REPORTS/WP-225-codex-lexos-linkapps-topology-and-operator-closure.md`
+- `dev-swarm/reports/legacy-ai-swarm/WP-220-lexos-litigation-operator-flow.md`
+- `dev-swarm/reports/legacy-ai-swarm/WP-221-linkapps-app-factory-operator-flow.md`
+- `dev-swarm/reports/legacy-ai-swarm/WP-225-codex-lexos-linkapps-topology-and-operator-closure.md`
 - `apps/linkaios-web/src/lib/plugins/lexos-litigation/operator-flow.ts`
 - `apps/linkaios-web/src/lib/plugins/lexos-litigation/operator-flow.test.ts`
 - `apps/linkaios-web/src/lib/plugins/linkapps-app-factory/operator-flow.ts`

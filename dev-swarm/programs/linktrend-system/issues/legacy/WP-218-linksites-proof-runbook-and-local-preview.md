@@ -17,9 +17,9 @@ Use a separate clean worktree/checkout for this packet. Do not run this packet i
 ## Allowed Files
 - `modules/linksites/`
 - LinkSites preview route/helpers in `LiNKaios/linkaios-web/`
-- `.ai-swarm/DEMO_RUNBOOK_WEBSITEFACTORY_MVO.md`
-- `.ai-swarm/*LINKSITES*`
-- `.ai-swarm/AGENT_REPORTS/`
+- `dev-swarm/command-center/DEMO_RUNBOOK_WEBSITEFACTORY_MVO.md`
+- `dev-swarm/command-center/*LINKSITES*`
+- `dev-swarm/reports/legacy-ai-swarm/`
 
 ## Prohibited Files
 - External `/Users/linktrend/Projects/LiNKsites` edits
@@ -28,13 +28,13 @@ Use a separate clean worktree/checkout for this packet. Do not run this packet i
 
 ## Required Context
 - `modules/linksites/workflow.*`
-- `.ai-swarm/DEMO_RUNBOOK_WEBSITEFACTORY_MVO.md`
-- `.ai-swarm/LINKSITES_COMPLETION_PLAN.md`
-- `.ai-swarm/CONTRACTS_MVO.md`
-- `.worktrees/WP-212-linksites-runtime-spine/.ai-swarm/AGENT_REPORTS/WP-212-linksites-runtime-spine.md` if present
-- `.ai-swarm/AGENT_REPORTS/WP-213-linksites-linkskills-enforcement.md` if present
-- `.ai-swarm/AGENT_REPORTS/WP-214-linksites-linkbot-role-execution.md` if present
-- `.ai-swarm/AGENT_REPORTS/WP-215-linksites-linkbrain-trace-proof.md` if present
+- `dev-swarm/command-center/DEMO_RUNBOOK_WEBSITEFACTORY_MVO.md`
+- `dev-swarm/command-center/LINKSITES_COMPLETION_PLAN.md`
+- `dev-swarm/command-center/CONTRACTS_MVO.md`
+- `.worktrees/WP-212-linksites-runtime-spine/dev-swarm/reports/legacy-ai-swarm/WP-212-linksites-runtime-spine.md` if present
+- `dev-swarm/reports/legacy-ai-swarm/WP-213-linksites-linkskills-enforcement.md` if present
+- `dev-swarm/reports/legacy-ai-swarm/WP-214-linksites-linkbot-role-execution.md` if present
+- `dev-swarm/reports/legacy-ai-swarm/WP-215-linksites-linkbrain-trace-proof.md` if present
 
 ## Steps
 1. Reflect Wave 2 reality in the proof runbook: WP-213 and WP-214 are committed/passing, WP-215 may need integration from its worktree, and WP-212 reported workspace topology proof blockers.
@@ -54,4 +54,4 @@ Use a separate clean worktree/checkout for this packet. Do not run this packet i
 - Any preview route verification available without live services
 
 ## Report File
-Update `.ai-swarm/AGENT_REPORTS/WP-218-linksites-proof-runbook-and-local-preview.md`.
+Update `dev-swarm/reports/legacy-ai-swarm/WP-218-linksites-proof-runbook-and-local-preview.md`.

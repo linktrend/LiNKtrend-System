@@ -28,8 +28,8 @@ Use a separate clean worktree/checkout for this packet. Do not run this packet i
 ## Required Context
 - `modules/linksites/workflow.*`
 - If `modules/linksites/workflow.md` is not present in the checkout, read/copy it from `.worktrees/WP-211-module-workflow-map-gap-prep/modules/linksites/workflow.md` before mapping capability leases.
-- `.worktrees/WP-210-baseline-fix-and-build-gate/.ai-swarm/AGENT_REPORTS/WP-210-baseline-fix-and-build-gate.md` if present
-- `.ai-swarm/CONTRACTS_MVO.md`
+- `.worktrees/WP-210-baseline-fix-and-build-gate/dev-swarm/reports/legacy-ai-swarm/WP-210-baseline-fix-and-build-gate.md` if present
+- `dev-swarm/command-center/CONTRACTS_MVO.md`
 - `.cursor/rules/05-security-cost-and-side-effects.mdc`
 - `docs/architecture/repo-architecture-target.md`
 
@@ -52,4 +52,4 @@ Use a separate clean worktree/checkout for this packet. Do not run this packet i
 - Focused LinkSites lease enforcement tests
 
 ## Report File
-Update `.ai-swarm/AGENT_REPORTS/WP-213-linksites-linkskills-enforcement.md`.
+Update `dev-swarm/reports/legacy-ai-swarm/WP-213-linksites-linkskills-enforcement.md`.

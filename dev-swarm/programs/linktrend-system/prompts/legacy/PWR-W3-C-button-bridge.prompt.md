@@ -29,7 +29,7 @@ Wave 1 shadcn primitives on `development`
 - [ ] typecheck
 
 ## Report
-`.ai-swarm/AGENT_REPORTS/PWR-W3-C-button-bridge.md`
+`dev-swarm/reports/legacy-ai-swarm/PWR-W3-C-button-bridge.md`
 
 ## Commit
 `feat(ui): add BUTTON to shadcn button bridge`

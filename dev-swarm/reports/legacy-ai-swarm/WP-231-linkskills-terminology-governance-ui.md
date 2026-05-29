@@ -8,11 +8,11 @@ Implemented packet-scoped UI/UX copy updates for Skills governance terminology i
 - LiNKaios/linkaios-web/src/app/(shell)/skills/skills/page.tsx
 - LiNKaios/linkaios-web/src/app/(shell)/skills/tools/page.tsx
 - LiNKaios/linkaios-web/src/components/capabilities-hub-cards.tsx
-- .ai-swarm/AGENT_REPORTS/LINKAIOS_UIUX_REVIEW_BACKLOG.md
-- .ai-swarm/AGENT_REPORTS/WP-231-linkskills-terminology-governance-ui.md
-- .ai-swarm/AGENT_REPORTS/artifacts/wp-231/skills-hub.png
-- .ai-swarm/AGENT_REPORTS/artifacts/wp-231/skills-catalog.png
-- .ai-swarm/AGENT_REPORTS/artifacts/wp-231/tools-catalog.png
+- dev-swarm/reports/legacy-ai-swarm/LINKAIOS_UIUX_REVIEW_BACKLOG.md
+- dev-swarm/reports/legacy-ai-swarm/WP-231-linkskills-terminology-governance-ui.md
+- dev-swarm/reports/legacy-ai-swarm/artifacts/wp-231/skills-hub.png
+- dev-swarm/reports/legacy-ai-swarm/artifacts/wp-231/skills-catalog.png
+- dev-swarm/reports/legacy-ai-swarm/artifacts/wp-231/tools-catalog.png
 
 ## Commands Run
 - `git status --short --branch`
@@ -27,22 +27,22 @@ Implemented packet-scoped UI/UX copy updates for Skills governance terminology i
 - `pnpm --filter @linktrend/linklogic-sdk build`
 - `pnpm --filter @linktrend/linkaios-web typecheck`
 - `LINKAIOS_ENABLE_DEV_AUTH_BYPASS=true LINKAIOS_UI_MOCKS=true ... pnpm dev` (with placeholder Supabase env vars for local render)
-- `pnpm dlx playwright screenshot --device="Desktop Chrome" http://127.0.0.1:3100/skills .ai-swarm/AGENT_REPORTS/artifacts/wp-231/skills-hub.png`
-- `pnpm dlx playwright screenshot --device="Desktop Chrome" http://127.0.0.1:3100/skills/skills .ai-swarm/AGENT_REPORTS/artifacts/wp-231/skills-catalog.png`
-- `pnpm dlx playwright screenshot --device="Desktop Chrome" http://127.0.0.1:3100/skills/tools .ai-swarm/AGENT_REPORTS/artifacts/wp-231/tools-catalog.png`
+- `pnpm dlx playwright screenshot --device="Desktop Chrome" http://127.0.0.1:3100/skills dev-swarm/reports/legacy-ai-swarm/artifacts/wp-231/skills-hub.png`
+- `pnpm dlx playwright screenshot --device="Desktop Chrome" http://127.0.0.1:3100/skills/skills dev-swarm/reports/legacy-ai-swarm/artifacts/wp-231/skills-catalog.png`
+- `pnpm dlx playwright screenshot --device="Desktop Chrome" http://127.0.0.1:3100/skills/tools dev-swarm/reports/legacy-ai-swarm/artifacts/wp-231/tools-catalog.png`
 
 ## Validation Results
 - `pnpm --filter @linktrend/linkaios-web typecheck` passed.
 - Browser proof captured for required Skills surfaces:
-  - `.ai-swarm/AGENT_REPORTS/artifacts/wp-231/skills-hub.png`
-  - `.ai-swarm/AGENT_REPORTS/artifacts/wp-231/skills-catalog.png`
-  - `.ai-swarm/AGENT_REPORTS/artifacts/wp-231/tools-catalog.png`
+  - `dev-swarm/reports/legacy-ai-swarm/artifacts/wp-231/skills-hub.png`
+  - `dev-swarm/reports/legacy-ai-swarm/artifacts/wp-231/skills-catalog.png`
+  - `dev-swarm/reports/legacy-ai-swarm/artifacts/wp-231/tools-catalog.png`
 
 ## Blockers
 - None after dependency bootstrap in clean worktree.
 
 ## Backlog Added
-- Added runtime wiring follow-ups to `.ai-swarm/AGENT_REPORTS/LINKAIOS_UIUX_REVIEW_BACKLOG.md` for server-driven vendor-only metadata and lease/policy-backed indicator data.
+- Added runtime wiring follow-ups to `dev-swarm/reports/legacy-ai-swarm/LINKAIOS_UIUX_REVIEW_BACKLOG.md` for server-driven vendor-only metadata and lease/policy-backed indicator data.
 
 ## Final Commit
 - Branch: `wp-231-linkskills-terminology-governance-ui`

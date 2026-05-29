@@ -404,7 +404,7 @@ LiNKtrend-System/
 
 **Allowed Files:**
 - `plugins/vertical/linkapps/manifest.json`
-- `.ai-swarm/WORK_PACKETS/WP-106*.md`
+- `dev-swarm/programs/linktrend-system/issues/legacy/WP-106*.md`
 
 ### 10.3 Packet WP-107: LiNKapps Squad Orchestration Design
 

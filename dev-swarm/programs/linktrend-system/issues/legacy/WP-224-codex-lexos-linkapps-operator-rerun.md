@@ -19,7 +19,7 @@ Do not start from stale commit `4f3f7ba`. The worktree must contain:
 - `modules/linkapps/`
 - `LiNKaios/linkaios-web/src/**`
 - Thin adapter/export files in owning planes only when required for route proof
-- `.ai-swarm/AGENT_REPORTS/`
+- `dev-swarm/reports/legacy-ai-swarm/`
 
 ## Prohibited Files
 - External `/Users/linktrend/Projects/LiNKtrend-LEXOS`
@@ -28,12 +28,12 @@ Do not start from stale commit `4f3f7ba`. The worktree must contain:
 - Live provider calls, billing, provisioning, or production side effects
 
 ## Required Context
-- `.ai-swarm/AGENT_REPORTS/WP-220-lexos-litigation-operator-flow.md`
-- `.ai-swarm/AGENT_REPORTS/WP-221-linkapps-app-factory-operator-flow.md`
-- `.worktrees/WP-222-final-integration-proof-and-percentage-audit/.ai-swarm/AGENT_REPORTS/WP-222-final-integration-proof-and-percentage-audit.md`
+- `dev-swarm/reports/legacy-ai-swarm/WP-220-lexos-litigation-operator-flow.md`
+- `dev-swarm/reports/legacy-ai-swarm/WP-221-linkapps-app-factory-operator-flow.md`
+- `.worktrees/WP-222-final-integration-proof-and-percentage-audit/dev-swarm/reports/legacy-ai-swarm/WP-222-final-integration-proof-and-percentage-audit.md`
 - `modules/lexos/litigation/workflow.*`
 - `modules/linkapps/workflow.*`
-- `.ai-swarm/CONTRACTS_MVO.md`
+- `dev-swarm/command-center/CONTRACTS_MVO.md`
 - `docs/architecture/repo-architecture-target.md`
 
 ## Steps
@@ -55,4 +55,4 @@ Do not start from stale commit `4f3f7ba`. The worktree must contain:
 - Route/status proof payload summary for each module
 
 ## Report File
-Update `.ai-swarm/AGENT_REPORTS/WP-224-codex-lexos-linkapps-operator-rerun.md`.
+Update `dev-swarm/reports/legacy-ai-swarm/WP-224-codex-lexos-linkapps-operator-rerun.md`.

@@ -15,7 +15,7 @@ Implement the context assembly service to provide LinkBots with scoped, relevant
 - `packages/linklogic-sdk/src/brain-retrieval.ts`
 - `apps/linkaios-web/src/lib/kernel/context-assembler.ts`
 - `services/migrations/*.sql` (for pgvector)
-- `.ai-swarm/AGENT_REPORTS/linkbrain-agent.md`
+- `dev-swarm/reports/legacy-ai-swarm/linkbrain-agent.md`
 
 ## Mission
 

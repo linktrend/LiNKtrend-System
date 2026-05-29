@@ -16,7 +16,7 @@ Use a separate clean worktree/checkout for this packet. Do not run this packet i
 
 ## Allowed Files
 - Build/typecheck fixes in `LiNKaios/`, `LiNKskills/`, `LiNKautowork/`, `LiNKbot/`, `LiNKbrain/`, `packages/`, `pnpm-workspace.yaml`, `pnpm-lock.yaml`
-- Report file under `.ai-swarm/AGENT_REPORTS/`
+- Report file under `dev-swarm/reports/legacy-ai-swarm/`
 
 ## Prohibited Files
 - External repos under `/Users/linktrend/Projects/*`
@@ -24,7 +24,7 @@ Use a separate clean worktree/checkout for this packet. Do not run this packet i
 - New product features unrelated to failing proof gates
 
 ## Required Context
-- `.ai-swarm/AGENT_REPORTS/WP-200-codex-integration-proof.md`
+- `dev-swarm/reports/legacy-ai-swarm/WP-200-codex-integration-proof.md`
 - `docs/architecture/repo-architecture-target.md`
 - `docs/architecture/system-completion-targets.md`
 - `.cursor/rules/00-linktrend-master-rule.mdc`
@@ -52,4 +52,4 @@ Use a separate clean worktree/checkout for this packet. Do not run this packet i
 - `NEXT_PUBLIC_SUPABASE_URL=<public-url> NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=<publishable-key> pnpm --filter @linktrend/linkaios-web build`
 
 ## Report File
-Update `.ai-swarm/AGENT_REPORTS/WP-210-baseline-fix-and-build-gate.md`.
+Update `dev-swarm/reports/legacy-ai-swarm/WP-210-baseline-fix-and-build-gate.md`.

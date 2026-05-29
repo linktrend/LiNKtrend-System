@@ -8,8 +8,8 @@
 ## Files Changed
 
 - `LiNKaios/linkaios-web/src/lib/product-model-ui-foundation.ts`
-- `.ai-swarm/AGENT_REPORTS/LINKAIOS_UIUX_REVIEW_BACKLOG.md`
-- `.ai-swarm/AGENT_REPORTS/WP-226-linkaios-product-model-ui-foundation.md`
+- `dev-swarm/reports/legacy-ai-swarm/LINKAIOS_UIUX_REVIEW_BACKLOG.md`
+- `dev-swarm/reports/legacy-ai-swarm/WP-226-linkaios-product-model-ui-foundation.md`
 
 ## Commands Run
 

@@ -13,8 +13,8 @@ Declaration-only YAML capability manifests for LiNKapps app-factory connectors w
 - `packages/linkaios-kernel/plugins/capabilities/linkapps/cap.eas.build.yaml`
 - `packages/linkaios-kernel/plugins/capabilities/linkapps/cap.plane.execution_tracking.yaml`
 - `packages/linkaios-kernel/plugins/capabilities/linkapps/cap.zulip.run_messaging.yaml`
-- `.ai-swarm/LINKAPPS_CAPABILITY_PLUGIN_CONTRACTS.md`
-- `.ai-swarm/AGENT_REPORTS/WP-112-linkapps-capability-plugin-contracts.md`
+- `dev-swarm/command-center/LINKAPPS_CAPABILITY_PLUGIN_CONTRACTS.md`
+- `dev-swarm/reports/legacy-ai-swarm/WP-112-linkapps-capability-plugin-contracts.md`
 
 ## Commands run
 
@@ -54,7 +54,7 @@ live_execution_policy:
 ## Branch / commit
 
 - **Branch (pushed):** `dev/cursor/WP-112-linkapps-capability-plugin-contracts` → `origin`
-- **Primary deliverable commit:** `c012de9` — manifests + `.ai-swarm/LINKAPPS_CAPABILITY_PLUGIN_CONTRACTS.md` + agent report (`docs: add LiNKapps capability contracts`)
+- **Primary deliverable commit:** `c012de9` — manifests + `dev-swarm/command-center/LINKAPPS_CAPABILITY_PLUGIN_CONTRACTS.md` + agent report (`docs: add LiNKapps capability contracts`)
 - **History:** subsequent commits are documentation/report touches only; inspect with `git log --oneline dev/cursor/WP-112-linkapps-capability-plugin-contracts`
 
 ## Blockers

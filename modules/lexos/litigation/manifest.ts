@@ -5,7 +5,7 @@
  * for litigation matters. It implements the W0-W11 legal cognition workflow.
  *
  * @module modules/lexos/litigation
- * @see {@link ../../.ai-swarm/LEXOS_VERTICAL_PLUGIN_CONVERSION_PLAN.md}
+ * @see {@link ../../../dev-swarm/command-center/LEXOS_VERTICAL_PLUGIN_CONVERSION_PLAN.md}
  */
 
 import type { ModuleManifest } from "../../module-registry";

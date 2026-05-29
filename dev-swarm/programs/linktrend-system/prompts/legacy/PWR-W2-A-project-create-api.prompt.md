@@ -53,7 +53,7 @@ Stub: register demo project in memory/map OR extend demo fixtures; return stable
 - [ ] Tests pass
 
 ## Report
-`.ai-swarm/AGENT_REPORTS/PWR-W2-A-project-create-api.md`
+`dev-swarm/reports/legacy-ai-swarm/PWR-W2-A-project-create-api.md`
 
 ## Commit
 `feat(api): add POST /api/projects create contract stub`

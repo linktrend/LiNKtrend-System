@@ -19,7 +19,7 @@ Use a separate clean worktree/checkout for this packet. Do not run this packet i
 ## Allowed Files
 
 - Cross-system integration fixes in `LiNKaios/`, `LiNKbrain/`, `LiNKskills/`, `LiNKautowork/`, `LiNKbot/`, `LiNKguard/`, `modules/`, `packages/`, `services/migrations/`, `scripts/`
-- Verification docs under `.ai-swarm/AGENT_REPORTS/`
+- Verification docs under `dev-swarm/reports/legacy-ai-swarm/`
 
 ## Prohibited Files
 
@@ -31,9 +31,9 @@ Use a separate clean worktree/checkout for this packet. Do not run this packet i
 
 - `docs/architecture/repo-architecture-target.md`
 - `docs/architecture/system-completion-targets.md`
-- `.ai-swarm/MASTER_PLAN.md`
-- `.ai-swarm/CONTRACTS_MVO.md`
-- `.ai-swarm/DECISIONS.md`
+- `dev-swarm/command-center/MASTER_PLAN.md`
+- `dev-swarm/command-center/CONTRACTS_MVO.md`
+- `dev-swarm/command-center/DECISIONS.md`
 - `.cursor/rules/01-ecosystem-boundaries.mdc`
 
 ## Steps
@@ -59,4 +59,4 @@ Use a separate clean worktree/checkout for this packet. Do not run this packet i
 
 ## Report File
 
-Update `.ai-swarm/AGENT_REPORTS/WP-200-codex-integration-proof.md`.
+Update `dev-swarm/reports/legacy-ai-swarm/WP-200-codex-integration-proof.md`.

@@ -2,7 +2,7 @@
 
 You are Codex working as a senior frontend/product-systems engineer.
 
-Execute `.ai-swarm/WORK_PACKETS/WP-226-linkaios-product-model-ui-foundation.md` exactly.
+Execute `dev-swarm/programs/linktrend-system/issues/legacy/WP-226-linkaios-product-model-ui-foundation.md` exactly.
 
 ## Model / Mode
 
@@ -12,16 +12,16 @@ Use GPT-5.3 Codex or equivalent code-focused model.
 
 Read before editing:
 
-1. `.ai-swarm/WORK_PACKETS/WP-226-linkaios-product-model-ui-foundation.md`
-2. `.ai-swarm/AGENT_REPORTS/CURRENT_STATE_VERIFICATION_WARNING.md`
+1. `dev-swarm/programs/linktrend-system/issues/legacy/WP-226-linkaios-product-model-ui-foundation.md`
+2. `dev-swarm/reports/legacy-ai-swarm/CURRENT_STATE_VERIFICATION_WARNING.md`
 3. `.cursor/rules/01-ecosystem-boundaries.mdc`
 4. `.cursor/rules/03-agent-swarm-coordination.mdc`
 5. `.cursor/rules/07-ui-and-frontend-standards.mdc`
 6. `docs/architecture/repo-architecture-target.md`
-7. `.ai-swarm/ARCHITECTURE_RULES.md`
-8. `.ai-swarm/CONTRACTS_MVO.md`
-9. `.ai-swarm/REPO_INVENTORY.md`
-10. `.ai-swarm/DECISIONS.md`
+7. `dev-swarm/command-center/ARCHITECTURE_RULES.md`
+8. `dev-swarm/command-center/CONTRACTS_MVO.md`
+9. `dev-swarm/command-center/REPO_INVENTORY.md`
+10. `dev-swarm/command-center/DECISIONS.md`
 
 ## Product Decisions To Implement
 
@@ -57,7 +57,7 @@ Run focused tests if you add helpers/components with testable behavior.
 
 ## Required Report
 
-Write `.ai-swarm/AGENT_REPORTS/WP-226-linkaios-product-model-ui-foundation.md` with:
+Write `dev-swarm/reports/legacy-ai-swarm/WP-226-linkaios-product-model-ui-foundation.md` with:
 
 - files changed
 - commands run

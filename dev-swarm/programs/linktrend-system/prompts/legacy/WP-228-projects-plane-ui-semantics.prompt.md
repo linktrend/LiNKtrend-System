@@ -2,7 +2,7 @@
 
 You are Codex working as a senior frontend/product UX engineer.
 
-Execute `.ai-swarm/WORK_PACKETS/WP-228-projects-plane-ui-semantics.md` exactly.
+Execute `dev-swarm/programs/linktrend-system/issues/legacy/WP-228-projects-plane-ui-semantics.md` exactly.
 
 ## Model / Mode
 
@@ -12,9 +12,9 @@ Use GPT-5.3 Codex or equivalent code-focused model.
 
 Read before editing:
 
-1. `.ai-swarm/WORK_PACKETS/WP-228-projects-plane-ui-semantics.md`
+1. `dev-swarm/programs/linktrend-system/issues/legacy/WP-228-projects-plane-ui-semantics.md`
 2. WP-226 report and final commit
-3. `.ai-swarm/AGENT_REPORTS/CURRENT_STATE_VERIFICATION_WARNING.md`
+3. `dev-swarm/reports/legacy-ai-swarm/CURRENT_STATE_VERIFICATION_WARNING.md`
 4. Existing Projects pages and Plane bridge components
 5. `.cursor/rules/01-ecosystem-boundaries.mdc`
 6. `.cursor/rules/03-agent-swarm-coordination.mdc`
@@ -57,7 +57,7 @@ Capture browser screenshots for Projects index, Project detail, and New Project 
 
 ## Required Report
 
-Write `.ai-swarm/AGENT_REPORTS/WP-228-projects-plane-ui-semantics.md` with files changed, commands run, screenshots/proof, blockers, final commit SHA, and backlog items.
+Write `dev-swarm/reports/legacy-ai-swarm/WP-228-projects-plane-ui-semantics.md` with files changed, commands run, screenshots/proof, blockers, final commit SHA, and backlog items.
 
 ## Completion
 

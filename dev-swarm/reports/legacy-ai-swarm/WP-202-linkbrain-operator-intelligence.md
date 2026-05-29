@@ -1,7 +1,7 @@
 # WP-202 — LiNKbrain Operator Intelligence — Agent Report
 
 **Model:** Kimi  
-**Work Packet:** `.ai-swarm/WORK_PACKETS/WP-202-linkbrain-operator-intelligence.md`  
+**Work Packet:** `dev-swarm/programs/linktrend-system/issues/legacy/WP-202-linkbrain-operator-intelligence.md`  
 **Worktree:** `.worktrees/WP-202-linkbrain-operator-intelligence`  
 **Branch:** `wp-202-linkbrain-operator-intelligence`  
 **Date:** 2026-05-18

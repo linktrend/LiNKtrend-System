@@ -28,11 +28,11 @@ Use a separate clean worktree/checkout for this packet. Do not run this packet i
 ## Required Context
 - `modules/linksites/workflow.*`
 - If `modules/linksites/workflow.md` is not present in the checkout, read/copy it from `.worktrees/WP-211-module-workflow-map-gap-prep/modules/linksites/workflow.md` before implementing runtime behavior.
-- `.worktrees/WP-210-baseline-fix-and-build-gate/.ai-swarm/AGENT_REPORTS/WP-210-baseline-fix-and-build-gate.md` if present
-- `.worktrees/WP-211-module-workflow-map-gap-prep/.ai-swarm/AGENT_REPORTS/WP-211-module-workflow-map-gap-prep.md` if present
-- `.ai-swarm/CONTRACTS_MVO.md`
-- `.ai-swarm/LINKSITES_COMPLETION_PLAN.md`
-- `.ai-swarm/DEMO_RUNBOOK_WEBSITEFACTORY_MVO.md`
+- `.worktrees/WP-210-baseline-fix-and-build-gate/dev-swarm/reports/legacy-ai-swarm/WP-210-baseline-fix-and-build-gate.md` if present
+- `.worktrees/WP-211-module-workflow-map-gap-prep/dev-swarm/reports/legacy-ai-swarm/WP-211-module-workflow-map-gap-prep.md` if present
+- `dev-swarm/command-center/CONTRACTS_MVO.md`
+- `dev-swarm/command-center/LINKSITES_COMPLETION_PLAN.md`
+- `dev-swarm/command-center/DEMO_RUNBOOK_WEBSITEFACTORY_MVO.md`
 - `docs/architecture/system-completion-targets.md`
 
 ## Steps
@@ -56,4 +56,4 @@ Use a separate clean worktree/checkout for this packet. Do not run this packet i
 - A command/API proof showing run creation and resulting status/preview fields
 
 ## Report File
-Update `.ai-swarm/AGENT_REPORTS/WP-212-linksites-runtime-spine.md`.
+Update `dev-swarm/reports/legacy-ai-swarm/WP-212-linksites-runtime-spine.md`.

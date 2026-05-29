@@ -14,7 +14,7 @@ Implement lease-governed adapter calls from `apps/bot-runtime` to LinkSkills for
 - `apps/bot-runtime/**`
 - `packages/shared-types/**`
 - `packages/linklogic-sdk/**` (if contract pin updates are needed)
-- `.ai-swarm/AGENT_REPORTS/linkbot-agent.md`
+- `dev-swarm/reports/legacy-ai-swarm/linkbot-agent.md`
 
 ## Prohibited files
 
@@ -23,8 +23,8 @@ Implement lease-governed adapter calls from `apps/bot-runtime` to LinkSkills for
 
 ## Required context
 
-- `.ai-swarm/LINKBOT_ADAPTER_PLAN.md`
-- `.ai-swarm/CONTRACTS_MVO.md` §0.A.7
+- `dev-swarm/command-center/LINKBOT_ADAPTER_PLAN.md`
+- `dev-swarm/command-center/CONTRACTS_MVO.md` §0.A.7
 
 ## Acceptance criteria
 

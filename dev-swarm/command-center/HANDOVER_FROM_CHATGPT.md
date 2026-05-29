@@ -4,7 +4,7 @@
 
 This file formally transfers day-to-day execution orchestration from the ChatGPT planning conversation to the Cursor Architect / Integrator agent working inside the LiNKtrend-System repo.
 
-From this point forward, the repo files under `.ai-swarm/` are the operational source of truth.
+From this point forward, the repo files under `dev-swarm/command-center/` are the operational source of truth.
 
 ChatGPT should no longer be treated as the live coordinator. ChatGPT may still be used later for second opinions, plan correction, architecture review, or prompt repair, but the Cursor Architect / Integrator now owns execution coordination.
 
@@ -34,7 +34,7 @@ The stable development plan docs are under:
 
 The active execution command center is:
 
-`.ai-swarm/`
+`dev-swarm/command-center/`
 
 ## 3. Current Build Objective
 
@@ -133,23 +133,23 @@ The Cursor Architect must resolve or recommend defaults for:
 
 Record decisions in:
 
-`.ai-swarm/DECISIONS.md`
+`dev-swarm/command-center/DECISIONS.md`
 
 ## 8. Agent Coordination Rules
 
 Every agent must:
 
-- read `.ai-swarm/ARCHITECTURE_RULES.md`
-- read `.ai-swarm/MASTER_PLAN.md`
-- read `.ai-swarm/CONTRACTS_MVO.md` if it exists
-- read `.ai-swarm/REPO_INVENTORY.md` if relevant
+- read `dev-swarm/command-center/ARCHITECTURE_RULES.md`
+- read `dev-swarm/command-center/MASTER_PLAN.md`
+- read `dev-swarm/command-center/CONTRACTS_MVO.md` if it exists
+- read `dev-swarm/command-center/REPO_INVENTORY.md` if relevant
 - read its assigned work packet
-- update its report in `.ai-swarm/AGENT_REPORTS/`
+- update its report in `dev-swarm/reports/legacy-ai-swarm/`
 - produce proof before claiming completion
 - stay within assigned scope
 - avoid broad rewrites
 - avoid adding dependencies without justification
-- record significant decisions in `.ai-swarm/DECISIONS.md`
+- record significant decisions in `dev-swarm/command-center/DECISIONS.md`
 
 Specialist agents do not merge their own work.
 
@@ -182,7 +182,7 @@ Use Cursor Architect / Opus / GPT-5.5 only for architecture decisions, integrati
 
 Use Antigravity for UI/browser/testing-heavy tasks.
 
-Use `.ai-swarm/` files as project memory. Do not rely on chat memory.
+Use `dev-swarm/command-center/` files as project memory. Do not rely on chat memory.
 
 ## 11. Escalation Rules
 
@@ -201,13 +201,13 @@ Make sensible defaults, record them, and continue.
 
 ## 12. Current Status At Handover
 
-The `.ai-swarm/` command center has been created.
+The `dev-swarm/command-center/` command center has been created.
 
 Created folders:
 
-- `.ai-swarm/`
-- `.ai-swarm/WORK_PACKETS/`
-- `.ai-swarm/AGENT_REPORTS/`
+- `dev-swarm/command-center/`
+- `dev-swarm/programs/linktrend-system/issues/legacy/`
+- `dev-swarm/reports/legacy-ai-swarm/`
 
 Created root files:
 
@@ -247,7 +247,7 @@ From this point forward, act as the main execution orchestrator.
 
 Keep the build focused on the WebsiteFactory lead-to-preview-site MVO.
 
-Keep `.ai-swarm/` files current.
+Keep `dev-swarm/command-center/` files current.
 
 Prefer concrete work packets over abstract discussion.
 
@@ -257,7 +257,7 @@ Stub blockers that threaten the 7-day execution target.
 
 After this handover file is created, update:
 
-`.ai-swarm/AGENT_COORDINATION.md`
+`dev-swarm/command-center/AGENT_COORDINATION.md`
 
 with a note that ChatGPT handover is complete and the next active packet is WP-001.
 

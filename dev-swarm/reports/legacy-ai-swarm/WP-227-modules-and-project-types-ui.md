@@ -49,7 +49,7 @@ Current screenshots capture the active runtime blocker overlay (`Module not foun
 ## Blockers
 1. **Typecheck baseline failure in this worktree**: internal package resolution missing across existing code, not introduced by WP-227 scope.
 2. **Runtime route proof blocked by same package-resolution error**: Next dev fails before rendering route content, so screenshots currently show the build-error overlay rather than rendered modules UI.
-3. Prompt references `WP-226` report path that does not exist in this snapshot (`.ai-swarm/AGENT_REPORTS/WP-226-linkaios-product-model-ui-foundation.md` not found).
+3. Prompt references `WP-226` report path that does not exist in this snapshot (`dev-swarm/reports/legacy-ai-swarm/WP-226-linkaios-product-model-ui-foundation.md` not found).
 
 ## Risks
 - Until workspace package linking/build baseline is repaired, UI runtime behavior cannot be fully validated via local browser proof.

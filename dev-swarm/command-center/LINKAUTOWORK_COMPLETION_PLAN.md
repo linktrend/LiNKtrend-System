@@ -334,8 +334,8 @@ WP-064 (Health) ──────┼──→ WP-065 (Operator Controls)
 ## 6. Proof Summary
 
 **Files created/modified:**
-- `.ai-swarm/LINKAUTOWORK_COMPLETION_PLAN.md` (this document)
-- `.ai-swarm/WORK_PACKETS/WP-06[0-6]*.md` (7 follow-up packets)
+- `dev-swarm/command-center/LINKAUTOWORK_COMPLETION_PLAN.md` (this document)
+- `dev-swarm/programs/linktrend-system/issues/legacy/WP-06[0-6]*.md` (7 follow-up packets)
 
 **Evidence gathered:**
 - LiNKautowork gateway source analyzed: 12 files, ~1,500 LOC

@@ -22,13 +22,13 @@ Expose LiNKautowork workflow status, idempotency, retry, and audit refs to the L
 - `.cursor/rules/05-security-cost-and-side-effects.mdc`
 - `docs/architecture/repo-architecture-target.md`
 - `docs/architecture/system-completion-targets.md`
-- `.ai-swarm/CONTRACTS_MVO.md`
-- `.ai-swarm/REPO_INVENTORY.md`
-- `.ai-swarm/LINKAUTOWORK_COMPLETION_PLAN.md`
+- `dev-swarm/command-center/CONTRACTS_MVO.md`
+- `dev-swarm/command-center/REPO_INVENTORY.md`
+- `dev-swarm/command-center/LINKAUTOWORK_COMPLETION_PLAN.md`
 - Carry-forward reports:
-  - `.worktrees/WP-210-baseline-fix-and-build-gate/.ai-swarm/AGENT_REPORTS/WP-210-baseline-fix-and-build-gate.md`
-  - `.worktrees/WP-212-linksites-runtime-spine/.ai-swarm/AGENT_REPORTS/WP-212-linksites-runtime-spine.md`
-  - `.ai-swarm/AGENT_REPORTS/WP-213-linksites-linkskills-enforcement.md`
+  - `.worktrees/WP-210-baseline-fix-and-build-gate/dev-swarm/reports/legacy-ai-swarm/WP-210-baseline-fix-and-build-gate.md`
+  - `.worktrees/WP-212-linksites-runtime-spine/dev-swarm/reports/legacy-ai-swarm/WP-212-linksites-runtime-spine.md`
+  - `dev-swarm/reports/legacy-ai-swarm/WP-213-linksites-linkskills-enforcement.md`
 
 ## Files Changed
 

@@ -14,8 +14,8 @@ Create capability plugin manifests for LEXOS-required capabilities.
 
 - `packages/linkaios-kernel/plugins/capabilities/lexos/*.yaml`
 - `packages/linkaios-kernel/plugins/capabilities/lexos/*.json`
-- `.ai-swarm/WORK_PACKETS/WP-094*.md`
-- `.ai-swarm/DECISIONS.md`
+- `dev-swarm/programs/linktrend-system/issues/legacy/WP-094*.md`
+- `dev-swarm/command-center/DECISIONS.md`
 
 ## Prohibited Files
 
@@ -25,9 +25,9 @@ Create capability plugin manifests for LEXOS-required capabilities.
 
 ## Required Context
 
-- `.ai-swarm/LEXOS_VERTICAL_PLUGIN_CONVERSION_PLAN.md` §3
-- `.ai-swarm/PLUGIN_ARCHITECTURE_V2.md`
-- `.ai-swarm/CONTRACTS_MVO.md` §0.A.5
+- `dev-swarm/command-center/LEXOS_VERTICAL_PLUGIN_CONVERSION_PLAN.md` §3
+- `dev-swarm/command-center/PLUGIN_ARCHITECTURE_V2.md`
+- `dev-swarm/command-center/CONTRACTS_MVO.md` §0.A.5
 
 ## Steps
 

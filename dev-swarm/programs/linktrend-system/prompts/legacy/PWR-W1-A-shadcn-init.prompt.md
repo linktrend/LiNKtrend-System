@@ -30,7 +30,7 @@ git status --short --branch  # must be clean before edits
 - Do NOT commit secrets
 
 ## Required context
-- `.ai-swarm/PRE_WIRING_READINESS_PLAN.md`
+- `dev-swarm/command-center/PRE_WIRING_READINESS_PLAN.md`
 - `.cursor/rules/07-ui-and-frontend-standards.mdc`
 - Current `globals.css`, `ui-standards.ts` zinc palette
 
@@ -53,7 +53,7 @@ git status --short --branch  # must be clean before edits
 - List primitives added
 
 ## Report
-Update `.ai-swarm/AGENT_REPORTS/PWR-W1-A-shadcn-init.md` with files, commands, commit SHA.
+Update `dev-swarm/reports/legacy-ai-swarm/PWR-W1-A-shadcn-init.md` with files, commands, commit SHA.
 
 ## Commit
 `feat(ui): init shadcn primitives and theme variables`

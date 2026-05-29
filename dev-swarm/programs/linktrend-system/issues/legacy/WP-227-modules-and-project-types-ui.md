@@ -25,8 +25,8 @@ This packet is UI/UX-first and may use mock/static data for published/licensed/c
 - `LiNKaios/linkaios-web/src/components/**`
 - `LiNKaios/linkaios-web/src/lib/**`
 - `LiNKaios/linkaios-web/src/components/shell-sidebar.tsx`
-- `.ai-swarm/AGENT_REPORTS/WP-227-modules-and-project-types-ui.md`
-- `.ai-swarm/AGENT_REPORTS/LINKAIOS_UIUX_REVIEW_BACKLOG.md`
+- `dev-swarm/reports/legacy-ai-swarm/WP-227-modules-and-project-types-ui.md`
+- `dev-swarm/reports/legacy-ai-swarm/LINKAIOS_UIUX_REVIEW_BACKLOG.md`
 
 ## Prohibited Files
 
@@ -38,7 +38,7 @@ This packet is UI/UX-first and may use mock/static data for published/licensed/c
 ## Required Context
 
 - WP-226 report and commit.
-- `.ai-swarm/AGENT_REPORTS/CURRENT_STATE_VERIFICATION_WARNING.md`
+- `dev-swarm/reports/legacy-ai-swarm/CURRENT_STATE_VERIFICATION_WARNING.md`
 - `.cursor/rules/07-ui-and-frontend-standards.mdc`
 - `.cursor/rules/01-ecosystem-boundaries.mdc`
 - Existing `modules/` docs.
@@ -71,7 +71,7 @@ Use `frontend-design`, `web-design-guidelines`, `webapp-testing`, `nextjs-react-
 - `pnpm --filter @linktrend/linkaios-web typecheck`
 - Focused tests if helpers are added.
 - Browser screenshots for Modules and Project Type Catalogue.
-- Report file: `.ai-swarm/AGENT_REPORTS/WP-227-modules-and-project-types-ui.md`
+- Report file: `dev-swarm/reports/legacy-ai-swarm/WP-227-modules-and-project-types-ui.md`
 
 ## Completion Handoff
 

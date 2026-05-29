@@ -28,7 +28,7 @@ JSON/API layer accepts and returns `projectId` alongside legacy `missionId` for 
 - [ ] Existing UI still works
 
 ## Report
-`.ai-swarm/AGENT_REPORTS/PWR-W6-A-mission-api-surface.md`
+`dev-swarm/reports/legacy-ai-swarm/PWR-W6-A-mission-api-surface.md`
 
 ## Commit
 `feat(api): add projectId alias on mission API surface`

@@ -30,8 +30,8 @@ This packet is UI/UX-first and should not implement deep Plane backend wiring.
 - `LiNKaios/linkaios-web/src/lib/project*.ts`
 - `LiNKaios/linkaios-web/src/lib/plane-links.ts`
 - `LiNKaios/linkaios-web/src/lib/ui-mocks/**`
-- `.ai-swarm/AGENT_REPORTS/WP-228-projects-plane-ui-semantics.md`
-- `.ai-swarm/AGENT_REPORTS/LINKAIOS_UIUX_REVIEW_BACKLOG.md`
+- `dev-swarm/reports/legacy-ai-swarm/WP-228-projects-plane-ui-semantics.md`
+- `dev-swarm/reports/legacy-ai-swarm/LINKAIOS_UIUX_REVIEW_BACKLOG.md`
 
 ## Prohibited Files
 
@@ -44,7 +44,7 @@ This packet is UI/UX-first and should not implement deep Plane backend wiring.
 
 - WP-226 report and commit.
 - Existing Projects pages and Plane bridge components.
-- `.ai-swarm/AGENT_REPORTS/CURRENT_STATE_VERIFICATION_WARNING.md`
+- `dev-swarm/reports/legacy-ai-swarm/CURRENT_STATE_VERIFICATION_WARNING.md`
 
 ## Required UI/UX Skills
 
@@ -72,7 +72,7 @@ Use `frontend-design`, `web-design-guidelines`, `webapp-testing`, `nextjs-react-
 - `pnpm --filter @linktrend/linkaios-web typecheck`
 - Focused tests if helpers/components are added.
 - Browser screenshots for Projects index, Project detail, and New Project flow/surface.
-- Report file: `.ai-swarm/AGENT_REPORTS/WP-228-projects-plane-ui-semantics.md`
+- Report file: `dev-swarm/reports/legacy-ai-swarm/WP-228-projects-plane-ui-semantics.md`
 
 ## Completion Handoff
 

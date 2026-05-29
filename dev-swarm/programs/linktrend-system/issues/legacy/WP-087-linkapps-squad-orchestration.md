@@ -12,9 +12,9 @@ Define how LiNKaios coordinates multiple LinkBot agents as an autonomous squad f
 
 ## Allowed files
 
-- `.ai-swarm/LINKAPPS_SQUAD_ORCHESTRATION_SPEC.md`
-- `.ai-swarm/WORK_PACKETS/WP-087*.md`
-- `.ai-swarm/AGENT_REPORTS/linkbot-agent.md`
+- `dev-swarm/command-center/LINKAPPS_SQUAD_ORCHESTRATION_SPEC.md`
+- `dev-swarm/programs/linktrend-system/issues/legacy/WP-087*.md`
+- `dev-swarm/reports/legacy-ai-swarm/linkbot-agent.md`
 
 ## Prohibited files
 

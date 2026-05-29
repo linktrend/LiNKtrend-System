@@ -23,7 +23,7 @@ Use a separate clean worktree/checkout for this packet. Do not run this packet i
 - LEXOS role definitions under `LiNKbot/roles/` if needed
 - LEXOS workflow declarations under `LiNKautowork/`
 - LEXOS contracts/events in `packages/linklogic-sdk/`
-- `.ai-swarm/AGENT_REPORTS/`
+- `dev-swarm/reports/legacy-ai-swarm/`
 
 ## Prohibited Files
 
@@ -36,8 +36,8 @@ Use a separate clean worktree/checkout for this packet. Do not run this packet i
 
 - `docs/architecture/repo-architecture-target.md`
 - `docs/architecture/system-completion-targets.md`
-- `.ai-swarm/LEXOS_VERTICAL_PLUGIN_CONVERSION_PLAN.md`
-- `.ai-swarm/LEXOS_VERTICAL_DISCOVERY.md`
+- `dev-swarm/command-center/LEXOS_VERTICAL_PLUGIN_CONVERSION_PLAN.md`
+- `dev-swarm/command-center/LEXOS_VERTICAL_DISCOVERY.md`
 - `modules/lexos/litigation/README.md`
 
 ## Steps
@@ -62,4 +62,4 @@ Use a separate clean worktree/checkout for this packet. Do not run this packet i
 
 ## Report File
 
-Update `.ai-swarm/AGENT_REPORTS/WP-207-lexos-litigation-mvo.md`.
+Update `dev-swarm/reports/legacy-ai-swarm/WP-207-lexos-litigation-mvo.md`.

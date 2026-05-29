@@ -14,7 +14,7 @@ Implement deterministic stage handoff from LinkBot outputs into LiNKautowork wor
 - `apps/linkaios-web/**` (handoff orchestrator)
 - `apps/bot-runtime/**` (handoff request emission only)
 - `packages/shared-types/**`
-- `.ai-swarm/AGENT_REPORTS/linkautowork-agent.md`
+- `dev-swarm/reports/legacy-ai-swarm/linkautowork-agent.md`
 
 ## Prohibited files
 
@@ -23,8 +23,8 @@ Implement deterministic stage handoff from LinkBot outputs into LiNKautowork wor
 
 ## Required context
 
-- `.ai-swarm/LINKBOT_ADAPTER_PLAN.md`
-- `.ai-swarm/CONTRACTS_MVO.md` §0.A.10.1
+- `dev-swarm/command-center/LINKBOT_ADAPTER_PLAN.md`
+- `dev-swarm/command-center/CONTRACTS_MVO.md` §0.A.10.1
 
 ## Acceptance criteria
 

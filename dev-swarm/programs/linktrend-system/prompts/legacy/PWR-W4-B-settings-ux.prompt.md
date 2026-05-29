@@ -22,7 +22,7 @@ Fix double headers and Access intro clutter from UI audit.
 - [ ] Access page scannable
 
 ## Report
-`.ai-swarm/AGENT_REPORTS/PWR-W4-B-settings-ux.md`
+`dev-swarm/reports/legacy-ai-swarm/PWR-W4-B-settings-ux.md`
 
 ## Commit
 `fix(settings): dedupe headers and tighten access intro`

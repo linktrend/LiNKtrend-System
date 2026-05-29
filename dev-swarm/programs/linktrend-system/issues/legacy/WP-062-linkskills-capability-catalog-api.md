@@ -16,7 +16,7 @@ Implement capability registry CRUD and discovery endpoints matching `CapabilityP
 - `packages/linkskills-core/src/api/`
 - `packages/linklogic-sdk/src/types/capability.ts`
 - `packages/linkskills-core/tests/`
-- `.ai-swarm/AGENT_REPORTS/linkskills-agent.md`
+- `dev-swarm/reports/legacy-ai-swarm/linkskills-agent.md`
 
 ## Prohibited files
 
@@ -26,9 +26,9 @@ Implement capability registry CRUD and discovery endpoints matching `CapabilityP
 
 ## Required context
 
-- `.ai-swarm/LINKSKILLS_COMPLETION_PLAN.md` §4.1
-- `.ai-swarm/CONTRACTS_MVO.md` §1.2 (CapabilityPluginSurface)
-- `.ai-swarm/CONTRACTS_MVO.md` §0.A.5 (v1 capability contracts)
+- `dev-swarm/command-center/LINKSKILLS_COMPLETION_PLAN.md` §4.1
+- `dev-swarm/command-center/CONTRACTS_MVO.md` §1.2 (CapabilityPluginSurface)
+- `dev-swarm/command-center/CONTRACTS_MVO.md` §0.A.5 (v1 capability contracts)
 - WP-061 schema (capabilities table)
 
 ## Steps

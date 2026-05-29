@@ -15,9 +15,9 @@ Turn the remaining LinkSites E2E environment blocker into an actionable local pr
 - `scripts/run-e2e.ts`
 - `scripts/**e2e**`
 - `.env.example`
-- `.ai-swarm/DEMO_RUNBOOK_WEBSITEFACTORY_MVO.md`
-- `.ai-swarm/END_OF_DAY_VERIFICATION_QUEUE.md`
-- `.ai-swarm/AGENT_REPORTS/WP-120-linksites-local-proof-runbook-and-preflight.md`
+- `dev-swarm/command-center/DEMO_RUNBOOK_WEBSITEFACTORY_MVO.md`
+- `dev-swarm/command-center/END_OF_DAY_VERIFICATION_QUEUE.md`
+- `dev-swarm/reports/legacy-ai-swarm/WP-120-linksites-local-proof-runbook-and-preflight.md`
 
 ## Prohibited files
 
@@ -28,8 +28,8 @@ Turn the remaining LinkSites E2E environment blocker into an actionable local pr
 
 ## Required context
 
-- `.ai-swarm/DEMO_RUNBOOK_WEBSITEFACTORY_MVO.md`
-- `.ai-swarm/END_OF_DAY_VERIFICATION_QUEUE.md`
+- `dev-swarm/command-center/DEMO_RUNBOOK_WEBSITEFACTORY_MVO.md`
+- `dev-swarm/command-center/END_OF_DAY_VERIFICATION_QUEUE.md`
 - `scripts/run-e2e.ts`
 - `.env.example`
 

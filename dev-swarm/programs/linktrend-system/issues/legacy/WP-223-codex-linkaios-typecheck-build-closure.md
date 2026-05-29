@@ -15,7 +15,7 @@ Use the WP-222 integration branch/worktree as the base because it already merged
 - `apps/linkaios-web/src/**` only if it exists as an integration compatibility path/symlink from WP-222
 - `packages/linklogic-sdk/src/**` only for type compatibility required by LiNKaios
 - `packages/shared-*`, `packages/db`, `packages/ui` only for type compatibility required by LiNKaios
-- `.ai-swarm/AGENT_REPORTS/`
+- `dev-swarm/reports/legacy-ai-swarm/`
 
 ## Prohibited Files
 - External repos under `/Users/linktrend/Projects/*`
@@ -24,12 +24,12 @@ Use the WP-222 integration branch/worktree as the base because it already merged
 - Live publishing, outreach, billing, provider provisioning, or production side effects
 
 ## Required Context
-- `.worktrees/WP-222-final-integration-proof-and-percentage-audit/.ai-swarm/AGENT_REPORTS/WP-222-final-integration-proof-and-percentage-audit.md`
-- `.worktrees/WP-212-linksites-runtime-spine/.ai-swarm/AGENT_REPORTS/WP-212-linksites-runtime-spine.md`
-- `.worktrees/WP-216-linkaios-cockpit-proof-surface/.ai-swarm/AGENT_REPORTS/WP-216-linkaios-cockpit-proof-surface.md`
-- `.worktrees/WP-218-linksites-proof-runbook-and-local-preview/.ai-swarm/AGENT_REPORTS/WP-218-linksites-proof-runbook-and-local-preview.md`
+- `.worktrees/WP-222-final-integration-proof-and-percentage-audit/dev-swarm/reports/legacy-ai-swarm/WP-222-final-integration-proof-and-percentage-audit.md`
+- `.worktrees/WP-212-linksites-runtime-spine/dev-swarm/reports/legacy-ai-swarm/WP-212-linksites-runtime-spine.md`
+- `.worktrees/WP-216-linkaios-cockpit-proof-surface/dev-swarm/reports/legacy-ai-swarm/WP-216-linkaios-cockpit-proof-surface.md`
+- `.worktrees/WP-218-linksites-proof-runbook-and-local-preview/dev-swarm/reports/legacy-ai-swarm/WP-218-linksites-proof-runbook-and-local-preview.md`
 - `docs/architecture/repo-architecture-target.md`
-- `.ai-swarm/CONTRACTS_MVO.md`
+- `dev-swarm/command-center/CONTRACTS_MVO.md`
 
 ## Known Blockers To Fix
 From WP-222:
@@ -63,4 +63,4 @@ If the integrated topology exposes these files under `LiNKaios/linkaios-web`, fi
 - `NEXT_PUBLIC_SUPABASE_URL=https://example.supabase.co NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=pk_test_public pnpm --filter @linktrend/linkaios-web build`
 
 ## Report File
-Update `.ai-swarm/AGENT_REPORTS/WP-223-codex-linkaios-typecheck-build-closure.md`.
+Update `dev-swarm/reports/legacy-ai-swarm/WP-223-codex-linkaios-typecheck-build-closure.md`.

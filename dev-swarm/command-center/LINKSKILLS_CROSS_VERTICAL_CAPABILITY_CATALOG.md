@@ -75,4 +75,4 @@ Detailed rows plus lease SKUs union and reconciliation notes appear in:
 
 ## 4. Proof pointer
 
-- Seeds list only stable handles / paths / policy text — confirm absence of literals in `.ai-swarm/AGENT_REPORTS/WP-114-linkskills-cross-vertical-catalog-seeds.md`.
+- Seeds list only stable handles / paths / policy text — confirm absence of literals in `dev-swarm/reports/legacy-ai-swarm/WP-114-linkskills-cross-vertical-catalog-seeds.md`.

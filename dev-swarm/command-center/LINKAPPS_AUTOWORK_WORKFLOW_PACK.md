@@ -181,6 +181,6 @@ Test coverage includes:
 ## References
 
 - `plugins/vertical/linkapps/manifest.yaml` - Plugin manifest
-- `.ai-swarm/LINKAPPS_CAPABILITY_REQUIREMENTS.md` - Capability matrix
-- `.ai-swarm/CONTRACTS_MVO.md` - Cross-plane contracts
+- `dev-swarm/command-center/LINKAPPS_CAPABILITY_REQUIREMENTS.md` - Capability matrix
+- `dev-swarm/command-center/CONTRACTS_MVO.md` - Cross-plane contracts
 - `LiNKautowork/gateway/src/workflows/linksites-v2.ts` - Pattern reference

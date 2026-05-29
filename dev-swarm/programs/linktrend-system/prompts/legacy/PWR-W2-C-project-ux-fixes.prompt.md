@@ -28,7 +28,7 @@ Fix empty states and navigation gaps blocking wiring QA.
 - [ ] Tab URL sync fixed
 
 ## Report
-`.ai-swarm/AGENT_REPORTS/PWR-W2-C-project-ux-fixes.md`
+`dev-swarm/reports/legacy-ai-swarm/PWR-W2-C-project-ux-fixes.md`
 
 ## Commit
 `fix(ui): projects empty state and suite card navigation`

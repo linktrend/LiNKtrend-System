@@ -29,7 +29,7 @@ Wave 2 integrator merge of **PWR-W2-A** (API must exist on development)
 - [ ] created=1 shows feedback
 
 ## Report
-`.ai-swarm/AGENT_REPORTS/PWR-W2-B-wizard-wireup.md`
+`dev-swarm/reports/legacy-ai-swarm/PWR-W2-B-wizard-wireup.md`
 
 ## Commit
 `feat(projects): wire add-project wizard to create API`

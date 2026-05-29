@@ -27,11 +27,11 @@ Use a separate clean worktree/checkout for this packet. Do not run this packet i
 ## Required Context
 - `LiNKautowork/README.md`
 - `LiNKautowork/templates/README.md`
-- `.ai-swarm/LINKAUTOWORK_COMPLETION_PLAN.md`
-- `.ai-swarm/CONTRACTS_MVO.md`
-- `.worktrees/WP-210-baseline-fix-and-build-gate/.ai-swarm/AGENT_REPORTS/WP-210-baseline-fix-and-build-gate.md` if present
-- `.worktrees/WP-212-linksites-runtime-spine/.ai-swarm/AGENT_REPORTS/WP-212-linksites-runtime-spine.md` if present
-- `.ai-swarm/AGENT_REPORTS/WP-213-linksites-linkskills-enforcement.md` if present
+- `dev-swarm/command-center/LINKAUTOWORK_COMPLETION_PLAN.md`
+- `dev-swarm/command-center/CONTRACTS_MVO.md`
+- `.worktrees/WP-210-baseline-fix-and-build-gate/dev-swarm/reports/legacy-ai-swarm/WP-210-baseline-fix-and-build-gate.md` if present
+- `.worktrees/WP-212-linksites-runtime-spine/dev-swarm/reports/legacy-ai-swarm/WP-212-linksites-runtime-spine.md` if present
+- `dev-swarm/reports/legacy-ai-swarm/WP-213-linksites-linkskills-enforcement.md` if present
 
 ## Steps
 1. First fix the in-scope WP-210 LiNKautowork blockers if still present, especially `LiNKautowork/gateway/src/lib/idempotency-store.ts`, fetch/request typings, and the `"compensated"` status union mismatch.
@@ -51,4 +51,4 @@ Use a separate clean worktree/checkout for this packet. Do not run this packet i
 - Focused status/idempotency test evidence
 
 ## Report File
-Update `.ai-swarm/AGENT_REPORTS/WP-217-autowork-status-idempotency-visibility.md`.
+Update `dev-swarm/reports/legacy-ai-swarm/WP-217-autowork-status-idempotency-visibility.md`.

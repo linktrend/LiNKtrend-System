@@ -30,12 +30,12 @@ Use a separate clean worktree/checkout for this packet. Do not run this packet i
 - LinkSites runtime implementation from Waves 2-3
 - `modules/lexos/litigation/workflow.*`
 - `modules/linkapps/workflow.*`
-- `.ai-swarm/CONTRACTS_MVO.md`
+- `dev-swarm/command-center/CONTRACTS_MVO.md`
 - `docs/architecture/system-completion-targets.md`
-- `.worktrees/WP-216-linkaios-cockpit-proof-surface/.ai-swarm/AGENT_REPORTS/WP-216-linkaios-cockpit-proof-surface.md` if present
-- `.ai-swarm/AGENT_REPORTS/WP-217-autowork-status-idempotency-visibility.md` if present
-- `.worktrees/WP-218-linksites-proof-runbook-and-local-preview/.ai-swarm/AGENT_REPORTS/WP-218-linksites-proof-runbook-and-local-preview.md` if present
-- `.worktrees/WP-215-linksites-linkbrain-trace-proof/.ai-swarm/AGENT_REPORTS/WP-215-linksites-linkbrain-trace-proof.md` if present
+- `.worktrees/WP-216-linkaios-cockpit-proof-surface/dev-swarm/reports/legacy-ai-swarm/WP-216-linkaios-cockpit-proof-surface.md` if present
+- `dev-swarm/reports/legacy-ai-swarm/WP-217-autowork-status-idempotency-visibility.md` if present
+- `.worktrees/WP-218-linksites-proof-runbook-and-local-preview/dev-swarm/reports/legacy-ai-swarm/WP-218-linksites-proof-runbook-and-local-preview.md` if present
+- `.worktrees/WP-215-linksites-linkbrain-trace-proof/dev-swarm/reports/legacy-ai-swarm/WP-215-linksites-linkbrain-trace-proof.md` if present
 
 ## Steps
 1. First fix the repo topology baseline in this packet worktree if still present: `@linktrend/linkaios-web` must resolve to `LiNKaios/linkaios-web`, not legacy `apps/linkaios-web`; `docs/architecture/*target*.md`, active WP-219 artifacts, and module paths must exist before runtime replication starts.
@@ -58,4 +58,4 @@ Use a separate clean worktree/checkout for this packet. Do not run this packet i
 - Proof payloads or screenshots where possible
 
 ## Report File
-Update `.ai-swarm/AGENT_REPORTS/WP-219-lexos-linkapps-runtime-pattern-integration.md`.
+Update `dev-swarm/reports/legacy-ai-swarm/WP-219-lexos-linkapps-runtime-pattern-integration.md`.

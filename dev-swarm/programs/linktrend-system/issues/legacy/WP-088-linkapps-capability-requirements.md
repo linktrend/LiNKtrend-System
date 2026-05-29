@@ -12,9 +12,9 @@ Define precise capability lease requirements for all LiNKapps operations, per ca
 
 ## Allowed files
 
-- `.ai-swarm/LINKAPPS_CAPABILITY_REQUIREMENTS.md`
-- `.ai-swarm/WORK_PACKETS/WP-088*.md`
-- `.ai-swarm/AGENT_REPORTS/linkskills-agent.md`
+- `dev-swarm/command-center/LINKAPPS_CAPABILITY_REQUIREMENTS.md`
+- `dev-swarm/programs/linktrend-system/issues/legacy/WP-088*.md`
+- `dev-swarm/reports/legacy-ai-swarm/linkskills-agent.md`
 
 ## Prohibited files
 

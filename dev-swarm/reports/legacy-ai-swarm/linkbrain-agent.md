@@ -5,7 +5,7 @@
 ## WP-089 — LiNKbrain learning loop & benchmark contracts — Agent Report
 
 **Agent:** Cursor  
-**Prompt:** `.ai-swarm/AGENT_PROMPTS/WP-089-linkbrain-learning-benchmarks.prompt.md`  
+**Prompt:** `dev-swarm/programs/linktrend-system/prompts/legacy/WP-089-linkbrain-learning-benchmarks.prompt.md`  
 **Branch:** `dev/cursor/WP-089-linkbrain-learning-benchmarks`  
 **Date:** 2026-05-17  
 **Status:** Complete (spec + SDK; no DB aggregation — WP-087 gate)
@@ -16,11 +16,11 @@ Respected dependency gate: `brain_memory_objects` / WP-087 migrations absent on 
 
 ### Files changed
 
-- `.ai-swarm/LINKBRAIN_BENCHMARKING_SPEC.md`
+- `dev-swarm/command-center/LINKBRAIN_BENCHMARKING_SPEC.md`
 - `packages/linklogic-sdk/src/brain-benchmarks.ts`
 - `packages/linklogic-sdk/src/brain-benchmarks.test.ts`
 - `packages/linklogic-sdk/src/index.ts` (exports)
-- `.ai-swarm/AGENT_REPORTS/linkbrain-agent.md`
+- `dev-swarm/reports/legacy-ai-swarm/linkbrain-agent.md`
 
 ### Commands run
 
@@ -66,7 +66,7 @@ Executed a comprehensive review of LiNKbrain v2 audit and memory coverage agains
 
 | File | Purpose |
 |------|---------|
-| `.ai-swarm/CONTRACTS_MVO.md` §0.A | LinkSites v2 canonical contract |
+| `dev-swarm/command-center/CONTRACTS_MVO.md` §0.A | LinkSites v2 canonical contract |
 | `.cursor/rules/04-mvo-scope-and-stubbing.mdc` | MVO acceptance criteria |
 | `services/migrations/023_linkbrain_audit_envelope.sql` | Audit events table schema |
 | `services/migrations/026_linkbrain_rpc_wrapper.sql` | RPC wrapper for audit writes |
@@ -252,7 +252,7 @@ Per `.cursor/rules/04-mvo-scope-and-stubbing.mdc`:
 
 | File | Change |
 |------|--------|
-| `.ai-swarm/AGENT_REPORTS/linkbrain-agent.md` | Created this report |
+| `dev-swarm/reports/legacy-ai-swarm/linkbrain-agent.md` | Created this report |
 
 ---
 
@@ -363,7 +363,7 @@ pnpm --filter @linktrend/autowork-gateway exec vitest run src/workflows/linksite
 ## Blockers
 
 None.
-- `.ai-swarm/AGENT_REPORTS/linkbrain-agent.md`
+- `dev-swarm/reports/legacy-ai-swarm/linkbrain-agent.md`
 
 ## Mapping Table (Source -> Canonical)
 
@@ -427,13 +427,13 @@ Defined the LiNKbrain Completion Plan and created follow-up work packets (WP-086
 
 ## Files Changed
 
-- `.ai-swarm/LINKBRAIN_COMPLETION_PLAN.md`
-- `.ai-swarm/WORK_PACKETS/WP-086-linkbrain-audit-ledger-completion.md`
-- `.ai-swarm/WORK_PACKETS/WP-087-linkbrain-memory-object-schemas.md`
-- `.ai-swarm/WORK_PACKETS/WP-088-linkbrain-context-assembler.md`
-- `.ai-swarm/WORK_PACKETS/WP-089-linkbrain-learning-benchmarks.md`
-- `.ai-swarm/DECISIONS.md`
-- `.ai-swarm/AGENT_REPORTS/linkbrain-agent.md`
+- `dev-swarm/command-center/LINKBRAIN_COMPLETION_PLAN.md`
+- `dev-swarm/programs/linktrend-system/issues/legacy/WP-086-linkbrain-audit-ledger-completion.md`
+- `dev-swarm/programs/linktrend-system/issues/legacy/WP-087-linkbrain-memory-object-schemas.md`
+- `dev-swarm/programs/linktrend-system/issues/legacy/WP-088-linkbrain-context-assembler.md`
+- `dev-swarm/programs/linktrend-system/issues/legacy/WP-089-linkbrain-learning-benchmarks.md`
+- `dev-swarm/command-center/DECISIONS.md`
+- `dev-swarm/reports/legacy-ai-swarm/linkbrain-agent.md`
 
 ## Key Decisions
 
@@ -459,7 +459,7 @@ git worktree add ../LiNKtrend-System-WP-082 -b dev/cursor/WP-082-linkbrain-compl
 
 ## Proof
 
-- ✅ `.ai-swarm/LINKBRAIN_COMPLETION_PLAN.md` defines the "finished enough" state.
+- ✅ `dev-swarm/command-center/LINKBRAIN_COMPLETION_PLAN.md` defines the "finished enough" state.
 - ✅ Gap map identifies specific missing actions and memory objects.
 - ✅ Follow-up packets (WP-086 to WP-089) provide clear implementation paths with dependencies.
 - ✅ Decisions D-082-A to D-082-D recorded in `DECISIONS.md`.

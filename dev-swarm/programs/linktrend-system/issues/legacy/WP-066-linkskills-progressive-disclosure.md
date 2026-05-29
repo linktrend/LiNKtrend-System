@@ -16,7 +16,7 @@ Implement run-scoped disclosure token generation and fragment delivery for LinkB
 - `packages/linkskills-core/src/tokens/`
 - `packages/linkskills-core/src/api/disclosure.ts`
 - `packages/linklogic-sdk/src/types/disclosure.ts`
-- `.ai-swarm/AGENT_REPORTS/linkskills-agent.md`
+- `dev-swarm/reports/legacy-ai-swarm/linkskills-agent.md`
 
 ## Prohibited files
 
@@ -26,7 +26,7 @@ Implement run-scoped disclosure token generation and fragment delivery for LinkB
 
 ## Required context
 
-- `.ai-swarm/LINKSKILLS_COMPLETION_PLAN.md` §4.7
+- `dev-swarm/command-center/LINKSKILLS_COMPLETION_PLAN.md` §4.7
 - PRD_LINKSKILLS_LOGIC_ENGINE §12 (progressive disclosure)
 - WP-063 (lease lifecycle)
 - WP-065 (Golden Template)

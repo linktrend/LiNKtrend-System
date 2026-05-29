@@ -1,9 +1,9 @@
 ---
-description: UI and frontend standards for LiNKaios and module development.
+description: LiNKtrend product UI — LiNKaios shell, tokens, suites/projects terminology in UI only.
 alwaysApply: false
 ---
 
-# UI And Frontend Standards
+# LiNKaios UI Standards (product-only)
 
 **Index:** `LiNKaios/linkaios-web/docs/ui-system.md` — read first for layer map, paths, and BUTTON → shadcn migration table.
 

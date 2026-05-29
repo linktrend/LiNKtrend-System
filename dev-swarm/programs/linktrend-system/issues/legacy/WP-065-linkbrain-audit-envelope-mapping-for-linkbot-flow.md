@@ -14,7 +14,7 @@ Map LinkBot governance/runtime lifecycle and LinkSkills/LiNKautowork events into
 - `apps/linkaios-web/**` (orchestrator/audit bridge only)
 - `packages/shared-types/**`
 - `packages/observability/**`
-- `.ai-swarm/AGENT_REPORTS/linkbrain-agent.md`
+- `dev-swarm/reports/legacy-ai-swarm/linkbrain-agent.md`
 
 ## Prohibited files
 
@@ -23,8 +23,8 @@ Map LinkBot governance/runtime lifecycle and LinkSkills/LiNKautowork events into
 
 ## Required context
 
-- `.ai-swarm/LINKBOT_ADAPTER_PLAN.md`
-- `.ai-swarm/CONTRACTS_MVO.md` §0.A.7 and §0.A.10
+- `dev-swarm/command-center/LINKBOT_ADAPTER_PLAN.md`
+- `dev-swarm/command-center/CONTRACTS_MVO.md` §0.A.7 and §0.A.10
 
 ## Acceptance criteria
 

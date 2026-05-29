@@ -15,9 +15,9 @@ Define how LiNKaios coordinates multiple LiNKbot roles as a governed LiNKapps im
 
 ## Files Changed
 
-- `.ai-swarm/LINKAPPS_SQUAD_ORCHESTRATION_SPEC.md` (new)
-- `.ai-swarm/WORK_PACKETS/WP-107-linkapps-squad-orchestration.md` (acceptance checkboxes)
-- `.ai-swarm/AGENT_REPORTS/linkbot-agent.md` (this update)
+- `dev-swarm/command-center/LINKAPPS_SQUAD_ORCHESTRATION_SPEC.md` (new)
+- `dev-swarm/programs/linktrend-system/issues/legacy/WP-107-linkapps-squad-orchestration.md` (acceptance checkboxes)
+- `dev-swarm/reports/legacy-ai-swarm/linkbot-agent.md` (this update)
 
 ---
 
@@ -78,7 +78,7 @@ Add a lease-governed LinkSkills adapter flow in `LiNKbot/runtime-adapters/opencl
 - `LiNKbot/runtime-adapters/openclaw/bot-runtime/src/linkskills-runtime-adapter.ts` (new)
 - `LiNKbot/runtime-adapters/openclaw/bot-runtime/src/linkskills-runtime-adapter.test.ts` (new)
 - `LiNKbot/runtime-adapters/openclaw/bot-runtime/src/index.ts` (export adapter)
-- `.ai-swarm/AGENT_REPORTS/linkbot-agent.md` (this update)
+- `dev-swarm/reports/legacy-ai-swarm/linkbot-agent.md` (this update)
 
 ---
 
@@ -88,8 +88,8 @@ Add a lease-governed LinkSkills adapter flow in `LiNKbot/runtime-adapters/opencl
 git status --short --branch
 git fetch origin --prune
 git worktree add ../LiNKtrend-System-WP-064 -b dev/codex/WP-064-linkskills-lease-projection-and-bot-runtime-adapter origin/development
-sed -n '1,240p' .ai-swarm/AGENT_PROMPTS/WP-064-linkskills-lease-projection-and-bot-runtime-adapter.prompt.md
-sed -n '1,260p' .ai-swarm/WORK_PACKETS/WP-064-linkskills-lease-projection-and-bot-runtime-adapter.md
+sed -n '1,240p' dev-swarm/programs/linktrend-system/prompts/legacy/WP-064-linkskills-lease-projection-and-bot-runtime-adapter.prompt.md
+sed -n '1,260p' dev-swarm/programs/linktrend-system/issues/legacy/WP-064-linkskills-lease-projection-and-bot-runtime-adapter.md
 rg --files LiNKbot/runtime-adapters/openclaw/bot-runtime
 rg -n "lease|linkskills|capability|idempot|adapter|linkbot|governance" LiNKbot/runtime-adapters/openclaw/bot-runtime -S
 pnpm install
@@ -150,13 +150,13 @@ Define the adapter plan connecting LiNKbot to LiNKaios dispatch, LinkSkills leas
 
 ## Files Changed
 
-- `.ai-swarm/LINKBOT_ADAPTER_PLAN.md` (new)
-- `.ai-swarm/WORK_PACKETS/WP-063-linkaios-ingress-fail-closed-governance-adapter.md` (new)
-- `.ai-swarm/WORK_PACKETS/WP-064-linkskills-lease-projection-and-bot-runtime-adapter.md` (new)
-- `.ai-swarm/WORK_PACKETS/WP-065-linkbrain-audit-envelope-mapping-for-linkbot-flow.md` (new)
-- `.ai-swarm/WORK_PACKETS/WP-066-linkautowork-deterministic-handoff-orchestration.md` (new)
-- `.ai-swarm/WORK_PACKETS/WP-067-zulip-run-messaging-governance-adapter.md` (new)
-- `.ai-swarm/AGENT_REPORTS/linkbot-agent.md` (this update)
+- `dev-swarm/command-center/LINKBOT_ADAPTER_PLAN.md` (new)
+- `dev-swarm/programs/linktrend-system/issues/legacy/WP-063-linkaios-ingress-fail-closed-governance-adapter.md` (new)
+- `dev-swarm/programs/linktrend-system/issues/legacy/WP-064-linkskills-lease-projection-and-bot-runtime-adapter.md` (new)
+- `dev-swarm/programs/linktrend-system/issues/legacy/WP-065-linkbrain-audit-envelope-mapping-for-linkbot-flow.md` (new)
+- `dev-swarm/programs/linktrend-system/issues/legacy/WP-066-linkautowork-deterministic-handoff-orchestration.md` (new)
+- `dev-swarm/programs/linktrend-system/issues/legacy/WP-067-zulip-run-messaging-governance-adapter.md` (new)
+- `dev-swarm/reports/legacy-ai-swarm/linkbot-agent.md` (this update)
 
 ---
 
@@ -193,8 +193,8 @@ Sync and discover `/Users/linktrend/Projects/LiNKbot-core` against upstream, the
 
 ## Files Changed
 
-- `.ai-swarm/LINKBOT_CORE_SYNC_READINESS.md` (new)
-- `.ai-swarm/AGENT_REPORTS/linkbot-agent.md` (this update)
+- `dev-swarm/command-center/LINKBOT_CORE_SYNC_READINESS.md` (new)
+- `dev-swarm/reports/legacy-ai-swarm/linkbot-agent.md` (this update)
 
 No target repo files were modified or committed.
 
@@ -242,7 +242,7 @@ sed -n '1,220p' /Users/linktrend/Projects/LiNKbot-core/.github/workflows/upstrea
 
 Detailed findings and next packet recommendations are documented in:
 
-- `.ai-swarm/LINKBOT_CORE_SYNC_READINESS.md`
+- `dev-swarm/command-center/LINKBOT_CORE_SYNC_READINESS.md`
 
 Summary:
 
@@ -298,9 +298,9 @@ Define LinkSites LiNKbot role contracts (Lead Scout, Research/Enrichment, Websit
 
 ## Files Changed
 
-- `.ai-swarm/CONTRACTS_MVO.md`
-- `.ai-swarm/LINKAIOS_KERNEL_MANIFEST.md`
-- `.ai-swarm/AGENT_REPORTS/linkbot-agent.md`
+- `dev-swarm/command-center/CONTRACTS_MVO.md`
+- `dev-swarm/command-center/LINKAIOS_KERNEL_MANIFEST.md`
+- `dev-swarm/reports/legacy-ai-swarm/linkbot-agent.md`
 
 No runtime code, capability plugin code, or connector implementation files were changed.
 
@@ -316,11 +316,11 @@ git switch -c dev/codex/WP-044-linkbot-role-contract-pack-v1
 sed -n '1,260p' .cursor/rules/00-linktrend-master-rule.mdc
 sed -n '1,260p' .cursor/rules/01-ecosystem-boundaries.mdc
 sed -n '1,300p' .cursor/rules/03-agent-swarm-coordination.mdc
-sed -n '1,320p' .ai-swarm/LINKSITES_VERTICAL_MVO_V2.md
-sed -n '1,320p' .ai-swarm/PLUGIN_ARCHITECTURE_V2.md
-sed -n '1,320p' .ai-swarm/WORK_PACKETS/WP-044-linkbot-role-contract-pack-v1.md
-sed -n '1,360p' .ai-swarm/CONTRACTS_MVO.md
-sed -n '1,360p' .ai-swarm/LINKAIOS_KERNEL_MANIFEST.md
+sed -n '1,320p' dev-swarm/command-center/LINKSITES_VERTICAL_MVO_V2.md
+sed -n '1,320p' dev-swarm/command-center/PLUGIN_ARCHITECTURE_V2.md
+sed -n '1,320p' dev-swarm/programs/linktrend-system/issues/legacy/WP-044-linkbot-role-contract-pack-v1.md
+sed -n '1,360p' dev-swarm/command-center/CONTRACTS_MVO.md
+sed -n '1,360p' dev-swarm/command-center/LINKAIOS_KERNEL_MANIFEST.md
 ```
 
 ---
@@ -394,7 +394,7 @@ None.
 
 ## Objective
 
-Wire LiNKbot reasoning dispatch for WebsiteFactory stages while keeping LiNKbot a thin runtime adapter per `.ai-swarm/CONTRACTS_MVO.md` §6.1 and role-bleed rules §12.3.
+Wire LiNKbot reasoning dispatch for WebsiteFactory stages while keeping LiNKbot a thin runtime adapter per `dev-swarm/command-center/CONTRACTS_MVO.md` §6.1 and role-bleed rules §12.3.
 
 ---
 

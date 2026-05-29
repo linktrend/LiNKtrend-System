@@ -34,9 +34,9 @@ Successfully implemented LiNKbrain trace proof for LinkSites runs. Created SDK m
 - `.cursor/rules/05-security-cost-and-side-effects.mdc` ✓
 - `docs/architecture/repo-architecture-target.md` ✓
 - `docs/architecture/system-completion-targets.md` ✓
-- `.ai-swarm/CONTRACTS_MVO.md` §0.A, §6.3 ✓
-- `.ai-swarm/REPO_INVENTORY.md` ✓
-- `.ai-swarm/LINKBRAIN_COMPLETION_PLAN.md` ✓
+- `dev-swarm/command-center/CONTRACTS_MVO.md` §0.A, §6.3 ✓
+- `dev-swarm/command-center/REPO_INVENTORY.md` ✓
+- `dev-swarm/command-center/LINKBRAIN_COMPLETION_PLAN.md` ✓
 - `LiNKbrain/source-map.md` ✓
 - WP-210 report (baseline status) ✓
 - WP-211 report (workflow map) ✓

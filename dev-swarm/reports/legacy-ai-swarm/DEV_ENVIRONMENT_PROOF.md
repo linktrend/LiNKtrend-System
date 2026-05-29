@@ -15,7 +15,7 @@ Worktree status: clean (`git status --short --branch` showed branch line only)
 - `.cursor/rules/00-linktrend-master-rule.mdc`
 - `.cursor/rules/03-agent-swarm-coordination.mdc`
 - `.cursor/rules/05-security-cost-and-side-effects.mdc`
-- `.ai-swarm/DEMO_RUNBOOK_WEBSITEFACTORY_MVO.md`
+- `dev-swarm/command-center/DEMO_RUNBOOK_WEBSITEFACTORY_MVO.md`
 - `docs/architecture/repo-architecture-target.md`
 - `docs/architecture/system-completion-targets.md`
 
@@ -49,7 +49,7 @@ Observed boot:
 - `curl -i -X POST http://localhost:3000/api/kernel/work-request ...`
   - Result: `307 Temporary Redirect` -> `/login?next=%2Fapi%2Fkernel%2Fwork-request`
 
-## Runbook Accuracy Check (`.ai-swarm/DEMO_RUNBOOK_WEBSITEFACTORY_MVO.md`)
+## Runbook Accuracy Check (`dev-swarm/command-center/DEMO_RUNBOOK_WEBSITEFACTORY_MVO.md`)
 Findings:
 - Dev server instructions are accurate for local boot.
 - Kernel automation dependency on auth/bypass is accurately documented.
@@ -68,7 +68,7 @@ Presence and tests:
 - Therefore, local UI/UX dev shell is up, but kernel/API proof path is not fully ready without valid local secret/env configuration.
 
 ## Changed Files
-- `.ai-swarm/AGENT_REPORTS/DEV_ENVIRONMENT_PROOF.md`
+- `dev-swarm/reports/legacy-ai-swarm/DEV_ENVIRONMENT_PROOF.md`
 
 ## Commit
 - Not committed in this run (report-only change; no blocker fix code changes were required).

@@ -12,9 +12,9 @@ Create a machine-readable and human-readable readiness scorecard for all 8 syste
 
 ## Allowed files
 
-- `.ai-swarm/MVO_READINESS_SCORECARD.md`
-- `.ai-swarm/MVO_READINESS_SCORECARD.json`
-- `.ai-swarm/AGENT_REPORTS/WP-124-cross-system-mvo-readiness-scorecard.md`
+- `dev-swarm/command-center/MVO_READINESS_SCORECARD.md`
+- `dev-swarm/command-center/MVO_READINESS_SCORECARD.json`
+- `dev-swarm/reports/legacy-ai-swarm/WP-124-cross-system-mvo-readiness-scorecard.md`
 
 ## Prohibited files
 
@@ -24,10 +24,10 @@ Create a machine-readable and human-readable readiness scorecard for all 8 syste
 
 ## Required context
 
-- `.ai-swarm/AGENT_REPORTS/*.md`
-- `.ai-swarm/WORK_PACKETS/WP-090*.md` through `WP-123*.md` as present
-- `.ai-swarm/END_OF_DAY_VERIFICATION_QUEUE.md`
-- `.ai-swarm/DECISIONS.md`
+- `dev-swarm/reports/legacy-ai-swarm/*.md`
+- `dev-swarm/programs/linktrend-system/issues/legacy/WP-090*.md` through `WP-123*.md` as present
+- `dev-swarm/command-center/END_OF_DAY_VERIFICATION_QUEUE.md`
+- `dev-swarm/command-center/DECISIONS.md`
 
 ## Steps
 

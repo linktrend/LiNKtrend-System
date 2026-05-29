@@ -13,15 +13,15 @@ Create the shared UI/product-model foundation for the approved LiNKaios terminol
 ## Dependencies
 
 - Start from current `development`.
-- Must read `.ai-swarm/AGENT_REPORTS/CURRENT_STATE_VERIFICATION_WARNING.md`.
+- Must read `dev-swarm/reports/legacy-ai-swarm/CURRENT_STATE_VERIFICATION_WARNING.md`.
 
 ## Allowed Files
 
 - `LiNKaios/linkaios-web/src/lib/**`
 - `LiNKaios/linkaios-web/src/components/**`
 - `LiNKaios/linkaios-web/src/app/(shell)/settings/**`
-- `.ai-swarm/AGENT_REPORTS/WP-226-linkaios-product-model-ui-foundation.md`
-- `.ai-swarm/AGENT_REPORTS/LINKAIOS_UIUX_REVIEW_BACKLOG.md`
+- `dev-swarm/reports/legacy-ai-swarm/WP-226-linkaios-product-model-ui-foundation.md`
+- `dev-swarm/reports/legacy-ai-swarm/LINKAIOS_UIUX_REVIEW_BACKLOG.md`
 
 ## Prohibited Files
 
@@ -36,10 +36,10 @@ Create the shared UI/product-model foundation for the approved LiNKaios terminol
 - `.cursor/rules/03-agent-swarm-coordination.mdc`
 - `.cursor/rules/07-ui-and-frontend-standards.mdc`
 - `docs/architecture/repo-architecture-target.md`
-- `.ai-swarm/ARCHITECTURE_RULES.md`
-- `.ai-swarm/CONTRACTS_MVO.md`
-- `.ai-swarm/REPO_INVENTORY.md`
-- `.ai-swarm/DECISIONS.md`
+- `dev-swarm/command-center/ARCHITECTURE_RULES.md`
+- `dev-swarm/command-center/CONTRACTS_MVO.md`
+- `dev-swarm/command-center/REPO_INVENTORY.md`
+- `dev-swarm/command-center/DECISIONS.md`
 
 ## Required UI/UX Skills
 
@@ -65,7 +65,7 @@ Use repo/Cursor skills where available: `frontend-design`, `web-design-guideline
 
 - `pnpm --filter @linktrend/linkaios-web typecheck`
 - Any focused tests added by this packet.
-- Report file: `.ai-swarm/AGENT_REPORTS/WP-226-linkaios-product-model-ui-foundation.md`
+- Report file: `dev-swarm/reports/legacy-ai-swarm/WP-226-linkaios-product-model-ui-foundation.md`
 
 ## Completion Handoff
 

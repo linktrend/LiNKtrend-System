@@ -29,9 +29,9 @@ Use a separate clean worktree/checkout for this packet. Do not run this packet i
 - `modules/lexos/litigation/workflow.*`
 - Existing LEXOS source-map docs
 - `docs/architecture/repo-architecture-target.md`
-- `.ai-swarm/CONTRACTS_MVO.md`
-- `.worktrees/WP-216-linkaios-cockpit-proof-surface/.ai-swarm/AGENT_REPORTS/WP-216-linkaios-cockpit-proof-surface.md` if present
-- `.worktrees/WP-218-linksites-proof-runbook-and-local-preview/.ai-swarm/AGENT_REPORTS/WP-218-linksites-proof-runbook-and-local-preview.md` if present
+- `dev-swarm/command-center/CONTRACTS_MVO.md`
+- `.worktrees/WP-216-linkaios-cockpit-proof-surface/dev-swarm/reports/legacy-ai-swarm/WP-216-linkaios-cockpit-proof-surface.md` if present
+- `.worktrees/WP-218-linksites-proof-runbook-and-local-preview/dev-swarm/reports/legacy-ai-swarm/WP-218-linksites-proof-runbook-and-local-preview.md` if present
 
 ## Steps
 1. Verify the packet worktree has the current `LiNKaios/linkaios-web` topology before editing; if it still has legacy `apps/linkaios-web` only, stop and report that WP-219/WP-222 integration baseline must run first.
@@ -51,4 +51,4 @@ Use a separate clean worktree/checkout for this packet. Do not run this packet i
 - Run/status proof payload or route evidence
 
 ## Report File
-Update `.ai-swarm/AGENT_REPORTS/WP-220-lexos-litigation-operator-flow.md`.
+Update `dev-swarm/reports/legacy-ai-swarm/WP-220-lexos-litigation-operator-flow.md`.

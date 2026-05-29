@@ -16,8 +16,8 @@ Use a separate clean worktree/checkout for this packet. Do not run this packet i
 
 ## Allowed Files
 - Integration fixes across current repo only
-- `.ai-swarm/AGENT_REPORTS/`
-- `.ai-swarm/*COMPLETION*`, `.ai-swarm/*PROOF*`, `.ai-swarm/*RUNBOOK*`
+- `dev-swarm/reports/legacy-ai-swarm/`
+- `dev-swarm/command-center/*COMPLETION*`, `dev-swarm/command-center/*PROOF*`, `dev-swarm/command-center/*RUNBOOK*`
 - Focused docs needed to record remaining blockers
 
 ## Prohibited Files
@@ -30,12 +30,12 @@ Use a separate clean worktree/checkout for this packet. Do not run this packet i
 - Reports for WP-210 through WP-221
 - `docs/architecture/system-completion-targets.md`
 - `docs/architecture/repo-architecture-target.md`
-- `.ai-swarm/CONTRACTS_MVO.md`
-- `.ai-swarm/MASTER_PLAN.md`
+- `dev-swarm/command-center/CONTRACTS_MVO.md`
+- `dev-swarm/command-center/MASTER_PLAN.md`
 - Worktree reports that may not exist in the main checkout:
-  - `.worktrees/WP-216-linkaios-cockpit-proof-surface/.ai-swarm/AGENT_REPORTS/WP-216-linkaios-cockpit-proof-surface.md`
-  - `.worktrees/WP-218-linksites-proof-runbook-and-local-preview/.ai-swarm/AGENT_REPORTS/WP-218-linksites-proof-runbook-and-local-preview.md`
-  - `.worktrees/WP-215-linksites-linkbrain-trace-proof/.ai-swarm/AGENT_REPORTS/WP-215-linksites-linkbrain-trace-proof.md`
+  - `.worktrees/WP-216-linkaios-cockpit-proof-surface/dev-swarm/reports/legacy-ai-swarm/WP-216-linkaios-cockpit-proof-surface.md`
+  - `.worktrees/WP-218-linksites-proof-runbook-and-local-preview/dev-swarm/reports/legacy-ai-swarm/WP-218-linksites-proof-runbook-and-local-preview.md`
+  - `.worktrees/WP-215-linksites-linkbrain-trace-proof/dev-swarm/reports/legacy-ai-swarm/WP-215-linksites-linkbrain-trace-proof.md`
 
 ## Steps
 1. Merge/reconcile the prior closure-wave branches and uncommitted worktree outputs in a clean integration branch, including WP-213, WP-214, WP-217 committed branches and WP-215/WP-218 worktree-only artifacts if not already committed.
@@ -63,4 +63,4 @@ Use a separate clean worktree/checkout for this packet. Do not run this packet i
 - `NEXT_PUBLIC_SUPABASE_URL=https://example.supabase.co NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=pk_test_public pnpm --filter @linktrend/linkaios-web build`
 
 ## Report File
-Update `.ai-swarm/AGENT_REPORTS/WP-222-final-integration-proof-and-percentage-audit.md`.
+Update `dev-swarm/reports/legacy-ai-swarm/WP-222-final-integration-proof-and-percentage-audit.md`.

@@ -14,8 +14,8 @@ Add validation for LinkBot role contract packs across LinkSites, LEXOS, and LiNK
 
 - `scripts/**role**`
 - `plugins/vertical/**/roles/**`
-- `.ai-swarm/LINKBOT_ROLE_PACK_VALIDATION.md`
-- `.ai-swarm/AGENT_REPORTS/WP-126-linkbot-role-pack-validation.md`
+- `dev-swarm/command-center/LINKBOT_ROLE_PACK_VALIDATION.md`
+- `dev-swarm/reports/legacy-ai-swarm/WP-126-linkbot-role-pack-validation.md`
 
 ## Prohibited files
 
@@ -26,9 +26,9 @@ Add validation for LinkBot role contract packs across LinkSites, LEXOS, and LiNK
 
 ## Required context
 
-- `.ai-swarm/LEXOS_LINKBOT_ROLE_CONTRACTS.md`
-- `.ai-swarm/LINKAPPS_SQUAD_ORCHESTRATION_SPEC.md`
-- `.ai-swarm/CONTRACTS_MVO.md` role sections
+- `dev-swarm/command-center/LEXOS_LINKBOT_ROLE_CONTRACTS.md`
+- `dev-swarm/command-center/LINKAPPS_SQUAD_ORCHESTRATION_SPEC.md`
+- `dev-swarm/command-center/CONTRACTS_MVO.md` role sections
 - `plugins/vertical/lexos/roles/contracts/*.yaml`
 - `plugins/vertical/linkapps/manifest.yaml`
 

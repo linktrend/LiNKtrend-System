@@ -22,7 +22,7 @@ Off-shell pages match zinc shell; error pages use design system.
 - [ ] Error pages non-raw
 
 ## Report
-`.ai-swarm/AGENT_REPORTS/PWR-W4-A-shell-error-venture.md`
+`dev-swarm/reports/legacy-ai-swarm/PWR-W4-A-shell-error-venture.md`
 
 ## Commit
 `fix(ui): reskin venture detail and shell error pages`

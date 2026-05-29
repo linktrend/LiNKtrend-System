@@ -23,8 +23,8 @@ Do not redesign LinkBots from scratch. Extend the current UI direction.
 - `LiNKaios/linkaios-web/src/components/workers*.tsx`
 - `LiNKaios/linkaios-web/src/lib/ui-mocks/**`
 - `LiNKaios/linkaios-web/src/lib/worker*.ts`
-- `.ai-swarm/AGENT_REPORTS/WP-229-linkbots-project-work-context-ui.md`
-- `.ai-swarm/AGENT_REPORTS/LINKAIOS_UIUX_REVIEW_BACKLOG.md`
+- `dev-swarm/reports/legacy-ai-swarm/WP-229-linkbots-project-work-context-ui.md`
+- `dev-swarm/reports/legacy-ai-swarm/LINKAIOS_UIUX_REVIEW_BACKLOG.md`
 
 ## Prohibited Files
 
@@ -37,7 +37,7 @@ Do not redesign LinkBots from scratch. Extend the current UI direction.
 
 - WP-226 report and commit.
 - Existing LinkBots/Workers pages.
-- `.ai-swarm/AGENT_REPORTS/CURRENT_STATE_VERIFICATION_WARNING.md`
+- `dev-swarm/reports/legacy-ai-swarm/CURRENT_STATE_VERIFICATION_WARNING.md`
 
 ## Required UI/UX Skills
 
@@ -64,7 +64,7 @@ Use `frontend-design`, `web-design-guidelines`, `webapp-testing`, `nextjs-react-
 - `pnpm --filter @linktrend/linkaios-web typecheck`
 - Focused tests if helpers/components are added.
 - Browser screenshots for LinkBots list and a LinkBot Projects tab.
-- Report file: `.ai-swarm/AGENT_REPORTS/WP-229-linkbots-project-work-context-ui.md`
+- Report file: `dev-swarm/reports/legacy-ai-swarm/WP-229-linkbots-project-work-context-ui.md`
 
 ## Completion Handoff
 

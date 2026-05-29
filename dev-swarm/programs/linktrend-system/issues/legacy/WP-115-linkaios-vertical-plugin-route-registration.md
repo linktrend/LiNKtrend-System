@@ -15,7 +15,7 @@ Wire safe, development-mode route/navigation registration for active vertical pl
 - `apps/linkaios-web/src/app/**`
 - `apps/linkaios-web/src/components/**`
 - `apps/linkaios-web/src/lib/plugins/**`
-- `.ai-swarm/AGENT_REPORTS/WP-115-linkaios-vertical-plugin-route-registration.md`
+- `dev-swarm/reports/legacy-ai-swarm/WP-115-linkaios-vertical-plugin-route-registration.md`
 
 ## Prohibited files
 
@@ -28,8 +28,8 @@ Wire safe, development-mode route/navigation registration for active vertical pl
 
 - `.cursor/rules/07-ui-and-frontend-standards.mdc`
 - `plugins/vertical/linkapps/manifest.yaml`
-- `.ai-swarm/LEXOS_LINKBOT_ROLE_CONTRACTS.md`
-- `.ai-swarm/LINKSITES_VERTICAL_MVO_V2.md`
+- `dev-swarm/command-center/LEXOS_LINKBOT_ROLE_CONTRACTS.md`
+- `dev-swarm/command-center/LINKSITES_VERTICAL_MVO_V2.md`
 - `apps/linkaios-web/src/app/(shell)/linkapps/factory/page.tsx`
 
 ## Steps

@@ -4,7 +4,7 @@
 
 **Integrator:** Parent Cursor agent (this session when Chairman says execute).
 
-**Master plan:** `.ai-swarm/PRE_WIRING_READINESS_PLAN.md`
+**Master plan:** `dev-swarm/command-center/PRE_WIRING_READINESS_PLAN.md`
 
 ---
 
@@ -21,7 +21,7 @@
 
 ## Wave 0 — Baseline (Integrator, no subagents)
 
-Read and run: `.ai-swarm/AGENT_PROMPTS/PWR-W0-integrator-baseline.prompt.md`
+Read and run: `dev-swarm/programs/linktrend-system/prompts/legacy/PWR-W0-integrator-baseline.prompt.md`
 
 ---
 
@@ -29,8 +29,8 @@ Read and run: `.ai-swarm/AGENT_PROMPTS/PWR-W0-integrator-baseline.prompt.md`
 
 | Agent | Prompt | Suggested model |
 |-------|--------|-----------------|
-| W1-A | `.ai-swarm/AGENT_PROMPTS/PWR-W1-A-shadcn-init.prompt.md` | Codex / Composer |
-| W1-B | `.ai-swarm/AGENT_PROMPTS/PWR-W1-B-ui-system-doc.prompt.md` | Composer |
+| W1-A | `dev-swarm/programs/linktrend-system/prompts/legacy/PWR-W1-A-shadcn-init.prompt.md` | Codex / Composer |
+| W1-B | `dev-swarm/programs/linktrend-system/prompts/legacy/PWR-W1-B-ui-system-doc.prompt.md` | Composer |
 
 **Integrator commit message:** `feat(ui): shadcn foundation and ui-system index`
 
@@ -42,8 +42,8 @@ Read and run: `.ai-swarm/AGENT_PROMPTS/PWR-W0-integrator-baseline.prompt.md`
 
 | Agent | Prompt |
 |-------|--------|
-| W2-A | `.ai-swarm/AGENT_PROMPTS/PWR-W2-A-project-create-api.prompt.md` |
-| W2-C | `.ai-swarm/AGENT_PROMPTS/PWR-W2-C-project-ux-fixes.prompt.md` |
+| W2-A | `dev-swarm/programs/linktrend-system/prompts/legacy/PWR-W2-A-project-create-api.prompt.md` |
+| W2-C | `dev-swarm/programs/linktrend-system/prompts/legacy/PWR-W2-C-project-ux-fixes.prompt.md` |
 
 **Gate:** Merge both to `development`, verify POST works.
 
@@ -51,7 +51,7 @@ Read and run: `.ai-swarm/AGENT_PROMPTS/PWR-W0-integrator-baseline.prompt.md`
 
 | Agent | Prompt |
 |-------|--------|
-| W2-B | `.ai-swarm/AGENT_PROMPTS/PWR-W2-B-wizard-wireup.prompt.md` |
+| W2-B | `dev-swarm/programs/linktrend-system/prompts/legacy/PWR-W2-B-wizard-wireup.prompt.md` |
 
 **Integrator commit message:** `feat(projects): create API stub and wizard wire-up`
 
@@ -61,9 +61,9 @@ Read and run: `.ai-swarm/AGENT_PROMPTS/PWR-W0-integrator-baseline.prompt.md`
 
 | Agent | Prompt |
 |-------|--------|
-| W3-A | `.ai-swarm/AGENT_PROMPTS/PWR-W3-A-stub-honesty.prompt.md` |
-| W3-B | `.ai-swarm/AGENT_PROMPTS/PWR-W3-B-terminology-wave5.prompt.md` |
-| W3-C | `.ai-swarm/AGENT_PROMPTS/PWR-W3-C-button-bridge.prompt.md` |
+| W3-A | `dev-swarm/programs/linktrend-system/prompts/legacy/PWR-W3-A-stub-honesty.prompt.md` |
+| W3-B | `dev-swarm/programs/linktrend-system/prompts/legacy/PWR-W3-B-terminology-wave5.prompt.md` |
+| W3-C | `dev-swarm/programs/linktrend-system/prompts/legacy/PWR-W3-C-button-bridge.prompt.md` |
 
 **Integrator commit message:** `fix(ui): stub honesty, terminology wave 5, button bridge`
 
@@ -73,8 +73,8 @@ Read and run: `.ai-swarm/AGENT_PROMPTS/PWR-W0-integrator-baseline.prompt.md`
 
 | Agent | Prompt |
 |-------|--------|
-| W4-A | `.ai-swarm/AGENT_PROMPTS/PWR-W4-A-shell-error-venture.prompt.md` |
-| W4-B | `.ai-swarm/AGENT_PROMPTS/PWR-W4-B-settings-ux.prompt.md` |
+| W4-A | `dev-swarm/programs/linktrend-system/prompts/legacy/PWR-W4-A-shell-error-venture.prompt.md` |
+| W4-B | `dev-swarm/programs/linktrend-system/prompts/legacy/PWR-W4-B-settings-ux.prompt.md` |
 
 **Integrator commit message:** `fix(ui): shell error pages, venture reskin, settings UX`
 
@@ -84,8 +84,8 @@ Read and run: `.ai-swarm/AGENT_PROMPTS/PWR-W0-integrator-baseline.prompt.md`
 
 | Agent | Prompt |
 |-------|--------|
-| W5-A | `.ai-swarm/AGENT_PROMPTS/PWR-W5-A-entity-table-migration.prompt.md` |
-| W5-B | `.ai-swarm/AGENT_PROMPTS/PWR-W5-B-polish.prompt.md` |
+| W5-A | `dev-swarm/programs/linktrend-system/prompts/legacy/PWR-W5-A-entity-table-migration.prompt.md` |
+| W5-B | `dev-swarm/programs/linktrend-system/prompts/legacy/PWR-W5-B-polish.prompt.md` |
 
 **Integrator commit message:** `refactor(ui): DataTable migration and polish`
 
@@ -95,7 +95,7 @@ Read and run: `.ai-swarm/AGENT_PROMPTS/PWR-W0-integrator-baseline.prompt.md`
 
 | Agent | Prompt |
 |-------|--------|
-| W6-A | `.ai-swarm/AGENT_PROMPTS/PWR-W6-A-mission-api-surface.prompt.md` |
+| W6-A | `dev-swarm/programs/linktrend-system/prompts/legacy/PWR-W6-A-mission-api-surface.prompt.md` |
 
 **Integrator commit message:** `feat(api): projectId alias on mission API surface`
 
@@ -103,7 +103,7 @@ Read and run: `.ai-swarm/AGENT_PROMPTS/PWR-W0-integrator-baseline.prompt.md`
 
 ## Wave 7 — Integrator proof
 
-Read and run: `.ai-swarm/AGENT_PROMPTS/PWR-W7-integrator-proof.prompt.md`
+Read and run: `dev-swarm/programs/linktrend-system/prompts/legacy/PWR-W7-integrator-proof.prompt.md`
 
 ---
 
@@ -113,7 +113,7 @@ For each packet, Task tool:
 
 ```
 Execute work packet: [PWR-Wx-Y]
-Read: .ai-swarm/AGENT_PROMPTS/PWR-Wx-Y-*.prompt.md
+Read: dev-swarm/programs/linktrend-system/prompts/legacy/PWR-Wx-Y-*.prompt.md
 Branch from origin/development. Use worktree under .worktrees/ if parallel.
 Commit on packet branch, push, update AGENT_REPORTS.
 Return: commit SHA, files changed, proof commands output, blockers.

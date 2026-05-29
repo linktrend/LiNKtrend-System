@@ -1,9 +1,9 @@
 /**
  * LiNKapps ↔ LiNKbrain event and handoff memory payloads (`linkapps.app_factory`).
  *
- * Spec context: `.ai-swarm/LINKAPPS_SQUAD_ORCHESTRATION_SPEC.md`,
- * `.ai-swarm/LINKAPPS_VERTICAL_PLUGIN_CONVERSION_PLAN.md`,
- * `.ai-swarm/CONTRACTS_MVO.md` §6.3.
+ * Spec context: `dev-swarm/command-center/LINKAPPS_SQUAD_ORCHESTRATION_SPEC.md`,
+ * `dev-swarm/command-center/LINKAPPS_VERTICAL_PLUGIN_CONVERSION_PLAN.md`,
+ * `dev-swarm/command-center/CONTRACTS_MVO.md` §6.3.
  *
  * These payloads are meant to sit inside `AuditEvent.payload` or LiNKbrain memory
  * writers — never as a substitute for the canonical audit envelope. Keep tenant

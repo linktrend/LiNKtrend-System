@@ -21,7 +21,7 @@ cd LiNKaios/linkaios-web && npm run typecheck
    - `fix(projects): map cycles tab to runs`
    - `chore(cursor): ui skills and terminology rule`
 3. Push `development`
-4. Record SHAs in `.ai-swarm/AGENT_REPORTS/PWR-W0-baseline.md`
+4. Record SHAs in `dev-swarm/reports/legacy-ai-swarm/PWR-W0-baseline.md`
 
 ## Prohibited
 - Force push
@@ -33,4 +33,4 @@ cd LiNKaios/linkaios-web && npm run typecheck
 - [ ] development pushed to origin
 
 ## Report
-`.ai-swarm/AGENT_REPORTS/PWR-W0-baseline.md`
+`dev-swarm/reports/legacy-ai-swarm/PWR-W0-baseline.md`

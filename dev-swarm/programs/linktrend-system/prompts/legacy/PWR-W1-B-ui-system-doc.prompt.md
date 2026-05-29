@@ -32,7 +32,7 @@ Single human/agent entry point for the LiNKaios UI system; update Cursor rules t
 - [ ] Rules reference ui-system.md
 
 ## Report
-`.ai-swarm/AGENT_REPORTS/PWR-W1-B-ui-system-doc.md`
+`dev-swarm/reports/legacy-ai-swarm/PWR-W1-B-ui-system-doc.md`
 
 ## Commit
 `docs(ui): add ui-system index and update frontend standards`

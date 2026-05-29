@@ -41,17 +41,17 @@ Behavior probes:
 - `GET /api/kernel/approvals` (Bearer local-dev secret) -> `500` in this local placeholder setup because `SUPABASE_SECRET_KEY` was not set
 
 ## Screenshots / Proof Paths
-- `/Users/linktrend/Projects/LiNKtrend-System/.worktrees/uiux-browser-proof-clean/.ai-swarm/AGENT_REPORTS/artifacts/uiux-proof/home-error-before-env-fix.png`
-- `/Users/linktrend/Projects/LiNKtrend-System/.worktrees/uiux-browser-proof-clean/.ai-swarm/AGENT_REPORTS/artifacts/uiux-proof/overview-desktop.png`
-- `/Users/linktrend/Projects/LiNKtrend-System/.worktrees/uiux-browser-proof-clean/.ai-swarm/AGENT_REPORTS/artifacts/uiux-proof/work-desktop.png`
-- `/Users/linktrend/Projects/LiNKtrend-System/.worktrees/uiux-browser-proof-clean/.ai-swarm/AGENT_REPORTS/artifacts/uiux-proof/workers-desktop.png`
-- `/Users/linktrend/Projects/LiNKtrend-System/.worktrees/uiux-browser-proof-clean/.ai-swarm/AGENT_REPORTS/artifacts/uiux-proof/skills-desktop.png`
-- `/Users/linktrend/Projects/LiNKtrend-System/.worktrees/uiux-browser-proof-clean/.ai-swarm/AGENT_REPORTS/artifacts/uiux-proof/memory-desktop.png`
-- `/Users/linktrend/Projects/LiNKtrend-System/.worktrees/uiux-browser-proof-clean/.ai-swarm/AGENT_REPORTS/artifacts/uiux-proof/projects-desktop.png`
-- `/Users/linktrend/Projects/LiNKtrend-System/.worktrees/uiux-browser-proof-clean/.ai-swarm/AGENT_REPORTS/artifacts/uiux-proof/settings-desktop.png`
-- `/Users/linktrend/Projects/LiNKtrend-System/.worktrees/uiux-browser-proof-clean/.ai-swarm/AGENT_REPORTS/artifacts/uiux-proof/devtools-mvo-proof-desktop.png`
-- `/Users/linktrend/Projects/LiNKtrend-System/.worktrees/uiux-browser-proof-clean/.ai-swarm/AGENT_REPORTS/artifacts/uiux-proof/devtools-mvo-proof-tablet.png`
-- `/Users/linktrend/Projects/LiNKtrend-System/.worktrees/uiux-browser-proof-clean/.ai-swarm/AGENT_REPORTS/artifacts/uiux-proof/devtools-mvo-proof-mobile.png`
+- `/Users/linktrend/Projects/LiNKtrend-System/.worktrees/uiux-browser-proof-clean/dev-swarm/reports/legacy-ai-swarm/artifacts/uiux-proof/home-error-before-env-fix.png`
+- `/Users/linktrend/Projects/LiNKtrend-System/.worktrees/uiux-browser-proof-clean/dev-swarm/reports/legacy-ai-swarm/artifacts/uiux-proof/overview-desktop.png`
+- `/Users/linktrend/Projects/LiNKtrend-System/.worktrees/uiux-browser-proof-clean/dev-swarm/reports/legacy-ai-swarm/artifacts/uiux-proof/work-desktop.png`
+- `/Users/linktrend/Projects/LiNKtrend-System/.worktrees/uiux-browser-proof-clean/dev-swarm/reports/legacy-ai-swarm/artifacts/uiux-proof/workers-desktop.png`
+- `/Users/linktrend/Projects/LiNKtrend-System/.worktrees/uiux-browser-proof-clean/dev-swarm/reports/legacy-ai-swarm/artifacts/uiux-proof/skills-desktop.png`
+- `/Users/linktrend/Projects/LiNKtrend-System/.worktrees/uiux-browser-proof-clean/dev-swarm/reports/legacy-ai-swarm/artifacts/uiux-proof/memory-desktop.png`
+- `/Users/linktrend/Projects/LiNKtrend-System/.worktrees/uiux-browser-proof-clean/dev-swarm/reports/legacy-ai-swarm/artifacts/uiux-proof/projects-desktop.png`
+- `/Users/linktrend/Projects/LiNKtrend-System/.worktrees/uiux-browser-proof-clean/dev-swarm/reports/legacy-ai-swarm/artifacts/uiux-proof/settings-desktop.png`
+- `/Users/linktrend/Projects/LiNKtrend-System/.worktrees/uiux-browser-proof-clean/dev-swarm/reports/legacy-ai-swarm/artifacts/uiux-proof/devtools-mvo-proof-desktop.png`
+- `/Users/linktrend/Projects/LiNKtrend-System/.worktrees/uiux-browser-proof-clean/dev-swarm/reports/legacy-ai-swarm/artifacts/uiux-proof/devtools-mvo-proof-tablet.png`
+- `/Users/linktrend/Projects/LiNKtrend-System/.worktrees/uiux-browser-proof-clean/dev-swarm/reports/legacy-ai-swarm/artifacts/uiux-proof/devtools-mvo-proof-mobile.png`
 
 ## Visual Defects Found
 1. Initial fatal shell failure when required public Supabase env vars were missing:
@@ -86,18 +86,18 @@ Confirmed the route renders deterministic proof blocks for:
 - Environment startup was corrected for proof execution by including required local dev env flags/placeholder public Supabase vars.
 
 ## Files Changed
-- `.ai-swarm/AGENT_REPORTS/CODEX_BROWSER_UIUX_PROOF.md`
-- `.ai-swarm/AGENT_REPORTS/artifacts/uiux-proof/home-error-before-env-fix.png`
-- `.ai-swarm/AGENT_REPORTS/artifacts/uiux-proof/overview-desktop.png`
-- `.ai-swarm/AGENT_REPORTS/artifacts/uiux-proof/work-desktop.png`
-- `.ai-swarm/AGENT_REPORTS/artifacts/uiux-proof/workers-desktop.png`
-- `.ai-swarm/AGENT_REPORTS/artifacts/uiux-proof/skills-desktop.png`
-- `.ai-swarm/AGENT_REPORTS/artifacts/uiux-proof/memory-desktop.png`
-- `.ai-swarm/AGENT_REPORTS/artifacts/uiux-proof/projects-desktop.png`
-- `.ai-swarm/AGENT_REPORTS/artifacts/uiux-proof/settings-desktop.png`
-- `.ai-swarm/AGENT_REPORTS/artifacts/uiux-proof/devtools-mvo-proof-desktop.png`
-- `.ai-swarm/AGENT_REPORTS/artifacts/uiux-proof/devtools-mvo-proof-tablet.png`
-- `.ai-swarm/AGENT_REPORTS/artifacts/uiux-proof/devtools-mvo-proof-mobile.png`
+- `dev-swarm/reports/legacy-ai-swarm/CODEX_BROWSER_UIUX_PROOF.md`
+- `dev-swarm/reports/legacy-ai-swarm/artifacts/uiux-proof/home-error-before-env-fix.png`
+- `dev-swarm/reports/legacy-ai-swarm/artifacts/uiux-proof/overview-desktop.png`
+- `dev-swarm/reports/legacy-ai-swarm/artifacts/uiux-proof/work-desktop.png`
+- `dev-swarm/reports/legacy-ai-swarm/artifacts/uiux-proof/workers-desktop.png`
+- `dev-swarm/reports/legacy-ai-swarm/artifacts/uiux-proof/skills-desktop.png`
+- `dev-swarm/reports/legacy-ai-swarm/artifacts/uiux-proof/memory-desktop.png`
+- `dev-swarm/reports/legacy-ai-swarm/artifacts/uiux-proof/projects-desktop.png`
+- `dev-swarm/reports/legacy-ai-swarm/artifacts/uiux-proof/settings-desktop.png`
+- `dev-swarm/reports/legacy-ai-swarm/artifacts/uiux-proof/devtools-mvo-proof-desktop.png`
+- `dev-swarm/reports/legacy-ai-swarm/artifacts/uiux-proof/devtools-mvo-proof-tablet.png`
+- `dev-swarm/reports/legacy-ai-swarm/artifacts/uiux-proof/devtools-mvo-proof-mobile.png`
 
 ## Commands Run
 - `git status --short --branch`

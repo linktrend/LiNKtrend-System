@@ -12,7 +12,7 @@ All 8 waves (0–7) completed. LiNKaios `linkaios-web` is ready for the **functi
 
 | Wave | Report |
 |------|--------|
-| 0 | `.ai-swarm/AGENT_REPORTS/PWR-W0-baseline.md` |
+| 0 | `dev-swarm/reports/legacy-ai-swarm/PWR-W0-baseline.md` |
 | 1 | `PWR-W1-A-shadcn-init.md`, `PWR-W1-B-ui-system-doc.md` |
 | 2 | `PWR-W2-A-project-create-api.md`, `PWR-W2-B-wizard-wireup.md`, `PWR-W2-C-project-ux-fixes.md` |
 | 3 | `PWR-W3-A-stub-honesty.md`, `PWR-W3-B-terminology-wave5.md`, `PWR-W3-C-button-bridge.md` |

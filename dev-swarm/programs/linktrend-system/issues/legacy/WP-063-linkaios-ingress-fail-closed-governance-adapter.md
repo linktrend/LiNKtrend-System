@@ -14,8 +14,8 @@ Make LiNKaios -> LinkBot dispatch fail closed when required `linktrendGovernance
 - `apps/linkaios-web/**` (dispatch/orchestration surfaces only)
 - `packages/shared-types/**` (contract updates)
 - `packages/shared-config/**` (governance flags)
-- `.ai-swarm/AGENT_REPORTS/linkaios-agent.md`
-- `.ai-swarm/DECISIONS.md` (if policy decision needed)
+- `dev-swarm/reports/legacy-ai-swarm/linkaios-agent.md`
+- `dev-swarm/command-center/DECISIONS.md` (if policy decision needed)
 
 ## Prohibited files
 
@@ -24,9 +24,9 @@ Make LiNKaios -> LinkBot dispatch fail closed when required `linktrendGovernance
 
 ## Required context
 
-- `.ai-swarm/LINKBOT_ADAPTER_PLAN.md`
-- `.ai-swarm/CONTRACTS_MVO.md`
-- `.ai-swarm/LINKBOT_CORE_SYNC_READINESS.md`
+- `dev-swarm/command-center/LINKBOT_ADAPTER_PLAN.md`
+- `dev-swarm/command-center/CONTRACTS_MVO.md`
+- `dev-swarm/command-center/LINKBOT_CORE_SYNC_READINESS.md`
 
 ## Acceptance criteria
 

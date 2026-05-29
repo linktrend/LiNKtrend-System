@@ -1,7 +1,7 @@
 # LiNKbrain benchmarking & learning loop — specification (WP-089)
 
 **Status:** Design and SDK contract — database aggregation ships only after WP-087 `brain_memory_objects` (and optionally WP-088 context/vector surfaces) merge.  
-**Source prompt:** `.ai-swarm/AGENT_PROMPTS/WP-089-linkbrain-learning-benchmarks.prompt.md`  
+**Source prompt:** `dev-swarm/programs/linktrend-system/prompts/legacy/WP-089-linkbrain-learning-benchmarks.prompt.md`  
 **Companion types:** `packages/linklogic-sdk/src/brain-benchmarks.ts`
 
 ## 1. Goals

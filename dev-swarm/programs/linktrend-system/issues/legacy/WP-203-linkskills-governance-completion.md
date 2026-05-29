@@ -23,7 +23,7 @@ Use a separate clean worktree/checkout for this packet. Do not run this packet i
 - `packages/linklogic-sdk/src/*capability*`
 - Related LinkSkills migrations under `services/migrations/`
 - LiNKaios display-only surfaces if needed for lease status
-- `.ai-swarm/AGENT_REPORTS/`
+- `dev-swarm/reports/legacy-ai-swarm/`
 
 ## Prohibited Files
 
@@ -36,8 +36,8 @@ Use a separate clean worktree/checkout for this packet. Do not run this packet i
 
 - `docs/architecture/repo-architecture-target.md`
 - `docs/architecture/system-completion-targets.md`
-- `.ai-swarm/LINKSKILLS_COMPLETION_PLAN.md`
-- `.ai-swarm/CONTRACTS_MVO.md`
+- `dev-swarm/command-center/LINKSKILLS_COMPLETION_PLAN.md`
+- `dev-swarm/command-center/CONTRACTS_MVO.md`
 - `.cursor/rules/05-security-cost-and-side-effects.mdc`
 
 ## Steps
@@ -63,4 +63,4 @@ Use a separate clean worktree/checkout for this packet. Do not run this packet i
 
 ## Report File
 
-Update `.ai-swarm/AGENT_REPORTS/WP-203-linkskills-governance-completion.md`.
+Update `dev-swarm/reports/legacy-ai-swarm/WP-203-linkskills-governance-completion.md`.

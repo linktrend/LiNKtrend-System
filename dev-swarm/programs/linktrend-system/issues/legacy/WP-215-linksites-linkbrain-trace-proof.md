@@ -29,10 +29,10 @@ Use a separate clean worktree/checkout for this packet. Do not run this packet i
 ## Required Context
 - `modules/linksites/workflow.*`
 - If `modules/linksites/workflow.md` is not present in the checkout, read/copy it from `.worktrees/WP-211-module-workflow-map-gap-prep/modules/linksites/workflow.md` before defining the event map.
-- `.worktrees/WP-210-baseline-fix-and-build-gate/.ai-swarm/AGENT_REPORTS/WP-210-baseline-fix-and-build-gate.md` if present
+- `.worktrees/WP-210-baseline-fix-and-build-gate/dev-swarm/reports/legacy-ai-swarm/WP-210-baseline-fix-and-build-gate.md` if present
 - `LiNKbrain/source-map.md`
-- `.ai-swarm/LINKBRAIN_COMPLETION_PLAN.md`
-- `.ai-swarm/CONTRACTS_MVO.md`
+- `dev-swarm/command-center/LINKBRAIN_COMPLETION_PLAN.md`
+- `dev-swarm/command-center/CONTRACTS_MVO.md`
 
 ## Steps
 1. Check for WP-210 SDK/web type blocker overlap before editing shared LiNKbrain SDK helpers; fix only trace/event blockers that are in this packet's scope.
@@ -53,4 +53,4 @@ Use a separate clean worktree/checkout for this packet. Do not run this packet i
 - LinkSites run trace fixture/proof summary
 
 ## Report File
-Update `.ai-swarm/AGENT_REPORTS/WP-215-linksites-linkbrain-trace-proof.md`.
+Update `dev-swarm/reports/legacy-ai-swarm/WP-215-linksites-linkbrain-trace-proof.md`.

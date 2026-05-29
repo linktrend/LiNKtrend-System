@@ -10,7 +10,7 @@ Completed. Inventory of active and archived repositories performed. Reusable ass
 
 ## Files Changed
 
-- `.ai-swarm/REPO_INVENTORY.md`: Fully populated with monorepo layout, touchpoints, and reuse recommendations.
+- `dev-swarm/command-center/REPO_INVENTORY.md`: Fully populated with monorepo layout, touchpoints, and reuse recommendations.
 
 ## Commands Run
 

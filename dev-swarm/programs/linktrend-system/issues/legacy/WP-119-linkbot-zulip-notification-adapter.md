@@ -13,8 +13,8 @@ Add a governed LinkBot-facing notification adapter that routes run/status messag
 ## Allowed files
 
 - `apps/bot-runtime/src/**`
-- `.ai-swarm/LINKBOT_ZULIP_NOTIFICATION_ADAPTER.md`
-- `.ai-swarm/AGENT_REPORTS/WP-119-linkbot-zulip-notification-adapter.md`
+- `dev-swarm/command-center/LINKBOT_ZULIP_NOTIFICATION_ADAPTER.md`
+- `dev-swarm/reports/legacy-ai-swarm/WP-119-linkbot-zulip-notification-adapter.md`
 
 ## Prohibited files
 
@@ -26,7 +26,7 @@ Add a governed LinkBot-facing notification adapter that routes run/status messag
 
 - `apps/bot-runtime/src/linkskills-runtime-adapter.ts`
 - `apps/bot-runtime/src/reasoning-dispatch.ts`
-- `.ai-swarm/CONTRACTS_MVO.md` capability sections for Zulip
+- `dev-swarm/command-center/CONTRACTS_MVO.md` capability sections for Zulip
 - `packages/linkaios-kernel/plugins/capabilities/linkapps/cap.zulip.run_messaging.yaml`
 
 ## Steps

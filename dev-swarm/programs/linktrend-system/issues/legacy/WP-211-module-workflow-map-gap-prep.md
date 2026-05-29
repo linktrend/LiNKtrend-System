@@ -16,8 +16,8 @@ Use a separate clean worktree/checkout for this packet. Do not run this packet i
 
 ## Allowed Files
 - `modules/**`
-- Module reference docs in `.ai-swarm/` if needed
-- `.ai-swarm/AGENT_REPORTS/`
+- Module reference docs in `dev-swarm/command-center/` if needed
+- `dev-swarm/reports/legacy-ai-swarm/`
 
 ## Prohibited Files
 - `LiNKaios/`, `LiNKautowork/`, `LiNKskills/`, `LiNKbot/`, `LiNKbrain/`, `packages/` runtime code
@@ -29,7 +29,7 @@ Use a separate clean worktree/checkout for this packet. Do not run this packet i
 - `modules/README.md`
 - `modules/module-registry.md`
 - `.cursor/rules/01-ecosystem-boundaries.mdc`
-- `.ai-swarm/CONTRACTS_MVO.md`
+- `dev-swarm/command-center/CONTRACTS_MVO.md`
 
 ## Steps
 1. Add or update canonical workflow maps for `modules/linksites`, `modules/linkapps`, and `modules/lexos/litigation`.
@@ -48,4 +48,4 @@ Use a separate clean worktree/checkout for this packet. Do not run this packet i
 - Summary of gaps to be implemented in later waves
 
 ## Report File
-Update `.ai-swarm/AGENT_REPORTS/WP-211-module-workflow-map-gap-prep.md`.
+Update `dev-swarm/reports/legacy-ai-swarm/WP-211-module-workflow-map-gap-prep.md`.

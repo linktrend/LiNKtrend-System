@@ -15,7 +15,7 @@ Implement the learning loop and cross-tenant benchmarking to turn operational hi
 - `services/migrations/*.sql`
 - `packages/linklogic-sdk/src/brain-benchmarks.ts`
 - `apps/linkaios-web/src/lib/kernel/benchmark-worker.ts`
-- `.ai-swarm/AGENT_REPORTS/linkbrain-agent.md`
+- `dev-swarm/reports/legacy-ai-swarm/linkbrain-agent.md`
 
 ## Mission
 

@@ -22,7 +22,7 @@ The 21-day target is:
 
 ## Day 1 — Decisions, Command Center, Reuse Map
 
-Create `.ai-swarm/`.
+Wire `dev-swarm/` and `dev-swarm/command-center/`.
 
 Add architect review report.
 

@@ -2,7 +2,7 @@
 
 Model: Kimi.
 
-Execute `.ai-swarm/WORK_PACKETS/WP-208-linkapps-app-factory-mvo.md`.
+Execute `dev-swarm/programs/linktrend-system/issues/legacy/WP-208-linkapps-app-factory-mvo.md`.
 
 Use a separate clean worktree/checkout for this packet. Do not run this packet in a shared dirty repo folder.
 
@@ -10,4 +10,4 @@ Use a separate clean worktree/checkout for this packet. Do not run this packet i
 2. If unrelated dirty files exist, stop before editing and report the blocker.
 3. Create or use a packet-specific branch/worktree before making changes.
 
-You are the LiNKapps app-factory module agent. Move LiNKapps toward operational MVO: complete module manifest, squad orchestration flow, sidebar/operator panels, required capability connectors, LiNKbot role definitions, LiNKautowork workflow hooks, and LiNKbrain event schema. Verify imports and typechecks. Update `.ai-swarm/AGENT_REPORTS/WP-208-linkapps-app-factory-mvo.md` with files changed, commands run, proof, blockers, and next step.
+You are the LiNKapps app-factory module agent. Move LiNKapps toward operational MVO: complete module manifest, squad orchestration flow, sidebar/operator panels, required capability connectors, LiNKbot role definitions, LiNKautowork workflow hooks, and LiNKbrain event schema. Verify imports and typechecks. Update `dev-swarm/reports/legacy-ai-swarm/WP-208-linkapps-app-factory-mvo.md` with files changed, commands run, proof, blockers, and next step.

@@ -13,8 +13,8 @@ Declarative LEXOS LinkBot role contracts for `LexosRoleIdSchema`, aligned with W
 
 - `plugins/vertical/lexos/roles/README.md`
 - `plugins/vertical/lexos/roles/contracts/*.contract.yaml` (10 files)
-- `.ai-swarm/LEXOS_LINKBOT_ROLE_CONTRACTS.md`
-- `.ai-swarm/AGENT_REPORTS/WP-104-lexos-linkbot-role-contracts.md` (this file)
+- `dev-swarm/command-center/LEXOS_LINKBOT_ROLE_CONTRACTS.md`
+- `dev-swarm/reports/legacy-ai-swarm/WP-104-lexos-linkbot-role-contracts.md` (this file)
 
 ## Commands run
 
@@ -44,7 +44,7 @@ Cursor workspace grep also confirms `*: true` absence for authority flags (`Grep
 ## Blockers
 
 - Shell environment lacked `rg` binary; POSIX `grep --include='*.yaml'` used for equivalent proofs (Cursor `Grep` tool cross-check for `*: true`).
-- Conversion plan cites a `W3` “defense agent” without a matching `LexosRoleIdSchema` entry — documented explicitly in `.ai-swarm/LEXOS_LINKBOT_ROLE_CONTRACTS.md` orchestration backlog.
+- Conversion plan cites a `W3` “defense agent” without a matching `LexosRoleIdSchema` entry — documented explicitly in `dev-swarm/command-center/LEXOS_LINKBOT_ROLE_CONTRACTS.md` orchestration backlog.
 
 ## Next step
 

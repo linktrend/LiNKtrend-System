@@ -14,8 +14,8 @@ Copy and adapt LEXOS core identity and evidence schema (clients, matters, eviden
 
 - `packages/linkaios-db/migrations/lexos/*.sql`
 - `packages/linkaios-db/schemas/lexos/*.sql`
-- `.ai-swarm/WORK_PACKETS/WP-085*.md`
-- `.ai-swarm/DECISIONS.md`
+- `dev-swarm/programs/linktrend-system/issues/legacy/WP-085*.md`
+- `dev-swarm/command-center/DECISIONS.md`
 
 ## Prohibited Files
 
@@ -25,7 +25,7 @@ Copy and adapt LEXOS core identity and evidence schema (clients, matters, eviden
 
 ## Required Context
 
-- `.ai-swarm/LEXOS_VERTICAL_PLUGIN_CONVERSION_PLAN.md`
+- `dev-swarm/command-center/LEXOS_VERTICAL_PLUGIN_CONVERSION_PLAN.md`
 - `/Users/linktrend/Projects/LiNKtrend-LEXOS/supabase/migrations/`
 
 ## Steps

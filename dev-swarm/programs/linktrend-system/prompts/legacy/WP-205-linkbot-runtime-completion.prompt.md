@@ -2,7 +2,7 @@
 
 Model: Kimi.
 
-Execute `.ai-swarm/WORK_PACKETS/WP-205-linkbot-runtime-completion.md`.
+Execute `dev-swarm/programs/linktrend-system/issues/legacy/WP-205-linkbot-runtime-completion.md`.
 
 Use a separate clean worktree/checkout for this packet. Do not run this packet in a shared dirty repo folder.
 
@@ -10,4 +10,4 @@ Use a separate clean worktree/checkout for this packet. Do not run this packet i
 2. If unrelated dirty files exist, stop before editing and report the blocker.
 3. Create or use a packet-specific branch/worktree before making changes.
 
-You are the LiNKbot runtime agent. Complete LiNKbot MVO runtime: harden OpenClaw adapter contracts, role/fleet definitions, LinkSkills lease adapter, LiNKbrain context handoff, Zulip temporary gateway behavior, and mission/session proof. Verify bot-runtime and zulip-gateway tests. Update `.ai-swarm/AGENT_REPORTS/WP-205-linkbot-runtime-completion.md` with files changed, commands run, proof, blockers, and next step.
+You are the LiNKbot runtime agent. Complete LiNKbot MVO runtime: harden OpenClaw adapter contracts, role/fleet definitions, LinkSkills lease adapter, LiNKbrain context handoff, Zulip temporary gateway behavior, and mission/session proof. Verify bot-runtime and zulip-gateway tests. Update `dev-swarm/reports/legacy-ai-swarm/WP-205-linkbot-runtime-completion.md` with files changed, commands run, proof, blockers, and next step.

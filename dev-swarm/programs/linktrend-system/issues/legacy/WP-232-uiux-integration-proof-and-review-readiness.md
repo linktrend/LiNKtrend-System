@@ -17,9 +17,9 @@ Integrate WP-226 through WP-231 into `development`, resolve UI conflicts, verify
 ## Allowed Files
 
 - Integration changes needed across `LiNKaios/linkaios-web/src/**`.
-- `.ai-swarm/AGENT_REPORTS/WP-232-uiux-integration-proof-and-review-readiness.md`
-- `.ai-swarm/AGENT_REPORTS/LINKAIOS_UIUX_REVIEW_BACKLOG.md`
-- Browser proof artifacts under `.ai-swarm/AGENT_REPORTS/artifacts/uiux-product-model/`
+- `dev-swarm/reports/legacy-ai-swarm/WP-232-uiux-integration-proof-and-review-readiness.md`
+- `dev-swarm/reports/legacy-ai-swarm/LINKAIOS_UIUX_REVIEW_BACKLOG.md`
+- Browser proof artifacts under `dev-swarm/reports/legacy-ai-swarm/artifacts/uiux-product-model/`
 
 ## Prohibited Files
 
@@ -30,7 +30,7 @@ Integrate WP-226 through WP-231 into `development`, resolve UI conflicts, verify
 ## Required Context
 
 - Reports and commits from WP-226 through WP-231.
-- `.ai-swarm/AGENT_REPORTS/CURRENT_STATE_VERIFICATION_WARNING.md`
+- `dev-swarm/reports/legacy-ai-swarm/CURRENT_STATE_VERIFICATION_WARNING.md`
 - `.cursor/rules/06-testing-and-proof.mdc`
 - `.cursor/rules/07-ui-and-frontend-standards.mdc`
 
@@ -64,7 +64,7 @@ Use `frontend-design`, `web-design-guidelines`, `webapp-testing`, `nextjs-react-
 - `pnpm --filter @linktrend/linkaios-web typecheck`
 - Relevant focused tests.
 - Browser screenshots and console/network notes.
-- Report file: `.ai-swarm/AGENT_REPORTS/WP-232-uiux-integration-proof-and-review-readiness.md`
+- Report file: `dev-swarm/reports/legacy-ai-swarm/WP-232-uiux-integration-proof-and-review-readiness.md`
 
 ## Completion Handoff
 

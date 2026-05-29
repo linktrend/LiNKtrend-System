@@ -4,7 +4,7 @@
 Finish the work that WP-224 did not implement. Start from the WP-223 fixed integrated state, import the missing module/docs topology from the active workspace where it exists, then implement LEXOS and LiNKapps operator flows.
 
 ## Why This Packet Exists
-WP-224's report says it stopped at the pre-edit topology gate. Its worktree contains only `.ai-swarm/AGENT_REPORTS/WP-224-codex-lexos-linkapps-operator-rerun.md` and no implementation changes. The user later saw a message claiming implementation/proof completed, but the filesystem/worktree does not show that.
+WP-224's report says it stopped at the pre-edit topology gate. Its worktree contains only `dev-swarm/reports/legacy-ai-swarm/WP-224-codex-lexos-linkapps-operator-rerun.md` and no implementation changes. The user later saw a message claiming implementation/proof completed, but the filesystem/worktree does not show that.
 
 ## Repo / Worktree
 - Repo: `/Users/linktrend/Projects/LiNKtrend-System`
@@ -19,7 +19,7 @@ Do not start from stale `4f3f7ba` or from WP-224's blocked state.
 - `docs/architecture/` only to import existing target docs if missing from the WP-223 worktree
 - `LiNKaios/linkaios-web/src/**`
 - Thin adapter/export files in `packages/linklogic-sdk/src/**` only when required for typed route proof
-- `.ai-swarm/AGENT_REPORTS/`
+- `dev-swarm/reports/legacy-ai-swarm/`
 
 ## Prohibited Files
 - External `/Users/linktrend/Projects/LiNKtrend-LEXOS`
@@ -29,13 +29,13 @@ Do not start from stale `4f3f7ba` or from WP-224's blocked state.
 - Live provider calls, billing, provisioning, outreach, or production side effects
 
 ## Required Context
-- `.worktrees/WP-223-codex-linkaios-typecheck-build-closure/.ai-swarm/AGENT_REPORTS/WP-223-codex-linkaios-typecheck-build-closure.md`
-- `.worktrees/WP-224-codex-lexos-linkapps-operator-rerun/.ai-swarm/AGENT_REPORTS/WP-224-codex-lexos-linkapps-operator-rerun.md`
-- `.ai-swarm/AGENT_REPORTS/WP-220-lexos-litigation-operator-flow.md`
-- `.ai-swarm/AGENT_REPORTS/WP-221-linkapps-app-factory-operator-flow.md`
+- `.worktrees/WP-223-codex-linkaios-typecheck-build-closure/dev-swarm/reports/legacy-ai-swarm/WP-223-codex-linkaios-typecheck-build-closure.md`
+- `.worktrees/WP-224-codex-lexos-linkapps-operator-rerun/dev-swarm/reports/legacy-ai-swarm/WP-224-codex-lexos-linkapps-operator-rerun.md`
+- `dev-swarm/reports/legacy-ai-swarm/WP-220-lexos-litigation-operator-flow.md`
+- `dev-swarm/reports/legacy-ai-swarm/WP-221-linkapps-app-factory-operator-flow.md`
 - `modules/lexos/litigation/workflow.*` from the active workspace or WP-211 worktree
 - `modules/linkapps/workflow.*` from the active workspace or WP-211 worktree
-- `.ai-swarm/CONTRACTS_MVO.md`
+- `dev-swarm/command-center/CONTRACTS_MVO.md`
 - `docs/architecture/repo-architecture-target.md`
 
 ## Steps
@@ -61,4 +61,4 @@ Do not start from stale `4f3f7ba` or from WP-224's blocked state.
 - Route/status proof payload summary for each module
 
 ## Report File
-Update `.ai-swarm/AGENT_REPORTS/WP-225-codex-lexos-linkapps-topology-and-operator-closure.md`.
+Update `dev-swarm/reports/legacy-ai-swarm/WP-225-codex-lexos-linkapps-topology-and-operator-closure.md`.

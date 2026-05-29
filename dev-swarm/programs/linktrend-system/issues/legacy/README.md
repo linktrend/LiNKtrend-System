@@ -2,7 +2,7 @@
 
 Use this folder only for active or next-wave work packets.
 
-Older packet definitions were moved to `.ai-swarm/archive/legacy-work-packets-pre-architecture-cleanup/WORK_PACKETS/` because many contain pre-cleanup paths and terminology. They are historical evidence, not current instructions.
+Older packet definitions were moved to `dev-swarm/archive/ai-swarm-embedded-archive/legacy-work-packets-pre-architecture-cleanup/WORK_PACKETS/` because many contain pre-cleanup paths and terminology. They are historical evidence, not current instructions.
 
 New work packets must:
 

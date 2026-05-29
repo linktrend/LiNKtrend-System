@@ -8,45 +8,53 @@ Cursor chats, Codex threads, Antigravity sessions, and Kimi/Gemini analysis sess
 
 ## Command Center
 
-Create this folder in the LiNKaios monorepo, likely `LiNKtrend-System`:
+Use the **Dev Swarm** factory in the LiNKaios monorepo (`LiNKtrend-System`):
 
 ```text
-.ai-swarm/
+dev-swarm/
+├── AGENTS.md
+├── SPEC.md
+├── STATE.md
+├── command-center/          # plans, contracts, queues (was legacy command-center root docs)
+│   ├── MASTER_PLAN.md
+│   ├── ARCHITECTURE_RULES.md
+│   ├── AGENT_COORDINATION.md
+│   ├── REPO_INVENTORY.md
+│   ├── CONTRACTS_MVO.md
+│   ├── DECISIONS.md
+│   ├── INTEGRATION_QUEUE.md
+│   ├── MERGE_QUEUE.md
+│   └── ARCHITECT_REVIEW_REPORT.md
+├── programs/
+│   └── linktrend-system/
+│       └── issues/          # active Issues (was WORK_PACKETS/)
+├── reports/                 # agent reports (legacy copies under reports/legacy-ai-swarm/)
+├── rules/
+├── skills/
+├── agents/
+├── prompts/
+└── archive/                 # read-only legacy ai-swarm and cursor copies
 ```
 
-Required structure:
-
-```text
-.ai-swarm/
-├── MASTER_PLAN.md
-├── ARCHITECTURE_RULES.md
-├── AGENT_COORDINATION.md
-├── REPO_INVENTORY.md
-├── CONTRACTS_MVO.md
-├── DECISIONS.md
-├── INTEGRATION_QUEUE.md
-├── MERGE_QUEUE.md
-├── WORK_PACKETS/
-└── AGENT_REPORTS/
-```
+Factory coordination lives in `dev-swarm/`. Plans, contracts, and live queues live in `dev-swarm/command-center/`.
 
 ## Add The Architect Review Report
 
-The architect review report should be added as:
+The architect review report should live at:
 
 ```text
-.ai-swarm/ARCHITECT_REVIEW_REPORT.md
+dev-swarm/command-center/ARCHITECT_REVIEW_REPORT.md
 ```
 
 This report becomes the starting map for repo reuse. Agents should not ignore it.
 
 ## Live Coordination File
 
-`AGENT_COORDINATION.md` should show:
+`dev-swarm/command-center/AGENT_COORDINATION.md` should show:
 
 - global status
 - active agents
-- current work packets
+- current issues (legacy docs may still say “work packets”)
 - current branch/worktree per agent
 - Day-1 frozen decisions
 - blockers
@@ -55,20 +63,20 @@ This report becomes the starting map for repo reuse. Agents should not ignore it
 
 ## Agent Reports
 
-Each agent writes to one report:
+Each agent writes to one report under `dev-swarm/reports/` (historical legacy agent-report copies are under `dev-swarm/reports/legacy-ai-swarm/`):
 
 ```text
-.ai-swarm/AGENT_REPORTS/linkbrain-agent.md
-.ai-swarm/AGENT_REPORTS/linkskills-agent.md
-.ai-swarm/AGENT_REPORTS/linkautowork-agent.md
-.ai-swarm/AGENT_REPORTS/linkbot-agent.md
-.ai-swarm/AGENT_REPORTS/linkaios-agent.md
-.ai-swarm/AGENT_REPORTS/integration-agent.md
+dev-swarm/reports/linkbrain-agent.md
+dev-swarm/reports/linkskills-agent.md
+dev-swarm/reports/linkautowork-agent.md
+dev-swarm/reports/linkbot-agent.md
+dev-swarm/reports/linkaios-agent.md
+dev-swarm/reports/integration-agent.md
 ```
 
 Each report must include:
 
-- assigned work packet
+- assigned issue (or legacy work packet ID)
 - current status
 - files changed
 - commands run
@@ -81,12 +89,12 @@ Each report must include:
 
 Agents do not rely on each other’s chat history. Agents read:
 
-- `ARCHITECTURE_RULES.md`
-- `ARCHITECT_REVIEW_REPORT.md`
-- `REPO_INVENTORY.md`
-- `CONTRACTS_MVO.md`
-- their assigned work packet
-- their agent report
+- `dev-swarm/command-center/ARCHITECTURE_RULES.md`
+- `dev-swarm/command-center/ARCHITECT_REVIEW_REPORT.md`
+- `dev-swarm/command-center/REPO_INVENTORY.md`
+- `dev-swarm/command-center/CONTRACTS_MVO.md`
+- their assigned issue under `dev-swarm/programs/linktrend-system/issues/`
+- their agent report under `dev-swarm/reports/`
 
 ## Human Role
 

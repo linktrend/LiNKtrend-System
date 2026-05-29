@@ -14,13 +14,13 @@
 
 1. `packages/linklogic-sdk/src/brain-traces.ts` — Cross-vertical trace dashboard schemas
 2. `packages/linklogic-sdk/src/brain-traces.test.ts` — Unit tests for trace schemas
-3. `.ai-swarm/LINKBRAIN_CROSS_VERTICAL_TRACE_SCHEMA.md` — Specification document
+3. `dev-swarm/command-center/LINKBRAIN_CROSS_VERTICAL_TRACE_SCHEMA.md` — Specification document
 
 ### Modified Files
 
 1. `packages/linklogic-sdk/src/index.ts` — Added exports for brain-traces types
-2. `.ai-swarm/WORK_PACKETS/WP-116-linkbrain-cross-vertical-trace-dashboard-schema.md` — Work packet (created as part of prompt)
-3. `.ai-swarm/AGENT_PROMPTS/WP-116-linkbrain-cross-vertical-trace-dashboard-schema.prompt.md` — Prompt file (created as part of prompt)
+2. `dev-swarm/programs/linktrend-system/issues/legacy/WP-116-linkbrain-cross-vertical-trace-dashboard-schema.md` — Work packet (created as part of prompt)
+3. `dev-swarm/programs/linktrend-system/prompts/legacy/WP-116-linkbrain-cross-vertical-trace-dashboard-schema.prompt.md` — Prompt file (created as part of prompt)
 
 ## Commands Run
 

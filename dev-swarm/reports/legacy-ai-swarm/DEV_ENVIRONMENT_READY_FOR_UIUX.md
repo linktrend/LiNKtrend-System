@@ -6,7 +6,7 @@ Branch: `development`
 Commit SHA (pre-commit): `3d812dc01257ff14240bf323614be696cc857193`
 
 ## Scope
-Fix local dev-readiness blockers from `.ai-swarm/AGENT_REPORTS/DEV_ENVIRONMENT_PROOF.md` for browser UI/UX validation with local authenticated/bypass access, without production side effects.
+Fix local dev-readiness blockers from `dev-swarm/reports/legacy-ai-swarm/DEV_ENVIRONMENT_PROOF.md` for browser UI/UX validation with local authenticated/bypass access, without production side effects.
 
 ## Files Changed
 - `.env.example`

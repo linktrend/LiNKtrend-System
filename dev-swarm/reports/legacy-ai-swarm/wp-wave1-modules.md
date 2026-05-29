@@ -23,7 +23,7 @@ Adopt canonical `StatusPill` / `DomainStatusPill` from `@/components/ui/status-p
 - `LiNKaios/linkaios-web/src/components/modules-catalogue.tsx`
 - `LiNKaios/linkaios-web/src/components/linkskills-leases-panel.tsx`
 - `LiNKaios/linkaios-web/src/components/cockpit-dashboard.tsx`
-- `.ai-swarm/AGENT_REPORTS/LINKAIOS_UIUX_REVIEW_BACKLOG.md`
+- `dev-swarm/reports/legacy-ai-swarm/LINKAIOS_UIUX_REVIEW_BACKLOG.md`
 
 ## Commands Run
 

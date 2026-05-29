@@ -29,7 +29,7 @@ Make demo/stub surfaces honest so wiring sprint does not confuse operators.
 - [ ] Plane sync clearly labeled
 
 ## Report
-`.ai-swarm/AGENT_REPORTS/PWR-W3-A-stub-honesty.md`
+`dev-swarm/reports/legacy-ai-swarm/PWR-W3-A-stub-honesty.md`
 
 ## Commit
 `fix(ui): add stub honesty badges on demo surfaces`

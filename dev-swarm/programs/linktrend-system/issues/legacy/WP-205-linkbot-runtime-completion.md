@@ -22,7 +22,7 @@ Use a separate clean worktree/checkout for this packet. Do not run this packet i
 - LiNKbot contracts in `packages/linklogic-sdk/`
 - LiNKbot-facing LiNKaios display helpers if needed
 - Related tests
-- `.ai-swarm/AGENT_REPORTS/`
+- `dev-swarm/reports/legacy-ai-swarm/`
 
 ## Prohibited Files
 
@@ -35,8 +35,8 @@ Use a separate clean worktree/checkout for this packet. Do not run this packet i
 
 - `docs/architecture/repo-architecture-target.md`
 - `docs/architecture/system-completion-targets.md`
-- `.ai-swarm/LINKBOT_ADAPTER_PLAN.md`
-- `.ai-swarm/CONTRACTS_MVO.md`
+- `dev-swarm/command-center/LINKBOT_ADAPTER_PLAN.md`
+- `dev-swarm/command-center/CONTRACTS_MVO.md`
 - `LiNKbot/README.md`
 
 ## Steps
@@ -62,4 +62,4 @@ Use a separate clean worktree/checkout for this packet. Do not run this packet i
 
 ## Report File
 
-Update `.ai-swarm/AGENT_REPORTS/WP-205-linkbot-runtime-completion.md`.
+Update `dev-swarm/reports/legacy-ai-swarm/WP-205-linkbot-runtime-completion.md`.

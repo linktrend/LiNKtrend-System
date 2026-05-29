@@ -15,8 +15,8 @@ Define and test SDK schemas for a cross-vertical LiNKbrain trace/status view spa
 - `packages/linklogic-sdk/src/*trace*.ts`
 - `packages/linklogic-sdk/src/*trace*.test.ts`
 - `packages/linklogic-sdk/src/index.ts`
-- `.ai-swarm/LINKBRAIN_CROSS_VERTICAL_TRACE_SCHEMA.md`
-- `.ai-swarm/AGENT_REPORTS/WP-116-linkbrain-cross-vertical-trace-dashboard-schema.md`
+- `dev-swarm/command-center/LINKBRAIN_CROSS_VERTICAL_TRACE_SCHEMA.md`
+- `dev-swarm/reports/legacy-ai-swarm/WP-116-linkbrain-cross-vertical-trace-dashboard-schema.md`
 
 ## Prohibited files
 
@@ -30,8 +30,8 @@ Define and test SDK schemas for a cross-vertical LiNKbrain trace/status view spa
 - `packages/linklogic-sdk/src/contracts-mvo.ts`
 - `packages/linklogic-sdk/src/linkapps-brain-events.ts`
 - `packages/linklogic-sdk/src/brain-memory.ts`
-- `.ai-swarm/LINKAPPS_LINKBRAIN_EVENT_SCHEMA.md`
-- `.ai-swarm/LINKBRAIN_BENCHMARKING_SPEC.md`
+- `dev-swarm/command-center/LINKAPPS_LINKBRAIN_EVENT_SCHEMA.md`
+- `dev-swarm/command-center/LINKBRAIN_BENCHMARKING_SPEC.md`
 
 ## Steps
 

@@ -28,14 +28,14 @@ Implemented/verified the requested backlog items for `/`, `/work/messages`, `/wo
 - LiNKaios/linkaios-web/src/app/(shell)/workers/page.tsx
 - LiNKaios/linkaios-web/src/lib/ui-mocks/worker-ui.ts
 - LiNKaios/linkaios-web/src/app/(shell)/workers/[id]/brain/page.tsx
-- .ai-swarm/AGENT_REPORTS/LINKAIOS_UIUX_REVIEW_BACKLOG.md
-- .ai-swarm/AGENT_REPORTS/UIUX_BACKLOG_FIX_PASS.md
-- .ai-swarm/AGENT_REPORTS/artifacts/uiux-backlog-fix/home-desktop.png
-- .ai-swarm/AGENT_REPORTS/artifacts/uiux-backlog-fix/home-mobile-390.png
-- .ai-swarm/AGENT_REPORTS/artifacts/uiux-backlog-fix/work-messages.png
-- .ai-swarm/AGENT_REPORTS/artifacts/uiux-backlog-fix/workers.png
-- .ai-swarm/AGENT_REPORTS/artifacts/uiux-backlog-fix/worker-sessions-demo-lisa.png
-- .ai-swarm/AGENT_REPORTS/artifacts/uiux-backlog-fix/worker-brain-demo-lisa.png
+- dev-swarm/reports/legacy-ai-swarm/LINKAIOS_UIUX_REVIEW_BACKLOG.md
+- dev-swarm/reports/legacy-ai-swarm/UIUX_BACKLOG_FIX_PASS.md
+- dev-swarm/reports/legacy-ai-swarm/artifacts/uiux-backlog-fix/home-desktop.png
+- dev-swarm/reports/legacy-ai-swarm/artifacts/uiux-backlog-fix/home-mobile-390.png
+- dev-swarm/reports/legacy-ai-swarm/artifacts/uiux-backlog-fix/work-messages.png
+- dev-swarm/reports/legacy-ai-swarm/artifacts/uiux-backlog-fix/workers.png
+- dev-swarm/reports/legacy-ai-swarm/artifacts/uiux-backlog-fix/worker-sessions-demo-lisa.png
+- dev-swarm/reports/legacy-ai-swarm/artifacts/uiux-backlog-fix/worker-brain-demo-lisa.png
 
 ## Commands Run
 - `git status --short --branch`
@@ -49,12 +49,12 @@ Implemented/verified the requested backlog items for `/`, `/work/messages`, `/wo
 - Typecheck: blocked by pre-existing monorepo module-resolution issues in this checkout (`@linktrend/linklogic-sdk`, `@linktrend/shared-types`, `@linktrend/db`, etc. unresolved), not caused by this UI pass.
 - Focused tests: command executed but Vitest still collected broader suites and failed on the same pre-existing unresolved package entries.
 - Browser verification completed with screenshots for required routes/sizes:
-  - `.ai-swarm/AGENT_REPORTS/artifacts/uiux-backlog-fix/home-desktop.png`
-  - `.ai-swarm/AGENT_REPORTS/artifacts/uiux-backlog-fix/home-mobile-390.png`
-  - `.ai-swarm/AGENT_REPORTS/artifacts/uiux-backlog-fix/work-messages.png`
-  - `.ai-swarm/AGENT_REPORTS/artifacts/uiux-backlog-fix/workers.png`
-  - `.ai-swarm/AGENT_REPORTS/artifacts/uiux-backlog-fix/worker-sessions-demo-lisa.png`
-  - `.ai-swarm/AGENT_REPORTS/artifacts/uiux-backlog-fix/worker-brain-demo-lisa.png`
+  - `dev-swarm/reports/legacy-ai-swarm/artifacts/uiux-backlog-fix/home-desktop.png`
+  - `dev-swarm/reports/legacy-ai-swarm/artifacts/uiux-backlog-fix/home-mobile-390.png`
+  - `dev-swarm/reports/legacy-ai-swarm/artifacts/uiux-backlog-fix/work-messages.png`
+  - `dev-swarm/reports/legacy-ai-swarm/artifacts/uiux-backlog-fix/workers.png`
+  - `dev-swarm/reports/legacy-ai-swarm/artifacts/uiux-backlog-fix/worker-sessions-demo-lisa.png`
+  - `dev-swarm/reports/legacy-ai-swarm/artifacts/uiux-backlog-fix/worker-brain-demo-lisa.png`
 
 ## Remaining Blockers / Backend Remainder
 - Full production Slack/Telegram ingestion still depends on gateway persistence/schema availability. This pass implements channel-aware rendering for existing thread structures without inventing new backend schema.

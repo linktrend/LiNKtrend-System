@@ -2,7 +2,7 @@
 
 You are Codex working as a senior frontend/product UX engineer.
 
-Execute `.ai-swarm/WORK_PACKETS/WP-229-linkbots-project-work-context-ui.md` exactly.
+Execute `dev-swarm/programs/linktrend-system/issues/legacy/WP-229-linkbots-project-work-context-ui.md` exactly.
 
 ## Model / Mode
 
@@ -12,9 +12,9 @@ Use GPT-5.3 Codex or equivalent code-focused model.
 
 Read before editing:
 
-1. `.ai-swarm/WORK_PACKETS/WP-229-linkbots-project-work-context-ui.md`
+1. `dev-swarm/programs/linktrend-system/issues/legacy/WP-229-linkbots-project-work-context-ui.md`
 2. WP-226 report and final commit
-3. `.ai-swarm/AGENT_REPORTS/CURRENT_STATE_VERIFICATION_WARNING.md`
+3. `dev-swarm/reports/legacy-ai-swarm/CURRENT_STATE_VERIFICATION_WARNING.md`
 4. Existing LinkBots/Workers pages
 5. `.cursor/rules/01-ecosystem-boundaries.mdc`
 6. `.cursor/rules/03-agent-swarm-coordination.mdc`
@@ -61,7 +61,7 @@ Capture browser screenshots for LinkBots list and a LinkBot Projects tab.
 
 ## Required Report
 
-Write `.ai-swarm/AGENT_REPORTS/WP-229-linkbots-project-work-context-ui.md` with files changed, commands run, screenshots/proof, blockers, final commit SHA, and backlog items.
+Write `dev-swarm/reports/legacy-ai-swarm/WP-229-linkbots-project-work-context-ui.md` with files changed, commands run, screenshots/proof, blockers, final commit SHA, and backlog items.
 
 ## Completion
 

@@ -1,10 +1,12 @@
 # Work Packets v2
 
+> **Terminology:** Legacy *work packets* (WP-###) are now **Issues** under `dev-swarm/programs/linktrend-system/issues/`. Historical WP files live under `dev-swarm/programs/linktrend-system/issues/legacy/` and `dev-swarm/archive/`.
+
 ## WP-000 — Command Center And Architect Review Import
 
-Create `.ai-swarm/`, add the architect review report, create status/report files, and initialize coordination.
+Wire `dev-swarm/`, add the architect review report to `dev-swarm/command-center/`, create status/report files under `dev-swarm/reports/`, and initialize coordination.
 
-Output: `.ai-swarm/` folder.
+Output: `dev-swarm/` factory tree and populated `dev-swarm/command-center/`.
 
 ## WP-001 — Verified Repo Inventory
 

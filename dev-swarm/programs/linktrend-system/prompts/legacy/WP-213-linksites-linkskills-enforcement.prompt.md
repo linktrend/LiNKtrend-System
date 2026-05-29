@@ -2,7 +2,7 @@
 
 Model: Kimi
 
-Execute `.ai-swarm/WORK_PACKETS/WP-213-linksites-linkskills-enforcement.md` exactly. This is a LinkSkills runtime enforcement packet.
+Execute `dev-swarm/programs/linktrend-system/issues/legacy/WP-213-linksites-linkskills-enforcement.md` exactly. This is a LinkSkills runtime enforcement packet.
 
 Use a separate clean worktree/checkout for this packet. Do not run this packet in a shared dirty repo folder.
 
@@ -18,14 +18,14 @@ Before editing, read these context files:
 - `.cursor/rules/05-security-cost-and-side-effects.mdc`
 - `docs/architecture/repo-architecture-target.md`
 - `docs/architecture/system-completion-targets.md`
-- `.ai-swarm/CONTRACTS_MVO.md`
-- `.ai-swarm/REPO_INVENTORY.md`
+- `dev-swarm/command-center/CONTRACTS_MVO.md`
+- `dev-swarm/command-center/REPO_INVENTORY.md`
 - the assigned work packet
 
 Wave 1 carry-forward:
 
-- Read the WP-210 report if it exists at `.worktrees/WP-210-baseline-fix-and-build-gate/.ai-swarm/AGENT_REPORTS/WP-210-baseline-fix-and-build-gate.md`.
-- Read the WP-211 report if it exists at `.worktrees/WP-211-module-workflow-map-gap-prep/.ai-swarm/AGENT_REPORTS/WP-211-module-workflow-map-gap-prep.md`.
+- Read the WP-210 report if it exists at `.worktrees/WP-210-baseline-fix-and-build-gate/dev-swarm/reports/legacy-ai-swarm/WP-210-baseline-fix-and-build-gate.md`.
+- Read the WP-211 report if it exists at `.worktrees/WP-211-module-workflow-map-gap-prep/dev-swarm/reports/legacy-ai-swarm/WP-211-module-workflow-map-gap-prep.md`.
 - If `modules/linksites/workflow.md` is missing in your checkout, copy it from `.worktrees/WP-211-module-workflow-map-gap-prep/modules/linksites/workflow.md` before mapping capability leases.
 - Do not assume Wave 1 fully passed. WP-210 reported remaining LinkSkills, LiNKautowork, LiNKaios typecheck/build blockers; fix blockers that are in this packet scope.
 
@@ -36,7 +36,7 @@ Important execution rules:
 - Do not edit real secrets or commit `.env`.
 - Do not perform live outreach, live publishing, billing, provider provisioning, or production side effects.
 - Preserve service ownership boundaries: LiNKaios cockpit/orchestration, LiNKbrain memory/audit, LinkSkills leases/connectors, LiNKautowork deterministic workflow gateway, LiNKbot role runtime, modules workflow maps.
-- Update the required `.ai-swarm/AGENT_REPORTS/WP-213-linksites-linkskills-enforcement.md` before stopping.
+- Update the required `dev-swarm/reports/legacy-ai-swarm/WP-213-linksites-linkskills-enforcement.md` before stopping.
 - Include files changed, commands run, proof produced, blockers, and next step in the report.
 
 Stop only after acceptance criteria and proof commands have been attempted. If proof fails, fix it when the root cause is in scope; otherwise document the exact file-level/root-cause blocker and the command output summary.

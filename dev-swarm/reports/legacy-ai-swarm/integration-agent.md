@@ -73,7 +73,7 @@ git rev-parse HEAD
 ### Scope
 
 - `plugins/vertical/linkapps/manifest.yaml`
-- `.ai-swarm/AGENT_REPORTS/integration-agent.md`
+- `dev-swarm/reports/legacy-ai-swarm/integration-agent.md`
 
 ### Implementation summary
 
@@ -104,7 +104,7 @@ ruby -ryaml -e "YAML.load_file('plugins/vertical/linkapps/manifest.yaml')"
 ### Changed files
 
 - `plugins/vertical/linkapps/manifest.yaml` (created)
-- `.ai-swarm/AGENT_REPORTS/integration-agent.md` (this entry)
+- `dev-swarm/reports/legacy-ai-swarm/integration-agent.md` (this entry)
 
 ### Blockers
 
@@ -189,7 +189,7 @@ git rev-parse HEAD
 ### Scope
 
 - `plugins/vertical/linkapps/manifest.yaml`
-- `.ai-swarm/AGENT_REPORTS/integration-agent.md`
+- `dev-swarm/reports/legacy-ai-swarm/integration-agent.md`
 
 ### Implementation summary
 
@@ -220,7 +220,7 @@ ruby -ryaml -e "YAML.load_file('plugins/vertical/linkapps/manifest.yaml')"
 ### Changed files
 
 - `plugins/vertical/linkapps/manifest.yaml` (created)
-- `.ai-swarm/AGENT_REPORTS/integration-agent.md` (this entry)
+- `dev-swarm/reports/legacy-ai-swarm/integration-agent.md` (this entry)
 
 ### Blockers
 
@@ -240,7 +240,7 @@ ruby -ryaml -e "YAML.load_file('plugins/vertical/linkapps/manifest.yaml')"
 
 - `LiNKaios/linkaios-web/src/lib/kernel/dispatch.ts`
 - `LiNKaios/linkaios-web/src/lib/kernel/dispatch.test.ts`
-- `.ai-swarm/AGENT_REPORTS/integration-agent.md`
+- `dev-swarm/reports/legacy-ai-swarm/integration-agent.md`
 
 ### Implementation Summary
 
@@ -293,8 +293,8 @@ pnpm --filter @linktrend/linkaios-web exec vitest run src/lib/kernel/dispatch.te
 
 ### Files changed
 
-- `.ai-swarm/INTEGRATION_QUEUE.md` — added v2 section and "out of scope" list; marked v1 stubbed-integrations section as historical.
-- `.ai-swarm/AGENT_REPORTS/integration-agent.md` — this entry.
+- `dev-swarm/command-center/INTEGRATION_QUEUE.md` — added v2 section and "out of scope" list; marked v1 stubbed-integrations section as historical.
+- `dev-swarm/reports/legacy-ai-swarm/integration-agent.md` — this entry.
 
 ### Commands run
 
@@ -432,8 +432,8 @@ pnpm --filter @linktrend/linkaios-web test -- src/lib/kernel/dispatch.test.ts sr
 - `LiNKaios/linkaios-web/src/lib/kernel/dispatch.ts`
 - `LiNKaios/linkaios-web/src/lib/kernel/plane-adapter.ts`
 - `services/migrations/028_linkskills_plane_external_mappings.sql`
-- `.ai-swarm/AGENT_REPORTS/security-auditor.md`
-- `.ai-swarm/AGENT_REPORTS/integration-agent.md`
+- `dev-swarm/reports/legacy-ai-swarm/security-auditor.md`
+- `dev-swarm/reports/legacy-ai-swarm/integration-agent.md`
 
 ### Changes Applied
 
@@ -482,9 +482,9 @@ pnpm --filter @linktrend/linkaios-web test -- src/lib/kernel/dispatch.test.ts sr
 
 ### Scope Reviewed
 
-- `.ai-swarm/AGENT_REPORTS/integration-agent.md`
-- `.ai-swarm/AGENT_COORDINATION.md`
-- `.ai-swarm/MERGE_QUEUE.md`
+- `dev-swarm/reports/legacy-ai-swarm/integration-agent.md`
+- `dev-swarm/command-center/AGENT_COORDINATION.md`
+- `dev-swarm/command-center/MERGE_QUEUE.md`
 - `git status --short`
 - `git diff --stat`
 
@@ -517,34 +517,34 @@ pnpm --filter @linktrend/linkaios-web test -- src/lib/kernel/dispatch.test.ts sr
 
 #### PR-B: swarm docs/reports/roadmap
 
-- `.ai-swarm/AGENT_COORDINATION.md`
-- `.ai-swarm/AGENT_REPORTS/integration-agent.md`
-- `.ai-swarm/AGENT_REPORTS/linkaios-agent.md`
-- `.ai-swarm/AGENT_REPORTS/linkautowork-agent.md`
-- `.ai-swarm/AGENT_REPORTS/security-auditor.md`
-- `.ai-swarm/CONTRACTS_MVO.md`
-- `.ai-swarm/DECISIONS.md`
-- `.ai-swarm/DEMO_RUNBOOK_WEBSITEFACTORY_MVO.md`
-- `.ai-swarm/INTEGRATION_QUEUE.md`
-- `.ai-swarm/LINKAIOS_KERNEL_MANIFEST.md`
-- `.ai-swarm/MERGE_QUEUE.md`
-- `.ai-swarm/REPO_INVENTORY.md`
-- `.ai-swarm/WORK_PACKETS/WP-003-websitefactory-plugin-manifest.md`
-- `.ai-swarm/WORK_PACKETS/WP-007-linkskills-lease-lifecycle.md`
-- `.ai-swarm/WORK_PACKETS/WP-008-linkautowork-websitefactory-workflows.md`
-- `.ai-swarm/WORK_PACKETS/WP-010-linkaios-kernel-orchestration.md`
-- `.ai-swarm/WORK_PACKETS/WP-011-websitefactory-plugin-glue.md`
-- `.ai-swarm/WORK_PACKETS/WP-012-mvo-stub-backends.md`
-- `.ai-swarm/WORK_PACKETS/WP-013-e2e-demo-and-audit-harness.md`
-- `.ai-swarm/WORK_PACKETS/WP-015-real-crm-integration-cutover.md`
-- `.ai-swarm/WORK_PACKETS/WP-016-real-plane-integration-cutover.md`
-- `.ai-swarm/WORK_PACKETS/WP-017-preview-publishing-upgrade-digitalocean-payload.md`
-- `.ai-swarm/WORK_PACKETS/WP-018-model-routing-gateway-litellm.md`
-- `.ai-swarm/WORK_PACKETS/WP-019-lexos-post-mvo-integration-plan.md`
+- `dev-swarm/command-center/AGENT_COORDINATION.md`
+- `dev-swarm/reports/legacy-ai-swarm/integration-agent.md`
+- `dev-swarm/reports/legacy-ai-swarm/linkaios-agent.md`
+- `dev-swarm/reports/legacy-ai-swarm/linkautowork-agent.md`
+- `dev-swarm/reports/legacy-ai-swarm/security-auditor.md`
+- `dev-swarm/command-center/CONTRACTS_MVO.md`
+- `dev-swarm/command-center/DECISIONS.md`
+- `dev-swarm/command-center/DEMO_RUNBOOK_WEBSITEFACTORY_MVO.md`
+- `dev-swarm/command-center/INTEGRATION_QUEUE.md`
+- `dev-swarm/command-center/LINKAIOS_KERNEL_MANIFEST.md`
+- `dev-swarm/command-center/MERGE_QUEUE.md`
+- `dev-swarm/command-center/REPO_INVENTORY.md`
+- `dev-swarm/programs/linktrend-system/issues/legacy/WP-003-websitefactory-plugin-manifest.md`
+- `dev-swarm/programs/linktrend-system/issues/legacy/WP-007-linkskills-lease-lifecycle.md`
+- `dev-swarm/programs/linktrend-system/issues/legacy/WP-008-linkautowork-websitefactory-workflows.md`
+- `dev-swarm/programs/linktrend-system/issues/legacy/WP-010-linkaios-kernel-orchestration.md`
+- `dev-swarm/programs/linktrend-system/issues/legacy/WP-011-websitefactory-plugin-glue.md`
+- `dev-swarm/programs/linktrend-system/issues/legacy/WP-012-mvo-stub-backends.md`
+- `dev-swarm/programs/linktrend-system/issues/legacy/WP-013-e2e-demo-and-audit-harness.md`
+- `dev-swarm/programs/linktrend-system/issues/legacy/WP-015-real-crm-integration-cutover.md`
+- `dev-swarm/programs/linktrend-system/issues/legacy/WP-016-real-plane-integration-cutover.md`
+- `dev-swarm/programs/linktrend-system/issues/legacy/WP-017-preview-publishing-upgrade-digitalocean-payload.md`
+- `dev-swarm/programs/linktrend-system/issues/legacy/WP-018-model-routing-gateway-litellm.md`
+- `dev-swarm/programs/linktrend-system/issues/legacy/WP-019-lexos-post-mvo-integration-plan.md`
 
 ### Files that should not be in the same PR
 
-1. `.ai-swarm/**` docs/roadmap files should not be mixed into runtime auth/kernel changes because they add high review noise and hide security-critical deltas.
+1. `dev-swarm/command-center/**` docs/roadmap files should not be mixed into runtime auth/kernel changes because they add high review noise and hide security-critical deltas.
 2. `services/migrations/028_linkskills_plane_external_mappings.sql` should be separated from pure docs PR; keep it with runtime/integration implementation (or a dedicated migration PR if reviewers prefer DB-only review).
 3. `package.json` should remain with runtime/tests PR because it changes executable scripts used by MVO proof (`test:mvo:e2e`).
 
@@ -554,8 +554,8 @@ pnpm --filter @linktrend/linkaios-web test -- src/lib/kernel/dispatch.test.ts sr
 - `.env.example` reviewed: placeholder/env-name-only values, no real credential material.
 - Focused scan over changed and new files found no committed production secrets or token literals.
 - Latest passing proof references include run `6f7e0389-886e-4c27-b61d-6cbb5fd53269` in both:
-  - `.ai-swarm/AGENT_REPORTS/integration-agent.md`
-  - `.ai-swarm/AGENT_COORDINATION.md`
+  - `dev-swarm/reports/legacy-ai-swarm/integration-agent.md`
+  - `dev-swarm/command-center/AGENT_COORDINATION.md`
 
 ### Commands Run
 
@@ -563,7 +563,7 @@ pnpm --filter @linktrend/linkaios-web test -- src/lib/kernel/dispatch.test.ts sr
 git status --short
 git diff --stat
 git diff --name-only
-rg -n "6f7e0389-886e-4c27-b61d-6cbb5fd53269" .ai-swarm/AGENT_REPORTS/integration-agent.md .ai-swarm/AGENT_COORDINATION.md .ai-swarm/MERGE_QUEUE.md scripts/run-e2e.ts
+rg -n "6f7e0389-886e-4c27-b61d-6cbb5fd53269" dev-swarm/reports/legacy-ai-swarm/integration-agent.md dev-swarm/command-center/AGENT_COORDINATION.md dev-swarm/command-center/MERGE_QUEUE.md scripts/run-e2e.ts
 git diff -- .env.example
 pnpm --filter @linktrend/linkaios-web test -- src/lib/kernel/api-auth.test.ts src/lib/kernel/kernel.test.ts src/lib/kernel/dispatch.test.ts src/lib/kernel/plane-adapter.test.ts
 ```
@@ -582,7 +582,7 @@ pnpm --filter @linktrend/linkaios-web test -- src/lib/kernel/api-auth.test.ts sr
 ### Next Steps
 
 1. Stage and open PR-A (runtime/tests + migration) first.
-2. Stage and open PR-B (`.ai-swarm` docs/reports/roadmap) second.
+2. Stage and open PR-B (`dev-swarm/` docs/reports/roadmap) second.
 3. Keep commit boundaries strict; do not mix files across the two PRs.
 
 ## WP-034 — DigitalOcean Hosted Preview Scaffold (2026-05-15)
@@ -635,7 +635,7 @@ Implemented the requested foundation changes without enabling external writes:
 
 ### Files Changed
 
-- `.ai-swarm/CONTRACTS_MVO.md`
+- `dev-swarm/command-center/CONTRACTS_MVO.md`
 - `packages/linklogic-sdk/src/contracts-mvo.ts`
 - `packages/linklogic-sdk/src/contracts-mvo.test.ts`
 - `packages/shared-config/src/index.ts`
@@ -685,9 +685,9 @@ LINKAIOS_ENABLE_MVO_SERVICE_BYPASS=true pnpm test:mvo:e2e
 
 ### Scope Reviewed
 
-- `.ai-swarm/WORK_PACKETS/WP-017-preview-publishing-upgrade-digitalocean-payload.md`
-- `.ai-swarm/CONTRACTS_MVO.md`
-- `.ai-swarm/DEMO_RUNBOOK_WEBSITEFACTORY_MVO.md`
+- `dev-swarm/programs/linktrend-system/issues/legacy/WP-017-preview-publishing-upgrade-digitalocean-payload.md`
+- `dev-swarm/command-center/CONTRACTS_MVO.md`
+- `dev-swarm/command-center/DEMO_RUNBOOK_WEBSITEFACTORY_MVO.md`
 - `LiNKaios/linkaios-web/src/lib/kernel/dispatch.ts`
 - `scripts/run-e2e.ts`
 
@@ -747,15 +747,15 @@ Rationale:
 
 ```bash
 rg -n "WP-017|preview_artifact_ref|preview_url|DigitalOcean|Payload|LinkSites|preview" \
-  .ai-swarm/WORK_PACKETS/WP-017-preview-publishing-upgrade-digitalocean-payload.md \
-  .ai-swarm/CONTRACTS_MVO.md \
-  .ai-swarm/DEMO_RUNBOOK_WEBSITEFACTORY_MVO.md \
+  dev-swarm/programs/linktrend-system/issues/legacy/WP-017-preview-publishing-upgrade-digitalocean-payload.md \
+  dev-swarm/command-center/CONTRACTS_MVO.md \
+  dev-swarm/command-center/DEMO_RUNBOOK_WEBSITEFACTORY_MVO.md \
   LiNKaios/linkaios-web/src/lib/kernel/dispatch.ts \
   scripts/run-e2e.ts
-sed -n '1,240p' .ai-swarm/WORK_PACKETS/WP-017-preview-publishing-upgrade-digitalocean-payload.md
-sed -n '1,260p' .ai-swarm/CONTRACTS_MVO.md
-sed -n '500,760p' .ai-swarm/CONTRACTS_MVO.md
-sed -n '1,260p' .ai-swarm/DEMO_RUNBOOK_WEBSITEFACTORY_MVO.md
+sed -n '1,240p' dev-swarm/programs/linktrend-system/issues/legacy/WP-017-preview-publishing-upgrade-digitalocean-payload.md
+sed -n '1,260p' dev-swarm/command-center/CONTRACTS_MVO.md
+sed -n '500,760p' dev-swarm/command-center/CONTRACTS_MVO.md
+sed -n '1,260p' dev-swarm/command-center/DEMO_RUNBOOK_WEBSITEFACTORY_MVO.md
 sed -n '1,260p' LiNKaios/linkaios-web/src/lib/kernel/dispatch.ts
 sed -n '240,460p' LiNKaios/linkaios-web/src/lib/kernel/dispatch.ts
 sed -n '1,260p' scripts/run-e2e.ts
@@ -784,10 +784,10 @@ sed -n '1,260p' scripts/run-e2e.ts
 
 ### Scope Reviewed
 
-- `.ai-swarm/AGENT_COORDINATION.md`
-- `.ai-swarm/MERGE_QUEUE.md`
-- `.ai-swarm/AGENT_REPORTS/integration-agent.md`
-- `.ai-swarm/AGENT_REPORTS/security-auditor.md`
+- `dev-swarm/command-center/AGENT_COORDINATION.md`
+- `dev-swarm/command-center/MERGE_QUEUE.md`
+- `dev-swarm/reports/legacy-ai-swarm/integration-agent.md`
+- `dev-swarm/reports/legacy-ai-swarm/security-auditor.md`
 - `git status --short`
 - `git diff --stat`
 
@@ -817,19 +817,19 @@ sed -n '1,260p' scripts/run-e2e.ts
 - `scripts/run-e2e.ts`
 
 #### swarm docs/reports
-- `.ai-swarm/AGENT_COORDINATION.md`
-- `.ai-swarm/INTEGRATION_QUEUE.md`
-- `.ai-swarm/MERGE_QUEUE.md`
-- `.ai-swarm/AGENT_REPORTS/integration-agent.md`
-- `.ai-swarm/AGENT_REPORTS/security-auditor.md`
+- `dev-swarm/command-center/AGENT_COORDINATION.md`
+- `dev-swarm/command-center/INTEGRATION_QUEUE.md`
+- `dev-swarm/command-center/MERGE_QUEUE.md`
+- `dev-swarm/reports/legacy-ai-swarm/integration-agent.md`
+- `dev-swarm/reports/legacy-ai-swarm/security-auditor.md`
 
 #### post-MVO roadmap docs
-- `.ai-swarm/WORK_PACKETS/WP-015-real-crm-integration-cutover.md`
-- `.ai-swarm/WORK_PACKETS/WP-016-real-plane-integration-cutover.md`
-- `.ai-swarm/WORK_PACKETS/WP-017-preview-publishing-upgrade-digitalocean-payload.md`
-- `.ai-swarm/WORK_PACKETS/WP-018-model-routing-gateway-litellm.md`
-- `.ai-swarm/WORK_PACKETS/WP-019-lexos-post-mvo-integration-plan.md`
-- `.ai-swarm/DEMO_RUNBOOK_WEBSITEFACTORY_MVO.md`
+- `dev-swarm/programs/linktrend-system/issues/legacy/WP-015-real-crm-integration-cutover.md`
+- `dev-swarm/programs/linktrend-system/issues/legacy/WP-016-real-plane-integration-cutover.md`
+- `dev-swarm/programs/linktrend-system/issues/legacy/WP-017-preview-publishing-upgrade-digitalocean-payload.md`
+- `dev-swarm/programs/linktrend-system/issues/legacy/WP-018-model-routing-gateway-litellm.md`
+- `dev-swarm/programs/linktrend-system/issues/legacy/WP-019-lexos-post-mvo-integration-plan.md`
+- `dev-swarm/command-center/DEMO_RUNBOOK_WEBSITEFACTORY_MVO.md`
 
 ### 3) Stale Blocker Wording Check
 
@@ -841,7 +841,7 @@ sed -n '1,260p' scripts/run-e2e.ts
 
 - Recommend **split into two PRs**:
   1. Runtime + tests (`LiNKaios/linkaios-web/**`, `scripts/run-e2e.ts`, `.env.example`, `package.json`)
-  2. Swarm/report/roadmap docs (`.ai-swarm/**`)
+  2. Swarm/report/roadmap docs (`dev-swarm/command-center/**`)
 - Rationale: runtime diff is security-sensitive and test-backed; docs/roadmap churn is large and can obscure code review.
 
 ### 5) Focused Validation Proof
@@ -866,21 +866,21 @@ Result:
 #### Conclusions
 - Branch is merge-package ready with no requested runtime-behavior change.
 - Security posture is acceptable for merge based on SEC-001 closure and focused passing tests.
-- Recommend splitting runtime/test changes from `.ai-swarm` documentation changes for review clarity.
+- Recommend splitting runtime/test changes from `dev-swarm/` documentation changes for review clarity.
 
 #### Changed Files (this WP-027 update)
-- `.ai-swarm/AGENT_REPORTS/integration-agent.md`
+- `dev-swarm/reports/legacy-ai-swarm/integration-agent.md`
 
 #### Commands Run
 ```bash
-cat .ai-swarm/AGENT_COORDINATION.md
-cat .ai-swarm/MERGE_QUEUE.md
-cat .ai-swarm/AGENT_REPORTS/integration-agent.md
-cat .ai-swarm/AGENT_REPORTS/security-auditor.md
+cat dev-swarm/command-center/AGENT_COORDINATION.md
+cat dev-swarm/command-center/MERGE_QUEUE.md
+cat dev-swarm/reports/legacy-ai-swarm/integration-agent.md
+cat dev-swarm/reports/legacy-ai-swarm/security-auditor.md
 git status --short
 git diff --stat
 git diff -- .env.example
-rg -n "(BLOCKER|blocked|superseded|TBD)" .ai-swarm/AGENT_COORDINATION.md .ai-swarm/MERGE_QUEUE.md .ai-swarm/AGENT_REPORTS/integration-agent.md .ai-swarm/AGENT_REPORTS/security-auditor.md
+rg -n "(BLOCKER|blocked|superseded|TBD)" dev-swarm/command-center/AGENT_COORDINATION.md dev-swarm/command-center/MERGE_QUEUE.md dev-swarm/reports/legacy-ai-swarm/integration-agent.md dev-swarm/reports/legacy-ai-swarm/security-auditor.md
 pnpm --filter @linktrend/linkaios-web test -- src/lib/kernel/api-auth.test.ts src/lib/kernel/kernel.test.ts
 ```
 
@@ -890,14 +890,14 @@ pnpm --filter @linktrend/linkaios-web test -- src/lib/kernel/api-auth.test.ts sr
 - Stale blocker wording present only as historical/superseded notes; current queue posture is ready.
 
 #### Risks
-- Single combined PR will have high review noise due to large `.ai-swarm` doc churn.
+- Single combined PR will have high review noise due to large `dev-swarm/` doc churn.
 - Historical blocker text could be misread as active if PR description does not call out superseded context.
 
 #### Blockers
 - None active for packaging.
 
 #### Next Steps
-1. Split changes into `runtime+tests` and `.ai-swarm docs` PRs.
+1. Split changes into `runtime+tests` and `dev-swarm docs` PRs.
 2. Keep PR descriptions explicit on superseded blocker entries vs active gates.
 3. Proceed to commit only after explicit maintainer approval.
 
@@ -1069,11 +1069,11 @@ Reconcile and validate the MVO stub backends after WP-007, then add any missing 
 
 ## Required Context Files Reviewed
 
-- `.ai-swarm/CONTRACTS_MVO.md` §11 — Stub behaviors specification
-- `.ai-swarm/DECISIONS.md` D-01, D-02, D-03 — CRM, Plane, preview publishing decisions
-- `.ai-swarm/INTEGRATION_QUEUE.md` INT-020, INT-021, INT-022 — Stub integration items
-- `.ai-swarm/AGENT_REPORTS/linkskills-agent.md` — WP-007 completion report
-- `.ai-swarm/AGENT_REPORTS/linkautowork-agent.md` — WP-008 completion report
+- `dev-swarm/command-center/CONTRACTS_MVO.md` §11 — Stub behaviors specification
+- `dev-swarm/command-center/DECISIONS.md` D-01, D-02, D-03 — CRM, Plane, preview publishing decisions
+- `dev-swarm/command-center/INTEGRATION_QUEUE.md` INT-020, INT-021, INT-022 — Stub integration items
+- `dev-swarm/reports/legacy-ai-swarm/linkskills-agent.md` — WP-007 completion report
+- `dev-swarm/reports/legacy-ai-swarm/linkautowork-agent.md` — WP-008 completion report
 - `services/migrations/024_linkskills_capability_lease.sql` — WP-007 implementation
 
 ## WP-007 Stub Backend Validation
@@ -1138,8 +1138,8 @@ Reconcile and validate the MVO stub backends after WP-007, then add any missing 
 
 | File | Action | Purpose |
 |------|--------|---------|
-| `.ai-swarm/LINKAPPS_VERTICAL_DISCOVERY.md` | Created | Discovery document with starter kit assets, workflow, and gaps |
-| `.ai-swarm/AGENT_REPORTS/integration-agent.md` | Created | This agent report |
+| `dev-swarm/command-center/LINKAPPS_VERTICAL_DISCOVERY.md` | Created | Discovery document with starter kit assets, workflow, and gaps |
+| `dev-swarm/reports/legacy-ai-swarm/integration-agent.md` | Created | This agent report |
 
 ---
 
@@ -1508,7 +1508,7 @@ Result:
   - Middleware service pass-through now also requires `LINKAIOS_ENABLE_MVO_SERVICE_BYPASS=true` or `1`, matching route-handler auth semantics.
 - `.env.example`
   - Documents `LINKAIOS_ENABLE_MVO_SERVICE_BYPASS`, `LINKAIOS_MVO_KERNEL_OPERATOR_USER_IDS`, and `LINKAIOS_DISABLE_MVO_USER_KERNEL_API`.
-- `.ai-swarm/DEMO_RUNBOOK_WEBSITEFACTORY_MVO.md`
+- `dev-swarm/command-center/DEMO_RUNBOOK_WEBSITEFACTORY_MVO.md`
   - Uses the canonical `pnpm test:mvo:e2e` command and documents the service-bypass flag.
 
 Proof after follow-up:
@@ -1532,10 +1532,10 @@ Historical review gate (superseded by WP-022/WP-023 passing proof):
 
 ### Scope and evidence reviewed
 
-- `.ai-swarm/AGENT_COORDINATION.md`
-- `.ai-swarm/AGENT_REPORTS/integration-agent.md`
-- `.ai-swarm/CONTRACTS_MVO.md` (§§8-10, §12)
-- `.ai-swarm/DECISIONS.md`
+- `dev-swarm/command-center/AGENT_COORDINATION.md`
+- `dev-swarm/reports/legacy-ai-swarm/integration-agent.md`
+- `dev-swarm/command-center/CONTRACTS_MVO.md` (§§8-10, §12)
+- `dev-swarm/command-center/DECISIONS.md`
 - `git diff` and `git diff --stat`
 - `LiNKaios/linkaios-web/src/lib/kernel/**`
 - `LiNKaios/linkaios-web/src/app/api/kernel/**`
@@ -1550,8 +1550,8 @@ Historical review gate (superseded by WP-022/WP-023 passing proof):
 Current working tree delta:
 
 ```text
- .ai-swarm/AGENT_COORDINATION.md                  |  8 +--
- .ai-swarm/AGENT_REPORTS/integration-agent.md     | 68 +++++++++++++++++++++++-
+ dev-swarm/command-center/AGENT_COORDINATION.md                  |  8 +--
+ dev-swarm/reports/legacy-ai-swarm/integration-agent.md     | 68 +++++++++++++++++++++++-
  LiNKaios/linkaios-web/src/lib/kernel/orchestrator.ts |  3 ++
  3 files changed, 75 insertions(+), 4 deletions(-)
 ```
@@ -1565,8 +1565,8 @@ Direct kernel/runtime code delta in this review window:
 
 Using the current stabilization baseline (`4db91d0`) plus uncommitted updates in this branch, changed files after the proof-correction pass are:
 
-- `.ai-swarm/AGENT_COORDINATION.md`
-- `.ai-swarm/AGENT_REPORTS/integration-agent.md`
+- `dev-swarm/command-center/AGENT_COORDINATION.md`
+- `dev-swarm/reports/legacy-ai-swarm/integration-agent.md`
 - `LiNKaios/linkaios-web/src/lib/kernel/orchestrator.ts`
 
 No current diff in:
@@ -1583,10 +1583,10 @@ No current diff in:
 - `LiNKaios/linkaios-web/src/lib/kernel/orchestrator.ts`
   - Classification: **production-safe**
   - Why: minimal, deterministic fix restoring contract-expected ref flattening; no API/schema/permission surface change.
-- `.ai-swarm/AGENT_COORDINATION.md`
+- `dev-swarm/command-center/AGENT_COORDINATION.md`
   - Classification: **MVO-only/testability shim**
   - Why: operational status update only; no runtime impact.
-- `.ai-swarm/AGENT_REPORTS/integration-agent.md`
+- `dev-swarm/reports/legacy-ai-swarm/integration-agent.md`
   - Classification: **MVO-only/testability shim**
   - Why: evidence/reporting only.
 
@@ -1645,8 +1645,8 @@ Recommended packets before merge:
 
 ### Scope
 
-- `.ai-swarm/CONTRACTS_MVO.md` §§8-10
-- `.ai-swarm/AGENT_REPORTS/integration-agent.md`
+- `dev-swarm/command-center/CONTRACTS_MVO.md` §§8-10
+- `dev-swarm/reports/legacy-ai-swarm/integration-agent.md`
 - `LiNKaios/linkaios-web/src/lib/kernel/orchestrator.ts`
 - `LiNKaios/linkaios-web/src/lib/kernel/dispatch.ts`
 - `scripts/run-e2e.ts`
@@ -1704,7 +1704,7 @@ Implemented minimal authorization hardening for `/api/kernel` routes so user-tok
 - `LiNKaios/linkaios-web/src/app/api/kernel/run/[runId]/execute/route.ts`
 - `LiNKaios/linkaios-web/src/app/api/kernel/run/[runId]/trace/route.ts`
 - `LiNKaios/linkaios-web/src/app/api/kernel/work-request/route.ts`
-- `.ai-swarm/AGENT_REPORTS/integration-agent.md`
+- `dev-swarm/reports/legacy-ai-swarm/integration-agent.md`
 
 ### What changed
 - Added `canAccessKernelScope()` in `api-auth.ts` with explicit scope checks:
@@ -1749,9 +1749,9 @@ Command passed:
 ## WP-029 — Plane real integration discovery (2026-05-15)
 
 ### Scope
-- `.ai-swarm/WORK_PACKETS/WP-016-real-plane-integration-cutover.md`
-- `.ai-swarm/CONTRACTS_MVO.md`
-- `.ai-swarm/INTEGRATION_QUEUE.md`
+- `dev-swarm/programs/linktrend-system/issues/legacy/WP-016-real-plane-integration-cutover.md`
+- `dev-swarm/command-center/CONTRACTS_MVO.md`
+- `dev-swarm/command-center/INTEGRATION_QUEUE.md`
 - `LiNKaios/linkaios-web/src/lib/kernel/dispatch.ts`
 - `services/migrations/024_linkskills_capability_lease.sql`
 
@@ -1837,9 +1837,9 @@ Command passed:
 Discovery-only assessment for smallest safe path from CRM stub (`INT-020`) toward real CRM provider wiring, without enabling external writes.
 
 Reviewed:
-- `.ai-swarm/WORK_PACKETS/WP-015-real-crm-integration-cutover.md`
-- `.ai-swarm/CONTRACTS_MVO.md`
-- `.ai-swarm/INTEGRATION_QUEUE.md`
+- `dev-swarm/programs/linktrend-system/issues/legacy/WP-015-real-crm-integration-cutover.md`
+- `dev-swarm/command-center/CONTRACTS_MVO.md`
+- `dev-swarm/command-center/INTEGRATION_QUEUE.md`
 - `LiNKaios/linkaios-web/src/lib/kernel/dispatch.ts`
 - `services/migrations/024_linkskills_capability_lease.sql`
 
@@ -1982,8 +1982,8 @@ pnpm --filter @linktrend/linkaios-web test -- src/lib/kernel/dispatch.test.ts sr
 
 ### Scope Reviewed
 
-- `.ai-swarm/AGENT_REPORTS/integration-agent.md` (WP-029/WP context)
-- `.ai-swarm/WORK_PACKETS/WP-016-real-plane-integration-cutover.md`
+- `dev-swarm/reports/legacy-ai-swarm/integration-agent.md` (WP-029/WP context)
+- `dev-swarm/programs/linktrend-system/issues/legacy/WP-016-real-plane-integration-cutover.md`
 - `services/migrations/024_linkskills_capability_lease.sql`
 - `LiNKaios/linkaios-web/src/lib/kernel/dispatch.ts`
 
@@ -2019,8 +2019,8 @@ pnpm --filter @linktrend/linkaios-web test -- src/lib/kernel/dispatch.test.ts sr
 ### Commands Run
 
 ```bash
-sed -n '1,240p' .ai-swarm/AGENT_REPORTS/integration-agent.md
-sed -n '1,260p' .ai-swarm/WORK_PACKETS/WP-016-real-plane-integration-cutover.md
+sed -n '1,240p' dev-swarm/reports/legacy-ai-swarm/integration-agent.md
+sed -n '1,260p' dev-swarm/programs/linktrend-system/issues/legacy/WP-016-real-plane-integration-cutover.md
 sed -n '1,240p' services/migrations/024_linkskills_capability_lease.sql
 sed -n '1,300p' LiNKaios/linkaios-web/src/lib/kernel/dispatch.ts
 rg -n "LINKSKILLS_PLANE_MODE|plane\.project\.create|plane\.task\.create|work item|work-item|mvo_projects|mvo_tasks|record_execution|request_lease" apps services packages -g '!**/node_modules/**'
@@ -2047,7 +2047,7 @@ Read-only discovery in `/Users/linktrend/Projects/LiNKsites` to identify existin
 
 ### Deliverables
 
-- Added `.ai-swarm/LINKSITES_TEMPLATE_PAYLOAD_DISCOVERY.md` with:
+- Added `dev-swarm/command-center/LINKSITES_TEMPLATE_PAYLOAD_DISCOVERY.md` with:
   - exact template paths
   - Payload collection/model paths
   - Supabase schema/mapping/sync paths
@@ -2130,8 +2130,8 @@ All evidence paths documented in `LINKAPPS_VERTICAL_DISCOVERY.md` were verified 
 ### Scope
 
 - `scripts/run-e2e.ts`
-- `.ai-swarm/DEMO_RUNBOOK_WEBSITEFACTORY_MVO.md`
-- `.ai-swarm/AGENT_REPORTS/integration-agent.md`
+- `dev-swarm/command-center/DEMO_RUNBOOK_WEBSITEFACTORY_MVO.md`
+- `dev-swarm/reports/legacy-ai-swarm/integration-agent.md`
 
 ### Implementation summary
 
@@ -2198,14 +2198,14 @@ run_scoped_audit_rows_verified: true
 
 ### Scope
 
-Create `.ai-swarm/LEXOS_VERTICAL_PLUGIN_CONVERSION_PLAN.md` and follow-up packets for converting LEXOS into a LiNKaios vertical plugin without moving code yet.
+Create `dev-swarm/command-center/LEXOS_VERTICAL_PLUGIN_CONVERSION_PLAN.md` and follow-up packets for converting LEXOS into a LiNKaios vertical plugin without moving code yet.
 
 ### Files Changed
 
-- `.ai-swarm/LEXOS_VERTICAL_PLUGIN_CONVERSION_PLAN.md` (new)
-- `.ai-swarm/WORK_PACKETS/WP-094-lexos-schema-core.md` (new)
-- `.ai-swarm/WORK_PACKETS/WP-097-lexos-types-generation.md` (new)
-- `.ai-swarm/WORK_PACKETS/WP-103-lexos-capability-manifests.md` (new)
+- `dev-swarm/command-center/LEXOS_VERTICAL_PLUGIN_CONVERSION_PLAN.md` (new)
+- `dev-swarm/programs/linktrend-system/issues/legacy/WP-094-lexos-schema-core.md` (new)
+- `dev-swarm/programs/linktrend-system/issues/legacy/WP-097-lexos-types-generation.md` (new)
+- `dev-swarm/programs/linktrend-system/issues/legacy/WP-103-lexos-capability-manifests.md` (new)
 
 ### Commands Run
 
@@ -2281,7 +2281,7 @@ ls -la /Users/linktrend/Projects/LiNKtrend-LEXOS/src/
 
 - No modifications made to `/Users/linktrend/Projects/LiNKtrend-LEXOS`
 - `git -C /Users/linktrend/Projects/LiNKtrend-LEXOS status --short` shows clean status
-- Only planning documents created in `.ai-swarm/` and `.ai-swarm/WORK_PACKETS/`
+- Only planning documents created in `dev-swarm/command-center/` and `dev-swarm/programs/linktrend-system/issues/legacy/`
 
 ### Blockers
 
@@ -2295,14 +2295,14 @@ None. Ready for Integrator review and follow-up packet assignment.
 
 ### Scope
 
-Create `.ai-swarm/LINKAPPS_VERTICAL_PLUGIN_CONVERSION_PLAN.md` and follow-up packets for converting LiNKapps into the App Factory vertical plugin without moving code yet.
+Create `dev-swarm/command-center/LINKAPPS_VERTICAL_PLUGIN_CONVERSION_PLAN.md` and follow-up packets for converting LiNKapps into the App Factory vertical plugin without moving code yet.
 
 ### Files Changed
 
-- `.ai-swarm/LINKAPPS_VERTICAL_PLUGIN_CONVERSION_PLAN.md` (new)
-- `.ai-swarm/WORK_PACKETS/WP-106-linkapps-plugin-manifest.md` (new)
-- `.ai-swarm/WORK_PACKETS/WP-107-linkapps-squad-orchestration.md` (new)
-- `.ai-swarm/WORK_PACKETS/WP-108-linkapps-capability-requirements.md` (new)
+- `dev-swarm/command-center/LINKAPPS_VERTICAL_PLUGIN_CONVERSION_PLAN.md` (new)
+- `dev-swarm/programs/linktrend-system/issues/legacy/WP-106-linkapps-plugin-manifest.md` (new)
+- `dev-swarm/programs/linktrend-system/issues/legacy/WP-107-linkapps-squad-orchestration.md` (new)
+- `dev-swarm/programs/linktrend-system/issues/legacy/WP-108-linkapps-capability-requirements.md` (new)
 
 ### Implementation Summary
 
@@ -2451,7 +2451,7 @@ Copy and adapt LEXOS core identity/evidence/assertion schema (clients, matters, 
 - `packages/db/schema/lexos/identity_intake_clients_matters.sql` (new) - Schema documentation
 - `packages/db/schema/lexos/evidence_and_extractions.sql` (new) - Schema documentation
 - `packages/db/schema/lexos/assertions_support_risks.sql` (new) - Schema documentation
-- `.ai-swarm/DECISIONS.md` - Added D-094-A documenting completion
+- `dev-swarm/command-center/DECISIONS.md` - Added D-094-A documenting completion
 
 ### Commands Run
 

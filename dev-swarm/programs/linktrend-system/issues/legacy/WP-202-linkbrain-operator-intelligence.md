@@ -23,7 +23,7 @@ Use a separate clean worktree/checkout for this packet. Do not run this packet i
 - `packages/linklogic-sdk/src/context-*`
 - LiNKbrain UI/data helpers in `LiNKaios/linkaios-web/src/components/linkbrain/` and `LiNKaios/linkaios-web/src/lib/linkbrain-data.ts`
 - Related tests
-- `.ai-swarm/AGENT_REPORTS/`
+- `dev-swarm/reports/legacy-ai-swarm/`
 
 ## Prohibited Files
 
@@ -36,8 +36,8 @@ Use a separate clean worktree/checkout for this packet. Do not run this packet i
 
 - `docs/architecture/repo-architecture-target.md`
 - `docs/architecture/system-completion-targets.md`
-- `.ai-swarm/LINKBRAIN_COMPLETION_PLAN.md`
-- `.ai-swarm/CONTRACTS_MVO.md`
+- `dev-swarm/command-center/LINKBRAIN_COMPLETION_PLAN.md`
+- `dev-swarm/command-center/CONTRACTS_MVO.md`
 - `LiNKbrain/source-map.md`
 
 ## Steps
@@ -63,4 +63,4 @@ Use a separate clean worktree/checkout for this packet. Do not run this packet i
 
 ## Report File
 
-Update `.ai-swarm/AGENT_REPORTS/WP-202-linkbrain-operator-intelligence.md`.
+Update `dev-swarm/reports/legacy-ai-swarm/WP-202-linkbrain-operator-intelligence.md`.

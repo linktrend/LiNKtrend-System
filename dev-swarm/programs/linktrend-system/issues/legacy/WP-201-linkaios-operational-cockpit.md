@@ -22,7 +22,7 @@ Use a separate clean worktree/checkout for this packet. Do not run this packet i
 - `packages/linkaios-kernel/`
 - LiNKaios-facing shared contracts in `packages/linklogic-sdk/`
 - Related tests in the same packages
-- `.ai-swarm/AGENT_REPORTS/`
+- `dev-swarm/reports/legacy-ai-swarm/`
 
 ## Prohibited Files
 
@@ -34,8 +34,8 @@ Use a separate clean worktree/checkout for this packet. Do not run this packet i
 
 - `docs/architecture/repo-architecture-target.md`
 - `docs/architecture/system-completion-targets.md`
-- `.ai-swarm/CONTRACTS_MVO.md`
-- `.ai-swarm/LINKAIOS_KERNEL_MANIFEST.md`
+- `dev-swarm/command-center/CONTRACTS_MVO.md`
+- `dev-swarm/command-center/LINKAIOS_KERNEL_MANIFEST.md`
 - `.cursor/rules/01-ecosystem-boundaries.mdc`
 
 ## Steps
@@ -61,4 +61,4 @@ Use a separate clean worktree/checkout for this packet. Do not run this packet i
 
 ## Report File
 
-Update `.ai-swarm/AGENT_REPORTS/WP-201-linkaios-operational-cockpit.md`.
+Update `dev-swarm/reports/legacy-ai-swarm/WP-201-linkaios-operational-cockpit.md`.

@@ -2,7 +2,7 @@
 
 You are Codex working as the UI/UX integration agent.
 
-Execute `.ai-swarm/WORK_PACKETS/WP-232-uiux-integration-proof-and-review-readiness.md` exactly.
+Execute `dev-swarm/programs/linktrend-system/issues/legacy/WP-232-uiux-integration-proof-and-review-readiness.md` exactly.
 
 ## Model / Mode
 
@@ -12,9 +12,9 @@ Use GPT-5.3 Codex or equivalent code-focused model.
 
 Read before editing:
 
-1. `.ai-swarm/WORK_PACKETS/WP-232-uiux-integration-proof-and-review-readiness.md`
+1. `dev-swarm/programs/linktrend-system/issues/legacy/WP-232-uiux-integration-proof-and-review-readiness.md`
 2. WP-226 through WP-231 reports and final commits
-3. `.ai-swarm/AGENT_REPORTS/CURRENT_STATE_VERIFICATION_WARNING.md`
+3. `dev-swarm/reports/legacy-ai-swarm/CURRENT_STATE_VERIFICATION_WARNING.md`
 4. `.cursor/rules/01-ecosystem-boundaries.mdc`
 5. `.cursor/rules/03-agent-swarm-coordination.mdc`
 6. `.cursor/rules/06-testing-and-proof.mdc`
@@ -80,11 +80,11 @@ Start the dev server with documented UI/dev flags and browser-review:
 - Work
 - Settings
 
-Capture screenshots under `.ai-swarm/AGENT_REPORTS/artifacts/uiux-product-model/`.
+Capture screenshots under `dev-swarm/reports/legacy-ai-swarm/artifacts/uiux-product-model/`.
 
 ## Required Report
 
-Write `.ai-swarm/AGENT_REPORTS/WP-232-uiux-integration-proof-and-review-readiness.md` with:
+Write `dev-swarm/reports/legacy-ai-swarm/WP-232-uiux-integration-proof-and-review-readiness.md` with:
 
 - merged commits
 - files changed

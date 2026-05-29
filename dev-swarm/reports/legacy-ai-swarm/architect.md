@@ -10,7 +10,7 @@
 
 ### Files Changed (WP-040)
 
-- `.ai-swarm/CONTRACTS_MVO.md`
+- `dev-swarm/command-center/CONTRACTS_MVO.md`
   - Title and §0 rewritten: contract now binds the LiNKaios kernel + plugin architecture v2; WebsiteFactory framed as the first concrete vertical instance.
   - Added §1.0.1 plugin kinds (vertical vs capability), §1.0.2 mode model (`development` / `shadow` / `live`), §1.0.3 LiNKbot role attachment model, §1.0.4 stop-and-ask rule.
   - Extended §1.2 `PluginManifest` TypeScript shape with `plugin_kind`, `modes_supported`, `required_linkbot_roles[]`, and a `capability` block (`CapabilityPluginSurface`). Legacy-compat rules retained for v1 manifests.
@@ -18,7 +18,7 @@
   - §1.4 reframed as "LinkSites / WebsiteFactory manifest declaration (concrete vertical instance)" with v1↔v2 mapping.
   - §12.4 LinkSkills role-bleed rewritten to make permissions + skills first-class and forbid leases in undeclared modes.
   - Added §12.7 stop-and-ask review-gate.
-- `.ai-swarm/LINKAIOS_KERNEL_MANIFEST.md`
+- `dev-swarm/command-center/LINKAIOS_KERNEL_MANIFEST.md`
   - §0 framing updated for vertical vs capability plugin kinds.
   - §3 split into shared / vertical-only / capability-only required fields.
   - §4 YAML annotated with `plugin_kind`, `modes_supported`, and v1↔v2 carry-over note.
@@ -29,9 +29,9 @@
   - Added 7 v2 manifest tests: v2 vertical accepts, role attachment must reference declared capability, capability manifest accepts, capability with stages rejected, capability without `capability` block rejected, capability with empty `not_configured` rejected. All test cases land in the existing `PluginManifestSchema` describe block.
 - `packages/linklogic-sdk/src/index.ts`
   - Re-exported new v2 schemas and inferred types (`PluginKind`, `PluginMode`, `LiNKbotRoleAttachment`, `CapabilityPluginCaller`, `CapabilityPluginSurface`).
-- `.ai-swarm/DECISIONS.md`
+- `dev-swarm/command-center/DECISIONS.md`
   - Added decision row D-09 ("Plugin architecture v2").
-- `.ai-swarm/AGENT_COORDINATION.md`
+- `dev-swarm/command-center/AGENT_COORDINATION.md`
   - Latest Updates entry for WP-040.
 
 No application implementation behavior was changed. No Payload/Odoo/Zulip/Plane/VPS internals were touched. No target-app business schemas were introduced.
@@ -63,7 +63,7 @@ Acceptance verification against WP-040:
 
 ### Proof that no implementation code or target-app business schema was changed
 
-- `git status --short` shows changes only under `.ai-swarm/`, `packages/linklogic-sdk/src/`, and `.ai-swarm/AGENT_REPORTS/architect.md`. No edits to `apps/`, `services/`, `LiNKsites/`, `LiNKautowork/`, `LiNKbot-core/`, `LiNKskills/`, or any Payload/Odoo/Zulip/Plane configuration.
+- `git status --short` shows changes only under `dev-swarm/command-center/`, `packages/linklogic-sdk/src/`, and `dev-swarm/reports/legacy-ai-swarm/architect.md`. No edits to `apps/`, `services/`, `LiNKsites/`, `LiNKautowork/`, `LiNKbot-core/`, `LiNKskills/`, or any Payload/Odoo/Zulip/Plane configuration.
 - SDK changes are schema-only additions (new optional fields + new schemas + cross-field refinements). No runtime behavior was introduced. Typecheck and tests confirm zero behavior regressions in dependent packages compiled by this SDK.
 
 ### Blockers / Questions
@@ -85,7 +85,7 @@ None. The v2 contract is additive over v1 and downstream packets WP-041..WP-045 
 
 ## Files Changed (WP-004)
 
-- `.ai-swarm/CONTRACTS_MVO.md`: Replaced placeholder shell with thirteen sections covering:
+- `dev-swarm/command-center/CONTRACTS_MVO.md`: Replaced placeholder shell with thirteen sections covering:
   - §1 LiNKaios kernel ↔ plugin contract (`PluginManifest`, manifest validation rules).
   - §2 Canonical data dictionary (typed names for all cross-stage I/O).
   - §3 Lead intake contract (`LeadInput`, validation, idempotency keyed on `(tenant_id, idempotency_key)` with 24h window, PII handling rules).
@@ -99,8 +99,8 @@ None. The v2 contract is additive over v1 and downstream packets WP-041..WP-045 
   - §11 STUB blocks for CRM (INT-020), Plane (INT-021), preview publishing (INT-022).
   - §12 Role-bleed rules per plane + per plugin (review-gate).
   - §13 Implementation handoff: recommended parallel work packets WP-005..WP-013.
-- `.ai-swarm/AGENT_REPORTS/architect.md`: this report.
-- `.ai-swarm/AGENT_COORDINATION.md`: Latest Updates entry for WP-004 completion.
+- `dev-swarm/reports/legacy-ai-swarm/architect.md`: this report.
+- `dev-swarm/command-center/AGENT_COORDINATION.md`: Latest Updates entry for WP-004 completion.
 
 No application code modified. No new dependencies. No secrets generated. `INTEGRATION_QUEUE.md` and `DECISIONS.md` left unchanged — the contract work did not reveal a new integration gap (INT-020..INT-022 cover all stubbed surfaces) or a new decision fork (D-01..D-08 remain sufficient).
 
@@ -110,9 +110,9 @@ No new platform decisions. WP-004 binds field names that were introduced as conv
 
 ## Commands Run
 
-- Read: `.ai-swarm/HANDOVER_FROM_CHATGPT.md`, `ARCHITECTURE_RULES.md`, `MASTER_PLAN.md`, `AGENT_COORDINATION.md`, `REPO_INVENTORY.md`, `DECISIONS.md`, `INTEGRATION_QUEUE.md`, `LINKAIOS_KERNEL_MANIFEST.md`, `CONTRACTS_MVO.md`, `AGENT_REPORTS/repo-archaeologist.md`, `AGENT_REPORTS/linkaios-agent.md`, prior architect report, `WORK_PACKETS/WP-004-mvo-contracts.md`.
-- Wrote `.ai-swarm/CONTRACTS_MVO.md` (full replacement).
-- Updated `.ai-swarm/AGENT_COORDINATION.md` (Latest Updates).
+- Read: `dev-swarm/command-center/HANDOVER_FROM_CHATGPT.md`, `ARCHITECTURE_RULES.md`, `MASTER_PLAN.md`, `AGENT_COORDINATION.md`, `REPO_INVENTORY.md`, `DECISIONS.md`, `INTEGRATION_QUEUE.md`, `LINKAIOS_KERNEL_MANIFEST.md`, `CONTRACTS_MVO.md`, `AGENT_REPORTS/repo-archaeologist.md`, `AGENT_REPORTS/linkaios-agent.md`, prior architect report, `WORK_PACKETS/WP-004-mvo-contracts.md`.
+- Wrote `dev-swarm/command-center/CONTRACTS_MVO.md` (full replacement).
+- Updated `dev-swarm/command-center/AGENT_COORDINATION.md` (Latest Updates).
 - Updated this report.
 - No shell side effects beyond file IO.
 
@@ -196,7 +196,7 @@ Author `WORK_PACKETS/WP-005-linklogic-sdk-types.md` and `WORK_PACKETS/WP-006-lin
 - `packages/linklogic-sdk/src/contracts-mvo.test.ts` — NEW. 31 focused validation tests covering plane/status enums, lead intake field rules, manifest stage shape, failure envelope, audit envelope basics (missing tenant/action/plane rejected; unknown plane rejected; `schema_version` pinned), bot pii_policy literal, lease idempotency requirement, capability arg validation, preview output `plugin_id` literal and nullable refs.
 - `packages/linklogic-sdk/src/index.ts` — Added re-exports for all contract schemas and inferred TypeScript types.
 - `packages/linklogic-sdk/package.json` — Added `zod ^3.24.4` runtime dependency (already resolved in workspace lockfile via `@linktrend/shared-config`).
-- `.ai-swarm/AGENT_REPORTS/architect.md` — this report.
+- `dev-swarm/reports/legacy-ai-swarm/architect.md` — this report.
 
 ### Exported Symbols
 
@@ -246,7 +246,7 @@ No new platform decision was uncovered. `DECISIONS.md` and `INTEGRATION_QUEUE.md
 
 2026-05-14:
 
-- Patched `.ai-swarm/CONTRACTS_MVO.md` to clarify terminal run-event ownership: LiNKaios emits `run.completed` / `run.failed` / `run.cancelled`; LiNKbrain `record_run` persists closure refs and final `audit_event_ids`.
+- Patched `dev-swarm/command-center/CONTRACTS_MVO.md` to clarify terminal run-event ownership: LiNKaios emits `run.completed` / `run.failed` / `run.cancelled`; LiNKbrain `record_run` persists closure refs and final `audit_event_ids`.
 - Added `preview_artifact_ref` to the `AuditEvent.subject` shape because §11.3 requires `preview.published` to reference it.
 - Authored implementation work packets:
   - `WP-005-linklogic-sdk-types.md`
@@ -258,4 +258,4 @@ No new platform decision was uncovered. `DECISIONS.md` and `INTEGRATION_QUEUE.md
   - `WP-011-websitefactory-plugin-glue.md`
   - `WP-012-mvo-stub-backends.md`
   - `WP-013-e2e-demo-and-audit-harness.md`
-- Updated `.ai-swarm/AGENT_COORDINATION.md` with the launch waves. First wave is `WP-005` and `WP-006`.
+- Updated `dev-swarm/command-center/AGENT_COORDINATION.md` with the launch waves. First wave is `WP-005` and `WP-006`.

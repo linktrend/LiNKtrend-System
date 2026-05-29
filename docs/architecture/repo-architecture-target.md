@@ -113,4 +113,4 @@ Prefer migration-safe moves:
 2. Move declarations/manifests before runtime code.
 3. Keep compatibility entrypoints or re-exports during transition.
 4. Verify after every wave.
-5. Record final ownership changes in `.ai-swarm/DECISIONS.md` and `.ai-swarm/REPO_INVENTORY.md`.
+5. Record final ownership changes in `dev-swarm/command-center/DECISIONS.md` and `dev-swarm/command-center/REPO_INVENTORY.md`.

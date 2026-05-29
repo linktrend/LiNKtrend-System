@@ -26,14 +26,14 @@ Use a separate clean worktree/checkout for this packet. Do not run this packet i
 
 ## Required Context
 - `modules/linksites/workflow.*`
-- `.ai-swarm/CONTRACTS_MVO.md`
+- `dev-swarm/command-center/CONTRACTS_MVO.md`
 - `docs/architecture/system-completion-targets.md`
 - WP-212 through WP-215 reports if present
-- `.worktrees/WP-212-linksites-runtime-spine/.ai-swarm/AGENT_REPORTS/WP-212-linksites-runtime-spine.md` if present
-- `.ai-swarm/AGENT_REPORTS/WP-213-linksites-linkskills-enforcement.md` if present
-- `.ai-swarm/AGENT_REPORTS/WP-214-linksites-linkbot-role-execution.md` if present
-- `.ai-swarm/AGENT_REPORTS/WP-215-linksites-linkbrain-trace-proof.md` if present
-- `.worktrees/WP-215-linksites-linkbrain-trace-proof/.ai-swarm/AGENT_REPORTS/WP-215-linksites-linkbrain-trace-proof.md` if present
+- `.worktrees/WP-212-linksites-runtime-spine/dev-swarm/reports/legacy-ai-swarm/WP-212-linksites-runtime-spine.md` if present
+- `dev-swarm/reports/legacy-ai-swarm/WP-213-linksites-linkskills-enforcement.md` if present
+- `dev-swarm/reports/legacy-ai-swarm/WP-214-linksites-linkbot-role-execution.md` if present
+- `dev-swarm/reports/legacy-ai-swarm/WP-215-linksites-linkbrain-trace-proof.md` if present
+- `.worktrees/WP-215-linksites-linkbrain-trace-proof/dev-swarm/reports/legacy-ai-swarm/WP-215-linksites-linkbrain-trace-proof.md` if present
 
 ## Steps
 1. First fix the integration topology blocker reported by WP-212 if still present: ensure the checkout/workspace graph resolves `@linktrend/linkaios-web` to `LiNKaios/linkaios-web`, not legacy `apps/linkaios-web`, and ensure internal workspace dependencies build/resolve.
@@ -55,4 +55,4 @@ Use a separate clean worktree/checkout for this packet. Do not run this packet i
 - Focused LiNKaios tests for proof data helpers
 
 ## Report File
-Update `.ai-swarm/AGENT_REPORTS/WP-216-linkaios-cockpit-proof-surface.md`.
+Update `dev-swarm/reports/legacy-ai-swarm/WP-216-linkaios-cockpit-proof-surface.md`.

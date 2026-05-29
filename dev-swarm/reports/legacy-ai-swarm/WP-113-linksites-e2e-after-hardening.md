@@ -20,8 +20,8 @@ Update the LinkSites development-mode E2E harness and runbook after the WP-090 t
 | File | Change Type | Description |
 |------|-------------|-------------|
 | `scripts/run-e2e.ts` | Modified | Updated E2E harness with WP-090 through WP-093 hardened assertions |
-| `.ai-swarm/DEMO_RUNBOOK_WEBSITEFACTORY_MVO.md` | Modified | Added hardened flow documentation, WP-113 section, canonical blockers |
-| `.ai-swarm/AGENT_REPORTS/WP-113-linksites-e2e-after-hardening.md` | Created | This report |
+| `dev-swarm/command-center/DEMO_RUNBOOK_WEBSITEFACTORY_MVO.md` | Modified | Added hardened flow documentation, WP-113 section, canonical blockers |
+| `dev-swarm/reports/legacy-ai-swarm/WP-113-linksites-e2e-after-hardening.md` | Created | This report |
 
 ---
 
@@ -37,8 +37,8 @@ git status --short --branch
 
 # Files edited in worktree
 # - scripts/run-e2e.ts
-# - .ai-swarm/DEMO_RUNBOOK_WEBSITEFACTORY_MVO.md
-# - .ai-swarm/AGENT_REPORTS/WP-113-linksites-e2e-after-hardening.md (this file)
+# - dev-swarm/command-center/DEMO_RUNBOOK_WEBSITEFACTORY_MVO.md
+# - dev-swarm/reports/legacy-ai-swarm/WP-113-linksites-e2e-after-hardening.md (this file)
 ```
 
 ---
@@ -72,7 +72,7 @@ The harness now verifies:
 - Preview URL is local development only (no DigitalOcean, no `https://*.linktrend.com`)
 - No production credentials required
 
-### 2. Runbook Updates (.ai-swarm/DEMO_RUNBOOK_WEBSITEFACTORY_MVO.md)
+### 2. Runbook Updates (dev-swarm/command-center/DEMO_RUNBOOK_WEBSITEFACTORY_MVO.md)
 
 Added:
 - Section 7: WP-113 Hardened E2E Harness proof snapshot with expected output
@@ -162,8 +162,8 @@ for (const stageId of FORBIDDEN_STAGE_IDS) {
 ```bash
 # Commit
 git add scripts/run-e2e.ts
-git add .ai-swarm/DEMO_RUNBOOK_WEBSITEFACTORY_MVO.md
-git add .ai-swarm/AGENT_REPORTS/WP-113-linksites-e2e-after-hardening.md
+git add dev-swarm/command-center/DEMO_RUNBOOK_WEBSITEFACTORY_MVO.md
+git add dev-swarm/reports/legacy-ai-swarm/WP-113-linksites-e2e-after-hardening.md
 git commit -m "test: update LinkSites hardened E2E harness
 
 - Update scripts/run-e2e.ts with WP-090 through WP-093 hardened assertions

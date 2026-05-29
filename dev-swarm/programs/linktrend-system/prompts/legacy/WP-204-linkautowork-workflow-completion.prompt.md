@@ -2,7 +2,7 @@
 
 Model: Kimi.
 
-Execute `.ai-swarm/WORK_PACKETS/WP-204-linkautowork-workflow-completion.md`.
+Execute `dev-swarm/programs/linktrend-system/issues/legacy/WP-204-linkautowork-workflow-completion.md`.
 
 Use a separate clean worktree/checkout for this packet. Do not run this packet in a shared dirty repo folder.
 
@@ -10,4 +10,4 @@ Use a separate clean worktree/checkout for this packet. Do not run this packet i
 2. If unrelated dirty files exist, stop before editing and report the blocker.
 3. Create or use a packet-specific branch/worktree before making changes.
 
-You are the LiNKautowork workflow agent. Complete LiNKautowork MVO workflow execution: harden template registry, idempotency, retry/backoff, workflow audit refs, operator controls, health/status reporting, and gateway-to-external-n8n documentation. Verify gateway tests and WebsiteFactory workflow proof. Update `.ai-swarm/AGENT_REPORTS/WP-204-linkautowork-workflow-completion.md` with files changed, commands run, proof, blockers, and next step.
+You are the LiNKautowork workflow agent. Complete LiNKautowork MVO workflow execution: harden template registry, idempotency, retry/backoff, workflow audit refs, operator controls, health/status reporting, and gateway-to-external-n8n documentation. Verify gateway tests and WebsiteFactory workflow proof. Update `dev-swarm/reports/legacy-ai-swarm/WP-204-linkautowork-workflow-completion.md` with files changed, commands run, proof, blockers, and next step.

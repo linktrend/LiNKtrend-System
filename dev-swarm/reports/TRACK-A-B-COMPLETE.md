@@ -11,7 +11,7 @@
 | Single active skills tree | `dev-swarm/skills/` only; `.cursor/skills/README.md` pointer |
 | Legacy skills archived, not deleted | `dev-swarm/archive/cursor-skills-legacy/` |
 | Legacy `.ai-swarm` in dev-swarm archive | `dev-swarm/archive/ai-swarm-legacy/` |
-| Generic rules in dev-swarm | `dev-swarm/rules/` (13 files) |
+| Generic rules in dev-swarm | `dev-swarm/rules/` (14 files incl. `08-ui-and-frontend-standards.mdc`) |
 | Product rules in .cursor only | 9 `.mdc` + `00-dev-swarm-bootstrap.mdc` |
 | All agents in dev-swarm | `dev-swarm/agents/` (18); `.cursor/agents/README.md` |
 | No redirect stubs in .cursor/skills | Entire tree archived |

@@ -28,8 +28,8 @@ This packet is UI/UX-first and should not implement deep cross-database enforcem
 - `LiNKaios/linkaios-web/src/lib/linkbrain*.ts`
 - `LiNKaios/linkaios-web/src/lib/memory*.ts`
 - `LiNKaios/linkaios-web/src/lib/ui-mocks/**`
-- `.ai-swarm/AGENT_REPORTS/WP-230-linkbrain-client-vendor-memory-ui.md`
-- `.ai-swarm/AGENT_REPORTS/LINKAIOS_UIUX_REVIEW_BACKLOG.md`
+- `dev-swarm/reports/legacy-ai-swarm/WP-230-linkbrain-client-vendor-memory-ui.md`
+- `dev-swarm/reports/legacy-ai-swarm/LINKAIOS_UIUX_REVIEW_BACKLOG.md`
 
 ## Prohibited Files
 
@@ -42,8 +42,8 @@ This packet is UI/UX-first and should not implement deep cross-database enforcem
 
 - WP-226 report and commit.
 - Existing LiNKbrain pages/components.
-- `.ai-swarm/AGENT_REPORTS/CURRENT_STATE_VERIFICATION_WARNING.md`
-- `.ai-swarm/DECISIONS.md` D-082 memory decisions.
+- `dev-swarm/reports/legacy-ai-swarm/CURRENT_STATE_VERIFICATION_WARNING.md`
+- `dev-swarm/command-center/DECISIONS.md` D-082 memory decisions.
 
 ## Required UI/UX Skills
 
@@ -71,7 +71,7 @@ Use `frontend-design`, `web-design-guidelines`, `webapp-testing`, `nextjs-react-
 - `pnpm --filter @linktrend/linkaios-web typecheck`
 - Focused tests if helpers/components are added.
 - Browser screenshots for LiNKbrain main, Project/Company memory, and Ask surfaces.
-- Report file: `.ai-swarm/AGENT_REPORTS/WP-230-linkbrain-client-vendor-memory-ui.md`
+- Report file: `dev-swarm/reports/legacy-ai-swarm/WP-230-linkbrain-client-vendor-memory-ui.md`
 
 ## Completion Handoff
 

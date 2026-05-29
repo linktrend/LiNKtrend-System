@@ -30,7 +30,7 @@ Final user-facing terminology pass per `.cursor/rules/12-suite-project-terminolo
 - `rg -i "mission" LiNKaios/linkaios-web/src/app LiNKaios/linkaios-web/src/components` (document exceptions)
 
 ## Report
-`.ai-swarm/AGENT_REPORTS/PWR-W3-B-terminology-wave5.md`
+`dev-swarm/reports/legacy-ai-swarm/PWR-W3-B-terminology-wave5.md`
 
 ## Commit
 `chore(ui): terminology wave 5 stragglers`

@@ -19,8 +19,8 @@ Worktree path: `/Users/linktrend/Projects/LiNKtrend-System-WP-114`
 | `packages/linkaios-kernel/plugins/capabilities/catalog/README.md` |
 | `packages/linkaios-kernel/plugins/capabilities/catalog/LOADER_GUIDANCE.v1.yaml` |
 | `packages/linkaios-kernel/plugins/capabilities/catalog/seeds/cross_vertical_catalog.v1.yaml` |
-| `.ai-swarm/LINKSKILLS_CROSS_VERTICAL_CAPABILITY_CATALOG.md` |
-| `.ai-swarm/AGENT_REPORTS/WP-114-linkskills-cross-vertical-catalog-seeds.md` |
+| `dev-swarm/command-center/LINKSKILLS_CROSS_VERTICAL_CAPABILITY_CATALOG.md` |
+| `dev-swarm/reports/legacy-ai-swarm/WP-114-linkskills-cross-vertical-catalog-seeds.md` |
 
 Vertical manifests **not edited** (`plugins/vertical/linkapps/manifest.yaml` unchanged).
 
@@ -38,7 +38,7 @@ git status --short --branch
 
 ## Proof
 
-1. **Capability inventory / table:** `.ai-swarm/LINKSKILLS_CROSS_VERTICAL_CAPABILITY_CATALOG.md` §§1–2 (ID-by-source matrices + deduped union count).
+1. **Capability inventory / table:** `dev-swarm/command-center/LINKSKILLS_CROSS_VERTICAL_CAPABILITY_CATALOG.md` §§1–2 (ID-by-source matrices + deduped union count).
 2. **Seed artifact listing:**
    - `packages/linkaios-kernel/plugins/capabilities/catalog/LOADER_GUIDANCE.v1.yaml`
    - `packages/linkaios-kernel/plugins/capabilities/catalog/seeds/cross_vertical_catalog.v1.yaml`

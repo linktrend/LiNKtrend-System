@@ -17,7 +17,7 @@ Implement kill switch state management, automated triggers, and admin override p
 - `packages/linkskills-core/src/api/safety.ts`
 - `packages/linkskills-core/src/monitoring/`
 - `packages/linklogic-sdk/src/types/safety.ts`
-- `.ai-swarm/AGENT_REPORTS/linkskills-agent.md`
+- `dev-swarm/reports/legacy-ai-swarm/linkskills-agent.md`
 
 ## Prohibited files
 
@@ -27,7 +27,7 @@ Implement kill switch state management, automated triggers, and admin override p
 
 ## Required context
 
-- `.ai-swarm/LINKSKILLS_COMPLETION_PLAN.md` §4.4
+- `dev-swarm/command-center/LINKSKILLS_COMPLETION_PLAN.md` §4.4
 - `/Users/linktrend/Projects/LiNKskills/SOP_MVO_CLASS_A.md` §10
 - `/Users/linktrend/Projects/LiNKskills/SOP_MACHINE_MVO_CLASS_A.md` §9
 - WP-061 (kill_switches table)

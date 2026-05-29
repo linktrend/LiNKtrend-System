@@ -18,8 +18,8 @@ Complete.
 - `LiNKaios/linkaios-web/src/components/projects-index-table.tsx`
 - `LiNKaios/linkaios-web/src/components/projects-plane-strip.tsx`
 - `LiNKaios/linkaios-web/src/lib/ui-mocks/missions-fixtures.ts`
-- `.ai-swarm/AGENT_REPORTS/LINKAIOS_UIUX_REVIEW_BACKLOG.md`
-- `.ai-swarm/AGENT_REPORTS/WP-228-projects-plane-ui-semantics.md`
+- `dev-swarm/reports/legacy-ai-swarm/LINKAIOS_UIUX_REVIEW_BACKLOG.md`
+- `dev-swarm/reports/legacy-ai-swarm/WP-228-projects-plane-ui-semantics.md`
 
 ## What Changed
 

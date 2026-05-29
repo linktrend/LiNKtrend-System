@@ -15,8 +15,8 @@ Add a development-mode LEXOS LiNKaios UI workspace scaffold for intake, matter o
 - `apps/linkaios-web/src/components/lexos/**`
 - `apps/linkaios-web/src/app/**/lexos/**`
 - `apps/linkaios-web/src/lib/plugins/lexos/**` only for UI fixtures/types
-- `.ai-swarm/LEXOS_UI_WORKSPACE_SCAFFOLD.md`
-- `.ai-swarm/AGENT_REPORTS/WP-122-lexos-ui-workspace-scaffold.md`
+- `dev-swarm/command-center/LEXOS_UI_WORKSPACE_SCAFFOLD.md`
+- `dev-swarm/reports/legacy-ai-swarm/WP-122-lexos-ui-workspace-scaffold.md`
 
 ## Prohibited files
 
@@ -28,8 +28,8 @@ Add a development-mode LEXOS LiNKaios UI workspace scaffold for intake, matter o
 ## Required context
 
 - `.cursor/rules/07-ui-and-frontend-standards.mdc`
-- `.ai-swarm/LEXOS_VERTICAL_PLUGIN_CONVERSION_PLAN.md` §7
-- `.ai-swarm/LEXOS_LINKBOT_ROLE_CONTRACTS.md`
+- `dev-swarm/command-center/LEXOS_VERTICAL_PLUGIN_CONVERSION_PLAN.md` §7
+- `dev-swarm/command-center/LEXOS_LINKBOT_ROLE_CONTRACTS.md`
 - `packages/linklogic-sdk/src/lexos-contracts.ts`
 
 ## Steps

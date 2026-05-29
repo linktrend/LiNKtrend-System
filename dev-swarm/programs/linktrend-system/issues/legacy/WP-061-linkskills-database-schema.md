@@ -14,8 +14,8 @@ Create LiNKbrain database tables for LinkSkills capability catalog, lease ledger
 
 - `packages/linkbrain-db/migrations/`
 - `packages/linkbrain-db/schemas/linkskills/`
-- `.ai-swarm/AGENT_REPORTS/linkskills-agent.md`
-- `.ai-swarm/DECISIONS.md`
+- `dev-swarm/reports/legacy-ai-swarm/linkskills-agent.md`
+- `dev-swarm/command-center/DECISIONS.md`
 
 ## Prohibited files
 
@@ -25,8 +25,8 @@ Create LiNKbrain database tables for LinkSkills capability catalog, lease ledger
 
 ## Required context
 
-- `.ai-swarm/LINKSKILLS_COMPLETION_PLAN.md` §4.1-4.5
-- `.ai-swarm/CONTRACTS_MVO.md` §6.2 (lease lifecycle)
+- `dev-swarm/command-center/LINKSKILLS_COMPLETION_PLAN.md` §4.1-4.5
+- `dev-swarm/command-center/CONTRACTS_MVO.md` §6.2 (lease lifecycle)
 - `/Users/linktrend/Projects/LiNKskills/SOP_MVO_CLASS_A.md` §5, §8, §10, §12
 - WP-042 discovery results (if available)
 

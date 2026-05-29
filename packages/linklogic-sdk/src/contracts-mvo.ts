@@ -1,7 +1,7 @@
 /**
  * MVO cross-service contract types.
  *
- * Canonical source of truth: `.ai-swarm/CONTRACTS_MVO.md`.
+ * Canonical source of truth: `dev-swarm/command-center/CONTRACTS_MVO.md`.
  *
  * Field names below are PINNED. Implementation agents (LiNKaios kernel,
  * LiNKbot, LinkSkills, LiNKautowork, LiNKbrain, WebsiteFactory plugin) MUST

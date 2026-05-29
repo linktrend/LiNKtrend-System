@@ -2,7 +2,7 @@
 
 Model: Codex
 
-Execute `.ai-swarm/WORK_PACKETS/WP-223-codex-linkaios-typecheck-build-closure.md` exactly.
+Execute `dev-swarm/programs/linktrend-system/issues/legacy/WP-223-codex-linkaios-typecheck-build-closure.md` exactly.
 
 Important: do not start from the stale repo HEAD that still has legacy `apps/linkaios-web` topology only. Start from the WP-222 integration worktree/branch state:
 
@@ -13,16 +13,16 @@ Create a new branch/worktree from that integrated state named `wp-223-codex-link
 
 Before editing, read:
 
-- `.worktrees/WP-222-final-integration-proof-and-percentage-audit/.ai-swarm/AGENT_REPORTS/WP-222-final-integration-proof-and-percentage-audit.md`
-- `.worktrees/WP-212-linksites-runtime-spine/.ai-swarm/AGENT_REPORTS/WP-212-linksites-runtime-spine.md`
-- `.worktrees/WP-216-linkaios-cockpit-proof-surface/.ai-swarm/AGENT_REPORTS/WP-216-linkaios-cockpit-proof-surface.md`
-- `.worktrees/WP-218-linksites-proof-runbook-and-local-preview/.ai-swarm/AGENT_REPORTS/WP-218-linksites-proof-runbook-and-local-preview.md`
-- `.ai-swarm/WORK_PACKETS/WP-223-codex-linkaios-typecheck-build-closure.md`
+- `.worktrees/WP-222-final-integration-proof-and-percentage-audit/dev-swarm/reports/legacy-ai-swarm/WP-222-final-integration-proof-and-percentage-audit.md`
+- `.worktrees/WP-212-linksites-runtime-spine/dev-swarm/reports/legacy-ai-swarm/WP-212-linksites-runtime-spine.md`
+- `.worktrees/WP-216-linkaios-cockpit-proof-surface/dev-swarm/reports/legacy-ai-swarm/WP-216-linkaios-cockpit-proof-surface.md`
+- `.worktrees/WP-218-linksites-proof-runbook-and-local-preview/dev-swarm/reports/legacy-ai-swarm/WP-218-linksites-proof-runbook-and-local-preview.md`
+- `dev-swarm/programs/linktrend-system/issues/legacy/WP-223-codex-linkaios-typecheck-build-closure.md`
 - `.cursor/rules/00-linktrend-master-rule.mdc`
 - `.cursor/rules/01-ecosystem-boundaries.mdc`
 - `.cursor/rules/05-security-cost-and-side-effects.mdc`
 - `docs/architecture/repo-architecture-target.md`
-- `.ai-swarm/CONTRACTS_MVO.md`
+- `dev-swarm/command-center/CONTRACTS_MVO.md`
 
 Fix, do not merely document, the remaining `@linktrend/linkaios-web` TypeScript/build blockers if they are in scope. Keep changes narrow and type-safe. Do not edit `.env`, do not use real secrets, and do not perform live side effects.
 
@@ -33,4 +33,4 @@ Required proof:
 - `pnpm --filter @linktrend/linkaios-web test -- src/lib/kernel/kernel.test.ts src/lib/kernel/dispatch.test.ts src/lib/plugins/websitefactory/plugin.test.ts`
 - `NEXT_PUBLIC_SUPABASE_URL=https://example.supabase.co NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=pk_test_public pnpm --filter @linktrend/linkaios-web build`
 
-Update `.ai-swarm/AGENT_REPORTS/WP-223-codex-linkaios-typecheck-build-closure.md` before stopping with files changed, commands run, proof produced, blockers, and next step.
+Update `dev-swarm/reports/legacy-ai-swarm/WP-223-codex-linkaios-typecheck-build-closure.md` before stopping with files changed, commands run, proof produced, blockers, and next step.

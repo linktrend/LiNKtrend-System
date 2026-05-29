@@ -182,9 +182,9 @@ Define the LinkSites v2 LiNKautowork deterministic workflow contract pack (artif
 
 ### Files Changed
 
-- `.ai-swarm/CONTRACTS_MVO.md`
-- `.ai-swarm/INTEGRATION_QUEUE.md`
-- `.ai-swarm/AGENT_REPORTS/linkautowork-agent.md`
+- `dev-swarm/command-center/CONTRACTS_MVO.md`
+- `dev-swarm/command-center/INTEGRATION_QUEUE.md`
+- `dev-swarm/reports/legacy-ai-swarm/linkautowork-agent.md`
 
 ### Commands Run
 
@@ -197,23 +197,23 @@ sed -n '1,260p' docs/ecosystem/development-plan/10_Agent_Operating_Rules_v2.md
 sed -n '1,260p' .cursor/rules/00-linktrend-master-rule.mdc
 sed -n '1,260p' .cursor/rules/01-ecosystem-boundaries.mdc
 sed -n '1,260p' .cursor/rules/03-agent-swarm-coordination.mdc
-sed -n '1,260p' .ai-swarm/MASTER_PLAN.md
-sed -n '1,260p' .ai-swarm/ARCHITECTURE_RULES.md
-sed -n '1,260p' .ai-swarm/DECISIONS.md
-sed -n '1,320p' .ai-swarm/WORK_PACKETS/WP-045-linkautowork-linksites-workflow-contract.md
-sed -n '1,260p' .ai-swarm/AGENT_PROMPTS/WP-045-linkautowork-linksites-workflow-contract.prompt.md
-sed -n '1,320p' .ai-swarm/LINKSITES_VERTICAL_MVO_V2.md
-sed -n '1,320p' .ai-swarm/PLUGIN_ARCHITECTURE_V2.md
-sed -n '1,360p' .ai-swarm/CONTRACTS_MVO.md
-sed -n '1,240p' .ai-swarm/INTEGRATION_QUEUE.md
-sed -n '1,260p' .ai-swarm/AGENT_REPORTS/linkautowork-agent.md
+sed -n '1,260p' dev-swarm/command-center/MASTER_PLAN.md
+sed -n '1,260p' dev-swarm/command-center/ARCHITECTURE_RULES.md
+sed -n '1,260p' dev-swarm/command-center/DECISIONS.md
+sed -n '1,320p' dev-swarm/programs/linktrend-system/issues/legacy/WP-045-linkautowork-linksites-workflow-contract.md
+sed -n '1,260p' dev-swarm/programs/linktrend-system/prompts/legacy/WP-045-linkautowork-linksites-workflow-contract.prompt.md
+sed -n '1,320p' dev-swarm/command-center/LINKSITES_VERTICAL_MVO_V2.md
+sed -n '1,320p' dev-swarm/command-center/PLUGIN_ARCHITECTURE_V2.md
+sed -n '1,360p' dev-swarm/command-center/CONTRACTS_MVO.md
+sed -n '1,240p' dev-swarm/command-center/INTEGRATION_QUEUE.md
+sed -n '1,260p' dev-swarm/reports/legacy-ai-swarm/linkautowork-agent.md
 git status --short --branch
 git fetch origin
 git switch development
 git pull --ff-only origin development
 git switch -c dev/codex/WP-045-linkautowork-linksites-workflow-contract
-rg -n "workflow handle|required_workflow_hooks|autowork\\.|LiNKautowork|deterministic checks|ready_to_contact|retry|idempotency|failure mapping" .ai-swarm/CONTRACTS_MVO.md
-sed -n '740,940p' .ai-swarm/CONTRACTS_MVO.md
+rg -n "workflow handle|required_workflow_hooks|autowork\\.|LiNKautowork|deterministic checks|ready_to_contact|retry|idempotency|failure mapping" dev-swarm/command-center/CONTRACTS_MVO.md
+sed -n '740,940p' dev-swarm/command-center/CONTRACTS_MVO.md
 ```
 
 ### Validation / Tests
@@ -232,7 +232,7 @@ sed -n '740,940p' .ai-swarm/CONTRACTS_MVO.md
 
 ### Blockers / Questions
 
-- `.ai-swarm/ARCHITECT_REVIEW_REPORT.md` was referenced by rules but is not present in this repo snapshot; proceeded using available current `.ai-swarm` source-of-truth files.
+- `dev-swarm/command-center/ARCHITECT_REVIEW_REPORT.md` was referenced by rules but is not present in this repo snapshot; proceeded using available current `dev-swarm/command-center/` source-of-truth files.
 
 ### Branch / Commit
 
@@ -245,7 +245,7 @@ sed -n '740,940p' .ai-swarm/CONTRACTS_MVO.md
 
 ### Objective
 
-Implement development-mode deterministic scaffolds for LinkSites v2 workflow handles from `.ai-swarm/CONTRACTS_MVO.md` §0.A.10.1, with lease gating for write handles and idempotent replay behavior.
+Implement development-mode deterministic scaffolds for LinkSites v2 workflow handles from `dev-swarm/command-center/CONTRACTS_MVO.md` §0.A.10.1, with lease gating for write handles and idempotent replay behavior.
 
 ### Files Changed
 
@@ -253,7 +253,7 @@ Implement development-mode deterministic scaffolds for LinkSites v2 workflow han
 - `LiNKautowork/gateway/src/workflows/linksites-v2.test.ts`
 - `LiNKautowork/gateway/src/workflows/index.ts`
 - `LiNKautowork/gateway/src/index.ts`
-- `.ai-swarm/AGENT_REPORTS/linkautowork-agent.md`
+- `dev-swarm/reports/legacy-ai-swarm/linkautowork-agent.md`
 
 ### What Was Implemented
 
@@ -363,14 +363,14 @@ Analyzed `LiNKautowork/gateway/**` implementation:
 
 | File | Purpose |
 |------|---------|
-| `.ai-swarm/LINKAUTOWORK_COMPLETION_PLAN.md` | Completion definition, gap analysis, dependency graph |
-| `.ai-swarm/WORK_PACKETS/WP-060-persistent-idempotency.md` | Persistent idempotency store packet |
-| `.ai-swarm/WORK_PACKETS/WP-061-retry-backoff.md` | Retry with exponential backoff packet |
-| `.ai-swarm/WORK_PACKETS/WP-062-n8n-dev-gateway.md` | n8n development gateway integration packet |
-| `.ai-swarm/WORK_PACKETS/WP-063-real-capability-calls.md` | Real Supabase/Payload integration packet |
-| `.ai-swarm/WORK_PACKETS/WP-064-health-metrics.md` | Health checks and metrics packet |
-| `.ai-swarm/WORK_PACKETS/WP-065-operator-controls.md` | Operator control plane packet |
-| `.ai-swarm/WORK_PACKETS/WP-066-template-registry.md` | Workflow template registry packet |
+| `dev-swarm/command-center/LINKAUTOWORK_COMPLETION_PLAN.md` | Completion definition, gap analysis, dependency graph |
+| `dev-swarm/programs/linktrend-system/issues/legacy/WP-060-persistent-idempotency.md` | Persistent idempotency store packet |
+| `dev-swarm/programs/linktrend-system/issues/legacy/WP-061-retry-backoff.md` | Retry with exponential backoff packet |
+| `dev-swarm/programs/linktrend-system/issues/legacy/WP-062-n8n-dev-gateway.md` | n8n development gateway integration packet |
+| `dev-swarm/programs/linktrend-system/issues/legacy/WP-063-real-capability-calls.md` | Real Supabase/Payload integration packet |
+| `dev-swarm/programs/linktrend-system/issues/legacy/WP-064-health-metrics.md` | Health checks and metrics packet |
+| `dev-swarm/programs/linktrend-system/issues/legacy/WP-065-operator-controls.md` | Operator control plane packet |
+| `dev-swarm/programs/linktrend-system/issues/legacy/WP-066-template-registry.md` | Workflow template registry packet |
 
 ### Decisions Recorded
 
@@ -414,7 +414,7 @@ git switch -c dev/codex/WP-059-linkautowork-completion-plan-runtime-hardening
 
 ### Proof
 
-**Completion plan written:** `.ai-swarm/LINKAUTOWORK_COMPLETION_PLAN.md`
+**Completion plan written:** `dev-swarm/command-center/LINKAUTOWORK_COMPLETION_PLAN.md`
 - Defines "finished enough" for LiNKautowork
 - Evidence-based gap analysis
 - 7 execution-ready work packets
@@ -447,7 +447,7 @@ Implement deterministic retry behavior in LiNKautowork workflow invocation with 
 - `LiNKautowork/gateway/src/lib/retry-policy.ts` (new)
 - `LiNKautowork/gateway/src/lib/workflow-runner.ts` (modified)
 - `LiNKautowork/gateway/src/lib/retry-policy.test.ts` (new)
-- `.ai-swarm/AGENT_REPORTS/linkautowork-agent.md` (updated)
+- `dev-swarm/reports/legacy-ai-swarm/linkautowork-agent.md` (updated)
 
 ### Commands Run
 
@@ -510,7 +510,7 @@ Add development-mode n8n gateway scaffolding (local Docker compose, n8n client, 
 - `LiNKautowork/gateway/src/lib/n8n-client.test.ts` (new)
 - `LiNKautowork/gateway/src/lib/workflow-runner.ts` (modified)
 - `LiNKautowork/gateway/src/index.ts` (modified exports)
-- `.ai-swarm/AGENT_REPORTS/linkautowork-agent.md` (updated)
+- `dev-swarm/reports/legacy-ai-swarm/linkautowork-agent.md` (updated)
 
 ### Implementation Summary
 
@@ -540,9 +540,9 @@ git status --short --branch
 sed -n '1,240p' .cursor/rules/00-linktrend-master-rule.mdc
 sed -n '1,240p' .cursor/rules/01-ecosystem-boundaries.mdc
 sed -n '1,260p' .cursor/rules/03-agent-swarm-coordination.mdc
-sed -n '1,260p' .ai-swarm/LINKAUTOWORK_COMPLETION_PLAN.md
-sed -n '1,260p' .ai-swarm/CONTRACTS_MVO.md
-sed -n '1,320p' .ai-swarm/WORK_PACKETS/WP-070-linkautowork-n8n-dev-gateway.md
+sed -n '1,260p' dev-swarm/command-center/LINKAUTOWORK_COMPLETION_PLAN.md
+sed -n '1,260p' dev-swarm/command-center/CONTRACTS_MVO.md
+sed -n '1,320p' dev-swarm/programs/linktrend-system/issues/legacy/WP-070-linkautowork-n8n-dev-gateway.md
 sed -n '1,320p' LiNKautowork/gateway/src/lib/workflow-runner.ts
 
 # Validation
@@ -592,7 +592,7 @@ Add LiNKautowork health and Prometheus-compatible metrics primitives for operati
 - `LiNKautowork/gateway/src/lib/metrics.ts` (new)
 - `LiNKautowork/gateway/src/lib/health.test.ts` (new)
 - `LiNKautowork/gateway/src/index.ts` (exports for health/metrics primitives)
-- `.ai-swarm/AGENT_REPORTS/linkautowork-agent.md` (this report update)
+- `dev-swarm/reports/legacy-ai-swarm/linkautowork-agent.md` (this report update)
 
 ### Commands Run
 
@@ -600,10 +600,10 @@ Add LiNKautowork health and Prometheus-compatible metrics primitives for operati
 git fetch origin --prune
 git worktree add ../LiNKtrend-System-WP-072 -b dev/codex/WP-072-linkautowork-health-metrics origin/development
 git status --short --branch
-sed -n '1,220p' .ai-swarm/AGENT_PROMPTS/WP-072-linkautowork-health-metrics.prompt.md
+sed -n '1,220p' dev-swarm/programs/linktrend-system/prompts/legacy/WP-072-linkautowork-health-metrics.prompt.md
 sed -n '1,240p' .cursor/rules/03-agent-swarm-coordination.mdc
-sed -n '1,260p' .ai-swarm/LINKAUTOWORK_COMPLETION_PLAN.md
-sed -n '1,260p' .ai-swarm/WORK_PACKETS/WP-072-linkautowork-health-metrics.md
+sed -n '1,260p' dev-swarm/command-center/LINKAUTOWORK_COMPLETION_PLAN.md
+sed -n '1,260p' dev-swarm/programs/linktrend-system/issues/legacy/WP-072-linkautowork-health-metrics.md
 sed -n '1,260p' LiNKautowork/gateway/src/index.ts
 sed -n '1,300p' LiNKautowork/gateway/src/lib/workflow-runner.ts
 pnpm install
@@ -659,7 +659,7 @@ Replace the in-memory LiNKautowork idempotency cache with a persistent-store abs
 - `LiNKautowork/gateway/src/lib/idempotency-store.test.ts` (new tests including restart simulation)
 - `LiNKautowork/gateway/src/index.ts` (exported idempotency-store testing setter)
 - `packages/db/schema/autowork/0001_idempotency.sql` (new schema file for Postgres wiring)
-- `.ai-swarm/AGENT_REPORTS/linkautowork-agent.md` (this update)
+- `dev-swarm/reports/legacy-ai-swarm/linkautowork-agent.md` (this update)
 
 ### Commands Run
 
@@ -672,9 +672,9 @@ git status --short --branch
 sed -n '1,220p' .cursor/rules/00-linktrend-master-rule.mdc
 sed -n '1,240p' .cursor/rules/01-ecosystem-boundaries.mdc
 sed -n '1,240p' .cursor/rules/03-agent-swarm-coordination.mdc
-sed -n '1,260p' .ai-swarm/LINKAUTOWORK_COMPLETION_PLAN.md
-sed -n '1,260p' .ai-swarm/CONTRACTS_MVO.md
-sed -n '1,260p' .ai-swarm/WORK_PACKETS/WP-068-linkautowork-persistent-idempotency.md
+sed -n '1,260p' dev-swarm/command-center/LINKAUTOWORK_COMPLETION_PLAN.md
+sed -n '1,260p' dev-swarm/command-center/CONTRACTS_MVO.md
+sed -n '1,260p' dev-swarm/programs/linktrend-system/issues/legacy/WP-068-linkautowork-persistent-idempotency.md
 sed -n '1,260p' LiNKautowork/gateway/src/lib/workflow-runner.ts
 sed -n '1,260p' LiNKautowork/gateway/src/lib/retry-policy.ts
 sed -n '1,260p' LiNKautowork/gateway/src/lib/health.ts
@@ -723,7 +723,7 @@ Add development-mode operator controls for LiNKautowork with pause/resume, run c
 - `LiNKautowork/gateway/src/lib/retry-policy.test.ts` (extended for pause/cancel behavior)
 - `LiNKautowork/gateway/src/index.ts` (exports for operator control API)
 - `LiNKaios/linkaios-web/src/panels/autowork-controls/index.tsx` (new minimal panel)
-- `.ai-swarm/AGENT_REPORTS/linkautowork-agent.md` (this report update)
+- `dev-swarm/reports/legacy-ai-swarm/linkautowork-agent.md` (this report update)
 
 ### Commands Run
 
@@ -731,14 +731,14 @@ Add development-mode operator controls for LiNKautowork with pause/resume, run c
 git fetch origin --prune
 git worktree add ../LiNKtrend-System-WP-073 -b dev/codex/WP-073-linkautowork-operator-controls origin/development
 git status --short --branch
-sed -n '1,220p' .ai-swarm/AGENT_PROMPTS/WP-073-linkautowork-operator-controls.prompt.md
-sed -n '1,280p' .ai-swarm/WORK_PACKETS/WP-073-linkautowork-operator-controls.md
+sed -n '1,220p' dev-swarm/programs/linktrend-system/prompts/legacy/WP-073-linkautowork-operator-controls.prompt.md
+sed -n '1,280p' dev-swarm/programs/linktrend-system/issues/legacy/WP-073-linkautowork-operator-controls.md
 sed -n '1,220p' .cursor/rules/00-linktrend-master-rule.mdc
 sed -n '1,220p' .cursor/rules/01-ecosystem-boundaries.mdc
 sed -n '1,220p' .cursor/rules/03-agent-swarm-coordination.mdc
 sed -n '1,220p' .cursor/rules/07-ui-and-frontend-standards.mdc
-sed -n '1,260p' .ai-swarm/LINKAUTOWORK_COMPLETION_PLAN.md
-sed -n '1,260p' .ai-swarm/CONTRACTS_MVO.md
+sed -n '1,260p' dev-swarm/command-center/LINKAUTOWORK_COMPLETION_PLAN.md
+sed -n '1,260p' dev-swarm/command-center/CONTRACTS_MVO.md
 sed -n '1,360p' LiNKautowork/gateway/src/lib/workflow-runner.ts
 sed -n '1,260p' LiNKautowork/gateway/src/index.ts
 pnpm install --frozen-lockfile
@@ -780,7 +780,7 @@ Add an additive, version-aware workflow template registry for LiNKautowork with 
 - `LiNKautowork/templates/schema.json` (new)
 - `LiNKautowork/templates/websitefactory-render.v1.json` (new)
 - `LiNKautowork/templates/websitefactory-render.v2.json` (new)
-- `.ai-swarm/AGENT_REPORTS/linkautowork-agent.md` (updated)
+- `dev-swarm/reports/legacy-ai-swarm/linkautowork-agent.md` (updated)
 
 ### Commands Run
 
@@ -836,7 +836,7 @@ Replace pure in-memory LinkSites v2 write/readiness stubs with development-mode 
 - `LiNKautowork/gateway/src/lib/supabase-client.ts` (new)
 - `LiNKautowork/gateway/src/lib/payload-client.ts` (new)
 - `LiNKautowork/gateway/src/lib/linksites-v2.integration.test.ts` (new)
-- `.ai-swarm/AGENT_REPORTS/linkautowork-agent.md`
+- `dev-swarm/reports/legacy-ai-swarm/linkautowork-agent.md`
 
 ### Commands Run
 
@@ -844,9 +844,9 @@ Replace pure in-memory LinkSites v2 write/readiness stubs with development-mode 
 git status --short --branch
 git fetch origin --prune
 git worktree add ../LiNKtrend-System-WP-071 -b dev/codex/WP-071-linkautowork-real-capability-calls origin/development
-sed -n '1,220p' .ai-swarm/AGENT_PROMPTS/WP-071-linkautowork-real-capability-calls.prompt.md
-sed -n '1,260p' .ai-swarm/WORK_PACKETS/WP-071-linkautowork-real-capability-calls.md
-sed -n '1,260p' .ai-swarm/LINKSITES_TEMPLATE_PAYLOAD_DISCOVERY.md
+sed -n '1,220p' dev-swarm/programs/linktrend-system/prompts/legacy/WP-071-linkautowork-real-capability-calls.prompt.md
+sed -n '1,260p' dev-swarm/programs/linktrend-system/issues/legacy/WP-071-linkautowork-real-capability-calls.md
+sed -n '1,260p' dev-swarm/command-center/LINKSITES_TEMPLATE_PAYLOAD_DISCOVERY.md
 sed -n '1,260p' /Users/linktrend/Projects/LiNKsites/supabase/schemas/cms-mapping.json
 pnpm install
 pnpm --filter @linktrend/autowork-gateway test -- src/workflows/linksites-v2.test.ts src/lib/linksites-v2.integration.test.ts
@@ -899,7 +899,7 @@ Complete `autowork.linksites.artifact_write_local` so it persists deterministic 
 - `LiNKautowork/gateway/src/lib/linksites-artifact-writer.ts` (new)
 - `LiNKautowork/gateway/src/workflows/linksites-v2.ts`
 - `LiNKautowork/gateway/src/workflows/linksites-v2.test.ts`
-- `.ai-swarm/AGENT_REPORTS/linkautowork-agent.md`
+- `dev-swarm/reports/legacy-ai-swarm/linkautowork-agent.md`
 
 ### Commands Run
 
@@ -907,8 +907,8 @@ Complete `autowork.linksites.artifact_write_local` so it persists deterministic 
 git status --short --branch
 git fetch origin --prune
 git worktree add ../LiNKtrend-System-WP-090 -b dev/codex/WP-090-linksites-autowork-artifact-storage origin/development
-sed -n '1,260p' .ai-swarm/AGENT_PROMPTS/WP-090-linksites-autowork-artifact-storage.prompt.md
-sed -n '1,260p' .ai-swarm/WORK_PACKETS/WP-090-linksites-autowork-artifact-storage.md
+sed -n '1,260p' dev-swarm/programs/linktrend-system/prompts/legacy/WP-090-linksites-autowork-artifact-storage.prompt.md
+sed -n '1,260p' dev-swarm/programs/linktrend-system/issues/legacy/WP-090-linksites-autowork-artifact-storage.md
 sed -n '1,280p' LiNKautowork/gateway/src/workflows/linksites-v2.ts
 sed -n '1,320p' LiNKautowork/gateway/src/workflows/linksites-v2.test.ts
 pnpm --filter @linktrend/autowork-gateway test -- src/workflows/linksites-v2.test.ts

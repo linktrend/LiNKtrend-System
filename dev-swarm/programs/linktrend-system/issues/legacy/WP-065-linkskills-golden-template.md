@@ -16,7 +16,7 @@ Copy Golden Template from old repo and create skill validation SDK for LinkBot s
 - `packages/linklogic-sdk/src/validation/skill.ts`
 - `packages/linklogic-sdk/src/types/skill.ts`
 - `packages/linkskills-core/src/skills/`
-- `.ai-swarm/AGENT_REPORTS/linkskills-agent.md`
+- `dev-swarm/reports/legacy-ai-swarm/linkskills-agent.md`
 
 ## Prohibited files
 
@@ -25,7 +25,7 @@ Copy Golden Template from old repo and create skill validation SDK for LinkBot s
 
 ## Required context
 
-- `.ai-swarm/LINKSKILLS_COMPLETION_PLAN.md` §4.6
+- `dev-swarm/command-center/LINKSKILLS_COMPLETION_PLAN.md` §4.6
 - `/Users/linktrend/Projects/LiNKskills/skills/skill-template/SKILL.md`
 - `/Users/linktrend/Projects/LiNKskills/skills/skill-architect/SKILL.md`
 - PRD_LINKSKILLS_LOGIC_ENGINE §11.1, §12

@@ -13,7 +13,7 @@ git status --short --branch
 ## Result Summary
 
 - Branch was not a clean packet worktree branch.
-- The checkout contained extensive unrelated modified, deleted, and untracked files across `.ai-swarm/`, `.cursor/`, runtime packages, and top-level moved directories.
+- The checkout contained extensive unrelated modified, deleted, and untracked files across `dev-swarm/command-center/`, `.cursor/`, runtime packages, and top-level moved directories.
 - This violates the packet gate:
   - "Use a separate clean worktree/checkout for this packet."
   - "If unrelated dirty files exist, stop before editing and report the blocker."
@@ -32,4 +32,4 @@ git status --short --branch
 
 ## Changed Files
 
-- `.ai-swarm/AGENT_REPORTS/WP-200-codex-integration-proof.md`
+- `dev-swarm/reports/legacy-ai-swarm/WP-200-codex-integration-proof.md`

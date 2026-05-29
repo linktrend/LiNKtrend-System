@@ -23,7 +23,7 @@ Use a separate clean worktree/checkout for this packet. Do not run this packet i
 - `docker-compose.linktrend.yml`
 - LiNKguard labels/settings in `LiNKaios/linkaios-web/`
 - Related docs/rules
-- `.ai-swarm/AGENT_REPORTS/`
+- `dev-swarm/reports/legacy-ai-swarm/`
 
 ## Prohibited Files
 
@@ -60,4 +60,4 @@ Use a separate clean worktree/checkout for this packet. Do not run this packet i
 
 ## Report File
 
-Update `.ai-swarm/AGENT_REPORTS/WP-209-linkguard-rename-hardening.md`.
+Update `dev-swarm/reports/legacy-ai-swarm/WP-209-linkguard-rename-hardening.md`.

@@ -2,7 +2,7 @@
 
 Model: Codex
 
-Execute `.ai-swarm/WORK_PACKETS/WP-224-codex-lexos-linkapps-operator-rerun.md` exactly.
+Execute `dev-swarm/programs/linktrend-system/issues/legacy/WP-224-codex-lexos-linkapps-operator-rerun.md` exactly.
 
 This packet exists because WP-220 and WP-221 did not implement their operator flows. They stopped correctly because their worktrees were created from stale commit `4f3f7ba`, which lacked `LiNKaios/linkaios-web` and `modules/`.
 
@@ -23,13 +23,13 @@ If any are missing, stop and report the topology blocker.
 
 Before editing, read:
 
-- `.ai-swarm/WORK_PACKETS/WP-224-codex-lexos-linkapps-operator-rerun.md`
-- `.ai-swarm/AGENT_REPORTS/WP-220-lexos-litigation-operator-flow.md`
-- `.ai-swarm/AGENT_REPORTS/WP-221-linkapps-app-factory-operator-flow.md`
-- `.worktrees/WP-222-final-integration-proof-and-percentage-audit/.ai-swarm/AGENT_REPORTS/WP-222-final-integration-proof-and-percentage-audit.md`
+- `dev-swarm/programs/linktrend-system/issues/legacy/WP-224-codex-lexos-linkapps-operator-rerun.md`
+- `dev-swarm/reports/legacy-ai-swarm/WP-220-lexos-litigation-operator-flow.md`
+- `dev-swarm/reports/legacy-ai-swarm/WP-221-linkapps-app-factory-operator-flow.md`
+- `.worktrees/WP-222-final-integration-proof-and-percentage-audit/dev-swarm/reports/legacy-ai-swarm/WP-222-final-integration-proof-and-percentage-audit.md`
 - `modules/lexos/litigation/workflow.*`
 - `modules/linkapps/workflow.*`
-- `.ai-swarm/CONTRACTS_MVO.md`
+- `dev-swarm/command-center/CONTRACTS_MVO.md`
 - `docs/architecture/repo-architecture-target.md`
 - `.cursor/rules/01-ecosystem-boundaries.mdc`
 - `.cursor/rules/05-security-cost-and-side-effects.mdc`
@@ -43,4 +43,4 @@ Required proof:
 - Focused LiNKapps route/server-helper tests
 - Route/status proof payload summary for LEXOS and LiNKapps
 
-Update `.ai-swarm/AGENT_REPORTS/WP-224-codex-lexos-linkapps-operator-rerun.md` before stopping with files changed, commands run, proof produced, blockers, and next step.
+Update `dev-swarm/reports/legacy-ai-swarm/WP-224-codex-lexos-linkapps-operator-rerun.md` before stopping with files changed, commands run, proof produced, blockers, and next step.

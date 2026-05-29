@@ -29,8 +29,8 @@ This packet is UI/UX/copy-first and should not rewire LinkSkills runtime.
 - `LiNKaios/linkaios-web/src/components/catalog-ui.tsx`
 - `LiNKaios/linkaios-web/src/lib/skill*.ts`
 - `LiNKaios/linkaios-web/src/lib/ui-mocks/**`
-- `.ai-swarm/AGENT_REPORTS/WP-231-linkskills-terminology-governance-ui.md`
-- `.ai-swarm/AGENT_REPORTS/LINKAIOS_UIUX_REVIEW_BACKLOG.md`
+- `dev-swarm/reports/legacy-ai-swarm/WP-231-linkskills-terminology-governance-ui.md`
+- `dev-swarm/reports/legacy-ai-swarm/LINKAIOS_UIUX_REVIEW_BACKLOG.md`
 
 ## Prohibited Files
 
@@ -43,8 +43,8 @@ This packet is UI/UX/copy-first and should not rewire LinkSkills runtime.
 
 - WP-226 report and commit.
 - Existing Skills pages/components.
-- `.ai-swarm/CONTRACTS_MVO.md` LinkSkills sections.
-- `.ai-swarm/AGENT_REPORTS/CURRENT_STATE_VERIFICATION_WARNING.md`
+- `dev-swarm/command-center/CONTRACTS_MVO.md` LinkSkills sections.
+- `dev-swarm/reports/legacy-ai-swarm/CURRENT_STATE_VERIFICATION_WARNING.md`
 
 ## Required UI/UX Skills
 
@@ -71,7 +71,7 @@ Use `frontend-design`, `web-design-guidelines`, `webapp-testing`, `nextjs-react-
 - `pnpm --filter @linktrend/linkaios-web typecheck`
 - Focused tests if helpers/components are added.
 - Browser screenshots for relevant Skills/Tools/Catalog pages.
-- Report file: `.ai-swarm/AGENT_REPORTS/WP-231-linkskills-terminology-governance-ui.md`
+- Report file: `dev-swarm/reports/legacy-ai-swarm/WP-231-linkskills-terminology-governance-ui.md`
 
 ## Completion Handoff
 

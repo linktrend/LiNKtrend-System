@@ -21,7 +21,7 @@ Success means a credible demo: capture or represent a lead, drive deterministic 
 
 In order:
 
-1. **Command center + docs verification** — confirm `.ai-swarm/` and `docs/ecosystem/` are the operating sources of truth (`WP-000`).
+1. **Command center + docs verification** — confirm `dev-swarm/command-center/` and `docs/ecosystem/` are the operating sources of truth (`WP-000`).
 2. **Repo inventory + reuse map** — identify existing services, packages, and prior art to reuse (`WP-001`).
 3. **Day-1 decision freeze** — close or explicitly stub the minimum set of platform choices (`WP-002`).
 4. **LiNKaios kernel/module manifest using WebsiteFactory** — define the minimum LiNKaios module contract and use WebsiteFactory as the first module example (`WP-003`).

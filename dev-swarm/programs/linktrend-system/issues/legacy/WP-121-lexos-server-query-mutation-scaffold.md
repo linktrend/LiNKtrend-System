@@ -14,8 +14,8 @@ Create a safe LiNKaios-side LEXOS server query/mutation scaffold using adapted s
 
 - `apps/linkaios-web/src/lib/plugins/lexos/**`
 - `apps/linkaios-web/src/app/**/lexos/**` only for server action route support if needed
-- `.ai-swarm/LEXOS_SERVER_QUERY_MUTATION_SCAFFOLD.md`
-- `.ai-swarm/AGENT_REPORTS/WP-121-lexos-server-query-mutation-scaffold.md`
+- `dev-swarm/command-center/LEXOS_SERVER_QUERY_MUTATION_SCAFFOLD.md`
+- `dev-swarm/reports/legacy-ai-swarm/WP-121-lexos-server-query-mutation-scaffold.md`
 
 ## Prohibited files
 
@@ -29,7 +29,7 @@ Create a safe LiNKaios-side LEXOS server query/mutation scaffold using adapted s
 - `packages/db/src/types/lexos/database.ts`
 - `packages/linklogic-sdk/src/lexos-contracts.ts`
 - `packages/db/migrations/lexos/*.sql`
-- `.ai-swarm/LEXOS_VERTICAL_PLUGIN_CONVERSION_PLAN.md`
+- `dev-swarm/command-center/LEXOS_VERTICAL_PLUGIN_CONVERSION_PLAN.md`
 
 ## Steps
 

@@ -13,7 +13,9 @@ Complete every step in order. Confirm each checkbox before the install agent pro
 ## 1. Copy pack
 
 - [ ] `dev-swarm/` exists at repository root (copy entire folder for new products)
+- [ ] Install portable Cursor shim: `cp -R dev-swarm/install/portable-cursor/.cursor ./`
 - [ ] Read `dev-swarm/README.md` and `dev-swarm/SPEC.md`
+- [ ] Add product-specific `.cursor/rules/01`–`08` only if this product needs them (LiNKtrend reference: this repo)
 
 ## 2. GitHub labels
 

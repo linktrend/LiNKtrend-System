@@ -8,10 +8,10 @@
 ## Files Changed
 
 - `LiNKaios/linkaios-web/src/app/(shell)/workers/[id]/projects/page.tsx`
-- `.ai-swarm/AGENT_REPORTS/LINKAIOS_UIUX_REVIEW_BACKLOG.md`
-- `.ai-swarm/AGENT_REPORTS/WP-229-linkbots-project-work-context-ui.md`
-- `.ai-swarm/AGENT_REPORTS/artifacts/wp-229-workers-list.png`
-- `.ai-swarm/AGENT_REPORTS/artifacts/wp-229-worker-projects.png`
+- `dev-swarm/reports/legacy-ai-swarm/LINKAIOS_UIUX_REVIEW_BACKLOG.md`
+- `dev-swarm/reports/legacy-ai-swarm/WP-229-linkbots-project-work-context-ui.md`
+- `dev-swarm/reports/legacy-ai-swarm/artifacts/wp-229-workers-list.png`
+- `dev-swarm/reports/legacy-ai-swarm/artifacts/wp-229-worker-projects.png`
 
 ## Commands Run
 
@@ -23,11 +23,11 @@
 6. `pnpm install`
 7. `pnpm --filter @linktrend/linkaios-web typecheck`
 8. `PORT=3010 LINKAIOS_ENABLE_MVO_SERVICE_BYPASS=true LINKAIOS_UI_MOCKS=true NEXT_PUBLIC_SUPABASE_URL=https://example.supabase.co NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=pk_test_public pnpm --filter @linktrend/linkaios-web dev`
-9. `pnpm dlx playwright screenshot --device="Desktop Chrome" http://localhost:3010/workers .ai-swarm/AGENT_REPORTS/artifacts/wp-229-workers-list.png`
-10. `pnpm dlx playwright screenshot --device="Desktop Chrome" http://localhost:3010/workers/demo-lisa/projects .ai-swarm/AGENT_REPORTS/artifacts/wp-229-worker-projects.png`
+9. `pnpm dlx playwright screenshot --device="Desktop Chrome" http://localhost:3010/workers dev-swarm/reports/legacy-ai-swarm/artifacts/wp-229-workers-list.png`
+10. `pnpm dlx playwright screenshot --device="Desktop Chrome" http://localhost:3010/workers/demo-lisa/projects dev-swarm/reports/legacy-ai-swarm/artifacts/wp-229-worker-projects.png`
 11. `PORT=3010 LINKAIOS_ENABLE_MVO_SERVICE_BYPASS=true LINKAIOS_ENABLE_DEV_AUTH_BYPASS=true LINKAIOS_UI_MOCKS=true NEXT_PUBLIC_SUPABASE_URL=https://example.supabase.co NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=pk_test_public pnpm --filter @linktrend/linkaios-web dev`
-12. `pnpm dlx playwright screenshot --device="Desktop Chrome" http://localhost:3010/workers .ai-swarm/AGENT_REPORTS/artifacts/wp-229-workers-list.png`
-13. `pnpm dlx playwright screenshot --device="Desktop Chrome" http://localhost:3010/workers/demo-lisa/projects .ai-swarm/AGENT_REPORTS/artifacts/wp-229-worker-projects.png`
+12. `pnpm dlx playwright screenshot --device="Desktop Chrome" http://localhost:3010/workers dev-swarm/reports/legacy-ai-swarm/artifacts/wp-229-workers-list.png`
+13. `pnpm dlx playwright screenshot --device="Desktop Chrome" http://localhost:3010/workers/demo-lisa/projects dev-swarm/reports/legacy-ai-swarm/artifacts/wp-229-worker-projects.png`
 
 ## Implementation Summary
 
@@ -46,8 +46,8 @@
 
 ## Proof / Screenshots
 
-- Screenshot artifact: `.ai-swarm/AGENT_REPORTS/artifacts/wp-229-workers-list.png`
-- Screenshot artifact: `.ai-swarm/AGENT_REPORTS/artifacts/wp-229-worker-projects.png`
+- Screenshot artifact: `dev-swarm/reports/legacy-ai-swarm/artifacts/wp-229-workers-list.png`
+- Screenshot artifact: `dev-swarm/reports/legacy-ai-swarm/artifacts/wp-229-worker-projects.png`
 
 ## Validation Results
 

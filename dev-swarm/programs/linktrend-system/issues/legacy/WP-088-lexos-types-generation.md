@@ -14,7 +14,7 @@ Generate TypeScript types from the adapted LEXOS schema for use in the LiNKaios 
 
 - `packages/linklogic-sdk/types/lexos/*.ts`
 - `packages/linkaios-db/types/lexos/*.ts`
-- `.ai-swarm/WORK_PACKETS/WP-088*.md`
+- `dev-swarm/programs/linktrend-system/issues/legacy/WP-088*.md`
 
 ## Prohibited Files
 
@@ -24,7 +24,7 @@ Generate TypeScript types from the adapted LEXOS schema for use in the LiNKaios 
 
 ## Required Context
 
-- `.ai-swarm/LEXOS_VERTICAL_PLUGIN_CONVERSION_PLAN.md`
+- `dev-swarm/command-center/LEXOS_VERTICAL_PLUGIN_CONVERSION_PLAN.md`
 - `WP-085` output (adapted schema)
 - `/Users/linktrend/Projects/LiNKtrend-LEXOS/src/types/database.ts`
 

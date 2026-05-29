@@ -12,9 +12,9 @@ Branch: `uiux-browser-proof-clean`
 - `LiNKaios/linkaios-web/src/lib/devtools-mvo-proof.test.ts`
 - `LiNKaios/linkaios-web/src/app/(shell)/devtools/mvo-proof/page.tsx`
 - `LiNKaios/linkaios-web/src/app/(shell)/settings/advanced/page.tsx`
-- `.ai-swarm/DEMO_RUNBOOK_WEBSITEFACTORY_MVO.md`
-- `.ai-swarm/AGENT_REPORTS/CODEX_BROWSER_UIUX_PROOF.md`
-- `.ai-swarm/AGENT_REPORTS/UIUX_FIX_READINESS.md`
+- `dev-swarm/command-center/DEMO_RUNBOOK_WEBSITEFACTORY_MVO.md`
+- `dev-swarm/reports/legacy-ai-swarm/CODEX_BROWSER_UIUX_PROOF.md`
+- `dev-swarm/reports/legacy-ai-swarm/UIUX_FIX_READINESS.md`
 
 ## Commands Run
 1. `pnpm install`

@@ -28,7 +28,7 @@
 - `apps/linkaios-web/src/components/linkapps/panels/TracePanel.tsx` — Detailed trace view
 
 ### Documentation
-- `.ai-swarm/LINKAPPS_TRACE_SIDEBAR_SPEC.md` — Integration specification
+- `dev-swarm/command-center/LINKAPPS_TRACE_SIDEBAR_SPEC.md` — Integration specification
 
 ---
 

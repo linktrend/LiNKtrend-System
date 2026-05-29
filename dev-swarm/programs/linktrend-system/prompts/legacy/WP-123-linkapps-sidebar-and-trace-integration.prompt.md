@@ -2,7 +2,7 @@
 
 Use Cursor Kimi for this packet. Do not use any other model.
 
-Execute `.ai-swarm/WORK_PACKETS/WP-123-linkapps-sidebar-and-trace-integration.md`.
+Execute `dev-swarm/programs/linktrend-system/issues/legacy/WP-123-linkapps-sidebar-and-trace-integration.md`.
 
 ## Clean Worktree Requirement
 
@@ -24,7 +24,7 @@ If unrelated dirty files exist, stop before editing and report the blocker.
 - `.cursor/rules/01-ecosystem-boundaries.mdc`
 - `.cursor/rules/03-agent-swarm-coordination.mdc`
 - `.cursor/rules/06-testing-and-proof.mdc`
-- `.ai-swarm/WORK_PACKETS/WP-123-linkapps-sidebar-and-trace-integration.md`
+- `dev-swarm/programs/linktrend-system/issues/legacy/WP-123-linkapps-sidebar-and-trace-integration.md`
 
 ## Mission
 
@@ -39,7 +39,7 @@ Execute the assigned work packet exactly. Stay within allowed files and hard bou
 
 ## Proof Required
 
-Follow the work packet proof section. Update `.ai-swarm/AGENT_REPORTS/WP-123-linkapps-sidebar-and-trace-integration.md` with files changed, commands run, proof, blockers, branch, and commit SHA.
+Follow the work packet proof section. Update `dev-swarm/reports/legacy-ai-swarm/WP-123-linkapps-sidebar-and-trace-integration.md` with files changed, commands run, proof, blockers, branch, and commit SHA.
 
 ## Finish
 

@@ -14,8 +14,8 @@ Add a local validation script for capability plugin manifests so LinkSites, LEXO
 
 - `scripts/**`
 - `packages/linkaios-kernel/plugins/capabilities/**`
-- `.ai-swarm/LINKSKILLS_CAPABILITY_MANIFEST_VALIDATION.md`
-- `.ai-swarm/AGENT_REPORTS/WP-117-linkskills-manifest-validation-cli.md`
+- `dev-swarm/command-center/LINKSKILLS_CAPABILITY_MANIFEST_VALIDATION.md`
+- `dev-swarm/reports/legacy-ai-swarm/WP-117-linkskills-manifest-validation-cli.md`
 
 ## Prohibited files
 
@@ -26,8 +26,8 @@ Add a local validation script for capability plugin manifests so LinkSites, LEXO
 
 ## Required context
 
-- `.ai-swarm/CONTRACTS_MVO.md` §0.A.5.1
-- `.ai-swarm/LINKAPPS_CAPABILITY_REQUIREMENTS.md`
+- `dev-swarm/command-center/CONTRACTS_MVO.md` §0.A.5.1
+- `dev-swarm/command-center/LINKAPPS_CAPABILITY_REQUIREMENTS.md`
 - `packages/linkaios-kernel/plugins/capabilities/lexos/*.yaml`
 - `packages/linkaios-kernel/plugins/capabilities/linkapps/*.yaml`
 - `packages/linkaios-kernel/plugins/capabilities/catalog/seeds/cross_vertical_catalog.v1.yaml`

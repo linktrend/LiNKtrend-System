@@ -2,7 +2,7 @@
 
 You are Codex working as a senior frontend/product UX engineer.
 
-Execute `.ai-swarm/WORK_PACKETS/WP-231-linkskills-terminology-governance-ui.md` exactly.
+Execute `dev-swarm/programs/linktrend-system/issues/legacy/WP-231-linkskills-terminology-governance-ui.md` exactly.
 
 ## Model / Mode
 
@@ -12,11 +12,11 @@ Use GPT-5.3 Codex or equivalent code-focused model.
 
 Read before editing:
 
-1. `.ai-swarm/WORK_PACKETS/WP-231-linkskills-terminology-governance-ui.md`
+1. `dev-swarm/programs/linktrend-system/issues/legacy/WP-231-linkskills-terminology-governance-ui.md`
 2. WP-226 report and final commit
-3. `.ai-swarm/AGENT_REPORTS/CURRENT_STATE_VERIFICATION_WARNING.md`
+3. `dev-swarm/reports/legacy-ai-swarm/CURRENT_STATE_VERIFICATION_WARNING.md`
 4. Existing Skills/Tools pages/components
-5. `.ai-swarm/CONTRACTS_MVO.md` LinkSkills sections
+5. `dev-swarm/command-center/CONTRACTS_MVO.md` LinkSkills sections
 6. `.cursor/rules/01-ecosystem-boundaries.mdc`
 7. `.cursor/rules/03-agent-swarm-coordination.mdc`
 8. `.cursor/rules/07-ui-and-frontend-standards.mdc`
@@ -62,7 +62,7 @@ Capture browser screenshots for relevant Skills/Tools/Catalog pages.
 
 ## Required Report
 
-Write `.ai-swarm/AGENT_REPORTS/WP-231-linkskills-terminology-governance-ui.md` with files changed, commands run, screenshots/proof, blockers, final commit SHA, and backlog items.
+Write `dev-swarm/reports/legacy-ai-swarm/WP-231-linkskills-terminology-governance-ui.md` with files changed, commands run, screenshots/proof, blockers, final commit SHA, and backlog items.
 
 ## Completion
 

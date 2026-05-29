@@ -6,8 +6,8 @@ Do not use old report paths as current implementation instructions. For new work
 
 - `docs/architecture/repo-architecture-target.md`
 - `docs/architecture/system-completion-targets.md`
-- active `.ai-swarm/WORK_PACKETS/`
-- active `.ai-swarm/AGENT_PROMPTS/`
+- active `dev-swarm/programs/linktrend-system/issues/legacy/`
+- active `dev-swarm/programs/linktrend-system/prompts/legacy/`
 
 When adding a new report, use current terms:
 

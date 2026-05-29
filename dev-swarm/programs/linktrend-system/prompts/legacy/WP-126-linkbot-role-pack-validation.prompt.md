@@ -2,7 +2,7 @@
 
 Use Cursor Composer for this packet. Do not use any other model.
 
-Execute `.ai-swarm/WORK_PACKETS/WP-126-linkbot-role-pack-validation.md`.
+Execute `dev-swarm/programs/linktrend-system/issues/legacy/WP-126-linkbot-role-pack-validation.md`.
 
 ## Clean Worktree Requirement
 
@@ -24,7 +24,7 @@ If unrelated dirty files exist, stop before editing and report the blocker.
 - `.cursor/rules/01-ecosystem-boundaries.mdc`
 - `.cursor/rules/03-agent-swarm-coordination.mdc`
 - `.cursor/rules/06-testing-and-proof.mdc`
-- `.ai-swarm/WORK_PACKETS/WP-126-linkbot-role-pack-validation.md`
+- `dev-swarm/programs/linktrend-system/issues/legacy/WP-126-linkbot-role-pack-validation.md`
 
 ## Mission
 
@@ -39,7 +39,7 @@ Execute the assigned work packet exactly. Stay within allowed files and hard bou
 
 ## Proof Required
 
-Follow the work packet proof section. Update `.ai-swarm/AGENT_REPORTS/WP-126-linkbot-role-pack-validation.md` with files changed, commands run, proof, blockers, branch, and commit SHA.
+Follow the work packet proof section. Update `dev-swarm/reports/legacy-ai-swarm/WP-126-linkbot-role-pack-validation.md` with files changed, commands run, proof, blockers, branch, and commit SHA.
 
 ## Finish
 

@@ -15,7 +15,7 @@ Complete the audit ledger coverage to ensure 100% traceability for LinkSites v2 
 - `packages/linklogic-sdk/src/contracts-mvo.ts`
 - `apps/bot-runtime/src/**`
 - `LiNKautowork/gateway/src/**`
-- `.ai-swarm/AGENT_REPORTS/linkbrain-agent.md`
+- `dev-swarm/reports/legacy-ai-swarm/linkbrain-agent.md`
 
 ## Mission
 

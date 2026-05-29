@@ -52,7 +52,7 @@ plugins/vertical/lexos/
 ### Work Packet & Prompt Files
 
 ```
-.ai-swarm/
+dev-swarm/command-center/
 ├── WORK_PACKETS/WP-122-lexos-ui-workspace-scaffold.md
 └── AGENT_PROMPTS/WP-122-lexos-ui-workspace-scaffold.prompt.md
 ```

@@ -291,4 +291,4 @@ To verify no production credentials or services are required:
 ## 10) Files Changed in WP-113
 
 - `scripts/run-e2e.ts` - Updated with hardened WP-090 through WP-093 assertions
-- `.ai-swarm/DEMO_RUNBOOK_WEBSITEFACTORY_MVO.md` - Updated with hardened flow documentation
+- `dev-swarm/command-center/DEMO_RUNBOOK_WEBSITEFACTORY_MVO.md` - Updated with hardened flow documentation

@@ -1,7 +1,7 @@
 # LiNKbot Adapter Plan (WP-062)
 
 Date: 2026-05-15
-Depends on: `.ai-swarm/LINKBOT_CORE_SYNC_READINESS.md` (WP-061)
+Depends on: `dev-swarm/command-center/LINKBOT_CORE_SYNC_READINESS.md` (WP-061)
 
 ## Purpose
 

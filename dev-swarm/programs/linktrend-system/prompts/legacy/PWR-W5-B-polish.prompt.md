@@ -22,7 +22,7 @@ Second-pass UX polish from UI audit leftovers.
 - [ ] typecheck
 
 ## Report
-`.ai-swarm/AGENT_REPORTS/PWR-W5-B-polish.md`
+`dev-swarm/reports/legacy-ai-swarm/PWR-W5-B-polish.md`
 
 ## Commit
 `fix(ui): empty states and cockpit polish`

@@ -20,7 +20,7 @@ Successfully implemented deterministic development-mode LiNKautowork workflow ho
 | `LiNKautowork/gateway/src/workflows/linkapps.ts` | Created | 6 workflow handlers with lease/idempotency enforcement |
 | `LiNKautowork/gateway/src/workflows/linkapps.test.ts` | Created | Comprehensive test suite (success, failure, idempotency) |
 | `LiNKautowork/gateway/src/workflows/index.ts` | Modified | Added Linkapps workflow registration and exports |
-| `.ai-swarm/LINKAPPS_AUTOWORK_WORKFLOW_PACK.md` | Created | Documentation of workflow handles and stub behavior |
+| `dev-swarm/command-center/LINKAPPS_AUTOWORK_WORKFLOW_PACK.md` | Created | Documentation of workflow handles and stub behavior |
 
 ## Commands Run
 

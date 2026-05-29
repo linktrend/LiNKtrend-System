@@ -5,7 +5,7 @@ Branch: `wp-232-uiux-integration-proof-and-review-readiness`
 Worktree: `/Users/linktrend/Projects/LiNKtrend-System/.worktrees/WP-232-uiux-integration-proof-and-review-readiness`
 
 ## Summary
-Integrated WP-226 through WP-231 in required dependency order onto a clean WP-232 worktree branch. Resolved all merge conflicts in `.ai-swarm/AGENT_REPORTS/LINKAIOS_UIUX_REVIEW_BACKLOG.md` by preserving backlog entries from all merged packets. No new architectural rewrites or backend/runtime enforcement changes were introduced in WP-232.
+Integrated WP-226 through WP-231 in required dependency order onto a clean WP-232 worktree branch. Resolved all merge conflicts in `dev-swarm/reports/legacy-ai-swarm/LINKAIOS_UIUX_REVIEW_BACKLOG.md` by preserving backlog entries from all merged packets. No new architectural rewrites or backend/runtime enforcement changes were introduced in WP-232.
 
 ## Merged Commits
 - `wp-226-linkaios-product-model-ui-foundation` at `26c3371`
@@ -26,24 +26,24 @@ WP-232 integration merge commits:
 ## Files Changed
 Integrated changes from WP-226..WP-231 (UI code + packet reports/artifacts):
 - `LiNKaios/linkaios-web/src/**` surfaces for projects/modules/workers/memory/skills/product-model helpers.
-- `.ai-swarm/AGENT_REPORTS/WP-226-*.md` through `WP-231-*.md`
-- `.ai-swarm/AGENT_REPORTS/LINKAIOS_UIUX_REVIEW_BACKLOG.md`
-- `.ai-swarm/AGENT_REPORTS/artifacts/wp-229-*.png`
-- `.ai-swarm/AGENT_REPORTS/artifacts/wp-231/*.png`
+- `dev-swarm/reports/legacy-ai-swarm/WP-226-*.md` through `WP-231-*.md`
+- `dev-swarm/reports/legacy-ai-swarm/LINKAIOS_UIUX_REVIEW_BACKLOG.md`
+- `dev-swarm/reports/legacy-ai-swarm/artifacts/wp-229-*.png`
+- `dev-swarm/reports/legacy-ai-swarm/artifacts/wp-231/*.png`
 - `uiux-modules-catalogue.png`
 - `uiux-project-type-catalogue.png`
 
 WP-232 specific additions:
-- `.ai-swarm/AGENT_REPORTS/WP-232-uiux-integration-proof-and-review-readiness.md`
-- `.ai-swarm/AGENT_REPORTS/artifacts/uiux-product-model/home-overview-desktop.png`
-- `.ai-swarm/AGENT_REPORTS/artifacts/uiux-product-model/projects-desktop.png`
-- `.ai-swarm/AGENT_REPORTS/artifacts/uiux-product-model/modules-desktop.png`
-- `.ai-swarm/AGENT_REPORTS/artifacts/uiux-product-model/project-type-catalogue-desktop.png`
-- `.ai-swarm/AGENT_REPORTS/artifacts/uiux-product-model/linkbots-desktop.png`
-- `.ai-swarm/AGENT_REPORTS/artifacts/uiux-product-model/linkbrain-desktop.png`
-- `.ai-swarm/AGENT_REPORTS/artifacts/uiux-product-model/skills-desktop.png`
-- `.ai-swarm/AGENT_REPORTS/artifacts/uiux-product-model/work-desktop.png`
-- `.ai-swarm/AGENT_REPORTS/artifacts/uiux-product-model/settings-desktop.png`
+- `dev-swarm/reports/legacy-ai-swarm/WP-232-uiux-integration-proof-and-review-readiness.md`
+- `dev-swarm/reports/legacy-ai-swarm/artifacts/uiux-product-model/home-overview-desktop.png`
+- `dev-swarm/reports/legacy-ai-swarm/artifacts/uiux-product-model/projects-desktop.png`
+- `dev-swarm/reports/legacy-ai-swarm/artifacts/uiux-product-model/modules-desktop.png`
+- `dev-swarm/reports/legacy-ai-swarm/artifacts/uiux-product-model/project-type-catalogue-desktop.png`
+- `dev-swarm/reports/legacy-ai-swarm/artifacts/uiux-product-model/linkbots-desktop.png`
+- `dev-swarm/reports/legacy-ai-swarm/artifacts/uiux-product-model/linkbrain-desktop.png`
+- `dev-swarm/reports/legacy-ai-swarm/artifacts/uiux-product-model/skills-desktop.png`
+- `dev-swarm/reports/legacy-ai-swarm/artifacts/uiux-product-model/work-desktop.png`
+- `dev-swarm/reports/legacy-ai-swarm/artifacts/uiux-product-model/settings-desktop.png`
 
 ## Commands Run
 - `git status --short --branch` (root workspace; dirty -> blocked for direct execution)
@@ -72,22 +72,22 @@ WP-232 specific additions:
 
 ## Screenshots / Proof Paths
 Required UI/UX review surfaces captured under:
-- `.ai-swarm/AGENT_REPORTS/artifacts/uiux-product-model/home-overview-desktop.png`
-- `.ai-swarm/AGENT_REPORTS/artifacts/uiux-product-model/projects-desktop.png`
-- `.ai-swarm/AGENT_REPORTS/artifacts/uiux-product-model/modules-desktop.png`
-- `.ai-swarm/AGENT_REPORTS/artifacts/uiux-product-model/project-type-catalogue-desktop.png`
-- `.ai-swarm/AGENT_REPORTS/artifacts/uiux-product-model/linkbots-desktop.png`
-- `.ai-swarm/AGENT_REPORTS/artifacts/uiux-product-model/linkbrain-desktop.png`
-- `.ai-swarm/AGENT_REPORTS/artifacts/uiux-product-model/skills-desktop.png`
-- `.ai-swarm/AGENT_REPORTS/artifacts/uiux-product-model/work-desktop.png`
-- `.ai-swarm/AGENT_REPORTS/artifacts/uiux-product-model/settings-desktop.png`
+- `dev-swarm/reports/legacy-ai-swarm/artifacts/uiux-product-model/home-overview-desktop.png`
+- `dev-swarm/reports/legacy-ai-swarm/artifacts/uiux-product-model/projects-desktop.png`
+- `dev-swarm/reports/legacy-ai-swarm/artifacts/uiux-product-model/modules-desktop.png`
+- `dev-swarm/reports/legacy-ai-swarm/artifacts/uiux-product-model/project-type-catalogue-desktop.png`
+- `dev-swarm/reports/legacy-ai-swarm/artifacts/uiux-product-model/linkbots-desktop.png`
+- `dev-swarm/reports/legacy-ai-swarm/artifacts/uiux-product-model/linkbrain-desktop.png`
+- `dev-swarm/reports/legacy-ai-swarm/artifacts/uiux-product-model/skills-desktop.png`
+- `dev-swarm/reports/legacy-ai-swarm/artifacts/uiux-product-model/work-desktop.png`
+- `dev-swarm/reports/legacy-ai-swarm/artifacts/uiux-product-model/settings-desktop.png`
 
 ## Console / Network Findings
 - No new browser console/network capture run was executed in WP-232.
 - Existing visual proof assets were consolidated into packet-required location.
 
 ## Remaining UI/UX Backlog
-- Preserved and merged in `.ai-swarm/AGENT_REPORTS/LINKAIOS_UIUX_REVIEW_BACKLOG.md`:
+- Preserved and merged in `dev-swarm/reports/legacy-ai-swarm/LINKAIOS_UIUX_REVIEW_BACKLOG.md`:
   - Project/mission terminology migration follow-up.
   - Projects/module/project-type runtime wiring to source-of-truth backend fields.
   - Worker project context runtime wiring.

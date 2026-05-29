@@ -13,8 +13,8 @@ Create the concrete plugin manifest for `linkapps.app_factory` per `PLUGIN_ARCHI
 ## Allowed files
 
 - `plugins/vertical/linkapps/manifest.yaml`
-- `.ai-swarm/WORK_PACKETS/WP-086*.md`
-- `.ai-swarm/AGENT_REPORTS/integration-agent.md`
+- `dev-swarm/programs/linktrend-system/issues/legacy/WP-086*.md`
+- `dev-swarm/reports/legacy-ai-swarm/integration-agent.md`
 
 ## Prohibited files
 

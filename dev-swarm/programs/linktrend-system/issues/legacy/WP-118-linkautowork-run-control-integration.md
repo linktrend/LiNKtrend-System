@@ -17,7 +17,7 @@ Wire LiNKautowork run control primitives into workflow invocation paths so pause
 - `LiNKautowork/gateway/src/lib/workflow-runner.ts`
 - `LiNKautowork/gateway/src/lib/workflow-runner.test.ts`
 - `LiNKautowork/gateway/src/workflows/**` only for test fixture support
-- `.ai-swarm/AGENT_REPORTS/WP-118-linkautowork-run-control-integration.md`
+- `dev-swarm/reports/legacy-ai-swarm/WP-118-linkautowork-run-control-integration.md`
 
 ## Prohibited files
 
@@ -29,8 +29,8 @@ Wire LiNKautowork run control primitives into workflow invocation paths so pause
 
 - `LiNKautowork/gateway/src/lib/run-controller.ts`
 - `LiNKautowork/gateway/src/lib/workflow-runner.ts`
-- `.ai-swarm/LINKAUTOWORK_COMPLETION_PLAN.md`
-- `.ai-swarm/CONTRACTS_MVO.md`
+- `dev-swarm/command-center/LINKAUTOWORK_COMPLETION_PLAN.md`
+- `dev-swarm/command-center/CONTRACTS_MVO.md`
 
 ## Steps
 

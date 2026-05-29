@@ -21,8 +21,8 @@ Use a separate clean worktree/checkout for this packet. Do not run this packet i
 - `modules/linksites/`
 - WebsiteFactory code under `LiNKaios/linkaios-web/src/lib/plugins/websitefactory/`
 - LinkSites workflow code under `LiNKautowork/gateway/src/workflows/`
-- Proof/runbook docs under `.ai-swarm/`
-- `.ai-swarm/AGENT_REPORTS/`
+- Proof/runbook docs under `dev-swarm/command-center/`
+- `dev-swarm/reports/legacy-ai-swarm/`
 
 ## Prohibited Files
 
@@ -33,9 +33,9 @@ Use a separate clean worktree/checkout for this packet. Do not run this packet i
 ## Required Context
 
 - `docs/architecture/system-completion-targets.md`
-- `.ai-swarm/LINKSITES_COMPLETION_PLAN.md`
-- `.ai-swarm/DEMO_RUNBOOK_WEBSITEFACTORY_MVO.md`
-- `.ai-swarm/CONTRACTS_MVO.md`
+- `dev-swarm/command-center/LINKSITES_COMPLETION_PLAN.md`
+- `dev-swarm/command-center/DEMO_RUNBOOK_WEBSITEFACTORY_MVO.md`
+- `dev-swarm/command-center/CONTRACTS_MVO.md`
 - `modules/linksites/README.md`
 
 ## Steps
@@ -60,4 +60,4 @@ Use a separate clean worktree/checkout for this packet. Do not run this packet i
 
 ## Report File
 
-Update `.ai-swarm/AGENT_REPORTS/WP-206-linksites-proof-readiness.md`.
+Update `dev-swarm/reports/legacy-ai-swarm/WP-206-linksites-proof-readiness.md`.

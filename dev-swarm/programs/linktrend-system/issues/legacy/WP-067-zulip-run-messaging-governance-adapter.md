@@ -14,7 +14,7 @@ Wire run/status messaging to Zulip exclusively through LinkSkills capability gov
 - `apps/linkaios-web/**` (policy and dispatch integration)
 - `apps/bot-runtime/**` (status emission only)
 - `packages/shared-types/**`
-- `.ai-swarm/AGENT_REPORTS/linkbot-agent.md`
+- `dev-swarm/reports/legacy-ai-swarm/linkbot-agent.md`
 
 ## Prohibited files
 
@@ -23,8 +23,8 @@ Wire run/status messaging to Zulip exclusively through LinkSkills capability gov
 
 ## Required context
 
-- `.ai-swarm/LINKBOT_ADAPTER_PLAN.md`
-- `.ai-swarm/CONTRACTS_MVO.md` (`cap.zulip.run_messaging` contract)
+- `dev-swarm/command-center/LINKBOT_ADAPTER_PLAN.md`
+- `dev-swarm/command-center/CONTRACTS_MVO.md` (`cap.zulip.run_messaging` contract)
 
 ## Acceptance criteria
 

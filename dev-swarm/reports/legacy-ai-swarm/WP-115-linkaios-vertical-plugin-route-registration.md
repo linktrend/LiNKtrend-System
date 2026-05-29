@@ -13,14 +13,14 @@ Created the LiNKaios vertical plugin route registration contract and kernel exte
 
 ### New Documentation Files
 
-1. `.ai-swarm/docs/vertical-plugin-route-contract.md`
+1. `dev-swarm/command-center/docs/vertical-plugin-route-contract.md`
    - Route registration contract defining TypeScript interfaces
    - Route kinds: navigation, resource, api
    - Path patterns for each vertical plugin type
    - Permission binding and mode-aware routing
    - Collision prevention rules
 
-2. `.ai-swarm/docs/kernel-vertical-route-extension.md`
+2. `dev-swarm/command-center/docs/kernel-vertical-route-extension.md`
    - Kernel extension specification for route registry
    - Data flow diagrams
    - Module architecture (Route Registry, Navigation Store, Permission Adapter)
@@ -28,14 +28,14 @@ Created the LiNKaios vertical plugin route registration contract and kernel exte
    - Audit integration and error handling
    - Implementation phases
 
-3. `.ai-swarm/docs/vertical-plugin-navigation-spec.md`
+3. `dev-swarm/command-center/docs/vertical-plugin-navigation-spec.md`
    - UI navigation specification for shell integration
    - Navigation item types and hierarchy
    - Dashboard layout structure
    - Contextual actions and recent resources
    - Responsive behavior and accessibility
 
-4. `.ai-swarm/docs/vertical-plugin-route-examples.md`
+4. `dev-swarm/command-center/docs/vertical-plugin-route-examples.md`
    - Reference implementation examples
    - LinkSites / WebsiteFactory routes
    - LEXOS Litigation routes (mode-aware)

@@ -12,8 +12,8 @@
 
 | Path |
 |------|
-| `.ai-swarm/LINKAPPS_UI_PANEL_DESIGN.md` |
-| `.ai-swarm/AGENT_REPORTS/WP-110-linkapps-ui-panel-design.md` |
+| `dev-swarm/command-center/LINKAPPS_UI_PANEL_DESIGN.md` |
+| `dev-swarm/reports/legacy-ai-swarm/WP-110-linkapps-ui-panel-design.md` |
 | `apps/linkaios-web/src/app/(shell)/linkapps/factory/page.tsx` |
 | `apps/linkaios-web/src/lib/plugins/linkapps/types.ts` |
 | `apps/linkaios-web/src/lib/plugins/linkapps/fixtures.ts` |
@@ -39,7 +39,7 @@ cd ../.. && pnpm exec turbo run typecheck --filter=@linktrend/linkaios-web   # f
 
 ## Proof
 
-- **Design:** `.ai-swarm/LINKAPPS_UI_PANEL_DESIGN.md` — IA, panel states, manifest mapping, trace visibility.
+- **Design:** `dev-swarm/command-center/LINKAPPS_UI_PANEL_DESIGN.md` — IA, panel states, manifest mapping, trace visibility.
 - **Route:** `/linkapps/factory` — static fixture dashboard (auth via existing shell layout).
 - **Lint (scoped):** `pnpm exec eslint … --max-warnings 0` on Linkapps paths — exit 0.
 - **Lint/typecheck (full package):** Blocked by existing issues (`next lint` errors in kernel/websitefactory tests; `tsc` errors in api-auth tests, dispatch.ts, plane-adapter, stage-handlers, template-registry-discovery.test). No diagnostics reported for new Linkapps files.

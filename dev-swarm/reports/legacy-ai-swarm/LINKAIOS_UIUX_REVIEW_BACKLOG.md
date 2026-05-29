@@ -800,7 +800,7 @@ Chairman approved items 1–17. Implemented in UI review pass (no commit unless 
 | 1 | Work/Modules/Metrics/Cockpit pills, Company Phase B, Settings restructure | fixed |
 | 2 | Cockpit retired, Modules/Metrics Phase B, static page Help | fixed |
 
-Agent reports: `.ai-swarm/AGENT_REPORTS/wp-wave1-*.md`, `wp-wave2-*.md`
+Agent reports: `dev-swarm/reports/legacy-ai-swarm/wp-wave1-*.md`, `wp-wave2-*.md`
 
 ### Wave 3 + TODO sweep (this pass)
 
@@ -818,7 +818,7 @@ Agent reports: `.ai-swarm/AGENT_REPORTS/wp-wave1-*.md`, `wp-wave2-*.md`
 | UIUX-GLOBAL-001 | StatusPill adoption | partial fixed |
 | LINK-CLEANUP-001 | Stale `/settings/gateway`, `/settings/advanced`, `/cockpit` links | fixed |
 
-**Remaining:** see `.ai-swarm/TODO-WAVE3-REMAINING.md`
+**Remaining:** see `dev-swarm/command-center/TODO-WAVE3-REMAINING.md`
 
 ---
 

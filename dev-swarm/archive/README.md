@@ -9,6 +9,7 @@ Historical Cursor and agent-swarm material kept for reference only.
 | `cursor-skills-legacy/` | `.cursor/skills/` (pre-consolidation) | Flat skill stubs and merged gstack copies before skills were consolidated under `dev-swarm/skills/`. |
 | `cursor-agents-legacy/` | `.cursor/agents/` (pre-consolidation) | Former Cursor agent definitions before consolidation into `dev-swarm/agents/`. |
 | `cursor-rules-legacy/` | Generic rules formerly under `.cursor/rules/` | Rules moved to `dev-swarm/rules/`; legacy copies may live here when present. |
+| `cursor-docs-legacy/` | `.cursor/LEXOS_IMPORTED_SKILLS_POLICY.md`, `SKILLS_INSTALL_SUMMARY.md` | Pre-consolidation install notes; obsolete |
 
 **Read-only.** Do not use these paths for active development, new prompts, or skill edits. Active work uses:
 

@@ -24,7 +24,7 @@ Use a separate clean worktree/checkout for this packet. Do not run this packet i
 - LiNKapps role definitions under `LiNKbot/roles/`
 - LiNKapps workflow declarations under `LiNKautowork/`
 - LiNKapps contracts/events in `packages/linklogic-sdk/`
-- `.ai-swarm/AGENT_REPORTS/`
+- `dev-swarm/reports/legacy-ai-swarm/`
 
 ## Prohibited Files
 
@@ -37,9 +37,9 @@ Use a separate clean worktree/checkout for this packet. Do not run this packet i
 
 - `docs/architecture/repo-architecture-target.md`
 - `docs/architecture/system-completion-targets.md`
-- `.ai-swarm/LINKAPPS_VERTICAL_PLUGIN_CONVERSION_PLAN.md`
-- `.ai-swarm/LINKAPPS_SQUAD_ORCHESTRATION_SPEC.md`
-- `.ai-swarm/LINKAPPS_CAPABILITY_REQUIREMENTS.md`
+- `dev-swarm/command-center/LINKAPPS_VERTICAL_PLUGIN_CONVERSION_PLAN.md`
+- `dev-swarm/command-center/LINKAPPS_SQUAD_ORCHESTRATION_SPEC.md`
+- `dev-swarm/command-center/LINKAPPS_CAPABILITY_REQUIREMENTS.md`
 - `modules/linkapps/manifest.yaml`
 
 ## Steps
@@ -64,4 +64,4 @@ Use a separate clean worktree/checkout for this packet. Do not run this packet i
 
 ## Report File
 
-Update `.ai-swarm/AGENT_REPORTS/WP-208-linkapps-app-factory-mvo.md`.
+Update `dev-swarm/reports/legacy-ai-swarm/WP-208-linkapps-app-factory-mvo.md`.

@@ -474,8 +474,8 @@ The old repo's Class A/B/C classification maps to the mode model:
 
 ## 11. Related Documents
 
-- `.ai-swarm/CONTRACTS_MVO.md` - Canonical contracts
-- `.ai-swarm/PLUGIN_ARCHITECTURE_V2.md` - Plugin model
+- `dev-swarm/command-center/CONTRACTS_MVO.md` - Canonical contracts
+- `dev-swarm/command-center/PLUGIN_ARCHITECTURE_V2.md` - Plugin model
 - `.cursor/rules/01-ecosystem-boundaries.mdc` - Plane responsibilities
 - `/Users/linktrend/Projects/LiNKskills/README.md` - Old repo structure
 - `/Users/linktrend/Projects/LiNKskills/SOP_MVO_CLASS_A.md` - Operating patterns

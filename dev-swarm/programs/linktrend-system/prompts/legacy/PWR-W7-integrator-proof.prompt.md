@@ -19,7 +19,7 @@ Work on `development` after all Wave 6 merges
    - Suite terminology spot check
    - shadcn primitives importable
 4. Write `docs/handoffs/YYYY-MM-DD-development-pre-wiring-readiness.md`
-5. Update `.ai-swarm/PRE_WIRING_READINESS_PLAN.md` status section
+5. Update `dev-swarm/command-center/PRE_WIRING_READINESS_PLAN.md` status section
 
 ## Acceptance
 - [ ] All wave reports present with commit SHAs
@@ -27,7 +27,7 @@ Work on `development` after all Wave 6 merges
 - [ ] Handoff doc complete
 
 ## Report
-`.ai-swarm/AGENT_REPORTS/PWR-W7-integrator-proof.md`
+`dev-swarm/reports/legacy-ai-swarm/PWR-W7-integrator-proof.md`
 
 ## Commit (if doc-only)
 `docs: pre-wiring readiness handoff`

@@ -15,7 +15,7 @@ Move beyond kernel stubs to actual persistence of derived memory objects (Leads,
 - `services/migrations/*.sql`
 - `packages/linklogic-sdk/src/brain-memory.ts`
 - `apps/linkaios-web/src/lib/kernel/memory-worker.ts`
-- `.ai-swarm/AGENT_REPORTS/linkbrain-agent.md`
+- `dev-swarm/reports/legacy-ai-swarm/linkbrain-agent.md`
 
 ## Mission
 

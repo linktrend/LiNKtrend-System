@@ -17,7 +17,7 @@ Implement complete lease request → decision → execute → record flow per CO
 - `packages/linkskills-core/src/api/lease.ts`
 - `packages/linklogic-sdk/src/types/lease.ts`
 - `packages/linkskills-core/tests/`
-- `.ai-swarm/AGENT_REPORTS/linkskills-agent.md`
+- `dev-swarm/reports/legacy-ai-swarm/linkskills-agent.md`
 
 ## Prohibited files
 
@@ -27,8 +27,8 @@ Implement complete lease request → decision → execute → record flow per CO
 
 ## Required context
 
-- `.ai-swarm/LINKSKILLS_COMPLETION_PLAN.md` §4.2, 4.3
-- `.ai-swarm/CONTRACTS_MVO.md` §6.2 (complete lease lifecycle)
+- `dev-swarm/command-center/LINKSKILLS_COMPLETION_PLAN.md` §4.2, 4.3
+- `dev-swarm/command-center/CONTRACTS_MVO.md` §6.2 (complete lease lifecycle)
 - `/Users/linktrend/Projects/LiNKskills/SOP_MACHINE_MVO_CLASS_A.md` §7 (idempotency)
 - WP-061 (schema), WP-062 (catalog)
 

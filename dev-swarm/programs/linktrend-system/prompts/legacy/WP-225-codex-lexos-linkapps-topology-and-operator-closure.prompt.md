@@ -2,7 +2,7 @@
 
 Model: Codex
 
-Execute `.ai-swarm/WORK_PACKETS/WP-225-codex-lexos-linkapps-topology-and-operator-closure.md` exactly.
+Execute `dev-swarm/programs/linktrend-system/issues/legacy/WP-225-codex-lexos-linkapps-topology-and-operator-closure.md` exactly.
 
 This is a corrective packet. WP-224's filesystem state shows no implementation edits, only a blocked report. Do not repeat that stop unless the active workspace also lacks the module/docs topology.
 
@@ -22,14 +22,14 @@ Before implementation:
 
 Read:
 
-- `.ai-swarm/WORK_PACKETS/WP-225-codex-lexos-linkapps-topology-and-operator-closure.md`
-- `.worktrees/WP-223-codex-linkaios-typecheck-build-closure/.ai-swarm/AGENT_REPORTS/WP-223-codex-linkaios-typecheck-build-closure.md`
-- `.worktrees/WP-224-codex-lexos-linkapps-operator-rerun/.ai-swarm/AGENT_REPORTS/WP-224-codex-lexos-linkapps-operator-rerun.md`
-- `.ai-swarm/AGENT_REPORTS/WP-220-lexos-litigation-operator-flow.md`
-- `.ai-swarm/AGENT_REPORTS/WP-221-linkapps-app-factory-operator-flow.md`
+- `dev-swarm/programs/linktrend-system/issues/legacy/WP-225-codex-lexos-linkapps-topology-and-operator-closure.md`
+- `.worktrees/WP-223-codex-linkaios-typecheck-build-closure/dev-swarm/reports/legacy-ai-swarm/WP-223-codex-linkaios-typecheck-build-closure.md`
+- `.worktrees/WP-224-codex-lexos-linkapps-operator-rerun/dev-swarm/reports/legacy-ai-swarm/WP-224-codex-lexos-linkapps-operator-rerun.md`
+- `dev-swarm/reports/legacy-ai-swarm/WP-220-lexos-litigation-operator-flow.md`
+- `dev-swarm/reports/legacy-ai-swarm/WP-221-linkapps-app-factory-operator-flow.md`
 - `modules/lexos/litigation/workflow.*`
 - `modules/linkapps/workflow.*`
-- `.ai-swarm/CONTRACTS_MVO.md`
+- `dev-swarm/command-center/CONTRACTS_MVO.md`
 - `docs/architecture/repo-architecture-target.md`
 - `.cursor/rules/01-ecosystem-boundaries.mdc`
 - `.cursor/rules/05-security-cost-and-side-effects.mdc`
@@ -49,4 +49,4 @@ Required proof:
 - Focused LiNKapps route/server-helper tests or proof command
 - Route/status proof payload summary for LEXOS and LiNKapps
 
-Update `.ai-swarm/AGENT_REPORTS/WP-225-codex-lexos-linkapps-topology-and-operator-closure.md` before stopping with files changed, commands run, proof produced, blockers, and next step.
+Update `dev-swarm/reports/legacy-ai-swarm/WP-225-codex-lexos-linkapps-topology-and-operator-closure.md` before stopping with files changed, commands run, proof produced, blockers, and next step.

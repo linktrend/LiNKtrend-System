@@ -15,7 +15,7 @@ End-to-end test harness for capability lease flows, idempotency, kill switches, 
 - `packages/linkskills-core/tests/integration/`
 - `packages/linkskills-core/tests/fixtures/`
 - `packages/linkskills-core/tests/helpers/`
-- `.ai-swarm/AGENT_REPORTS/linkskills-agent.md`
+- `dev-swarm/reports/legacy-ai-swarm/linkskills-agent.md`
 
 ## Prohibited files
 
@@ -24,8 +24,8 @@ End-to-end test harness for capability lease flows, idempotency, kill switches, 
 
 ## Required context
 
-- `.ai-swarm/LINKSKILLS_COMPLETION_PLAN.md` §4
-- `.ai-swarm/CONTRACTS_MVO.md` §6.2, §8 (audit requirements)
+- `dev-swarm/command-center/LINKSKILLS_COMPLETION_PLAN.md` §4
+- `dev-swarm/command-center/CONTRACTS_MVO.md` §6.2, §8 (audit requirements)
 - WP-061 through WP-066 (all components under test)
 
 ## Steps

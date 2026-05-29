@@ -16,13 +16,13 @@ Read/checked before attempting edits:
 - `.cursor/rules/05-security-cost-and-side-effects.mdc`
 - `docs/architecture/repo-architecture-target.md`
 - `docs/architecture/system-completion-targets.md`
-- `.ai-swarm/CONTRACTS_MVO.md`
-- `.ai-swarm/REPO_INVENTORY.md`
-- `.ai-swarm/LINKAPPS_CAPABILITY_REQUIREMENTS.md`
-- `.ai-swarm/WORK_PACKETS/WP-221-linkapps-app-factory-operator-flow.md`
-- `.ai-swarm/AGENT_PROMPTS/WP-221-linkapps-app-factory-operator-flow.prompt.md`
+- `dev-swarm/command-center/CONTRACTS_MVO.md`
+- `dev-swarm/command-center/REPO_INVENTORY.md`
+- `dev-swarm/command-center/LINKAPPS_CAPABILITY_REQUIREMENTS.md`
+- `dev-swarm/programs/linktrend-system/issues/legacy/WP-221-linkapps-app-factory-operator-flow.md`
+- `dev-swarm/programs/linktrend-system/prompts/legacy/WP-221-linkapps-app-factory-operator-flow.prompt.md`
 - Carry-forward report:
-  - `/Users/linktrend/Projects/LiNKtrend-System/.worktrees/WP-216-linkaios-cockpit-proof-surface/.ai-swarm/AGENT_REPORTS/WP-216-linkaios-cockpit-proof-surface.md`
+  - `/Users/linktrend/Projects/LiNKtrend-System/.worktrees/WP-216-linkaios-cockpit-proof-surface/dev-swarm/reports/legacy-ai-swarm/WP-216-linkaios-cockpit-proof-surface.md`
 - Module context:
   - `/Users/linktrend/Projects/LiNKtrend-System/modules/linkapps/README.md`
   - `/Users/linktrend/Projects/LiNKtrend-System/modules/linkapps/manifest.yaml`
@@ -61,7 +61,7 @@ This means the WP-221 worktree was created from commit `4f3f7ba` which predates 
    - Result: Exists (legacy topology)
 
 ## Files Changed
-- `.ai-swarm/AGENT_REPORTS/WP-221-linkapps-app-factory-operator-flow.md` (this report)
+- `dev-swarm/reports/legacy-ai-swarm/WP-221-linkapps-app-factory-operator-flow.md` (this report)
 
 No application/runtime code was edited because:
 1. The required implementation location `LiNKaios/linkaios-web` is absent in this worktree

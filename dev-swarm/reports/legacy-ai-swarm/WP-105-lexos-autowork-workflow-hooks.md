@@ -29,7 +29,7 @@
    - Production mode rejection tests
    - Store state verification tests
 
-3. `.ai-swarm/LEXOS_AUTOWORK_WORKFLOW_HOOKS.md` (320+ lines)
+3. `dev-swarm/command-center/LEXOS_AUTOWORK_WORKFLOW_HOOKS.md` (320+ lines)
    - Complete workflow hook documentation
    - Input/output specifications for each workflow
    - Lease requirements and failure modes

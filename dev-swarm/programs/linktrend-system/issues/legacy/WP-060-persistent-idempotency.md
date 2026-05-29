@@ -72,7 +72,7 @@ interface IdempotencyStore {
 3. Modify `workflow-runner.ts` to use persistent store
 4. Add cleanup cron/background job (or TTL-based deletion)
 5. Write tests verifying persistence across restart
-6. Update `.ai-swarm/AGENT_REPORTS/linkautowork-agent.md`
+6. Update `dev-swarm/reports/legacy-ai-swarm/linkautowork-agent.md`
 
 ## Acceptance Criteria
 

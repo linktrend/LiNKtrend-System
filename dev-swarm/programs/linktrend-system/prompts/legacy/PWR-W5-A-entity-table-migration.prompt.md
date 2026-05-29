@@ -23,7 +23,7 @@ Migrate remaining high-traffic EntityTable usages to data-table family per skill
 - [ ] typecheck
 
 ## Report
-`.ai-swarm/AGENT_REPORTS/PWR-W5-A-entity-table-migration.md`
+`dev-swarm/reports/legacy-ai-swarm/PWR-W5-A-entity-table-migration.md`
 
 ## Commit
 `refactor(ui): migrate high-traffic tables to DataTable`

@@ -21,7 +21,7 @@ This repo hosts Dev Swarm to finish LiNKtrend development. Product code lives ou
 
 **Skills:** `dev-swarm/skills/` only. Catalog: `skills/SKILLS_CATALOG.md`. Merge history: `skills/MERGE-LOG.md`.
 
-**Cursor:** `.cursor/rules/00-dev-swarm-bootstrap.mdc` + LiNKtrend product rules only. Skills/agents/rules for factory live in `dev-swarm/`.
+**Cursor shim:** Copy `dev-swarm/install/portable-cursor/.cursor` to repo root, then add product rules `01`–`08` if needed. This repo includes full LiNKtrend product rules. Factory skills/agents/rules live in `dev-swarm/`.
 
 ## Bootstrap vs runtime
 

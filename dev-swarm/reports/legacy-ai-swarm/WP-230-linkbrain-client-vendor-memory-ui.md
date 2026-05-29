@@ -8,10 +8,10 @@ Worktree: `/Users/linktrend/Projects/LiNKtrend-System/.worktrees/WP-230-linkbrai
 Implemented scoped LiNKbrain UI copy/label updates to reflect the approved client/vendor memory model without changing retrieval/database behavior. Added explicit permission-boundary language and role badges for client vs vendor memory surfaces, and clarified Ask LiNKbrain retrieval behavior.
 
 ## Required Context Status
-- `.ai-swarm/WORK_PACKETS/WP-230-linkbrain-client-vendor-memory-ui.md`: read
-- `.ai-swarm/AGENT_PROMPTS/WP-230-linkbrain-client-vendor-memory-ui.prompt.md`: read
-- `.ai-swarm/AGENT_REPORTS/CURRENT_STATE_VERIFICATION_WARNING.md`: read from main workspace copy (file absent on this branch tip)
-- `.ai-swarm/DECISIONS.md` D-082 memory decisions: read from main workspace copy
+- `dev-swarm/programs/linktrend-system/issues/legacy/WP-230-linkbrain-client-vendor-memory-ui.md`: read
+- `dev-swarm/programs/linktrend-system/prompts/legacy/WP-230-linkbrain-client-vendor-memory-ui.prompt.md`: read
+- `dev-swarm/reports/legacy-ai-swarm/CURRENT_STATE_VERIFICATION_WARNING.md`: read from main workspace copy (file absent on this branch tip)
+- `dev-swarm/command-center/DECISIONS.md` D-082 memory decisions: read from main workspace copy
 - `.cursor/rules/01-ecosystem-boundaries.mdc`: read
 - `.cursor/rules/03-agent-swarm-coordination.mdc`: read
 - `.cursor/rules/07-ui-and-frontend-standards.mdc`: read
@@ -21,8 +21,8 @@ Implemented scoped LiNKbrain UI copy/label updates to reflect the approved clien
 - `LiNKaios/linkaios-web/src/app/(shell)/memory/page.tsx`
 - `LiNKaios/linkaios-web/src/components/linkbrain/linkbrain-tab-nav.tsx`
 - `LiNKaios/linkaios-web/src/components/linkbrain/memory-command-centre.tsx`
-- `.ai-swarm/AGENT_REPORTS/WP-230-linkbrain-client-vendor-memory-ui.md`
-- `.ai-swarm/AGENT_REPORTS/LINKAIOS_UIUX_REVIEW_BACKLOG.md`
+- `dev-swarm/reports/legacy-ai-swarm/WP-230-linkbrain-client-vendor-memory-ui.md`
+- `dev-swarm/reports/legacy-ai-swarm/LINKAIOS_UIUX_REVIEW_BACKLOG.md`
 
 ## UI Changes Delivered
 1. Main LiNKbrain page intro now describes permission-aware memory boundaries:
@@ -45,7 +45,7 @@ git status --short --branch
 git worktree add .worktrees/WP-230-linkbrain-client-vendor-memory-ui -b wp-230-linkbrain-client-vendor-memory-ui
 pnpm install
 pnpm --filter @linktrend/linkaios-web typecheck
-git add LiNKaios/linkaios-web/src/app/(shell)/memory/page.tsx LiNKaios/linkaios-web/src/components/linkbrain/linkbrain-tab-nav.tsx LiNKaios/linkaios-web/src/components/linkbrain/memory-command-centre.tsx .ai-swarm/AGENT_REPORTS/WP-230-linkbrain-client-vendor-memory-ui.md .ai-swarm/AGENT_REPORTS/LINKAIOS_UIUX_REVIEW_BACKLOG.md
+git add LiNKaios/linkaios-web/src/app/(shell)/memory/page.tsx LiNKaios/linkaios-web/src/components/linkbrain/linkbrain-tab-nav.tsx LiNKaios/linkaios-web/src/components/linkbrain/memory-command-centre.tsx dev-swarm/reports/legacy-ai-swarm/WP-230-linkbrain-client-vendor-memory-ui.md dev-swarm/reports/legacy-ai-swarm/LINKAIOS_UIUX_REVIEW_BACKLOG.md
 git commit -m "feat(linkbrain): clarify client vs vendor memory boundaries in UI"
 git push -u origin wp-230-linkbrain-client-vendor-memory-ui
 git commit -m "docs(wp-230): finalize report with packet handoff evidence"

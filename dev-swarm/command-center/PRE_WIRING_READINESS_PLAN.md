@@ -39,8 +39,8 @@
 | **6** | Mission C API surface prep | 1 | Wave 5 |
 | **7** | Proof, handoff, wiring sprint brief | 1 (integrator) | Wave 6 |
 
-**Prompt index:** `.ai-swarm/AGENT_PROMPTS/PWR-*.prompt.md`  
-**Launch copy-paste:** `.ai-swarm/EXECUTE_PRE_WIRING.md`
+**Prompt index:** `dev-swarm/programs/linktrend-system/prompts/legacy/PWR-*.prompt.md`  
+**Launch copy-paste:** `dev-swarm/command-center/EXECUTE_PRE_WIRING.md`
 
 ---
 
@@ -52,7 +52,7 @@
 
 **Owner:** Integrator only (no parallel subagents).
 
-**Acceptance:** `development` pushed; typecheck green; `.ai-swarm/AGENT_REPORTS/PWR-W0-baseline.md` filed.
+**Acceptance:** `development` pushed; typecheck green; `dev-swarm/reports/legacy-ai-swarm/PWR-W0-baseline.md` filed.
 
 ---
 
@@ -168,7 +168,7 @@ cd LiNKaios/linkaios-web && npm run build   # Wave 1+ and Wave 7
 execute pre-wiring readiness
 ```
 
-Integrator runs Wave 0→7 per `.ai-swarm/EXECUTE_PRE_WIRING.md`.
+Integrator runs Wave 0→7 per `dev-swarm/command-center/EXECUTE_PRE_WIRING.md`.
 
 ---
 
@@ -201,8 +201,8 @@ For 2-agent waves with non-overlapping files, integrator may serialize on one ch
 
 | Wave | Report path |
 |------|-------------|
-| 0 | `.ai-swarm/AGENT_REPORTS/PWR-W0-baseline.md` |
-| 1 | `.ai-swarm/AGENT_REPORTS/PWR-W1-A-*.md`, `PWR-W1-B-*.md` |
-| 2 | `.ai-swarm/AGENT_REPORTS/PWR-W2-*.md` |
-| 3–6 | `.ai-swarm/AGENT_REPORTS/PWR-W3-*.md` … `PWR-W6-*.md` |
-| 7 | `.ai-swarm/AGENT_REPORTS/PWR-W7-integrator-proof.md`, `PWR-FINAL.md` |
+| 0 | `dev-swarm/reports/legacy-ai-swarm/PWR-W0-baseline.md` |
+| 1 | `dev-swarm/reports/legacy-ai-swarm/PWR-W1-A-*.md`, `PWR-W1-B-*.md` |
+| 2 | `dev-swarm/reports/legacy-ai-swarm/PWR-W2-*.md` |
+| 3–6 | `dev-swarm/reports/legacy-ai-swarm/PWR-W3-*.md` … `PWR-W6-*.md` |
+| 7 | `dev-swarm/reports/legacy-ai-swarm/PWR-W7-integrator-proof.md`, `PWR-FINAL.md` |

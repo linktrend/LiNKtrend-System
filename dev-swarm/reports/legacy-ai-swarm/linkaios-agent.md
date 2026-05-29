@@ -24,7 +24,7 @@ Wire the LinkSites v2 stage plan into LiNKaios WebsiteFactory plugin manifest/he
   - Updated manifest/mapping assertions to LinkSites v2 stage IDs, capability IDs, workflow handles, and output expectations.
 - `LiNKaios/linkaios-web/src/lib/kernel/kernel.test.ts`
   - Updated kernel manifest/mapping assertions to LinkSites v2 stage plan and helper mappings.
-- `.ai-swarm/AGENT_REPORTS/linkaios-agent.md`
+- `dev-swarm/reports/legacy-ai-swarm/linkaios-agent.md`
   - Added this WP-049 report.
 
 ### Commands run
@@ -75,12 +75,12 @@ Make the revised LinkSites development-mode MVO the canonical contract target in
 
 ### Files changed
 
-- `.ai-swarm/CONTRACTS_MVO.md` — added §0.A LinkSites v2 canonical section (flow, hard boundaries, production artifact direction, canonical LiNKbot roles, required v1 capability plugins, site identity, side-effect routing, schema-related deferrals, mode model, acceptance posture, and v1 §§1–13 historical-relationship statement). Marked top-of-file status and v1 §§1–13 as historical reference.
-- `.ai-swarm/LINKAIOS_KERNEL_MANIFEST.md` — added §0.A v2 addendum (v2 work-request and stages, disabled LiNKbot roles for Lead Scout and Outreach, required capabilities, deferred concrete manifest pending WP-042, kernel non-ownership reaffirmed under v2, trace/status surface obligations). Marked §4 WebsiteFactory manifest as historical v1 reference.
-- `.ai-swarm/INTEGRATION_QUEUE.md` — added "LinkSites v2 capability integrations" section (INT-040..INT-049) plus explicit "out of scope for v2" list. Marked v1 stubbed-integrations section as historical.
-- `.ai-swarm/AGENT_COORDINATION.md` — appended WP-041 entry to Latest Updates.
-- `.ai-swarm/AGENT_REPORTS/linkaios-agent.md` — this entry.
-- `.ai-swarm/AGENT_REPORTS/integration-agent.md` — WP-041 cross-reference entry for v2 integration rows.
+- `dev-swarm/command-center/CONTRACTS_MVO.md` — added §0.A LinkSites v2 canonical section (flow, hard boundaries, production artifact direction, canonical LiNKbot roles, required v1 capability plugins, site identity, side-effect routing, schema-related deferrals, mode model, acceptance posture, and v1 §§1–13 historical-relationship statement). Marked top-of-file status and v1 §§1–13 as historical reference.
+- `dev-swarm/command-center/LINKAIOS_KERNEL_MANIFEST.md` — added §0.A v2 addendum (v2 work-request and stages, disabled LiNKbot roles for Lead Scout and Outreach, required capabilities, deferred concrete manifest pending WP-042, kernel non-ownership reaffirmed under v2, trace/status surface obligations). Marked §4 WebsiteFactory manifest as historical v1 reference.
+- `dev-swarm/command-center/INTEGRATION_QUEUE.md` — added "LinkSites v2 capability integrations" section (INT-040..INT-049) plus explicit "out of scope for v2" list. Marked v1 stubbed-integrations section as historical.
+- `dev-swarm/command-center/AGENT_COORDINATION.md` — appended WP-041 entry to Latest Updates.
+- `dev-swarm/reports/legacy-ai-swarm/linkaios-agent.md` — this entry.
+- `dev-swarm/reports/legacy-ai-swarm/integration-agent.md` — WP-041 cross-reference entry for v2 integration rows.
 
 ### Commands run
 
@@ -91,7 +91,7 @@ git pull --ff-only origin development
 git switch -c dev/codex/WP-041-linksites-vertical-contract-v2
 ```
 
-No SDK/TypeScript/Zod files were modified; therefore no package tests were run. SDK contract files (`packages/linklogic-sdk/src/contracts-mvo.ts` and `contracts-mvo.test.ts`) were intentionally left unchanged: the v2 design explicitly defers Payload/Supabase schema details to WP-042 discovery, and v2 hard boundaries forbid inventing schemas. Adding v2-shaped TypeScript types ahead of discovery would violate `.ai-swarm/LINKSITES_VERTICAL_MVO_V2.md` "Discovery Requirements" and the WP-041 prompt's hard boundary against inventing Payload or Supabase schemas. A follow-up packet will pin v2 wire-format types after WP-042 returns.
+No SDK/TypeScript/Zod files were modified; therefore no package tests were run. SDK contract files (`packages/linklogic-sdk/src/contracts-mvo.ts` and `contracts-mvo.test.ts`) were intentionally left unchanged: the v2 design explicitly defers Payload/Supabase schema details to WP-042 discovery, and v2 hard boundaries forbid inventing schemas. Adding v2-shaped TypeScript types ahead of discovery would violate `dev-swarm/command-center/LINKSITES_VERTICAL_MVO_V2.md` "Discovery Requirements" and the WP-041 prompt's hard boundary against inventing Payload or Supabase schemas. A follow-up packet will pin v2 wire-format types after WP-042 returns.
 
 ### Proof of compliance with hard boundaries
 
@@ -395,7 +395,7 @@ Executed WP-042 discovery-only packet against `/Users/linktrend/Projects/LiNKsit
 
 ### Packet artifact
 
-- Added `.ai-swarm/LINKSITES_TEMPLATE_PAYLOAD_DISCOVERY.md` with facts, assumptions, blockers, and command-level proof.
+- Added `dev-swarm/command-center/LINKSITES_TEMPLATE_PAYLOAD_DISCOVERY.md` with facts, assumptions, blockers, and command-level proof.
 
 ### Commands run
 
@@ -430,8 +430,8 @@ git -C /Users/linktrend/Projects/LiNKsites status --short
 - `packages/linklogic-sdk/src/contracts-mvo.ts`
 - `packages/linklogic-sdk/src/contracts-mvo.test.ts`
 - `packages/linklogic-sdk/src/index.ts`
-- `.ai-swarm/CONTRACTS_MVO.md`
-- `.ai-swarm/AGENT_REPORTS/linkaios-agent.md`
+- `dev-swarm/command-center/CONTRACTS_MVO.md`
+- `dev-swarm/reports/legacy-ai-swarm/linkaios-agent.md`
 
 ### What was added
 
@@ -489,7 +489,7 @@ pnpm --filter @linktrend/linklogic-sdk test
   - Added coverage for valid governance dispatch success.
   - Added coverage for missing governance payload fail-closed behavior.
   - Added coverage for invalid governance payload shape fail-closed behavior.
-- `.ai-swarm/AGENT_REPORTS/linkaios-agent.md`
+- `dev-swarm/reports/legacy-ai-swarm/linkaios-agent.md`
   - Added this WP-063 entry.
 
 ### Commands run

@@ -15,8 +15,8 @@ Add or harden tests around LinkSkills lease/capability ledger behavior across Li
 - `packages/linklogic-sdk/src/**lease*.ts`
 - `packages/linklogic-sdk/src/**capability*.ts`
 - `packages/linklogic-sdk/src/**/*test.ts`
-- `.ai-swarm/LINKSKILLS_LEASE_LEDGER_TEST_PACK.md`
-- `.ai-swarm/AGENT_REPORTS/WP-125-linkskills-lease-ledger-test-pack.md`
+- `dev-swarm/command-center/LINKSKILLS_LEASE_LEDGER_TEST_PACK.md`
+- `dev-swarm/reports/legacy-ai-swarm/WP-125-linkskills-lease-ledger-test-pack.md`
 
 ## Prohibited files
 
@@ -27,9 +27,9 @@ Add or harden tests around LinkSkills lease/capability ledger behavior across Li
 
 ## Required context
 
-- `.ai-swarm/CONTRACTS_MVO.md` §0.A.5.1
-- `.ai-swarm/LINKAPPS_CAPABILITY_REQUIREMENTS.md`
-- `.ai-swarm/LINKSKILLS_CROSS_VERTICAL_CAPABILITY_CATALOG.md`
+- `dev-swarm/command-center/CONTRACTS_MVO.md` §0.A.5.1
+- `dev-swarm/command-center/LINKAPPS_CAPABILITY_REQUIREMENTS.md`
+- `dev-swarm/command-center/LINKSKILLS_CROSS_VERTICAL_CAPABILITY_CATALOG.md`
 - `packages/linklogic-sdk/src/contracts-mvo.ts`
 
 ## Steps

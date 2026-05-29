@@ -15,8 +15,8 @@ Complete.
 - `packages/linklogic-sdk/src/linkapps-brain-events.ts` (new)
 - `packages/linklogic-sdk/src/linkapps-brain-events.test.ts` (new)
 - `packages/linklogic-sdk/src/index.ts` (exports)
-- `.ai-swarm/LINKAPPS_LINKBRAIN_EVENT_SCHEMA.md` (new)
-- `.ai-swarm/AGENT_REPORTS/WP-111-linkapps-linkbrain-event-schema.md` (this file)
+- `dev-swarm/command-center/LINKAPPS_LINKBRAIN_EVENT_SCHEMA.md` (new)
+- `dev-swarm/reports/legacy-ai-swarm/WP-111-linkapps-linkbrain-event-schema.md` (this file)
 
 ## Commands run
 

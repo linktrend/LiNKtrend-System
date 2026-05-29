@@ -10,16 +10,16 @@ Define the completion path for LinkSkills as both the permission/control plane a
 
 ## Files Changed
 
-- `.ai-swarm/LINKSKILLS_COMPLETION_PLAN.md`
-- `.ai-swarm/DECISIONS.md`
-- `.ai-swarm/WORK_PACKETS/WP-075-linkskills-database-schema.md`
-- `.ai-swarm/WORK_PACKETS/WP-076-linkskills-capability-catalog-api.md`
-- `.ai-swarm/WORK_PACKETS/WP-077-linkskills-lease-lifecycle.md`
-- `.ai-swarm/WORK_PACKETS/WP-078-linkskills-kill-switch.md`
-- `.ai-swarm/WORK_PACKETS/WP-079-linkskills-golden-template.md`
-- `.ai-swarm/WORK_PACKETS/WP-080-linkskills-progressive-disclosure.md`
-- `.ai-swarm/WORK_PACKETS/WP-081-linkskills-integration-tests.md`
-- `.ai-swarm/AGENT_REPORTS/linkskills-agent.md`
+- `dev-swarm/command-center/LINKSKILLS_COMPLETION_PLAN.md`
+- `dev-swarm/command-center/DECISIONS.md`
+- `dev-swarm/programs/linktrend-system/issues/legacy/WP-075-linkskills-database-schema.md`
+- `dev-swarm/programs/linktrend-system/issues/legacy/WP-076-linkskills-capability-catalog-api.md`
+- `dev-swarm/programs/linktrend-system/issues/legacy/WP-077-linkskills-lease-lifecycle.md`
+- `dev-swarm/programs/linktrend-system/issues/legacy/WP-078-linkskills-kill-switch.md`
+- `dev-swarm/programs/linktrend-system/issues/legacy/WP-079-linkskills-golden-template.md`
+- `dev-swarm/programs/linktrend-system/issues/legacy/WP-080-linkskills-progressive-disclosure.md`
+- `dev-swarm/programs/linktrend-system/issues/legacy/WP-081-linkskills-integration-tests.md`
+- `dev-swarm/reports/legacy-ai-swarm/linkskills-agent.md`
 
 ## Integrator Notes
 
@@ -54,11 +54,11 @@ Scaffold a LinkSkills-governed Postiz distribution capability surface with mock/
 
 Repository evidence gathered before edits:
 
-- `.ai-swarm/PLUGIN_ARCHITECTURE_V2.md` — capability plugin governance model includes Postiz as a connector class.
-- `.ai-swarm/CONTRACTS_MVO.md` — canonical capability contract pack section for modes, leases, idempotency, and failure mapping.
-- `.ai-swarm/INTEGRATION_QUEUE.md` — canonical v2 integration tracking surface.
+- `dev-swarm/command-center/PLUGIN_ARCHITECTURE_V2.md` — capability plugin governance model includes Postiz as a connector class.
+- `dev-swarm/command-center/CONTRACTS_MVO.md` — canonical capability contract pack section for modes, leases, idempotency, and failure mapping.
+- `dev-swarm/command-center/INTEGRATION_QUEUE.md` — canonical v2 integration tracking surface.
 - `LiNKskills/services/logic-engine/src/capability-handlers.ts` — existing mock/shadow scaffold patterns for other capabilities.
-- `.ai-swarm/REPO_GIT_POLICY_ROLLOUT.md` — existing external repo reference `link-postiz-app` noted for future upstream alignment.
+- `dev-swarm/command-center/REPO_GIT_POLICY_ROLLOUT.md` — existing external repo reference `link-postiz-app` noted for future upstream alignment.
 
 ## Files Changed
 
@@ -96,11 +96,11 @@ Repository evidence gathered before edits:
     - `POSTIZ_WORKSPACE_REF=`
     - `POSTIZ_DRAFT_CHANNEL_SET=`
 
-- `.ai-swarm/CONTRACTS_MVO.md`
+- `dev-swarm/command-center/CONTRACTS_MVO.md`
   - Added `cap.postiz.distribution` row to §0.A.5.1 with operations, mode boundaries, auth/config surface, idempotency, lease requirements, audit events, allowed callers, canonical failure mapping, and explicit non-ownership.
   - Added enforcement rule that Postiz must remain mock/shadow-safe until Linktrend Media vertical publish governance is defined.
 
-- `.ai-swarm/INTEGRATION_QUEUE.md`
+- `dev-swarm/command-center/INTEGRATION_QUEUE.md`
   - Added `INT-051` for Postiz distribution scaffold in development-mode posture.
 
 ## Commands Run
@@ -108,16 +108,16 @@ Repository evidence gathered before edits:
 ```bash
 pwd && ls -la
 rg --files | rg -n 'README|AGENTS\\.md|AGENT_PROMPTS|WP-055|CURSOR|CODEX|WORK_PACKET|docs'
-ls -la .ai-swarm/AGENT_PROMPTS
+ls -la dev-swarm/command-center/AGENT_PROMPTS
 sed -n '1,220p' README.md
-sed -n '1,260p' .ai-swarm/AGENT_PROMPTS/README.md
-sed -n '1,260p' .ai-swarm/AGENT_PROMPTS/WP-055-postiz-distribution-capability-scaffold.prompt.md
+sed -n '1,260p' dev-swarm/programs/linktrend-system/prompts/legacy/README.md
+sed -n '1,260p' dev-swarm/programs/linktrend-system/prompts/legacy/WP-055-postiz-distribution-capability-scaffold.prompt.md
 sed -n '1,260p' .cursor/rules/05-security-cost-and-side-effects.mdc
-sed -n '1,260p' .ai-swarm/PLUGIN_ARCHITECTURE_V2.md
-sed -n '1,260p' .ai-swarm/CONTRACTS_MVO.md
-sed -n '1,260p' .ai-swarm/WORK_PACKETS/WP-055-postiz-distribution-capability-scaffold.md
-sed -n '1,260p' .ai-swarm/INTEGRATION_QUEUE.md
-rg -n "postiz|Postiz|distribution capability|capability scaffold|agent report|WP-054|WP-053" .ai-swarm LiNKskills LiNKaios/linkaios-web/src .env.example
+sed -n '1,260p' dev-swarm/command-center/PLUGIN_ARCHITECTURE_V2.md
+sed -n '1,260p' dev-swarm/command-center/CONTRACTS_MVO.md
+sed -n '1,260p' dev-swarm/programs/linktrend-system/issues/legacy/WP-055-postiz-distribution-capability-scaffold.md
+sed -n '1,260p' dev-swarm/command-center/INTEGRATION_QUEUE.md
+rg -n "postiz|Postiz|distribution capability|capability scaffold|agent report|WP-054|WP-053" dev-swarm/command-center LiNKskills LiNKaios/linkaios-web/src .env.example
 git fetch origin && git switch development && git pull --ff-only origin development && git switch -c dev/codex/WP-055-postiz-distribution-capability-scaffold
 pnpm --filter @linktrend/linkskills-logic-engine test -- src/capability-handlers.postiz.test.ts src/capability-handlers.zulip.test.ts
 pnpm --filter @linktrend/linkskills-logic-engine test
@@ -172,43 +172,43 @@ This WP reuses those findings and adds only the missing capability-execution sca
 
 ## Files Changed
 
-1. `.ai-swarm/LINKSKILLS_COMPLETION_PLAN.md` (new)
+1. `dev-swarm/command-center/LINKSKILLS_COMPLETION_PLAN.md` (new)
    - Complete completion plan for LinkSkills dual responsibilities
    - Evidence inventory from old LiNKskills repo
    - 8 completion targets defined
    - 7 follow-up work packets scoped
 
-2. `.ai-swarm/WORK_PACKETS/WP-061-linkskills-database-schema.md` (new)
+2. `dev-swarm/programs/linktrend-system/issues/legacy/WP-061-linkskills-database-schema.md` (new)
    - Database schema for capability catalog, lease ledger, idempotency, kill switches
    - RLS policies for tenant isolation
    - 5 tables defined
 
-3. `.ai-swarm/WORK_PACKETS/WP-062-linkskills-capability-catalog-api.md` (new)
+3. `dev-swarm/programs/linktrend-system/issues/legacy/WP-062-linkskills-capability-catalog-api.md` (new)
    - Capability registry CRUD and discovery endpoints
    - CONTRACTS_MVO §1.2 compliance
    - 8 v1 MVO capabilities to seed
 
-4. `.ai-swarm/WORK_PACKETS/WP-063-linkskills-lease-lifecycle.md` (new)
+4. `dev-swarm/programs/linktrend-system/issues/legacy/WP-063-linkskills-lease-lifecycle.md` (new)
    - Full lease request → decision → execute flow
    - Idempotency integration (24h window)
    - Audit event emission
 
-5. `.ai-swarm/WORK_PACKETS/WP-064-linkskills-kill-switch.md` (new)
+5. `dev-swarm/programs/linktrend-system/issues/legacy/WP-064-linkskills-kill-switch.md` (new)
    - Kill switch state management
    - Automated triggers (cost, security)
    - Level 2 halt mechanism
 
-6. `.ai-swarm/WORK_PACKETS/WP-065-linkskills-golden-template.md` (new)
+6. `dev-swarm/programs/linktrend-system/issues/legacy/WP-065-linkskills-golden-template.md` (new)
    - Golden Template preservation
    - Skill validation SDK
    - Skill scaffolding helper
 
-7. `.ai-swarm/WORK_PACKETS/WP-066-linkskills-progressive-disclosure.md` (new)
+7. `dev-swarm/programs/linktrend-system/issues/legacy/WP-066-linkskills-progressive-disclosure.md` (new)
    - Run-scoped disclosure tokens
    - Fragment delivery for LinkBots
    - Token signing and validation
 
-8. `.ai-swarm/WORK_PACKETS/WP-067-linkskills-integration-tests.md` (new)
+8. `dev-swarm/programs/linktrend-system/issues/legacy/WP-067-linkskills-integration-tests.md` (new)
    - End-to-end test harness
    - Mock capability backend
    - Audit verification suite
@@ -307,7 +307,7 @@ Create LinkSkills database foundation for capability catalog, lease lifecycle, l
 ## Files Changed
 
 - `services/migrations/030_linkskills_database_foundation.sql`
-- `.ai-swarm/AGENT_REPORTS/linkskills-agent.md`
+- `dev-swarm/reports/legacy-ai-swarm/linkskills-agent.md`
 
 ## Commands Run
 
@@ -315,8 +315,8 @@ Create LinkSkills database foundation for capability catalog, lease lifecycle, l
 git status --short --branch
 git fetch origin --prune
 git worktree add ../LiNKtrend-System-WP-075 -b dev/codex/WP-075-linkskills-database-schema origin/development
-sed -n '1,320p' .ai-swarm/AGENT_PROMPTS/WP-075-linkskills-database-schema.prompt.md
-sed -n '1,300p' .ai-swarm/WORK_PACKETS/WP-075-linkskills-database-schema.md
+sed -n '1,320p' dev-swarm/programs/linktrend-system/prompts/legacy/WP-075-linkskills-database-schema.prompt.md
+sed -n '1,300p' dev-swarm/programs/linktrend-system/issues/legacy/WP-075-linkskills-database-schema.md
 sed -n '1,320p' services/migrations/024_linkskills_capability_lease.sql
 cat > services/migrations/030_linkskills_database_foundation.sql <<'SQL' ... SQL
 ls services/migrations | rg '^030_'
@@ -370,7 +370,7 @@ Preserve the LinkSkills Golden Template and add an SDK-level skill manifest vali
 - `packages/linklogic-sdk/src/validation/skill.ts`
 - `packages/linklogic-sdk/src/validation/skill.test.ts`
 - `packages/linklogic-sdk/src/index.ts`
-- `.ai-swarm/AGENT_REPORTS/linkskills-agent.md`
+- `dev-swarm/reports/legacy-ai-swarm/linkskills-agent.md`
 
 ## Commands Run
 
@@ -541,8 +541,8 @@ git worktree add ../LiNKtrend-System-WP-077 -b dev/codex/WP-077-linkskills-lease
 sed -n '1,220p' .cursor/rules/00-linktrend-master-rule.mdc
 sed -n '1,220p' .cursor/rules/01-ecosystem-boundaries.mdc
 sed -n '1,220p' .cursor/rules/03-agent-swarm-coordination.mdc
-sed -n '1,260p' .ai-swarm/LINKSKILLS_COMPLETION_PLAN.md
-sed -n '1,260p' .ai-swarm/CONTRACTS_MVO.md
+sed -n '1,260p' dev-swarm/command-center/LINKSKILLS_COMPLETION_PLAN.md
+sed -n '1,260p' dev-swarm/command-center/CONTRACTS_MVO.md
 sed -n '1,260p' services/migrations/030_linkskills_database_foundation.sql
 sed -n '1,260p' LiNKskills/services/logic-engine/src/capability-catalog-api.ts
 sed -n '1,260p' /Users/linktrend/Projects/LiNKskills/SOP_MACHINE_MVO_CLASS_A.md
@@ -618,7 +618,7 @@ Implement LinkSkills kill-switch safety controls (trip/reset/check + global halt
   - Updated mocks from legacy direct kill-switch helper to new `checkKillSwitch` integration.
 - `LiNKskills/services/logic-engine/src/safety.test.ts` (new)
   - Added WP-078-focused tests.
-- `.ai-swarm/AGENT_REPORTS/linkskills-agent.md`
+- `dev-swarm/reports/legacy-ai-swarm/linkskills-agent.md`
   - Appended WP-078 execution report.
 
 ## Commands Run
@@ -829,7 +829,7 @@ Integration-style Vitest coverage for LinkSkills logic-engine: catalog-backed le
 - `LiNKskills/services/logic-engine/src/integration/integration-test-helpers.ts` — tenant/capability fixtures, audit getters, kill-switch helpers.
 - `LiNKskills/services/logic-engine/src/integration/linkskills-integration.test.ts` — suites for lifecycle, kill switch, idempotency, audit PII guardrails.
 - `LiNKskills/services/logic-engine/src/capability-catalog-api.test.ts` — satisfy strict TS on seed lookups (`exactOptionalPropertyTypes`).
-- `.ai-swarm/AGENT_REPORTS/linkskills-agent.md`
+- `dev-swarm/reports/legacy-ai-swarm/linkskills-agent.md`
 
 ## WP packet path note
 
@@ -871,8 +871,8 @@ Define precise LiNKapps (`linkapps.app_factory`) capability lease requirements: 
 
 ## Files Changed
 
-- `.ai-swarm/LINKAPPS_CAPABILITY_REQUIREMENTS.md` *(new)* — master matrix, canonical contract-pack table rows, §4–§8 governance sections.
-- `.ai-swarm/AGENT_REPORTS/linkskills-agent.md` *(this appendix)*.
+- `dev-swarm/command-center/LINKAPPS_CAPABILITY_REQUIREMENTS.md` *(new)* — master matrix, canonical contract-pack table rows, §4–§8 governance sections.
+- `dev-swarm/reports/legacy-ai-swarm/linkskills-agent.md` *(this appendix)*.
 
 ## Commands Run
 
@@ -880,7 +880,7 @@ Define precise LiNKapps (`linkapps.app_factory`) capability lease requirements: 
 git fetch origin --prune           # ran from LiNKtrend-System main checkout
 git worktree add ../LiNKtrend-System-WP-108 -b dev/cursor/WP-108-linkapps-capability-requirements origin/development
 cd /Users/linktrend/Projects/LiNKtrend-System-WP-108 && git status --short --branch
-git add .ai-swarm/LINKAPPS_CAPABILITY_REQUIREMENTS.md .ai-swarm/AGENT_REPORTS/linkskills-agent.md
+git add dev-swarm/command-center/LINKAPPS_CAPABILITY_REQUIREMENTS.md dev-swarm/reports/legacy-ai-swarm/linkskills-agent.md
 git commit -m "docs: define LiNKapps capability requirements"
 git push -u origin dev/cursor/WP-108-linkapps-capability-requirements
 ```
@@ -891,12 +891,12 @@ git push -u origin dev/cursor/WP-108-linkapps-capability-requirements
 - **Capability matrix §2:** every enumerated operation lists mock/shadow/live posture plus lease SKU placeholders.
 - **§4:** idempotency `stable_scope_segment` row covers every operation enumerated in §2 **and/or** the canonical contract-row operation lists for Zulip connectivity.
 - **§5–§7:** bounded §5.4 failure vocabulary, killswitch bullets, explicit `not_configured` exclusions per connector.
-- **Context used:** `.ai-swarm/LINKAPPS_VERTICAL_PLUGIN_CONVERSION_PLAN.md` §5, `.ai-swarm/PLUGIN_ARCHITECTURE_V2.md`, `.ai-swarm/CONTRACTS_MVO.md` §0.A.5.1 + §5.4, `/Users/linktrend/Projects/LiNKapps/scripts/create-app-repo.sh`, `/Users/linktrend/Projects/LiNKapps/scripts/release-readiness.sh`, `plugins/vertical/linkapps/manifest.yaml`.
+- **Context used:** `dev-swarm/command-center/LINKAPPS_VERTICAL_PLUGIN_CONVERSION_PLAN.md` §5, `dev-swarm/command-center/PLUGIN_ARCHITECTURE_V2.md`, `dev-swarm/command-center/CONTRACTS_MVO.md` §0.A.5.1 + §5.4, `/Users/linktrend/Projects/LiNKapps/scripts/create-app-repo.sh`, `/Users/linktrend/Projects/LiNKapps/scripts/release-readiness.sh`, `plugins/vertical/linkapps/manifest.yaml`.
 
 ## Final Branch and Commit
 
 - Branch: `dev/cursor/WP-108-linkapps-capability-requirements`
-- Commit SHA(s): **`4947c71`** introduces `LINKAPPS_CAPABILITY_REQUIREMENTS.md`; subsequent commits on this branch append only `.ai-swarm/AGENT_REPORTS/linkskills-agent.md` WP-108 proof text (consult `git log` on branch for HEAD).
+- Commit SHA(s): **`4947c71`** introduces `LINKAPPS_CAPABILITY_REQUIREMENTS.md`; subsequent commits on this branch append only `dev-swarm/reports/legacy-ai-swarm/linkskills-agent.md` WP-108 proof text (consult `git log` on branch for HEAD).
 
 ## Blockers
 

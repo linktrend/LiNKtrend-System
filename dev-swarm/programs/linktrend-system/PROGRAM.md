@@ -25,4 +25,4 @@ First **product** program after Dev Swarm bootstrap. Uses runtime mode (automati
 
 ## Migration
 
-See [MIGRATION.md](MIGRATION.md) for `.ai-swarm/` → `dev-swarm/programs/linktrend-system/issues/`.
+See [MIGRATION.md](MIGRATION.md) for legacy `.ai-swarm/` → `dev-swarm/programs/linktrend-system/issues/legacy/`.
