@@ -1,0 +1,50 @@
+name: Dev Swarm guard
+
+on:
+  pull_request:
+    paths:
+      - 'dev-swarm/STATE.md'
+      - 'dev-swarm/**'
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  state-and-verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate STATE JSON block
+        if: hashFiles('dev-swarm/STATE.md') != ''
+        run: |
+          python3 <<'PY'
+          import json, re, sys
+          from pathlib import Path
+          p = Path("dev-swarm/STATE.md")
+          text = p.read_text()
+          m = re.search(r"```json\s*(\{.*?\})\s*```", text, re.S)
+          if not m:
+            print("No JSON block in STATE.md")
+            sys.exit(1)
+          json.loads(m.group(1))
+          print("STATE JSON valid")
+          PY
+
+      - name: Mechanical verify (dev-swarm scope)
+        run: |
+          chmod +x dev-swarm/scripts/*.sh
+          DEV_SWARM_SCOPE=dev-swarm DEV_SWARM_TIER=standard dev-swarm/scripts/verify.sh
+
+      - name: PR comment on failure
+        if: failure() && github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: 'Dev Swarm guard failed. Fix STATE JSON or run `dev-swarm/scripts/verify.sh` locally before merge-ready.'
+            })

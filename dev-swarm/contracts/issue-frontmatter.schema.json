@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://linktrend.dev/dev-swarm/issue-frontmatter.schema.json",
+  "title": "DevSwarmIssueFrontmatter",
+  "type": "object",
+  "required": [
+    "id",
+    "title",
+    "runtime",
+    "tier",
+    "module",
+    "phase",
+    "allowed_files",
+    "prohibited_files",
+    "acceptance_criteria",
+    "proof_required"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "id": { "type": "string", "pattern": "^DS-[0-9]{3}$" },
+    "title": { "type": "string", "minLength": 1 },
+    "runtime": { "type": "string", "enum": ["cursor", "codex"] },
+    "tier": { "type": "string", "enum": ["standard", "critical"], "default": "standard" },
+    "module": { "type": "string" },
+    "phase": { "type": "string" },
+    "depends_on": {
+      "type": "array",
+      "items": { "type": "string", "pattern": "^DS-[0-9]{3}$" }
+    },
+    "allowed_files": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "minItems": 1
+    },
+    "prohibited_files": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "acceptance_criteria": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "minItems": 1
+    },
+    "proof_required": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 },
+      "minItems": 1
+    },
+    "report_path": { "type": "string" },
+    "prompt_path": { "type": "string" }
+  }
+}

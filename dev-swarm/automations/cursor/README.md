@@ -1,0 +1,31 @@
+# Cursor automations
+
+Create four automations in Cursor (Cloud Agents) for this repository.
+
+## 1. dev-swarm-orchestrator
+
+- **Trigger:** Pull request merged to branch `development`
+- **Prompt file:** Load `dev-swarm/prompts/orchestrator/ROLE.md` + read `dev-swarm/STATE.md` + active `programs/*/PROGRAM.md`
+- **Model:** Composer 2.5 Standard (or current default)
+- **Scope:** May edit `dev-swarm/STATE.md`, apply GitHub labels via `gh` CLI in instructions
+
+## 2. dev-swarm-reviewer
+
+- **Trigger:** Issue or PR labeled `swarm:review-ready`
+- **Prompt:** `dev-swarm/prompts/reviewer/ROLE.md` + issue spec + PR diff
+- **Reject vacuous PASS** per SPEC
+
+## 3. dev-swarm-integrator
+
+- **Trigger:** PR labeled `swarm:merge-ready`
+- **Precondition in prompt:** verify `dev-swarm/scripts/verify.sh` passed (check PR body or CI)
+- **Action:** Merge to `development` if Reviewer approved
+
+## 4. dev-swarm-executor-cursor
+
+- **Trigger:** Issue labeled `swarm:ready` and `runtime:cursor`
+- **Prompt:** `dev-swarm/prompts/executor-cursor/ROLE.md` + linked issue spec under `dev-swarm/programs/`
+
+## Export
+
+Store automation JSON or screenshots in this folder when configured (no secrets).
