@@ -2,6 +2,7 @@
 
 - **Date:** 2026-05-29
 - **Branch:** development
+- **Commit:** `099ac10`
 
 ## Track A — Consolidation (transcript spec)
 
