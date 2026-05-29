@@ -26,6 +26,14 @@ Create four automations in Cursor (Cloud Agents) for this repository.
 - **Trigger:** Issue labeled `swarm:ready` and `runtime:cursor`
 - **Prompt:** `dev-swarm/prompts/executor-cursor/ROLE.md` + linked issue spec under `dev-swarm/programs/`
 
+## Chairman UI checklist (one-time)
+
+1. Open **Cursor → Settings → Cloud Agents → Automations** for repo `linktrend/LiNKtrend-System`.
+2. Confirm GitHub labels exist (agent created 13 `swarm:*`, `runtime:*`, `tier:*` labels via `gh`).
+3. Create four automations per sections 1–4 above; paste prompts from `dev-swarm/prompts/*/ROLE.md`.
+4. Set default branch context to `development` for orchestrator/integrator triggers.
+5. Export automation names or screenshots into this folder (no secrets).
+
 ## Export
 
 Store automation JSON or screenshots in this folder when configured (no secrets).

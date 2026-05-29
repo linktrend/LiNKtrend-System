@@ -1,25 +1,19 @@
-# Migration: `.ai-swarm/` → Dev Swarm
+# Migration: `.ai-swarm/` → Dev Swarm (complete)
 
-Legacy manual work packets remain until product issues are recreated under Dev Swarm.
+**Status:** Consolidated 2026-05-29.
 
-## Mapping
-
-| Legacy | Dev Swarm |
-|--------|-----------|
-| `.ai-swarm/WORK_PACKETS/WP-*.md` | `dev-swarm/programs/linktrend-system/issues/<id>.md` |
-| `.ai-swarm/AGENT_PROMPTS/*.prompt.md` | `dev-swarm/programs/linktrend-system/prompts/` |
-| `.ai-swarm/AGENT_REPORTS/*.md` | `dev-swarm/reports/` or program-specific reports |
-| Integrator | Same role; merges to `development` |
-
-## Terminology
-
-- **Work packet** → **Issue**
-- **Mission** (UI) → **Project** (per LiNKtrend terminology rules)
-
-## Do not delete
-
-Keep `.ai-swarm/` until linktrend-system program issues are live and proofs show parity.
+| Legacy | New location |
+|--------|----------------|
+| `.ai-swarm/*.md` | `dev-swarm/command-center/` |
+| `.ai-swarm/WORK_PACKETS/` | `dev-swarm/programs/linktrend-system/issues/legacy/` |
+| `.ai-swarm/AGENT_PROMPTS/` | `dev-swarm/programs/linktrend-system/prompts/legacy/` |
+| `.ai-swarm/AGENT_REPORTS/` | `dev-swarm/reports/legacy-ai-swarm/` |
+| Full `.ai-swarm/` tree | `Archive/.ai-swarm-legacy/` (read-only archive) |
 
 ## New work
 
-All new orchestration docs go under `dev-swarm/`. Update `.cursor/rules/03-agent-swarm-coordination.mdc` to reference `dev-swarm/SPEC.md` when Chairman approves cutover.
+Use `dev-swarm/programs/<program>/issues/` and Dev Swarm issue templates — not `.ai-swarm/`.
+
+## Terminology
+
+Work packet → **Issue** (see `dev-swarm/SPEC.md`).

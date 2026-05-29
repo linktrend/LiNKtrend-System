@@ -45,8 +45,9 @@ Configure per [automations/codex/README.md](../automations/codex/README.md):
 
 ## 6. Skills
 
-- [ ] Agents use [SKILLS-ALLOWLIST.md](SKILLS-ALLOWLIST.md)
-- [ ] Root [AGENTS.md](../../AGENTS.md) present (portable brief)
+- [ ] Agents use [dev-swarm/skills/SKILLS_CATALOG.md](../skills/SKILLS_CATALOG.md) only
+- [ ] Review [MERGE-LOG.md](../skills/MERGE-LOG.md) if duplicate skill behavior appears
+- [ ] Root [AGENTS.md](../../AGENTS.md) points to [dev-swarm/AGENTS.md](../AGENTS.md)
 
 ## 7. Product program
 

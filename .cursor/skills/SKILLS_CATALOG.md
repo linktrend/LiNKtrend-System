@@ -4,6 +4,10 @@ description: >-
   Progressive-disclosure catalog of project Cursor skills, MCP servers, and related tool/plugin indexes. Agents read this first to select only the relevant skill bodies and tool descriptors for the current task.
 catalog_version: 1
 generated_from: .cursor/skills
+canonical_dev_swarm_catalog: dev-swarm/skills/SKILLS_CATALOG.md
+canonical_gstack_tree: dev-swarm/skills/gstack/
+note: >-
+  GStack skills are canonical under dev-swarm/skills/gstack/. Flat .cursor/skills/gstack-* entries are redirect stubs. For Dev Swarm factory routing and merge policy, read dev-swarm/skills/SKILLS_CATALOG.md and MERGE-LOG.md.
 skill_count: 153
 mcp_server_count: 4
 agent_instructions:
