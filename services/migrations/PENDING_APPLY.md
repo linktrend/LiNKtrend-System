@@ -5,8 +5,8 @@ Do **not** apply these individually during feature work. Run as one batch when t
 | Migration | Purpose | Status |
 |-----------|---------|--------|
 | `032_brain_virtual_file_memory_tags.sql` | `memory_tags` jsonb on `linkaios.brain_virtual_files` | **Applied** 2026-05-22 |
-| `033_linkaios_project_terminology.sql` | Mission→Project: `missions`→`projects`, `mission_id`→`project_id`, compat view + function wrappers | **Pending** — apply with Wave 4 TS/API migration |
-| `034_linkguard_schema_alias.sql` | `linkguard` schema views over legacy `prism` (no prism rename) | **Pending** — apply with `033` |
+| `033_linkaios_project_terminology.sql` | Mission→Project: `missions`→`projects`, `mission_id`→`project_id`, compat view + function wrappers | **Applied** 2026-05-30 (LiNKtrend-AdminDB) |
+| `034_linkguard_schema_alias.sql` | `linkguard` schema views over legacy `prism` (no prism rename) | **Applied** 2026-05-30 (LiNKtrend-AdminDB) |
 | *(planned)* `035_linkskills_capability_catalog.sql` | Persist licensor-registered capability connectors | Pending |
 | *(planned)* `036_linkskills_tenant_catalog_policy.sql` | Per-tenant skill/tool enablement | Pending |
 | *(planned)* `037_linkskills_catalog_requests.sql` | Licensee request queue → Work inbox | Pending |
