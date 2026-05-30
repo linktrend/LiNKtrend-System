@@ -38,7 +38,7 @@ import {
   discoverTemplateRegistry,
   buildTemplateContextForLiNKbot,
   isValidTemplateId,
-} from "@/lib/plugins/websitefactory/template-registry-discovery";
+} from "@/lib/suite-integrations/websitefactory/template-registry-discovery";
 
 // Retry config
 const DEFAULT_RETRY_ATTEMPTS = 3;

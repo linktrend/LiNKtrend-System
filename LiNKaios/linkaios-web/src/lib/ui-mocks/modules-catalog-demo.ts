@@ -12,7 +12,7 @@ export type ModuleIssueTemplate = {
   executors: { kind: IssueExecutorKind; name: string; description?: string }[];
 };
 
-export type ModuleWorkflow = {
+export type ModulePhaseTemplate = {
   id: string;
   name: string;
   stage: string;
@@ -20,18 +20,24 @@ export type ModuleWorkflow = {
   issues: ModuleIssueTemplate[];
 };
 
-/** One Process = one startable project type (1:1). */
-export type ModuleProcess = {
+/** @deprecated Use {@link ModulePhaseTemplate}. */
+export type ModuleWorkflow = ModulePhaseTemplate;
+
+/** Vendor module template inside a suite (one startable module recipe). */
+export type SuiteModuleTemplate = {
   id: string;
   name: string;
   moduleId: string;
   published: boolean;
   summary: string;
   rerunsAutomatically: boolean;
-  workflows: ModuleWorkflow[];
+  workflows: ModulePhaseTemplate[];
 };
 
-export type ModuleCatalogueItem = {
+/** @deprecated Use {@link SuiteModuleTemplate}. */
+export type ModuleProcess = SuiteModuleTemplate;
+
+export type SuiteCatalogueItem = {
   id: string;
   name: string;
   summary: string;
@@ -51,6 +57,9 @@ export type ModuleCatalogueItem = {
   /** Governed external actions (CRM, publish, email, billing, etc.) requiring capability leases. */
   sideEffectCount: number;
 };
+
+/** @deprecated Use {@link SuiteCatalogueItem}. */
+export type ModuleCatalogueItem = SuiteCatalogueItem;
 
 export type ModuleSampleOutput = {
   id: string;
@@ -77,13 +86,13 @@ export type WorkflowStageFixture = {
 };
 
 export type ModulesCatalogModel = {
-  modules: ModuleCatalogueItem[];
-  processes: ModuleProcess[];
+  modules: SuiteCatalogueItem[];
+  processes: SuiteModuleTemplate[];
   sampleOutputs: ModuleSampleOutput[];
 };
 
-/** @deprecated Use ModuleProcess — kept for imports during migration. */
-export type ModuleProjectType = ModuleProcess;
+/** @deprecated Use SuiteModuleTemplate — kept for imports during migration. */
+export type ModuleProjectType = SuiteModuleTemplate;
 
 export const LINKSITES_MVO_STAGES: WorkflowStageFixture[] = [
   { order: 1, stageId: "linksites.run.bootstrap", label: "Bootstrap", summary: "Bind tenant run to mock CRM lead and site identities", status: "completed", primaryPlane: "LiNKaios" },
@@ -613,11 +622,11 @@ export const MODULES_CATALOG_DEMO: ModulesCatalogModel = {
 /** @deprecated Alias for processes — project type id === process id. */
 export const projectTypes = MODULES_CATALOG_DEMO.processes;
 
-export function publishedMarketplaceModules(): ModuleCatalogueItem[] {
+export function publishedMarketplaceModules(): SuiteCatalogueItem[] {
   return MODULES_CATALOG_DEMO.modules.filter((m) => m.published);
 }
 
-export function processesForModule(moduleId: string): ModuleProcess[] {
+export function processesForModule(moduleId: string): SuiteModuleTemplate[] {
   return MODULES_CATALOG_DEMO.processes.filter((p) => p.moduleId === moduleId && p.published);
 }
 

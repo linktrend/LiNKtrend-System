@@ -1,4 +1,4 @@
-import type { DemoMissionDetailSpec } from "@/lib/ui-mocks/missions-fixtures";
+import type { DemoProjectDetailSpec } from "@/lib/ui-mocks/projects-fixtures";
 
 import type { CreateProjectRequest, ProjectCadence } from "./types";
 
@@ -8,7 +8,7 @@ export type RegisteredDemoProject = {
   suiteName: string;
   moduleNames: string[];
   createdAt: string;
-  detailSpec: DemoMissionDetailSpec;
+  detailSpec: DemoProjectDetailSpec;
   planeBridge: {
     code: string;
     activeCycle: string;
@@ -38,7 +38,7 @@ function buildDetailSpec(input: {
   moduleNames: string[];
   cadence: ProjectCadence;
   createdAt: string;
-}): DemoMissionDetailSpec {
+}): DemoProjectDetailSpec {
   const moduleLabel =
     input.moduleNames.length === 1
       ? input.moduleNames[0]!
@@ -120,7 +120,7 @@ export function isRegisteredDemoProjectId(projectId: string): boolean {
   return registry.has(projectId);
 }
 
-export function getRegisteredDemoProjectDetailSpec(projectId: string): DemoMissionDetailSpec | undefined {
+export function getRegisteredDemoProjectDetailSpec(projectId: string): DemoProjectDetailSpec | undefined {
   return registry.get(projectId)?.detailSpec;
 }
 

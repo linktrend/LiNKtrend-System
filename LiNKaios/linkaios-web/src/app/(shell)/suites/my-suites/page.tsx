@@ -1,4 +1,4 @@
-import { ModulesMyModulesPanel } from "@/components/modules/modules-my-modules-panel";
+import { ModulesMyModulesPanel } from "@/components/suites/modules-my-modules-panel";
 import { ShellPageHeaderClient } from "@/components/shell-page-header-client";
 import { Suspense } from "react";
 

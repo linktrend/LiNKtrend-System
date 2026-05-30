@@ -14,6 +14,8 @@ export { resolveSkillByName, resolveSkillFullForExecution } from "./resolve-skil
 
 export { assertResolvedApprovedSkill } from "./enforcement.js";
 
+export { listProjects, getProjectById, listManifestsForProject } from "./projects-catalog.js";
+/** @deprecated Use listProjects / getProjectById / listManifestsForProject. */
 export { listMissions, getMissionById, listManifestsForMission } from "./missions-catalog.js";
 export { listMemoryEntries } from "./memory-catalog.js";
 export type { MemoryEntryRow } from "./memory-catalog.js";

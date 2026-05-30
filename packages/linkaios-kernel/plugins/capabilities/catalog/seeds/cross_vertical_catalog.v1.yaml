@@ -1,5 +1,5 @@
 # Cross-vertical capability catalog seed — WP-114
-# Sources: CONTRACTS_MVO §0.A.5.1, LINKAPPS_CAPABILITY_REQUIREMENTS.md, plugins/vertical/linkapps/manifest.yaml,
+# Sources: CONTRACTS_MVO §0.A.5.1, LINKAPPS_CAPABILITY_REQUIREMENTS.md, suites/linkapps/manifest.yaml,
 #          packages/linkaios-kernel/plugins/capabilities/lexos/*.yaml
 ---
 spec_version: wp114-catalog-v1
@@ -10,7 +10,7 @@ inventory_sources:
   linksites_connector_pack_v1:
     citation: CONTRACTS_MVO §0.A.5.1
   linkapps_vertical:
-    citation: plugins/vertical/linkapps/manifest.yaml — required_capabilities
+    citation: suites/linkapps/manifest.yaml — required_capabilities
   lexos_capability_plugins:
     path_glob: packages/linkaios-kernel/plugins/capabilities/lexos/*.yaml
 

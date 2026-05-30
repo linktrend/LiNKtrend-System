@@ -1,4 +1,4 @@
-import type { CapabilityLeaseRowFixture } from "@/lib/plugins/linkapps/types";
+import type { CapabilityLeaseRowFixture } from "@/lib/suite-integrations/linkapps/types";
 import {
   DataTable,
   DataTableBody,

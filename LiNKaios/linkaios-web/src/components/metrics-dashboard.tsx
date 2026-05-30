@@ -481,24 +481,24 @@ export function MetricsDashboard(props: {
               <div className="mt-2 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
                 <ScopeFilterSelect
                   label="Suite"
+                  value={scope.suite}
+                  options={DEMO_METRICS_SCOPE_OPTIONS.suite}
+                  disabled={pending}
+                  onChange={(suite) => setScope((s) => ({ ...s, suite }))}
+                />
+                <ScopeFilterSelect
+                  label="Module"
                   value={scope.module}
                   options={DEMO_METRICS_SCOPE_OPTIONS.module}
                   disabled={pending}
                   onChange={(module) => setScope((s) => ({ ...s, module }))}
                 />
                 <ScopeFilterSelect
-                  label="Module"
-                  value={scope.projectType}
-                  options={DEMO_METRICS_SCOPE_OPTIONS.projectType}
-                  disabled={pending}
-                  onChange={(projectType) => setScope((s) => ({ ...s, projectType }))}
-                />
-                <ScopeFilterSelect
                   label="Phase"
-                  value={scope.workflow}
-                  options={DEMO_METRICS_SCOPE_OPTIONS.workflow}
+                  value={scope.phase}
+                  options={DEMO_METRICS_SCOPE_OPTIONS.phase}
                   disabled={pending}
-                  onChange={(workflow) => setScope((s) => ({ ...s, workflow }))}
+                  onChange={(phase) => setScope((s) => ({ ...s, phase }))}
                 />
                 <ScopeFilterSelect
                   label="Issue"

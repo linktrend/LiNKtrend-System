@@ -31,7 +31,7 @@ Roles are engine-agnostic declarations. A role may include engine-specific files
 - channel permissions
 - emitted audit events
 
-Shared organizational roles live under `roles/shared/`. Module-specific roles live under `roles/modules/<module>/`.
+Shared organizational roles live under `roles/shared/`. Module-specific roles live under `roles/suites/<module>/`.
 
 ## Communications
 

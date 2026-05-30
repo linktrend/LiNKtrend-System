@@ -7,12 +7,11 @@
 
 ## What Was Done
 
-- Renamed `dev-swarm/` → `LiNKdev/` in LiNKtrend-System (git mv + content rename).
-- Global terminology: **Dev Swarm → LiNKdev**, **Chairman → Principal**, labels **`swarm:` → `linkdev:`**.
+- Renamed factory folder to `LiNKdev/` in LiNKtrend-System (git mv + content rename).
+- Global terminology: **LiNKdev** (formerly Dev Swarm), **Principal** (formerly Chairman), labels **`linkdev:`** (formerly `swarm:`).
 - Commands/rules: `wire-linkdev`, `linkdev-go`, `00-linkdev-bootstrap.mdc`, `linkdev-guard.yml`.
 - Laws/sandbox files: `LINKDEV_LAWS.md`, `LINKDEV_SANDBOX.md`.
 - Published virgin template to https://github.com/linktrend/LiNKdev — tag **v1.0.0**, `VERSION` = `1.0.0`.
-- Added `scripts/linkdev-rename.py` for future syncs.
 - Added `LiNKdev/TEMPLATE_VERSION.md` (instance tracks template v1.0.0).
 - Proof: `LiNKdev/factory/scripts/verify.sh`, intent + council validators PASS.
 
@@ -29,14 +28,16 @@
 
 ## Files Changed
 
-- Entire `LiNKdev/` tree (formerly `dev-swarm/`)
+- Entire `LiNKdev/` tree
 - `.cursor/` shim, `.github/workflows/linkdev-guard.yml`
-- `scripts/linkdev-rename.py`
 - Scattered doc references in `docs/`
 
 ## Branch State
 
-- [ ] All changes committed (pending Integrator commit on development)
-- [x] LiNKdev template pushed to GitHub
+- [x] All changes committed on `development`
+- [x] LiNKdev template pushed to GitHub (v1.0.0)
 - [x] verify.sh passed locally
-- [ ] LiNKtrend development pushed
+- [x] `development` pushed to origin (commits through bfb337c+)
+- [x] `linkdev:*` GitHub labels installed
+- [ ] Cursor/Codex UI automations (CHECKLIST §4–5)
+- [ ] Principal **Go**

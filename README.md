@@ -1,6 +1,8 @@
 # LiNKtrend System
 
-Proprietary **LiNKtrend** monorepo (Turborepo + pnpm): command centre (**LiNKaios**), LiNKbot runtime adapters, **LiNKguard** worker cleanup/security sidecar, mission-aware communications, shared **LiNKlogic**-style packages, tenant-enabled modules, capability connectors, and Supabase-backed persistence.
+Proprietary **LiNKtrend** monorepo (Turborepo + pnpm): command centre (**LiNKaios**), LiNKbot runtime adapters, **LiNKguard** worker cleanup/security sidecar, project-aware communications, shared **LiNKlogic**-style packages, tenant-enabled **suites**, LinkSkills **capabilities**, and Supabase-backed persistence.
+
+Canonical terminology: **`docs/terminology.md`**
 
 Remote: [github.com/linktrend/LiNKtrend-System](https://github.com/linktrend/LiNKtrend-System)
 
@@ -91,7 +93,8 @@ In **development**, LiNKaios exposes **Gov JSON** in the nav (`/devtools/governa
 | `LiNKautowork/` | Deterministic workflow gateway and templates for the external n8n fork |
 | `LiNKbot/` | Runtime adapters, roles, fleet metadata, and mission-aware communications |
 | `LiNKguard/` | Worker security and cleanup sidecar formerly known as PRISM Defender |
-| `modules/` | Tenant-enabled business/operational modules |
+| `suites/` | Tenant-enabled business/operational **suites** (LinkSites, LiNKapps, LEXOS, …) |
+| `docs/terminology.md` | Canonical LiNKaios UI ↔ repo terminology map |
 | `LiNKaios/linkaios-web` | Next.js (App Router) command centre compatibility entrypoint |
 | `LiNKbot/runtime-adapters/openclaw/bot-runtime` | LiNKbot OpenClaw runtime adapter package |
 | `LiNKbot/runtime-adapters/openclaw/openclaw-shim` | Local ingress mock for `bot-runtime` POSTs |

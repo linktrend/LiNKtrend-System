@@ -64,7 +64,7 @@ This document defines the intended completed state for each core system and modu
 **To reach 90-95%:**
 
 - Finish OpenClaw runtime adapter, session lifecycle, mission payload, context request, lease request, audit/provenance emits, and channel profile docs.
-- Add role packs under `LiNKbot/roles/shared/` and `LiNKbot/roles/modules/`.
+- Add role packs under `LiNKbot/roles/shared/` and `LiNKbot/roles/suites/`.
 - Keep engine-native channel implementations in the engine fork; this repo owns mission routing, channel profiles, audit mapping, and temporary gaps.
 
 ## LiNKguard

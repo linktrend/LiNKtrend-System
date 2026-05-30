@@ -1,4 +1,4 @@
-import type { AuditSpineFixture } from "@/lib/plugins/linkapps/types";
+import type { AuditSpineFixture } from "@/lib/suite-integrations/linkapps/types";
 
 export function LinkappsAuditSpine(props: { entries: AuditSpineFixture[] }) {
   return (

@@ -10,9 +10,9 @@ import { isUiMocksEnabled } from "@/lib/ui-mocks/flags";
 import { DEMO_LEASE_ROWS } from "@/lib/ui-mocks/leases-demo";
 import { demoMetricsSnapshot } from "@/lib/ui-mocks/metrics-demo-snapshot";
 import {
-  DEMO_MISSION_DETAIL_SPECS,
-  DEMO_MISSION_PLANE_BRIDGE,
-} from "@/lib/ui-mocks/missions-fixtures";
+  DEMO_PROJECT_DETAIL_SPECS,
+  DEMO_PROJECT_PLANE_BRIDGE,
+} from "@/lib/ui-mocks/projects-fixtures";
 import {
   demoProjectAutomations,
   demoProjectLinkbots,
@@ -81,7 +81,7 @@ function buildSnapshotFromParts(parts: {
 }
 
 function demoBrief(missionId: string): ProjectOverviewBrief {
-  const spec = DEMO_MISSION_DETAIL_SPECS[missionId];
+  const spec = DEMO_PROJECT_DETAIL_SPECS[missionId];
   if (spec) {
     return { description: spec.description, expectedOutputs: spec.expectedOutputs };
   }
@@ -94,7 +94,7 @@ function demoBrief(missionId: string): ProjectOverviewBrief {
 function liveBrief(
   missionId: string,
   title: string,
-  bridge?: (typeof DEMO_MISSION_PLANE_BRIDGE)[string],
+  bridge?: (typeof DEMO_PROJECT_PLANE_BRIDGE)[string],
 ): ProjectOverviewBrief {
   const moduleName = bridge?.moduleName ?? "Unmapped module";
   const projectType = bridge?.projectTypeName ?? "Unmapped module";
@@ -138,7 +138,7 @@ export async function loadProjectOverview(missionId: string, title: string): Pro
 
   const supabase = await createSupabaseServerClient();
   const tenantId = "default";
-  const bridge = DEMO_MISSION_PLANE_BRIDGE[missionId];
+  const bridge = DEMO_PROJECT_PLANE_BRIDGE[missionId];
 
   const [metricsRes, leasesRaw] = await Promise.all([
     fetchMetricsSnapshot({ days: 30, missionId, agentId: null }),

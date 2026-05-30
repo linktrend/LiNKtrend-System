@@ -25,3 +25,23 @@ Save. Without this step, PostgREST returns `PGRST106` / “Invalid schema”.
 ## Zulip
 
 The Zulip **server** keeps its own Postgres. The `gateway` schema here only stores bridge metadata.
+
+## Wave 4 — Mission→Project terminology (`033`, `034`)
+
+Apply after UI/TS migration wave D planning is underway. Both migrations are **additive and idempotent** (safe to re-run).
+
+| File | Purpose |
+|------|---------|
+| `033_linkaios_project_terminology.sql` | Renames `linkaios.missions` → `linkaios.projects`; renames `mission_id` → `project_id` on linkaios child tables; adds `linkaios.missions` **view** for backward compat; canonical functions `is_project_head` / `sync_project_manifest_tools` with legacy wrappers |
+| `034_linkguard_schema_alias.sql` | Adds `linkguard` schema with views over legacy `prism` tables (no prism rename) |
+
+**Not renamed in 033 (intentional):**
+
+- `gateway.*.mission_id` columns — FK still targets `linkaios.projects`; column rename deferred to gateway wave
+- `linkaios.mission_tools` table name and `org_missionless_default_tools` — legacy names; only `project_id` column inside `mission_tools`
+- `tool_governance_requests.request_type` values (`mission_binding_add`, etc.) — audit/API compat until TS wave C completes
+- `brain_virtual_files.scope = 'mission'` rows — CHECK also accepts `'project'` for new rows
+
+**Post-apply:** add `linkguard` to **Exposed schemas** in Supabase Dashboard (keep `prism` during transition).
+
+**`ALL_IN_ONE.sql`:** not updated automatically. After applying `033`/`034` to a live project, manually merge the same renames/views into `ALL_IN_ONE.sql` before the next greenfield bootstrap.

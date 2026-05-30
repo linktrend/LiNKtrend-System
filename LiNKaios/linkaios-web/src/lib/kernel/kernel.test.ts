@@ -450,7 +450,7 @@ describe("role bleed guards", () => {
 describe("plugin extension point wiring", () => {
   it("kernel loads manifest from plugin module", async () => {
     // The kernel should load the WebsiteFactory manifest from the plugin module
-    const { getWebsiteFactoryManifest } = await import("@/lib/plugins/websitefactory");
+    const { getWebsiteFactoryManifest } = await import("@/lib/suite-integrations/websitefactory");
     const manifest = getWebsiteFactoryManifest();
 
     expect(manifest.plugin_id).toBe("websitefactory");
@@ -461,7 +461,7 @@ describe("plugin extension point wiring", () => {
 
   it("kernel delegates stage execution to plugin's executeStage", async () => {
     // The plugin should export an executeStage function that the kernel calls
-    const { executeWebsiteFactoryStage } = await import("@/lib/plugins/websitefactory");
+    const { executeWebsiteFactoryStage } = await import("@/lib/suite-integrations/websitefactory");
 
     expect(typeof executeWebsiteFactoryStage).toBe("function");
   });
@@ -471,7 +471,7 @@ describe("plugin extension point wiring", () => {
       mapStageToCapability,
       mapStageToWorkflowHandle,
       mapStageToReasoningKind,
-    } = await import("@/lib/plugins/websitefactory");
+    } = await import("@/lib/suite-integrations/websitefactory");
 
     // Verify capability mappings per §7
     expect(mapStageToCapability("crm_ready_to_contact_mark")).toBe("cap.crm.odoo_shadow");
@@ -495,7 +495,7 @@ describe("plugin extension point wiring", () => {
     // The kernel's executeStage should delegate to the plugin for non-kernel stages
     // This is verified by checking that the orchestrator file imports from the plugin
     const orchestratorSource = `
-      import { executeWebsiteFactoryStage } from "@/lib/plugins/websitefactory";
+      import { executeWebsiteFactoryStage } from "@/lib/suite-integrations/websitefactory";
     `;
 
     expect(orchestratorSource).toContain("executeWebsiteFactoryStage");
@@ -503,7 +503,7 @@ describe("plugin extension point wiring", () => {
 
   it("websitefactory.lead_to_preview work request routes through plugin", async () => {
     // Verify the complete flow: work_request_type -> plugin_id -> manifest
-    const { getWebsiteFactoryManifest, WORK_REQUEST_TYPE } = await import("@/lib/plugins/websitefactory");
+    const { getWebsiteFactoryManifest, WORK_REQUEST_TYPE } = await import("@/lib/suite-integrations/websitefactory");
     const manifest = getWebsiteFactoryManifest();
 
     // Plugin declares the work_request_type

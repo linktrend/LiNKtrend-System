@@ -3,8 +3,8 @@
 import { useState, useCallback } from "react";
 import { Activity, Filter } from "lucide-react";
 
-import type { TraceFilter, TraceSidebarState } from "@/lib/plugins/linkapps/types/trace";
-import { MOCK_TRACE_LIST_ITEMS, MOCK_TRACE_METRICS } from "@/lib/plugins/linkapps/trace-fixtures";
+import type { TraceFilter, TraceSidebarState } from "@/lib/suite-integrations/linkapps/types/trace";
+import { MOCK_TRACE_LIST_ITEMS, MOCK_TRACE_METRICS } from "@/lib/suite-integrations/linkapps/trace-fixtures";
 
 import { TraceFilterPanel } from "./TraceFilterPanel";
 import { TraceSummaryList } from "./TraceSummaryList";

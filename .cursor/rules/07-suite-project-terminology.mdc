@@ -113,8 +113,8 @@ Legacy symbols (`missionId`, `MissionRecord`, old `/modules/` routes) may persis
 |-------|--------|--------|
 | **A** | User-visible copy: Mission → **Project** | **DONE** — mandatory for all new/changed UI |
 | **B** | Routes (`/suites/`), breadcrumbs, component names | **DONE** — mandatory for suite/project wave |
-| **C** | TypeScript/API aliases (`MissionRecord` → `ProjectRecord`, etc.) | **NOT DONE** — **Option 2:** include in first implementation wave where touching project APIs |
-| **D** | Database columns, RPC names, webhooks, kernel | **NOT DONE** — still required |
+| **C** | TypeScript/API aliases (`MissionRecord` → `ProjectRecord`, `ModuleCatalogueItem` → `SuiteCatalogueItem`, etc.) | **IN PROGRESS** — canonical types added; deprecated aliases retained |
+| **D** | Database columns, RPC names, webhooks, kernel | **MIGRATIONS READY** — apply `033_linkaios_project_terminology.sql` and `034_linkguard_schema_alias.sql` |
 
 ### Agent rules
 

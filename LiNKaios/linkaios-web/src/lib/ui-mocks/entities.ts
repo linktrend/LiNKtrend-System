@@ -1,4 +1,4 @@
-import type { AgentRecord, MissionRecord } from "@linktrend/shared-types";
+import type { AgentRecord, ProjectRecord } from "@linktrend/shared-types";
 
 const nowIso = () => new Date().toISOString();
 
@@ -21,7 +21,7 @@ export const DEMO_SIDEBAR_AGENTS: AgentRecord[] = [
 ];
 
 /** Demo projects for overview and metrics filters when UI mocks are enabled. */
-export const DEMO_SIDEBAR_MISSIONS: MissionRecord[] = [
+export const DEMO_SIDEBAR_PROJECTS: ProjectRecord[] = [
   {
     id: "demo-smb",
     title: "SMB Website Builder",
@@ -40,12 +40,15 @@ export const DEMO_SIDEBAR_MISSIONS: MissionRecord[] = [
   },
 ];
 
+/** @deprecated Use {@link DEMO_SIDEBAR_PROJECTS}. */
+export const DEMO_SIDEBAR_MISSIONS = DEMO_SIDEBAR_PROJECTS;
+
 export function isDemoAgentId(id: string): boolean {
   return id === "demo-lisa" || id === "demo-eric";
 }
 
-const DEMO_MISSION_PAGE_IDS = new Set<string>([
-  ...DEMO_SIDEBAR_MISSIONS.map((m) => String(m.id)),
+const DEMO_PROJECT_PAGE_IDS = new Set<string>([
+  ...DEMO_SIDEBAR_PROJECTS.map((m) => String(m.id)),
   "demo-mission-1",
   "demo-mission-2",
 ]);
@@ -55,6 +58,9 @@ export function isStubCreatedProjectId(id: string): boolean {
   return id.startsWith("proj-");
 }
 
-export function isDemoMissionId(id: string): boolean {
-  return DEMO_MISSION_PAGE_IDS.has(id) || isStubCreatedProjectId(id);
+export function isDemoProjectId(id: string): boolean {
+  return DEMO_PROJECT_PAGE_IDS.has(id) || isStubCreatedProjectId(id);
 }
+
+/** @deprecated Use {@link isDemoProjectId}. */
+export const isDemoMissionId = isDemoProjectId;

@@ -6,7 +6,7 @@ const LONG_RUNBOOK = [
   "1. Pre-flight checks",
   "   • Confirm staging URL resolves and TLS certificate is valid.",
   "   • Verify LiNKaios module registry shows linksites@1.2.0 as active.",
-  "   • Run smoke test suite against /api/health and /api/modules/linksites/status.",
+  "   • Run smoke test suite against /api/health and /api/suites/linksites/status.",
   "",
   "2. Database migration",
   "   • Apply pending Supabase migrations in order (20260518_linksites_preview.sql through 20260520_audit_indexes.sql).",

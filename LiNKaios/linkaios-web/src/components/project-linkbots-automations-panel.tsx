@@ -13,6 +13,7 @@ import {
 } from "@/lib/linkbot-fleet-status";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { BADGE } from "@/lib/ui-standards";
+import { resolveProjectIdFromProps } from "@/lib/api/project-mission-id";
 import { isUiMocksEnabled } from "@/lib/ui-mocks/flags";
 import {
   demoProjectAutomations,
@@ -182,11 +183,14 @@ async function loadProjectLinkbotsAndAutomations(missionId: string, primaryAgent
 
 /** Project-scoped LiNKbots and LiNKautowork automations for the project detail tab. */
 export async function ProjectLinkbotsAutomationsPanel(props: {
-  missionId: string;
+  projectId?: string;
+  /** @deprecated Use projectId */
+  missionId?: string;
   primaryAgentId?: string | null;
 }) {
+  const projectId = resolveProjectIdFromProps(props);
   const { linkbots, automations } = await loadProjectLinkbotsAndAutomations(
-    props.missionId,
+    projectId,
     props.primaryAgentId ?? null,
   );
 
@@ -210,6 +214,10 @@ export async function ProjectLinkbotsAutomationsPanel(props: {
 }
 
 /** Project-scoped LinkSkills leases — same surface as `/skills/leases`. */
-export async function ProjectLeasesPanel(props: { missionId: string }) {
-  return <LinkskillsLeasesPanel missionId={props.missionId} />;
+export async function ProjectLeasesPanel(props: {
+  projectId?: string;
+  /** @deprecated Use projectId */
+  missionId?: string;
+}) {
+  return <LinkskillsLeasesPanel projectId={resolveProjectIdFromProps(props)} />;
 }

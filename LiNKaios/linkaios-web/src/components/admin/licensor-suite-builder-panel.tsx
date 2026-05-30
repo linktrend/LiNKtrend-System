@@ -5,7 +5,7 @@ import { useState } from "react";
 import { Bot, Cog, GitBranch, Layers3, ListChecks, Plus, Workflow } from "lucide-react";
 
 import { useAppSurface } from "@/components/app-surface-provider";
-import { ModuleProcessTree } from "@/components/modules/module-process-tree";
+import { ModuleProcessTree } from "@/components/suites/module-process-tree";
 import { ShellPageHeaderClient } from "@/components/shell-page-header-client";
 import { StatusPill } from "@/components/ui/status-pill";
 import { LICENSOR_SUITE_PUBLISH_PILL_LABELS } from "@/lib/status-colors";

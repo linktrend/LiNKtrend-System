@@ -1,4 +1,4 @@
-import { ModulesMarketplacePanel } from "@/components/modules/modules-marketplace-panel";
+import { ModulesMarketplacePanel } from "@/components/suites/modules-marketplace-panel";
 import { ShellPageHeaderClient } from "@/components/shell-page-header-client";
 
 export const dynamic = "force-dynamic";

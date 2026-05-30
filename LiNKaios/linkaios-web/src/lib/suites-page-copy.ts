@@ -3,7 +3,11 @@ import {
   moduleStats,
   processesForModule,
   publishedMarketplaceModules,
+  type SuiteCatalogueItem,
+  type SuiteModuleTemplate,
+  /** @deprecated Use SuiteCatalogueItem */
   type ModuleCatalogueItem,
+  /** @deprecated Use SuiteModuleTemplate */
   type ModuleProcess,
 } from "@/lib/ui-mocks/modules-catalog-demo";
 import { LICENSEE_HOME_PATH } from "@/lib/app-surface";
@@ -222,7 +226,7 @@ export function buildModulesBreadcrumbItems(
   return buildSuitesBreadcrumbItems(pathname, tabRaw, registryLabels, moduleHubForProfile);
 }
 
-export function suiteProfilePageTitle(suite: ModuleCatalogueItem, tab: SuiteProfileTab, owned?: boolean): string {
+export function suiteProfilePageTitle(suite: SuiteCatalogueItem, tab: SuiteProfileTab, owned?: boolean): string {
   const tabLabel =
     tab === "overview"
       ? SUITE_PROFILE_OVERVIEW_TAB_LABEL
@@ -234,30 +238,30 @@ export function suiteProfilePageTitle(suite: ModuleCatalogueItem, tab: SuiteProf
 
 /** @deprecated */
 export function moduleProfilePageTitle(
-  module: ModuleCatalogueItem,
+  module: SuiteCatalogueItem,
   tab: SuiteProfileTab,
   owned?: boolean,
 ): string {
   return suiteProfilePageTitle(module, tab, owned);
 }
 
-export function getSuiteById(suiteId: string): ModuleCatalogueItem | undefined {
+export function getSuiteById(suiteId: string): SuiteCatalogueItem | undefined {
   return MODULES_CATALOG_DEMO.modules.find((m) => m.id === suiteId);
 }
 
 /** @deprecated */
-export function getModuleById(moduleId: string): ModuleCatalogueItem | undefined {
+export function getModuleById(moduleId: string): SuiteCatalogueItem | undefined {
   return getSuiteById(moduleId);
 }
 
-export function getPublishedSuite(suiteId: string): ModuleCatalogueItem | undefined {
+export function getPublishedSuite(suiteId: string): SuiteCatalogueItem | undefined {
   const suite = getSuiteById(suiteId);
   if (!suite?.published) return undefined;
   return suite;
 }
 
 /** @deprecated */
-export function getPublishedModule(moduleId: string): ModuleCatalogueItem | undefined {
+export function getPublishedModule(moduleId: string): SuiteCatalogueItem | undefined {
   return getPublishedSuite(moduleId);
 }
 
@@ -347,8 +351,16 @@ export function modulesDetailHref(suiteId: string): string {
   return suiteProfileHref(suiteId, "overview");
 }
 
-export function modulesForSuite(suiteId: string): ModuleProcess[] {
+export function modulesForSuite(suiteId: string): SuiteModuleTemplate[] {
   return processesForModule(suiteId);
 }
 
-export { publishedMarketplaceModules, processesForModule, moduleStats, type ModuleProcess, type ModuleCatalogueItem };
+export {
+  publishedMarketplaceModules,
+  processesForModule,
+  moduleStats,
+  type SuiteModuleTemplate,
+  type SuiteCatalogueItem,
+  type ModuleProcess,
+  type ModuleCatalogueItem,
+};

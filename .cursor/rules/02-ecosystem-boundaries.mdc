@@ -21,15 +21,15 @@ LiNKguard is the worker security and cleanup sidecar formerly known as PRISM Def
 
 No service should absorb another service's responsibility.
 
-Modules describe tenant-enabled business or operational workflows. Capability connectors provide reusable software/tool connections. Do not call these connector surfaces "capability plugins" in new docs or prompts. LiNKbot performs judgment work. LiNKautowork performs deterministic automation. LinkSkills grants permissions and skills. LiNKbrain remembers. LiNKaios coordinates.
+Suites describe tenant-enabled business or operational product packages. Capability connectors provide reusable software/tool connections. Do not call these connector surfaces "capability plugins" in new docs or prompts. LiNKbot performs judgment work. LiNKautowork performs deterministic automation. LinkSkills grants permissions and skills. LiNKbrain remembers. LiNKaios coordinates.
 
 If an agent does not know the intended workflow for a module, capability workflow, or module-connector combination, it must stop and ask before implementing. Do not invent business workflows, software schemas, chart-of-accounts, CRM stages, Payload content models, Odoo records, or similar domain configuration based on assumptions.
 
 When preparing a capability connector, build only the governed connector surface under `LiNKskills/capability-connectors/`: configuration, authentication boundary, capability contract, lease/audit hooks, idempotency, mode flags, and communication path between the external software and LiNKaios, a module, or a LiNKbot. Do not define the internal business setup of the connected software unless explicitly assigned. Prefer copying/adapting existing completed schemas or configs from the source repo when the user says they already exist.
 
-Tenant-enabled business packages live under `modules/`, not `plugins/vertical`, for new work. LinkSites, LiNKapps, Linktrend Media, and LEXOS practice areas are modules. LEXOS is a module family; `modules/lexos/litigation` is the first active practice module.
+Tenant-enabled business packages live under `suites/`, not the retired `plugins/vertical` path. LinkSites, LiNKapps, Linktrend Media, and LEXOS practice areas are suites. LEXOS is a suite family; `suites/lexos/litigation` is the first active practice area.
 
-Each active module must have one canonical workflow map in its module folder. The module folder defines the stage order, dependencies, roles, capability connector requirements, LiNKbrain events, Plane task shape, UI surfaces, and completion criteria. LiNKautowork, LiNKbot, LinkSkills, LiNKbrain, and external repos implement or provide the machinery, but they must not be the only place where the module workflow is understandable.
+Each active suite must have one canonical workflow map in its suite folder. The suite folder defines the stage order, dependencies, roles, capability connector requirements, LiNKbrain events, Plane task shape, UI surfaces, and completion criteria. LiNKautowork, LiNKbot, LinkSkills, LiNKbrain, and external repos implement or provide the machinery, but they must not be the only place where the suite workflow is understandable.
 
 Native channel implementations from bot engines stay in those engines. This repo owns LiNKbot communication profiles, mission context, tenant routing, and audit mapping. Temporary channel gaps such as Zulip can live under `LiNKbot/communications/temporary-gateways/` until native engine support is adopted and verified.
 

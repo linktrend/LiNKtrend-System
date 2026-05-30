@@ -1,6 +1,6 @@
-import { buildPreviewPanelView, generatePreviewRoute } from "@/lib/plugins/websitefactory/preview-panel";
-import { buildLexosOperatorFlowProof } from "@/lib/plugins/lexos-litigation/operator-flow";
-import { buildLinkappsOperatorFlowProof } from "@/lib/plugins/linkapps-app-factory/operator-flow";
+import { buildPreviewPanelView, generatePreviewRoute } from "@/lib/suite-integrations/websitefactory/preview-panel";
+import { buildLexosOperatorFlowProof } from "@/lib/suite-integrations/lexos-litigation/operator-flow";
+import { buildLinkappsOperatorFlowProof } from "@/lib/suite-integrations/linkapps-app-factory/operator-flow";
 
 const SAMPLE_RUN_ID = "11111111-1111-4111-8111-111111111111";
 const SAMPLE_WORK_REQUEST_ID = "22222222-2222-4222-8222-222222222222";
