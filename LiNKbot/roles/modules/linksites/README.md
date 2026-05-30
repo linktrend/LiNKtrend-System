@@ -78,7 +78,7 @@ Module-specific LiNKbot roles for the LinkSites / WebsiteFactory module.
 
 The canonical role definitions live in:
 - `LiNKaios/linkaios-web/src/lib/plugins/websitefactory/manifest.ts` (REQUIRED_LINKBOT_ROLES)
-- Contract reference: `dev-swarm/product/grounding/CONTRACTS_MVO.md` §0.A.4
+- Contract reference: `LiNKdev/product/grounding/CONTRACTS_MVO.md` §0.A.4
 
 ## Runtime Execution
 

@@ -8,7 +8,7 @@ alwaysApply: true
 
 LiNKtrend is an AI-native venture studio that industrializes digital venture creation through an agentic organizational structure. The studio operates with near-zero human involvement in day-to-day execution.
 
-- **Chairman** — The sole human authority. Non-technical operator. Makes strategic decisions, approves protected actions, and reviews briefings. Does not write code or manage execution.
+- **Principal** — The sole human authority. Non-technical operator. Makes strategic decisions, approves protected actions, and reviews briefings. Does not write code or manage execution.
 - **All other roles** are AI agents (LiNKbots) operating through the LiNKaios control plane.
 
 ## Core Systems
@@ -40,7 +40,7 @@ All repositories live at https://github.com/linktrend
 
 ## Communication
 
-When speaking to the Chairman:
+When speaking to the Principal:
 - Explain decisions in plain English
 - Avoid unnecessary jargon
 - Present options with clear trade-offs

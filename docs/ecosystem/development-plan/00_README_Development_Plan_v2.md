@@ -65,7 +65,7 @@ Day 1 must freeze decisions that the prior plan deferred too long:
 
 ## First Three Steps
 
-First, ensure `dev-swarm/` is wired in the LiNKaios monorepo (factory coordination plus `dev-swarm/product/grounding/` plans and contracts).
+First, ensure `LiNKdev/` is wired in the LiNKaios monorepo (factory coordination plus `LiNKdev/product/grounding/` plans and contracts).
 
 Second, run repo archaeology, but not as an open-ended discovery exercise. Use the architect review report as a starting map and verify the confirmed repos.
 

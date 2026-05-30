@@ -1,9 +1,0 @@
----
-name: gstack-skillify
-description: MERGED — canonical at dev-swarm/skills/gstack/skillify/SKILL.md
-deprecated: true
----
-
-# Redirect
-
-Use `dev-swarm/skills/gstack/skillify/SKILL.md`.

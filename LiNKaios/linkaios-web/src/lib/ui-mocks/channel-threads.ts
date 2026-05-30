@@ -30,7 +30,7 @@ const LONG_RUNBOOK = [
   "",
   "6. Sign-off",
   "   • OpsBot-2 posts summary to #ops-deploys.",
-  "   • Chairman receives briefing card in LiNKaios Overview.",
+  "   • Principal receives briefing card in LiNKaios Overview.",
   "   • Mark project demo-smb stage as complete once stakeholder walkthrough is scheduled.",
 ].join("\n");
 
@@ -109,7 +109,7 @@ export const DEMO_CHANNEL_THREADS: ChannelMessageThread[] = [
     id: "demo-channel-briefing",
     channel: "Zulip",
     channelTag: "Zulip",
-    projectName: "Chairman Briefings",
+    projectName: "Principal Briefings",
     subject: "briefings · weekly digest",
     preview: "BriefingBot: Week 20 summary ready for review.",
     lastActivity: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),

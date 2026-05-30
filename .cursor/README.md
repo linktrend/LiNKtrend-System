@@ -1,29 +1,29 @@
 # Cursor configuration (LiNKtrend-System)
 
-This folder is the **IDE shim** for Dev Swarm. The portable factory lives in **`dev-swarm/`**.
+This folder is the **IDE shim** for LiNKdev. The portable factory lives in **`LiNKdev/`**.
 
 ## Copy to a new product repo
 
-1. Copy entire **`dev-swarm/`** to the new repo root.
+1. Copy entire **`LiNKdev/`** to the new repo root.
 2. Install the portable shim:
    ```bash
-   cp -R dev-swarm/factory/install/portable-cursor/.cursor ./
+   cp -R LiNKdev/factory/install/portable-cursor/.cursor ./
    ```
 3. Add product-specific rules as `.cursor/rules/01-*.mdc` … `08-*.mdc` (optional — only what that product needs).
-4. Run wire: Cursor command **Wire Dev Swarm** or `dev-swarm/factory/install/WIRE-PROMPT.md`
-5. Codex UI: command **Dev Swarm UI automations**
-6. **Go:** command **Dev Swarm Go** (cloud Planner)
+4. Run wire: Cursor command **Wire LiNKdev** or `LiNKdev/factory/install/WIRE-PROMPT.md`
+5. Codex UI: command **LiNKdev UI automations**
+6. **Go:** command **LiNKdev Go** (cloud Planner)
 
-See `dev-swarm/factory/install/portable-cursor/README.md` and `dev-swarm/README.md`.
+See `LiNKdev/factory/install/portable-cursor/README.md` and `LiNKdev/README.md`.
 
 ## This repo (LiNKtrend-System)
 
 | Path | Role |
 |------|------|
-| `rules/00-dev-swarm-bootstrap.mdc` | Always on — read `dev-swarm/` first |
+| `rules/00-linkdev-bootstrap.mdc` | Always on — read `LiNKdev/` first |
 | `rules/01`–`08` | **LiNKtrend product** rules only (numbered) |
-| `skills/README.md` | Pointer — skills are in `dev-swarm/skills/` |
-| `agents/README.md` | Pointer — agents are in `dev-swarm/factory/agents/` |
+| `skills/README.md` | Pointer — skills are in `LiNKdev/skills/` |
+| `agents/README.md` | Pointer — agents are in `LiNKdev/factory/agents/` |
 | `mcp.json` | Local MCP config (not portable; configure per machine) |
 
 ## Product rules (`01`–`08`)
@@ -39,8 +39,8 @@ See `dev-swarm/factory/install/portable-cursor/README.md` and `dev-swarm/README.
 | 07 | `07-suite-project-terminology.mdc` | Suite / Module / Project / Phase / Issue |
 | 08 | `08-linkaios-ui-standards.mdc` | **LiNKaios shell UI only** (not generic) |
 
-Generic UI and frontend guidance for any Dev Swarm repo: **`dev-swarm/factory/rules/08-ui-and-frontend-standards.mdc`**.
+Generic UI and frontend guidance for any LiNKdev repo: **`LiNKdev/factory/rules/08-ui-and-frontend-standards.mdc`**.
 
 ## Legacy docs
 
-Former `.cursor/LEXOS_IMPORTED_SKILLS_POLICY.md` and `SKILLS_INSTALL_SUMMARY.md` are archived under `dev-swarm/archive/cursor-docs-legacy/`.
+Former `.cursor/LEXOS_IMPORTED_SKILLS_POLICY.md` and `SKILLS_INSTALL_SUMMARY.md` are archived under `LiNKdev/archive/cursor-docs-legacy/`.

@@ -1,0 +1,24 @@
+---
+description: Generic UI and frontend standards for any LiNKdev product repo.
+alwaysApply: false
+---
+
+# UI And Frontend Standards (portable)
+
+Use when building web UI in any product repo that uses LiNKdev. **Product-specific shell rules** (e.g. LiNKaios) live in that repo's `.cursor/rules/08-*` or equivalent — not here.
+
+## Discovery
+
+1. Read `LiNKdev/skills/SKILLS_CATALOG.md` for UI skills (`data-table`, `action-queue`, `summary-metric-cards`, `personal-information-forms`, `frontend-design`, `web-design-guidelines`).
+2. Reuse existing design system and components in the target app before inventing new patterns.
+
+## Defaults
+
+- Functional clarity over pixel polish unless an issue specifies design review.
+- Accessible labels, focus states, and error feedback (no raw stack traces to users).
+- Match project test/lint commands from `LiNKdev/AGENTS.md` or repo `CLAUDE.md`.
+- Prefer existing table/list/form primitives documented in project skills over hand-rolled markup.
+
+## Proof
+
+UI issues must include visual or route proof per issue template (screenshot path, Playwright trace, or browser verification command output).

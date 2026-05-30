@@ -1,4 +1,4 @@
-# Handoff: Dev Swarm v2 restructure
+# Handoff: LiNKdev v2 restructure
 
 - **Date:** 2026-05-30 (morning)
 - **Branch:** development
@@ -6,7 +6,7 @@
 
 ## What was done
 
-- Split `dev-swarm/` into **`factory/`** (portable) and **`product/`** (this repo)
+- Split `LiNKdev/` into **`factory/`** (portable) and **`product/`** (this repo)
 - Renamed **`command-center/`** → **`product/grounding/`** + stubs (VISION, SHIP_CRITERIA, CONSTRAINTS, GLOSSARY, DECISIONS_INDEX)
 - Skills: **`gstack/`** + **`host/`** (was `linktrend/`); no `skills/factory/`
 - Reports: bootstrap → `factory/reports/bootstrap/`; product nested path convention documented
@@ -19,15 +19,15 @@
 
 ## What's next
 
-1. Chairman: wire (local) → Codex UI automations → **Go** (cloud Planner)
+1. Principal: wire (local) → Codex UI automations → **Go** (cloud Planner)
 2. Planner: real `linktrend-system` program under nested modules/phases (legacy stays archive)
-3. Optional Chairman pilot wave before full parallel
+3. Optional Principal pilot wave before full parallel
 
 ## Proof
 
 ```bash
-dev-swarm/factory/scripts/validate-dag.sh dev-swarm/factory/programs/bootstrap/PROGRAM.md
-DEV_SWARM_SCOPE=dev-swarm dev-swarm/factory/scripts/verify.sh
+LiNKdev/factory/scripts/validate-dag.sh LiNKdev/factory/programs/bootstrap/PROGRAM.md
+LINKDEV_SCOPE=LiNKdev LiNKdev/factory/scripts/verify.sh
 ```
 
 ## Branch state

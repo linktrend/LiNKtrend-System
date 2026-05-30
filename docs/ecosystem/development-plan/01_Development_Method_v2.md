@@ -44,11 +44,11 @@ If a third-party integration blocks the flow, stub it with a local table or test
 
 ## Human Supervision
 
-Carlos can supervise approximately 12 hours per day. The bottleneck is not token budget; it is integration decision-making and supervision. The agent system must reduce manual coordination by using `dev-swarm/` files, reports, issues, branches, and merge queues.
+Carlos can supervise approximately 12 hours per day. The bottleneck is not token budget; it is integration decision-making and supervision. The agent system must reduce manual coordination by using `LiNKdev/` files, reports, issues, branches, and merge queues.
 
 ## What Must Be Built Or Wired First
 
-1. `dev-swarm/` coordination layer (`dev-swarm/product/grounding/` for plans and contracts).
+1. `LiNKdev/` coordination layer (`LiNKdev/product/grounding/` for plans and contracts).
 2. Repo verification and reuse map.
 3. WebsiteFactory plugin manifest.
 4. Minimal shared contracts.

@@ -5,7 +5,7 @@ alwaysApply: true
 
 # Suite, Project, Phase Terminology (Approved 2026-05)
 
-Chairman-approved vocabulary for LiNKaios project/process surfaces and integrations. **Do not reintroduce legacy names in new user-facing work.**
+Principal-approved vocabulary for LiNKaios project/process surfaces and integrations. **Do not reintroduce legacy names in new user-facing work.**
 
 ## LiNKaios hierarchy (user-facing)
 
@@ -33,7 +33,7 @@ In LiNKaios, integrations to external software (Plane, Odoo, Zulip, n8n, etc.) a
 | `cap.zulip.run_messaging` | Zulip | governed messaging |
 | LiNKautowork / n8n | Automations | executions via capability leases |
 
-Do not ask Chairman to “invent” Odoo integration — use existing capability contracts; extend modes (live) when approved.
+Do not ask Principal to “invent” Odoo integration — use existing capability contracts; extend modes (live) when approved.
 
 ## Backend “kitchen” systems (do not duplicate in LiNKaios)
 
@@ -133,4 +133,4 @@ Legacy symbols (`missionId`, `MissionRecord`, old `/modules/` routes) may persis
 | `my-modules` route | Rename to `my-suites` with redirect |
 | Tab order on suite profile | Overview · **Modules** · **Projects** · Outputs · … |
 
-No open Chairman decisions remain for terminology or integration posture. Proceed to implementation when instructed.
+No open Principal decisions remain for terminology or integration posture. Proceed to implementation when instructed.

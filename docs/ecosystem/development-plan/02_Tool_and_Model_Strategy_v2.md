@@ -13,7 +13,7 @@ Use Cursor as the senior architecture and integration environment.
 Best uses:
 
 - reviewing the architect report
-- wiring `dev-swarm/` (factory + command center)
+- wiring `LiNKdev/` (factory + command center)
 - freezing architecture boundaries
 - reviewing `REPO_INVENTORY.md`
 - reviewing and editing `CONTRACTS_MVO.md`
@@ -55,7 +55,7 @@ Use Codex for:
 - local run scripts
 - branch commits
 
-Codex agents should work from issues under `dev-swarm/product/programs/linktrend-system/issues/` and update `dev-swarm/product/reports/`.
+Codex agents should work from issues under `LiNKdev/product/programs/linktrend-system/issues/` and update `LiNKdev/product/reports/`.
 
 ## Antigravity
 

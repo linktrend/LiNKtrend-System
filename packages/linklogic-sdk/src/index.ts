@@ -284,7 +284,7 @@ export type {
 } from "./brain-traces.js";
 
 // MVO cross-service contract schemas + types. Canonical source:
-// `dev-swarm/product/grounding/CONTRACTS_MVO.md`. Pinned by WP-005.
+// `LiNKdev/product/grounding/CONTRACTS_MVO.md`. Pinned by WP-005.
 export {
   AUDIT_ACTIONS,
   ActorKindSchema,

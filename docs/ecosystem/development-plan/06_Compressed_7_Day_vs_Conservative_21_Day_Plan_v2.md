@@ -22,7 +22,7 @@ The 21-day target is:
 
 ## Day 1 — Decisions, Command Center, Reuse Map
 
-Wire `dev-swarm/` and `dev-swarm/product/grounding/`.
+Wire `LiNKdev/` and `LiNKdev/product/grounding/`.
 
 Add architect review report.
 

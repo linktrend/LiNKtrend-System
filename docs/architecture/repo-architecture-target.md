@@ -113,4 +113,4 @@ Prefer migration-safe moves:
 2. Move declarations/manifests before runtime code.
 3. Keep compatibility entrypoints or re-exports during transition.
 4. Verify after every wave.
-5. Record final ownership changes in `dev-swarm/product/grounding/DECISIONS.md` and `dev-swarm/product/grounding/REPO_INVENTORY.md`.
+5. Record final ownership changes in `LiNKdev/product/grounding/DECISIONS.md` and `LiNKdev/product/grounding/REPO_INVENTORY.md`.

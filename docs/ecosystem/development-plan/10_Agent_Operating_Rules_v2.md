@@ -2,7 +2,7 @@
 
 ## Rule 1 — Read The Architect Review
 
-Every agent must read `dev-swarm/product/grounding/ARCHITECT_REVIEW_REPORT.md` before work.
+Every agent must read `LiNKdev/product/grounding/ARCHITECT_REVIEW_REPORT.md` before work.
 
 ## Rule 2 — Wire Existing Code First
 

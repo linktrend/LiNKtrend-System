@@ -1,6 +1,6 @@
 # Handoff: Pre-Wiring Readiness Complete
 
-> **Path note (2026-05):** Legacy `.ai-swarm/` paths below now live under `dev-swarm/product/grounding/`, `dev-swarm/programs/`, or `dev-swarm/product/reports/`. See `dev-swarm/product/programs/linktrend-system/MIGRATION.md`.
+> **Path note (2026-05):** Legacy `.ai-swarm/` paths below now live under `LiNKdev/product/grounding/`, `LiNKdev/programs/`, or `LiNKdev/product/reports/`. See `LiNKdev/product/programs/linktrend-system/MIGRATION.md`.
 
 - **Date:** 2026-05-22
 - **Branch:** development
@@ -56,6 +56,6 @@ None for pre-wiring scope.
 
 ## Key Docs
 
-- Master plan: `dev-swarm/product/grounding/PRE_WIRING_READINESS_PLAN.md`
+- Master plan: `LiNKdev/product/grounding/PRE_WIRING_READINESS_PLAN.md`
 - UI index: `LiNKaios/linkaios-web/docs/ui-system.md`
-- Final report: `dev-swarm/product/reports/archive/legacy-ai-swarm/PWR-FINAL.md`
+- Final report: `LiNKdev/product/reports/archive/legacy-ai-swarm/PWR-FINAL.md`

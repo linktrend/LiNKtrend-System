@@ -1,6 +1,6 @@
 # Swarm Coordination Model v2
 
-> **Host-repo planning doc (LiNKtrend-System).** Not copied with portable Dev Swarm. Normative factory behavior: `dev-swarm/factory/SPEC.md`.
+> **Host-repo planning doc (LiNKtrend-System).** Not copied with portable LiNKdev. Normative factory behavior: `LiNKdev/factory/SPEC.md`.
 
 ## Principle
 
@@ -10,10 +10,10 @@ Cursor chats, Codex threads, Antigravity sessions, and Kimi/Gemini analysis sess
 
 ## Command Center
 
-Use the **Dev Swarm** factory in the LiNKaios monorepo (`LiNKtrend-System`):
+Use the **LiNKdev** factory in the LiNKaios monorepo (`LiNKtrend-System`):
 
 ```text
-dev-swarm/
+LiNKdev/
 ├── AGENTS.md
 ├── SPEC.md
 ├── STATE.md
@@ -38,21 +38,21 @@ dev-swarm/
 └── archive/                 # read-only legacy ai-swarm and cursor copies
 ```
 
-Factory coordination lives in `dev-swarm/`. Plans, contracts, and live queues live in `dev-swarm/product/grounding/`.
+Factory coordination lives in `LiNKdev/`. Plans, contracts, and live queues live in `LiNKdev/product/grounding/`.
 
 ## Add The Architect Review Report
 
 The architect review report should live at:
 
 ```text
-dev-swarm/product/grounding/ARCHITECT_REVIEW_REPORT.md
+LiNKdev/product/grounding/ARCHITECT_REVIEW_REPORT.md
 ```
 
 This report becomes the starting map for repo reuse. Agents should not ignore it.
 
 ## Live Coordination File
 
-`dev-swarm/product/grounding/AGENT_COORDINATION.md` should show:
+`LiNKdev/product/grounding/AGENT_COORDINATION.md` should show:
 
 - global status
 - active agents
@@ -65,15 +65,15 @@ This report becomes the starting map for repo reuse. Agents should not ignore it
 
 ## Agent Reports
 
-Each agent writes to one report under `dev-swarm/product/reports/` (historical legacy agent-report copies are under `dev-swarm/product/reports/archive/legacy-ai-swarm/`):
+Each agent writes to one report under `LiNKdev/product/reports/` (historical legacy agent-report copies are under `LiNKdev/product/reports/archive/legacy-ai-swarm/`):
 
 ```text
-dev-swarm/product/reports/linkbrain-agent.md
-dev-swarm/product/reports/linkskills-agent.md
-dev-swarm/product/reports/linkautowork-agent.md
-dev-swarm/product/reports/linkbot-agent.md
-dev-swarm/product/reports/linkaios-agent.md
-dev-swarm/product/reports/integration-agent.md
+LiNKdev/product/reports/linkbrain-agent.md
+LiNKdev/product/reports/linkskills-agent.md
+LiNKdev/product/reports/linkautowork-agent.md
+LiNKdev/product/reports/linkbot-agent.md
+LiNKdev/product/reports/linkaios-agent.md
+LiNKdev/product/reports/integration-agent.md
 ```
 
 Each report must include:
@@ -91,12 +91,12 @@ Each report must include:
 
 Agents do not rely on each other’s chat history. Agents read:
 
-- `dev-swarm/product/grounding/ARCHITECTURE_RULES.md`
-- `dev-swarm/product/grounding/ARCHITECT_REVIEW_REPORT.md`
-- `dev-swarm/product/grounding/REPO_INVENTORY.md`
-- `dev-swarm/product/grounding/CONTRACTS_MVO.md`
-- their assigned issue under `dev-swarm/product/programs/linktrend-system/issues/`
-- their agent report under `dev-swarm/product/reports/`
+- `LiNKdev/product/grounding/ARCHITECTURE_RULES.md`
+- `LiNKdev/product/grounding/ARCHITECT_REVIEW_REPORT.md`
+- `LiNKdev/product/grounding/REPO_INVENTORY.md`
+- `LiNKdev/product/grounding/CONTRACTS_MVO.md`
+- their assigned issue under `LiNKdev/product/programs/linktrend-system/issues/`
+- their agent report under `LiNKdev/product/reports/`
 
 ## Human Role
 

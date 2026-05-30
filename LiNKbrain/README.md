@@ -29,7 +29,7 @@ LiNKbrain code is currently spread across:
 - `packages/linklogic-sdk/src/brain-*`
 - `LiNKaios/linkaios-web/src/components/linkbrain`
 - `LiNKaios/linkaios-web/src/lib/linkbrain-data.ts`
-- `dev-swarm/product/grounding/LINKBRAIN_*`
+- `LiNKdev/product/grounding/LINKBRAIN_*`
 
 This folder is the canonical ownership home. Runtime code will move here in migration-safe waves with compatibility exports where needed.
 
