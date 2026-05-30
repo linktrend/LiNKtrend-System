@@ -77,22 +77,22 @@ LiNKguard is the worker security and cleanup sidecar. It owns residue cleanup, f
 
 ---
 
-## Repo folder mapping (target state)
+## Repo folder mapping
 
-| Legacy / current | Target | Notes |
+| Legacy / current | Canonical | Notes |
 |------------------|--------|-------|
-| `modules/` | `suites/` | Tenant-enabled **Suite** packages (LinkSites, LiNKapps, …). Folder rename is planned; docs use `suites/` as target. |
+| `modules/` | `suites/` | Tenant-enabled **Suite** packages (LinkSites, LiNKapps, …). **`suites/` is canonical**; legacy `modules/` trees remain during cleanup. |
 | `plugins/` | absorbed | Vertical/plugin layout retired; content moves into suite packages or owning planes. |
-| `LiNKaios/linkaios-web/src/lib/plugins/` | `lib/suite-integrations/` | Suite-specific integration code; rename during LiNKaios migration waves. |
+| `LiNKaios/linkaios-web/src/lib/plugins/` | `lib/suite-integrations/` | Suite-specific integration code still imports from `lib/plugins/` today; target rename is Phase C. |
 | `LinkSkills/capability-connectors/` | *(unchanged)* | Internal LinkSkills term; UI still says Capability. |
 
-### LiNKaios routes (target)
+### LiNKaios routes (active)
 
 | Was | Now |
 |-----|-----|
-| `/modules/…` | `/suites/…` (302 redirects during transition) |
+| `/modules/…` | `/suites/…` (**302 redirects** from legacy paths during transition) |
 | Nav “Modules” (product catalogue) | **Suites** |
-| My Modules | **My Suites** |
+| My Modules | **My Suites** (`/suites/my-suites`) |
 
 ---
 
@@ -136,7 +136,7 @@ Legacy symbols (`missionId`, `MissionRecord`, `/modules/` routes, `lib/plugins/`
 |-------|--------|--------|
 | **A** | User-visible copy: Mission → Project | Done |
 | **B** | Routes (`/suites/`), breadcrumbs, component names | Done |
-| **C** | TypeScript/API aliases (`MissionRecord` → `ProjectRecord`, etc.) | Not done |
-| **D** | Database columns, RPC names, webhooks, kernel | Not done |
+| **C** | TypeScript/API aliases (`MissionRecord` → `ProjectRecord`, etc.) | **In progress** |
+| **D** | Database columns, RPC names, webhooks, kernel (`033`–`035` applied) | **Done** |
 
-Do not assume backend migration is complete when reading or writing code.
+Do not assume TypeScript/API migration (Phase C) is complete when reading or writing code. Database columns and RPC names use **project** after `033`–`035`; legacy symbols and views may remain for compat.

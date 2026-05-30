@@ -32,7 +32,7 @@ Use `system-completion-targets.md` for what each system must become to reach the
 
 Suites are tenant-enabled product packages. A tenant may enable one suite, many suites, or a custom set. Suites describe business workflows and required roles/capability connectors, but they do not own the external software implementation.
 
-> **Folder:** Suite declarations live under `suites/`. See `docs/terminology.md` for the full map.
+> **Folder:** Suite declarations live under `suites/`. Legacy `modules/` copies and LiNKbot `roles/modules/` paths remain during transition — remove after imports and manifests point at `suites/` only. See `docs/terminology.md` for the full map.
 
 Each suite must have one canonical workflow map in its suite folder. That map is the source of truth for what happens and in what order. It should reference, not duplicate, the owning planes:
 

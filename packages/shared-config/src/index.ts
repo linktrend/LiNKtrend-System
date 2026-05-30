@@ -32,29 +32,54 @@ const envSchema = z.object({
   /** Zulip governance notify POST (ms). Falls back to HTTP timeout, then 10_000. */
   BOT_RUNTIME_NOTIFY_TIMEOUT_MS: optionalNonEmpty(),
   ZULIP_GATEWAY_PORT: optionalNonEmpty(),
-  PRISM_HEARTBEAT_MS: optionalNonEmpty(),
-  /** Delete `sidecar_heartbeat` rows older than this many days (prism-defender). Default 14 when unset. */
-  PRISM_RETENTION_DAYS: optionalNonEmpty(),
+  LINKGUARD_HEARTBEAT_MS: optionalNonEmpty(),
+  /** Delete `sidecar_heartbeat` rows older than this many days (LiNKguard). Default 14 when unset. */
+  LINKGUARD_RETENTION_DAYS: optionalNonEmpty(),
   /** Set to "0" to disable residue sweep (default on). */
-  PRISM_RESIDUE_SWEEP: optionalNonEmpty(),
+  LINKGUARD_RESIDUE_SWEEP: optionalNonEmpty(),
   /** Max closed sessions to acknowledge per sweep cycle. */
-  PRISM_RESIDUE_BATCH: optionalNonEmpty(),
-  /** Comma-separated absolute directory roots PRISM may clean (empty ⇒ no FS cleanup). */
-  PRISM_RESIDUE_ROOTS: optionalNonEmpty(),
+  LINKGUARD_RESIDUE_BATCH: optionalNonEmpty(),
+  /** Comma-separated absolute directory roots LiNKguard may clean (empty ⇒ no FS cleanup). */
+  LINKGUARD_RESIDUE_ROOTS: optionalNonEmpty(),
   /** `1` to allow real unlink; default off (`0` or unset). */
-  PRISM_FS_CLEANUP: optionalNonEmpty(),
+  LINKGUARD_FS_CLEANUP: optionalNonEmpty(),
   /**
    * `1` = log intended deletes only (default when unset — safer).
+   * `0` = allow real deletes when `LINKGUARD_FS_CLEANUP=1`.
+   */
+  LINKGUARD_FS_DRY_RUN: optionalNonEmpty(),
+  /** Max file deletes per FS cleanup invocation (default 100). */
+  LINKGUARD_FS_MAX_FILES_PER_TICK: optionalNonEmpty(),
+  /** Only delete files older than this many seconds by mtime (default 300). */
+  LINKGUARD_FS_MIN_AGE_SEC: optionalNonEmpty(),
+  /** Comma-separated absolute path prefixes never deleted under roots. */
+  LINKGUARD_FS_DENY_PREFIXES: optionalNonEmpty(),
+  /** Max directory depth from each root when walking (default 6). */
+  LINKGUARD_FS_MAX_DEPTH: optionalNonEmpty(),
+  /** @deprecated Use LINKGUARD_HEARTBEAT_MS */
+  PRISM_HEARTBEAT_MS: optionalNonEmpty(),
+  /** @deprecated Use LINKGUARD_RETENTION_DAYS */
+  PRISM_RETENTION_DAYS: optionalNonEmpty(),
+  /** @deprecated Use LINKGUARD_RESIDUE_SWEEP */
+  PRISM_RESIDUE_SWEEP: optionalNonEmpty(),
+  /** @deprecated Use LINKGUARD_RESIDUE_BATCH */
+  PRISM_RESIDUE_BATCH: optionalNonEmpty(),
+  /** @deprecated Use LINKGUARD_RESIDUE_ROOTS */
+  PRISM_RESIDUE_ROOTS: optionalNonEmpty(),
+  /** @deprecated Use LINKGUARD_FS_CLEANUP */
+  PRISM_FS_CLEANUP: optionalNonEmpty(),
+  /**
+   * @deprecated Use LINKGUARD_FS_DRY_RUN
    * `0` = allow real deletes when `PRISM_FS_CLEANUP=1`.
    */
   PRISM_FS_DRY_RUN: optionalNonEmpty(),
-  /** Max file deletes per FS cleanup invocation (default 100). */
+  /** @deprecated Use LINKGUARD_FS_MAX_FILES_PER_TICK */
   PRISM_FS_MAX_FILES_PER_TICK: optionalNonEmpty(),
-  /** Only delete files older than this many seconds by mtime (default 300). */
+  /** @deprecated Use LINKGUARD_FS_MIN_AGE_SEC */
   PRISM_FS_MIN_AGE_SEC: optionalNonEmpty(),
-  /** Comma-separated absolute path prefixes never deleted under roots. */
+  /** @deprecated Use LINKGUARD_FS_DENY_PREFIXES */
   PRISM_FS_DENY_PREFIXES: optionalNonEmpty(),
-  /** Max directory depth from each root when walking (default 6). */
+  /** @deprecated Use LINKGUARD_FS_MAX_DEPTH */
   PRISM_FS_MAX_DEPTH: optionalNonEmpty(),
   /** Optional comma list of paths the worker advertises at session end (correlation only). */
   BOT_RUNTIME_RESIDUE_ROOTS: optionalNonEmpty(),
@@ -177,9 +202,14 @@ export function parseCommaSeparatedList(raw: string | undefined): string[] {
     .filter((s) => s.length > 0);
 }
 
-/** `PRISM_RESIDUE_ROOTS` as list of trimmed non-empty segments. */
+/** `LINKGUARD_RESIDUE_ROOTS` (or deprecated `PRISM_RESIDUE_ROOTS`) as trimmed non-empty segments. */
+export function parseLinkguardResidueRoots(env: Env): string[] {
+  return parseCommaSeparatedList(env.LINKGUARD_RESIDUE_ROOTS ?? env.PRISM_RESIDUE_ROOTS);
+}
+
+/** @deprecated Use parseLinkguardResidueRoots */
 export function parsePrismResidueRoots(env: Env): string[] {
-  return parseCommaSeparatedList(env.PRISM_RESIDUE_ROOTS);
+  return parseLinkguardResidueRoots(env);
 }
 
 /** `BOT_RUNTIME_RESIDUE_ROOTS` for `worker_session_end.detail.residue_roots`. */
@@ -214,9 +244,14 @@ export function botRuntimeNotifyTimeoutMs(env: Env): number {
   );
 }
 
-/** `PRISM_FS_DENY_PREFIXES` as list of trimmed path prefixes. */
+/** `LINKGUARD_FS_DENY_PREFIXES` (or deprecated `PRISM_FS_DENY_PREFIXES`) as trimmed path prefixes. */
+export function parseLinkguardFsDenyPrefixes(env: Env): string[] {
+  return parseCommaSeparatedList(env.LINKGUARD_FS_DENY_PREFIXES ?? env.PRISM_FS_DENY_PREFIXES);
+}
+
+/** @deprecated Use parseLinkguardFsDenyPrefixes */
 export function parsePrismFsDenyPrefixes(env: Env): string[] {
-  return parseCommaSeparatedList(env.PRISM_FS_DENY_PREFIXES);
+  return parseLinkguardFsDenyPrefixes(env);
 }
 
 function parseEnvBool01(raw: string | undefined, defaultWhenUnset: boolean): boolean {
@@ -227,9 +262,9 @@ function parseEnvBool01(raw: string | undefined, defaultWhenUnset: boolean): boo
   return defaultWhenUnset;
 }
 
-/** Master switch for filesystem deletion (`PRISM_FS_CLEANUP=1`). Default false. */
+/** Master switch for filesystem deletion (`LINKGUARD_FS_CLEANUP=1`). Default false. */
 export function prismFsCleanupApplyEnabled(env: Env): boolean {
-  return parseEnvBool01(env.PRISM_FS_CLEANUP, false);
+  return parseEnvBool01(env.LINKGUARD_FS_CLEANUP ?? env.PRISM_FS_CLEANUP, false);
 }
 
 /**
@@ -237,23 +272,23 @@ export function prismFsCleanupApplyEnabled(env: Env): boolean {
  * Default true when unset (fail-safe).
  */
 export function prismFsDryRun(env: Env): boolean {
-  return parseEnvBool01(env.PRISM_FS_DRY_RUN, true);
+  return parseEnvBool01(env.LINKGUARD_FS_DRY_RUN ?? env.PRISM_FS_DRY_RUN, true);
 }
 
 export function prismFsMaxFilesPerTick(env: Env): number {
-  const n = Number(env.PRISM_FS_MAX_FILES_PER_TICK);
+  const n = Number(env.LINKGUARD_FS_MAX_FILES_PER_TICK ?? env.PRISM_FS_MAX_FILES_PER_TICK);
   if (!Number.isFinite(n) || n < 1) return 100;
   return Math.min(Math.floor(n), 1_000_000);
 }
 
 export function prismFsMinAgeSec(env: Env): number {
-  const n = Number(env.PRISM_FS_MIN_AGE_SEC);
+  const n = Number(env.LINKGUARD_FS_MIN_AGE_SEC ?? env.PRISM_FS_MIN_AGE_SEC);
   if (!Number.isFinite(n) || n < 0) return 300;
   return Math.min(Math.floor(n), 86_400 * 365);
 }
 
 export function prismFsMaxDepth(env: Env): number {
-  const n = Number(env.PRISM_FS_MAX_DEPTH);
+  const n = Number(env.LINKGUARD_FS_MAX_DEPTH ?? env.PRISM_FS_MAX_DEPTH);
   if (!Number.isFinite(n) || n < 0) return 6;
   return Math.min(Math.floor(n), 64);
 }

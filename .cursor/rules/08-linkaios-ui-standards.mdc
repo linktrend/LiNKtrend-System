@@ -212,7 +212,7 @@ Do not rebuild this layout inline on new pages — extend `SummaryMetricCard` or
 | `OverviewWorkforceSummaryGrid` | Overview workforce panel |
 | `OverviewProjectsSummaryGrid` | Overview projects panel |
 | `MetricsKpiSummaryGrid` | Metrics KPI row |
-| `PrismSummaryStatsGrid` | Settings → LiNKguard / PRISM stats |
+| `LinkguardSummaryStatsGrid` | Settings → LiNKguard stats |
 
 New dashboard stat rows: add a preset in `components/summary-metric-card/` and export from `index.ts`.
 

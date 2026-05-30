@@ -1,3 +1,4 @@
+# DEPRECATED (Tier 2): canonical copy at LiNKskills/capability-connectors/cap.plane.execution_tracking.yaml
 ---
 # Declaration-only capability plugin manifest — LiNKapps Plane execution tracking (mock-first, aligns LinkSites pack).
 # Sources: LINKAPPS_CAPABILITY_REQUIREMENTS.md §2.6, §3, §4; CONTRACTS_MVO.md §0.A.5.1.

@@ -1,11 +1,14 @@
 -- LiNKtrend service schemas reset (safe: does not touch auth, storage, or extensions).
+-- Greenfield bootstrap (post-033/035): canonical linkaios.projects + linkguard schema.
+-- Legacy: linkaios.missions compat view; gateway.mission_id columns unchanged (see migrations README).
 -- Run after backup if you ever have data you care about.
 
+
 DROP SCHEMA IF EXISTS gateway CASCADE;
-DROP SCHEMA IF EXISTS prism CASCADE;
+DROP SCHEMA IF EXISTS linkguard CASCADE;
 DROP SCHEMA IF EXISTS bot_runtime CASCADE;
 DROP SCHEMA IF EXISTS linkaios CASCADE;
--- Central governance domain: identities, missions, LiNKskills, LiNKbrain memory, traces.
+-- Central governance domain: identities, projects, LiNKskills, LiNKbrain memory, traces.
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
 CREATE SCHEMA IF NOT EXISTS linkaios;
@@ -19,7 +22,7 @@ CREATE TABLE linkaios.agents (
   updated_at timestamptz NOT NULL DEFAULT now()
 );
 
-CREATE TABLE linkaios.missions (
+CREATE TABLE linkaios.projects (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   title text NOT NULL,
   status text NOT NULL DEFAULT 'draft' CHECK (
@@ -33,7 +36,7 @@ CREATE TABLE linkaios.missions (
 
 CREATE TABLE linkaios.manifests (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  mission_id uuid NOT NULL REFERENCES linkaios.missions (id) ON DELETE CASCADE,
+  project_id uuid NOT NULL REFERENCES linkaios.projects (id) ON DELETE CASCADE,
   version int NOT NULL DEFAULT 1,
   payload jsonb NOT NULL DEFAULT '{}'::jsonb,
   created_at timestamptz NOT NULL DEFAULT now()
@@ -53,7 +56,7 @@ CREATE TABLE linkaios.skills (
 
 CREATE TABLE linkaios.memory_entries (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  mission_id uuid REFERENCES linkaios.missions (id) ON DELETE CASCADE,
+  project_id uuid REFERENCES linkaios.projects (id) ON DELETE CASCADE,
   classification text NOT NULL DEFAULT 'working',
   body text NOT NULL DEFAULT '',
   metadata jsonb NOT NULL DEFAULT '{}'::jsonb,
@@ -62,7 +65,7 @@ CREATE TABLE linkaios.memory_entries (
 
 CREATE TABLE linkaios.traces (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  mission_id uuid REFERENCES linkaios.missions (id) ON DELETE SET NULL,
+  project_id uuid REFERENCES linkaios.projects (id) ON DELETE SET NULL,
   event_type text NOT NULL,
   payload jsonb NOT NULL DEFAULT '{}'::jsonb,
   created_at timestamptz NOT NULL DEFAULT now()
@@ -83,12 +86,13 @@ CREATE TABLE linkaios.integration_secrets (
 
 CREATE INDEX idx_integration_secrets_provider ON linkaios.integration_secrets (provider);
 
-CREATE INDEX idx_missions_status ON linkaios.missions (status);
+CREATE INDEX idx_projects_status ON linkaios.projects (status);
 CREATE INDEX idx_skills_name_status ON linkaios.skills (name, status);
-CREATE INDEX idx_memory_mission ON linkaios.memory_entries (mission_id);
-CREATE INDEX idx_traces_mission ON linkaios.traces (mission_id);
+CREATE INDEX idx_memory_project ON linkaios.memory_entries (project_id);
+CREATE INDEX idx_traces_project ON linkaios.traces (project_id);
 
-COMMENT ON SCHEMA linkaios IS 'LiNKaios command-plane records: agents, missions, skills, memory, traces.';
+COMMENT ON TABLE linkaios.projects IS 'Tenant projects (canonical LiNKaios work container).';
+COMMENT ON SCHEMA linkaios IS 'LiNKaios command-plane records: agents, projects, skills, memory, traces.';
 CREATE SCHEMA IF NOT EXISTS bot_runtime;
 
 CREATE TABLE bot_runtime.worker_sessions (
@@ -107,9 +111,9 @@ CREATE INDEX idx_worker_sessions_agent ON bot_runtime.worker_sessions (agent_id)
 CREATE INDEX idx_worker_sessions_status ON bot_runtime.worker_sessions (status);
 
 COMMENT ON SCHEMA bot_runtime IS 'LiNKbot / bot-runtime session and heartbeat data (not OpenClaw engine internals).';
-CREATE SCHEMA IF NOT EXISTS prism;
+CREATE SCHEMA IF NOT EXISTS linkguard;
 
-CREATE TABLE prism.cleanup_events (
+CREATE TABLE linkguard.cleanup_events (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   worker_session_id uuid,
   action text NOT NULL,
@@ -118,10 +122,13 @@ CREATE TABLE prism.cleanup_events (
   created_at timestamptz NOT NULL DEFAULT now()
 );
 
-CREATE INDEX idx_prism_cleanup_session ON prism.cleanup_events (worker_session_id);
-CREATE INDEX idx_prism_cleanup_action_created ON prism.cleanup_events (action, created_at DESC);
+CREATE INDEX idx_linkguard_cleanup_session ON linkguard.cleanup_events (worker_session_id);
+CREATE INDEX idx_linkguard_cleanup_action_created ON linkguard.cleanup_events (action, created_at DESC);
 
-COMMENT ON SCHEMA prism IS 'PRISM-Defender cleanup and containment telemetry.';
+COMMENT ON TABLE linkguard.cleanup_events IS
+  'LiNKguard cleanup and containment events (heartbeats, residue sweep, session end).';
+
+COMMENT ON SCHEMA linkguard IS 'LiNKguard worker security and cleanup telemetry (formerly prism schema).';
 CREATE SCHEMA IF NOT EXISTS gateway;
 
 -- Bridge metadata only. The Zulip application keeps its own database.
@@ -130,7 +137,7 @@ CREATE TABLE gateway.zulip_message_links (
   zulip_message_id text NOT NULL,
   stream_id bigint,
   topic text,
-  mission_id uuid REFERENCES linkaios.missions (id) ON DELETE SET NULL,
+  mission_id uuid REFERENCES linkaios.projects (id) ON DELETE SET NULL,
   payload jsonb NOT NULL DEFAULT '{}'::jsonb,
   created_at timestamptz NOT NULL DEFAULT now(),
   UNIQUE (zulip_message_id)
@@ -138,7 +145,7 @@ CREATE TABLE gateway.zulip_message_links (
 
 CREATE INDEX idx_gateway_mission ON gateway.zulip_message_links (mission_id);
 
-COMMENT ON SCHEMA gateway IS 'Zulip-Gateway mapping from Zulip traffic to mission context.';
+COMMENT ON SCHEMA gateway IS 'Zulip-Gateway mapping from Zulip traffic to project context (mission_id column legacy name).';
 -- Optional demo seed.
 INSERT INTO linkaios.agents (id, display_name, status)
 SELECT gen_random_uuid(), 'Demo agent', 'active'
@@ -152,7 +159,7 @@ SELECT 'bootstrap',
        '{}'::jsonb
 WHERE NOT EXISTS (SELECT 1 FROM linkaios.skills WHERE name = 'bootstrap' AND version = 1);
 -- PostgREST / Data API access for custom schemas (see Supabase docs: Using custom schemas).
--- Also add linkaios, bot_runtime, prism, gateway to "Exposed schemas" in Dashboard → Settings → API.
+-- Also add linkaios, bot_runtime, linkguard, gateway to "Exposed schemas" (do not expose prism after 035) in Dashboard → Settings → API.
 
 GRANT USAGE ON SCHEMA linkaios TO anon, authenticated, service_role;
 GRANT ALL ON ALL TABLES IN SCHEMA linkaios TO anon, authenticated, service_role;
@@ -175,13 +182,13 @@ ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA bot_runtime GRANT ALL ON TA
 ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA bot_runtime GRANT ALL ON ROUTINES TO anon, authenticated, service_role;
 ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA bot_runtime GRANT ALL ON SEQUENCES TO anon, authenticated, service_role;
 
-GRANT USAGE ON SCHEMA prism TO anon, authenticated, service_role;
-GRANT ALL ON ALL TABLES IN SCHEMA prism TO anon, authenticated, service_role;
-GRANT ALL ON ALL ROUTINES IN SCHEMA prism TO anon, authenticated, service_role;
-GRANT ALL ON ALL SEQUENCES IN SCHEMA prism TO anon, authenticated, service_role;
-ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA prism GRANT ALL ON TABLES TO anon, authenticated, service_role;
-ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA prism GRANT ALL ON ROUTINES TO anon, authenticated, service_role;
-ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA prism GRANT ALL ON SEQUENCES TO anon, authenticated, service_role;
+GRANT USAGE ON SCHEMA linkguard TO anon, authenticated, service_role;
+GRANT ALL ON ALL TABLES IN SCHEMA linkguard TO anon, authenticated, service_role;
+GRANT ALL ON ALL ROUTINES IN SCHEMA linkguard TO anon, authenticated, service_role;
+GRANT ALL ON ALL SEQUENCES IN SCHEMA linkguard TO anon, authenticated, service_role;
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA linkguard GRANT ALL ON TABLES TO anon, authenticated, service_role;
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA linkguard GRANT ALL ON ROUTINES TO anon, authenticated, service_role;
+ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA linkguard GRANT ALL ON SEQUENCES TO anon, authenticated, service_role;
 
 GRANT USAGE ON SCHEMA gateway TO anon, authenticated, service_role;
 GRANT ALL ON ALL TABLES IN SCHEMA gateway TO anon, authenticated, service_role;
@@ -191,19 +198,19 @@ ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA gateway GRANT ALL ON TABLES
 ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA gateway GRANT ALL ON ROUTINES TO anon, authenticated, service_role;
 ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA gateway GRANT ALL ON SEQUENCES TO anon, authenticated, service_role;
 
--- RLS + PRISM sweep table (additive; does not touch auth schema).
-CREATE TABLE IF NOT EXISTS prism.swept_sessions (
+-- RLS + LiNKguard sweep table (additive; does not touch auth schema).
+CREATE TABLE IF NOT EXISTS linkguard.swept_sessions (
   worker_session_id uuid PRIMARY KEY REFERENCES bot_runtime.worker_sessions (id) ON DELETE CASCADE,
   swept_at timestamptz NOT NULL DEFAULT now(),
   detail jsonb NOT NULL DEFAULT '{}'::jsonb
 );
 
-CREATE INDEX IF NOT EXISTS idx_prism_swept_at ON prism.swept_sessions (swept_at DESC);
+CREATE INDEX IF NOT EXISTS idx_linkguard_swept_at ON linkguard.swept_sessions (swept_at DESC);
 
-GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE prism.swept_sessions TO anon, authenticated, service_role;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE linkguard.swept_sessions TO anon, authenticated, service_role;
 
 ALTER TABLE linkaios.agents ENABLE ROW LEVEL SECURITY;
-ALTER TABLE linkaios.missions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE linkaios.projects ENABLE ROW LEVEL SECURITY;
 ALTER TABLE linkaios.manifests ENABLE ROW LEVEL SECURITY;
 ALTER TABLE linkaios.skills ENABLE ROW LEVEL SECURITY;
 ALTER TABLE linkaios.memory_entries ENABLE ROW LEVEL SECURITY;
@@ -213,8 +220,8 @@ ALTER TABLE linkaios.integration_secrets ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS linkaios_agents_authenticated ON linkaios.agents;
 CREATE POLICY linkaios_agents_authenticated ON linkaios.agents FOR ALL TO authenticated USING (true) WITH CHECK (true);
 
-DROP POLICY IF EXISTS linkaios_missions_authenticated ON linkaios.missions;
-CREATE POLICY linkaios_missions_authenticated ON linkaios.missions FOR ALL TO authenticated USING (true) WITH CHECK (true);
+DROP POLICY IF EXISTS linkaios_projects_authenticated ON linkaios.projects;
+CREATE POLICY linkaios_projects_authenticated ON linkaios.projects FOR ALL TO authenticated USING (true) WITH CHECK (true);
 
 DROP POLICY IF EXISTS linkaios_manifests_authenticated ON linkaios.manifests;
 CREATE POLICY linkaios_manifests_authenticated ON linkaios.manifests FOR ALL TO authenticated USING (true) WITH CHECK (true);
@@ -233,26 +240,27 @@ ALTER TABLE bot_runtime.worker_sessions ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS bot_runtime_sessions_authenticated ON bot_runtime.worker_sessions;
 CREATE POLICY bot_runtime_sessions_authenticated ON bot_runtime.worker_sessions FOR ALL TO authenticated USING (true) WITH CHECK (true);
 
-ALTER TABLE prism.cleanup_events ENABLE ROW LEVEL SECURITY;
-ALTER TABLE prism.swept_sessions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE linkguard.cleanup_events ENABLE ROW LEVEL SECURITY;
+ALTER TABLE linkguard.swept_sessions ENABLE ROW LEVEL SECURITY;
 
-DROP POLICY IF EXISTS prism_cleanup_authenticated ON prism.cleanup_events;
-CREATE POLICY prism_cleanup_authenticated ON prism.cleanup_events FOR ALL TO authenticated USING (true) WITH CHECK (true);
+DROP POLICY IF EXISTS linkguard_cleanup_authenticated ON linkguard.cleanup_events;
+CREATE POLICY linkguard_cleanup_authenticated ON linkguard.cleanup_events FOR ALL TO authenticated USING (true) WITH CHECK (true);
 
-DROP POLICY IF EXISTS prism_swept_authenticated ON prism.swept_sessions;
-CREATE POLICY prism_swept_authenticated ON prism.swept_sessions FOR ALL TO authenticated USING (true) WITH CHECK (true);
+DROP POLICY IF EXISTS linkguard_swept_authenticated ON linkguard.swept_sessions;
+CREATE POLICY linkguard_swept_authenticated ON linkguard.swept_sessions FOR ALL TO authenticated USING (true) WITH CHECK (true);
 
 ALTER TABLE gateway.zulip_message_links ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS gateway_links_authenticated ON gateway.zulip_message_links;
 CREATE POLICY gateway_links_authenticated ON gateway.zulip_message_links FOR ALL TO authenticated USING (true) WITH CHECK (true);
 
-COMMENT ON TABLE prism.swept_sessions IS 'PRISM acknowledged closed worker sessions (residue sweep bookkeeping).';
+COMMENT ON TABLE linkguard.swept_sessions IS
+  'LiNKguard acknowledged closed worker sessions (residue sweep bookkeeping).';
 
 -- 009: Zulip stream → mission mapping (run before 010).
 CREATE TABLE IF NOT EXISTS gateway.stream_routing (
   zulip_stream_id bigint PRIMARY KEY,
-  mission_id uuid NOT NULL REFERENCES linkaios.missions (id) ON DELETE CASCADE,
+  mission_id uuid NOT NULL REFERENCES linkaios.projects (id) ON DELETE CASCADE,
   note text,
   created_at timestamptz NOT NULL DEFAULT now()
 );
@@ -267,7 +275,7 @@ ALTER TABLE gateway.stream_routing ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS gateway_stream_routing_authenticated ON gateway.stream_routing;
 CREATE POLICY gateway_stream_routing_authenticated ON gateway.stream_routing FOR ALL TO authenticated USING (true) WITH CHECK (true);
 
-COMMENT ON TABLE gateway.stream_routing IS 'Maps Zulip stream_id to linkaios.missions.id for mission-aware gateway routing.';
+COMMENT ON TABLE gateway.stream_routing IS 'Maps Zulip stream_id to linkaios.projects.id for mission-aware gateway routing.';
 
 -- 010: Operator roles + stricter RLS (depends on 009 for stream_routing policies).
 CREATE TABLE IF NOT EXISTS linkaios.user_access (
@@ -309,11 +317,11 @@ CREATE POLICY linkaios_agents_insert ON linkaios.agents FOR INSERT TO authentica
 CREATE POLICY linkaios_agents_update ON linkaios.agents FOR UPDATE TO authenticated USING (linkaios.command_centre_write_allowed()) WITH CHECK (linkaios.command_centre_write_allowed());
 CREATE POLICY linkaios_agents_delete ON linkaios.agents FOR DELETE TO authenticated USING (linkaios.command_centre_write_allowed());
 
-DROP POLICY IF EXISTS linkaios_missions_authenticated ON linkaios.missions;
-CREATE POLICY linkaios_missions_select ON linkaios.missions FOR SELECT TO authenticated USING (true);
-CREATE POLICY linkaios_missions_insert ON linkaios.missions FOR INSERT TO authenticated WITH CHECK (linkaios.command_centre_write_allowed());
-CREATE POLICY linkaios_missions_update ON linkaios.missions FOR UPDATE TO authenticated USING (linkaios.command_centre_write_allowed()) WITH CHECK (linkaios.command_centre_write_allowed());
-CREATE POLICY linkaios_missions_delete ON linkaios.missions FOR DELETE TO authenticated USING (linkaios.command_centre_write_allowed());
+DROP POLICY IF EXISTS linkaios_projects_authenticated ON linkaios.projects;
+CREATE POLICY linkaios_projects_select ON linkaios.projects FOR SELECT TO authenticated USING (true);
+CREATE POLICY linkaios_projects_insert ON linkaios.projects FOR INSERT TO authenticated WITH CHECK (linkaios.command_centre_write_allowed());
+CREATE POLICY linkaios_projects_update ON linkaios.projects FOR UPDATE TO authenticated USING (linkaios.command_centre_write_allowed()) WITH CHECK (linkaios.command_centre_write_allowed());
+CREATE POLICY linkaios_projects_delete ON linkaios.projects FOR DELETE TO authenticated USING (linkaios.command_centre_write_allowed());
 
 DROP POLICY IF EXISTS linkaios_manifests_authenticated ON linkaios.manifests;
 CREATE POLICY linkaios_manifests_select ON linkaios.manifests FOR SELECT TO authenticated USING (true);
@@ -345,17 +353,17 @@ CREATE POLICY bot_runtime_sessions_insert ON bot_runtime.worker_sessions FOR INS
 CREATE POLICY bot_runtime_sessions_update ON bot_runtime.worker_sessions FOR UPDATE TO authenticated USING (linkaios.command_centre_write_allowed()) WITH CHECK (linkaios.command_centre_write_allowed());
 CREATE POLICY bot_runtime_sessions_delete ON bot_runtime.worker_sessions FOR DELETE TO authenticated USING (linkaios.command_centre_write_allowed());
 
-DROP POLICY IF EXISTS prism_cleanup_authenticated ON prism.cleanup_events;
-CREATE POLICY prism_cleanup_select ON prism.cleanup_events FOR SELECT TO authenticated USING (true);
-CREATE POLICY prism_cleanup_insert ON prism.cleanup_events FOR INSERT TO authenticated WITH CHECK (linkaios.command_centre_write_allowed());
-CREATE POLICY prism_cleanup_update ON prism.cleanup_events FOR UPDATE TO authenticated USING (linkaios.command_centre_write_allowed()) WITH CHECK (linkaios.command_centre_write_allowed());
-CREATE POLICY prism_cleanup_delete ON prism.cleanup_events FOR DELETE TO authenticated USING (linkaios.command_centre_write_allowed());
+DROP POLICY IF EXISTS linkguard_cleanup_authenticated ON linkguard.cleanup_events;
+CREATE POLICY linkguard_cleanup_select ON linkguard.cleanup_events FOR SELECT TO authenticated USING (true);
+CREATE POLICY linkguard_cleanup_insert ON linkguard.cleanup_events FOR INSERT TO authenticated WITH CHECK (linkaios.command_centre_write_allowed());
+CREATE POLICY linkguard_cleanup_update ON linkguard.cleanup_events FOR UPDATE TO authenticated USING (linkaios.command_centre_write_allowed()) WITH CHECK (linkaios.command_centre_write_allowed());
+CREATE POLICY linkguard_cleanup_delete ON linkguard.cleanup_events FOR DELETE TO authenticated USING (linkaios.command_centre_write_allowed());
 
-DROP POLICY IF EXISTS prism_swept_authenticated ON prism.swept_sessions;
-CREATE POLICY prism_swept_select ON prism.swept_sessions FOR SELECT TO authenticated USING (true);
-CREATE POLICY prism_swept_insert ON prism.swept_sessions FOR INSERT TO authenticated WITH CHECK (linkaios.command_centre_write_allowed());
-CREATE POLICY prism_swept_update ON prism.swept_sessions FOR UPDATE TO authenticated USING (linkaios.command_centre_write_allowed()) WITH CHECK (linkaios.command_centre_write_allowed());
-CREATE POLICY prism_swept_delete ON prism.swept_sessions FOR DELETE TO authenticated USING (linkaios.command_centre_write_allowed());
+DROP POLICY IF EXISTS linkguard_swept_authenticated ON linkguard.swept_sessions;
+CREATE POLICY linkguard_swept_select ON linkguard.swept_sessions FOR SELECT TO authenticated USING (true);
+CREATE POLICY linkguard_swept_insert ON linkguard.swept_sessions FOR INSERT TO authenticated WITH CHECK (linkaios.command_centre_write_allowed());
+CREATE POLICY linkguard_swept_update ON linkguard.swept_sessions FOR UPDATE TO authenticated USING (linkaios.command_centre_write_allowed()) WITH CHECK (linkaios.command_centre_write_allowed());
+CREATE POLICY linkguard_swept_delete ON linkguard.swept_sessions FOR DELETE TO authenticated USING (linkaios.command_centre_write_allowed());
 
 DROP POLICY IF EXISTS gateway_links_authenticated ON gateway.zulip_message_links;
 CREATE POLICY gateway_links_select ON gateway.zulip_message_links FOR SELECT TO authenticated USING (true);
@@ -389,7 +397,7 @@ CREATE TABLE linkaios.brain_virtual_files (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   logical_path text NOT NULL,
   scope text NOT NULL,
-  mission_id uuid REFERENCES linkaios.missions (id) ON DELETE CASCADE,
+  project_id uuid REFERENCES linkaios.projects (id) ON DELETE CASCADE,
   agent_id uuid REFERENCES linkaios.agents (id) ON DELETE CASCADE,
   legal_entity_id uuid NOT NULL DEFAULT '00000000-0000-4000-8000-000000000001'::uuid
     REFERENCES linkaios.brain_legal_entities (id) ON DELETE RESTRICT,
@@ -399,11 +407,11 @@ CREATE TABLE linkaios.brain_virtual_files (
     CHECK (file_kind IN ('standard', 'daily_log', 'upload', 'librarian', 'quick_note')),
   created_at timestamptz NOT NULL DEFAULT now(),
   CONSTRAINT brain_virtual_files_scope_check CHECK (
-    scope IN ('company', 'mission', 'agent')
+    scope IN ('company', 'mission', 'project', 'agent')
     AND (
-      (scope = 'company' AND mission_id IS NULL AND agent_id IS NULL)
-      OR (scope = 'mission' AND mission_id IS NOT NULL AND agent_id IS NULL)
-      OR (scope = 'agent' AND agent_id IS NOT NULL AND mission_id IS NULL)
+      (scope = 'company' AND project_id IS NULL AND agent_id IS NULL)
+      OR (scope IN ('mission', 'project') AND project_id IS NOT NULL AND agent_id IS NULL)
+      OR (scope = 'agent' AND agent_id IS NOT NULL AND project_id IS NULL)
     )
   )
 );
@@ -415,13 +423,13 @@ COMMENT ON COLUMN linkaios.brain_virtual_files.file_kind IS 'Normative editabili
 CREATE UNIQUE INDEX brain_virtual_files_company_path ON linkaios.brain_virtual_files (logical_path)
   WHERE scope = 'company';
 
-CREATE UNIQUE INDEX brain_virtual_files_mission_path ON linkaios.brain_virtual_files (mission_id, logical_path)
-  WHERE scope = 'mission';
+CREATE UNIQUE INDEX brain_virtual_files_project_path ON linkaios.brain_virtual_files (project_id, logical_path)
+  WHERE scope IN ('mission', 'project');
 
 CREATE UNIQUE INDEX brain_virtual_files_agent_path ON linkaios.brain_virtual_files (agent_id, logical_path)
   WHERE scope = 'agent';
 
-CREATE INDEX brain_virtual_files_scope_mission ON linkaios.brain_virtual_files (scope, mission_id);
+CREATE INDEX brain_virtual_files_scope_project ON linkaios.brain_virtual_files (scope, project_id);
 CREATE INDEX brain_virtual_files_scope_agent ON linkaios.brain_virtual_files (scope, agent_id);
 CREATE INDEX brain_virtual_files_legal_entity ON linkaios.brain_virtual_files (legal_entity_id);
 
@@ -780,13 +788,13 @@ CREATE TABLE IF NOT EXISTS linkaios.org_missionless_default_tools (
 );
 
 CREATE TABLE IF NOT EXISTS linkaios.mission_tools (
-  mission_id uuid NOT NULL REFERENCES linkaios.missions (id) ON DELETE CASCADE,
+  project_id uuid NOT NULL REFERENCES linkaios.projects (id) ON DELETE CASCADE,
   tool_id uuid NOT NULL REFERENCES linkaios.tools (id) ON DELETE CASCADE,
   created_at timestamptz NOT NULL DEFAULT now(),
-  PRIMARY KEY (mission_id, tool_id)
+  PRIMARY KEY (project_id, tool_id)
 );
 
-CREATE INDEX IF NOT EXISTS idx_mission_tools_mission ON linkaios.mission_tools (mission_id);
+CREATE INDEX IF NOT EXISTS idx_project_tools_project ON linkaios.mission_tools (project_id);
 CREATE INDEX IF NOT EXISTS idx_mission_tools_tool ON linkaios.mission_tools (tool_id);
 
 CREATE TABLE IF NOT EXISTS linkaios.tool_governance_requests (
@@ -803,7 +811,7 @@ CREATE TABLE IF NOT EXISTS linkaios.tool_governance_requests (
       'runtime_blocked'
     )
   ),
-  mission_id uuid REFERENCES linkaios.missions (id) ON DELETE CASCADE,
+  project_id uuid REFERENCES linkaios.projects (id) ON DELETE CASCADE,
   tool_id uuid NOT NULL REFERENCES linkaios.tools (id) ON DELETE CASCADE,
   requested_by uuid REFERENCES auth.users (id) ON DELETE SET NULL,
   correlation_id text,
@@ -816,20 +824,20 @@ CREATE TABLE IF NOT EXISTS linkaios.tool_governance_requests (
   reject_reason text,
   created_at timestamptz NOT NULL DEFAULT now(),
   updated_at timestamptz NOT NULL DEFAULT now(),
-  CONSTRAINT tool_gov_mission_required CHECK (
-    (request_type IN ('mission_binding_add', 'mission_binding_remove') AND mission_id IS NOT NULL)
+  CONSTRAINT tool_gov_project_required CHECK (
+    (request_type IN ('mission_binding_add', 'mission_binding_remove') AND project_id IS NOT NULL)
     OR (request_type NOT IN ('mission_binding_add', 'mission_binding_remove'))
   )
 );
 
 CREATE INDEX IF NOT EXISTS idx_tool_gov_status ON linkaios.tool_governance_requests (status);
-CREATE INDEX IF NOT EXISTS idx_tool_gov_mission_status ON linkaios.tool_governance_requests (mission_id, status);
+CREATE INDEX IF NOT EXISTS idx_tool_gov_project_status ON linkaios.tool_governance_requests (project_id, status);
 CREATE INDEX IF NOT EXISTS idx_tool_gov_correlation ON linkaios.tool_governance_requests (correlation_id);
 CREATE UNIQUE INDEX IF NOT EXISTS idx_tool_gov_pending_dedupe
   ON linkaios.tool_governance_requests (
     correlation_id,
     tool_id,
-    COALESCE(mission_id, '00000000-0000-0000-0000-000000000000'::uuid),
+    COALESCE(project_id, '00000000-0000-0000-0000-000000000000'::uuid),
     request_type
   )
   WHERE status = 'pending' AND correlation_id IS NOT NULL;
@@ -853,25 +861,24 @@ AS $$
   ) = 'admin';
 $$;
 
-CREATE OR REPLACE FUNCTION linkaios.is_mission_project_head(p_mission_id uuid)
+CREATE OR REPLACE FUNCTION linkaios.is_project_head(p_project_id uuid)
 RETURNS boolean
 LANGUAGE sql
 STABLE
 AS $$
   SELECT EXISTS (
     SELECT 1
-    FROM linkaios.missions m
-    WHERE m.id = p_mission_id
-      AND m.project_head_user_id IS NOT NULL
-      AND m.project_head_user_id = auth.uid()
+    FROM linkaios.projects p
+    WHERE p.id = p_project_id
+      AND p.project_head_user_id IS NOT NULL
+      AND p.project_head_user_id = auth.uid()
   );
 $$;
 
 GRANT EXECUTE ON FUNCTION linkaios.is_org_admin() TO authenticated;
-GRANT EXECUTE ON FUNCTION linkaios.is_mission_project_head(uuid) TO authenticated;
+GRANT EXECUTE ON FUNCTION linkaios.is_project_head(uuid) TO authenticated;
 
--- Sync latest manifest payload.approvedTools from mission_tools (denormalized mirror)
-CREATE OR REPLACE FUNCTION linkaios.sync_mission_manifest_tools(p_mission_id uuid)
+CREATE OR REPLACE FUNCTION linkaios.sync_project_manifest_tools(p_project_id uuid)
 RETURNS void
 LANGUAGE plpgsql
 SECURITY DEFINER
@@ -888,7 +895,7 @@ BEGIN
         SELECT t.name AS n
         FROM linkaios.mission_tools mt
         JOIN linkaios.tools t ON t.id = mt.tool_id
-        WHERE mt.mission_id = p_mission_id
+        WHERE mt.project_id = p_project_id
         ORDER BY t.name
       ) AS sub
     ),
@@ -899,7 +906,7 @@ BEGIN
   SELECT m.id
   INTO mid
   FROM linkaios.manifests m
-  WHERE m.mission_id = p_mission_id
+  WHERE m.project_id = p_project_id
   ORDER BY m.version DESC
   LIMIT 1;
 
@@ -909,18 +916,23 @@ BEGIN
 
   UPDATE linkaios.manifests mf
   SET
-    payload = jsonb_set(COALESCE(mf.payload, '{}'::jsonb), '{approvedTools}', COALESCE(names, '[]'::jsonb), true),
+    payload = jsonb_set(
+      COALESCE(mf.payload, '{}'::jsonb),
+      '{approvedTools}',
+      COALESCE(names, '[]'::jsonb),
+      true
+    ),
     created_at = mf.created_at
   WHERE mf.id = mid;
 END;
 $$;
 
-REVOKE ALL ON FUNCTION linkaios.sync_mission_manifest_tools(uuid) FROM PUBLIC;
-GRANT EXECUTE ON FUNCTION linkaios.sync_mission_manifest_tools(uuid) TO service_role;
+REVOKE ALL ON FUNCTION linkaios.sync_project_manifest_tools(uuid) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION linkaios.sync_project_manifest_tools(uuid) TO service_role;
 
 CREATE OR REPLACE FUNCTION linkaios.tool_governance_emit_trace(
   p_event_type text,
-  p_mission_id uuid,
+  p_project_id uuid,
   p_payload jsonb
 )
 RETURNS void
@@ -929,8 +941,8 @@ SECURITY DEFINER
 SET search_path = linkaios, public
 AS $$
 BEGIN
-  INSERT INTO linkaios.traces (mission_id, event_type, payload)
-  VALUES (p_mission_id, p_event_type, COALESCE(p_payload, '{}'::jsonb));
+  INSERT INTO linkaios.traces (project_id, event_type, payload)
+  VALUES (p_project_id, p_event_type, COALESCE(p_payload, '{}'::jsonb));
 END;
 $$;
 
@@ -970,15 +982,20 @@ BEGIN
   SELECT t.name INTO tname FROM linkaios.tools t WHERE t.id = r.tool_id;
 
   is_adm := linkaios.is_org_admin();
-  is_ph := r.mission_id IS NOT NULL AND linkaios.is_mission_project_head(r.mission_id);
+  is_ph := r.project_id IS NOT NULL AND linkaios.is_project_head(r.project_id);
 
   IF r.request_type IN ('mission_binding_add', 'mission_binding_remove') THEN
     need_org := true;
     need_ph := true;
   ELSIF r.request_type = 'runtime_blocked' THEN
     need_org := true;
-    need_ph := (r.mission_id IS NOT NULL);
-  ELSIF r.request_type IN ('org_allowlist_add', 'org_allowlist_remove', 'org_missionless_add', 'org_missionless_remove') THEN
+    need_ph := (r.project_id IS NOT NULL);
+  ELSIF r.request_type IN (
+    'org_allowlist_add',
+    'org_allowlist_remove',
+    'org_missionless_add',
+    'org_missionless_remove'
+  ) THEN
     need_org := true;
     need_ph := false;
   ELSE
@@ -1019,27 +1036,29 @@ BEGIN
     AND (NOT need_ph OR r.project_head_approved_by IS NOT NULL);
 
   IF both_done THEN
-    IF r.request_type = 'mission_binding_add' OR (r.request_type = 'runtime_blocked' AND r.mission_id IS NOT NULL) THEN
-      INSERT INTO linkaios.mission_tools (mission_id, tool_id)
-      VALUES (r.mission_id, r.tool_id)
+    IF r.request_type = 'mission_binding_add'
+      OR (r.request_type = 'runtime_blocked' AND r.project_id IS NOT NULL) THEN
+      INSERT INTO linkaios.mission_tools (project_id, tool_id)
+      VALUES (r.project_id, r.tool_id)
       ON CONFLICT DO NOTHING;
-      PERFORM linkaios.sync_mission_manifest_tools(r.mission_id);
-      INSERT INTO linkaios.traces (mission_id, event_type, payload)
+      PERFORM linkaios.sync_project_manifest_tools(r.project_id);
+      INSERT INTO linkaios.traces (project_id, event_type, payload)
       VALUES (
-        r.mission_id,
+        r.project_id,
         'tool.binding.added',
         jsonb_build_object(
           'tool_name', tname,
           'tool_id', r.tool_id,
-          'mission_id', r.mission_id,
+          'mission_id', r.project_id,
+          'project_id', r.project_id,
           'request_id', r.id,
           'correlation_id', r.correlation_id,
           'actor_user_id', actor
         )
       );
-    ELSIF r.request_type = 'runtime_blocked' AND r.mission_id IS NULL THEN
+    ELSIF r.request_type = 'runtime_blocked' AND r.project_id IS NULL THEN
       INSERT INTO linkaios.org_tool_allowlist (tool_id) VALUES (r.tool_id) ON CONFLICT DO NOTHING;
-      INSERT INTO linkaios.traces (mission_id, event_type, payload)
+      INSERT INTO linkaios.traces (project_id, event_type, payload)
       VALUES (
         NULL,
         'tool.binding.added',
@@ -1047,6 +1066,7 @@ BEGIN
           'tool_name', tname,
           'tool_id', r.tool_id,
           'mission_id', NULL,
+          'project_id', NULL,
           'request_id', r.id,
           'correlation_id', r.correlation_id,
           'scope', 'org_allowlist',
@@ -1055,16 +1075,17 @@ BEGIN
       );
     ELSIF r.request_type = 'mission_binding_remove' THEN
       DELETE FROM linkaios.mission_tools mt
-      WHERE mt.mission_id = r.mission_id AND mt.tool_id = r.tool_id;
-      PERFORM linkaios.sync_mission_manifest_tools(r.mission_id);
-      INSERT INTO linkaios.traces (mission_id, event_type, payload)
+      WHERE mt.project_id = r.project_id AND mt.tool_id = r.tool_id;
+      PERFORM linkaios.sync_project_manifest_tools(r.project_id);
+      INSERT INTO linkaios.traces (project_id, event_type, payload)
       VALUES (
-        r.mission_id,
+        r.project_id,
         'tool.binding.removed',
         jsonb_build_object(
           'tool_name', tname,
           'tool_id', r.tool_id,
-          'mission_id', r.mission_id,
+          'mission_id', r.project_id,
+          'project_id', r.project_id,
           'request_id', r.id,
           'actor_user_id', actor
         )
@@ -1084,14 +1105,15 @@ BEGIN
     SET status = 'approved', updated_at = now()
     WHERE id = p_request_id;
 
-    INSERT INTO linkaios.traces (mission_id, event_type, payload)
+    INSERT INTO linkaios.traces (project_id, event_type, payload)
     VALUES (
-      r.mission_id,
+      r.project_id,
       'tool.request.approved',
       jsonb_build_object(
         'tool_name', tname,
         'tool_id', r.tool_id,
-        'mission_id', r.mission_id,
+        'mission_id', r.project_id,
+        'project_id', r.project_id,
         'request_id', r.id,
         'request_type', r.request_type,
         'correlation_id', r.correlation_id,
@@ -1101,15 +1123,16 @@ BEGIN
       )
     );
   ELSE
-    INSERT INTO linkaios.traces (mission_id, event_type, payload)
+    INSERT INTO linkaios.traces (project_id, event_type, payload)
     VALUES (
-      r.mission_id,
+      r.project_id,
       'tool.request.approved',
       jsonb_build_object(
         'phase', 'partial',
         'tool_name', tname,
         'tool_id', r.tool_id,
-        'mission_id', r.mission_id,
+        'mission_id', r.project_id,
+        'project_id', r.project_id,
         'request_id', r.id,
         'request_type', r.request_type,
         'actor_user_id', actor
@@ -1152,7 +1175,7 @@ BEGIN
 
   can_rej :=
     linkaios.is_org_admin()
-    OR (r.mission_id IS NOT NULL AND linkaios.is_mission_project_head(r.mission_id));
+    OR (r.project_id IS NOT NULL AND linkaios.is_project_head(r.project_id));
 
   IF NOT can_rej THEN
     RAISE EXCEPTION 'not_authorized_to_reject';
@@ -1167,14 +1190,15 @@ BEGIN
     updated_at = now()
   WHERE id = p_request_id;
 
-  INSERT INTO linkaios.traces (mission_id, event_type, payload)
+  INSERT INTO linkaios.traces (project_id, event_type, payload)
   VALUES (
-    r.mission_id,
+    r.project_id,
     'tool.request.rejected',
     jsonb_build_object(
       'tool_name', tname,
       'tool_id', r.tool_id,
-      'mission_id', r.mission_id,
+      'mission_id', r.project_id,
+      'project_id', r.project_id,
       'request_id', r.id,
       'request_type', r.request_type,
       'correlation_id', r.correlation_id,
@@ -1189,6 +1213,28 @@ $$;
 
 REVOKE ALL ON FUNCTION linkaios.tool_governance_reject(uuid, text) FROM PUBLIC;
 GRANT EXECUTE ON FUNCTION linkaios.tool_governance_reject(uuid, text) TO authenticated;
+
+CREATE OR REPLACE FUNCTION linkaios.is_mission_project_head(p_mission_id uuid)
+RETURNS boolean
+LANGUAGE sql
+STABLE
+AS $$
+  SELECT linkaios.is_project_head(p_mission_id);
+$$;
+
+GRANT EXECUTE ON FUNCTION linkaios.is_mission_project_head(uuid) TO authenticated;
+
+CREATE OR REPLACE FUNCTION linkaios.sync_mission_manifest_tools(p_mission_id uuid)
+RETURNS void
+LANGUAGE sql
+SECURITY DEFINER
+SET search_path = linkaios, public
+AS $$
+  SELECT linkaios.sync_project_manifest_tools(p_mission_id);
+$$;
+
+REVOKE ALL ON FUNCTION linkaios.sync_mission_manifest_tools(uuid) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION linkaios.sync_mission_manifest_tools(uuid) TO service_role;
 
 -- RLS
 ALTER TABLE linkaios.org_tool_allowlist ENABLE ROW LEVEL SECURITY;
@@ -1241,13 +1287,13 @@ CREATE POLICY tool_gov_req_delete ON linkaios.tool_governance_requests FOR DELET
 
 -- Backfill mission_tools from latest manifest per mission
 WITH latest AS (
-  SELECT DISTINCT ON (m.mission_id) m.mission_id, m.payload
+  SELECT DISTINCT ON (m.project_id) m.project_id, m.payload
   FROM linkaios.manifests m
-  ORDER BY m.mission_id, m.version DESC
+  ORDER BY m.project_id, m.version DESC
 ),
 names AS (
   SELECT
-    l.mission_id,
+    l.project_id,
     elem AS tool_name
   FROM latest l
   CROSS JOIN LATERAL jsonb_array_elements_text(
@@ -1261,8 +1307,8 @@ names AS (
     END
   ) AS elem
 )
-INSERT INTO linkaios.mission_tools (mission_id, tool_id)
-SELECT n.mission_id, t.id
+INSERT INTO linkaios.mission_tools (project_id, tool_id)
+SELECT n.project_id, t.id
 FROM names n
 JOIN linkaios.tools t ON t.name = n.tool_name
 WHERE n.tool_name IS NOT NULL AND n.tool_name <> ''
@@ -1282,8 +1328,8 @@ DO $$
 DECLARE
   rec record;
 BEGIN
-  FOR rec IN SELECT DISTINCT mission_id FROM linkaios.mission_tools LOOP
-    PERFORM linkaios.sync_mission_manifest_tools(rec.mission_id);
+  FOR rec IN SELECT DISTINCT project_id FROM linkaios.mission_tools LOOP
+    PERFORM linkaios.sync_project_manifest_tools(rec.project_id);
   END LOOP;
 END $$;
 
@@ -1313,3 +1359,13 @@ CREATE POLICY trace_alert_ack_insert ON linkaios.trace_alert_acknowledgments FOR
 
 DROP POLICY IF EXISTS trace_alert_ack_delete ON linkaios.trace_alert_acknowledgments;
 CREATE POLICY trace_alert_ack_delete ON linkaios.trace_alert_acknowledgments FOR DELETE TO authenticated USING (linkaios.command_centre_write_allowed());
+
+-- 033 backward-compat view (Mission→Project terminology)
+CREATE OR REPLACE VIEW linkaios.missions AS
+SELECT * FROM linkaios.projects;
+
+COMMENT ON VIEW linkaios.missions IS
+  'Legacy backward-compat view over linkaios.projects (Mission→Project terminology wave). Prefer linkaios.projects for new callers.';
+
+GRANT SELECT, INSERT, UPDATE, DELETE ON linkaios.missions TO authenticated;
+GRANT ALL ON linkaios.missions TO service_role;

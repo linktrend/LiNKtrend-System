@@ -1,3 +1,4 @@
+# DEPRECATED (Tier 2): canonical copy at LiNKskills/capability-connectors/cap.zulip.run_messaging.yaml
 ---
 # Declaration-only capability plugin manifest — LiNKapps Zulip run messaging (mock queue default; aligns CONTRACTS_MVO pack).
 # Sources: LINKAPPS_CAPABILITY_REQUIREMENTS.md §2.7, §3, §4; CONTRACTS_MVO.md §0.A.5.1 (cap.zulip.run_messaging).

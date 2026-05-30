@@ -5,7 +5,7 @@ import { AlertTriangle, HeartPulse } from "lucide-react";
 import { SummaryMetricCard } from "@/components/summary-metric-card/summary-metric-card";
 import { SummaryMetricCardGrid } from "@/components/summary-metric-card/summary-metric-card-grid";
 
-export function PrismSummaryStatsGrid(props: {
+export function LinkguardSummaryStatsGrid(props: {
   lastHeartbeatAge: string;
   lastHeartbeatAt: string | null;
   fsFailures24h: number;
@@ -42,3 +42,6 @@ export function PrismSummaryStatsGrid(props: {
     </SummaryMetricCardGrid>
   );
 }
+
+/** @deprecated Use LinkguardSummaryStatsGrid */
+export const PrismSummaryStatsGrid = LinkguardSummaryStatsGrid;

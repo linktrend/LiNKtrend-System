@@ -20,7 +20,7 @@ pnpm test
 pnpm --filter @linktrend/linkaios-web dev
 ```
 
-LiNKaios opens at `/login` until you sign in with a **Supabase Auth** user (Email provider). Command-centre reads use the **anon key + your session JWT** and **Row Level Security** (apply migration `008_rls_and_prism_swept.sql` or the tail of `ALL_IN_ONE.sql`).
+LiNKaios opens at `/login` until you sign in with a **Supabase Auth** user (Email provider). Command-centre reads use the **anon key + your session JWT** and **Row Level Security** (apply migration `008_rls_and_prism_swept.sql` or the tail of `ALL_IN_ONE.sql`; greenfield bootstrap via `ALL_IN_ONE.sql` includes `033`–`035` project terminology and `linkguard` schema state).
 
 Other services and compatibility entrypoints:
 
@@ -31,9 +31,9 @@ pnpm --filter @linktrend/zulip-gateway dev
 pnpm --filter @linktrend/openclaw-shim dev
 ```
 
-- **bot-runtime** — compatibility entrypoint for `LiNKbot/runtime-adapters/openclaw`: opens a `bot_runtime.worker_sessions` row, heartbeats every 30s, builds `linktrendGovernance` (mission + manifest tool names + skill instructions), writes `linkaios.traces` rows, optionally **POST**s to `OPENCLAW_AGENT_RUN_URL`, closes the session on SIGINT/SIGTERM.
-- **zulip-gateway** — temporary mission-aware communication bridge owned by `LiNKbot/communications`: HTTP server on port **8790** (override with `ZULIP_GATEWAY_PORT`). `POST /webhooks/zulip` upserts `gateway.zulip_message_links`. `GET /health` for probes.
-- **prism-defender** — legacy package name for **LiNKguard** compatibility entrypoint: heartbeat plus **residue sweep**: acknowledges closed `bot_runtime.worker_sessions` into `prism.swept_sessions` (disable with `PRISM_RESIDUE_SWEEP=0`, tune batch with `PRISM_RESIDUE_BATCH`).
+- **bot-runtime** — compatibility entrypoint for `LiNKbot/runtime-adapters/openclaw`: opens a `bot_runtime.worker_sessions` row, heartbeats every 30s, builds `linktrendGovernance` (project + manifest tool names + skill instructions), writes `linkaios.traces` rows, optionally **POST**s to `OPENCLAW_AGENT_RUN_URL`, closes the session on SIGINT/SIGTERM.
+- **zulip-gateway** — temporary project-aware communication bridge owned by `LiNKbot/communications`: HTTP server on port **8790** (override with `ZULIP_GATEWAY_PORT`). `POST /webhooks/zulip` upserts `gateway.zulip_message_links`. `GET /health` for probes.
+- **linkguard** — LiNKguard sidecar (`@linktrend/linkguard`): heartbeat plus **residue sweep** — acknowledges closed `bot_runtime.worker_sessions` into `linkguard.swept_sessions` (disable with `PRISM_RESIDUE_SWEEP=0`, tune batch with `PRISM_RESIDUE_BATCH`). Env var names retain `PRISM_` prefix until Phase C completes.
 - **openclaw-shim** — local HTTP mock (default port **8789**, `OPENCLAW_SHIM_PORT`). Set `OPENCLAW_AGENT_RUN_URL=http://127.0.0.1:8789/` on **bot-runtime** to exercise the governance POST without LiNKbot-core.
 
 ## Docker (optional)
@@ -50,7 +50,7 @@ If any production or privileged credential was ever pasted into a chat or ticket
 
 ## Database migrations (Supabase)
 
-SQL files live in `services/migrations/`. They **drop and recreate** only the product schemas `linkaios`, `bot_runtime`, `prism`, and `gateway`. They do **not** remove Supabase `auth`, `storage`, or other system schemas.
+SQL files live in `services/migrations/`. They **drop and recreate** only the product schemas `linkaios`, `bot_runtime`, `linkguard`, and `gateway` (legacy `prism` is dropped by `035_linkguard_canonical_schema.sql`). They do **not** remove Supabase `auth`, `storage`, or other system schemas.
 
 **Recommended — Supabase SQL Editor:** open **SQL Editor** → paste `services/migrations/ALL_IN_ONE.sql` → **Run**. That applies drops, tables, demo seed, and API role grants in one step. See `services/migrations/README.md` for details.
 
@@ -66,7 +66,7 @@ Use the **Session pooler** URI from the dashboard (**Connect** → **Session mod
 
 So the JavaScript client can use `.schema("linkaios")`, add these schemas to **exposed schemas** in Supabase (**Project Settings** → **Data API** / **API**): `linkaios`, `bot_runtime`, `linkguard`, `gateway`. Do **not** expose legacy `prism` after migration `035_linkguard_canonical_schema.sql` is applied.
 
-The **Zulip server** continues to use its **own** database for Zulip’s native data; this project’s `gateway` schema only stores **bridge** metadata (for example message ↔ mission links).
+The **Zulip server** continues to use its **own** database for Zulip’s native data; this project’s `gateway` schema only stores **bridge** metadata (for example message ↔ project links).
 
 ### OpenClaw fork handoff (LiNKbot-core)
 
@@ -76,7 +76,7 @@ The LiNKtrend engine fork typically lives beside this repo, for example `/Users/
 
 LiNKbot-core’s built-in **`/hooks/.../agent`** path normalizes webhook payloads and does **not** forward `linktrendGovernance` today; do not assume posting to hooks is sufficient unless you extend the fork.
 
-Optional env: `OPENCLAW_AGENT_INGRESS_MESSAGE`, `OPENCLAW_AGENT_SESSION_KEY`, `OPENCLAW_AGENT_ID`, `OPENCLAW_RUN_AUTH_BEARER`. Mission and skill selection: `BOT_RUNTIME_MISSION_ID`, `BOT_RUNTIME_SKILL_NAME` (default `bootstrap`).
+Optional env: `OPENCLAW_AGENT_INGRESS_MESSAGE`, `OPENCLAW_AGENT_SESSION_KEY`, `OPENCLAW_AGENT_ID`, `OPENCLAW_RUN_AUTH_BEARER`. Project and skill selection: `BOT_RUNTIME_MISSION_ID` (legacy env name; targets `linkaios.projects`), `BOT_RUNTIME_SKILL_NAME` (default `bootstrap`).
 
 In **development**, LiNKaios exposes **Gov JSON** in the nav (`/devtools/governance`) — the same `linktrendGovernance` object used inside the default POST body — so you can verify Supabase reads without running the worker.
 
@@ -91,14 +91,14 @@ In **development**, LiNKaios exposes **Gov JSON** in the nav (`/devtools/governa
 | `LiNKskills/capability-connectors/` | Capability connector registry and connector docs/manifests |
 | `LiNKbrain/` | LiNKbrain ownership home for memory, audit, retrieval, context, benchmarks, schemas, and migration references |
 | `LiNKautowork/` | Deterministic workflow gateway and templates for the external n8n fork |
-| `LiNKbot/` | Runtime adapters, roles, fleet metadata, and mission-aware communications |
+| `LiNKbot/` | Runtime adapters, roles, fleet metadata, and project-aware communications |
 | `LiNKguard/` | Worker security and cleanup sidecar formerly known as PRISM Defender |
 | `suites/` | Tenant-enabled business/operational **suites** (LinkSites, LiNKapps, LEXOS, …) |
 | `docs/terminology.md` | Canonical LiNKaios UI ↔ repo terminology map |
 | `LiNKaios/linkaios-web` | Next.js (App Router) command centre compatibility entrypoint |
 | `LiNKbot/runtime-adapters/openclaw/bot-runtime` | LiNKbot OpenClaw runtime adapter package |
 | `LiNKbot/runtime-adapters/openclaw/openclaw-shim` | Local ingress mock for `bot-runtime` POSTs |
-| `LiNKbot/communications/temporary-gateways/zulip` | Temporary Zulip mission-aware bridge |
+| `LiNKbot/communications/temporary-gateways/zulip` | Temporary Zulip project-aware bridge |
 | `LiNKguard/sidecar/linkguard` | LiNKguard sidecar package |
 | `packages/linklogic-sdk` | Retrieval / enforcement (skeleton) |
 | `packages/db` | Supabase client helpers |

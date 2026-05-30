@@ -7,8 +7,12 @@ export {
 
 export { recordTrace } from "./trace.js";
 
-export { recordPrismSessionEnd } from "./prism-session-end.js";
-export type { PrismSessionEndDetail } from "./prism-session-end.js";
+export { recordLinkguardSessionEnd } from "./linkguard-session-end.js";
+export type { LinkguardSessionEndDetail } from "./linkguard-session-end.js";
+/** @deprecated Use recordLinkguardSessionEnd */
+export { recordLinkguardSessionEnd as recordPrismSessionEnd } from "./linkguard-session-end.js";
+/** @deprecated Use LinkguardSessionEndDetail */
+export type { LinkguardSessionEndDetail as PrismSessionEndDetail } from "./linkguard-session-end.js";
 
 export { resolveSkillByName, resolveSkillFullForExecution } from "./resolve-skill.js";
 

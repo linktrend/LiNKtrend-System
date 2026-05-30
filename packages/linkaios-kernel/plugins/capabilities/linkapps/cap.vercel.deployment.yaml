@@ -1,3 +1,4 @@
+# DEPRECATED (Tier 2): canonical copy at LiNKskills/capability-connectors/cap.vercel.deployment.yaml
 ---
 # Declaration-only capability plugin manifest — LiNKapps Vercel deployment connector surface (record/mock-first).
 # Sources: LINKAPPS_CAPABILITY_REQUIREMENTS.md §2.4, §3, §4; CONTRACTS_MVO.md §0.A.5.1.

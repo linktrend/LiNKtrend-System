@@ -1,13 +1,13 @@
 # Suite Registry
 
-> **Folder migration:** Tenant-enabled suite packages live in `suites/`. Paths in new docs and manifests should use `suites/` as the target. See [`docs/terminology.md`](../docs/terminology.md).
+> **Canonical paths:** Tenant-enabled suite packages live in **`suites/`**. Legacy **`modules/`** trees and LiNKaios **`/modules/*`** redirects remain during cleanup — see [`docs/terminology.md`](../docs/terminology.md).
 
 This registry tracks tenant-enabled **Suites** (product packages). A suite may be active, planned, or reserved. Within each suite, vendor-published **Modules** (recipes: phases, issues, assignees) are defined separately — see LiNKaios work hierarchy in `docs/terminology.md`.
 
 | Suite | Status | Purpose | External Repo | Notes |
 | --- | --- | --- | --- | --- |
-| `linksites` | Active MVO | Lead-to-preview-site WebsiteFactory flow. | `/Users/linktrend/Projects/LiNKsites` | Current code still lives partly in `LiNKaios/linkaios-web/src/lib/suite-integrations/websitefactory` (target: `lib/suite-integrations/`). |
-| `linkapps` | Active discovery | App factory for venture software creation. | `/Users/linktrend/Projects/LiNKapps` | Suite home represents the LiNKaios connector/declaration, not the full external repo. |
+| `linksites` | Active MVO | Lead-to-preview-site WebsiteFactory flow. | `/Users/linktrend/Projects/LiNKsites` | Declarations in `suites/linksites/`. LiNKaios integration code still lives under `LiNKaios/linkaios-web/src/lib/plugins/` (WebsiteFactory, LinkApps); target folder is `lib/suite-integrations/` — not renamed yet. |
+| `linkapps` | Active discovery | App factory for venture software creation. | `/Users/linktrend/Projects/LiNKapps` | Declarations in `suites/linkapps/` (where present). LiNKaios reads LinkApps fixtures/handlers from `lib/plugins/linkapps/` today. |
 | `linktrend-media` | Planned | Content and marketing production workflows. | TBD | Uses Postiz/Listmonk/Typebot/asset generation and other marketing capabilities as approved. |
 | `lexos/litigation` | Active discovery | LEXOS litigation practice workflow. | `/Users/linktrend/Projects/LiNKtrend-LEXOS` | First practice area in LEXOS suite family. |
 | `lexos/intellectual-property` | Reserved | Future LEXOS IP practice area. | `/Users/linktrend/Projects/LiNKtrend-LEXOS` | No workflow invented yet. |
@@ -23,4 +23,4 @@ This registry tracks tenant-enabled **Suites** (product packages). A suite may b
 
 Suites describe workflows and required surfaces. They do not own capability connector implementations. Connectors live under LinkSkills; LiNKaios UI refers to them as **Capabilities**.
 
-Every active suite must maintain one canonical workflow map in its suite folder (target: `suites/<name>/`). For example, `suites/linksites/workflow.ts` or `suites/linksites/workflow.md` should describe the LinkSites lead-to-preview-site spine and reference LiNKautowork handlers, LiNKbot roles, LinkSkills capability connectors, LiNKbrain events, Plane tasks, and any external repo assets it needs.
+Every active suite must maintain one canonical workflow map in its suite folder: `suites/<name>/workflow.ts` or `suites/<name>/workflow.md` (for example `suites/linksites/workflow.md`). That map describes the suite spine and references LiNKautowork handlers, LiNKbot roles, LinkSkills capability connectors, LiNKbrain events, Plane tasks, and any external repo assets it needs.

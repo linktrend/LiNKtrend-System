@@ -1,6 +1,6 @@
 # Cross-vertical capability catalog seed — WP-114
 # Sources: CONTRACTS_MVO §0.A.5.1, LINKAPPS_CAPABILITY_REQUIREMENTS.md, suites/linkapps/manifest.yaml,
-#          packages/linkaios-kernel/plugins/capabilities/lexos/*.yaml
+#          LiNKskills/capability-connectors/lexos/*.yaml
 ---
 spec_version: wp114-catalog-v1
 kind: linkskills_capability_catalog_seed
@@ -12,7 +12,7 @@ inventory_sources:
   linkapps_vertical:
     citation: suites/linkapps/manifest.yaml — required_capabilities
   lexos_capability_plugins:
-    path_glob: packages/linkaios-kernel/plugins/capabilities/lexos/*.yaml
+    path_glob: LiNKskills/capability-connectors/lexos/*.yaml
 
 global_defaults:
   default_execution_mode_mvo: mock
@@ -258,7 +258,7 @@ capabilities:
     declaration_sources:
       - lexos.cap.manifest
     lexos_manifest_refs:
-      file: packages/linkaios-kernel/plugins/capabilities/lexos/cap.extraction.parser.yaml
+      file: LiNKskills/capability-connectors/lexos/cap.extraction.parser.yaml
     modes:
       default_mvo: mock
       allowed: [development]
@@ -276,7 +276,7 @@ capabilities:
     declaration_sources:
       - lexos.cap.manifest
     lexos_manifest_refs:
-      file: packages/linkaios-kernel/plugins/capabilities/lexos/cap.extraction.ocr.yaml
+      file: LiNKskills/capability-connectors/lexos/cap.extraction.ocr.yaml
     modes:
       default_mvo: mock
       allowed: [development]
@@ -290,7 +290,7 @@ capabilities:
     declaration_sources:
       - lexos.cap.manifest
     lexos_manifest_refs:
-      file: packages/linkaios-kernel/plugins/capabilities/lexos/cap.extraction.qa.yaml
+      file: LiNKskills/capability-connectors/lexos/cap.extraction.qa.yaml
     modes:
       default_mvo: mock
       allowed: [development]
@@ -305,7 +305,7 @@ capabilities:
     declaration_sources:
       - lexos.cap.manifest
     lexos_manifest_refs:
-      file: packages/linkaios-kernel/plugins/capabilities/lexos/cap.storage.evidence.yaml
+      file: LiNKskills/capability-connectors/lexos/cap.storage.evidence.yaml
     modes:
       default_mvo: mock
       allowed: [development]
@@ -322,7 +322,7 @@ capabilities:
     declaration_sources:
       - lexos.cap.manifest
     lexos_manifest_refs:
-      file: packages/linkaios-kernel/plugins/capabilities/lexos/cap.research.legal.yaml
+      file: LiNKskills/capability-connectors/lexos/cap.research.legal.yaml
     modes:
       default_mvo: shadow
       allowed: [development, shadow]

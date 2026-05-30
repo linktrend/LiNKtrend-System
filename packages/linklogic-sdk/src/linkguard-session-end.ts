@@ -2,14 +2,14 @@ import type { Env } from "@linktrend/shared-config";
 import { createSupabaseServiceClient } from "@linktrend/db";
 import { log } from "@linktrend/observability";
 
-export type PrismSessionEndDetail = Record<string, unknown>;
+export type LinkguardSessionEndDetail = Record<string, unknown>;
 
 /**
- * Best-effort PRISM telemetry when a worker session ends.
+ * Best-effort LiNKguard telemetry when a worker session ends.
  */
-export async function recordPrismSessionEnd(
+export async function recordLinkguardSessionEnd(
   env: Env,
-  params: { workerSessionId?: string | null; detail?: PrismSessionEndDetail },
+  params: { workerSessionId?: string | null; detail?: LinkguardSessionEndDetail },
 ): Promise<void> {
   try {
     const client = createSupabaseServiceClient(env);
@@ -20,9 +20,9 @@ export async function recordPrismSessionEnd(
       detail: params.detail ?? {},
     });
     if (error) {
-      log("warn", "recordPrismSessionEnd insert failed", { service: "linklogic-sdk", message: error.message });
+      log("warn", "recordLinkguardSessionEnd insert failed", { service: "linklogic-sdk", message: error.message });
     }
   } catch (e) {
-    log("warn", "recordPrismSessionEnd failed", { service: "linklogic-sdk", error: String(e) });
+    log("warn", "recordLinkguardSessionEnd failed", { service: "linklogic-sdk", error: String(e) });
   }
 }

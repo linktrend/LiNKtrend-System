@@ -16,4 +16,4 @@ export { CockpitSummaryStatsGrid } from "./cockpit-summary-stats-grid";
 export { OverviewProjectsSummaryGrid } from "./overview-projects-summary-grid";
 export { OverviewWorkforceSummaryGrid } from "./overview-workforce-summary-grid";
 export { MetricsKpiSummaryGrid } from "./metrics-kpi-summary-grid";
-export { PrismSummaryStatsGrid } from "./prism-summary-stats-grid";
+export { LinkguardSummaryStatsGrid, PrismSummaryStatsGrid } from "./linkguard-summary-stats-grid";

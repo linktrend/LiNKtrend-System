@@ -17,7 +17,7 @@ export async function sweepWorkerResidue(env: Env, params: { batch: number }): P
 
   if (sweptErr) {
     log("warn", "residue sweep skipped (swept_sessions unavailable?)", {
-      service: "prism-defender",
+      service: "linkguard",
       message: sweptErr.message,
     });
     return 0;
@@ -36,7 +36,7 @@ export async function sweepWorkerResidue(env: Env, params: { batch: number }): P
 
   if (sessErr) {
     log("warn", "residue sweep session query failed", {
-      service: "prism-defender",
+      service: "linkguard",
       message: sessErr.message,
     });
     return 0;
@@ -50,12 +50,13 @@ export async function sweepWorkerResidue(env: Env, params: { batch: number }): P
       worker_session_id: s.id,
       action: "residue_sweep_ack",
       detail: {
+        source: "linkguard",
         sessionStatus: s.status,
         ended_at: s.ended_at,
       },
     });
     if (evErr) {
-      log("warn", "cleanup_events insert failed", { service: "prism-defender", message: evErr.message });
+      log("warn", "cleanup_events insert failed", { service: "linkguard", message: evErr.message });
       continue;
     }
 
@@ -63,18 +64,18 @@ export async function sweepWorkerResidue(env: Env, params: { batch: number }): P
       .schema("linkguard")
       .from("swept_sessions")
       .upsert(
-        { worker_session_id: s.id, detail: { source: "prism-defender" } },
+        { worker_session_id: s.id, detail: { source: "linkguard" } },
         { onConflict: "worker_session_id" },
       );
     if (swErr) {
-      log("warn", "swept_sessions insert failed", { service: "prism-defender", message: swErr.message });
+      log("warn", "swept_sessions insert failed", { service: "linkguard", message: swErr.message });
       continue;
     }
     n += 1;
   }
 
   if (n > 0) {
-    log("info", "residue sweep completed", { service: "prism-defender", acknowledged: n });
+    log("info", "residue sweep completed", { service: "linkguard", acknowledged: n });
   }
   return n;
 }

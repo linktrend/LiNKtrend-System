@@ -1,3 +1,4 @@
+# DEPRECATED (Tier 2): canonical copy at LiNKskills/capability-connectors/cap.supabase.provisioning.yaml
 ---
 # Declaration-only capability plugin manifest — LiNKapps Supabase provisioning connector surface.
 # Sources: LINKAPPS_CAPABILITY_REQUIREMENTS.md §2.2, §3, §4; CONTRACTS_MVO.md §0.A.5.1.

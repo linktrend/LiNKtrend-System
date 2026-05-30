@@ -1,6 +1,6 @@
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { requireLicensorOperator } from "@/lib/licensor-access";
-import { PrismSummaryStatsGrid } from "@/components/summary-metric-card";
+import { LinkguardSummaryStatsGrid } from "@/components/summary-metric-card";
 import {
   DataTable,
   DataTableBody,
@@ -61,7 +61,7 @@ export default async function SettingsLinkguardPage() {
 
   return (
     <div className="mt-6 space-y-8">
-      <PrismSummaryStatsGrid
+      <LinkguardSummaryStatsGrid
         lastHeartbeatAge={formatAge(lastHeartbeatAt)}
         lastHeartbeatAt={lastHeartbeatAt}
         fsFailures24h={fsFailures24h}

@@ -4,7 +4,7 @@
 guidance_version: wp114-loader-v1
 applies_to:
   - seeds/cross_vertical_catalog.v1.yaml
-  - packages/linkaios-kernel/plugins/capabilities/lexos/*.yaml
+  - LiNKskills/capability-connectors/lexos/*.yaml
 
 uniqueness_rules:
   capability_id_primary_key: >-
