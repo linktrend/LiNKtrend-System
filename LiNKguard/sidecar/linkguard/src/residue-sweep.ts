@@ -3,14 +3,14 @@ import { log } from "@linktrend/observability";
 import type { Env } from "@linktrend/shared-config";
 
 /**
- * Acknowledges closed worker sessions in `prism.swept_sessions` and logs `cleanup_events`.
+ * Acknowledges closed worker sessions in `linkguard.swept_sessions` and logs `cleanup_events`.
  * Requires migration `008` (table + RLS). Safe to run repeatedly; skips already swept ids.
  */
 export async function sweepWorkerResidue(env: Env, params: { batch: number }): Promise<number> {
   const client = createSupabaseServiceClient(env);
 
   const { data: sweptRows, error: sweptErr } = await client
-    .schema("prism")
+    .schema("linkguard")
     .from("swept_sessions")
     .select("worker_session_id")
     .limit(10_000);
@@ -46,7 +46,7 @@ export async function sweepWorkerResidue(env: Env, params: { batch: number }): P
 
   let n = 0;
   for (const s of candidates) {
-    const { error: evErr } = await client.schema("prism").from("cleanup_events").insert({
+    const { error: evErr } = await client.schema("linkguard").from("cleanup_events").insert({
       worker_session_id: s.id,
       action: "residue_sweep_ack",
       detail: {
@@ -60,7 +60,7 @@ export async function sweepWorkerResidue(env: Env, params: { batch: number }): P
     }
 
     const { error: swErr } = await client
-      .schema("prism")
+      .schema("linkguard")
       .from("swept_sessions")
       .upsert(
         { worker_session_id: s.id, detail: { source: "prism-defender" } },

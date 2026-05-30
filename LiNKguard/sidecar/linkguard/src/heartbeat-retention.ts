@@ -11,7 +11,7 @@ function retentionDays(env: Env): number {
 }
 
 /**
- * Deletes old `sidecar_heartbeat` rows from `prism.cleanup_events` (service role).
+ * Deletes old `sidecar_heartbeat` rows from `linkguard.cleanup_events` (service role).
  */
 export async function pruneOldHeartbeats(env: Env): Promise<void> {
   const days = retentionDays(env);
@@ -19,7 +19,7 @@ export async function pruneOldHeartbeats(env: Env): Promise<void> {
   const client = createSupabaseServiceClient(env);
 
   const { error, count } = await client
-    .schema("prism")
+    .schema("linkguard")
     .from("cleanup_events")
     .delete({ count: "exact" })
     .eq("action", "sidecar_heartbeat")

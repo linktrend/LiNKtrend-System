@@ -24,6 +24,8 @@ const nextConfig: NextConfig = {
       { source: "/modules", destination: "/suites/my-suites", permanent: false },
       { source: "/licensees", destination: "/admin/licensees", permanent: false },
       { source: "/licensees/:path*", destination: "/admin/licensees/:path*", permanent: false },
+      { source: "/settings/prism", destination: "/settings/linkguard", permanent: false },
+      { source: "/admin/settings/prism", destination: "/admin/settings/linkguard", permanent: false },
     ];
   },
   transpilePackages: [

@@ -64,7 +64,7 @@ Use the **Session pooler** URI from the dashboard (**Connect** → **Session mod
 
 ### PostgREST: expose custom schemas
 
-So the JavaScript client can use `.schema("linkaios")`, add these schemas to **exposed schemas** in Supabase (**Project Settings** → **Data API** / **API**): `linkaios`, `bot_runtime`, `prism`, `gateway`. Save, then reload LiNKaios.
+So the JavaScript client can use `.schema("linkaios")`, add these schemas to **exposed schemas** in Supabase (**Project Settings** → **Data API** / **API**): `linkaios`, `bot_runtime`, `linkguard`, `gateway`. Do **not** expose legacy `prism` after migration `035_linkguard_canonical_schema.sql` is applied.
 
 The **Zulip server** continues to use its **own** database for Zulip’s native data; this project’s `gateway` schema only stores **bridge** metadata (for example message ↔ mission links).
 

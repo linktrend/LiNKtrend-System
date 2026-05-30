@@ -11,7 +11,7 @@ const RESIDUE_SWEEP_DISABLED = process.env.PRISM_RESIDUE_SWEEP?.trim() === "0";
 
 async function recordHeartbeat(env: ReturnType<typeof loadEnv>) {
   const client = createSupabaseServiceClient(env);
-  const { error } = await client.schema("prism").from("cleanup_events").insert({
+  const { error } = await client.schema("linkguard").from("cleanup_events").insert({
     action: "sidecar_heartbeat",
     detail: { ts: new Date().toISOString(), pid: process.pid },
   });

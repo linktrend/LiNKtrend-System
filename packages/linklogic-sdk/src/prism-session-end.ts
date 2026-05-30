@@ -13,7 +13,7 @@ export async function recordPrismSessionEnd(
 ): Promise<void> {
   try {
     const client = createSupabaseServiceClient(env);
-    const { error } = await client.schema("prism").from("cleanup_events").insert({
+    const { error } = await client.schema("linkguard").from("cleanup_events").insert({
       worker_session_id: params.workerSessionId ?? null,
       action: "worker_session_end",
       path_pattern: null,

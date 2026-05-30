@@ -105,6 +105,11 @@ const SETTINGS_HELP: Record<string, PageHelpContent> = {
     "Tenant-wide tool registry shortcuts and operator maintenance for governed tools.",
     "Canonical catalog and certification remain under LiNKskills; this tab is for operator convenience.",
   ),
+  "/settings/linkguard": help(
+    "Settings — LiNKguard",
+    "Worker security and cleanup policies for execution workers.",
+    "Review sidecar heartbeat, residue cleanup, and guardrail status.",
+  ),
   "/settings/prism": help(
     "Settings — LiNKguard",
     "Worker security and cleanup policies formerly branded PRISM Defender.",

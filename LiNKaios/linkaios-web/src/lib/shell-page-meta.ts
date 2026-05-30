@@ -147,6 +147,10 @@ const SETTINGS_SUBPAGE: Record<string, ShellPageMeta> = {
     title: "Platform",
     subtitle: "Power-operator areas — routing, traces, LiNKguard cleanup, and development proof surfaces.",
   },
+  "/settings/linkguard": {
+    title: "LiNKguard",
+    subtitle: "Automated cleanup worker health and recent activity from the LiNKguard sidecar.",
+  },
   "/settings/prism": {
     title: "LiNKguard",
     subtitle: "Automated cleanup worker health and recent activity from the LiNKguard sidecar.",

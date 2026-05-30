@@ -12,7 +12,9 @@ Existing projects that already applied an older `ALL_IN_ONE.sql` should run **`0
 
 Dashboard: **Project Settings** → **Data API** (or **API**) → **Exposed schemas**. Add:
 
-`linkaios`, `bot_runtime`, `prism`, `gateway`
+`linkaios`, `bot_runtime`, `linkguard`, `gateway`
+
+Do **not** expose `prism` after `035_linkguard_canonical_schema.sql` (tables live in `linkguard`; `prism` schema is dropped).
 
 Save. Without this step, PostgREST returns `PGRST106` / “Invalid schema”.
 
@@ -33,7 +35,8 @@ Apply after UI/TS migration wave D planning is underway. Both migrations are **a
 | File | Purpose |
 |------|---------|
 | `033_linkaios_project_terminology.sql` | Renames `linkaios.missions` → `linkaios.projects`; renames `mission_id` → `project_id` on linkaios child tables; adds `linkaios.missions` **view** for backward compat; canonical functions `is_project_head` / `sync_project_manifest_tools` with legacy wrappers |
-| `034_linkguard_schema_alias.sql` | Adds `linkguard` schema with views over legacy `prism` tables (no prism rename) |
+| `034_linkguard_schema_alias.sql` | Adds `linkguard` schema with views over legacy `prism` tables (superseded by `035`) |
+| `035_linkguard_canonical_schema.sql` | Moves `prism` tables into `linkguard`; drops `prism` schema; canonical PostgREST surface |
 
 **Not renamed in 033 (intentional):**
 
@@ -42,6 +45,6 @@ Apply after UI/TS migration wave D planning is underway. Both migrations are **a
 - `tool_governance_requests.request_type` values (`mission_binding_add`, etc.) — audit/API compat until TS wave C completes
 - `brain_virtual_files.scope = 'mission'` rows — CHECK also accepts `'project'` for new rows
 
-**Post-apply:** add `linkguard` to **Exposed schemas** in Supabase Dashboard (keep `prism` during transition).
+**Post-apply:** expose **`linkguard`** only; remove **`prism`** from exposed schemas after `035`.
 
-**`ALL_IN_ONE.sql`:** not updated automatically. After applying `033`/`034` to a live project, manually merge the same renames/views into `ALL_IN_ONE.sql` before the next greenfield bootstrap.
+**`ALL_IN_ONE.sql`:** not updated automatically. After applying `033`–`035` to a live project, manually merge into `ALL_IN_ONE.sql` before the next greenfield bootstrap.
