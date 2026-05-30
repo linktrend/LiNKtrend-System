@@ -50,7 +50,7 @@ dev-swarm/factory/scripts/replay-merge-verify.sh bootstrap
 
 ## Branch State
 
-- [ ] All changes committed
+- [x] All changes committed (`fdac0ea` on `development`)
 - [ ] Pushed to remote
-- [ ] Tests passing
-- [ ] No uncommitted work
+- [x] Proof scripts passing on clean tree (see above)
+- [x] No uncommitted work
