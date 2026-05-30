@@ -1,41 +1,53 @@
 # Wire LiNKdev — Install Checklist
 
-Complete every step in order. Confirm each checkbox before the install agent proceeds.
+Agents execute this checklist **autonomously**. The Principal only sends one-line launches in [PRINCIPAL-LAUNCH.md](PRINCIPAL-LAUNCH.md).
+
+| Sections | Agent | Prompt file |
+|----------|--------|-------------|
+| 0–3, 6–7 | Cursor | [EXECUTE-WIRE-LINKDEV.md](EXECUTE-WIRE-LINKDEV.md) |
+| 4–5 | Codex (computer use) | [EXECUTE-LINKDEV-UI-AUTOMATIONS.md](EXECUTE-LINKDEV-UI-AUTOMATIONS.md) |
+| 9 (+ wire sign-off) | Cursor | [EXECUTE-WIRE-LINKDEV-POST-UI.md](EXECUTE-WIRE-LINKDEV-POST-UI.md) |
+| 8 **Go** | Principal only | `linkdev-go` / **Go** — not part of wire |
+
+Progress is recorded in `LiNKdev/product/reports/wire/WIRE-SESSION.md`.
 
 ## 0. Prerequisites
 
+**Cursor wire agent verifies** (no Principal interview):
+
 - [ ] Git repository with `development`, `staging`, `main` branches (or documented equivalents)
-- [ ] GitHub remote connected
-- [ ] Cursor account with Automations enabled
-- [ ] Codex account with automations enabled (peer executor)
-- [ ] Principal understands: **Go**, scheduled **Continue**, **`staging`/`main`** only by Principal
+- [ ] GitHub remote connected (`gh repo view`)
+- [ ] Cursor and Codex accounts assumed enabled for deployed instances
+- [ ] Principal policy documented: **Go**, **Continue**, `staging`/`main` only by Principal
 
 ## 1. Copy pack
 
-- [ ] `LiNKdev/` exists at repository root (copy entire folder for new products)
-- [ ] Install portable Cursor shim: `cp -R LiNKdev/factory/install/portable-cursor/.cursor ./`
-- [ ] Read `LiNKdev/README.md` and `LiNKdev/factory/SPEC.md`
-- [ ] Add product-specific `.cursor/rules/01`–`08` only if this product needs them (LiNKtrend reference: this repo)
+**Cursor wire agent** (deployed instance skips copy if present):
+
+- [ ] `LiNKdev/` exists at repository root
+- [ ] Portable Cursor shim: `cp -R LiNKdev/factory/install/portable-cursor/.cursor ./` if missing
+- [ ] `LiNKdev/README.md` and `LiNKdev/factory/SPEC.md` present
+- [ ] Product-specific `.cursor/rules/01`–`08` when needed (LiNKtrend reference: this repo)
 
 ## 2. GitHub labels
 
-**Agent runs** (Principal confirms output):
+**Cursor wire agent runs:**
 
 ```bash
 LiNKdev/factory/scripts/install-labels.sh
 ```
 
-Creates/updates all labels from [contracts/labels.md](../contracts/labels.md) via `gh` (idempotent).
-
 - [ ] Script exited 0; `gh label list` shows `linkdev:*`, `runtime:*`, `tier:*`
 
-## 3. GitHub Actions (optional guard)
+## 3. GitHub Actions guard
 
-- [ ] Workflow `.github/workflows/linkdev-guard.yml` enabled (validates STATE JSON on PR touching `LiNKdev/factory/STATE.md`)
+**Cursor wire agent verifies:**
+
+- [ ] `.github/workflows/linkdev-guard.yml` on `development`
 
 ## 4. Cursor automations
 
-Configure per [automations/cursor/README.md](../automations/cursor/README.md):
+**Codex UI agent only** — [EXECUTE-LINKDEV-UI-AUTOMATIONS.md](EXECUTE-LINKDEV-UI-AUTOMATIONS.md) + [automations/CURSOR-CREATE-AUTOMATIONS.md](automations/CURSOR-CREATE-AUTOMATIONS.md)
 
 - [ ] Orchestrator — trigger: merge to `development`
 - [ ] Reviewer — trigger: label `linkdev:review-ready`
@@ -44,34 +56,40 @@ Configure per [automations/cursor/README.md](../automations/cursor/README.md):
 
 ## 5. Codex automations
 
-Configure per [automations/codex/README.md](../automations/codex/README.md):
+**Codex UI agent only** — [EXECUTE-LINKDEV-UI-AUTOMATIONS.md](EXECUTE-LINKDEV-UI-AUTOMATIONS.md) + [automations/CODEX-CREATE-AUTOMATIONS.md](automations/CODEX-CREATE-AUTOMATIONS.md)
 
-- [ ] Executor — trigger: `linkdev:ready` + `runtime:codex` (same label contract as Cursor)
+- [ ] Executor — trigger: `linkdev:ready` + `runtime:codex`
 
 ## 6. Skills
 
-- [ ] Agents use [LiNKdev/skills/SKILLS_CATALOG.md](../skills/SKILLS_CATALOG.md) only
-- [ ] Review [MERGE-LOG.md](../skills/MERGE-LOG.md) if duplicate skill behavior appears
-- [ ] `.cursor/rules/00-linkdev-bootstrap.mdc` installed (no root `AGENTS.md` — entry is `LiNKdev/AGENTS.md`)
+**Cursor wire agent verifies:**
+
+- [ ] `LiNKdev/skills/SKILLS_CATALOG.md`; bootstrap points to `LiNKdev/skills/`
+- [ ] `.cursor/rules/00-linkdev-bootstrap.mdc` installed (no root `AGENTS.md`)
 
 ## 7. Product program
 
-- [ ] Create `LiNKdev/product/programs/<product>/PROGRAM.md`
-- [ ] Run Planner (pre-Go) → Principal approves plan
-- [ ] Planner checklist: Codex automations created for every `runtime: codex` issue group
+**Cursor wire agent verifies:**
+
+- [ ] `LiNKdev/product/programs/<product>/PROGRAM.md` exists (draft OK pre-Go)
+- [ ] Planner / Codex issue-group automations — **after Go**, not during wire
 
 ## 8. Go
 
-- [ ] Principal clicks **Go**
-- [ ] `STATE.md` phase = `running`
+**Principal only** (not wire agents):
+
+- [ ] Principal says **Go**
+- [ ] Program `STATE.md` phase = `running`
 - [ ] Orchestrator sets first parallel group to `linkdev:ready`
 
 ## 9. Proof of wire
 
+**Cursor post-UI agent** — [EXECUTE-WIRE-LINKDEV-POST-UI.md](EXECUTE-WIRE-LINKDEV-POST-UI.md):
+
 - [ ] Test issue: automation fired without manual executor launch
 - [ ] Report contains proof block
-- [ ] `LiNKdev/factory/scripts/verify.sh` exits 0 before merge-ready
+- [ ] `LiNKdev/factory/scripts/verify.sh` exits 0
 
 ## Done
 
-LiNKdev is **wired**. Runtime mode is autonomous until `linkdev:principal-stop` or blocker.
+LiNKdev is **wired**. Runtime mode is autonomous until `linkdev:principal-stop` or blocker. Principal **Go** starts the program.
