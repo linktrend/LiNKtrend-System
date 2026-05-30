@@ -1,6 +1,6 @@
 # Dev Swarm Specification
 
-Version: 2.0  
+Version: 2.1  
 Status: active (2026-05-30)
 
 ## 1. What Dev Swarm is
@@ -111,7 +111,7 @@ See [BORROW-PACK.md](BORROW-PACK.md) B14–B18.
 
 ## 13. Borrow pack
 
-[BORROW-PACK.md](BORROW-PACK.md) — UBS-inspired gates; not full UBS. No second orchestration stack. No mandatory gstack `/ship` on every issue (release phase only).
+[BORROW-PACK.md](BORROW-PACK.md) — UBS-inspired gates (DS-B1 … DS-B25); not full UBS. Peer review: [PEER-REPO-BORROW-REVIEW.md](PEER-REPO-BORROW-REVIEW.md). No second orchestration stack. No mandatory gstack `/ship` on every issue (release phase only). Laws, intent, tiers, council, manifest, and worktree: §17–22.
 
 ## 14. Skills
 
@@ -126,3 +126,74 @@ See [BORROW-PACK.md](BORROW-PACK.md) B14–B18.
 ## 16. LiNKtrend hosting
 
 Legacy work packets: `dev-swarm/product/programs/linktrend-system/issues/legacy/`. Migration: [../product/programs/linktrend-system/MIGRATION.md](../product/programs/linktrend-system/MIGRATION.md).
+
+## 17. Laws
+
+Eight enforceable laws: [laws/DEV_SWARM_LAWS.md](laws/DEV_SWARM_LAWS.md) (DS-B19).
+
+- **LAW-01** — No vacuous proof (Reviewer + Integrator).
+- **LAW-02** — Intent PASS before execution (`validate-intent.sh`).
+- **LAW-03** — Tier gates mandatory (`DEV_SWARM_TIER=critical` on release issues).
+- **LAW-04** — No secrets in repo (`verify.sh` scan).
+- **LAW-05** — Worktree isolation for parallel issues (`.worktrees/<issue-id>/`).
+- **LAW-06** — No merge to `staging`/`main` without Chairman Release OK.
+- **LAW-07** — Council BLOCKER stops progress until resolved or waived.
+- **LAW-08** — Program release requires SHA256 manifest; **no cosign witness**.
+
+## 18. Intent verdict
+
+Product intent lives in `dev-swarm/product/grounding/INTENT.md` (from [templates/INTENT.md](templates/INTENT.md)). Planner writes after Chairman OK; links `VISION.md` and `SHIP_CRITERIA.md` (DS-B24).
+
+Machine verdict:
+
+- Schema: [contracts/intent-verdict.schema.json](contracts/intent-verdict.schema.json)
+- Template: [templates/intent-verdict.json](templates/intent-verdict.json)
+- Paths (newest wins): `dev-swarm/product/reports/<program-id>/intent-verdict.json` or `dev-swarm/product/programs/<program-id>/intent-verdict.json`
+
+**Orchestrator must not set `swarm:ready` until:**
+
+1. Council **G2** has no BLOCKER (LAW-07).
+2. `dev-swarm/factory/scripts/validate-intent.sh <program-id>` exits 0 (LAW-02, DS-B20).
+
+## 19. Tier gates A / B / C
+
+Catalog: [gates/catalog.json](gates/catalog.json). Runner: [scripts/run-gates.sh](scripts/run-gates.sh) (DS-B21).
+
+| Tier | When | Key gates |
+|------|------|-----------|
+| **A** | Per issue — merge-ready | `verify_subset`, secrets, proof block, allowed files, worktree clean |
+| **B** | Module phase complete | DAG, integration smoke, architecture gate (JS/TS), council G3 |
+| **C** | Program release (critical) | Full verify, program proof manifest, replay merge, ship criteria, council G4 |
+
+`verify.sh` invokes tier **A** unless `DEV_SWARM_SKIP_GATES=1`. Release **critical** issues set `DEV_SWARM_TIER=critical` and `DEV_SWARM_SCOPE=.` (DS-B16). Stack-driven smoke/typecheck reads `dev-swarm/product/grounding/STACK.md`.
+
+## 20. Council G1–G4
+
+Multi-advisor gate: [prompts/council/ROLE.md](prompts/council/ROLE.md) (DS-B22). All five personas run every time; any **BLOCKER** halts progress (LAW-07).
+
+| Gate | Trigger | Proceed when |
+|------|---------|--------------|
+| **G1** | Planner — after Chairman OK on finished-product narrative | PASS or WARN (no BLOCKER) |
+| **G2** | Planner — after `PROGRAM.md` + intent verdict | PASS or WARN; intent script must pass before Orchestrator runs |
+| **G3** | Orchestrator — module phase complete | PASS or WARN; validated by tier B `council_g3_report` |
+| **G4** | Integrator — before Chairman Release OK | **PASS** only (WARN needs Chairman ack) |
+
+Reports: [contracts/council-report.schema.json](contracts/council-report.schema.json). Validate: [scripts/validate-council.sh](scripts/validate-council.sh).
+
+## 21. Program proof manifest
+
+Release phase emits SHA256 manifest over reports and proof artifacts (LAW-08, DS-B23):
+
+```bash
+dev-swarm/factory/scripts/program-proof-manifest.sh <program-id>
+```
+
+Output default: `dev-swarm/product/reports/<program-id>/proof-manifest.json`.
+
+Per-issue manifest (`proof-manifest.sh`) remains required for **critical** tier issues. **Cosign witness is explicitly rejected** — hash manifest only. See [PEER-REPO-BORROW-REVIEW.md](PEER-REPO-BORROW-REVIEW.md).
+
+## 22. Worktree (no container v1)
+
+Parallel `swarm:ready` issues **must** use isolated git worktrees under `.worktrees/<issue-id>/` (LAW-05, DS-B25). Executors must not share a dirty working tree across concurrent issues.
+
+Container sandbox v1 is **not** required for MVO. Decision: [docs/DEV_SWARM_SANDBOX.md](../../docs/DEV_SWARM_SANDBOX.md). Revisit when untrusted multi-tenant execution or live side effects without capability leases demand stronger isolation.

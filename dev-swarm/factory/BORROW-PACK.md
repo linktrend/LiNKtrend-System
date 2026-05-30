@@ -14,7 +14,7 @@ Quality and verification patterns borrowed from UBS and peer factories. **Not fu
 | DS-B8 | Portable `dev-swarm/AGENTS.md` | Active |
 | DS-B9 | Git + verify before `swarm:merge-ready` | Active |
 | DS-B10 | Trajectory / debug in reports | Active |
-| DS-B11 | Benchmark hook stub | `factory/install/automations/README.md` |
+| DS-B11 | Merge replay traceability (`replay-merge-verify.sh`) | Active |
 | DS-B12 | Sandbox decision | `docs/DEV_SWARM_SANDBOX.md` |
 | DS-B13 | Per-issue `runtime` field | Active |
 | DS-B14 | **Program Definition of Done** in every `PROGRAM.md` | Required for new programs |
@@ -22,5 +22,14 @@ Quality and verification patterns borrowed from UBS and peer factories. **Not fu
 | DS-B16 | `DEV_SWARM_SCOPE=.` on release verify | Release issues |
 | DS-B17 | No vacuous program complete (Integrator) | Active |
 | DS-B18 | Commit traceability `(<issue-id>)` | Integrator + Executor |
+| DS-B19 | **Dev Swarm laws** (`laws/DEV_SWARM_LAWS.md`, LAW-01 … LAW-08) | All roles; intent + release |
+| DS-B20 | **Intent verdict gate** (`validate-intent.sh`; blocks `swarm:ready`) | Orchestrator + Planner G2 |
+| DS-B21 | **Tier gates A/B/C** (`gates/catalog.json` + `run-gates.sh`) | Executor A; Integrator B/C |
+| DS-B22 | **Council G1–G4** (five personas; BLOCKER stops progress) | Planner, Orchestrator, Integrator |
+| DS-B23 | **Program SHA256 manifest** (`program-proof-manifest.sh`; no cosign) | Release critical tier |
+| DS-B24 | **Product intent** (`product/grounding/INTENT.md` + verdict JSON) | Planner after Chairman OK |
+| DS-B25 | **Worktree enforcement** (`.worktrees/<issue-id>/`; no container v1) | Parallel executors |
 
-**Rejected:** 28-gate UBS bundle, mandatory multi-Opus adversarial review, mandatory cosign witness, Antigravity in core.
+**Not adopted from UBS:** full 28-gate per-issue bundle, mandatory cosign, container sandbox v1.
+
+See [PEER-REPO-BORROW-REVIEW.md](PEER-REPO-BORROW-REVIEW.md) for tiered peer-repo rationale.

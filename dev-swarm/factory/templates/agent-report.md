@@ -42,11 +42,14 @@
 }
 ```
 
-## Trajectory / debug (DS-B10)
+## Trajectory / debug (DS-B10) — required
+
+Executor must fill this section on every report. Reviewer rejects vacuous or missing trajectory on blocked issues.
 
 - **Session id:** (if available)
-- **Log path:** 
-- **Failure hypothesis:** (if blocked)
+- **Log path:** path to agent log, terminal capture, or debug artifact
+- **Commands attempted:** brief list when debugging failures
+- **Failure hypothesis:** (required if status is `blocked`)
 
 ## Blockers
 

@@ -21,7 +21,20 @@ Label `swarm:merge-ready` on PR (only after `dev-swarm/factory/scripts/verify.sh
 
 ## Program complete (DS-B17)
 
-When all issues are `done`, verify `PROGRAM.md` DoD, `product/grounding/SHIP_CRITERIA.md`, and `product/reports/<program-id>/STATUS.md` with demo evidence. Reject vacuous program-complete without artifacts. Chairman Release OK before staging/main.
+When all issues are `done`, run **all** gates below (exit 0 required) before marking the program complete or requesting Chairman Release OK:
+
+1. `dev-swarm/factory/scripts/program-proof-manifest.sh <program-id>` — writes `dev-swarm/product/reports/<program-id>/proof-manifest.json` (reports + proof artifacts).
+2. `dev-swarm/factory/scripts/replay-merge-verify.sh <program-id>` — DS-B11 merge traceability on `development` (bootstrap skips).
+3. `dev-swarm/factory/scripts/validate-council.sh dev-swarm/product/reports/<program-id>/council/G4-release-report.json --gate G4` — program council gate (no BLOCKER).
+4. `dev-swarm/factory/scripts/run-gates.sh --tier C --program <program-id>` — release-tier gates (includes verify critical, program manifest, replay-merge, ship criteria, council G4).
+
+Then verify:
+
+- `PROGRAM.md` **Program Definition of Done** (DS-B14)
+- `dev-swarm/product/grounding/SHIP_CRITERIA.md` (demo, verify, manifests, no `swarm:blocked`)
+- `dev-swarm/product/reports/<program-id>/STATUS.md` with demo command or URL
+
+Reject vacuous program-complete without artifacts or failing gates. Chairman **Release OK** before `staging` / `main`.
 
 ## Commits (DS-B18)
 

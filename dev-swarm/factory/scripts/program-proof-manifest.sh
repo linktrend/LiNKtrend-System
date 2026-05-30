@@ -1,27 +1,40 @@
 #!/usr/bin/env bash
-# Emit light proof manifest (DS-B7) from a single agent report directory.
+# Program-level proof manifest (completion package D): SHA256 of reports + proof artifacts.
 set -euo pipefail
 
-REPORT="${1:-}"
-OUT="${2:-dev-swarm/product/reports/proof-manifest.json}"
-if [[ -z "$REPORT" || ! -f "$REPORT" ]]; then
-  echo "usage: proof-manifest.sh <report.md> [out.json]" >&2
+PROGRAM="${1:-}"
+OUT="${2:-}"
+ROOT="$(cd "$(dirname "$0")/../../.." && pwd)"
+
+if [[ -z "$PROGRAM" ]]; then
+  echo "usage: program-proof-manifest.sh <program-id> [out.json]" >&2
   exit 2
 fi
 
-ROOT="$(cd "$(dirname "$0")/../../.." && pwd)"
-export ROOT REPORT OUT
+REPORTS_DIR="$ROOT/dev-swarm/product/reports/$PROGRAM"
+if [[ ! -d "$REPORTS_DIR" ]]; then
+  echo "program-proof-manifest: missing reports dir: $REPORTS_DIR" >&2
+  exit 2
+fi
+
+if [[ -z "$OUT" ]]; then
+  OUT="$REPORTS_DIR/proof-manifest.json"
+fi
+
+export ROOT PROGRAM OUT REPORTS_DIR
 python3 - <<'PY'
 import hashlib, json, os, re
 from datetime import datetime, timezone
 from pathlib import Path
 
 root = Path(os.environ["ROOT"])
-report = Path(os.environ["REPORT"]).resolve()
+program = os.environ["PROGRAM"]
+reports_dir = Path(os.environ["REPORTS_DIR"])
 out = Path(os.environ["OUT"])
 
 ARTIFACT_RE = re.compile(r'artifact_path["\']?\s*:\s*["\']([^"\']+)["\']')
 PROOF_JSON_RE = re.compile(r"```json\s*(\{.*?\})\s*```", re.S)
+ISSUE_RE = re.compile(r"^[A-Z][A-Z0-9]*-\d{3}$")
 
 
 def artifact_paths_from_text(text: str) -> set[str]:
@@ -41,15 +54,6 @@ def artifact_paths_from_text(text: str) -> set[str]:
     return found
 
 
-def resolve_path(rel: str):
-    candidate = Path(rel)
-    if not candidate.is_absolute():
-        candidate = (root / rel).resolve()
-    else:
-        candidate = candidate.resolve()
-    return candidate if candidate.is_file() else None
-
-
 def file_entry(path: Path) -> dict:
     data = path.read_bytes()
     return {
@@ -58,23 +62,28 @@ def file_entry(path: Path) -> dict:
         "size": len(data),
     }
 
-text = report.read_text(encoding="utf-8", errors="replace")
-paths: set[Path] = {report}
-for rel in artifact_paths_from_text(text):
-    resolved = resolve_path(rel)
-    if resolved:
-        paths.add(resolved)
 
-files = [file_entry(p) for p in sorted(paths, key=lambda p: str(p))]
+paths_to_hash: set[Path] = set()
+
+for md in sorted(reports_dir.rglob("*.md")):
+    paths_to_hash.add(md.resolve())
+    text = md.read_text(encoding="utf-8", errors="replace")
+    for rel in artifact_paths_from_text(text):
+        candidate = Path(rel)
+        if not candidate.is_absolute():
+            candidate = (root / rel).resolve()
+        else:
+            candidate = candidate.resolve()
+        if candidate.is_file():
+            paths_to_hash.add(candidate)
+
+files = [file_entry(p) for p in sorted(paths_to_hash, key=lambda p: str(p))]
 manifest = {
-    "report": str(report),
+    "program_id": program,
     "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
-    "file_count": len(files),
     "files": files,
-    "artifact_count": max(0, len(files) - 1),
-    "artifacts": [f for f in files if f["path"] != str(report)],
 }
 out.parent.mkdir(parents=True, exist_ok=True)
 out.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
-print(f"wrote {out} ({len(files)} files, {manifest['artifact_count']} artifacts)")
+print(f"wrote {out} ({len(files)} files)")
 PY

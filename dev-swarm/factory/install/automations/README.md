@@ -20,12 +20,13 @@ GitHub is the sync layer. Cursor and Codex automations listen to the **same labe
 
 ## Benchmark hook (DS-B11)
 
-Post-program optional issue:
+Post-program Integrator gate:
 
 ```bash
-# Future: wire OpenHands/benchmarks-style eval against closed issue SHAs
-echo "benchmark: stub — record program_id and issue list from STATE.md"
+dev-swarm/factory/scripts/replay-merge-verify.sh <program-id>
 ```
+
+Verifies each `done` issue id from STATE (or complete PROGRAM) appears in `development` merge/oneline history. `bootstrap` exits 0 without checking.
 
 ## Dry-run proof
 

@@ -44,7 +44,8 @@ done
 ok "scripts present"
 
 # 4. JSON schemas parse
-for j in dev-swarm/factory/contracts/*.json; do
+for j in dev-swarm/factory/contracts/*.json dev-swarm/factory/gates/catalog.json; do
+  [[ -f "$j" ]] || continue
   python3 -c "import json; json.load(open('$j'))" || fail "invalid json $j"
 done
 ok "contracts json valid"
@@ -58,4 +59,18 @@ if [[ "$TIER" == "critical" ]]; then
 fi
 
 echo "== verify passed =="
+
+# Optional tier-A gates (package B) — skip when invoked from run-gates verify_subset
+if [[ "${DEV_SWARM_SKIP_GATES:-}" != "1" ]]; then
+  if [[ -n "${DEV_SWARM_RUN_GATES:-}" ]] || [[ "$TIER" == "standard" ]]; then
+    GATE_ARGS=(--tier A --scope "$SCOPE")
+    [[ -n "${DEV_SWARM_REPORT:-}" ]] && GATE_ARGS+=(--report "$DEV_SWARM_REPORT")
+    [[ -n "${DEV_SWARM_PROGRAM:-}" ]] && GATE_ARGS+=(--program "$DEV_SWARM_PROGRAM")
+    if ! dev-swarm/factory/scripts/run-gates.sh "${GATE_ARGS[@]}"; then
+      fail "tier A gates failed"
+    fi
+    ok "tier A gates passed"
+  fi
+fi
+
 exit 0
