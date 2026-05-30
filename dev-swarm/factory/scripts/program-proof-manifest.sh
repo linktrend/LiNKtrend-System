@@ -13,8 +13,13 @@ fi
 
 REPORTS_DIR="$ROOT/dev-swarm/product/reports/$PROGRAM"
 if [[ ! -d "$REPORTS_DIR" ]]; then
-  echo "program-proof-manifest: missing reports dir: $REPORTS_DIR" >&2
-  exit 2
+  FACTORY_REPORTS="$ROOT/dev-swarm/factory/reports/$PROGRAM"
+  if [[ -d "$FACTORY_REPORTS" ]]; then
+    REPORTS_DIR="$FACTORY_REPORTS"
+  else
+    echo "program-proof-manifest: missing reports dir: $REPORTS_DIR (and $FACTORY_REPORTS)" >&2
+    exit 2
+  fi
 fi
 
 if [[ -z "$OUT" ]]; then
