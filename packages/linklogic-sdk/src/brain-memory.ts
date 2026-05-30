@@ -1,6 +1,6 @@
 /**
  * LiNKbrain Memory Object persistence — implements memory object schemas
- * per `dev-swarm/command-center/CONTRACTS_MVO.md` and `dev-swarm/command-center/LINKBRAIN_COMPLETION_PLAN.md` §2.2.
+ * per `dev-swarm/product/grounding/CONTRACTS_MVO.md` and `dev-swarm/product/grounding/LINKBRAIN_COMPLETION_PLAN.md` §2.2.
  *
  * This module provides:
  * - Zod schemas for memory object types: LeadMemory, ResearchBundle, EpisodeSummary

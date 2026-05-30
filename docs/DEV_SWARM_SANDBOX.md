@@ -19,4 +19,4 @@ Revisit when:
 
 ## If adopted later
 
-Document connector in `dev-swarm/automations/README.md` and add issue tier `critical` container requirement.
+Document connector in `dev-swarm/factory/install/automations/README.md` and add issue tier `critical` container requirement.

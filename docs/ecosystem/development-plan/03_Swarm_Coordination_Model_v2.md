@@ -36,21 +36,21 @@ dev-swarm/
 └── archive/                 # read-only legacy ai-swarm and cursor copies
 ```
 
-Factory coordination lives in `dev-swarm/`. Plans, contracts, and live queues live in `dev-swarm/command-center/`.
+Factory coordination lives in `dev-swarm/`. Plans, contracts, and live queues live in `dev-swarm/product/grounding/`.
 
 ## Add The Architect Review Report
 
 The architect review report should live at:
 
 ```text
-dev-swarm/command-center/ARCHITECT_REVIEW_REPORT.md
+dev-swarm/product/grounding/ARCHITECT_REVIEW_REPORT.md
 ```
 
 This report becomes the starting map for repo reuse. Agents should not ignore it.
 
 ## Live Coordination File
 
-`dev-swarm/command-center/AGENT_COORDINATION.md` should show:
+`dev-swarm/product/grounding/AGENT_COORDINATION.md` should show:
 
 - global status
 - active agents
@@ -63,15 +63,15 @@ This report becomes the starting map for repo reuse. Agents should not ignore it
 
 ## Agent Reports
 
-Each agent writes to one report under `dev-swarm/reports/` (historical legacy agent-report copies are under `dev-swarm/reports/legacy-ai-swarm/`):
+Each agent writes to one report under `dev-swarm/product/reports/` (historical legacy agent-report copies are under `dev-swarm/product/reports/archive/legacy-ai-swarm/`):
 
 ```text
-dev-swarm/reports/linkbrain-agent.md
-dev-swarm/reports/linkskills-agent.md
-dev-swarm/reports/linkautowork-agent.md
-dev-swarm/reports/linkbot-agent.md
-dev-swarm/reports/linkaios-agent.md
-dev-swarm/reports/integration-agent.md
+dev-swarm/product/reports/linkbrain-agent.md
+dev-swarm/product/reports/linkskills-agent.md
+dev-swarm/product/reports/linkautowork-agent.md
+dev-swarm/product/reports/linkbot-agent.md
+dev-swarm/product/reports/linkaios-agent.md
+dev-swarm/product/reports/integration-agent.md
 ```
 
 Each report must include:
@@ -89,12 +89,12 @@ Each report must include:
 
 Agents do not rely on each other’s chat history. Agents read:
 
-- `dev-swarm/command-center/ARCHITECTURE_RULES.md`
-- `dev-swarm/command-center/ARCHITECT_REVIEW_REPORT.md`
-- `dev-swarm/command-center/REPO_INVENTORY.md`
-- `dev-swarm/command-center/CONTRACTS_MVO.md`
-- their assigned issue under `dev-swarm/programs/linktrend-system/issues/`
-- their agent report under `dev-swarm/reports/`
+- `dev-swarm/product/grounding/ARCHITECTURE_RULES.md`
+- `dev-swarm/product/grounding/ARCHITECT_REVIEW_REPORT.md`
+- `dev-swarm/product/grounding/REPO_INVENTORY.md`
+- `dev-swarm/product/grounding/CONTRACTS_MVO.md`
+- their assigned issue under `dev-swarm/product/programs/linktrend-system/issues/`
+- their agent report under `dev-swarm/product/reports/`
 
 ## Human Role
 

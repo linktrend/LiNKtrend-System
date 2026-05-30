@@ -32,4 +32,4 @@ Initial required contracts:
 - CRMRecord
 - PlaneProject
 
-If changing a contract, update `dev-swarm/command-center/CONTRACTS_MVO.md` first.
+If changing a contract, update `dev-swarm/product/grounding/CONTRACTS_MVO.md` first.

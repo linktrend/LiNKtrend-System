@@ -3,7 +3,7 @@ name: Dev Swarm guard
 on:
   pull_request:
     paths:
-      - 'dev-swarm/STATE.md'
+      - 'dev-swarm/factory/STATE.md'
       - 'dev-swarm/**'
 
 permissions:
@@ -17,12 +17,12 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Validate STATE JSON block
-        if: hashFiles('dev-swarm/STATE.md') != ''
+        if: hashFiles('dev-swarm/factory/STATE.md') != ''
         run: |
           python3 <<'PY'
           import json, re, sys
           from pathlib import Path
-          p = Path("dev-swarm/STATE.md")
+          p = Path("dev-swarm/factory/STATE.md")
           text = p.read_text()
           m = re.search(r"```json\s*(\{.*?\})\s*```", text, re.S)
           if not m:
@@ -34,8 +34,8 @@ jobs:
 
       - name: Mechanical verify (dev-swarm scope)
         run: |
-          chmod +x dev-swarm/scripts/*.sh
-          DEV_SWARM_SCOPE=dev-swarm DEV_SWARM_TIER=standard dev-swarm/scripts/verify.sh
+          chmod +x dev-swarm/factory/scripts/*.sh
+          DEV_SWARM_SCOPE=dev-swarm DEV_SWARM_TIER=standard dev-swarm/factory/scripts/verify.sh
 
       - name: PR comment on failure
         if: failure() && github.event_name == 'pull_request'
@@ -46,5 +46,5 @@ jobs:
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: 'Dev Swarm guard failed. Fix STATE JSON or run `dev-swarm/scripts/verify.sh` locally before merge-ready.'
+              body: 'Dev Swarm guard failed. Fix STATE JSON or run `dev-swarm/factory/scripts/verify.sh` locally before merge-ready.'
             })

@@ -47,4 +47,4 @@ Produces final work products, exhibits, and presentation materials.
 LEXOS roles are planned for post-MVO implementation. The litigation module
 requires WP-207 completion before role activation.
 
-See `dev-swarm/programs/linktrend-system/issues/legacy/WP-207-lexos-litigation-mvo.md` for details.
+See `dev-swarm/product/programs/linktrend-system/issues/legacy/WP-207-lexos-litigation-mvo.md` for details.

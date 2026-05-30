@@ -3,47 +3,47 @@ Generated: consolidation Phase 1
 | Group | Keeper | Dropped | What merged |
 |-------|--------|---------|-------------|
 | GS-ROOT | `dev-swarm/skills/gstack/` | `.cursor/skills/gstack/ (source copy)` | Full gstack monorepo including browse, bin, hosts, scripts |
-| LT-mobile-design | `dev-swarm/skills/linktrend/mobile-design/` | `.cursor/skills/mobile-design/ (source copy)` | Adopted as-is (no overlap group) |
-| LT-action-queue | `dev-swarm/skills/linktrend/action-queue/` | `.cursor/skills/action-queue/ (source copy)` | Adopted as-is (no overlap group) |
-| LT-seo-fundamentals | `dev-swarm/skills/linktrend/seo-fundamentals/` | `.cursor/skills/seo-fundamentals/ (source copy)` | Adopted as-is (no overlap group) |
-| LT-summary-metric-cards | `dev-swarm/skills/linktrend/summary-metric-cards/` | `.cursor/skills/summary-metric-cards/ (source copy)` | Adopted as-is (no overlap group) |
-| LT-vulnerability-scanner | `dev-swarm/skills/linktrend/vulnerability-scanner/` | `.cursor/skills/vulnerability-scanner/ (source copy)` | Adopted as-is (no overlap group) |
-| LT-clean-code | `dev-swarm/skills/linktrend/clean-code/` | `.cursor/skills/clean-code/ (source copy)` | Adopted as-is (no overlap group) |
-| LT-server-management | `dev-swarm/skills/linktrend/server-management/` | `.cursor/skills/server-management/ (source copy)` | Adopted as-is (no overlap group) |
-| LT-database-design | `dev-swarm/skills/linktrend/database-design/` | `.cursor/skills/database-design/ (source copy)` | Adopted as-is (no overlap group) |
-| LT-systematic-debugging | `dev-swarm/skills/linktrend/systematic-debugging/` | `.cursor/skills/systematic-debugging/ (source copy)` | Adopted as-is (no overlap group) |
-| LT-web-design-guidelines | `dev-swarm/skills/linktrend/web-design-guidelines/` | `.cursor/skills/web-design-guidelines/ (source copy)` | Adopted as-is (no overlap group) |
-| LT-personal-information-forms | `dev-swarm/skills/linktrend/personal-information-forms/` | `.cursor/skills/personal-information-forms/ (source copy)` | Adopted as-is (no overlap group) |
-| LT-behavioral-modes | `dev-swarm/skills/linktrend/behavioral-modes/` | `.cursor/skills/behavioral-modes/ (source copy)` | Adopted as-is (no overlap group) |
-| LT-powershell-windows | `dev-swarm/skills/linktrend/powershell-windows/` | `.cursor/skills/powershell-windows/ (source copy)` | Adopted as-is (no overlap group) |
-| LT-documentation-templates | `dev-swarm/skills/linktrend/documentation-templates/` | `.cursor/skills/documentation-templates/ (source copy)` | Adopted as-is (no overlap group) |
-| LT-i18n-localization | `dev-swarm/skills/linktrend/i18n-localization/` | `.cursor/skills/i18n-localization/ (source copy)` | Adopted as-is (no overlap group) |
-| LT-testing-patterns | `dev-swarm/skills/linktrend/testing-patterns/` | `.cursor/skills/testing-patterns/ (source copy)` | Adopted as-is (no overlap group) |
-| LT-plan-writing | `dev-swarm/skills/linktrend/plan-writing/` | `.cursor/skills/plan-writing/ (source copy)` | Adopted as-is (no overlap group) |
-| LT-deployment-procedures | `dev-swarm/skills/linktrend/deployment-procedures/` | `.cursor/skills/deployment-procedures/ (source copy)` | Adopted as-is (no overlap group) |
-| LT-performance-profiling | `dev-swarm/skills/linktrend/performance-profiling/` | `.cursor/skills/performance-profiling/ (source copy)` | Adopted as-is (no overlap group) |
-| LT-architecture | `dev-swarm/skills/linktrend/architecture/` | `.cursor/skills/architecture/ (source copy)` | Adopted as-is (no overlap group) |
-| LT-brainstorming | `dev-swarm/skills/linktrend/brainstorming/` | `.cursor/skills/brainstorming/ (source copy)` | Adopted as-is (no overlap group) |
-| LT-tdd-workflow | `dev-swarm/skills/linktrend/tdd-workflow/` | `.cursor/skills/tdd-workflow/ (source copy)` | Adopted as-is (no overlap group) |
-| LT-webapp-testing | `dev-swarm/skills/linktrend/webapp-testing/` | `.cursor/skills/webapp-testing/ (source copy)` | Adopted as-is (no overlap group) |
-| LT-intelligent-routing | `dev-swarm/skills/linktrend/intelligent-routing/` | `.cursor/skills/intelligent-routing/ (source copy)` | Adopted as-is (no overlap group) |
-| LT-code-review-checklist | `dev-swarm/skills/linktrend/code-review-checklist/` | `.cursor/skills/code-review-checklist/ (source copy)` | Adopted as-is (no overlap group) |
-| LT-nextjs-react-expert | `dev-swarm/skills/linktrend/nextjs-react-expert/` | `.cursor/skills/nextjs-react-expert/ (source copy)` | Adopted as-is (no overlap group) |
-| LT-frontend-design | `dev-swarm/skills/linktrend/frontend-design/` | `.cursor/skills/frontend-design/ (source copy)` | Adopted as-is (no overlap group) |
-| LT-tailwind-patterns | `dev-swarm/skills/linktrend/tailwind-patterns/` | `.cursor/skills/tailwind-patterns/ (source copy)` | Adopted as-is (no overlap group) |
-| LT-api-patterns | `dev-swarm/skills/linktrend/api-patterns/` | `.cursor/skills/api-patterns/ (source copy)` | Adopted as-is (no overlap group) |
-| LT-game-development | `dev-swarm/skills/linktrend/game-development/` | `.cursor/skills/game-development/ (source copy)` | Adopted as-is (no overlap group) |
-| LT-red-team-tactics | `dev-swarm/skills/linktrend/red-team-tactics/` | `.cursor/skills/red-team-tactics/ (source copy)` | Adopted as-is (no overlap group) |
-| LT-mcp-builder | `dev-swarm/skills/linktrend/mcp-builder/` | `.cursor/skills/mcp-builder/ (source copy)` | Adopted as-is (no overlap group) |
-| LT-nodejs-best-practices | `dev-swarm/skills/linktrend/nodejs-best-practices/` | `.cursor/skills/nodejs-best-practices/ (source copy)` | Adopted as-is (no overlap group) |
-| LT-rust-pro | `dev-swarm/skills/linktrend/rust-pro/` | `.cursor/skills/rust-pro/ (source copy)` | Adopted as-is (no overlap group) |
-| LT-python-patterns | `dev-swarm/skills/linktrend/python-patterns/` | `.cursor/skills/python-patterns/ (source copy)` | Adopted as-is (no overlap group) |
-| LT-geo-fundamentals | `dev-swarm/skills/linktrend/geo-fundamentals/` | `.cursor/skills/geo-fundamentals/ (source copy)` | Adopted as-is (no overlap group) |
-| LT-parallel-agents | `dev-swarm/skills/linktrend/parallel-agents/` | `.cursor/skills/parallel-agents/ (source copy)` | Adopted as-is (no overlap group) |
-| LT-bash-linux | `dev-swarm/skills/linktrend/bash-linux/` | `.cursor/skills/bash-linux/ (source copy)` | Adopted as-is (no overlap group) |
-| LT-lint-and-validate | `dev-swarm/skills/linktrend/lint-and-validate/` | `.cursor/skills/lint-and-validate/ (source copy)` | Adopted as-is (no overlap group) |
-| LT-app-builder | `dev-swarm/skills/linktrend/app-builder/` | `.cursor/skills/app-builder/ (source copy)` | Adopted as-is (no overlap group) |
-| LT-data-table | `dev-swarm/skills/linktrend/data-table/` | `.cursor/skills/data-table/ (source copy)` | Adopted as-is (no overlap group) |
+| LT-mobile-design | `dev-swarm/skills/host/mobile-design/` | `.cursor/skills/mobile-design/ (source copy)` | Adopted as-is (no overlap group) |
+| LT-action-queue | `dev-swarm/skills/host/action-queue/` | `.cursor/skills/action-queue/ (source copy)` | Adopted as-is (no overlap group) |
+| LT-seo-fundamentals | `dev-swarm/skills/host/seo-fundamentals/` | `.cursor/skills/seo-fundamentals/ (source copy)` | Adopted as-is (no overlap group) |
+| LT-summary-metric-cards | `dev-swarm/skills/host/summary-metric-cards/` | `.cursor/skills/summary-metric-cards/ (source copy)` | Adopted as-is (no overlap group) |
+| LT-vulnerability-scanner | `dev-swarm/skills/host/vulnerability-scanner/` | `.cursor/skills/vulnerability-scanner/ (source copy)` | Adopted as-is (no overlap group) |
+| LT-clean-code | `dev-swarm/skills/host/clean-code/` | `.cursor/skills/clean-code/ (source copy)` | Adopted as-is (no overlap group) |
+| LT-server-management | `dev-swarm/skills/host/server-management/` | `.cursor/skills/server-management/ (source copy)` | Adopted as-is (no overlap group) |
+| LT-database-design | `dev-swarm/skills/host/database-design/` | `.cursor/skills/database-design/ (source copy)` | Adopted as-is (no overlap group) |
+| LT-systematic-debugging | `dev-swarm/skills/host/systematic-debugging/` | `.cursor/skills/systematic-debugging/ (source copy)` | Adopted as-is (no overlap group) |
+| LT-web-design-guidelines | `dev-swarm/skills/host/web-design-guidelines/` | `.cursor/skills/web-design-guidelines/ (source copy)` | Adopted as-is (no overlap group) |
+| LT-personal-information-forms | `dev-swarm/skills/host/personal-information-forms/` | `.cursor/skills/personal-information-forms/ (source copy)` | Adopted as-is (no overlap group) |
+| LT-behavioral-modes | `dev-swarm/skills/host/behavioral-modes/` | `.cursor/skills/behavioral-modes/ (source copy)` | Adopted as-is (no overlap group) |
+| LT-powershell-windows | `dev-swarm/skills/host/powershell-windows/` | `.cursor/skills/powershell-windows/ (source copy)` | Adopted as-is (no overlap group) |
+| LT-documentation-templates | `dev-swarm/skills/host/documentation-templates/` | `.cursor/skills/documentation-templates/ (source copy)` | Adopted as-is (no overlap group) |
+| LT-i18n-localization | `dev-swarm/skills/host/i18n-localization/` | `.cursor/skills/i18n-localization/ (source copy)` | Adopted as-is (no overlap group) |
+| LT-testing-patterns | `dev-swarm/skills/host/testing-patterns/` | `.cursor/skills/testing-patterns/ (source copy)` | Adopted as-is (no overlap group) |
+| LT-plan-writing | `dev-swarm/skills/host/plan-writing/` | `.cursor/skills/plan-writing/ (source copy)` | Adopted as-is (no overlap group) |
+| LT-deployment-procedures | `dev-swarm/skills/host/deployment-procedures/` | `.cursor/skills/deployment-procedures/ (source copy)` | Adopted as-is (no overlap group) |
+| LT-performance-profiling | `dev-swarm/skills/host/performance-profiling/` | `.cursor/skills/performance-profiling/ (source copy)` | Adopted as-is (no overlap group) |
+| LT-architecture | `dev-swarm/skills/host/architecture/` | `.cursor/skills/architecture/ (source copy)` | Adopted as-is (no overlap group) |
+| LT-brainstorming | `dev-swarm/skills/host/brainstorming/` | `.cursor/skills/brainstorming/ (source copy)` | Adopted as-is (no overlap group) |
+| LT-tdd-workflow | `dev-swarm/skills/host/tdd-workflow/` | `.cursor/skills/tdd-workflow/ (source copy)` | Adopted as-is (no overlap group) |
+| LT-webapp-testing | `dev-swarm/skills/host/webapp-testing/` | `.cursor/skills/webapp-testing/ (source copy)` | Adopted as-is (no overlap group) |
+| LT-intelligent-routing | `dev-swarm/skills/host/intelligent-routing/` | `.cursor/skills/intelligent-routing/ (source copy)` | Adopted as-is (no overlap group) |
+| LT-code-review-checklist | `dev-swarm/skills/host/code-review-checklist/` | `.cursor/skills/code-review-checklist/ (source copy)` | Adopted as-is (no overlap group) |
+| LT-nextjs-react-expert | `dev-swarm/skills/host/nextjs-react-expert/` | `.cursor/skills/nextjs-react-expert/ (source copy)` | Adopted as-is (no overlap group) |
+| LT-frontend-design | `dev-swarm/skills/host/frontend-design/` | `.cursor/skills/frontend-design/ (source copy)` | Adopted as-is (no overlap group) |
+| LT-tailwind-patterns | `dev-swarm/skills/host/tailwind-patterns/` | `.cursor/skills/tailwind-patterns/ (source copy)` | Adopted as-is (no overlap group) |
+| LT-api-patterns | `dev-swarm/skills/host/api-patterns/` | `.cursor/skills/api-patterns/ (source copy)` | Adopted as-is (no overlap group) |
+| LT-game-development | `dev-swarm/skills/host/game-development/` | `.cursor/skills/game-development/ (source copy)` | Adopted as-is (no overlap group) |
+| LT-red-team-tactics | `dev-swarm/skills/host/red-team-tactics/` | `.cursor/skills/red-team-tactics/ (source copy)` | Adopted as-is (no overlap group) |
+| LT-mcp-builder | `dev-swarm/skills/host/mcp-builder/` | `.cursor/skills/mcp-builder/ (source copy)` | Adopted as-is (no overlap group) |
+| LT-nodejs-best-practices | `dev-swarm/skills/host/nodejs-best-practices/` | `.cursor/skills/nodejs-best-practices/ (source copy)` | Adopted as-is (no overlap group) |
+| LT-rust-pro | `dev-swarm/skills/host/rust-pro/` | `.cursor/skills/rust-pro/ (source copy)` | Adopted as-is (no overlap group) |
+| LT-python-patterns | `dev-swarm/skills/host/python-patterns/` | `.cursor/skills/python-patterns/ (source copy)` | Adopted as-is (no overlap group) |
+| LT-geo-fundamentals | `dev-swarm/skills/host/geo-fundamentals/` | `.cursor/skills/geo-fundamentals/ (source copy)` | Adopted as-is (no overlap group) |
+| LT-parallel-agents | `dev-swarm/skills/host/parallel-agents/` | `.cursor/skills/parallel-agents/ (source copy)` | Adopted as-is (no overlap group) |
+| LT-bash-linux | `dev-swarm/skills/host/bash-linux/` | `.cursor/skills/bash-linux/ (source copy)` | Adopted as-is (no overlap group) |
+| LT-lint-and-validate | `dev-swarm/skills/host/lint-and-validate/` | `.cursor/skills/lint-and-validate/ (source copy)` | Adopted as-is (no overlap group) |
+| LT-app-builder | `dev-swarm/skills/host/app-builder/` | `.cursor/skills/app-builder/ (source copy)` | Adopted as-is (no overlap group) |
+| LT-data-table | `dev-swarm/skills/host/data-table/` | `.cursor/skills/data-table/ (source copy)` | Adopted as-is (no overlap group) |
 | GS-autoplan | `dev-swarm/skills/gstack/autoplan/` | `.cursor/skills/gstack-autoplan/` | nested already canonical |
 | GS-benchmark | `dev-swarm/skills/gstack/benchmark/` | `.cursor/skills/gstack-benchmark/` | nested already canonical |
 | GS-benchmark-models | `dev-swarm/skills/gstack/benchmark-models/` | `.cursor/skills/gstack-benchmark-models/` | nested already canonical |
@@ -99,5 +99,5 @@ Generated: consolidation Phase 1
 | OC-gstack-openclaw-skills-gstack-openclaw-investigate | `dev-swarm/skills/gstack/openclaw/skills/gstack-openclaw-investigate/` | `.cursor/skills/gstack-openclaw-skills-gstack-openclaw-investigate/` | nested openclaw skill canonical |
 | OC-gstack-openclaw-skills-gstack-openclaw-office-hours | `dev-swarm/skills/gstack/openclaw/skills/gstack-openclaw-office-hours/` | `.cursor/skills/gstack-openclaw-skills-gstack-openclaw-office-hours/` | nested openclaw skill canonical |
 | OC-gstack-openclaw-skills-gstack-openclaw-retro | `dev-swarm/skills/gstack/openclaw/skills/gstack-openclaw-retro/` | `.cursor/skills/gstack-openclaw-skills-gstack-openclaw-retro/` | nested openclaw skill canonical |
-| DM-debug | `dev-swarm/skills/linktrend/systematic-debugging/` | `prefer over gstack-investigate for LiNKtrend` | Investigate skill remains in gstack/ for generic use; linktrend debugging uses systematic-debugging |
-| DM-brainstorm | `dev-swarm/skills/linktrend/brainstorming/` | `prefer over gstack-office-hours for LiNKtrend product ideation` | office-hours remains in gstack/ for generic YC mode |
+| DM-debug | `dev-swarm/skills/host/systematic-debugging/` | `prefer over gstack-investigate for LiNKtrend` | Investigate skill remains in gstack/ for generic use; linktrend debugging uses systematic-debugging |
+| DM-brainstorm | `dev-swarm/skills/host/brainstorming/` | `prefer over gstack-office-hours for LiNKtrend product ideation` | office-hours remains in gstack/ for generic YC mode |

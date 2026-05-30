@@ -1,7 +1,7 @@
 /**
  * LiNKbot reasoning dispatch — thin runtime adapter for WebsiteFactory stages.
  *
- * Implements `bot.reason` per `dev-swarm/command-center/CONTRACTS_MVO.md` §6.1.
+ * Implements `bot.reason` per `dev-swarm/product/grounding/CONTRACTS_MVO.md` §6.1.
  * LiNKbot does NOT own memory, leases, secrets, workflows, or deterministic execution.
  * It delegates model calls to OpenRouter and emits audit events to LiNKbrain.
  */

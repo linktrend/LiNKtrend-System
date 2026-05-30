@@ -149,7 +149,7 @@ Use it later as LawFirm vertical reference. Do not merge during WebsiteFactory M
 
 ## Missing Items To Create
 
-- `dev-swarm/` (factory; plans/contracts in `dev-swarm/command-center/`)
+- `dev-swarm/` (factory; plans/contracts in `dev-swarm/product/grounding/`)
 - WebsiteFactory plugin manifest
 - MVO shared contracts
 - LiNKbrain HTTP service if not already present

@@ -1,49 +1,31 @@
 # Dev Swarm
 
-Portable AI software factory for building products inside any Git repository.
+Portable AI software factory. **Copy `.cursor/` + `dev-swarm/`** into a new repo.
 
-**Dev Swarm is not your product.** It is the meta-system that runs Programs → Modules → Phases → Issues with agents, GitHub as the coordination bus, and minimal Chairman involvement.
+## Structure (v2 — 2026-05-30)
 
-## Copy to another repo
+```
+dev-swarm/
+  AGENTS.md              # Start here
+  factory/               # Same on every repo
+    SPEC.md STATE.md BORROW-PACK.md
+    contracts/ templates/ scripts/ install/ prompts/ agents/ rules/
+    programs/bootstrap/
+    reports/bootstrap/
+  product/               # Filled per repo (LiNKtrend content today)
+    grounding/           # Vision, ship criteria, decisions, plans
+    programs/<program-id>/modules/.../phases/.../issues/
+    reports/<program>/<module>/<phase>/<issue>.md
+  skills/
+    gstack/              # Required template
+    host/                # Empty in virgin template
+  archive/               # Read-only history
+```
 
-1. Copy the entire `dev-swarm/` folder to the new repository root.
-2. Open an agent and say: **Wire Dev Swarm** (or run `install/WIRE-PROMPT.md`).
-3. Follow `install/CHECKLIST.md` step by step until complete.
-4. Create `programs/<your-product>/PROGRAM.md` and run Planner → **Go**.
+## First run
 
-## LiNKtrend-System
+1. Wire — `factory/install/WIRE-PROMPT.md`
+2. Codex UI — `factory/install/automations/CODEX-CREATE-AUTOMATIONS.md` + `CURSOR-CREATE-AUTOMATIONS.md`
+3. Go — Planner cloud (`factory/prompts/planner/ROLE.md`)
 
-This repo hosts Dev Swarm to finish LiNKtrend development. Product code lives outside `dev-swarm/` (LiNKaios, modules, etc.).
-
-**Legacy (read-only):** `dev-swarm/archive/` — former `.ai-swarm`, `.cursor/skills`, `.cursor/agents`, `.cursor/rules` copies. Do not use for active work.
-
-**Active work:** `programs/linktrend-system/issues/` (legacy WP files renamed as issues). See `programs/linktrend-system/MIGRATION.md`.
-
-**Skills:** `dev-swarm/skills/` only. Catalog: `skills/SKILLS_CATALOG.md`. Merge history: `skills/MERGE-LOG.md`.
-
-**Cursor shim:** Copy `dev-swarm/install/portable-cursor/.cursor` to repo root, then add product rules `01`–`08` if needed. This repo includes full LiNKtrend product rules. Factory skills/agents/rules live in `dev-swarm/`.
-
-## Bootstrap vs runtime
-
-| Mode | When | How work starts |
-|------|------|-----------------|
-| **Bootstrap** | Building Dev Swarm itself | Chairman pastes one-line launchers from `programs/bootstrap/prompts/` |
-| **Runtime** | After wire + Go on a program | Cursor and Codex automations react to GitHub labels and `STATE.md` |
-
-## Key files
-
-| File | Purpose |
-|------|---------|
-| [SPEC.md](SPEC.md) | Frozen factory contract |
-| [BORROW-PACK.md](BORROW-PACK.md) | Optional quality gates (DS-B1…B13) |
-| [STATE.md](STATE.md) | Live orchestration state |
-| [contracts/labels.md](contracts/labels.md) | GitHub label vocabulary |
-| [install/CHECKLIST.md](install/CHECKLIST.md) | One-time setup steps |
-| [install/WIRE-PROMPT.md](install/WIRE-PROMPT.md) | Agent-led install session |
-
-## Chairman
-
-- **Go** — start program loop after Planner completes.
-- **Continue** — resume at scheduled stops only.
-- **`staging` / `main`** — promotion by Chairman only.
-- Integrator merges completed issues to `development`.
+See `factory/SPEC.md`.

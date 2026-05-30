@@ -374,7 +374,7 @@ memory_objects:
 
 # Schema extensions
 event_extension_rule: >
-  Agents may add domain events via DECISION row in dev-swarm/command-center/DECISIONS.md.
+  Agents may add domain events via DECISION row in dev-swarm/product/grounding/DECISIONS.md.
   Never rename existing events. Cross-plane lifecycle events (§6.3.1) are
   immutable. Domain events follow "linkapps.<domain>.<verb>" naming.
 

@@ -55,7 +55,7 @@ Use Codex for:
 - local run scripts
 - branch commits
 
-Codex agents should work from issues under `dev-swarm/programs/linktrend-system/issues/` and update `dev-swarm/reports/`.
+Codex agents should work from issues under `dev-swarm/product/programs/linktrend-system/issues/` and update `dev-swarm/product/reports/`.
 
 ## Antigravity
 

@@ -2,8 +2,8 @@
 Canonical skills live under `dev-swarm/skills/`. Read this before opening skill bodies.
 
 ## Trees
-- `gstack/` — GStack workflow skills (full repo copy)
-- `linktrend/` — LiNKtrend project skills
+- `gstack/` — Universal product-development workflows (required in every template)
+- `host/` — This repository only (empty in virgin template; host wins over gstack on conflict)
 
 ## Routing
 1. Read `dev-swarm/skills/SKILLS_CATALOG.md` (this file)
@@ -64,45 +64,45 @@ Canonical skills live under `dev-swarm/skills/`. Read this before opening skill 
 - `dev-swarm/skills/gstack/sync-gbrain/SKILL.md`
 - `dev-swarm/skills/gstack/unfreeze/SKILL.md`
 
-### linktrend skills
-- `dev-swarm/skills/linktrend/action-queue/SKILL.md`
-- `dev-swarm/skills/linktrend/api-patterns/SKILL.md`
-- `dev-swarm/skills/linktrend/app-builder/SKILL.md`
-- `dev-swarm/skills/linktrend/architecture/SKILL.md`
-- `dev-swarm/skills/linktrend/bash-linux/SKILL.md`
-- `dev-swarm/skills/linktrend/behavioral-modes/SKILL.md`
-- `dev-swarm/skills/linktrend/brainstorming/SKILL.md`
-- `dev-swarm/skills/linktrend/clean-code/SKILL.md`
-- `dev-swarm/skills/linktrend/code-review-checklist/SKILL.md`
-- `dev-swarm/skills/linktrend/data-table/SKILL.md`
-- `dev-swarm/skills/linktrend/database-design/SKILL.md`
-- `dev-swarm/skills/linktrend/deployment-procedures/SKILL.md`
-- `dev-swarm/skills/linktrend/documentation-templates/SKILL.md`
-- `dev-swarm/skills/linktrend/frontend-design/SKILL.md`
-- `dev-swarm/skills/linktrend/game-development/SKILL.md`
-- `dev-swarm/skills/linktrend/geo-fundamentals/SKILL.md`
-- `dev-swarm/skills/linktrend/i18n-localization/SKILL.md`
-- `dev-swarm/skills/linktrend/intelligent-routing/SKILL.md`
-- `dev-swarm/skills/linktrend/lint-and-validate/SKILL.md`
-- `dev-swarm/skills/linktrend/mcp-builder/SKILL.md`
-- `dev-swarm/skills/linktrend/mobile-design/SKILL.md`
-- `dev-swarm/skills/linktrend/nextjs-react-expert/SKILL.md`
-- `dev-swarm/skills/linktrend/nodejs-best-practices/SKILL.md`
-- `dev-swarm/skills/linktrend/parallel-agents/SKILL.md`
-- `dev-swarm/skills/linktrend/performance-profiling/SKILL.md`
-- `dev-swarm/skills/linktrend/personal-information-forms/SKILL.md`
-- `dev-swarm/skills/linktrend/plan-writing/SKILL.md`
-- `dev-swarm/skills/linktrend/powershell-windows/SKILL.md`
-- `dev-swarm/skills/linktrend/python-patterns/SKILL.md`
-- `dev-swarm/skills/linktrend/red-team-tactics/SKILL.md`
-- `dev-swarm/skills/linktrend/rust-pro/SKILL.md`
-- `dev-swarm/skills/linktrend/seo-fundamentals/SKILL.md`
-- `dev-swarm/skills/linktrend/server-management/SKILL.md`
-- `dev-swarm/skills/linktrend/summary-metric-cards/SKILL.md`
-- `dev-swarm/skills/linktrend/systematic-debugging/SKILL.md`
-- `dev-swarm/skills/linktrend/tailwind-patterns/SKILL.md`
-- `dev-swarm/skills/linktrend/tdd-workflow/SKILL.md`
-- `dev-swarm/skills/linktrend/testing-patterns/SKILL.md`
-- `dev-swarm/skills/linktrend/vulnerability-scanner/SKILL.md`
-- `dev-swarm/skills/linktrend/web-design-guidelines/SKILL.md`
-- `dev-swarm/skills/linktrend/webapp-testing/SKILL.md`
+### host skills (this repo)
+- `dev-swarm/skills/host/action-queue/SKILL.md`
+- `dev-swarm/skills/host/api-patterns/SKILL.md`
+- `dev-swarm/skills/host/app-builder/SKILL.md`
+- `dev-swarm/skills/host/architecture/SKILL.md`
+- `dev-swarm/skills/host/bash-linux/SKILL.md`
+- `dev-swarm/skills/host/behavioral-modes/SKILL.md`
+- `dev-swarm/skills/host/brainstorming/SKILL.md`
+- `dev-swarm/skills/host/clean-code/SKILL.md`
+- `dev-swarm/skills/host/code-review-checklist/SKILL.md`
+- `dev-swarm/skills/host/data-table/SKILL.md`
+- `dev-swarm/skills/host/database-design/SKILL.md`
+- `dev-swarm/skills/host/deployment-procedures/SKILL.md`
+- `dev-swarm/skills/host/documentation-templates/SKILL.md`
+- `dev-swarm/skills/host/frontend-design/SKILL.md`
+- `dev-swarm/skills/host/game-development/SKILL.md`
+- `dev-swarm/skills/host/geo-fundamentals/SKILL.md`
+- `dev-swarm/skills/host/i18n-localization/SKILL.md`
+- `dev-swarm/skills/host/intelligent-routing/SKILL.md`
+- `dev-swarm/skills/host/lint-and-validate/SKILL.md`
+- `dev-swarm/skills/host/mcp-builder/SKILL.md`
+- `dev-swarm/skills/host/mobile-design/SKILL.md`
+- `dev-swarm/skills/host/nextjs-react-expert/SKILL.md`
+- `dev-swarm/skills/host/nodejs-best-practices/SKILL.md`
+- `dev-swarm/skills/host/parallel-agents/SKILL.md`
+- `dev-swarm/skills/host/performance-profiling/SKILL.md`
+- `dev-swarm/skills/host/personal-information-forms/SKILL.md`
+- `dev-swarm/skills/host/plan-writing/SKILL.md`
+- `dev-swarm/skills/host/powershell-windows/SKILL.md`
+- `dev-swarm/skills/host/python-patterns/SKILL.md`
+- `dev-swarm/skills/host/red-team-tactics/SKILL.md`
+- `dev-swarm/skills/host/rust-pro/SKILL.md`
+- `dev-swarm/skills/host/seo-fundamentals/SKILL.md`
+- `dev-swarm/skills/host/server-management/SKILL.md`
+- `dev-swarm/skills/host/summary-metric-cards/SKILL.md`
+- `dev-swarm/skills/host/systematic-debugging/SKILL.md`
+- `dev-swarm/skills/host/tailwind-patterns/SKILL.md`
+- `dev-swarm/skills/host/tdd-workflow/SKILL.md`
+- `dev-swarm/skills/host/testing-patterns/SKILL.md`
+- `dev-swarm/skills/host/vulnerability-scanner/SKILL.md`
+- `dev-swarm/skills/host/web-design-guidelines/SKILL.md`
+- `dev-swarm/skills/host/webapp-testing/SKILL.md`

@@ -7,12 +7,14 @@ This folder is the **IDE shim** for Dev Swarm. The portable factory lives in **`
 1. Copy entire **`dev-swarm/`** to the new repo root.
 2. Install the portable shim:
    ```bash
-   cp -R dev-swarm/install/portable-cursor/.cursor ./
+   cp -R dev-swarm/factory/install/portable-cursor/.cursor ./
    ```
 3. Add product-specific rules as `.cursor/rules/01-*.mdc` … `08-*.mdc` (optional — only what that product needs).
-4. Run wire: **“Wire Dev Swarm”** → `dev-swarm/install/WIRE-PROMPT.md`
+4. Run wire: Cursor command **Wire Dev Swarm** or `dev-swarm/factory/install/WIRE-PROMPT.md`
+5. Codex UI: command **Dev Swarm UI automations**
+6. **Go:** command **Dev Swarm Go** (cloud Planner)
 
-See `dev-swarm/install/portable-cursor/README.md` and `dev-swarm/README.md`.
+See `dev-swarm/factory/install/portable-cursor/README.md` and `dev-swarm/README.md`.
 
 ## This repo (LiNKtrend-System)
 
@@ -21,7 +23,7 @@ See `dev-swarm/install/portable-cursor/README.md` and `dev-swarm/README.md`.
 | `rules/00-dev-swarm-bootstrap.mdc` | Always on — read `dev-swarm/` first |
 | `rules/01`–`08` | **LiNKtrend product** rules only (numbered) |
 | `skills/README.md` | Pointer — skills are in `dev-swarm/skills/` |
-| `agents/README.md` | Pointer — agents are in `dev-swarm/agents/` |
+| `agents/README.md` | Pointer — agents are in `dev-swarm/factory/agents/` |
 | `mcp.json` | Local MCP config (not portable; configure per machine) |
 
 ## Product rules (`01`–`08`)
@@ -37,7 +39,7 @@ See `dev-swarm/install/portable-cursor/README.md` and `dev-swarm/README.md`.
 | 07 | `07-suite-project-terminology.mdc` | Suite / Module / Project / Phase / Issue |
 | 08 | `08-linkaios-ui-standards.mdc` | **LiNKaios shell UI only** (not generic) |
 
-Generic UI and frontend guidance for any Dev Swarm repo: **`dev-swarm/rules/08-ui-and-frontend-standards.mdc`**.
+Generic UI and frontend guidance for any Dev Swarm repo: **`dev-swarm/factory/rules/08-ui-and-frontend-standards.mdc`**.
 
 ## Legacy docs
 

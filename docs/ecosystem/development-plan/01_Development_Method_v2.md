@@ -48,7 +48,7 @@ Carlos can supervise approximately 12 hours per day. The bottleneck is not token
 
 ## What Must Be Built Or Wired First
 
-1. `dev-swarm/` coordination layer (`dev-swarm/command-center/` for plans and contracts).
+1. `dev-swarm/` coordination layer (`dev-swarm/product/grounding/` for plans and contracts).
 2. Repo verification and reuse map.
 3. WebsiteFactory plugin manifest.
 4. Minimal shared contracts.
