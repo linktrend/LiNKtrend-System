@@ -289,15 +289,15 @@ PY
   fi
 }
 
-gate_worktree_clean() {
-  [[ -n "$REPORT" ]] || { log_skip "worktree_clean (no --report)"; return; }
+gate_working_tree_clean() {
+  [[ -n "$REPORT" ]] || { log_skip "working_tree_clean (no --report)"; return; }
   local dirty
   dirty="$(git status --porcelain | grep -v '^.. dev-swarm/.*/reports/' || true)"
   if [[ -n "$dirty" ]]; then
     echo "$dirty" >&2
-    log_fail "worktree_clean"
+    log_fail "working_tree_clean"
   else
-    log_ok "worktree_clean"
+    log_ok "working_tree_clean"
   fi
 }
 
@@ -377,7 +377,7 @@ run_gate() {
     secrets_scan) gate_secrets_scan; return ;;
     proof_block_present) gate_proof_block_present; return ;;
     allowed_files_respected) gate_allowed_files_respected; return ;;
-    worktree_clean) gate_worktree_clean; return ;;
+    working_tree_clean) gate_working_tree_clean; return ;;
     integration_smoke) gate_integration_smoke; return ;;
     architecture_gate) gate_architecture_gate; return ;;
     ship_criteria_check) gate_ship_criteria_check; return ;;

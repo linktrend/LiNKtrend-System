@@ -11,8 +11,8 @@ Tiered review of LiNKtrend peer factories and agent stacks. Dev Swarm **borrows 
 |--------------|-------------------|-------------------|
 | **UBS / build-anything-claude** | 28-gate per-issue bundle, cosign witness, container sandbox v1, per-atom orchestrator, adversarial multi-model review | **Partial borrow** — see tiers below |
 | **gstack** | `/ship`, proof blocks, trajectory logging, release discipline | **Skills only** — catalog under `dev-swarm/skills/gstack/`; no mandatory `/ship` on every issue |
-| **open-swe / container executors** | Isolated runner containers for parallel agents | **Deferred** — worktrees for MVO ([docs/DEV_SWARM_SANDBOX.md](../../docs/DEV_SWARM_SANDBOX.md)) |
-| **LiNKtrend legacy `.ai-swarm/`** | Packet worktrees, verify-before-merge, Chairman gates | **Retained** — folded into DS-B9, DS-B12, worktree law |
+| **open-swe / container executors** | Isolated runner containers for parallel agents | **Rejected v1** — see [docs/DEV_SWARM_SANDBOX.md](docs/DEV_SWARM_SANDBOX.md) |
+| **LiNKtrend legacy `.ai-swarm/`** | Branch-per-packet, verify-before-merge, Chairman gates | **Retained** — folded into DS-B9, DS-B12, branch law (worktrees dropped) |
 
 ## Tier A — Adopted (per issue)
 
@@ -23,7 +23,7 @@ Mechanical gates every executor must pass before `swarm:merge-ready`.
 | Mechanical verify + secrets scan | UBS subset | DS-B1, DS-B4 → tier A `verify_subset`, `secrets_scan` |
 | Proof block in agent report | UBS + gstack | DS-B5 → tier A `proof_block_present` |
 | Allowed-files enforcement | UBS | tier A `allowed_files_respected` |
-| Clean worktree at handoff | LiNKtrend packets | DS-B12, LAW-05 → tier A `worktree_clean` |
+| Clean working tree at handoff | LiNKtrend packets | DS-B12, LAW-05 → tier A `working_tree_clean` |
 | Trajectory / debug in reports | gstack session logs | DS-B10 |
 | Reviewer rejects vacuous PASS | UBS | DS-B2, LAW-01 |
 
@@ -84,23 +84,24 @@ See `dev-swarm/factory/prompts/council/ROLE.md`.
 |---------|-------------|--------|
 | **Full 28-gate per-issue bundle** | UBS build-anything-claude | Ops and model cost too high for meta-factory + product velocity; replaced by tier A/B/C subset |
 | **Mandatory cosign witness** | UBS release signing | GSM + git audit sufficient for MVO; SHA256 manifest without witness chain (LAW-08 explicit rejection) |
-| **Container sandbox v1** | open-swe / UBS executor isolation | Worktrees + allowlists sufficient for Phase 1; revisit when untrusted multi-tenant execution or live side effects without leases ([docs/DEV_SWARM_SANDBOX.md](../../docs/DEV_SWARM_SANDBOX.md)) |
+| **Container sandbox v1** | open-swe / UBS executor isolation | Branch-per-issue + allowlists sufficient for Phase 1; revisit when untrusted multi-tenant execution or live side effects without leases ([docs/DEV_SWARM_SANDBOX.md](docs/DEV_SWARM_SANDBOX.md)) |
+| **Git worktrees per issue** | Legacy `.ai-swarm/` parallel packets | **Rejected** — handoff failures; one checkout + issue branches only |
 | **Per-atom orchestrator** | UBS atom-level scheduling | Dev Swarm uses issue-level Orchestrator + PROGRAM.md DAG; no sub-issue atom scheduler |
 | **Mandatory multi-Opus adversarial review** | UBS | Replaced by council G1–G4 with five fixed personas |
 | **Antigravity in core factory** | Peer automation experiments | Optional peer executor only; not in factory install manifest |
 | **Second orchestration stack** | CrewAI / LangGraph / n8n brain | GitHub + STATE + labels remain control plane |
 | **Mandatory gstack `/ship` on every issue** | gstack | Release phase and critical tier only |
 
-## Worktree vs container (DS-B25)
+## Isolation (DS-B12, DS-B25)
 
-**Adopted:** git worktrees under `.worktrees/<issue-id>/` for parallel `swarm:ready` issues (LAW-05).  
-**Not adopted:** container sandbox v1 as mandatory executor envelope.
+**Adopted:** one repo checkout; branch `issue/<issue-id>-<slug>` per issue (LAW-05). Parallel waves never share one checkout between concurrent executors.  
+**Rejected:** git worktrees; container sandbox v1 as mandatory executor envelope.
 
 ## Traceability
 
 | Document | Purpose |
 |----------|---------|
 | [BORROW-PACK.md](BORROW-PACK.md) | Active borrow IDs DS-B1 … DS-B25 |
-| [SPEC.md](SPEC.md) §17–22 | Normative factory spec for laws, intent, tiers, council, manifest, worktree |
+| [SPEC.md](SPEC.md) §17–22 | Normative factory spec for laws, intent, tiers, council, manifest, branch isolation |
 | [laws/DEV_SWARM_LAWS.md](laws/DEV_SWARM_LAWS.md) | LAW-01 … LAW-08 |
 | [gates/catalog.json](gates/catalog.json) | Tier A/B/C gate definitions |

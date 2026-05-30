@@ -52,7 +52,7 @@ Configure per [automations/codex/README.md](../automations/codex/README.md):
 
 - [ ] Agents use [dev-swarm/skills/SKILLS_CATALOG.md](../skills/SKILLS_CATALOG.md) only
 - [ ] Review [MERGE-LOG.md](../skills/MERGE-LOG.md) if duplicate skill behavior appears
-- [ ] Root [AGENTS.md](../../AGENTS.md) points to [dev-swarm/AGENTS.md](../AGENTS.md)
+- [ ] `.cursor/rules/00-dev-swarm-bootstrap.mdc` installed (no root `AGENTS.md` — entry is `dev-swarm/AGENTS.md`)
 
 ## 7. Product program
 

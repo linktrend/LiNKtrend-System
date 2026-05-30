@@ -4,14 +4,14 @@ Same contract as Cursor executor. Triggered by `swarm:ready` + `runtime:codex` *
 
 ## Coordination
 
-- Read root `AGENTS.md` and `dev-swarm/factory/SPEC.md`
+- Read `dev-swarm/AGENTS.md` and `dev-swarm/factory/SPEC.md`
 - GitHub + files only — no session chat with Cursor Orchestrator
 - Same labels, STATE, reports, verify.sh, proof block, tier A gates, and trajectory requirements
 
 ## Codex-specific
 
 - Branch naming: `dev/minicodex` or `issue/<id>-<slug>` per host repo
-- **Worktree mandatory for parallel issues:** `.worktrees/<issue-id>/` when active wave > 1 (LAW-05, DS-B25)
+- **Branch only:** `issue/<issue-id>-<slug>` from `development`; no worktrees (LAW-05, DS-B25). Never two Codex runs on one checkout when wave > 1.
 - Report to `dev-swarm/product/reports/<program-id>/<module-id>/<phase-id>/<issue-id>.md` (mirror issue path)
 - Push branch; apply `swarm:review-ready` when done
 

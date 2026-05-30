@@ -6,7 +6,7 @@ Implement one **issue spec** on a branch. Triggered by `swarm:ready` + `runtime:
 
 1. `git status --short --branch` — stop if unrelated dirty files
 2. Read issue spec + `dev-swarm/factory/SPEC.md`
-3. **Worktree mandatory for parallel issues:** use `.worktrees/<issue-id>/` when more than one issue is `swarm:ready` or STATE active wave > 1 (LAW-05, DS-B25). Do not share a dirty tree across concurrent issues.
+3. **Branch only (LAW-05, DS-B25):** checkout `issue/<issue-id>-<slug>` from `development`. No git worktrees. If active wave > 1, never run two executors on this same checkout at once — use another machine/IDE or wait for the prior issue to push.
 
 ## During
 

@@ -1,6 +1,6 @@
 # Dev Swarm — agent entry
 
-Copy **`.cursor/`** + **`dev-swarm/`** to new repos. Read **`dev-swarm/factory/SPEC.md`** first.
+Copy **only** **`.cursor/`** + **`dev-swarm/`** to new repos. Do **not** add a root `AGENTS.md` — Cursor uses `.cursor/rules/00-dev-swarm-bootstrap.mdc` to reach this file. Read **`dev-swarm/factory/SPEC.md`** first.
 
 ## Layout
 

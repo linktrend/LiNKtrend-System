@@ -5,13 +5,15 @@ alwaysApply: true
 
 # Dev Swarm Bootstrap
 
+Portable install is **only** `.cursor/` + `dev-swarm/`. There is **no** root `AGENTS.md`. This rule is the Cursor entry point and sends every agent into the factory.
+
 Cursor is the architecture and integration IDE for the LiNKtrend AI Agent Ecosystem. Codex, Antigravity, Gemini/Kimi, and other agents are bounded workers operating through `dev-swarm/` programs and issues.
 
 Repository files, Git history, `dev-swarm/` documents, and committed implementation files are the source of truth. Do not rely on chat memory, IDE memory, or unstated assumptions.
 
 ## Read first (mandatory order)
 
-1. `dev-swarm/AGENTS.md`
+1. `dev-swarm/AGENTS.md` (canonical agent entry — not repo root)
 2. `dev-swarm/skills/SKILLS_CATALOG.md`
 3. `dev-swarm/factory/rules/` (generic dev + swarm rules)
 4. Product rules in `.cursor/rules/` when present — **01** identity, **02** ecosystem boundaries, **03** secrets, **04** MVO, **05** security/cost, **06** database/API, **07** suite terminology, **08** LiNKaios UI (this repo only)

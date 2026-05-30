@@ -5,40 +5,28 @@ alwaysApply: true
 
 # Dev Swarm Bootstrap
 
-Cursor is the architecture and integration IDE for the LiNKtrend AI Agent Ecosystem. Codex, Antigravity, Gemini/Kimi, and other agents are bounded workers operating through `dev-swarm/` programs and issues.
+Portable install is **only** `.cursor/` + `dev-swarm/`. There is **no** root `AGENTS.md`. This rule is the Cursor entry point and sends every agent into the factory.
 
 Repository files, Git history, `dev-swarm/` documents, and committed implementation files are the source of truth. Do not rely on chat memory, IDE memory, or unstated assumptions.
 
 ## Read first (mandatory order)
 
-1. `dev-swarm/AGENTS.md`
+1. `dev-swarm/AGENTS.md` (canonical agent entry — not repo root)
 2. `dev-swarm/skills/SKILLS_CATALOG.md`
 3. `dev-swarm/factory/rules/` (generic dev + swarm rules)
-4. Product rules in `.cursor/rules/` when present — **01** identity, **02** ecosystem boundaries, **03** secrets, **04** MVO, **05** security/cost, **06** database/API, **07** suite terminology, **08** LiNKaios UI (this repo only)
-5. `dev-swarm/product/grounding/ARCHITECT_REVIEW_REPORT.md` if present
-6. `docs/architecture/repo-architecture-target.md`
-7. `docs/architecture/system-completion-targets.md`
-8. `dev-swarm/product/grounding/MASTER_PLAN.md`
-9. `dev-swarm/product/grounding/ARCHITECTURE_RULES.md`
-10. `dev-swarm/product/grounding/CONTRACTS_MVO.md`
-11. `dev-swarm/product/grounding/REPO_INVENTORY.md`
-12. `dev-swarm/product/grounding/DECISIONS.md`
-13. the active issue file only (path from STATE or label — often under `dev-swarm/product/programs/<program>/modules/.../issues/`)
+4. Product rules in `.cursor/rules/` when present (add per host repo)
+5. `dev-swarm/product/grounding/` — **only** files listed in the active issue `read_first`
+6. the active issue file only (path from STATE or label)
 
-When executing an issue: read **only** `read_first` + `report_path` on that issue. Do not list `product/reports/` or `product/grounding/`.
+When executing an issue: read **only** `read_first` + `report_path` on that issue. Do not list `product/reports/` or glob full `product/grounding/`.
 
 ## Skills and agents
 
 - **Skills:** canonical tree is `dev-swarm/skills/` only — not flat `.cursor/skills/` stubs.
 - **Agents:** canonical definitions live in `dev-swarm/factory/agents/`.
-- Use `dev-swarm/skills/SKILLS_CATALOG.md` for progressive disclosure: select relevant skills, MCP servers, and plugin references before opening full skill bodies.
-
-## Conflict resolution
-
-When `dev-swarm/factory/rules/` or imported skills conflict with product rules in `.cursor/rules/`, **product rules win for product scope only** (LiNKaios terminology, MVO boundaries, service ownership, security, UI standards). Factory coordination rules in `dev-swarm/factory/rules/` win for execution workflow, git, proof, and swarm coordination.
 
 ## Bootstrap
 
-If `dev-swarm/` is missing, copy the Dev Swarm template first. Product grounding lives in `dev-swarm/product/grounding/`.
+If `dev-swarm/` is missing, copy the Dev Swarm template first.
 
-Do **not** read `dev-swarm/archive/` for active work unless an issue explicitly requires historical lookup. Legacy material is preserved there only.
+Do **not** read `dev-swarm/archive/` for active work unless an issue explicitly requires historical lookup.

@@ -15,7 +15,7 @@ Quality and verification patterns borrowed from UBS and peer factories. **Not fu
 | DS-B9 | Git + verify before `swarm:merge-ready` | Active |
 | DS-B10 | Trajectory / debug in reports | Active |
 | DS-B11 | Merge replay traceability (`replay-merge-verify.sh`) | Active |
-| DS-B12 | Sandbox decision | `docs/DEV_SWARM_SANDBOX.md` |
+| DS-B12 | Isolation decision (branches only; no worktrees; no container v1) | `factory/docs/DEV_SWARM_SANDBOX.md` |
 | DS-B13 | Per-issue `runtime` field | Active |
 | DS-B14 | **Program Definition of Done** in every `PROGRAM.md` | Required for new programs |
 | DS-B15 | **Release phase** with ≥1 `critical` issue | Required for new programs |
@@ -28,7 +28,7 @@ Quality and verification patterns borrowed from UBS and peer factories. **Not fu
 | DS-B22 | **Council G1–G4** (five personas; BLOCKER stops progress) | Planner, Orchestrator, Integrator |
 | DS-B23 | **Program SHA256 manifest** (`program-proof-manifest.sh`; no cosign) | Release critical tier |
 | DS-B24 | **Product intent** (`product/grounding/INTENT.md` + verdict JSON) | Planner after Chairman OK |
-| DS-B25 | **Worktree enforcement** (`.worktrees/<issue-id>/`; no container v1) | Parallel executors |
+| DS-B25 | **Branch-per-issue enforcement** (no worktrees; no container v1) | All executors |
 
 **Not adopted from UBS:** full 28-gate per-issue bundle, mandatory cosign, container sandbox v1.
 

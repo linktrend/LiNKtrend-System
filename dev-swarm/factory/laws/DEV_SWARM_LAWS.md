@@ -13,7 +13,7 @@ Each law maps to an ID checked in `intent-verdict.json` (`laws_checked[]`) and e
 | **LAW-02** | **Intent must pass before execution** | `validate-intent.sh` exits 0 only on PASS. Orchestrator must not set `swarm:ready` until intent verdict PASS (DS-B19). |
 | **LAW-03** | **Tier gates mandatory** | `DEV_SWARM_TIER=critical` required for release-phase issues. `verify.sh` tier extras must pass before `swarm:merge-ready` on critical issues (DS-B6, DS-B16). |
 | **LAW-04** | **No secrets in repo** | No API keys, tokens, passwords, or private keys committed. Use `.env.example` placeholders only. `verify.sh` scans scope for secret patterns (DS-B1). |
-| **LAW-05** | **Worktree isolation for parallel issues** | Each parallel issue runs in its own branch/worktree. Executors must not share a dirty working tree across concurrent `swarm:ready` issues. |
+| **LAW-05** | **One branch per issue; one checkout** | Each issue runs on branch `issue/<issue-id>-<slug>` from `development`. No git worktrees. Never two concurrent executors on the same checkout; parallel work uses separate machines/IDEs or sequential waves. |
 | **LAW-06** | **No merge to staging/main without Chairman Release OK** | Integrator merges only to `development`. `staging` and `main` are Chairman-only after explicit Release OK recorded in program STATUS (DS-B14). |
 | **LAW-07** | **Council BLOCKER stops progress** | Any council verdict with severity `BLOCKER` halts Planner handoff and Orchestrator advance until resolved or waived by Chairman. |
 | **LAW-08** | **Program release requires SHA256 manifest** | Release phase must emit `proof-manifest.json` with per-artifact SHA256 hashes. **No cosign witness** required (explicitly rejected from UBS). |

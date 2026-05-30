@@ -36,10 +36,10 @@
           "requires": ["report"]
         },
         {
-          "id": "worktree_clean",
-          "description": "Git worktree clean except documented report-only exclusions",
+          "id": "working_tree_clean",
+          "description": "Git working tree clean except documented report-only exclusions",
           "check_type": "inline",
-          "handler": "worktree_clean"
+          "handler": "working_tree_clean"
         }
       ]
     },

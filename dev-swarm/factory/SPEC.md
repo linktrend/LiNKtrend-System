@@ -7,7 +7,7 @@ Status: active (2026-05-30)
 
 Dev Swarm is a **portable AI software factory**: Programs → Modules → Phases → **Issues**, coordinated through **GitHub + files**, with **Cursor-primary** control plane and **Codex** as peer executor automations.
 
-Copy **`.cursor/`** and **`dev-swarm/`** into a new repository. The **product** subtree starts empty (except grounding stubs). **Factory** subtree is complete.
+Copy **only** **`.cursor/`** and **`dev-swarm/`** into a new repository. Do **not** add a root `AGENTS.md` — Cursor enters via `.cursor/rules/00-dev-swarm-bootstrap.mdc` → `dev-swarm/AGENTS.md`. The **product** subtree starts empty (except grounding stubs). **Factory** subtree is complete.
 
 ## 2. Layout
 
@@ -135,7 +135,7 @@ Eight enforceable laws: [laws/DEV_SWARM_LAWS.md](laws/DEV_SWARM_LAWS.md) (DS-B19
 - **LAW-02** — Intent PASS before execution (`validate-intent.sh`).
 - **LAW-03** — Tier gates mandatory (`DEV_SWARM_TIER=critical` on release issues).
 - **LAW-04** — No secrets in repo (`verify.sh` scan).
-- **LAW-05** — Worktree isolation for parallel issues (`.worktrees/<issue-id>/`).
+- **LAW-05** — One branch per issue; no worktrees (see §22).
 - **LAW-06** — No merge to `staging`/`main` without Chairman Release OK.
 - **LAW-07** — Council BLOCKER stops progress until resolved or waived.
 - **LAW-08** — Program release requires SHA256 manifest; **no cosign witness**.
@@ -161,7 +161,7 @@ Catalog: [gates/catalog.json](gates/catalog.json). Runner: [scripts/run-gates.sh
 
 | Tier | When | Key gates |
 |------|------|-----------|
-| **A** | Per issue — merge-ready | `verify_subset`, secrets, proof block, allowed files, worktree clean |
+| **A** | Per issue — merge-ready | `verify_subset`, secrets, proof block, allowed files, working tree clean |
 | **B** | Module phase complete | DAG, integration smoke, architecture gate (JS/TS), council G3 |
 | **C** | Program release (critical) | Full verify, program proof manifest, replay merge, ship criteria, council G4 |
 
@@ -192,8 +192,10 @@ Output default: `dev-swarm/product/reports/<program-id>/proof-manifest.json`.
 
 Per-issue manifest (`proof-manifest.sh`) remains required for **critical** tier issues. **Cosign witness is explicitly rejected** — hash manifest only. See [PEER-REPO-BORROW-REVIEW.md](PEER-REPO-BORROW-REVIEW.md).
 
-## 22. Worktree (no container v1)
+## 22. Branch isolation (no worktrees; no container v1)
 
-Parallel `swarm:ready` issues **must** use isolated git worktrees under `.worktrees/<issue-id>/` (LAW-05, DS-B25). Executors must not share a dirty working tree across concurrent issues.
+Every executor issue **must** use branch `issue/<issue-id>-<slug>` from `development` on **one repo checkout** (LAW-05, DS-B25). Git worktrees are **forbidden** in Dev Swarm — they break handoffs.
 
-Container sandbox v1 is **not** required for MVO. Decision: [docs/DEV_SWARM_SANDBOX.md](../../docs/DEV_SWARM_SANDBOX.md). Revisit when untrusted multi-tenant execution or live side effects without capability leases demand stronger isolation.
+When the active wave has more than one `swarm:ready` issue, **never** run two executors on the same checkout simultaneously. Run issues sequentially, or assign parallel issues to **different machines/IDEs** (separate `dev/<machine><ide>` branches).
+
+Container sandbox v1 is **not** required. Decision: [docs/DEV_SWARM_SANDBOX.md](docs/DEV_SWARM_SANDBOX.md).

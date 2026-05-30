@@ -1,5 +1,7 @@
 # Swarm Coordination Model v2
 
+> **Host-repo planning doc (LiNKtrend-System).** Not copied with portable Dev Swarm. Normative factory behavior: `dev-swarm/factory/SPEC.md`.
+
 ## Principle
 
 The repo is the coordination system. Chat memory is not.

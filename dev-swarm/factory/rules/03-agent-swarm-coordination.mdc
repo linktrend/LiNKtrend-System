@@ -12,7 +12,7 @@ Every agent must read its assigned issue spec and update its agent report before
 Each issue must define:
 
 - objective
-- repo/worktree
+- repo / branch
 - allowed files
 - prohibited files
 - required context files
@@ -21,71 +21,63 @@ Each issue must define:
 - proof required
 - report file to update
 
-Every work packet must use the canonical ownership map from `docs/architecture/repo-architecture-target.md` and the system completion targets from `docs/architecture/system-completion-targets.md`:
-
-- LiNKaios control work → `LiNKaios/` ownership docs or current compatibility code in `LiNKaios/linkaios-web` / `packages/linkaios-kernel`
-- LinkSkills governance and skills → `LiNKskills/`
-- capability connector docs/manifests → `LiNKskills/capability-connectors/`
-- LiNKbrain memory/audit/retrieval/context/learning → `LiNKbrain/` ownership docs or current compatibility code referenced there
-- LiNKautowork workflow gateway/templates → `LiNKautowork/`
-- LiNKbot roles/runtime adapters/fleet/communications → `LiNKbot/`
-- worker security/cleanup sidecar → `LiNKguard/`
-- tenant-enabled business packages → `modules/`
+Every issue must use the canonical ownership map from `docs/architecture/repo-architecture-target.md` and the system completion targets from `docs/architecture/system-completion-targets.md` when working in LiNKtrend-System (host repos may replace these paths in `product/grounding/`).
 
 Specialist agents do not merge their own work. The Integrator reviews and merges.
 
-Use separate branches or worktrees for parallel work.
+## Branch isolation (deterministic — no worktrees)
 
-For large waves, branches alone are not enough. Any wave with three or more concurrent agents, or any agents likely to touch overlapping repo areas, MUST use isolated worktrees or separate clean checkouts. LiNKtrend-System worktrees MUST live under `/Users/linktrend/Projects/LiNKtrend-System/.worktrees/<packet-id>` and MUST NOT be created directly under `/Users/linktrend/Projects`. The Projects folder contains separate repos and software forks that must not be touched by cleanup automation. Each agent must verify `git status --short --branch` is clean before starting. If an agent sees unrelated dirty files, it must stop before editing and report the blocker.
+Dev Swarm uses **one repo checkout** and **one git branch per issue**. Git worktrees are **not** used.
 
-Every prompt file for a large wave MUST include an explicit clean-worktree launch block. The block must instruct the agent to create/use a packet-specific checkout or worktree under `.worktrees/`, verify clean status before editing, and stop if unrelated dirty files exist. Do not rely on chat instructions for this; the prompt file itself must contain the isolation requirement.
+| Rule | Requirement |
+|------|-------------|
+| Issue branch | `issue/<issue-id>-<slug>` from `development` (or host SOP equivalent) |
+| Before edit | `git status --short --branch` clean except documented exclusions |
+| Parallel wave | Never two executors on the **same checkout** at the same time |
+| Parallel alternative | Different machines/IDEs (`dev/<machine><ide>`) or **sequential** waves |
+| Handoff | Commit + push on issue branch; dirty tree blocks merge-ready |
 
-Parallel packets must be dependency-free. Do not put packets in the same parallel wave if one packet needs code, reports, topology, generated files, or committed artifacts from another packet in that wave. Dependent work must be split into sequential waves with an Integrator checkpoint between them.
+See `dev-swarm/factory/docs/DEV_SWARM_SANDBOX.md` (DS-B12).
 
-Every packet must finish with a durable handoff:
+Every prompt file must include: branch name, clean-status verification before edit, allowed/prohibited files, proof requirements, report path, commit/push instructions.
 
-- commit all intended code, docs, reports, generated topology files, and proof artifacts on the packet branch
-- leave `git status --short` clean except for explicitly documented external/generated files that are intentionally excluded
-- include the final commit SHA in the packet report
-- push the packet branch unless the user explicitly forbids pushing
+Parallel issues in one wave must be dependency-free. Dependent work runs in sequential waves with an Integrator checkpoint between them.
 
-Reports alone are not a completed handoff when implementation files changed. Uncommitted worktree-only output is not available to later agents and must be treated as incomplete until committed or explicitly reconciled by an Integrator packet.
+Every issue must finish with a durable handoff:
 
-An Integrator checkpoint is required before launching any wave that depends on previous packet output. The Integrator must verify branch tips, reports, committed files, and proof commands, then update downstream packets/prompts with exact branch or commit dependencies.
+- commit all intended code, docs, reports, and proof artifacts on the **issue branch**
+- leave `git status --short` clean except for explicitly documented exclusions
+- include the final commit SHA in the issue report
+- push the issue branch unless the Chairman explicitly forbids pushing
+
+Reports alone are not a completed handoff when implementation files changed. Uncommitted local-only work is incomplete until committed and pushed.
+
+An Integrator checkpoint is required before launching any wave that depends on previous issue output. The Integrator must verify branch tips, reports, committed files, and proof commands, then update downstream issues/prompts with exact branch or commit dependencies.
 
 If two agents need to edit the same file, stop and escalate to the Integrator.
 
-All significant decisions go into `dev-swarm/product/grounding/DECISIONS.md` (legacy archive: `dev-swarm/archive/ai-swarm-legacy/DECISIONS.md`).
+All significant decisions go into `dev-swarm/product/grounding/DECISIONS.md`.
 
 Read `dev-swarm/factory/SPEC.md` and `dev-swarm/skills/SKILLS_CATALOG.md` for factory rules and skills.
 
-GitHub is the source of truth. At the end of every Cursor, Codex, Antigravity, or other agent issue:
+GitHub is the source of truth. At the end of every issue:
 
-- commit the completed work on the packet branch
-- push the packet branch to GitHub
+- commit on the issue branch
+- push the issue branch
 - integrate through `development` before promoting to `staging` or `main`
-- record the branch, commit SHA, commands run, and proof in the relevant agent report
+- record branch, commit SHA, commands run, and proof in the report
 
-Stable branches are `main`, `staging`, and `development`. Work starts on short-lived branches or worktrees. Promotion flow is:
+Stable branches are `main`, `staging`, and `development`. Promotion flow:
 
-- work branch -> `development`
-- `development` -> `staging`
-- `staging` -> `main`
+- issue branch → `development`
+- `development` → `staging`
+- `staging` → `main`
 
-## Wave-Based Execution Workflow
+## Wave-based execution workflow
 
-After the user and Integrator define a work stage through brainstorming, Q&A, and approval, execution should follow this default loop:
+1. Integrator writes prompts under `dev-swarm/product/programs/<program>/prompts/`.
+2. Each prompt includes branch instructions and clean-status verification.
+3. User launches executors; Integrator merges approved PRs to `development` between waves.
+4. Repeat until the program stage is complete.
 
-1. When the user says `execute`, the Integrator writes prompt files under `dev-swarm/product/programs/<program>/prompts/` (legacy: `dev-swarm/product/programs/linktrend-system/prompts/legacy/`).
-2. Each prompt file must include branch/worktree instructions, clean-status verification, source-of-truth context, allowed/prohibited files, proof requirements, report updates, and commit/push instructions.
-3. The Integrator gives the user launch waves with model/tool guidance, for example: `WP-042 (Codex)`, `WP-043 (Codex)`, `WP-044 (Codex)`, `WP-045 (Codex)`, plus one-line copy/paste commands.
-4. The user launches the agents. When the user says `Done`, the Integrator fetches branches, reviews each agent's work, verifies proof, fixes or amends integration issues, updates future prompt files if needed, merges approved packet branches through `development`, and gives the next wave.
-5. Repeat wave by wave until the approved stage is complete.
-6. When the stage is complete, the Integrator proposes the next development stage, asks clarifying questions until requirements are clear, obtains user approval, then returns to this execution loop.
-
-Default model/tool guidance:
-
-- Cursor/Architect for source-of-truth contracts, integration review, conflict resolution, and cross-packet decisions.
-- Codex for implementation or documentation packets on isolated branches.
-- Antigravity for browser/UI/E2E validation.
-- Lower-cost long-context models such as Kimi or Gemini for discovery, summarization, and non-critical repo archaeology when appropriate.
+Default model guidance: Cursor for integration; Codex for isolated implementation branches; Antigravity for UI/E2E when assigned.
