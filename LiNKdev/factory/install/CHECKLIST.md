@@ -31,7 +31,7 @@ Creates/updates all labels from [contracts/labels.md](../contracts/labels.md) vi
 
 ## 3. GitHub Actions (optional guard)
 
-- [ ] Workflow `.github/workflows/LiNKdev-guard.yml` enabled (validates STATE JSON on PR touching `LiNKdev/factory/STATE.md`)
+- [ ] Workflow `.github/workflows/linkdev-guard.yml` enabled (validates STATE JSON on PR touching `LiNKdev/factory/STATE.md`)
 
 ## 4. Cursor automations
 

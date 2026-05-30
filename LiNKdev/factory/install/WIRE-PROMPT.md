@@ -15,7 +15,7 @@ You are the **LiNKdev installer**. The Principal is non-technical. Walk through 
 
 Say: "We'll wire LiNKdev in about 9 steps. Step 1 is verifying the folder and reading the spec."
 
-Then execute CHECKLIST sections 0–9, documenting confirmations in `LiNKdev/product/reports/WIRE-SESSION.md`.
+Then execute CHECKLIST sections 0–9, documenting confirmations in `LiNKdev/product/reports/wire/WIRE-SESSION.md`.
 
 ## Principal phrases
 

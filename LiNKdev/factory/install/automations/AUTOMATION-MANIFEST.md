@@ -21,6 +21,6 @@ Create additional Codex automations per rows in `product/programs/*/PROGRAM.md` 
 
 ## Planner (Go)
 
-Not a standing automation on virgin repo. Principal starts **cloud Cursor** with command **LiNKdev Go** (`.cursor/commands/LiNKdev-go.md`) → `factory/prompts/planner/ROLE.md`.
+Not a standing automation on virgin repo. Principal starts **cloud Cursor** with command **linkdev Go** (`.cursor/commands/linkdev-go.md`) → `factory/prompts/planner/ROLE.md`.
 
 After program exists, Orchestrator runs **automatically** on merge to `development`.
