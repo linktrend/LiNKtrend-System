@@ -2,70 +2,93 @@
 alwaysApply: true
 ---
 
-# Git Branching & Workflow (SOP v2)
+# Git Branching & Workflow (LiNKdev)
 
-## Branch Model
+Aligned with `LiNKdev/factory/SPEC.md` §8 and **LAW-05** / **LAW-06**.
 
-Every LiNKtrend repository uses three branch tiers:
+## Branch model
 
-| Branch | Purpose | Direct Push |
-|--------|---------|-------------|
-| `main` (or upstream default) | Production. Deploy only from here. | Forbidden |
-| `staging` | Integration and pre-production validation. | Forbidden |
-| `dev/<developer>` | Per-developer working branch. | Allowed |
+| Branch | Purpose | Who merges |
+|--------|---------|------------|
+| **`development`** | Integration. All agent and ad-hoc work lands here via PR. | **Integrator** (after Reviewer PASS) |
+| **`staging`** | Pre-production validation before release. | **Principal only** (after Release OK) |
+| **`main`** | Production. Deploy only from here. | **Principal only** (after Release OK) |
 
-## Developer Branch Naming
+Short-lived work branches branch **from `development`** and merge **to `development`** via PR.
+
+## Executor branches (mandatory for LiNKdev issues)
+
+Format: `issue/<issue-id>-<slug>`
+
+Examples:
+- `issue/DS-024-wire-github-labels`
+- `issue/WP-042-template-registry`
+
+Rules (**LAW-05**):
+- One branch per issue; one repo checkout per executor run.
+- Git worktrees are **forbidden** in LiNKdev.
+- Never run two concurrent executors on the same checkout — use separate machines/IDEs or sequential waves.
+
+## Optional ad-hoc branches
 
 Format: `dev/<machine><ide>`
 
 Examples:
 - `dev/minicodex` — Mac Mini using Codex
-- `dev/blackcursor` — MacBook (black) using Cursor
-- `dev/silvercursor` — MacBook (silver) using Cursor
-- `dev/miniantigravity` — Mac Mini using Antigravity
+- `dev/blackcursor` — MacBook using Cursor
 
-## Promotion Flow
+Use for exploratory or non-issue work. Open PR to **`development`** (same as issue branches). Do not treat `dev/*` as the primary integration path when a LiNKdev issue is active.
+
+## Promotion flow
 
 ```
-dev/<developer> → PR to staging → PR to main
+issue/<id>-<slug>  ─┐
+dev/<machine><ide> ─┼→ PR → development → PR → staging → PR → main
+                    │
+         Integrator merges          Principal only    Principal only
 ```
 
-1. All development happens on `dev/<developer>` branches.
-2. Open PR from `dev/<developer>` to `staging`.
-3. Resolve conflicts and pass CI/security gates in `staging`.
-4. Open PR from `staging` to `main`.
-5. Deploy only from tagged commit on `main`.
+1. Branch from latest **`development`**.
+2. Implement; open PR targeting **`development`**.
+3. Pass CI, Reviewer PASS, Integrator merge (**LAW-06** blocks direct merge to `staging`/`main`).
+4. After program Release OK, Principal promotes **`development` → `staging` → `main`**.
 
-## Protection Rules (Mandatory)
+Deploy only from tagged commits on **`main`**.
 
-On `staging` and production branches:
+## Protection rules (mandatory)
+
+On **`staging`** and **`main`**:
 - No direct pushes
 - Pull request required
-- Minimum 1 approval required
 - Force push disabled
 - Branch deletion disabled
 
-## Upstream Fork Sync Policy
+On **`development`**:
+- PR required for issue and ad-hoc branches (Integrator or team policy)
+- Enforce allowed source branches via `branch-source-policy.yml` (see `LiNKdev/factory/install/github/`)
+
+## Upstream fork sync policy
 
 For forked repos (`link-*`):
 - Original upstream repos are never modified by LiNKtrend.
-- Forks can be modified to fit LiNKtrend systems or for customization.
-- GitHub automation syncs upstream updates into `staging`.
-- Conflict resolution happens in `staging` before promotion to `main`.
+- Forks may be customized for LiNKtrend integration.
+- GitHub automation syncs upstream updates into the fork’s **`development`** branch — **not** `staging`.
+- Conflict resolution happens in **`development`** before Principal promotion.
+- **No PRs to upstream.** Sync stays inside the `linktrend/*` fork.
 - Local customizations must not be silently overwritten by upstream sync.
 
-## Hotfix Policy
+## Hotfix policy
 
-Hotfixes follow the same flow: `dev/<developer>` → `staging` → `main`. No direct server-side hotfix commits outside the GitHub flow.
+Hotfixes follow the same flow: short-lived branch → **`development`** → **`staging`** → **`main`**. No direct server-side commits outside GitHub.
 
-## Commit Messages
+## Commit messages
 
 Follow conventional commits: `type(scope): short summary`
 
 Types: `feat`, `fix`, `chore`, `refactor`, `docs`, `test`, `ci`
 
 Examples:
-- `feat(api): add mission intake endpoint`
+- `feat(api): add project intake endpoint`
 - `fix(ui): correct briefing card alignment`
 - `chore(infra): update Caddy TLS config`
 
