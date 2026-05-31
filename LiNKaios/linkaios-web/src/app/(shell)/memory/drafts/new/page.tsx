@@ -32,7 +32,7 @@ export default async function NewBrainDraftPage(props: {
   const supabase = await createSupabaseServerClient();
   const uiMocksEnabled = isUiMocksEnabled();
   const [{ data: missionRows }, { data: agentRows }, { data: legalRows, error: legalErr }] = await Promise.all([
-    supabase.schema("linkaios").from("missions").select("id, title").order("title", { ascending: true }).limit(300),
+    supabase.schema("linkaios").from("projects").select("id, title").order("title", { ascending: true }).limit(300),
     supabase.schema("linkaios").from("agents").select("id, display_name").order("display_name", { ascending: true }).limit(300),
     listBrainLegalEntities(supabase),
   ]);

@@ -28,8 +28,8 @@ async function gateWriter(): Promise<
   return { supabase, ok: true, userId: user.id, role };
 }
 
-export async function requestMissionToolAdd(missionId: string, toolId: string): Promise<void> {
-  if (!UUID_RE.test(missionId) || !UUID_RE.test(toolId)) return;
+export async function requestProjectToolAdd(projectId: string, toolId: string): Promise<void> {
+  if (!UUID_RE.test(projectId) || !UUID_RE.test(toolId)) return;
   const g = await gateWriter();
   if (!g.ok) return;
   const { data: tool, error: tErr } = await g.supabase.schema("linkaios").from("tools").select("id, name").eq("id", toolId).maybeSingle();
@@ -38,30 +38,30 @@ export async function requestMissionToolAdd(missionId: string, toolId: string): 
   const { error: insErr } = await g.supabase.schema("linkaios").from("tool_governance_requests").insert({
     status: "pending",
     request_type: "mission_binding_add",
-    mission_id: missionId,
+    mission_id: projectId,
     tool_id: toolId,
     requested_by: g.userId,
   });
   if (insErr) return;
 
   await g.supabase.schema("linkaios").from("traces").insert({
-    mission_id: missionId,
+    mission_id: projectId,
     event_type: "tool.request.created",
     payload: {
       event_type: "tool.request.created",
       tool_name: tool.name,
       tool_id: toolId,
-      mission_id: missionId,
+      mission_id: projectId,
       request_type: "mission_binding_add",
       actor_user_id: g.userId,
     },
   });
 
-  revalidatePath(`/projects/${missionId}`);
+  revalidatePath(`/projects/${projectId}`);
 }
 
-export async function requestMissionToolRemove(missionId: string, toolId: string): Promise<void> {
-  if (!UUID_RE.test(missionId) || !UUID_RE.test(toolId)) return;
+export async function requestProjectToolRemove(projectId: string, toolId: string): Promise<void> {
+  if (!UUID_RE.test(projectId) || !UUID_RE.test(toolId)) return;
   const g = await gateWriter();
   if (!g.ok) return;
   const { data: tool, error: tErr } = await g.supabase.schema("linkaios").from("tools").select("id, name").eq("id", toolId).maybeSingle();
@@ -70,26 +70,26 @@ export async function requestMissionToolRemove(missionId: string, toolId: string
   const { error: insErr } = await g.supabase.schema("linkaios").from("tool_governance_requests").insert({
     status: "pending",
     request_type: "mission_binding_remove",
-    mission_id: missionId,
+    mission_id: projectId,
     tool_id: toolId,
     requested_by: g.userId,
   });
   if (insErr) return;
 
   await g.supabase.schema("linkaios").from("traces").insert({
-    mission_id: missionId,
+    mission_id: projectId,
     event_type: "tool.request.created",
     payload: {
       event_type: "tool.request.created",
       tool_name: tool.name,
       tool_id: toolId,
-      mission_id: missionId,
+      mission_id: projectId,
       request_type: "mission_binding_remove",
       actor_user_id: g.userId,
     },
   });
 
-  revalidatePath(`/projects/${missionId}`);
+  revalidatePath(`/projects/${projectId}`);
 }
 
 export async function approveToolGovernanceRequest(requestId: string): Promise<void> {
@@ -133,15 +133,15 @@ export async function rejectToolGovernanceRequest(requestId: string, reason: str
   revalidatePath("/settings/tools");
 }
 
-export async function submitMissionProjectHeadForm(formData: FormData): Promise<void> {
-  const missionId = String(formData.get("missionId") ?? "");
+export async function submitProjectHeadForm(formData: FormData): Promise<void> {
+  const projectId = String(formData.get("projectId") ?? formData.get("missionId") ?? "");
   const raw = String(formData.get("projectHeadUserId") ?? "").trim();
   const projectHeadUserId = raw === "" ? null : raw;
-  await setMissionProjectHead(missionId, projectHeadUserId);
+  await setProjectHead(projectId, projectHeadUserId);
 }
 
-export async function setMissionProjectHead(missionId: string, projectHeadUserId: string | null): Promise<void> {
-  if (!UUID_RE.test(missionId)) return;
+export async function setProjectHead(projectId: string, projectHeadUserId: string | null): Promise<void> {
+  if (!UUID_RE.test(projectId)) return;
   if (projectHeadUserId != null && !UUID_RE.test(projectHeadUserId)) return;
   const supabase = await createSupabaseServerClient();
   const {
@@ -153,10 +153,19 @@ export async function setMissionProjectHead(missionId: string, projectHeadUserId
 
   const { error } = await supabase
     .schema("linkaios")
-    .from("missions")
+    .from("projects")
     .update({ project_head_user_id: projectHeadUserId, updated_at: new Date().toISOString() })
-    .eq("id", missionId);
+    .eq("id", projectId);
   if (error) return;
 
-  revalidatePath(`/projects/${missionId}`);
+  revalidatePath(`/projects/${projectId}`);
 }
+
+/** @deprecated Use {@link requestProjectToolAdd}. */
+export const requestMissionToolAdd = requestProjectToolAdd;
+/** @deprecated Use {@link requestProjectToolRemove}. */
+export const requestMissionToolRemove = requestProjectToolRemove;
+/** @deprecated Use {@link submitProjectHeadForm}. */
+export const submitMissionProjectHeadForm = submitProjectHeadForm;
+/** @deprecated Use {@link setProjectHead}. */
+export const setMissionProjectHead = setProjectHead;

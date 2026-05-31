@@ -33,7 +33,7 @@ export async function fetchMetricsSnapshot(input: {
   if (input.agentId && input.agentId !== "all") {
     const { data: ms, error: mErr } = await supabase
       .schema("linkaios")
-      .from("missions")
+      .from("projects")
       .select("id")
       .eq("primary_agent_id", input.agentId);
     if (mErr) return { ok: false, error: mErr.message };
@@ -95,7 +95,7 @@ export async function fetchMetricsSnapshot(input: {
   if (missionIds.length > 0) {
     const { data: missions } = await supabase
       .schema("linkaios")
-      .from("missions")
+      .from("projects")
       .select("id, title, primary_agent_id")
       .in("id", missionIds);
     for (const m of missions ?? []) {

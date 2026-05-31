@@ -6,10 +6,10 @@ import { BUTTON } from "@/lib/ui-standards";
 import {
   approveToolGovernanceRequest,
   rejectToolGovernanceRequest,
-  requestMissionToolAdd,
-  requestMissionToolRemove,
-  submitMissionProjectHeadForm,
-} from "./mission-tools-actions";
+  requestProjectToolAdd,
+  requestProjectToolRemove,
+  submitProjectHeadForm,
+} from "./project-tools-actions";
 
 type ToolRow = { id: string; name: string; status: string };
 type PendingRow = {
@@ -20,11 +20,14 @@ type PendingRow = {
   project_head_approved_by: string | null;
 };
 
-export async function MissionToolsSection(props: {
-  missionId: string;
+export async function ProjectToolsSection(props: {
+  projectId: string;
+  /** @deprecated Use projectId */
+  missionId?: string;
   highlightRequestId?: string | null;
   canWrite: boolean;
 }) {
+  const projectId = props.projectId || props.missionId || "";
   const supabase = await createSupabaseServerClient();
   const {
     data: { user },
@@ -32,20 +35,20 @@ export async function MissionToolsSection(props: {
 
   const isAdmin = user?.id != null ? await isCommandCentreAdmin(supabase, { userId: user.id, email: user.email }) : false;
 
-  const { data: mission } = await supabase
+  const { data: project } = await supabase
     .schema("linkaios")
-    .from("missions")
+    .from("projects")
     .select("project_head_user_id")
-    .eq("id", props.missionId)
+    .eq("id", projectId)
     .maybeSingle();
 
-  const isProjectHead = Boolean(user?.id && mission?.project_head_user_id === user.id);
+  const isProjectHead = Boolean(user?.id && project?.project_head_user_id === user.id);
 
   const { data: mtRows, error: bErr } = await supabase
     .schema("linkaios")
     .from("mission_tools")
     .select("tool_id")
-    .eq("mission_id", props.missionId);
+    .eq("mission_id", projectId);
 
   const mtIds = (mtRows ?? []).map((r: { tool_id: string }) => r.tool_id).filter(Boolean);
   const { data: boundTools } =
@@ -58,7 +61,7 @@ export async function MissionToolsSection(props: {
     .schema("linkaios")
     .from("tool_governance_requests")
     .select("id, request_type, tool_id, org_admin_approved_by, project_head_approved_by")
-    .eq("mission_id", props.missionId)
+    .eq("mission_id", projectId)
     .eq("status", "pending")
     .order("created_at", { ascending: false });
 
@@ -87,7 +90,7 @@ export async function MissionToolsSection(props: {
 
   return (
     <div className="space-y-8">
-      <PlaneSyncStubPanel missionId={props.missionId} canWrite={props.canWrite} />
+      <PlaneSyncStubPanel missionId={projectId} canWrite={props.canWrite} />
 
       {isAdmin ? (
         <section className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm">
@@ -95,14 +98,14 @@ export async function MissionToolsSection(props: {
           <p className="mt-1 max-w-2xl text-xs text-zinc-600 sm:text-sm">
             Some tool changes need sign-off from this lead as well as an organization admin.
           </p>
-          <form action={submitMissionProjectHeadForm} className="mt-4 flex max-w-xl flex-wrap items-end gap-2">
-            <input type="hidden" name="missionId" value={props.missionId} />
+          <form action={submitProjectHeadForm} className="mt-4 flex max-w-xl flex-wrap items-end gap-2">
+            <input type="hidden" name="projectId" value={projectId} />
             <label className="block min-w-[16rem] flex-1 text-xs text-zinc-700">
               Lead sign-in id
               <input
                 name="projectHeadUserId"
                 type="text"
-                defaultValue={mission?.project_head_user_id ?? ""}
+                defaultValue={project?.project_head_user_id ?? ""}
                 placeholder="User id"
                 className="mt-1 w-full rounded-md border border-zinc-300 px-2 py-1.5 text-xs"
               />
@@ -130,7 +133,7 @@ export async function MissionToolsSection(props: {
             bound.map((t) => (
               <li key={t.id} className="flex flex-wrap items-center justify-between gap-2 px-3 py-2.5 text-sm">
                 <span className="font-medium text-zinc-900">{t.name}</span>
-                <form action={requestMissionToolRemove.bind(null, props.missionId, t.id)}>
+                <form action={requestProjectToolRemove.bind(null, projectId, t.id)}>
                   <button
                     type="submit"
                     className="rounded-md border border-zinc-300 px-2 py-1 text-xs font-medium text-zinc-800 hover:bg-zinc-50 disabled:opacity-50"
@@ -155,7 +158,7 @@ export async function MissionToolsSection(props: {
             {picker.map((t) => (
               <li key={t.id} className="flex items-center justify-between gap-2 rounded-lg border border-zinc-100 px-3 py-2">
                 <span className="text-sm text-zinc-800">{t.name}</span>
-                <form action={requestMissionToolAdd.bind(null, props.missionId, t.id)}>
+                <form action={requestProjectToolAdd.bind(null, projectId, t.id)}>
                   <button
                     type="submit"
                     className="rounded-md bg-zinc-900 px-2 py-1 text-xs font-medium text-white hover:bg-zinc-800 disabled:opacity-50"
@@ -219,3 +222,6 @@ export async function MissionToolsSection(props: {
     </div>
   );
 }
+
+/** @deprecated Use {@link ProjectToolsSection}. */
+export const MissionToolsSection = ProjectToolsSection;

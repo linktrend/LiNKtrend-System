@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { listMissions } from "@linktrend/linklogic-sdk";
-import type { MissionRecord } from "@linktrend/shared-types";
+import { listProjects } from "@linktrend/linklogic-sdk";
+import type { ProjectRecord } from "@linktrend/shared-types";
 
 import { ProjectsIndexTable } from "@/components/projects-index-table";
 import {
@@ -24,7 +24,7 @@ export const dynamic = "force-dynamic";
 const COLUMN_ORDER: {
   key: string;
   title: string;
-  statuses: MissionRecord["status"][];
+  statuses: ProjectRecord["status"][];
 }[] = [
   { key: "draft", title: "Draft", statuses: ["draft"] },
   { key: "active", title: "Active", statuses: ["assigned", "running"] },
@@ -38,19 +38,19 @@ export default async function WorkerProjectsPage(props: { params: Promise<{ id: 
   const planeCfg = getPlaneBridgeConfig();
   const planeProjectsHref = planeWorkspaceProjectsHref(planeCfg);
 
-  let missions: MissionRecord[] = [];
+  let projects: ProjectRecord[] = [];
   let displayName = id;
 
   if (isDemoAgentId(id)) {
     const demoMerged = demoMissionsFixtureRows().filter((m) => m.primary_agent_id === id);
     const sidebar = DEMO_SIDEBAR_MISSIONS.filter((m) => m.primary_agent_id === id);
     const seen = new Set<string>();
-    missions = [...demoMerged, ...sidebar].filter((m) => {
+    projects = [...demoMerged, ...sidebar].filter((m) => {
       const key = String(m.id);
       if (seen.has(key)) return false;
       seen.add(key);
       return true;
-    }) as MissionRecord[];
+    }) as ProjectRecord[];
     displayName = id === "demo-lisa" ? "Lisa (CEO)" : "Eric (CTO)";
   } else {
     const supabase = await createSupabaseServerClient();
@@ -67,7 +67,7 @@ export default async function WorkerProjectsPage(props: { params: Promise<{ id: 
 
     displayName = String((agent as { display_name: string }).display_name);
 
-    const { data, error } = await listMissions(supabase, { limit: 200 });
+    const { data, error } = await listProjects(supabase, { limit: 200 });
     if (error) {
       return (
         <section className="space-y-4">
@@ -77,15 +77,15 @@ export default async function WorkerProjectsPage(props: { params: Promise<{ id: 
       );
     }
 
-    missions = ((data ?? []) as MissionRecord[]).filter((m) => m.primary_agent_id === id);
+    projects = ((data ?? []) as ProjectRecord[]).filter((m) => m.primary_agent_id === id);
   }
 
-  const rows = missions.map((m) =>
+  const rows = projects.map((m) =>
     projectIndexRowFromMission(m, planeCfg, uiMocksEnabled ? DEMO_MISSION_PLANE_BRIDGE[String(m.id)] : undefined),
   );
   const byColumn = COLUMN_ORDER.map((col) => ({
     ...col,
-    items: missions.filter((m) => col.statuses.includes(m.status)),
+    items: projects.filter((m) => col.statuses.includes(m.status)),
   }));
   const lifecycleCounts = Object.fromEntries(
     byColumn.map((col) => [col.key, col.items.length]),

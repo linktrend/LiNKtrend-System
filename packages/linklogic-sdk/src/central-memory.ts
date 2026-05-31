@@ -17,7 +17,7 @@ export async function appendCentralMemoryEntry(
   const client = createSupabaseServiceClient(env);
   const { data: mission, error: mErr } = await client
     .schema("linkaios")
-    .from("missions")
+    .from("projects")
     .select("id")
     .eq("id", params.missionId)
     .maybeSingle();

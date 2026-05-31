@@ -5,7 +5,7 @@ import {
   listBrainOrgNodes,
   listBrainVirtualFilesByScopeAndOrgTag,
   listMemoryEntries,
-  listMissions,
+  listProjects,
   type BrainInboxRow,
   type BrainLegalEntityRow,
   type BrainOrgNodeRow,
@@ -15,14 +15,14 @@ import {
   type MemoryEntryRow,
 } from "@linktrend/linklogic-sdk";
 import { inboxItemMatchesSource, type InboxSubmissionSource } from "@/components/linkbrain/linkbrain-labels";
-import type { MissionRecord } from "@linktrend/shared-types";
+import type { ProjectRecord } from "@linktrend/shared-types";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 /** Primary LiNKbrain workspace tabs (legacy `overview` / `library` query values map to Inbox in the page parser). */
 export type LinkbrainTab = "inbox" | "project" | "agent" | "company" | "ask" | "audit" | "orgScope";
 
 export type MissionMemoryRow = {
-  mission: MissionRecord;
+  mission: ProjectRecord;
   memoryCount: number;
   lastMemoryAt: string | null;
 };
@@ -49,7 +49,7 @@ export type LinkbrainPageData = {
   lightEntries: Array<{ mission_id: string | null; classification: string; created_at: string }>;
   recentEntries: MemoryEntryRow[];
   libraryEntries: MemoryEntryRow[];
-  missions: MissionRecord[];
+  missions: ProjectRecord[];
   missionRows: MissionMemoryRow[];
   agents: LinkbrainAgentOption[];
   classifications: string[];
@@ -129,7 +129,7 @@ export async function loadLinkbrainPageData(
     }
   }
 
-  const { data: missions, error: mErr } = await listMissions(supabase, { limit: 80 });
+  const { data: missions, error: mErr } = await listProjects(supabase, { limit: 80 });
   if (mErr) {
     return {
       ...empty(),

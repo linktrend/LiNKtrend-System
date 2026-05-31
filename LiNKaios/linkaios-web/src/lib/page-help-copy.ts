@@ -110,11 +110,6 @@ const SETTINGS_HELP: Record<string, PageHelpContent> = {
     "Worker security and cleanup policies for execution workers.",
     "Review sidecar heartbeat, residue cleanup, and guardrail status.",
   ),
-  "/settings/prism": help(
-    "Settings — LiNKguard",
-    "Worker security and cleanup policies formerly branded PRISM Defender.",
-    "Review sidecar heartbeat, residue cleanup, and guardrail status for execution workers.",
-  ),
 };
 
 const EXACT: Record<string, PageHelpContent> = {
@@ -198,21 +193,6 @@ const EXACT: Record<string, PageHelpContent> = {
     "Suites published by Linktrend available to preview or subscribe.",
     "Demo checkout activates preview or subscription locally for MVO proof.",
   ),
-  "/modules": help(
-    "Suites",
-    "Subscribed product suites — manage owned suites or browse the marketplace.",
-    "Canonical routes live under /suites; /modules redirects for compatibility.",
-  ),
-  "/modules/my-modules": help(
-    "My Suites",
-    "Subscribed and preview suites active for your tenant.",
-    "Open a suite to browse modules, projects, and outputs.",
-  ),
-  "/modules/marketplace": help(
-    "Marketplace",
-    "Suites published by Linktrend available to preview or subscribe.",
-    "Demo checkout activates preview or subscription locally for MVO proof.",
-  ),
   "/metrics": help(
     "Metrics",
     "Cost, tokens, latency, and success rates across projects, LiNKbots, models, tools, and skills.",
@@ -222,11 +202,6 @@ const EXACT: Record<string, PageHelpContent> = {
     "Cockpit",
     "Cross-plane health: suite status, automation runs, and system signals.",
     "Leases and skill detail remain under LiNKskills; this view is for operational situational awareness.",
-  ),
-  "/cockpit/modules": help(
-    "Cockpit — Modules",
-    "Runtime health and activation status per tenant module.",
-    "Check here when module phases are not scheduling or report degraded dependencies.",
   ),
   "/cockpit/runs": help(
     "Cockpit — Automation runs",
@@ -289,14 +264,6 @@ const PREFIX: { prefix: string; content: PageHelpContent }[] = [
   },
   {
     prefix: "/suites/",
-    content: help(
-      "Suites",
-      "Suite-specific module catalogue, projects, and sample outputs.",
-      "Return to My Suites to switch subscribed products.",
-    ),
-  },
-  {
-    prefix: "/modules/",
     content: help(
       "Suites",
       "Suite-specific module catalogue, projects, and sample outputs.",

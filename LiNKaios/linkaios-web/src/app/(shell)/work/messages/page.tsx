@@ -21,7 +21,7 @@ export default async function WorkMessagesPage() {
       .order("created_at", { ascending: false })
       .limit(200),
     supabase.schema("linkaios").from("agents").select("id, display_name").order("display_name", { ascending: true }),
-    supabase.schema("linkaios").from("missions").select("id, primary_agent_id"),
+    supabase.schema("linkaios").from("projects").select("id, primary_agent_id"),
   ]);
 
   const { data: rows, error } = zulipRes;

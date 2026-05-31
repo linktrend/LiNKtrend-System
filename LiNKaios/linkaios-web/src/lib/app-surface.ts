@@ -53,7 +53,6 @@ const LICENSOR_ONLY_LICENSEE_PREFIXES = [
   "/settings/traces",
   "/settings/gateway",
   "/settings/linkguard",
-  "/settings/prism",
   "/settings/governance",
   "/settings/platform",
   "/settings/advanced",

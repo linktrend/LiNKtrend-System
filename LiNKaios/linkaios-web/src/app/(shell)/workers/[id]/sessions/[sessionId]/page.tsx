@@ -55,7 +55,7 @@ export default async function SessionDetailPage(props: { params: Promise<{ id: s
       : null;
   let projectTitle: string | null = null;
   if (typeof missionId === "string" && missionId.trim()) {
-    const { data: m } = await supabase.schema("linkaios").from("missions").select("title").eq("id", missionId).maybeSingle();
+    const { data: m } = await supabase.schema("linkaios").from("projects").select("title").eq("id", missionId).maybeSingle();
     projectTitle = m && typeof (m as { title?: string }).title === "string" ? (m as { title: string }).title : null;
   }
 

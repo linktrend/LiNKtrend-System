@@ -1,7 +1,7 @@
 import Link from "next/link";
 
-import { listMissions } from "@linktrend/linklogic-sdk";
-import type { MissionRecord } from "@linktrend/shared-types";
+import { listProjects } from "@linktrend/linklogic-sdk";
+import type { ProjectRecord } from "@linktrend/shared-types";
 
 import { AddProjectHeaderAction } from "@/components/role-gated-ui";
 import { ProjectsIndexTable } from "@/components/projects-index-table";
@@ -24,7 +24,7 @@ export const dynamic = "force-dynamic";
 const COLUMN_ORDER: {
   key: ProjectSummaryColumnKey;
   title: string;
-  statuses: MissionRecord["status"][];
+  statuses: ProjectRecord["status"][];
 }[] = [
   { key: "draft", title: "Draft", statuses: ["draft"] },
   { key: "active", title: "Active", statuses: ["assigned", "running"] },
@@ -35,7 +35,7 @@ const COLUMN_ORDER: {
 export default async function ProjectsListPage() {
   const supabase = await createSupabaseServerClient();
   const uiMocksEnabled = isUiMocksEnabled();
-  const { data, error } = await listMissions(supabase, { limit: 200 });
+  const { data, error } = await listProjects(supabase, { limit: 200 });
 
   const planeCfg = getPlaneBridgeConfig();
   const planeProjectsHref = planeWorkspaceProjectsHref(planeCfg);
@@ -52,9 +52,9 @@ export default async function ProjectsListPage() {
     );
   }
 
-  const api = (data ?? []) as MissionRecord[];
+  const api = (data ?? []) as ProjectRecord[];
   const demoIds = new Set<string>(DEMO_SIDEBAR_MISSIONS.map((d) => d.id));
-  const merged: MissionRecord[] = uiMocksEnabled
+  const merged: ProjectRecord[] = uiMocksEnabled
     ? [...demoMissionsFixtureRows(), ...api.filter((m) => !demoIds.has(String(m.id)))]
     : api;
 

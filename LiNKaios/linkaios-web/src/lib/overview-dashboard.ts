@@ -1,4 +1,4 @@
-import type { AgentRecord, MissionRecord, SkillRecord } from "@linktrend/shared-types";
+import type { AgentRecord, ProjectRecord, SkillRecord } from "@linktrend/shared-types";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import { buildAttentionFeed, type AttentionFeedItem } from "@/lib/work-attention-feed";
@@ -199,7 +199,7 @@ export async function loadOverviewData(
     supabase.schema("linkaios").from("agents").select("id, display_name, status, created_at, updated_at").order("updated_at", { ascending: false }).limit(40),
     supabase
       .schema("linkaios")
-      .from("missions")
+      .from("projects")
       .select("id, title, status, primary_agent_id, created_at, updated_at")
       .order("updated_at", { ascending: false })
       .limit(40),
@@ -378,21 +378,21 @@ export async function loadOverviewData(
 
   const brainInboxCount = brainDraftCountRes.error ? 0 : brainDraftCountRes.count ?? 0;
 
-  const dbMissions = (missionsList.data ?? []) as MissionRecord[];
-  const missionsMerged: MissionRecord[] =
-    dbMissions.length > 0
-      ? dbMissions
+  const dbProjects = (missionsList.data ?? []) as ProjectRecord[];
+  const projectsMerged: ProjectRecord[] =
+    dbProjects.length > 0
+      ? dbProjects
       : uiMocksEnabled
         ? DEMO_SIDEBAR_MISSIONS.map(
             (m, i) =>
               ({
                 id: m.id,
                 title: m.title,
-                status: (i === 0 ? "running" : "completed") as MissionRecord["status"],
+                status: (i === 0 ? "running" : "completed") as ProjectRecord["status"],
                 primary_agent_id: null,
                 created_at: new Date().toISOString(),
                 updated_at: new Date().toISOString(),
-              }) as MissionRecord,
+              }) as ProjectRecord,
           )
         : [];
 
@@ -445,10 +445,10 @@ export async function loadOverviewData(
   const offline = fleet.filter((f) => f.ux === "offline").length;
   const online = busy + idle;
 
-  const draftProjects = missionsMerged.filter((m) => m.status === "draft").length;
-  const activeProjects = missionsMerged.filter((m) => m.status === "running" || m.status === "assigned").length;
-  const completedProjects = missionsMerged.filter((m) => m.status === "completed").length;
-  const needsAttentionProjects = missionsMerged.filter(
+  const draftProjects = projectsMerged.filter((m) => m.status === "draft").length;
+  const activeProjects = projectsMerged.filter((m) => m.status === "running" || m.status === "assigned").length;
+  const completedProjects = projectsMerged.filter((m) => m.status === "completed").length;
+  const needsAttentionProjects = projectsMerged.filter(
     (m) => missionTone(m.status) === "risk" || m.status === "draft",
   ).length;
 

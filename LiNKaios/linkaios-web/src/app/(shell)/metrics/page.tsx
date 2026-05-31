@@ -1,4 +1,4 @@
-import { listMissions } from "@linktrend/linklogic-sdk";
+import { listProjects } from "@linktrend/linklogic-sdk";
 import { BarChart3 } from "lucide-react";
 
 import { fetchMetricsSnapshot } from "@/app/(shell)/metrics/actions";
@@ -33,7 +33,7 @@ export default async function MetricsPage() {
   const supabase = await createSupabaseServerClient();
 
   const [{ data: missionRows }, agentsRes] = await Promise.all([
-    listMissions(supabase, { limit: 60 }),
+    listProjects(supabase, { limit: 60 }),
     supabase.schema("linkaios").from("agents").select("id, display_name").order("updated_at", { ascending: false }).limit(60),
   ]);
 

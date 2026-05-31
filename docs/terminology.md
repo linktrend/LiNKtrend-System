@@ -81,9 +81,10 @@ LiNKguard is the worker security and cleanup sidecar. It owns residue cleanup, f
 
 | Legacy / current | Canonical | Notes |
 |------------------|--------|-------|
-| `modules/` | `suites/` | Tenant-enabled **Suite** packages (LinkSites, LiNKapps, …). **`suites/` is canonical**; legacy `modules/` trees remain during cleanup. |
+| `modules/` (removed) | `suites/` | Tenant-enabled **Suite** packages (LinkSites, LiNKapps, …). Root `modules/` is gone; **`suites/` is canonical**. |
 | `plugins/` | absorbed | Vertical/plugin layout retired; content moves into suite packages or owning planes. |
-| `LiNKaios/linkaios-web/src/lib/plugins/` | `lib/suite-integrations/` | Suite-specific integration code still imports from `lib/plugins/` today; target rename is Phase C. |
+| `LiNKaios/linkaios-web/src/lib/plugins/` (removed) | `lib/suite-integrations/` | Suite-specific integration code lives under **`lib/suite-integrations/`** (WebsiteFactory, LinkApps, LEXOS litigation). |
+| `packages/linkaios-kernel/plugins/capabilities/linkapps/` (removed) | `LiNKskills/capability-connectors/cap.*.yaml` | LiNKapps capability declaration YAML removed from kernel; LinkSkills is canonical. |
 | `LinkSkills/capability-connectors/` | *(unchanged)* | Internal LinkSkills term; UI still says Capability. |
 
 ### LiNKaios routes (active)
@@ -126,7 +127,7 @@ These terms are **not** synonyms. Do not collapse them in docs or UI.
 | Connector (LiNKaios UI) | **Capability** |
 | PRISM (UI) | **LiNKguard** |
 
-Legacy symbols (`missionId`, `MissionRecord`, `/modules/` routes, `lib/plugins/`) may persist in code until migration phases C/D complete.
+Legacy symbols (`missionId`, `MissionRecord`, `/modules/` route redirects, deprecated kernel capability stubs) may persist in code until Phase C TypeScript/API alias cleanup completes.
 
 ---
 
@@ -136,7 +137,7 @@ Legacy symbols (`missionId`, `MissionRecord`, `/modules/` routes, `lib/plugins/`
 |-------|--------|--------|
 | **A** | User-visible copy: Mission → Project | Done |
 | **B** | Routes (`/suites/`), breadcrumbs, component names | Done |
-| **C** | TypeScript/API aliases (`MissionRecord` → `ProjectRecord`, etc.) | **In progress** |
+| **C** | TypeScript/API aliases, repo folder consolidation | **In progress** — root `modules/` → `suites/`, `lib/plugins/` → `lib/suite-integrations/`, and kernel linkapps capability YAML removal are done; `MissionRecord` → `ProjectRecord` and related TS aliases remain |
 | **D** | Database columns, RPC names, webhooks, kernel (`033`–`035` applied) | **Done** |
 
 Do not assume TypeScript/API migration (Phase C) is complete when reading or writing code. Database columns and RPC names use **project** after `033`–`035`; legacy symbols and views may remain for compat.

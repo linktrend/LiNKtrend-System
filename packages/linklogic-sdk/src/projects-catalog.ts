@@ -8,7 +8,7 @@ export async function listProjects(
   const limit = params.limit ?? 200;
   const { data, error } = await client
     .schema("linkaios")
-    .from("missions")
+    .from("projects")
     .select("*")
     .order("updated_at", { ascending: false })
     .limit(limit);
@@ -21,7 +21,7 @@ export async function getProjectById(
 ): Promise<{ data: ProjectRecord | null; error: Error | null }> {
   const { data, error } = await client
     .schema("linkaios")
-    .from("missions")
+    .from("projects")
     .select("*")
     .eq("id", projectId)
     .maybeSingle();

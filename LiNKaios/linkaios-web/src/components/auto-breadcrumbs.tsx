@@ -128,12 +128,7 @@ export function AutoBreadcrumbs(props: { fixtureLabelsInNav?: boolean }) {
     enrichShellBreadcrumbs(route, searchParams, items, kind);
   } else if (route === "/app" || route === "/app/") {
     items.push({ href: appHref("/app"), label: "LiNKaios" }, { label: "Overview" });
-  } else if (
-    route === "/modules" ||
-    route.startsWith("/modules/") ||
-    route === "/suites" ||
-    route.startsWith("/suites/")
-  ) {
+  } else if (route === "/suites" || route.startsWith("/suites/")) {
     items.push(
       ...buildModulesBreadcrumbItems(route, searchParams.get("tab"), uuidLabels, moduleHubForProfile).map((item) =>
         item.href ? { ...item, href: appHref(item.href) } : item,
