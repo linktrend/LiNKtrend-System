@@ -2,20 +2,24 @@
 
 Codex executors are **peer automations** to Cursor cloud agents. Same GitHub labels; separate Codex automation entries.
 
+Repo: **linktrend/LiNKtrend-System**
+
+Draft spec (Step B prep): [LiNKdev-executor-codex.spec.md](LiNKdev-executor-codex.spec.md)
+
 ## LiNKdev-executor-codex
 
 - **Trigger:** GitHub issue labeled `linkdev:ready` AND `runtime:codex`
-- **Filter:** Issue body or path references `LiNKdev/programs/` (optional narrow filter)
-- **Prompt:** `LiNKdev/factory/prompts/executor-codex/ROLE.md` + issue spec from `LiNKdev/factory/programs/bootstrap/issues/<id>.md`
+- **Filter:** Issue body or path references `LiNKdev/product/programs/` (optional narrow filter)
+- **Prompt:** `LiNKdev/factory/prompts/executor-codex/ROLE.md` + issue spec from `LiNKdev/product/programs/<program-id>/modules/<module>/phases/<phase>/issues/<issue-id>.md`
 - **Branch:** `dev/minicodex` or `issue/<id>-*`
 
 ## Planner checklist
 
-For each Codex issue group in PROGRAM.md, duplicate trigger with same label contract — do not rely on Principal manual launch.
+For each Codex issue group in `LiNKdev/product/programs/linktrend-system/PROGRAM.md`, duplicate trigger with same label contract — do not rely on Principal manual launch.
 
 ## Proof
 
-Automation run must update `LiNKdev/product/reports/<id>.md` and push branch without Principal starting Codex.
+Automation run must update `LiNKdev/product/reports/<program-id>/.../<issue-id>.md` and push branch without Principal starting Codex.
 
 ## Principal UI checklist (one-time)
 
@@ -28,3 +32,5 @@ Automation run must update `LiNKdev/product/reports/<id>.md` and push branch wit
 ## Export
 
 Document Codex automation IDs in this folder after Principal configures UI.
+
+Log results in `LiNKdev/product/reports/wire/wire-automation-setup.md`.

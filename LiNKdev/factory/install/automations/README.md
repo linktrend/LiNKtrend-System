@@ -14,9 +14,10 @@ GitHub is the sync layer. Cursor and Codex automations listen to the **same labe
 
 ## Setup
 
-- [cursor/README.md](cursor/README.md)
-- [codex/README.md](codex/README.md)
-- [install/CHECKLIST.md](../install/CHECKLIST.md)
+- [cursor/README.md](cursor/README.md) — four Cursor automations + draft `.spec.md` files
+- [codex/README.md](codex/README.md) — Codex executor + draft `.spec.md`
+- [CHECKLIST.md](../CHECKLIST.md)
+- Wire log: `LiNKdev/product/reports/wire/wire-automation-setup.md`
 
 ## Benchmark hook (DS-B11)
 
