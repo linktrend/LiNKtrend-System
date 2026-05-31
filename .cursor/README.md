@@ -1,64 +1,46 @@
-# LiNKtrend Ecosystem Cursor Configuration
+# Cursor configuration (LiNKtrend-System)
 
-This `.cursor` folder is adapted from the LEXOS Cursor configuration for the broader LiNKtrend AI Agent Ecosystem build.
+This folder is the **IDE shim** for LiNKdev. The portable factory lives in **`LiNKdev/`**.
 
-It supports development of:
+## Copy to a new product repo
 
-- LiNKaios — organizational execution control plane
-- LiNKbrain — institutional memory and learning plane
-- LinkSkills — capability governance and capability lease plane
-- LiNKautowork — deterministic workflow execution plane
-- LiNKbot — role-bound AI employee runtime adapter
-- LinkSites / WebsiteFactory — first MVO vertical
+1. Copy entire **`LiNKdev/`** to the new repo root.
+2. Install the portable shim:
+   ```bash
+   cp -R LiNKdev/factory/install/portable-cursor/.cursor ./
+   ```
+3. Add product-specific rules as `.cursor/rules/01-*.mdc` … `08-*.mdc` (optional — only what that product needs).
+4. Run wire: Cursor command **Wire LiNKdev** or `LiNKdev/factory/install/WIRE-PROMPT.md`
+5. Codex UI: command **LiNKdev UI automations**
+6. **Go:** command **LiNKdev Go** (cloud Planner)
 
-## Priority Order
+See `LiNKdev/factory/install/portable-cursor/README.md` and `LiNKdev/README.md`.
 
-For this ecosystem build, agents must follow this priority order:
+## This repo (LiNKtrend-System)
 
-1. `.cursor/rules/`
-2. `.ai-swarm/ARCHITECT_REVIEW_REPORT.md`
-3. `.ai-swarm/MASTER_PLAN.md`
-4. `.ai-swarm/ARCHITECTURE_RULES.md`
-5. `.ai-swarm/CONTRACTS_MVO.md`
-6. `.ai-swarm/REPO_INVENTORY.md`
-7. `.ai-swarm/DECISIONS.md`
-8. the assigned `.ai-swarm/WORK_PACKETS/*.md`
-9. the relevant repo source files
-10. `.cursor/skills/` and `.cursor/agents/`
+| Path | Role |
+|------|------|
+| `rules/00-linkdev-bootstrap.mdc` | Always on — read `LiNKdev/` first |
+| `rules/01`–`08` | **LiNKtrend product** rules only (numbered) |
+| `skills/README.md` | Pointer — skills are in `LiNKdev/skills/` |
+| `agents/README.md` | Pointer — agents are in `LiNKdev/factory/agents/` |
+| `mcp.json` | Local MCP config (not portable; configure per machine) |
 
-The `.cursor/skills/` and `.cursor/agents/` files are selected reference capabilities only. They do not override `.ai-swarm/` work packets or architecture rules.
+## Product rules (`01`–`08`)
 
-## Mandatory Development Posture
+| # | File | Scope |
+|---|------|--------|
+| 01 | `01-identity.mdc` | LiNKtrend venture studio identity |
+| 02 | `02-ecosystem-boundaries.mdc` | LiNKaios / LiNKbrain / LinkSkills / … ownership |
+| 03 | `03-secrets-security.mdc` | GSM naming, no secrets in repo |
+| 04 | `04-mvo-scope-and-stubbing.mdc` | LinkSites MVO and acceptable stubs |
+| 05 | `05-security-cost-and-side-effects.mdc` | Capability leases, cost controls |
+| 06 | `06-database-and-api-standards.mdc` | LiNKtrend Supabase/RPC patterns |
+| 07 | `07-suite-project-terminology.mdc` | Suite / Module / Project / Phase / Issue |
+| 08 | `08-linkaios-ui-standards.mdc` | **LiNKaios shell UI only** (not generic) |
 
-The project is not greenfield. Agents must first look for reusable existing code in active and archived repos before creating new code.
+Generic UI and frontend guidance for any LiNKdev repo: **`LiNKdev/factory/rules/08-ui-and-frontend-standards.mdc`**.
 
-Known reuse anchors:
+## Legacy docs
 
-- `LiNKtrend-System` — LiNKaios monorepo and 12-route kernel UI
-- `LiNKskills` — existing Phase 0–3 logic-engine
-- `LiNKautowork` — existing n8n gateway MVO
-- `Archive/LiNKaios/packages/linkbrain` — LiNKbrain schema/migrations
-- `LiNKsites` — Payload CMS website factory and templates
-- `LiNKapps` — reusable UI/design-system ancestor
-- `LiNKbot-core` — OpenClaw-based runtime fork
-- `LiNKtrend-LEXOS` — later LawFirm vertical reference only, not first MVO
-
-## First MVO
-
-The first MVO is the LinkSites / WebsiteFactory lead-to-preview-site flow.
-
-Agents must prioritize wiring the existing ecosystem loop:
-
-LiNKaios → LiNKbot → LinkSkills → LiNKautowork → LiNKbrain → LiNKaios trace/dashboard.
-
-## Parallel Work
-
-Parallel work is allowed only through `.ai-swarm/` work packets, separate branches or worktrees, explicit allowed/prohibited files, acceptance criteria, and final handoff reports.
-
-## Non-Negotiables
-
-- Do not merge your own work.
-- Do not modify unrelated repos without explicit work-packet authority.
-- Do not add major dependencies without a decision record.
-- Do not rebuild what already exists unless the old code is unusable.
-- If blocked by CRM, Plane, preview publishing, or third-party APIs, create a documented MVO stub and continue the flow.
+Former `.cursor/LEXOS_IMPORTED_SKILLS_POLICY.md` and `SKILLS_INSTALL_SUMMARY.md` are archived under `LiNKdev/archive/cursor-docs-legacy/`.

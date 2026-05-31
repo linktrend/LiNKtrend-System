@@ -1,4 +1,4 @@
-import type { FactoryRunContext } from "@/lib/plugins/linkapps/types";
+import type { FactoryRunContext } from "@/lib/suite-integrations/linkapps/types";
 
 function statusChipClass(status: FactoryRunContext["status"]): string {
   const base =

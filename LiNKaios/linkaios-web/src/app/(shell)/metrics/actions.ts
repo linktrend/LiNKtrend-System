@@ -2,7 +2,7 @@
 
 import { buildMetricsSnapshotFromRows, type MetricsSnapshot } from "@/lib/metrics-snapshot";
 import { matchesActivityCategory, type MetricsActivityCategory } from "@/lib/metrics-filters";
-import { scopePayloadMatches, type MetricsScopeState } from "@/lib/metrics-scope-filters";
+import { scopePayloadMatches, toCanonicalMetricsScope, type MetricsScopeState } from "@/lib/metrics-scope-filters";
 import { modelFromPayload } from "@/lib/trace-metrics";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -33,7 +33,7 @@ export async function fetchMetricsSnapshot(input: {
   if (input.agentId && input.agentId !== "all") {
     const { data: ms, error: mErr } = await supabase
       .schema("linkaios")
-      .from("missions")
+      .from("projects")
       .select("id")
       .eq("primary_agent_id", input.agentId);
     if (mErr) return { ok: false, error: mErr.message };
@@ -95,7 +95,7 @@ export async function fetchMetricsSnapshot(input: {
   if (missionIds.length > 0) {
     const { data: missions } = await supabase
       .schema("linkaios")
-      .from("missions")
+      .from("projects")
       .select("id, title, primary_agent_id")
       .in("id", missionIds);
     for (const m of missions ?? []) {
@@ -133,16 +133,11 @@ export async function fetchMetricsSnapshot(input: {
 
   const scope = input.scope;
   if (scope) {
-    const fullScope: MetricsScopeState = {
-      module: scope.module ?? "all",
-      projectType: scope.projectType ?? "all",
-      workflow: scope.workflow ?? "all",
-      issue: scope.issue ?? "all",
-    };
+    const fullScope = toCanonicalMetricsScope(scope);
     const hasScope =
+      fullScope.suite !== "all" ||
       fullScope.module !== "all" ||
-      fullScope.projectType !== "all" ||
-      fullScope.workflow !== "all" ||
+      fullScope.phase !== "all" ||
       fullScope.issue !== "all";
     if (hasScope) {
       filtered = filtered.filter((r) => scopePayloadMatches(r.payload ?? {}, fullScope));

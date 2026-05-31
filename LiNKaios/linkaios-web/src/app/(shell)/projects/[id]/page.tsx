@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 
-import { getMissionById } from "@linktrend/linklogic-sdk";
+import { getProjectById } from "@linktrend/linklogic-sdk";
 
 import { LeadLinkbotAffordance } from "@/components/lead-linkbot-affordance";
 import { ProjectDetailMetaGrid } from "@/components/project-detail-meta-grid";
@@ -192,13 +192,13 @@ export default async function MissionDetailPage(props: {
   }
 
   const supabase = await createSupabaseServerClient();
-  const { data: mission, error: mErr } = await getMissionById(supabase, id);
+  const { data: project, error: mErr } = await getProjectById(supabase, id);
 
-  if (mErr || !mission) {
+  if (mErr || !project) {
     notFound();
   }
 
-  const m = mission as { id: string; title: string; status: string; primary_agent_id: string | null };
+  const m = project as { id: string; title: string; status: string; primary_agent_id: string | null };
   const bridge = DEMO_MISSION_PLANE_BRIDGE[m.id];
   const livePlaneHref = planeProjectBoardHref(planeCfg, bridge?.code ?? null) ?? planeProjectsHref;
 

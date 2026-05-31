@@ -1,4 +1,4 @@
-import type { SquadRoleRowFixture } from "@/lib/plugins/linkapps/types";
+import type { SquadRoleRowFixture } from "@/lib/suite-integrations/linkapps/types";
 
 function roleStateLabel(state: SquadRoleRowFixture["state"]): string {
   return state;

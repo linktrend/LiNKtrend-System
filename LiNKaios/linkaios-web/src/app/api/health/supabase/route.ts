@@ -35,7 +35,7 @@ export async function GET() {
           message: error.message,
           hint:
             error.code === "PGRST106"
-              ? "Expose schemas linkaios,bot_runtime,prism,gateway in Supabase API settings, and run ALL_IN_ONE.sql if tables are missing."
+              ? "Expose schemas linkaios,bot_runtime,linkguard,gateway in Supabase API settings, and run ALL_IN_ONE.sql if tables are missing."
               : undefined,
         },
         { status: 503 },

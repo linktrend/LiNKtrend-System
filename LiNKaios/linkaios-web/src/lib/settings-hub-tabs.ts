@@ -56,7 +56,7 @@ function isPlatformSubRoute(path: string): boolean {
     path.startsWith("/settings/advanced") ||
     path.startsWith("/settings/tools") ||
     path.startsWith("/settings/traces") ||
-    path.startsWith("/settings/prism") ||
+    path.startsWith("/settings/linkguard") ||
     path.startsWith("/settings/gateway") ||
     path.startsWith("/settings/governance")
   );

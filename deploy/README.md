@@ -7,7 +7,7 @@ This folder holds **Dockerfiles** for the current deployable service entrypoints
 | LiNKaios (`linkaios-web`) | `docker/linkaios-web.Dockerfile` | **3000** |
 | `zulip-gateway` | `docker/zulip-gateway.Dockerfile` | **8790** |
 | `bot-runtime` | `docker/bot-runtime.Dockerfile` | *(none — outbound only)* |
-| `linkguard` / legacy `prism-defender` package | `docker/prism-defender.Dockerfile` | *(none)* |
+| `linkguard` | `docker/linkguard.Dockerfile` | *(none)* |
 
 The **Compose file** lives at the **repository root**: `docker-compose.linktrend.yml`, so Docker can read your **`.env`** for both **build-time** and **runtime** settings.
 
@@ -35,7 +35,7 @@ docker compose -f docker-compose.linktrend.yml up
 
 ## LiNKguard and disk paths
 
-If you enable filesystem cleanup, set `PRISM_RESIDUE_ROOTS` to **directories inside the container** and mount matching **volumes** from the host (example: add a `volumes:` block under the LiNKguard/legacy `prism-defender` service in the Compose file). Do not point LiNKguard at host paths that are not mounted into its container.
+If you enable filesystem cleanup, set `PRISM_RESIDUE_ROOTS` to **directories inside the container** and mount matching **volumes** from the host (example: add a `volumes:` block under the **`linkguard`** service in `docker-compose.linktrend.yml`). Do not point LiNKguard at host paths that are not mounted into its container.
 
 ## Security notes
 

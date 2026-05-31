@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 
+import { resolveProjectIdFromProps } from "@/lib/api/project-mission-id";
 import { isUiMocksEnabled } from "@/lib/ui-mocks/flags";
 import { demoProjectModules } from "@/lib/project-modules-data";
 
@@ -8,9 +9,14 @@ function cadenceLabel(continuous: boolean): string {
   return continuous ? "Continuous" : "Once";
 }
 
-export async function ProjectModulesPanel(props: { missionId: string }) {
-  const modules = isUiMocksEnabled() ? demoProjectModules(props.missionId) : [];
-  const base = `/projects/${encodeURIComponent(props.missionId)}`;
+export async function ProjectModulesPanel(props: {
+  projectId?: string;
+  /** @deprecated Use projectId */
+  missionId?: string;
+}) {
+  const projectId = resolveProjectIdFromProps(props);
+  const modules = isUiMocksEnabled() ? demoProjectModules(projectId) : [];
+  const base = `/projects/${encodeURIComponent(projectId)}`;
 
   if (modules.length === 0) {
     return (

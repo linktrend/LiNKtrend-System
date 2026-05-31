@@ -3,7 +3,7 @@
 import { BarChart3, TrendingDown, TrendingUp, Minus } from "lucide-react";
 
 import { SummaryMetricCard } from "@/components/summary-metric-card/summary-metric-card";
-import type { TraceMetric } from "@/lib/plugins/linkapps/types/trace";
+import type { TraceMetric } from "@/lib/suite-integrations/linkapps/types/trace";
 
 export type TraceMetricCardProps = {
   /** Metric data to display */

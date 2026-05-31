@@ -3,7 +3,7 @@ import { log } from "@linktrend/observability";
 import type { Env } from "@linktrend/shared-config";
 
 function retentionDays(env: Env): number {
-  const raw = env.PRISM_RETENTION_DAYS;
+  const raw = env.LINKGUARD_RETENTION_DAYS ?? env.PRISM_RETENTION_DAYS;
   if (raw == null || raw === "") return 14;
   const n = Number(raw);
   if (!Number.isFinite(n) || n < 1) return 14;
@@ -11,7 +11,7 @@ function retentionDays(env: Env): number {
 }
 
 /**
- * Deletes old `sidecar_heartbeat` rows from `prism.cleanup_events` (service role).
+ * Deletes old `sidecar_heartbeat` rows from `linkguard.cleanup_events` (service role).
  */
 export async function pruneOldHeartbeats(env: Env): Promise<void> {
   const days = retentionDays(env);
@@ -19,7 +19,7 @@ export async function pruneOldHeartbeats(env: Env): Promise<void> {
   const client = createSupabaseServiceClient(env);
 
   const { error, count } = await client
-    .schema("prism")
+    .schema("linkguard")
     .from("cleanup_events")
     .delete({ count: "exact" })
     .eq("action", "sidecar_heartbeat")
@@ -27,14 +27,14 @@ export async function pruneOldHeartbeats(env: Env): Promise<void> {
 
   if (error) {
     log("warn", "heartbeat retention prune failed", {
-      service: "prism-defender",
+      service: "linkguard",
       message: error.message,
     });
     return;
   }
   if (count && count > 0) {
     log("info", "pruned old sidecar heartbeats", {
-      service: "prism-defender",
+      service: "linkguard",
       deleted: count,
       retentionDays: days,
     });

@@ -7,13 +7,19 @@ export {
 
 export { recordTrace } from "./trace.js";
 
-export { recordPrismSessionEnd } from "./prism-session-end.js";
-export type { PrismSessionEndDetail } from "./prism-session-end.js";
+export { recordLinkguardSessionEnd } from "./linkguard-session-end.js";
+export type { LinkguardSessionEndDetail } from "./linkguard-session-end.js";
+/** @deprecated Use recordLinkguardSessionEnd */
+export { recordLinkguardSessionEnd as recordPrismSessionEnd } from "./linkguard-session-end.js";
+/** @deprecated Use LinkguardSessionEndDetail */
+export type { LinkguardSessionEndDetail as PrismSessionEndDetail } from "./linkguard-session-end.js";
 
 export { resolveSkillByName, resolveSkillFullForExecution } from "./resolve-skill.js";
 
 export { assertResolvedApprovedSkill } from "./enforcement.js";
 
+export { listProjects, getProjectById, listManifestsForProject } from "./projects-catalog.js";
+/** @deprecated Use listProjects / getProjectById / listManifestsForProject. */
 export { listMissions, getMissionById, listManifestsForMission } from "./missions-catalog.js";
 export { listMemoryEntries } from "./memory-catalog.js";
 export type { MemoryEntryRow } from "./memory-catalog.js";
@@ -284,7 +290,7 @@ export type {
 } from "./brain-traces.js";
 
 // MVO cross-service contract schemas + types. Canonical source:
-// `.ai-swarm/CONTRACTS_MVO.md`. Pinned by WP-005.
+// `LiNKdev/product/grounding/CONTRACTS_MVO.md`. Pinned by WP-005.
 export {
   AUDIT_ACTIONS,
   ActorKindSchema,

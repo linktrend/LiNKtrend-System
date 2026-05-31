@@ -1,4 +1,4 @@
-import type { HandoffPackFixture } from "@/lib/plugins/linkapps/types";
+import type { HandoffPackFixture } from "@/lib/suite-integrations/linkapps/types";
 
 export function LinkappsHandoffPackPanel(props: { handoff: HandoffPackFixture }) {
   const { handoff } = props;

@@ -1,7 +1,11 @@
 /** Core identity — immutable agent id in architecture terms. */
 export type AgentId = string;
 
-export type MissionId = string;
+/** Canonical project identifier (LiNKaios tenant work unit). */
+export type ProjectId = string;
+
+/** @deprecated Use {@link ProjectId} — removed in Phase D when DB/RPC columns migrate. */
+export type MissionId = ProjectId;
 
 export type SkillId = string;
 
@@ -11,13 +15,17 @@ export type TraceId = string;
 
 export type AgentStatus = "active" | "inactive" | "retired";
 
-export type MissionStatus =
+/** Canonical project lifecycle status. */
+export type ProjectStatus =
   | "draft"
   | "assigned"
   | "running"
   | "completed"
   | "failed"
   | "cancelled";
+
+/** @deprecated Use {@link ProjectStatus}. */
+export type MissionStatus = ProjectStatus;
 
 export type SkillStatus = "draft" | "approved" | "deprecated";
 
@@ -40,15 +48,22 @@ export interface AgentRecord {
   updated_at: string;
 }
 
-export interface MissionRecord {
-  id: MissionId;
+/** Canonical LiNKaios project row (Supabase `linkaios.missions` until Phase D). */
+export interface ProjectRecord {
+  id: ProjectId;
   title: string;
-  status: MissionStatus;
+  status: ProjectStatus;
   primary_agent_id: AgentId | null;
-  /** Mission / project head for dual tool-governance approvals (Supabase `project_head_user_id`). */
+  /** Project head for dual tool-governance approvals (Supabase `project_head_user_id`). */
   project_head_user_id?: string | null;
   created_at: string;
   updated_at: string;
+}
+
+/** @deprecated Use {@link ProjectRecord}. */
+export interface MissionRecord extends ProjectRecord {
+  id: MissionId;
+  status: MissionStatus;
 }
 
 /**

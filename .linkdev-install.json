@@ -1,0 +1,7 @@
+{
+  "template_repo": "linktrend/LiNKdev",
+  "installation_id": "linktrend-system",
+  "product_repo": "linktrend/LiNKtrend-System",
+  "sync_branch": "development",
+  "accept_upstream_sync": true
+}

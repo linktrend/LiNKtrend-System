@@ -1,4 +1,4 @@
-import type { LinkappsFactoryFixture } from "@/lib/plugins/linkapps/types";
+import type { LinkappsFactoryFixture } from "@/lib/suite-integrations/linkapps/types";
 
 import { LinkappsAuditSpine } from "@/components/linkapps/linkapps-audit-spine";
 import { LinkappsBlueprintIntakePanel } from "@/components/linkapps/linkapps-blueprint-intake-panel";

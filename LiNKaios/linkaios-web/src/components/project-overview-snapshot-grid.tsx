@@ -9,13 +9,17 @@ import {
 import { SummaryMetricCard } from "@/components/summary-metric-card/summary-metric-card";
 import { SummaryMetricCardGrid } from "@/components/summary-metric-card/summary-metric-card-grid";
 import type { ProjectOverviewSnapshot } from "@/lib/project-overview-data";
+import { resolveProjectIdFromProps } from "@/lib/api/project-mission-id";
 import { SUMMARY_METRIC_CARD } from "@/lib/ui-standards";
 
 export function ProjectOverviewSnapshotGrid(props: {
-  missionId: string;
+  projectId?: string;
+  /** @deprecated Use projectId */
+  missionId?: string;
   snapshot: ProjectOverviewSnapshot;
 }) {
-  const base = `/projects/${encodeURIComponent(props.missionId)}`;
+  const projectId = resolveProjectIdFromProps(props);
+  const base = `/projects/${encodeURIComponent(projectId)}`;
   const s = props.snapshot;
 
   return (

@@ -1,8 +1,8 @@
 /**
  * LEXOS Litigation Module Contract Types
  *
- * Canonical source: `.ai-swarm/LEXOS_VERTICAL_PLUGIN_CONVERSION_PLAN.md`
- * Contract patterns: `.ai-swarm/CONTRACTS_MVO.md`
+ * Canonical source: `LiNKdev/product/grounding/LEXOS_VERTICAL_PLUGIN_CONVERSION_PLAN.md`
+ * Contract patterns: `LiNKdev/product/grounding/CONTRACTS_MVO.md`
  *
  * These types define the work request/response contracts for the LEXOS litigation
  * module. They follow the same patterns as the LinkSites contracts

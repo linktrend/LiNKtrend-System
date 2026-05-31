@@ -6,13 +6,13 @@ import {
   type BrainVirtualFileEnriched,
   type MemoryEntryRow,
 } from "@linktrend/linklogic-sdk";
-import type { MissionRecord } from "@linktrend/shared-types";
+import type { ProjectRecord } from "@linktrend/shared-types";
 
 import type { LinkbrainOverviewBrain, LinkbrainPageData, MissionMemoryRow } from "@/lib/linkbrain-data";
 import type { LinkbrainTab } from "@/lib/linkbrain-data";
 import { DEMO_BRAIN_AGENTS } from "@/lib/ui-mocks/linkbrain-demo-agents";
 
-const MOCK_MISSION: MissionRecord = {
+const MOCK_MISSION: ProjectRecord = {
   id: "00000000-0000-4000-8000-00000000d101",
   title: "Acme rollout — governance pack",
   status: "running",

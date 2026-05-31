@@ -26,6 +26,17 @@ See `../../docs/architecture/system-completion-targets.md` for the LinkSkills co
 - storing real credentials
 - bypassing LinkSkills leases
 
+## Layout (Tier 2 consolidation)
+
+| Path | Purpose |
+|------|---------|
+| `cap.*.yaml` (root) | LiNKapps and cross-suite connector declarations (canonical). |
+| `lexos/` | LEXOS practice-area capability plugin manifests. |
+| `catalog/` | Cross-vertical catalog seeds and loader guidance (WP-114). |
+| `linksites/` | LinkSites-specific connector packaging (e.g. manifest.ts). |
+
+Kernel copies under `packages/linkaios-kernel/plugins/capabilities/` are deprecated stubs for linkapps only until Tier 2 linkapps removal; LEXOS and catalog moved here.
+
 ## Connector Registry
 
 See `connector-registry.md`.

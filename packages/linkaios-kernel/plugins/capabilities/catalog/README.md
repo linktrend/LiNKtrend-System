@@ -1,12 +1,8 @@
-# Capability catalog seeds (declaration-only)
+# Capability catalog seeds (moved)
 
-This directory hosts **YAML seeds** consumed later by kernel / LinkSkills catalog loaders. WP-114 adds cross-vertical reconciliation only; **no runtime provider code** lives here.
+Canonical catalog: **`LiNKskills/capability-connectors/catalog/`**
 
-## Layout
+- `LOADER_GUIDANCE.v1.yaml`
+- `seeds/cross_vertical_catalog.v1.yaml`
 
-| Path | Purpose |
-|------|---------|
-| `LOADER_GUIDANCE.v1.yaml` | Validation expectations for future automated loading (schema hints, uniqueness rules). |
-| `seeds/cross_vertical_catalog.v1.yaml` | Canonical capability rows merging LinkSites (CONTRACTS_MVO §0.A.5.1), LiNKapps manifest, LEXOS manifests. |
-
-Authoritative LEXOS manifests remain under `packages/linkaios-kernel/plugins/capabilities/lexos/`. Seeds reference them by stable `capability_id` only.
+This kernel directory is a relocation stub only. Do not add new seeds here.

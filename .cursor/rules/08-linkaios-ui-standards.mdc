@@ -1,0 +1,292 @@
+---
+description: LiNKtrend product UI — LiNKaios shell, tokens, suites/projects terminology in UI only.
+alwaysApply: false
+---
+
+# LiNKaios UI Standards (product-only)
+
+**Index:** `LiNKaios/linkaios-web/docs/ui-system.md` — read first for layer map, paths, and BUTTON → shadcn migration table.
+
+Use existing LiNKaios routes and components before creating new UI.
+
+**New UI in `linkaios-web`:** shadcn/ui primitives from `@/components/ui/*` + LiNKaios composites and tokens from `ui-standards.ts` (data-table, action-queue, summary-metric-card, forms, shell chrome). Do not hand-roll parallel button, table, breadcrumb, or page-title patterns.
+
+Also prefer Tailwind, existing `packages/ui`, and reusable patterns from `LiNKapps/packages/ui` / `@starter/ui` where appropriate for non–linkaios-web surfaces.
+
+Do not rebuild the design system during the MVO.
+
+MVO UI requirements are functional traceability and operator clarity, not pixel-perfect polish.
+
+The dashboard should make the lead-to-preview-site flow visible:
+
+- lead
+- bot
+- capability lease/run
+- LiNKautowork workflow
+- LiNKbrain event/audit
+- preview site
+- CRM/Plane status
+- errors/blockers
+
+## Central tokens
+
+Import layout and table tokens from `LiNKaios/linkaios-web/src/lib/ui-standards.ts` (`FIELD`, `BUTTON`, `TABLE`, `TABS`, `BADGE`, `SHELL`, etc.). Do not invent parallel button, table header, breadcrumb, or page title classes.
+
+## Shell page chrome (mandatory)
+
+Every `(shell)` route follows the **Work** page pattern — two rows above page content, owned by `ShellMainFrame`:
+
+1. **Breadcrumb row** — `SHELL.breadcrumbRow` with `AutoBreadcrumbs` + `ShellChromeToolbar` (`LiNKaios / …`). Never render fake breadcrumb trails inside page `main`.
+2. **Page header** — `ShellPageHeader` / `ShellPageHeaderClient` via `SHELL.pageHeader`: Title Case title (`formatShellPageTitle`), one-line subtitle, optional actions **on the subtitle row** (`SHELL.pageSubtitleRow`) so action buttons align with the subtitle baseline — not beside the title.
+
+Rules:
+
+- **One header per page** — no duplicate title, subtitle, or breadcrumb inside page content.
+- **Add actions** — page-level create affordances use **`BUTTON.addRow`** with label **`Add {Entity}`** (e.g. Add Project, Add LiNKbot, Add Skill, Add Tool, Add Company, Add Knowledge). Same outlined black family as governance row buttons (`editRow`, `approveOutlineRow`).
+- Pages with custom headers (actions, dynamic titles) use `ShellPageHeaderClient` in the page or section layout and must be listed in `suppressesAutoShellPageHeader()` in `lib/shell-page-meta.ts`.
+- Settings subpages get their header from `SettingsLayoutChrome` + `resolveSettingsSubpageMeta()` — do not add inline `h1`/`h2` page titles on settings routes.
+- Register static title/subtitle pairs in `shell-page-meta.ts` when using the auto header fallback.
+
+Example:
+
+```tsx
+<main className="space-y-8">
+  <ShellPageHeaderClient
+    title="All Work"
+    subtitle="Pick a category below, or work through the list of items that need you."
+    actions={optionalActions}
+  />
+  {/* page sections — no second page title */}
+</main>
+```
+
+## Title Case for headings and labels (mandatory)
+
+Capitalize the **first letter of each word** in user-visible titles and labels.
+
+**Applies to:**
+
+- Shell page titles (`formatShellPageTitle()` / `ShellPageHeader`)
+- Section card headings (`h2` / `h3` in settings, modules, profiles)
+- Form field labels (`<label>`, read-only field labels, definition-list keys)
+- Sidebar, subnav, and tab labels
+- Table column headers (see below)
+- Summary metric card titles (`formatCardTitle()`)
+
+**Does not apply to:**
+
+- Page subtitles — one sentence, sentence case
+- Status pill labels — sentence case (`Review`, `Needs action`)
+- Body copy, placeholders, and toast sentences — keep minimal; see **No UI hint panels** below
+- Short button verbs alone (`Save`, `Edit`, `Cancel`) — entity buttons use Title Case nouns (`Add Project`)
+
+## No UI hint panels (mandatory)
+
+The UI speaks through labels, layout, and affordances — not explanatory essays.
+
+**Do not add unless the user explicitly asks:**
+
+- Intro paragraphs above feature sections (“User does X, Admin does Y…”)
+- Role-definition cards with long summaries on overview or dashboard pages
+- Helper banners that restate what the page already shows
+- `TitledCardHeader` / section `description` props that explain obvious functionality
+- Matrix or table sub-lines that duplicate the row title
+
+**Where detail belongs:**
+
+- **Agent / dev guidance** — file-level comments, `app-roles.ts` agent reference block, skills, rules (not rendered UI)
+- **Settings reference** — permission matrix row **titles only** (checks show allow/deny); no paragraph under each row
+- **Errors and blockers** — one short inline message when action fails or access is denied (e.g. `Super Admin only.`)
+
+**Default:** implement the control or surface; use Title Case labels and standard components; skip the tutorial copy.
+
+**Rules:**
+
+- Prefer `formatUiLabel()`, `formatShellPageTitle()`, `formatTableColumnLabel()`, or `TABLE_COLUMN.*` — do not hand-type `Display name` when the standard is `Display Name`
+- Never fake Title Case with CSS `uppercase`, `tracking-wide`, or ALL CAPS on field/section labels
+- **`AutoBreadcrumbs`** — unknown path segments use `formatUiLabel(seg.replace(/-/g, " "))`; settings leaf crumbs prefer `resolveSettingsSubpageMeta()` so they match the page title
+- Preserve LiNK* product names (`LiNKaios`, `LiNKbrain`) via the formatters in `ui-standards.ts`
+- Ampersands: `Privacy & Data`, not `Privacy & data`
+
+```tsx
+<h3>{formatUiLabel("Basic information")}</h3>
+<label className={FIELD.label}>{formatUiLabel("Display name")}</label>
+<th className={TABLE.thText}>{TABLE_COLUMN.projectType}</th>
+```
+
+## Table column headers (mandatory)
+
+All data tables in LiNKaios shell UI must use the shared `TABLE` tokens:
+
+- `<thead className={TABLE.thead}>` (or `TABLE.theadBordered` when the row needs a bottom border)
+- `<th className={...TABLE.thText}>` for text columns; `TABLE.thControl` for badges, toggles, and action clusters
+- **Title Case labels** — capitalize the first letter of each word: `Issue`, `Project Type`, `Last Activity`, `Plane Sync`
+- Prefer `TABLE_COLUMN` constants or `formatTableColumnLabel()` from `ui-standards.ts` — do not hand-type mixed-case headers
+- **Never** use `uppercase`, `tracking-wide`, or ALL CAPS in `<th>` labels
+- **Bold** headers via `TABLE` tokens (`font-bold` is built in)
+- Header cells must show **visible text**; do not hide column titles in `sr-only` while showing icons only
+- Dynamic keys: use `formatTableColumnLabel()` from `ui-standards.ts` for snake_case fields
+
+Examples:
+
+```tsx
+<thead className={TABLE.thead}>
+  <tr>
+    <th className={`px-4 py-3 ${TABLE.thText}`}>{TABLE_COLUMN.projectType}</th>
+    <th className={`px-2 py-3 ${TABLE.thControl}`}>
+      <div className={TABLE.thControlInner}>{TABLE_COLUMN.planeSync}</div>
+    </th>
+  </tr>
+</thead>
+```
+
+Section headings outside tables use the same **Title Case** rule as page titles — not CSS uppercase.
+
+## Status pills and badges (GLOBAL-001, mandatory)
+
+Use **`StatusPill`** or **`DomainStatusPill`** from `@/components/ui/status-pill` for every status indicator. Do not invent ad-hoc badge/pill classes.
+
+Visual language (from `lib/status-colors.ts` → `STATUS_PILL`):
+
+- Rounded-full, `text-xs`, **`font-semibold`**, soft fill + **`ring-1`** (ring darker than fill)
+- Canonical tones only: `success`, `warning`, `danger`, `active`, `info`, `neutral`
+- **Sentence-case labels** — `Review`, `Needs action`, `OK` (never ALL CAPS)
+
+### Equal width within a group
+
+On each page or visual group (table column, card row, queue badge cluster):
+
+- **Every pill in that group must share the same fixed width**
+- Width is derived from the **longest possible label in that group** — include labels that can appear even if none are visible right now (e.g. work-stream cards always size from `Needs action`, `Review`, and `OK`)
+- Use `statusPillEqualWidthCh(labels)` / `statusPillEqualWidthClass(labels)` in `lib/status-colors.ts` — renders **`w-[Nch]`** (fixed width, not `min-w`)
+- Apply width via one of:
+  - **`equalWidthLabels={WORK_STREAM_STATUS_PILL_LABELS}`** (or equivalent **full option set**) on **every** pill in the group — preferred; do not rely on context alone across server/client boundaries
+  - **`StatusPillWidthProvider`** + **`equalWidth`** on pills (`SummaryMetricCardGrid` `statusPillLabels`) — sets `--status-pill-width-ch` for title-row padding
+  - **`equalWidth`** on **`DomainStatusPill`** — auto-sizes from all labels in that domain map
+- Pills also apply inline `width` / `minWidth` / `maxWidth` via `statusPillEqualWidthStyle()` so OK and Review render identically
+- Never add custom `w-[…]` / `min-w-[…]` on status pills unless extending `statusPillEqualWidthClass` centrally first
+
+Exceptions: **interactive filter toggles** (inbox filter chips, fleet presence filters) are buttons, not status pills — they may keep compact toggle styling.
+
+Legacy **`BADGE.*`** in `ui-standards.ts` is for fleet/session chips being migrated — new work uses `StatusPill`.
+
+## Summary metric cards (mandatory)
+
+Dashboard **stream / stat / lifecycle summary** tiles use **`SummaryMetricCard`** + **`SummaryMetricCardGrid`** from `@/components/summary-metric-card` with tokens from **`SUMMARY_METRIC_CARD`** in `ui-standards.ts`.
+
+Layout rules:
+
+1. **Corner badge (optional)** — status pill in `SUMMARY_METRIC_CARD.badgeWrap` (top-right, overlapping the card edge). Pass **all possible** pill labels via `SummaryMetricCardGrid` `statusPillLabels` (e.g. `WORK_STREAM_STATUS_PILL_LABELS`).
+2. **Title row (single line, fully visible)** — icon + **sentence-case title** via `formatCardTitle()` on **one line** (`whitespace-nowrap`, no truncate). Place as high as possible below the badge (`mt-0`, card `pt-4`); reserve pill width with `pr-[calc(var(--status-pill-width-ch)*1ch+0.75rem)]`.
+3. **Primary metric** — large tabular number (`SUMMARY_METRIC_CARD.metric` or `metricCompact`).
+4. **Preview line (optional)** — one or two lines (`SUMMARY_METRIC_CARD.preview`, `line-clamp-2`).
+5. **Row alignment** — wrap cards in `SummaryMetricCardGrid` (`items-stretch` + `auto-rows-fr`) so when one card’s preview wraps, **all cards in the row grow** and metric/preview baselines stay aligned.
+
+Example:
+
+```tsx
+<SummaryMetricCardGrid className="mt-3" statusPillLabels={WORK_STREAM_STATUS_PILL_LABELS}>
+  <SummaryMetricCard
+    href="/work/alerts"
+    title="Alerts"
+    icon={AlertTriangle}
+    metric={2}
+    preview="Fixture · integration latency"
+    badge={<StatusPill label="Review" tone="warning" equalWidthLabels={WORK_STREAM_STATUS_PILL_LABELS} />}
+  />
+</SummaryMetricCardGrid>
+```
+
+Do not rebuild this layout inline on new pages — extend `SummaryMetricCard` or add a preset grid under `@/components/summary-metric-card/`.
+
+### Preset grids (reuse before inventing)
+
+| Preset | Use for |
+|--------|---------|
+| `WorkStreamCard` + `SummaryMetricCardGrid` | `/work` stream tiles with status pills |
+| `ProjectLifecycleSummaryGrid` | Project lifecycle counts |
+| `FleetSummaryStatsGrid` | LiNKbot fleet totals |
+| `CapabilitiesCatalogStatsGrid` | Skills/tools catalogue stats |
+| `LeaseSummaryStatsGrid` | Capability lease summary |
+| `CockpitSummaryStatsGrid` | Cockpit dashboard stats |
+| `OverviewWorkforceSummaryGrid` | Overview workforce panel |
+| `OverviewProjectsSummaryGrid` | Overview projects panel |
+| `MetricsKpiSummaryGrid` | Metrics KPI row |
+| `LinkguardSummaryStatsGrid` | Settings → LiNKguard stats |
+
+New dashboard stat rows: add a preset in `components/summary-metric-card/` and export from `index.ts`.
+
+## Data Table — Family A (mandatory)
+
+Columnar **HTML `<table>`** surfaces use **`@/components/data-table`** with tokens from **`DATA_TABLE`** and composed classes from **`DT`**.
+
+Rules:
+
+1. **`DataTableShell`** wrapper; `scrollableBody` when height-capped.
+2. **`table-fixed`** + `<colgroup>` — avoid horizontal scroll at shell width.
+3. **Header alignment matches cells** — text left (`DT.thText`), controls centered (`DT.thControl`), numeric right when applicable (`DT.thNumeric`).
+4. **Equal row height** — `DT.tr` or `DT.trMultiline`; clip text with `DT.tdClip` + `DT.tdTextSpan` / `DT.tdWrapSpan` (max 3 lines in wrap cells).
+5. **Toggles** — `TableBoolToggle` only. **Actions** — bare `DataTableIconAction` icons.
+6. **No redundant name links** when the actions column duplicates navigation.
+7. **Too many columns** — details modal + `ExternalLink` icon column.
+
+Do not build inline `overflow-x-auto rounded-xl border` tables. Extend catalogue presets or `EntityTable` first.
+
+Agent skill: `.cursor/skills/data-table/SKILL.md`. Module README: `LiNKaios/linkaios-web/src/components/data-table/README.md`.
+
+## Action Queue — Family B (mandatory)
+
+Feed-style attention rows (**not** HTML tables) use **`ActionQueueList`** + **`ActionQueueRow`** with **`ACTION_QUEUE`** tokens.
+
+Rules:
+
+1. **Always 3 lines** — title, subtitle, meta (`\u00A0` when empty); equal `gap-1` spacing.
+2. **Single action** — whole row clickable (`href` or `onRowClick`); **no icons**.
+3. **Multiple actions** — icon rail at far right; row click disabled; no chevron; no divider before icons.
+4. Left accent stripe + matching hover (`action-queue-accent.ts`).
+
+Do not use HTML `<table>` for attention feeds. Use **Data Table** for columnar session/settings lists.
+
+Agent skill: `.cursor/skills/action-queue/SKILL.md`. Module README: `LiNKaios/linkaios-web/src/components/action-queue/README.md`.
+
+## Form fields (mandatory)
+
+All **stacked** label + control forms in `linkaios-web` must use the shared form system — do not hand-roll `<label><span className={FIELD.label}>…</span><input className="mt-1 …">`.
+
+**Components:** `@/components/forms` — `FormField`, `FormSelect`, `FormTextInput`, `FormTextarea`, `InsetSelect`.
+
+**Label spacing**
+
+- Prefer **`FormField`** — label row uses `FORM.labelRow` (`mb-1.5` below label before control).
+- If you must use a raw `<label>`, wrap with **`FORM.fieldStack`** (`gap-1.5`) — never `mt-1` on the control alone.
+
+**Selects (dropdown chevron)**
+
+- Never use raw `<select className={FIELD.control}>` or `FIELD.controlCompact` — the browser draws a flush-right native chevron.
+- Always **`FormSelect`** (options API) or **`InsetSelect`** (native children / `optgroup`) with:
+  - `appearance-none` via `FIELD.select` / `FIELD.selectCompact` / `FIELD.selectFull`
+  - Custom chevron in `FORM.selectChevronWrap` at `right-3.5` (standard) or `right-2.5` (compact)
+  - Right padding `pr-10` (standard) or `pr-8` (compact) so text does not sit under the chevron
+
+**Tokens:** `FORM`, `FIELD.select*`, `FIELD.textarea` in `ui-standards.ts`.
+
+## Personal information forms (mandatory)
+
+Any form collecting **name, address, phone, or email** for a person must use the shared form system — do not hand-roll field groups.
+
+**Components:** `@/components/forms` — `PersonalNameFields`, `PersonalAddressFields`, `PersonalPhoneFields`, `FormField`, `FormSelect`, `FormTextInput`, `FormTextarea`.
+
+**Rules:**
+
+- **Name:** Title (dropdown) + First + Middle + Last — always together (`FORM.nameGroup`)
+- **Address:** Street 1, Line 2, City, State/Region, Postal Code, Country — country dropdown (all countries, A–Z); state/region dropdown when known; postal dropdown when lookup exists (`form-geo-data.ts`)
+- **Phone:** Country code dropdown (`Country (+code)`) + number field
+- **Required:** red asterisk on label + `Required` top-right; red border + inline error on failed submit
+- **Validation:** placeholders (`you@company.com`), hints below field, live requirement checklist (green when met) for email/username/password-style fields
+- **Selects:** `FormSelect` or `InsetSelect` only — see **Form fields** above
+
+**Tokens:** `FORM` and `FIELD.select*` in `ui-standards.ts`. Validation: `form-validation.ts`.
+
+Agent skill: `.cursor/skills/personal-information-forms/SKILL.md`.
+
+Also follow general form UX: single-column related groups, concise fields, inline validation ([CXL](https://cxl.com/blog/form-design-best-practices/), [IxDF](https://ixdf.org/literature/article/ui-form-design), [UX Design Institute](https://www.uxdesigninstitute.com/blog/guide-to-form-design-with-tips/)).

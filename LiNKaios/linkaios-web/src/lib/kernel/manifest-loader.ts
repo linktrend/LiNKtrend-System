@@ -16,7 +16,7 @@ import {
   type Plane,
 } from "@linktrend/linklogic-sdk";
 import type { Env } from "@linktrend/shared-config";
-import { getWebsiteFactoryManifest } from "@/lib/plugins/websitefactory";
+import { getWebsiteFactoryManifest } from "@/lib/suite-integrations/websitefactory";
 
 // WebsiteFactory manifest per LINKAIOS_KERNEL_MANIFEST.md §4
 const WEBSITEFACTORY_MANIFEST: PluginManifest = {

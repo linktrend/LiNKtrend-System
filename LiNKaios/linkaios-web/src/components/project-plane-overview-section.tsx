@@ -1,7 +1,8 @@
 import {
-  DEMO_MISSION_DETAIL_SPECS,
-  DEMO_MISSION_PLANE_BRIDGE,
-} from "@/lib/ui-mocks/missions-fixtures";
+  DEMO_PROJECT_DETAIL_SPECS,
+  DEMO_PROJECT_PLANE_BRIDGE,
+} from "@/lib/ui-mocks/projects-fixtures";
+import { resolveProjectIdFromProps } from "@/lib/api/project-mission-id";
 import { isUiMocksEnabled } from "@/lib/ui-mocks/flags";
 import {
   getPlaneBridgeConfig,
@@ -17,11 +18,11 @@ type PlaneField = {
   value: string;
 };
 
-function planeFieldsForMission(missionId: string): PlaneField[] | null {
+function planeFieldsForProject(projectId: string): PlaneField[] | null {
   if (!isUiMocksEnabled()) return null;
 
-  const bridge = DEMO_MISSION_PLANE_BRIDGE[missionId];
-  const spec = DEMO_MISSION_DETAIL_SPECS[missionId];
+  const bridge = DEMO_PROJECT_PLANE_BRIDGE[projectId];
+  const spec = DEMO_PROJECT_DETAIL_SPECS[projectId];
   if (!bridge || !spec) return null;
 
   return [
@@ -44,12 +45,17 @@ const PLACEHOLDER_FIELDS: PlaneField[] = [
 ];
 
 /** Reserved overview block for Plane board context (cycles, work items, blockers). */
-export async function ProjectPlaneOverviewSection(props: { missionId: string }) {
+export async function ProjectPlaneOverviewSection(props: {
+  projectId?: string;
+  /** @deprecated Use projectId */
+  missionId?: string;
+}) {
+  const projectId = resolveProjectIdFromProps(props);
   const planeCfg = getPlaneBridgeConfig();
-  const bridge = DEMO_MISSION_PLANE_BRIDGE[props.missionId];
+  const bridge = DEMO_PROJECT_PLANE_BRIDGE[projectId];
   const planeHref =
     planeProjectBoardHref(planeCfg, bridge?.code ?? null) ?? planeWorkspaceProjectsHref(planeCfg);
-  const previewFields = planeFieldsForMission(props.missionId);
+  const previewFields = planeFieldsForProject(projectId);
   const fields = previewFields ?? PLACEHOLDER_FIELDS;
   const usingPreview = previewFields != null;
 

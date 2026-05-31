@@ -28,6 +28,11 @@ Status meanings:
 | Listmonk | `cap.listmonk.email_marketing` | Pending | `/Users/linktrend/Projects/link-listmonk` | Linktrend Media and marketing workflows. |
 | LLM Council | `cap.llm_council.deliberation` | Pending | `/Users/linktrend/Projects/link-llm-council` | Strategy, validation, legal, BD, and high-impact decisions. |
 | Metabase | `cap.metabase.analytics` | Pending | `/Users/linktrend/Projects/link-metabase` | Finance, operations, LinkApps, reporting modules. |
+| LEXOS extraction (parser) | `cap.extraction.parser` | Declared | LlamaParse / comparable layout parsers | `suites/lexos/` — document structure extraction. |
+| LEXOS extraction (OCR) | `cap.extraction.ocr` | Declared | OCR providers (Tesseract-class) | `suites/lexos/` — scanned-page text extraction. |
+| LEXOS extraction (QA) | `cap.extraction.qa` | Declared | Parser/OCR output QA | `suites/lexos/` — compare and quality-flag extractions. |
+| LEXOS evidence storage | `cap.storage.evidence` | Declared | Supabase Storage (evidence buckets) | `suites/lexos/` — governed evidence write/preserve. |
+| LEXOS legal research | `cap.research.legal` | Declared | Legal corpora / authority lookup (shadow-tier MVO) | `suites/lexos/` — distinct from `cap.research.public_web`. |
 | Paperless | `cap.paperless.document_management` | Pending | `/Users/linktrend/Projects/link-paperless-ngx` | LEXOS, legal department, accounting, and document-heavy modules. |
 | SerpBear | `cap.serpbear.seo_tracking` | Pending | `/Users/linktrend/Projects/link-serpbear` | Linktrend Media, LinkSites, SEO workflows. |
 | Traefik | `cap.traefik.edge_routing` | Pending | `/Users/linktrend/Projects/link-traefik` | Infrastructure/deployment routing. |

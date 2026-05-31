@@ -28,7 +28,7 @@ const EXACT: Record<string, ShellPageMeta> = {
     title: "Add Tool",
     subtitle: "Creates a draft tool in the catalogue for governed execution.",
   },
-  "/modules": {
+  "/suites": {
     title: "Suites",
     subtitle: "Tenant-enabled business packages and how they connect to projects.",
   },
@@ -147,7 +147,7 @@ const SETTINGS_SUBPAGE: Record<string, ShellPageMeta> = {
     title: "Platform",
     subtitle: "Power-operator areas — routing, traces, LiNKguard cleanup, and development proof surfaces.",
   },
-  "/settings/prism": {
+  "/settings/linkguard": {
     title: "LiNKguard",
     subtitle: "Automated cleanup worker health and recent activity from the LiNKguard sidecar.",
   },
@@ -164,13 +164,6 @@ const SETTINGS_SUBPAGE: Record<string, ShellPageMeta> = {
 const PREFIX: { prefix: string; meta: ShellPageMeta }[] = [
   {
     prefix: "/suites/",
-    meta: {
-      title: "Suites",
-      subtitle: "Subscribed product suites, module catalogues, and projects.",
-    },
-  },
-  {
-    prefix: "/modules/",
     meta: {
       title: "Suites",
       subtitle: "Subscribed product suites, module catalogues, and projects.",
@@ -258,7 +251,6 @@ export function suppressesAutoShellPageHeader(pathname: string): boolean {
   if (route.startsWith("/projects/")) return true;
   if (route === "/skills" || route.startsWith("/skills/")) return true;
   if (route === "/memory" || route.startsWith("/memory/")) return true;
-  if (route === "/modules" || route.startsWith("/modules/")) return true;
   if (route === "/suites" || route.startsWith("/suites/")) return true;
   if (route === "/metrics") return true;
   if (route === "/company" || route.startsWith("/company/")) return true;

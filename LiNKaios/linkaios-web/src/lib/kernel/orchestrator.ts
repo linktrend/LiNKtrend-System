@@ -34,13 +34,13 @@ import {
   executeWebsiteFactoryStage,
   getWebsiteFactoryManifest,
   mapStageToCapability as pluginMapStageToCapability,
-} from "@/lib/plugins/websitefactory";
+} from "@/lib/suite-integrations/websitefactory";
 
 // Re-export plugin functions for consumers
 export {
   executeWebsiteFactoryStage,
   getWebsiteFactoryManifest,
-} from "@/lib/plugins/websitefactory";
+} from "@/lib/suite-integrations/websitefactory";
 import type {
   LeadRecord,
   RunCreationResult,

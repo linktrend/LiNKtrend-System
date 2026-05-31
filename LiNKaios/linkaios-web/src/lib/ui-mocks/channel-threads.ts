@@ -6,7 +6,7 @@ const LONG_RUNBOOK = [
   "1. Pre-flight checks",
   "   • Confirm staging URL resolves and TLS certificate is valid.",
   "   • Verify LiNKaios module registry shows linksites@1.2.0 as active.",
-  "   • Run smoke test suite against /api/health and /api/modules/linksites/status.",
+  "   • Run smoke test suite against /api/health and /api/suites/linksites/status.",
   "",
   "2. Database migration",
   "   • Apply pending Supabase migrations in order (20260518_linksites_preview.sql through 20260520_audit_indexes.sql).",
@@ -30,7 +30,7 @@ const LONG_RUNBOOK = [
   "",
   "6. Sign-off",
   "   • OpsBot-2 posts summary to #ops-deploys.",
-  "   • Chairman receives briefing card in LiNKaios Overview.",
+  "   • Principal receives briefing card in LiNKaios Overview.",
   "   • Mark project demo-smb stage as complete once stakeholder walkthrough is scheduled.",
 ].join("\n");
 
@@ -109,7 +109,7 @@ export const DEMO_CHANNEL_THREADS: ChannelMessageThread[] = [
     id: "demo-channel-briefing",
     channel: "Zulip",
     channelTag: "Zulip",
-    projectName: "Chairman Briefings",
+    projectName: "Principal Briefings",
     subject: "briefings · weekly digest",
     preview: "BriefingBot: Week 20 summary ready for review.",
     lastActivity: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),

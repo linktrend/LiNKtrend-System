@@ -1,0 +1,91 @@
+---
+description: Coordination rules for Cursor, Codex, Antigravity, and other agents.
+alwaysApply: true
+---
+
+# Agent Swarm Coordination
+
+Agents coordinate through `LiNKdev/` (programs, issues, STATE, reports), not chat memory. Legacy `.ai-swarm/` is archived at `Archive/.ai-swarm-legacy/`.
+
+Every agent must read its assigned issue spec and update its agent report before stopping.
+
+Each issue must define:
+
+- objective
+- repo/worktree
+- allowed files
+- prohibited files
+- required context files
+- steps
+- acceptance criteria
+- proof required
+- report file to update
+
+Every work packet must use the canonical ownership map from `docs/architecture/repo-architecture-target.md` and the system completion targets from `docs/architecture/system-completion-targets.md`:
+
+- LiNKaios control work → `LiNKaios/` ownership docs or current compatibility code in `LiNKaios/linkaios-web` / `packages/linkaios-kernel`
+- LinkSkills governance and skills → `LiNKskills/`
+- capability connector docs/manifests → `LiNKskills/capability-connectors/`
+- LiNKbrain memory/audit/retrieval/context/learning → `LiNKbrain/` ownership docs or current compatibility code referenced there
+- LiNKautowork workflow gateway/templates → `LiNKautowork/`
+- LiNKbot roles/runtime adapters/fleet/communications → `LiNKbot/`
+- worker security/cleanup sidecar → `LiNKguard/`
+- tenant-enabled business packages → `modules/`
+
+Specialist agents do not merge their own work. The Integrator reviews and merges.
+
+Use separate branches or worktrees for parallel work.
+
+For large waves, branches alone are not enough. Any wave with three or more concurrent agents, or any agents likely to touch overlapping repo areas, MUST use isolated worktrees or separate clean checkouts. LiNKtrend-System worktrees MUST live under `/Users/linktrend/Projects/LiNKtrend-System/.worktrees/<packet-id>` and MUST NOT be created directly under `/Users/linktrend/Projects`. The Projects folder contains separate repos and software forks that must not be touched by cleanup automation. Each agent must verify `git status --short --branch` is clean before starting. If an agent sees unrelated dirty files, it must stop before editing and report the blocker.
+
+Every prompt file for a large wave MUST include an explicit clean-worktree launch block. The block must instruct the agent to create/use a packet-specific checkout or worktree under `.worktrees/`, verify clean status before editing, and stop if unrelated dirty files exist. Do not rely on chat instructions for this; the prompt file itself must contain the isolation requirement.
+
+Parallel packets must be dependency-free. Do not put packets in the same parallel wave if one packet needs code, reports, topology, generated files, or committed artifacts from another packet in that wave. Dependent work must be split into sequential waves with an Integrator checkpoint between them.
+
+Every packet must finish with a durable handoff:
+
+- commit all intended code, docs, reports, generated topology files, and proof artifacts on the packet branch
+- leave `git status --short` clean except for explicitly documented external/generated files that are intentionally excluded
+- include the final commit SHA in the packet report
+- push the packet branch unless the user explicitly forbids pushing
+
+Reports alone are not a completed handoff when implementation files changed. Uncommitted worktree-only output is not available to later agents and must be treated as incomplete until committed or explicitly reconciled by an Integrator packet.
+
+An Integrator checkpoint is required before launching any wave that depends on previous packet output. The Integrator must verify branch tips, reports, committed files, and proof commands, then update downstream packets/prompts with exact branch or commit dependencies.
+
+If two agents need to edit the same file, stop and escalate to the Integrator.
+
+All significant decisions go into `LiNKdev/command-center/DECISIONS.md` (legacy archive: `Archive/.ai-swarm-legacy/DECISIONS.md`).
+
+Read `LiNKdev/SPEC.md` and `LiNKdev/skills/SKILLS_CATALOG.md` for factory rules and skills.
+
+GitHub is the source of truth. At the end of every Cursor, Codex, Antigravity, or other agent issue:
+
+- commit the completed work on the packet branch
+- push the packet branch to GitHub
+- integrate through `development` before promoting to `staging` or `main`
+- record the branch, commit SHA, commands run, and proof in the relevant agent report
+
+Stable branches are `main`, `staging`, and `development`. Work starts on short-lived branches or worktrees. Promotion flow is:
+
+- work branch -> `development`
+- `development` -> `staging`
+- `staging` -> `main`
+
+## Wave-Based Execution Workflow
+
+After the user and Integrator define a work stage through brainstorming, Q&A, and approval, execution should follow this default loop:
+
+1. When the user says `execute`, the Integrator writes prompt files under `LiNKdev/programs/<program>/prompts/` (legacy: `LiNKdev/programs/linktrend-system/prompts/legacy/`).
+2. Each prompt file must include branch/worktree instructions, clean-status verification, source-of-truth context, allowed/prohibited files, proof requirements, report updates, and commit/push instructions.
+3. The Integrator gives the user launch waves with model/tool guidance, for example: `WP-042 (Codex)`, `WP-043 (Codex)`, `WP-044 (Codex)`, `WP-045 (Codex)`, plus one-line copy/paste commands.
+4. The user launches the agents. When the user says `Done`, the Integrator fetches branches, reviews each agent's work, verifies proof, fixes or amends integration issues, updates future prompt files if needed, merges approved packet branches through `development`, and gives the next wave.
+5. Repeat wave by wave until the approved stage is complete.
+6. When the stage is complete, the Integrator proposes the next development stage, asks clarifying questions until requirements are clear, obtains user approval, then returns to this execution loop.
+
+Default model/tool guidance:
+
+- Cursor/Architect for source-of-truth contracts, integration review, conflict resolution, and cross-packet decisions.
+- Codex for implementation or documentation packets on isolated branches.
+- Antigravity for browser/UI/E2E validation.
+- Lower-cost long-context models such as Kimi or Gemini for discovery, summarization, and non-critical repo archaeology when appropriate.

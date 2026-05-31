@@ -29,7 +29,7 @@ export async function WorkerLogsPanel(props: { agentId: string }) {
     const missionIds = [...new Set(rawRows.map((r) => missionIdFromSessionMetadata(r.metadata)).filter(Boolean))] as string[];
     const missionTitles = new Map<string, string>();
     if (missionIds.length > 0) {
-      const { data: ms } = await supabase.schema("linkaios").from("missions").select("id, title").in("id", missionIds);
+      const { data: ms } = await supabase.schema("linkaios").from("projects").select("id, title").in("id", missionIds);
       for (const m of ms ?? []) {
         const row = m as { id: string; title: string };
         missionTitles.set(String(row.id), row.title);

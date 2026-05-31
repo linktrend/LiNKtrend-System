@@ -3,7 +3,7 @@ import {
   type BrainInboxRow,
   type BrainVirtualFileEnriched,
 } from "@linktrend/linklogic-sdk";
-import type { MissionRecord } from "@linktrend/shared-types";
+import type { ProjectRecord } from "@linktrend/shared-types";
 
 import type {
   CollectiveInboxDraft,
@@ -39,7 +39,7 @@ const AGENT_LICENSEE: Record<string, string> = {
   "agent-harbor-frontdesk": HARBOR,
 };
 
-const MISSIONS: Record<string, MissionRecord> = {
+const MISSIONS: Record<string, ProjectRecord> = {
   "xyz-site-factory": {
     id: "00000000-0000-4000-8000-00000000d201",
     title: "Website Factory — lead pipeline",

@@ -1,11 +1,18 @@
 import { ProjectOverviewSnapshotGrid } from "@/components/project-overview-snapshot-grid";
 import { ProjectPlaneOverviewSection } from "@/components/project-plane-overview-section";
 import { TitledCardHeader } from "@/components/titled-card-header";
+import { resolveProjectIdFromProps } from "@/lib/api/project-mission-id";
 import { loadProjectOverview } from "@/lib/project-overview-data";
 import { FileText } from "lucide-react";
 
-export async function ProjectOverviewPanel(props: { missionId: string; title: string }) {
-  const { brief, snapshot } = await loadProjectOverview(props.missionId, props.title);
+export async function ProjectOverviewPanel(props: {
+  projectId?: string;
+  /** @deprecated Use projectId */
+  missionId?: string;
+  title: string;
+}) {
+  const projectId = resolveProjectIdFromProps(props);
+  const { brief, snapshot } = await loadProjectOverview(projectId, props.title);
 
   return (
     <div className="space-y-8">
@@ -32,10 +39,10 @@ export async function ProjectOverviewPanel(props: { missionId: string; title: st
 
       <section>
         <h2 className="text-lg font-medium text-zinc-800 dark:text-zinc-100">Project snapshot</h2>
-        <ProjectOverviewSnapshotGrid missionId={props.missionId} snapshot={snapshot} />
+        <ProjectOverviewSnapshotGrid projectId={projectId} snapshot={snapshot} />
       </section>
 
-      <ProjectPlaneOverviewSection missionId={props.missionId} />
+      <ProjectPlaneOverviewSection projectId={projectId} />
     </div>
   );
 }
