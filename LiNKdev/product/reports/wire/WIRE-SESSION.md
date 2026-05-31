@@ -1,7 +1,7 @@
 # LiNKdev wire session — LiNKtrend-System
 
 - **Repo:** linktrend/LiNKtrend-System
-- **Branch:** development
+- **Branch:** development (dispatch workflows promoted to **main**, tip `90d697d`)
 - **Wire agent:** Cursor (Step A + Step B prep)
 - **Session date:** 2026-06-01 (dispatch v2 wire)
 
@@ -13,14 +13,14 @@ See `LiNKdev/factory/install/PRINCIPAL-LAUNCH.md`.
 |------|--------|
 | A — `EXECUTE-WIRE-LINKDEV.md` | **complete** |
 | B — `EXECUTE-LINKDEV-DISPATCH-INSTALL.md` | **complete** (2026-06-01) |
-| C — `EXECUTE-WIRE-LINKDEV-POST-DISPATCH.md` | **complete_pending_go** (local proof; Actions run pending post-push) |
+| C — `EXECUTE-WIRE-LINKDEV-POST-DISPATCH.md` | **complete_pending_go** (verify.sh + Actions orchestrator dispatch) |
 | Legacy UI — `EXECUTE-LINKDEV-UI-AUTOMATIONS.md` | **superseded** by dispatch v2 (optional cleanup in Cursor UI) |
 | 8 — Go (Planner) | **blocked** until Principal says **Go** |
 
 ## Dispatch v2 (Step B — 2026-06-01)
 
 - **Status:** **complete** on branch `development` (template **v1.2.0** sync + workflow copy).
-- **Workflows:** `.github/workflows/linkdev-dispatch.yml` added; `linkdev-guard.yml` and `branch-source-policy.yml` already present.
+- **Workflows:** `.github/workflows/linkdev-dispatch.yml`, `linkdev-guard.yml`, `branch-source-policy.yml` on **main** (promotion `development` → `main`, `{main_sha}`).
 - **Secret:** `CURSOR_API_KEY` — **configured** (`gh secret list`, name only; value not readable).
 - **Local dry-run:** `node LiNKdev/factory/scripts/dispatch-cursor-agent.mjs --role orchestrator --dry-run --repo linktrend/LiNKtrend-System` → exit 0.
 - **Legacy UI automations (2026-05-31):** superseded; optional to disable duplicate Cursor Automations to avoid double-firing.
@@ -28,7 +28,7 @@ See `LiNKdev/factory/install/PRINCIPAL-LAUNCH.md`.
 ## Step C (post-dispatch — 2026-06-01)
 
 - **verify.sh:** exit 0 (tier A gates passed).
-- **Actions proof:** after push, run `gh workflow run "LiNKdev dispatch" --ref development -f role=orchestrator` or label a dry-run issue (`linkdev:ready` + `runtime:cursor`); record run URL below when available.
+- **Actions proof:** `gh workflow run "LiNKdev dispatch" --ref main -f role=orchestrator` → success — https://github.com/linktrend/LiNKtrend-System/actions/runs/26728188505
 - **Wire status:** `complete_pending_go` — program **Go** not issued; STATE remains `awaiting_go`.
 
 ## Checklist (CHECKLIST.md)
@@ -89,7 +89,7 @@ See `LiNKdev/factory/install/PRINCIPAL-LAUNCH.md`.
 
 - [x] `verify.sh` exits 0 (2026-06-01)
 - [x] Local dispatch dry-run (orchestrator) exit 0
-- [ ] GitHub Actions **LiNKdev dispatch** run URL recorded (post-push workflow_dispatch or labeled issue)
+- [x] GitHub Actions **LiNKdev dispatch** run URL recorded — https://github.com/linktrend/LiNKtrend-System/actions/runs/26728188505
 - [ ] Dry-run test issue: executor path fired via Actions (optional full E2E)
 
 ## Agent log
@@ -182,5 +182,5 @@ LiNKdev/factory/scripts/verify.sh
 # == verify passed == ; VERIFY OK: tier A gates passed
 ```
 
-**GitHub Actions run URL (Step C):** _pending first run on `development` after push._
+**GitHub Actions run URL (Step C):** https://github.com/linktrend/LiNKtrend-System/actions/runs/26728188505 (workflow_dispatch, orchestrator, ref `main`, promotion SHA `90d697d`).
 

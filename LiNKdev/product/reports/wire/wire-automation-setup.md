@@ -1,6 +1,6 @@
 # Wire automation setup log
 
-Repo: **linktrend/LiNKtrend-System** · Branch: **development** · **Factory dispatch:** v2 (GitHub Actions)
+Repo: **linktrend/LiNKtrend-System** · Branch: **main** (promoted 2026-06-01, `90d697d`) · **Factory dispatch:** v2 (GitHub Actions)
 
 Canonical: `LiNKdev/factory/docs/DISPATCH.md`. Workflow: `.github/workflows/linkdev-dispatch.yml`.
 
@@ -8,7 +8,7 @@ Canonical: `LiNKdev/factory/docs/DISPATCH.md`. Workflow: `.github/workflows/link
 
 | Factory role | Provider | Created (workflow) | Trigger verified | Trigger |
 |--------------|----------|-------------------|------------------|---------|
-| orchestrator | GitHub Actions | Y | pending | PR **closed** merged to `development` |
+| orchestrator | GitHub Actions | Y | **Y** (workflow_dispatch `role=orchestrator`, [run](https://github.com/linktrend/LiNKtrend-System/actions/runs/26728188505)) | PR **closed** merged to `development`; manual dispatch on `main` |
 | reviewer | GitHub Actions | Y | pending | Issue label `linkdev:review-ready` |
 | integrator | GitHub Actions | Y | pending | Issue label `linkdev:merge-ready` |
 | executor-cursor | GitHub Actions | Y | pending | Issue labels `linkdev:ready` **and** `runtime:cursor` |
@@ -16,4 +16,4 @@ Canonical: `LiNKdev/factory/docs/DISPATCH.md`. Workflow: `.github/workflows/link
 
 **Secret:** `CURSOR_API_KEY` in GitHub Actions — **configured** (verified via `gh secret list`, 2026-06-01).
 
-_Update **Trigger verified** after a successful Actions run (Step C proof)._
+Step C proof (2026-06-01): orchestrator verified via workflow_dispatch on `main` — https://github.com/linktrend/LiNKtrend-System/actions/runs/26728188505
