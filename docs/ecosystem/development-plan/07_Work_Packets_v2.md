@@ -2,6 +2,8 @@
 
 > **Terminology:** Legacy *work packets* (WP-###) are now **Issues** under `LiNKdev/product/programs/linktrend-system/issues/`. Historical WP files live under `LiNKdev/product/programs/linktrend-system/issues/legacy/` and `LiNKdev/archive/`.
 
+> **Superseded for MVO bar (May 2026):** Packets must align with full LinkSites MVO in [`05_MVO_Scope_and_Demo_Flow_v2.md`](./05_MVO_Scope_and_Demo_Flow_v2.md). CRM/Plane/preview stubs are not the Principal completion definition.
+
 ## WP-000 — Command Center And Architect Review Import
 
 Wire `LiNKdev/`, add the architect review report to `LiNKdev/product/grounding/`, create status/report files under `LiNKdev/product/reports/`, and initialize coordination.

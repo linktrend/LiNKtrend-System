@@ -1,69 +1,94 @@
 # Repo inventory
 
-**Status:** Inventory complete (WP-001).
+**Status:** Updated for Principal MVO reset — May 2026  
+**Canonical product truth:** [`PRINCIPAL_PRODUCT_DEFINITION.md`](PRINCIPAL_PRODUCT_DEFINITION.md)
 
 ## Purpose
 
-Single place to summarize **what exists in this repository**, **what is reusable for the WebsiteFactory MVO**, and **what is out of scope** for the first slice.
+Summarize **what exists in LiNKtrend-System**, what is **reusable for MVO**, and what lives **outside this repo**.
 
-## Sections
+---
 
-### Canonical ownership map
+## LiNKtrend System = this monorepo
 
-- `docs/architecture/repo-architecture-target.md`: source of truth for the target repo layout.
-- `LiNKaios/`: LiNKaios ownership home; compatibility code remains in `LiNKaios/linkaios-web` and `packages/linkaios-kernel`.
-- `LiNKskills/`: LinkSkills governance, skills, tools, scripts, catalogs, and capability connectors.
-- `LiNKskills/capability-connectors/`: canonical connector registry and connector docs/manifests.
-- `LiNKbrain/`: LiNKbrain ownership home for memory, audit, retrieval, context assembly, benchmarks, schemas, and migration references.
-- `LiNKautowork/`: deterministic workflow gateway and templates for the external n8n fork.
-- `LiNKbot/`: bot runtime adapters, fleet metadata, role definitions, and communication profiles.
-- `LiNKguard/`: worker security and cleanup sidecar formerly known as PRISM Defender.
-- `modules/`: tenant-enabled modules such as LinkSites, LiNKapps, Linktrend Media, and LEXOS practice areas.
+Delivers **LiNKaios Client + LiNKtrend Admin** and integration/orchestration for Suites. First Suite: **LinkSites**.
 
-### Monorepo / package layout (LiNKtrend-System)
+| Owns (in repo) | Does not own (external) |
+|----------------|-------------------------|
+| LiNKaios UI/kernel, Admin surfaces | **LiNKsites** product: Payload, templates, frontend, VPS publish (`/Users/linktrend/Projects/LiNKsites`) |
+| Plane ownership folders per plane | Full **n8n** fork (`/Users/linktrend/Projects/LiNKautowork`) |
+| LinkSkills capability connectors | **LiNKbot-core** engine fork |
+| Suite maps under `suites/` | Zulip server native DB |
+| LiNKbot roles, adapters, Zulip bridge | |
 
-- `LiNKaios/linkaios-web`: Next.js dashboard for organizational control.
-- `LiNKbot/runtime-adapters/openclaw/bot-runtime`: Node.js adapter wiring LiNKbot (OpenClaw) to LiNKaios.
-- `LiNKbot/runtime-adapters/openclaw/openclaw-shim`: Mock OpenClaw server for testing.
-- `LiNKguard/sidecar/linkguard`: Legacy PRISM package implementation under the LiNKguard ownership home.
-- `LiNKbot/communications/temporary-gateways/zulip`: Temporary mission-aware Zulip bridge during native OpenClaw channel evaluation.
-- `apps/`: Deployable-entrypoint area; currently still contains `linkaios-web`.
-- `packages/db`: Shared Supabase client wrapper.
-- `packages/linklogic-sdk`: Core SDK for plane-to-plane communication.
-- `packages/observability`: Shared logging and tracing.
-- `services/migrations`: Canonical Postgres/Supabase schema definitions.
+---
 
-### LinkSites / WebsiteFactory touchpoints
+## Canonical ownership map
 
-- `LiNKsites/apps/cms`: Payload CMS instance for site content management.
-- `LiNKsites/apps/web-master`: Primary Next.js template for generated sites.
-- `LiNKsites/packages/blocks`: Reusable UI blocks for the factory pipeline.
+- `docs/architecture/repo-architecture-target.md` — folder ownership target
+- `LiNKaios/` — control plane; deployable app at `LiNKaios/linkaios-web`
+- `LiNKskills/` — capability connectors, skills, logic-engine
+- `LiNKbrain/` — memory/audit ownership home (compatibility code in migrations + linkaios-web)
+- `LiNKautowork/` — workflow gateway
+- `LiNKbot/` — runtime adapters, roles, communications profiles
+- `LiNKguard/` — worker security sidecar (legacy `@linktrend/linkguard` package)
+- `suites/linksites/` — LinkSites Suite workflow map (MVO)
 
-### LiNKaios / LiNKbrain / LinkSkills / LiNKautowork / LiNKbot touchpoints
+Legacy `modules/` paths are retired; `suites/` is canonical.
 
-- **LiNKaios:** `LiNKaios/linkaios-web` (UI) and `packages/linklogic-sdk` (logic).
-- **LiNKbrain:** `LiNKbrain/` is the ownership home; active compatibility code is in `packages/linklogic-sdk/src/brain-*`, `LiNKaios/linkaios-web/src/components/linkbrain`, and `services/migrations/*linkbrain*`.
-- **LinkSkills:** `LiNKskills/services/logic-engine` and `LiNKskills/capability-connectors/`.
-- **LiNKautowork:** `LiNKautowork/gateway/` (n8n integration).
-- **LiNKbot:** `LiNKbot-core` (external runtime) and `LiNKbot/` ownership home; active OpenClaw adapter code is in `LiNKbot/runtime-adapters/openclaw/bot-runtime`.
-- **LiNKguard:** `LiNKguard/` ownership home; active compatibility package code is in `LiNKguard/sidecar/linkguard`.
+---
 
-### Infrastructure (Supabase, hosting, CI)
+## MVO touchpoints in this repo
 
-- **Database:** Supabase (Postgres + Auth + RLS).
-- **Migrations:** Managed in `LiNKtrend-System/services/migrations`.
-- **Hosting:** DigitalOcean is the user-confirmed deployment target; Docker/Podman remain runtime packaging references.
+| Area | Path |
+|------|------|
+| Client UI | `LiNKaios/linkaios-web/` |
+| Kernel / SDK | `packages/linklogic-sdk/`, `LiNKaios/` |
+| LinkSites integration | `suites/linksites/`, `LiNKaios/linkaios-web/src/lib/suite-integrations/` |
+| Capabilities | `LiNKskills/capability-connectors/` |
+| Workflows | `LiNKautowork/gateway/` |
+| Bot roles | `LiNKbot/roles/suites/linksites/` |
+| Migrations | `services/migrations/` |
+| Zulip bridge | `LiNKbot/communications/temporary-gateways/zulip/` |
 
-### Known legacy or archived code paths
+---
 
-- `Archive/LiNKaios/`: Previous monorepo structure; use for schema/pattern reference.
-- `Archive/LiNKopenclaw/`: Original bot runtime; use `LiNKbot-core` instead.
-- `LiNKtrend-LEXOS`: Legal vertical; reference only for MVO.
+## External LinkSites repo
 
-### Reuse recommendations
+**`/Users/linktrend/Projects/LiNKsites`**
 
-- **Template:** Use `LiNKsites/apps/web-master` as the default MVO template.
-- **UI:** Use `LiNKapps/packages/ui` (shadcn) for all new dashboard components.
-- **Logic:** Reuse `LiNKskills/services/logic-engine` as the basis for the LinkSkills plane.
-- **Workflow:** Reuse `LiNKautowork/gateway` for n8n coordination.
-- **Bot:** Use `LiNKbot-core` as the runtime, controlled via `bot-runtime` adapter.
+- Payload CMS (`apps/cms`)
+- Website templates (`apps/web-master`, packages/blocks)
+- Frontend that reads Payload for published sites
+- VPS/deploy targets for `*.linktrend.media`
+
+LiNKtrend-System integrates via Capabilities and contracts in [`CONTRACTS_MVO.md`](CONTRACTS_MVO.md). Do not duplicate product code here.
+
+---
+
+## Infrastructure (MVO required)
+
+| System | In-repo integration |
+|--------|---------------------|
+| Supabase | `packages/db`, `services/migrations` |
+| Zulip | Temporary gateway + `cap.zulip.run_messaging` |
+| Plane | `cap.plane.execution_tracking` (studio GSM secrets) |
+| OpenRouter | Model routing (D-06) |
+
+---
+
+## Legacy / archived
+
+- `Archive/` — pre-cleanup monorepo trees (reference only)
+- `LiNKtrend-LEXOS` — external; post-MVO
+- `LiNKdev/product/archive/grounding-legacy/` — pre-2026-05 product plans
+
+---
+
+## Reuse recommendations (MVO)
+
+- **Templates & CMS:** discover in LiNKsites repo; wire via Payload/Supabase Capabilities
+- **UI:** shadcn patterns in linkaios-web
+- **Logic:** extend `packages/linklogic-sdk` for contract types
+- **Bot runtime:** LiNKbot-core via `LiNKbot/runtime-adapters/openclaw/bot-runtime`
+- **Workflows:** LiNKautowork gateway handles per `CONTRACTS_MVO.md`

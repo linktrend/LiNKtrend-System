@@ -1,8 +1,12 @@
 # LiNKtrend System
 
-Proprietary **LiNKtrend** monorepo (Turborepo + pnpm): command centre (**LiNKaios**), LiNKbot runtime adapters, **LiNKguard** worker cleanup/security sidecar, project-aware communications, shared **LiNKlogic**-style packages, tenant-enabled **suites**, LinkSkills **capabilities**, and Supabase-backed persistence.
+**LiNKtrend System = LiNKaios** — proprietary monorepo (Turborepo + pnpm) for the AI-native company operating system: **LiNKaios Client** (licensee operators), **LiNKtrend Admin** (vendor fleet), LiNKbot runtime adapters, **LiNKguard** worker cleanup/security sidecar, project-aware communications, shared **LiNKlogic**-style packages, tenant-enabled **suites**, LinkSkills **capabilities**, and Supabase-backed persistence.
 
-Canonical terminology: **`docs/terminology.md`**
+Canonical terminology: **`docs/terminology.md`** · Product definition: **`LiNKdev/product/grounding/PRINCIPAL_PRODUCT_DEFINITION.md`**
+
+## MVO
+
+MVO is **not** a stub demo. It requires **LiNKaios Client + LiNKtrend Admin** and one full **LinkSites** run: Maps/search lead discovery → template build → live publish at `businessname.linktrend.media` → governed outreach → close or recycle. **Supabase**, **Zulip**, and **Plane** are required; acceptable stubs only where documented in `LiNKdev/product/grounding/CONTRACTS_MVO.md`. LinkSites product assets stay in the external LiNKsites repo.
 
 Remote: [github.com/linktrend/LiNKtrend-System](https://github.com/linktrend/LiNKtrend-System)
 

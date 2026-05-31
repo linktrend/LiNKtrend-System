@@ -1,5 +1,7 @@
 # Agent Operating Rules v2
 
+> **Superseded for MVO bar (May 2026):** Rule 8 stubbing does **not** apply to publish, outreach, or lead discovery for MVO completion. See [`05_MVO_Scope_and_Demo_Flow_v2.md`](./05_MVO_Scope_and_Demo_Flow_v2.md) and `LiNKdev/product/grounding/PRINCIPAL_PRODUCT_DEFINITION.md`.
+
 ## Rule 1 — Read The Architect Review
 
 Every agent must read `LiNKdev/product/grounding/ARCHITECT_REVIEW_REPORT.md` before work.

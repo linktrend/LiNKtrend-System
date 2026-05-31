@@ -7,6 +7,8 @@ alwaysApply: true
 
 Before implementing or moving code, read `docs/architecture/repo-architecture-target.md` for folder ownership and `docs/architecture/system-completion-targets.md` for the intended completed state of each system.
 
+**MVO posture:** LiNKtrend System ships as LiNKaios Client + LiNKtrend Admin with one full LinkSites lead-to-outreach loop. Supabase, Zulip, and Plane are required for MVO — not optional stubs. LinkSites product code (Payload, templates, VPS publish) lives in the external LiNKsites repo; this repo owns suite orchestration, planes, leases, and traces. See `LiNKdev/product/grounding/PRINCIPAL_PRODUCT_DEFINITION.md` and `CONTRACTS_MVO.md`.
+
 LiNKaios is the organizational execution control plane. It owns tenant/module/work/role/bot orchestration, UI, dashboards, work contracts, routing, approvals, and system-level governance.
 
 LiNKbrain is the institutional memory and learning plane. It owns the event ledger, memory objects, audit union, context assembly, retrieval, and benchmark/learning pipelines.

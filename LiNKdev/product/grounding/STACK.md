@@ -1,34 +1,44 @@
 # Technology stack
 
-LiNKtrend-System monorepo — primary product surface is **LiNKaios web** (Next.js). Gates read this file for tier B smoke and architecture checks.
+LiNKtrend-System monorepo — **LiNKaios** (Client + Admin). Gates read this file for tier B smoke and architecture checks.
+
+**MVO requires:** Supabase, Zulip, Plane integration, LiNKbot runtime, LiNKautowork gateway — see [`CONSTRAINTS.md`](CONSTRAINTS.md).
 
 ## Languages
 
-- node/typescript
-- shell
+- TypeScript / Node.js
+- Shell (LiNKdev scripts, deploy helpers)
+- SQL (Supabase migrations)
 
 ## Package managers
 
 | Tool | Version pin | Notes |
 |------|-------------|-------|
-| pnpm | 10.26.1 | Root `packageManager`; turbo monorepo |
+| pnpm | 10.26.1 | Root `packageManager`; Turborepo monorepo |
 | npm | N/A | Not primary |
 
 ## Key paths
 
 | Area | Path |
 |------|------|
-| Primary app | `LiNKaios/linkaios-web/` |
-| Shared UI / packages | `packages/` |
-| LiNKaios kernel / API | `LiNKaios/` |
+| LiNKaios Client (primary app) | `LiNKaios/linkaios-web/` |
+| LiNKtrend Admin | `LiNKaios/linkaios-web/` (vendor routes/shell — same deployable) |
+| Shared packages | `packages/` |
 | LinkSkills connectors | `LiNKskills/capability-connectors/` |
-| Modules (tenant workflows) | `modules/` |
-| Tests (app) | `LiNKaios/linkaios-web/` (vitest) |
-| Repo root scripts | `package.json`, `turbo.json` |
+| LinkSites Suite map | `suites/linksites/` |
+| Bot runtime adapter | `LiNKbot/runtime-adapters/openclaw/bot-runtime` |
+| Migrations | `services/migrations/` |
+| LiNKdev factory | `LiNKdev/factory/` (not modified by product grounding passes) |
+
+## External repos (MVO)
+
+| Repo | Role |
+|------|------|
+| `/Users/linktrend/Projects/LiNKsites` | Payload, templates, frontend, publish |
+| `/Users/linktrend/Projects/LiNKbot-core` | Bot engine fork |
+| `/Users/linktrend/Projects/LiNKautowork` | n8n fork (workflows execute via gateway) |
 
 ## Verify commands
-
-Commands LiNKdev gates may invoke (non-zero exit fails the gate):
 
 | Gate | Command | Expected |
 |------|---------|----------|
@@ -37,30 +47,14 @@ Commands LiNKdev gates may invoke (non-zero exit fails the gate):
 
 ## Integration smoke
 
-Default command for tier B `integration_smoke`:
-
 ```bash
 pnpm --filter @linktrend/linkaios-web test
 ```
 
-Fallback when app tests are skipped: `pnpm typecheck` at repo root.
-
-## Architecture gate (JS/TS only)
-
-Canonical command for this repo:
-
-```bash
-pnpm typecheck
-```
-
-Per-app override:
-
-```bash
-pnpm --filter @linktrend/linkaios-web typecheck
-```
+Fallback: `pnpm typecheck` at repo root.
 
 ## Notes
 
-- Monorepo orchestration via Turborepo; run root commands from repository root.
-- Do not store secrets here; reference env var names only (GSM at runtime).
-- Update when primary app path or canonical test/typecheck commands change.
+- Turborepo from repository root
+- Secrets via GSM at runtime — see `.env.example` for names only
+- Update this file when primary app path or verify commands change

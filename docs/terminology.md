@@ -1,115 +1,122 @@
-# LiNKtrend Terminology Map
+# LiNKtrend terminology
 
-Principal-approved vocabulary (2026-05). Use this document when writing user-facing copy, architecture docs, or navigating repo folders during the terminology migration.
+Principal-approved vocabulary (May 2026). Use for user-facing copy, architecture docs, and repo navigation.
 
-**Related:** `.cursor/rules/07-suite-project-terminology.mdc` (agent enforcement), `docs/architecture/repo-architecture-target.md` (ownership and folder targets).
-
----
-
-## LiNKaios work hierarchy
-
-| Level | Term | Was (legacy) | Meaning |
-|-------|------|--------------|---------|
-| 1 | **Suite** | Module (catalogue) | Subscribed product package (LinkSites, LiNKapps, LEXOS, …) |
-| 2 | **Module** | Process / project type | Vendor-published recipe inside a suite: phases, issues, assignees (template) |
-| 3 | **Project** | Mission | Tenant-created live work: one or more modules, run once or continuous |
-| 4 | **Phase** | Workflow (stage group) | Stage group inside a module — ordered work within the module recipe |
-| 5 | **Issue** | Issue | Governed task with input/output contracts |
-| 6 | **Assignee** | Execution | Who runs the issue: LiNKbot, Automation, or Human |
-| 7 | **Run** | Cycle | One pass through project modules (continuous mode); maps to Plane **Cycle** in sync |
-
-**Run once vs continuous:** Once = single end-to-end progress; Continuous = repeated **Runs** (no parallel runs in MVO).
-
-### External system mapping
-
-| LiNKaios | Plane (self-hosted) | Odoo | n8n (LiNKautowork) | Zulip |
-|----------|---------------------|------|--------------------|-------|
-| Suite | *(none)* | App (do not confuse with LiNKaios Module) | — | — |
-| Module | **Module** (work group in project) | — | — | — |
-| Project | **Project** | Project (when linked) | — | **Stream** (one stream per LiNKaios project) |
-| Phase | Epic or ordered work items under Plane module | — | Internal graph grouping | **Topic** (sub-threads inside project stream) |
-| Issue | Work item | Task (when linked) | — | Referenced in topic messages |
-| Assignee | Plane user (one service user per LiNKbot role) | — | Automation executor | — |
-| Run | **Cycle** | — | Execution (internal) | — |
+**Canonical product definition:** `LiNKdev/product/grounding/PRINCIPAL_PRODUCT_DEFINITION.md`  
+**Agent enforcement:** `.cursor/rules/07-suite-project-terminology.mdc`  
+**Ownership:** `docs/architecture/repo-architecture-target.md`
 
 ---
 
-## Integrations: Capability (not Connector in UI)
+## LiNKtrend System = LiNKaios
 
-In LiNKaios, integrations to external software (Plane, Odoo, Zulip, n8n, etc.) are **Capabilities**, governed by LinkSkills leases.
+| Term | Meaning |
+|------|---------|
+| **LiNKtrend System** | The product — one AI-native **company operating system** |
+| **LiNKaios** | Same product; control plane UI/kernel, tenant/suite/project orchestration, governance, traces |
+| **LiNKaios Client** | Licensee-facing workspace (suites, projects, operators) |
+| **LiNKtrend Admin** | Vendor/licensor-facing control (tenants, suite catalogue, capabilities, fleet) |
 
-| Context | Term to use |
-|---------|-------------|
-| LiNKaios UI, docs for operators | **Capability** |
-| LinkSkills code paths, repo folders | **capability connector** (internal implementation term) |
-
-Code may reference `capability-connectors/` or connector contracts; user-facing copy says **Capability**.
-
-| Capability (examples) | Software | MVO posture |
-|----------------------|----------|-------------|
-| `cap.plane.execution_tracking` | Plane (self-hosted) | mock/shadow; live writes future |
-| `cap.crm.odoo_shadow` | Odoo CRM | mock/shadow; connector exists |
-| `cap.accounting.odoo_shadow` | Odoo Accounting | mock/shadow; connector exists |
-| `cap.zulip.run_messaging` | Zulip | governed messaging |
-| LiNKautowork / n8n | Automations | executions via capability leases |
+LiNKbrain, LinkSkills, LiNKautowork, LiNKbots, and LiNKguard are **planes** (major components) **inside** LiNKaios — not separate products in the MVO narrative.
 
 ---
 
-## LiNKautowork: Automation in UI
+## Work hierarchy
 
-| Context | Term to use |
-|---------|-------------|
-| LiNKaios UI, operator docs | **Automation** |
-| LiNKautowork plane, n8n internals, code | **workflow** (deterministic workflow execution) |
+| Level | Term | Meaning |
+|-------|------|---------|
+| 1 | **Suite** | Tenant-enabled **business process package** (LinkSites, LinkApps, LEXOS, …) |
+| 2 | **Module** | Vendor-published recipe inside a suite: phases, issues, template assignees |
+| 3 | **Phase** | Ordered stage group inside a module |
+| 4 | **Issue** | Atomic governed task (inputs/outputs, contracts) |
+| — | **Assignee** | Who runs the issue: **LiNKbot** (judgment) or **LiNKautowork** / **Automation** (deterministic n8n) |
 
-Do not call n8n executions “workflows” in LiNKaios UI. **Phase** is reserved for LiNKaios module stage groups only.
+**Project** (tenant-created live work spanning one or more modules) remains the LiNKaios runtime container for executing suite recipes; it maps to Plane **Project** and Zulip **stream** when synced. See `.cursor/rules/07-suite-project-terminology.mdc` for Project → Phase → Issue UI mapping and **Run** (continuous mode).
 
----
+**Run once vs continuous:** Once = single end-to-end pass; Continuous = repeated **Runs** (no parallel runs in MVO).
 
-## LiNKguard (not PRISM in UI)
+### External mapping (default v1 capabilities)
 
-| Context | Term to use |
-|---------|-------------|
-| User-facing copy, architecture summaries | **LiNKguard** |
-| Legacy code/comments | PRISM Defender may persist until migration completes |
+| LiNKaios | Plane | Zulip |
+|----------|-------|-------|
+| Suite | *(none)* | — |
+| Module | **Module** (work group in Plane project) | — |
+| Project | **Project** | **Stream** (one per LiNKaios project) |
+| Phase | Epic / ordered work under Plane module | **Topic** |
+| Issue | Work item | Referenced in topic messages |
+| Assignee | Plane user (service user per LiNKbot role) or automation | — |
+| Run | **Cycle** | — |
 
-LiNKguard is the worker security and cleanup sidecar. It owns residue cleanup, filesystem policy, runtime guardrails, sidecar heartbeat, and audit hooks.
-
----
-
-## Repo folder mapping
-
-| Legacy / current | Canonical | Notes |
-|------------------|--------|-------|
-| `modules/` (removed) | `suites/` | Tenant-enabled **Suite** packages (LinkSites, LiNKapps, …). Root `modules/` is gone; **`suites/` is canonical**. |
-| `plugins/` | absorbed | Vertical/plugin layout retired; content moves into suite packages or owning planes. |
-| `LiNKaios/linkaios-web/src/lib/plugins/` (removed) | `lib/suite-integrations/` | Suite-specific integration code lives under **`lib/suite-integrations/`** (WebsiteFactory, LinkApps, LEXOS litigation). |
-| `packages/linkaios-kernel/plugins/capabilities/linkapps/` (removed) | `LiNKskills/capability-connectors/cap.*.yaml` | LiNKapps capability declaration YAML removed from kernel; LinkSkills is canonical. |
-| `LinkSkills/capability-connectors/` | *(unchanged)* | Internal LinkSkills term; UI still says Capability. |
-
-### LiNKaios routes (active)
-
-| Was | Now |
-|-----|-----|
-| `/modules/…` | `/suites/…` (**302 redirects** from legacy paths during transition) |
-| Nav “Modules” (product catalogue) | **Suites** |
-| My Modules | **My Suites** (`/suites/my-suites`) |
+Other capabilities (e.g. Odoo) attach to **suites** that need them — not global MVO defaults.
 
 ---
 
-## Terms that stay distinct
+## Planes (LiNKaios components)
 
-These terms are **not** synonyms. Do not collapse them in docs or UI.
+| Plane | Role |
+|-------|------|
+| **LiNKaios** | Control plane UI/kernel — tenants, suites, projects, approvals, traces |
+| **LiNKbots** | Role-bound workers (OpenClaw / Agent Zero / Hermes **adapters**) |
+| **LinkSkills** | Skills IP, capability permissions, progressive disclosure, leases |
+| **LiNKautowork** | Deterministic n8n workflows (user-facing: **Automation**) |
+| **LiNKbrain** | Events, Librarian knowledge loop, company brain + anonymized world brain |
+| **LiNKguard** | Skill IP wipe after use; confidentiality/anonymization per privacy policy |
 
-| Term | Meaning | Owned by |
-|------|---------|----------|
-| **Skill** | Reusable learned/procedural capability governed by LinkSkills | LinkSkills |
-| **Tool** | Executable instrument a LiNKbot or automation may invoke under lease | LinkSkills / runtime |
-| **Plane Module** | Work group inside a Plane project (maps to LiNKaios **Module**, level 2) | Plane (external) |
-| **packages/** | Deployable package entrypoints (thin tooling/deployment shells) | Owning plane |
-| **services/** | Runnable service entrypoints where applicable | Owning plane |
-| **Capability connector** | LinkSkills implementation of a governed external integration | LinkSkills (internal) |
-| **Runtime adapter** | Bridge between LiNKbot and a bot engine (OpenClaw, Agent Zero, …) | LiNKbot |
+---
+
+## Capabilities
+
+Integrations to external software are **Capabilities**, governed by LinkSkills leases.
+
+| Context | Term |
+|---------|------|
+| LiNKaios UI, operator docs | **Capability** |
+| Code / repo folders | **capability connector** (implementation) |
+
+**Default v1 (studio-provided):** Zulip (comms), Plane (PM). Additional capabilities ship with suites (e.g. Odoo for accounting suites).
+
+| Capability (examples) | Software | MVO |
+|----------------------|----------|-----|
+| `cap.zulip.run_messaging` | Zulip | Required |
+| `cap.plane.execution_tracking` | Plane (self-hosted) | Required |
+| `cap.crm.odoo_shadow` | Odoo CRM | Suite-specific / later |
+| Payload / hosting | External **LiNKsites** repo | LinkSites MVO |
+
+Do not call n8n executions “workflows” in LiNKaios UI — use **Automation**. **Phase** is reserved for LiNKaios module stage groups.
+
+---
+
+## LinkSites and repos
+
+| Location | Owns |
+|----------|------|
+| **`LiNKtrend-System`** (`suites/linksites/`, LiNKaios, planes) | Suite orchestration, capability leases, audit/trace, integration contracts |
+| **External `LiNKsites` repo** | Templates, Payload CMS, site build/publish, VPS/temp URL mechanics |
+
+---
+
+## MVO (May 2026)
+
+MVO is **complete or incomplete** — not a phased roadmap. **All** of the following are required:
+
+1. **LiNKaios Client** — operator can run LinkSites work end-to-end with traces.
+2. **LiNKtrend Admin** — vendor can see tenants, suite enablement, capability posture.
+3. **LinkSites Suite E2E** — Maps (or approved online) lead search → business/industry ID → template → custom site → **live publish** (`businessname.linktrend.media`) → **outreach** (sell site + hosting) → on subscribe: domain + transfer; on reject: recycle site in repo for next matching lead.
+
+**Not acceptable as the MVO bar:** seed-CSV-only leads, draft-only outreach, fake success without publish URL and audit trace, or deferring outreach/publish to “phase 2.”
+
+**Post-MVO:** LinkApps, LEXOS, other suites, extra capabilities, and additional templates.
+
+---
+
+## Repo folders
+
+| Path | Notes |
+|------|--------|
+| `suites/` | Canonical suite packages |
+| `LiNKskills/capability-connectors/` | Capability implementations |
+| `LiNKaios/linkaios-web` | Client + Admin deployable UI |
+| Legacy `/modules/` | Redirects to `/suites/` during transition |
 
 ---
 
@@ -118,26 +125,11 @@ These terms are **not** synonyms. Do not collapse them in docs or UI.
 | Do not use | Use instead |
 |------------|-------------|
 | Mission | **Project** |
-| Execution (as hierarchy label) | **Assignee** |
-| Workflow (LiNKaios stage groups) | **Phase** |
-| Workflow (n8n in UI) | **Automation** |
-| Process (vendor templates) | **Module** |
-| Module (for LinkSites product) | **Suite** |
-| Cycle (LiNKaios UI) | **Run** |
 | Connector (LiNKaios UI) | **Capability** |
+| Workflow (n8n in UI) | **Automation** |
+| Workflow (stage groups) | **Phase** |
+| Module (for LinkSites product) | **Suite** |
 | PRISM (UI) | **LiNKguard** |
+| Separate “LiNKbrain product” | Plane inside **LiNKaios** |
 
-Legacy symbols (`missionId`, `MissionRecord`, `/modules/` route redirects, deprecated kernel capability stubs) may persist in code until Phase C TypeScript/API alias cleanup completes.
-
----
-
-## Migration tracking (Mission → Project)
-
-| Phase | Scope | Status |
-|-------|--------|--------|
-| **A** | User-visible copy: Mission → Project | Done |
-| **B** | Routes (`/suites/`), breadcrumbs, component names | Done |
-| **C** | TypeScript/API aliases, repo folder consolidation | **In progress** — root `modules/` → `suites/`, `lib/plugins/` → `lib/suite-integrations/`, and kernel linkapps capability YAML removal are done; `MissionRecord` → `ProjectRecord` and related TS aliases remain |
-| **D** | Database columns, RPC names, webhooks, kernel (`033`–`035` applied) | **Done** |
-
-Do not assume TypeScript/API migration (Phase C) is complete when reading or writing code. Database columns and RPC names use **project** after `033`–`035`; legacy symbols and views may remain for compat.
+Legacy code symbols may persist until migration phases complete; new docs use the table above.

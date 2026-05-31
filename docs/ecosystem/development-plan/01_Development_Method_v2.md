@@ -1,5 +1,7 @@
 # Development Method v2
 
+> **Superseded for MVO bar (May 2026):** Principal requires a **non-phased**, complete MVO (Client + Admin + full LinkSites loop with live publish and outreach). See [`05_MVO_Scope_and_Demo_Flow_v2.md`](./05_MVO_Scope_and_Demo_Flow_v2.md) and `LiNKdev/product/grounding/PRINCIPAL_PRODUCT_DEFINITION.md`. This file retains reuse-first method detail; do not use it to justify seed-CSV-only leads, draft-only outreach, or integration stubs as MVO completion.
+
 ## Goal
 
 The goal is to produce a working internal MVO of the LiNKtrend AI Agent Ecosystem as fast as possible, while avoiding architectural debt that would make the system unusable after the demo.

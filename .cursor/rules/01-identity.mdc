@@ -4,6 +4,12 @@ alwaysApply: true
 
 # LiNKtrend Venture Studio — Identity & Context
 
+## What this repo is
+
+**LiNKtrend System = LiNKaios** — the AI-native company operating system monorepo. LiNKaios ships as **LiNKaios Client** (licensee operators) and **LiNKtrend Admin** (vendor fleet and tenant management). Other planes (LiNKbrain, LinkSkills, LiNKautowork, LiNKbot, LiNKguard) are components of LiNKaios, not separate products.
+
+Canonical product definition: `LiNKdev/product/grounding/PRINCIPAL_PRODUCT_DEFINITION.md`
+
 ## Who We Are
 
 LiNKtrend is an AI-native venture studio that industrializes digital venture creation through an agentic organizational structure. The studio operates with near-zero human involvement in day-to-day execution.

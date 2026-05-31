@@ -1,39 +1,90 @@
-# Master plan — LiNKtrend AI Agent Ecosystem MVO
+# Master plan — path to MVO
 
-## Purpose of the MVO
+High-level delivery path. **Not** an issue DAG — the Planner builds the program from [`INTENT.md`](INTENT.md) and [`SHIP_CRITERIA.md`](SHIP_CRITERIA.md).
 
-Prove an end-to-end **lead → preview site** path using **LinkSites / WebsiteFactory** as the vertical slice, with the ecosystem planes (LiNKaios, LiNKbrain, LinkSkills, LiNKautowork, LiNKbot) wired **without role bleed** per `ARCHITECTURE_RULES.md`.
+**Canonical definition:** [`PRINCIPAL_PRODUCT_DEFINITION.md`](PRINCIPAL_PRODUCT_DEFINITION.md)
 
-Success means a credible demo: capture or represent a lead, drive deterministic steps where required, apply governance where side effects exist, emit audit/learn signals to LiNKbrain, and surface a **preview** website artifact suitable for stakeholder review.
+---
 
-## Time targets
+## Outcome
 
-- **Conservative plan:** ~**21 days** for a robust, integration-complete slice (see `docs/ecosystem/development-plan/06_Compressed_7_Day_vs_Conservative_21_Day_Plan_v2.md`).
-- **Aggressive execution target:** **7 days** for an MVO that may include **documented stubs** rather than full external integrations.
+Deliver **LiNKtrend System MVO**:
 
-## Current first flow
+1. **LiNKaios Client** — licensee operates LinkSites Project with traces and approvals  
+2. **LiNKtrend Admin** — vendor manages demo tenant and fleet for MVO  
+3. **LinkSites E2E** — one lead: discover → build → publish (`businessname.linktrend.media`) → outreach → close or recycle  
 
-**LinkSites / WebsiteFactory — lead-to-preview-site**
+All planes participate with audit, leases, and trace visibility. **No phasing** — continue until complete.
 
-- Primary user journey: intake a lead (or lead-like input), run the factory pipeline, land on a **preview** publish target appropriate to Day-1 decisions (see `DECISIONS.md`).
+---
 
-## Immediate phase (command center bootstrap)
+## Workstreams
 
-In order:
+### A. Foundation (control plane + infra)
 
-1. **Command center + docs verification** — confirm `LiNKdev/product/grounding/` and `docs/ecosystem/` are the operating sources of truth (`WP-000`).
-2. **Repo inventory + reuse map** — identify existing services, packages, and prior art to reuse (`WP-001`).
-3. **Day-1 decision freeze** — close or explicitly stub the minimum set of platform choices (`WP-002`).
-4. **LiNKaios kernel/module manifest using WebsiteFactory** — define the minimum LiNKaios module contract and use WebsiteFactory as the first module example (`WP-003`).
-5. **MVO contracts** — cross-service interfaces, events, and failure modes for the lead-to-preview path, bound to the WP-003 kernel/plugin manifest (`WP-004`).
+- Supabase schemas, RLS, exposed API schemas for kernel/brain/skills
+- LiNKaios kernel: tenants, Projects, Runs, stages, trace joins
+- GSM-backed secrets for Supabase, Zulip, Plane, OpenRouter
+- Client shell: auth, Suites navigation, Project detail, trace/status views
+- Admin shell: minimum vendor surfaces for MVO tenant and Suite management
+
+### B. Planes wired for governance
+
+| Plane | MVO deliverables |
+|-------|------------------|
+| **LinkSkills** | Capability catalog, lease lifecycle, LinkSites connector set, progressive disclosure hooks |
+| **LiNKautowork** | Workflow handles: artifact, Supabase mirror, Payload sync, preview checks, CRM/outreach gates |
+| **LiNKbot** | LinkSites roles: lead scout, research, website builder, outreach; runtime adapter + governance payload |
+| **LiNKbrain** | Audit envelope writer, run/stage/lease events, Librarian entry points (minimum viable loop) |
+| **LiNKguard** | Session cleanup, skill-trace wipe hooks on bot completion |
+
+### C. Default Capabilities (studio-provided)
+
+- **Zulip** — project stream per Project, topics for phases/issues
+- **Plane** — bootstrap empty project from Suite template; sync issues/cycles
+- **Supabase** — platform persistence and mirror tables (discovered from LiNKsites where applicable)
+- **Payload sync** — connector to local/shared Payload in LiNKsites repo
+- **CRM/Odoo shadow** — lead record and status for outreach gate
+- **Public research, asset generation** — as required by LinkSites workflow
+
+### D. LinkSites Suite integration
+
+- Canonical workflow map: `suites/linksites/workflow.md` (align with [`CONTRACTS_MVO.md`](CONTRACTS_MVO.md))
+- LiNKaios Client panels for operator flow (lead, build status, preview URL, outreach)
+- Cross-repo contracts with **`/Users/linktrend/Projects/LiNKsites`** — templates, CMS, frontend, VPS publish
+- End-to-end demo script recorded in program STATUS
+
+### E. Verification and release
+
+- LiNKdev `verify.sh` at critical tier for touched scope
+- Proof manifests per issue and program
+- Principal demo + Release OK
+- Promote `development → staging → main`
+
+---
+
+## Explicitly deferred (post-MVO)
+
+- LinkApps, LEXOS, Linktrend Media, and other Suites
+- Customer-choice of default Zulip/Plane alternatives
+- Full Librarian council/automation-improvement loop at production scale
+- Live Odoo/QuickBooks beyond LinkSites CRM needs
+- Multi-lead batch and recycle inventory UX polish beyond one-lead proof
+
+---
 
 ## Reference documentation
 
-Authoritative narratives and execution planning live under:
+| Path | Content |
+|------|---------|
+| `docs/architecture/repo-architecture-target.md` | Folder ownership |
+| `docs/architecture/system-completion-targets.md` | 90–95% completion targets per plane |
+| `docs/terminology.md` | UI ↔ repo terminology |
+| `suites/linksites/workflow.md` | LinkSites stage spine |
+| `LiNKdev/product/archive/grounding-legacy/` | Pre-2026-05 plans and stub-MVO artifacts |
 
-- **Architecture ownership:** `docs/architecture/repo-architecture-target.md`
-- **System completion targets:** `docs/architecture/system-completion-targets.md`
-- **Design:** `docs/ecosystem/design/`
-- **Development plan:** `docs/ecosystem/development-plan/`
+---
 
-Legacy pre-ecosystem material is **read-only context** under `docs/archive/legacy-pre-ecosystem/` — do not treat it as the current contract unless reconciled into ecosystem docs or `DECISIONS.md`.
+## Success check
+
+Use [`SHIP_CRITERIA.md`](SHIP_CRITERIA.md) — not intermediate "preview-only" checkpoints — as the program exit gate.

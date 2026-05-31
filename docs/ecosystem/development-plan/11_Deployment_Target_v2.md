@@ -1,5 +1,7 @@
 # Deployment Target v2
 
+> **Superseded for MVO bar (May 2026):** Principal MVO requires live publish and governed outreach, not “local first with seed leads” as completion. See [`05_MVO_Scope_and_Demo_Flow_v2.md`](./05_MVO_Scope_and_Demo_Flow_v2.md).
+
 ## Goal
 
 First target: local internal run.

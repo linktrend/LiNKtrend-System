@@ -1,49 +1,65 @@
 # Product intent
 
 **Program ID:** `linktrend-system`  
-**Status:** approved  
-**Last updated:** 2026-05-30
+**Status:** approved — Principal MVO reset May 2026  
+**Last updated:** 2026-05-31
 
-Deliver the LiNKtrend AI Agent Ecosystem **MVO**: an end-to-end **lead → preview site** flow through LinkSites / WebsiteFactory, with LiNKaios, LiNKbrain, LinkSkills, LiNKautowork, and LiNKbot wired per architecture rules — auditable, governable, and demo-ready.
+Complete the **LiNKtrend System MVO**: LiNKaios **Client + Admin** plus one full **LinkSites** end-to-end run (one lead → built site → published preview URL → outreach) with all planes wired per architecture rules — auditable, governable, and demo-ready.
 
 ## Grounding links
 
-- **Vision:** [`VISION.md`](VISION.md) — product narrative (Planner fills after Principal Go)
-- **Ship criteria:** [`SHIP_CRITERIA.md`](SHIP_CRITERIA.md) — program Definition of Done checklist for release
+| Document | Role |
+|----------|------|
+| [`PRINCIPAL_PRODUCT_DEFINITION.md`](PRINCIPAL_PRODUCT_DEFINITION.md) | Canonical Principal definition |
+| [`VISION.md`](VISION.md) | Product narrative |
+| [`SHIP_CRITERIA.md`](SHIP_CRITERIA.md) | Program Definition of Done |
+| [`MASTER_PLAN.md`](MASTER_PLAN.md) | High-level delivery path |
+| [`CONTRACTS_MVO.md`](CONTRACTS_MVO.md) | LinkSites contracts and capability boundaries |
 
 ## What development must accomplish
 
-When all issues in **linktrend-system** are complete, a Principal or operator can run the WebsiteFactory MVO demo: select or import a lead, choose a template, generate copy, produce a preview site, and see governed traces across LiNKaios (suites/projects UI), capability leases, automation runs, LiNKbot execution, and LiNKbrain audit — with documented stubs only where external integrations are not yet live.
+When the program is complete, the Principal can demonstrate:
 
-LiNKaios presents suites, modules, projects, phases, and issues with approved terminology. Service ownership stays bounded: no role bleed between control plane, memory, skills, automation, and bot runtime.
+1. **LiNKaios Client** — licensee operator flow for LinkSites: project launch, progress, approvals, traces, LiNKbrain visibility.
+2. **LiNKtrend Admin** — vendor surfaces needed to manage the demo tenant, Suite, and fleet for MVO.
+3. **LinkSites E2E** — one lead through lead generation, template-guided build, Payload/VPS publish (`businessname.linktrend.media`), and outreach, with:
+   - LinkSkills capability leases on every side effect
+   - LiNKautowork deterministic workflow runs with audit
+   - LiNKbot judgment steps (research, build, outreach)
+   - LiNKbrain events and memory writes
+   - Zulip project messaging and Plane execution tracking
+   - LiNKguard session/IP posture on bot runs
+
+LinkSites **product code** (templates, Payload, frontend) remains in the external **`LiNKsites`** repo; this repo integrates and orchestrates.
 
 ## Program scope
 
 ### In scope
 
-- LiNKaios control-plane UI and kernel surfaces for the MVO path
-- LinkSites / WebsiteFactory module workflow map and operator flow
-- LinkSkills capability connectors (shadow/mock modes acceptable per MVO)
-- LiNKautowork deterministic workflow execution with audit
-- LiNKbrain events, memory writes, and trace visibility
-- LiNKbot mission execution for judgment steps
-- LiNKdev factory coordination for this repo (`LiNKdev/`)
+- LiNKaios Client UI/kernel for MVO operator and approval paths
+- LiNKtrend Admin UI/kernel for vendor MVO management
+- LinkSites Suite workflow map and integration in `suites/linksites/`
+- Required Capabilities: Zulip, Plane, Supabase, CRM/Odoo shadow, Payload sync, public research, asset generation (as needed for E2E)
+- LiNKautowork workflow handles for deterministic LinkSites stages
+- LiNKbrain audit envelope, Librarian hooks (minimum viable for MVO proof)
+- LiNKbot roles for LinkSites (lead scout, research, builder, outreach)
+- LiNKdev factory coordination for this repo
 
-### Out of scope
+### Out of scope (until MVO ships)
 
-- Full live CRM, Plane, or hosted publishing without Principal-approved capability live modes
-- Customer-owned Plane/Odoo configuration beyond studio-provided MVO defaults
-- New orchestration stacks (CrewAI, LangGraph, n8n brain) parallel to LiNKdev
-- Merging to `staging` or `main` without Principal Release OK
+- LinkApps, LEXOS, Linktrend Media, and other Suites beyond LinkSites
+- Customer-owned Plane/Odoo beyond studio MVO defaults
+- Moving LiNKsites product implementation into this monorepo
+- Parallel orchestration stacks outside LiNKdev
+- Promotion to `staging` or `main` without Principal Release OK
 
 ## Success criteria
 
-Testable conditions aligned with [`SHIP_CRITERIA.md`](SHIP_CRITERIA.md):
+Aligned with [`SHIP_CRITERIA.md`](SHIP_CRITERIA.md):
 
-- [ ] Demo command or URL recorded in program STATUS
+- [ ] MVO demo recorded (command, URL, or runbook reference in program STATUS)
 - [ ] `verify.sh` passes at `LINKDEV_TIER=critical` for release scope
-- [ ] Per-issue and program proof manifests emitted where required
-- [ ] Merge replay traceability on `development`
+- [ ] Per-issue and program proof manifests where required
 - [ ] No open `linkdev:blocked` issues in STATE
 - [ ] Principal Release OK before staging/main promotion
 
@@ -51,15 +67,13 @@ Testable conditions aligned with [`SHIP_CRITERIA.md`](SHIP_CRITERIA.md):
 
 - LiNKdev laws: `LiNKdev/factory/laws/LINKDEV_LAWS.md`
 - Ecosystem boundaries: `.cursor/rules/02-ecosystem-boundaries.mdc`
-- MVO scope and stubs: `.cursor/rules/04-mvo-scope-and-stubbing.mdc`
 - Suite/project terminology: `.cursor/rules/07-suite-project-terminology.mdc`
 - Secrets in GSM only: `.cursor/rules/03-secrets-security.mdc`
+- Product constraints: [`CONSTRAINTS.md`](CONSTRAINTS.md)
 
 ## Principal approval
 
 | Item | Status | Date |
 |------|--------|------|
-| Finished-product narrative | OK | 2026-05 |
-| Intent (this document) | OK | 2026-05-30 |
-
-Intent verdict (G2): `LiNKdev/product/reports/linktrend-system/intent-verdict.json` — must be `PASS` before Orchestrator sets `linkdev:ready`.
+| Product definition (`PRINCIPAL_PRODUCT_DEFINITION.md`) | OK | 2026-05 |
+| Intent (this document) | OK | 2026-05-31 |

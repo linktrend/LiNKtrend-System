@@ -1,5 +1,35 @@
 # Product vision
 
-Filled by Planner after Principal **Go** Q&A and approval of the finished-product narrative.
+**Status:** Principal-approved — May 2026  
+**Canonical source:** [`PRINCIPAL_PRODUCT_DEFINITION.md`](PRINCIPAL_PRODUCT_DEFINITION.md)
 
-Describe what the product is, who it is for, and what “done” looks like in plain English (max ~2 pages).
+---
+
+## What we are building
+
+LiNKtrend System is **LiNKaios** — an AI-native operating system for real businesses. A dental clinic, restaurant, law firm, accounting practice, or venture studio runs day-to-day work through **Suites**: packaged business processes such as content creation, distribution, channel management, or website sales.
+
+Humans stay in the loop for strategy and approvals; LiNKbots and automations execute the work.
+
+## Who it is for
+
+**LiNKaios Client** serves the licensee company: the Principal, operators, and staff with role-based access to Projects, approvals, and LiNKbrain knowledge.
+
+**LiNKtrend Admin** serves the vendor: managing many licensee instances, Suite catalogues, LiNKbot fleet, and operational troubleshooting.
+
+## How work flows
+
+Each Suite breaks down into Modules, Phases, and Issues. An Issue is the smallest unit of work, executed by either a **LiNKautowork** automation or a **LiNKbot**. LinkSkills governs which skills and external tools each bot may use; LiNKguard protects skill IP and client confidentiality; LiNKbrain remembers and learns through a Librarian that feeds company knowledge and an anonymized world brain.
+
+## What "done" looks like (MVO)
+
+The first proof is **not** every Suite finished. It is:
+
+1. **LiNKaios Client + LiNKtrend Admin** operational for the MVO scope.
+2. **One complete LinkSites run**: one lead from discovery through website build, publish on `businessname.linktrend.media`, and outreach — with Zulip, Plane, Supabase, leases, automations, bot steps, brain events, and traces visible in LiNKaios.
+
+Development continues without phasing until that outcome is real.
+
+## What comes later
+
+LinkApps, LEXOS, media suites, and industry-specific packages are real product direction but **post-MVO**. The architecture supports them; the first program completes LinkSites E2E only.
