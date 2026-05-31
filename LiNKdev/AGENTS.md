@@ -32,10 +32,10 @@ Do **not** list or glob `product/reports/`, `archive/`, or full `grounding/`.
 
 | Role | Prompt |
 |------|--------|
-| Wire | `factory/install/WIRE-PROMPT.md` (local) |
-| UI automations | `factory/install/automations/CODEX-CREATE-AUTOMATIONS.md` |
+| Wire | `factory/install/EXECUTE-WIRE-LINKDEV.md` |
+| Dispatch install | `factory/install/EXECUTE-LINKDEV-DISPATCH-INSTALL.md` — see `factory/docs/DISPATCH.md` |
 | Go → Planner | `factory/prompts/planner/ROLE.md` (cloud) |
-| Orchestrator / Executor / Reviewer / Integrator | `factory/prompts/<role>/ROLE.md` |
+| Orchestrator / Executor / Reviewer / Integrator | `factory/prompts/<role>/ROLE.md` (dispatched via GitHub Actions) |
 
 ## Go (virgin repo)
 

@@ -65,16 +65,6 @@ Canonical skills live under `LiNKdev/skills/`. Read this before opening skill bo
 - `LiNKdev/skills/gstack/unfreeze/SKILL.md`
 
 ### host skills (this repo)
-
-**LiNKaios UI (restored):** Four composite UI skills are back in the tree with canonical paths:
-
-- `LiNKdev/skills/host/data-table/SKILL.md`
-- `LiNKdev/skills/host/action-queue/SKILL.md`
-- `LiNKdev/skills/host/summary-metric-cards/SKILL.md`
-- `LiNKdev/skills/host/personal-information-forms/SKILL.md`
-
-Read `LiNKdev/product/grounding/UI_AUTHORITY.md` before changing LiNKaios operator UI. **Other host entries** below are legacy/migrated catalog paths; remaining host skill migration is **pending**.
-
 - `LiNKdev/skills/host/action-queue/SKILL.md`
 - `LiNKdev/skills/host/api-patterns/SKILL.md`
 - `LiNKdev/skills/host/app-builder/SKILL.md`

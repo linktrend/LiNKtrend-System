@@ -1,36 +1,13 @@
-# Codex automations
+# Codex automations — **future / optional legacy**
 
-Codex executors are **peer automations** to Cursor cloud agents. Same GitHub labels; separate Codex automation entries.
+**Dispatch v1** does not call Codex from GitHub Actions. Executor path: `linkdev:ready` + `runtime:codex` — manual Codex session or future workflow.
 
-Repo: **linktrend/LiNKtrend-System**
+**Cursor executor (wired):** `linkdev:ready` + `runtime:cursor` → [../../docs/DISPATCH.md](../../docs/DISPATCH.md).
 
-Draft spec (Step B prep): [LiNKdev-executor-codex.spec.md](LiNKdev-executor-codex.spec.md)
+---
 
-## LiNKdev-executor-codex
+## Legacy UI (optional)
 
-- **Trigger:** GitHub issue labeled `linkdev:ready` AND `runtime:codex`
-- **Filter:** Issue body or path references `LiNKdev/product/programs/` (optional narrow filter)
-- **Prompt:** `LiNKdev/factory/prompts/executor-codex/ROLE.md` + issue spec from `LiNKdev/product/programs/<program-id>/modules/<module>/phases/<phase>/issues/<issue-id>.md`
-- **Branch:** `dev/minicodex` or `issue/<id>-*`
+If using Codex Automations UI, mirror the same labels as Cursor. Record non-secret metadata in this folder after setup.
 
-## Planner checklist
-
-For each Codex issue group in `LiNKdev/product/programs/linktrend-system/PROGRAM.md`, duplicate trigger with same label contract — do not rely on Principal manual launch.
-
-## Proof
-
-Automation run must update `LiNKdev/product/reports/<program-id>/.../<issue-id>.md` and push branch without Principal starting Codex.
-
-## Principal UI checklist (one-time)
-
-1. Open **Codex → Automations** (or project automations UI) for `linktrend/LiNKtrend-System`.
-2. Create **LiNKdev-executor-codex** with trigger: issue labels `linkdev:ready` + `runtime:codex`.
-3. Point prompt at `LiNKdev/factory/prompts/executor-codex/ROLE.md` and issue spec under `LiNKdev/product/programs/`.
-4. Default branch: `dev/minicodex` (or `issue/<id>-*` per issue template).
-5. Record automation ID in this folder after save.
-
-## Export
-
-Document Codex automation IDs in this folder after Principal configures UI.
-
-Log results in `LiNKdev/product/reports/wire/wire-automation-setup.md`.
+Do not commit secrets.
