@@ -1,8 +1,9 @@
 # MVO UI Policy — Operator vs Customer vs Upstream
 
 **Status:** Canonical for MVO UI boundaries (May 2026)  
-**Workspace file:** `LiNKtrend-System.code-workspace`  
-**Product authority:** `LiNKtrend-System/LiNKdev/product/grounding/UI_AUTHORITY.md`
+**Canonical path (host repo):** `docs/workspace/MVO-UI-POLICY.md`  
+**Workspace file:** `LiNKtrend-System.code-workspace` (optional copy under `~/Projects/Workspaces/`)  
+**Product authority:** `LiNKdev/product/grounding/UI_AUTHORITY.md`
 
 This document defines **which UI system applies where** in the four-repo workspace. Agents must not apply LiNKaios shell patterns to customer websites or rebuild upstream product UIs inside LiNKaios.
 

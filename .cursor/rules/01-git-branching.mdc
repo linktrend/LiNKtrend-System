@@ -5,7 +5,7 @@ globs: "**/*"
 
 # Git branching (LiNKdev-aligned)
 
-Canonical rules: `LiNKdev/factory/rules/01-git-branching.mdc` and **SPEC §8** (`LiNKdev/factory/SPEC.md`).
+Canonical rules: `LiNKdev/factory/rules/01-git-branching.mdc` and **SPEC §8** (`LiNKdev/factory/SPEC.md`). Four-repo MVO workspace: `docs/workspace/MVO-GITHUB-STRATEGY.md`.
 
 ## Integration branch
 

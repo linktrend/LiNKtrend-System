@@ -1,7 +1,8 @@
 # MVO GitHub Strategy — Four-Repo Workspace
 
 **Status:** Canonical for MVO multi-repo development (May 2026)  
-**Workspace file:** `LiNKtrend-System.code-workspace` (same folder as this doc)
+**Canonical path (host repo):** `docs/workspace/MVO-GITHUB-STRATEGY.md`  
+**Workspace file:** `LiNKtrend-System.code-workspace` (optional copy under `~/Projects/Workspaces/`)
 
 This document unifies Git workflow across the four active MVO repositories opened together in Cursor. **All four repos follow the same branch model** as **LiNKdev SPEC §8** (`LiNKdev/factory/SPEC.md`).
 

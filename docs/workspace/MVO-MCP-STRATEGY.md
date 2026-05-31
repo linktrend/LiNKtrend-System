@@ -1,7 +1,8 @@
 # MVO MCP Strategy — User Plugins + Per-Repo Config
 
 **Status:** Canonical for MVO agent tooling (May 2026)  
-**Workspace file:** `LiNKtrend-System.code-workspace`
+**Canonical path (host repo):** `docs/workspace/MVO-MCP-STRATEGY.md`  
+**Workspace file:** `LiNKtrend-System.code-workspace` (optional copy under `~/Projects/Workspaces/`)
 
 Model Context Protocol (MCP) servers extend Cursor agents with browser, Supabase, shadcn, Slack, and other integrations. This doc defines **where** MCP is configured and **how** the four-repo workspace uses it without duplicating secrets.
 
@@ -72,7 +73,7 @@ Add repo-specific servers only when:
 1. **Read tool schema** before `CallMcpTool` — descriptors live under Cursor's MCP cache for each server.
 2. **Supabase:** use for LiNKbrain/kernel schema work; follow `LiNKdev` + `.cursor/rules/03-secrets-security.mdc`.
 3. **Browser MCP:** use for operator UI proof, not as a substitute for governed capability leases on side effects.
-4. **Cross-repo work:** MCP does not replace git — changes still land via the branch model in `MVO-GITHUB-STRATEGY.md`.
+4. **Cross-repo work:** MCP does not replace git — changes still land via the branch model in `docs/workspace/MVO-GITHUB-STRATEGY.md`.
 
 ---
 

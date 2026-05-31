@@ -2,7 +2,7 @@
 
 **Status:** Canonical grounding (May 2026)  
 **Audience:** Agents building or reviewing UI in the MVO four-repo workspace  
-**Workspace policy:** `/Users/linktrend/Projects/Workspaces/MVO-UI-POLICY.md`
+**Workspace policy:** `docs/workspace/MVO-UI-POLICY.md` (optional local copy: `~/Projects/Workspaces/MVO-UI-POLICY.md`)
 
 This document is the **product-level authority** for which UI system governs which surface. It does not replace detailed pattern docs — it routes agents to them.
 
@@ -63,7 +63,7 @@ Agents working in **LiNKsites** must not port LiNKaios data-table, action-queue,
 
 ## Upstream UIs — out of scope
 
-Plane, Odoo, n8n, Zulip, and Payload admin are **kitchen systems**. LiNKaios provides traces, capability leases, and deep links — not feature parity UI. See `MVO-UI-POLICY.md` Class C table.
+Plane, Odoo, n8n, Zulip, and Payload admin are **kitchen systems**. LiNKaios provides traces, capability leases, and deep links — not feature parity UI. See `docs/workspace/MVO-UI-POLICY.md` Class C table.
 
 ---
 
@@ -88,4 +88,4 @@ Optional reference surfaces mentioned in rules: `LiNKapps/packages/ui` / `@start
 | LiNKbot channels / gateway UI | `LiNKbot-core/AGENTS.md` + scoped subtree |
 | Automation / n8n | LiNKautowork — no LiNKaios shell |
 
-When unsure which class applies, read `MVO-UI-POLICY.md` before writing UI code.
+When unsure which class applies, read `docs/workspace/MVO-UI-POLICY.md` before writing UI code.

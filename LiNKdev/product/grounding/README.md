@@ -40,6 +40,10 @@ See [`../archive/grounding-legacy/README.md`](../archive/grounding-legacy/README
 
 | Path | Purpose |
 |------|---------|
+| `docs/workspace/` | MVO four-repo workspace policy (GitHub, MCP, UI) — host repo only; not in portable LiNKdev template |
+| `docs/workspace/MVO-GITHUB-STRATEGY.md` | Cross-repo branch model and agent routing |
+| `docs/workspace/MVO-MCP-STRATEGY.md` | MCP layering (user plugins + per-repo `mcp.json`) |
+| `docs/workspace/MVO-UI-POLICY.md` | Operator vs customer vs upstream UI classes |
 | `docs/terminology.md` | UI ↔ repo terminology |
 | `docs/architecture/` | Ownership and completion targets |
 | `suites/linksites/` | LinkSites Suite workflow map |
