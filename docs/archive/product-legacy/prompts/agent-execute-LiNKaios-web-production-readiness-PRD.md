@@ -6,7 +6,7 @@ Paste everything below the line into a **new Agent** chat. Repository root: **`L
 
 ## Authority
 
-Single source of truth: **`docs/LiNKaios-web-production-readiness-PRD.md`**.
+Single source of truth: **`../pre-ecosystem/LiNKaios-web-production-readiness-PRD.md`**.
 
 ## Preconditions
 

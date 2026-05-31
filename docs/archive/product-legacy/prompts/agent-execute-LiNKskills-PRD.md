@@ -1,4 +1,4 @@
-# Agent prompt — Execute `docs/LiNKskills-PRD.md` only
+# Agent prompt — Execute `../pre-ecosystem/LiNKskills-PRD.md` only
 
 Paste the block below into a **new Agent chat** (implementation mode). Repo root: **`LiNKtrend-System`**.
 
@@ -6,7 +6,7 @@ Paste the block below into a **new Agent chat** (implementation mode). Repo root
 
 ## Single source of truth
 
-Read and follow **`docs/LiNKskills-PRD.md`** end-to-end. Do **not** implement org/mission allowlists, Projects → Tools tab, Zulip, or pending-request workflows — those belong to **`docs/LiNKaios-tool-governance-spec.md`** (another agent). If the PRD references those, treat them as **dependencies**: add `TODO` comments or feature flags only where your code would otherwise break the build, and document handoff notes in your PR description.
+Read and follow **`../pre-ecosystem/LiNKskills-PRD.md`** end-to-end. Do **not** implement org/mission allowlists, Projects → Tools tab, Zulip, or pending-request workflows — those belong to **`../pre-ecosystem/LiNKaios-tool-governance-spec.md`** (another agent). If the PRD references those, treat them as **dependencies**: add `TODO` comments or feature flags only where your code would otherwise break the build, and document handoff notes in your PR description.
 
 ## Scope you own
 

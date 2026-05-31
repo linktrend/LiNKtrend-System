@@ -1,4 +1,4 @@
-# Agent prompt — Execute `docs/PRISM-Defender-PRD.md` (v1 defensive sidecar)
+# Agent prompt — Execute `../pre-ecosystem/PRISM-Defender-PRD.md` (v1 defensive sidecar)
 
 Paste everything below the line into a **new Agent** chat. Repository root: **`LiNKtrend-System`**.
 
@@ -6,14 +6,14 @@ Paste everything below the line into a **new Agent** chat. Repository root: **`L
 
 ## Authority
 
-Single source of truth: **`docs/PRISM-Defender-PRD.md`**.  
-Cross-check **`docs/260414 - LiNKtrend Agentic System PRD.md` §9** for intent; if conflict, **this PRD wins** for v1 scope (narrower).
+Single source of truth: **`../pre-ecosystem/PRISM-Defender-PRD.md`**.  
+Cross-check **`../pre-ecosystem/260414 - LiNKtrend Agentic System PRD.md` §9** for intent; if conflict, **this PRD wins** for v1 scope (narrower).
 
 ## Preconditions
 
 Read:
 
-- `docs/PRISM-Defender-PRD.md` (full)
+- `../pre-ecosystem/PRISM-Defender-PRD.md` (full)
 - `LiNKguard/sidecar/linkguard/src/index.ts`, `residue-sweep.ts`, `heartbeat-retention.ts`
 - `LiNKbot/runtime-adapters/openclaw/bot-runtime/src/index.ts`
 - `packages/shared-config/src/index.ts`
@@ -60,7 +60,7 @@ Read:
 ## Deliverables
 
 - PR description: env vars, shutdown ordering diagram (text ok), screenshots or notes for LiNKaios minimal UI.
-- Updated **`docs/PRISM-Defender-PRD.md` §10** operator table filled with final variable names and defaults.
+- Updated **`../pre-ecosystem/PRISM-Defender-PRD.md` §10** operator table filled with final variable names and defaults.
 
 ## Stop condition
 

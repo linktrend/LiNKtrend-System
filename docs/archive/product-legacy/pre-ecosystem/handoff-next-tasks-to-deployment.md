@@ -91,7 +91,7 @@ Before or as you cut over to a shared/staging/prod LiNKaios deployment:
 Checklist-style:
 
 - Fork accepts **`OPENCLAW_AGENT_RUN_URL`**-style POST body (or your proxy) and forwards **`linktrendGovernance`** into the engine.
-- **LiNKaios “brain” integration:** base URL and **secrets** the fork/plugin uses for published/retrieve (or other documented APIs) — align with `docs/linkbrain-openclaw-plugin-integration-spec.md` and env practice (no secrets in git).
+- **LiNKaios “brain” integration:** base URL and **secrets** the fork/plugin uses for published/retrieve (or other documented APIs) — align with `./linkbrain-openclaw-plugin-integration-spec.md` and env practice (no secrets in git).
 - **Zulip plugin** on the fork works with your **real Zulip server** credentials.
 - **`zulip-gateway` topology:** decide and document **one shared gateway** for several agents vs **one gateway per agent**, and match Zulip webhook URLs / firewall rules to that choice.
 - End-to-end smoke: **LiNKtrend Plugin** + **fork** against **staging LiNKaios / Supabase** (or production if that is your only environment — your call).

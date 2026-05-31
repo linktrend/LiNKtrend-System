@@ -13,7 +13,7 @@ Pre-wiring readiness Waves 0–7 executed end-to-end on `LiNKaios/linkaios-web`:
 | Wave | Outcome |
 |------|---------|
 | 0 | Baseline WIP committed (suites, wizard, terminology, UI composites) |
-| 1 | shadcn init + 12 primitives; `docs/ui-system.md` index |
+| 1 | shadcn init + 12 primitives; `LiNKaios/linkaios-web/docs/ui-system.md` index |
 | 2 | `POST /api/projects` stub; wizard wire-up; project UX fixes |
 | 3 | Stub honesty badges; terminology wave 5; BUTTON→shadcn bridge |
 | 4 | Shell error/not-found; venture reskin; settings UX dedupe |

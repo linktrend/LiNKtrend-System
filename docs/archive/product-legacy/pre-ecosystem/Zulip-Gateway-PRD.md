@@ -4,7 +4,7 @@
 **Scope:** `LiNKbot/communications/temporary-gateways/zulip` only — inbound Zulip → Supabase + traces, outbound governance posts, health, security hardening, tests, and operator docs.  
 **Out of scope:** OpenClaw/LiNKbot Zulip chat plugin (fork); full “presence” product; mapping Zulip users to LiNKbot identities (future).
 
-**Parent context:** Monorepo PRD §5.2 / §10 (`docs/260414 - LiNKtrend Agentic System PRD.md`) — gateway is the **mission-aware adapter**, not the chat engine.
+**Parent context:** Monorepo PRD §5.2 / §10 (`./260414 - LiNKtrend Agentic System PRD.md`) — gateway is the **mission-aware adapter**, not the chat engine.
 
 ---
 
@@ -18,7 +18,7 @@
 4. **Security:** Inbound webhook rejects or ignores unsigned traffic when **`ZULIP_INBOUND_WEBHOOK_SECRET`** (or agreed env name) is set (compare to query param or header documented in §7).
 5. **Safety:** Request body size cap (e.g. 512 KiB) to avoid abuse; structured logs on reject.
 6. **Quality:** **Vitest** for pure helpers (payload extract, topic parse, resolution order); **ESLint** replaces the `lint` stub; `pnpm` build/typecheck/test pass for `@linktrend/zulip-gateway`.
-7. **Docs:** `docs/zulip-routing.md` updated with §3 resolution order, §7 env table, and Zulip server configuration checklist.
+7. **Docs:** `./zulip-routing.md` updated with §3 resolution order, §7 env table, and Zulip server configuration checklist.
 
 ---
 
@@ -49,7 +49,7 @@ Outbound notify stream selection may remain as today (mission → routing row �
 
 - `POST /webhooks/zulip`, `POST /internal/tool-governance-notify`, `GET /health`.
 - `zulip_message_links` upsert, `recordTrace`, `postZulipStreamMessage`.
-- `docs/zulip-routing.md` tool-governance section.
+- `./zulip-routing.md` tool-governance section.
 
 ---
 
@@ -89,7 +89,7 @@ Add to `packages/shared-config` when implementing.
 - [ ] Inbound secret enforced when env set; ignored when unset (backward compatible).
 - [ ] Body size limit returns 413 or 400 with no DB write.
 - [ ] `pnpm --filter @linktrend/zulip-gateway test` + `build` + `lint` green.
-- [ ] `docs/zulip-routing.md` matches shipped behavior.
+- [ ] `./zulip-routing.md` matches shipped behavior.
 
 ---
 

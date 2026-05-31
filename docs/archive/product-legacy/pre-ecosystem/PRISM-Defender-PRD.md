@@ -2,7 +2,7 @@
 
 **Status:** Draft (2026-04-15).  
 **Scope:** `LiNKguard/sidecar/linkguard` and its **contracts** with `LiNKbot/runtime-adapters/openclaw/bot-runtime`, Supabase `prism.*`, shared config, observability, and **minimal** LiNKaios visibility.  
-**Parent context:** Monorepo PRD §9 (`docs/260414 - LiNKtrend Agentic System PRD.md`) remains the north star; **this document defines a shippable v1 milestone** (“defensive sidecar ready”) that materially advances §9 without overclaiming (no “magical invisibility”).
+**Parent context:** Monorepo PRD §9 (`./260414 - LiNKtrend Agentic System PRD.md`) remains the north star; **this document defines a shippable v1 milestone** (“defensive sidecar ready”) that materially advances §9 without overclaiming (no “magical invisibility”).
 
 **Out of scope for v1:** Kernel-level syscall filtering, mandatory co-tenancy with OpenClaw inside the fork, cross-host orchestration when worker and PRISM run on different machines without a shared contract, antivirus engines, full command-centre analytics product.
 

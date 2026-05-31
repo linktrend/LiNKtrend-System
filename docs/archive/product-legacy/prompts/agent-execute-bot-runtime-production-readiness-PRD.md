@@ -6,7 +6,7 @@ Paste everything below the line into a **new Agent** chat. Repository root: **`L
 
 ## Authority
 
-Single source of truth: **`docs/bot-runtime-production-readiness-PRD.md`**.
+Single source of truth: **`../pre-ecosystem/bot-runtime-production-readiness-PRD.md`**.
 
 ## Preconditions
 
@@ -32,7 +32,7 @@ Read the PRD, then read:
 
 7. **ESLint:** `eslint.config.mjs` + `package.json` scripts mirroring `LiNKbot/communications/temporary-gateways/zulip`.
 
-8. **Docs:** Create **`docs/bot-runtime.md`** per PRD §2.6 and §5.
+8. **Docs:** Create **`../pre-ecosystem/bot-runtime.md`** per PRD §2.6 and §5.
 
 ## Constraints
 
@@ -52,7 +52,7 @@ If `linklogic-sdk` types change, run its build too.
 
 ## Deliverable
 
-PR notes: new env vars, test list, and link to `docs/bot-runtime.md`.
+PR notes: new env vars, test list, and link to `../pre-ecosystem/bot-runtime.md`.
 
 ---
 

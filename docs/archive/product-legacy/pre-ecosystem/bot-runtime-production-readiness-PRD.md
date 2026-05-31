@@ -25,7 +25,7 @@
 3. **Outbound HTTP timeouts:** All `fetch` calls (`openclaw-handoff`, Zulip notify) use **`AbortSignal.timeout`** or `AbortController` with a configurable default (e.g. **30s** OpenClaw, **10s** notify) and env overrides (`BOT_RUNTIME_OPENCLAW_TIMEOUT_MS`, `BOT_RUNTIME_NOTIFY_TIMEOUT_MS` or single `BOT_RUNTIME_HTTP_TIMEOUT_MS`).
 4. **Shutdown hardening:** `closeWorkerSession` wrapped so failures are **logged** and do not prevent process exit; `recordPrismSessionEnd` behavior unchanged unless a bug is found.
 5. **Governance failure path:** If `buildLinktrendGovernancePayload` throws, emit a **best-effort** `recordTrace` with `bot_runtime.governance_error` (or reuse existing pattern) so operators see failures in Traces, not only stdout.
-6. **Documentation:** `docs/bot-runtime.md` (new, short): env table, lifecycle diagram (ASCII), “blocked run → approve in LiNKaios → re-run”, health/liveness = **session pulse** in `bot_runtime.worker_sessions` (no mandatory HTTP health server in v1).
+6. **Documentation:** `./bot-runtime.md` (new, short): env table, lifecycle diagram (ASCII), “blocked run → approve in LiNKaios → re-run”, health/liveness = **session pulse** in `bot_runtime.worker_sessions` (no mandatory HTTP health server in v1).
 7. **Build:** `pnpm --filter @linktrend/bot-runtime` — `test`, `lint`, `build` all pass; `shared-config` rebuilt if new env keys are added.
 
 ---
@@ -53,7 +53,7 @@
 | `BOT_RUNTIME_HTTP_TIMEOUT_MS` | No | e.g. 30000 | Upper bound for OpenClaw POST (and optionally notify unless split). |
 | `BOT_RUNTIME_NOTIFY_TIMEOUT_MS` | No | inherit or 10000 | Optional split timeout for Zulip notify POST. |
 
-Document in `docs/bot-runtime.md` with existing vars (`BOT_RUNTIME_MISSION_ID`, `OPENCLAW_*`, `ZULIP_GATEWAY_NOTIFY_URL`, etc.).
+Document in `./bot-runtime.md` with existing vars (`BOT_RUNTIME_MISSION_ID`, `OPENCLAW_*`, `ZULIP_GATEWAY_NOTIFY_URL`, etc.).
 
 ---
 
@@ -63,7 +63,7 @@ Document in `docs/bot-runtime.md` with existing vars (`BOT_RUNTIME_MISSION_ID`, 
 - [ ] `pnpm --filter @linktrend/bot-runtime lint` runs ESLint with zero errors.
 - [ ] Code review: every `fetch` in `LiNKbot/runtime-adapters/openclaw/bot-runtime` has an abort timeout.
 - [ ] `closeWorkerSession` failure path logged; process still exits on SIGINT.
-- [ ] `docs/bot-runtime.md` exists and matches behavior.
+- [ ] `./bot-runtime.md` exists and matches behavior.
 
 ---
 

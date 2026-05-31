@@ -46,7 +46,7 @@ LiNKdev/factory/scripts/replay-merge-verify.sh bootstrap
 - `LiNKdev/factory/**` (laws, gates, council, scripts, contracts, templates, SPEC, BORROW-PACK, roles)
 - `LiNKdev/product/grounding/INTENT.md`, `STACK.md`
 - `LiNKdev/product/reports/linktrend-system/intent-verdict.json`
-- `docs/handoffs/2026-05-30-LiNKdev-completion-package-v1.md`
+- `./2026-05-30-dev-swarm-completion-package-v1.md`
 
 ## Branch State
 

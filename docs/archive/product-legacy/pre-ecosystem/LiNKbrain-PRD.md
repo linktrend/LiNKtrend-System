@@ -240,7 +240,7 @@ Each former §14 item is **[DONE]** with proof in code or tests. **Fresh DB:** r
 
 ## 15. Prompt for an implementation agent (copy-paste)
 
-Use this to start a **new** coding agent whose sole outcome is **closing §14** of `docs/LiNKbrain-PRD.md` in the **LiNKtrend-System** monorepo (LiNKaios + `@linktrend/linklogic-sdk` + migrations). Do not stop at another “slice”; work until each §14 item is **done or explicitly deferred in the PRD with product sign-off**.
+Use this to start a **new** coding agent whose sole outcome is **closing §14** of `./LiNKbrain-PRD.md` in the **LiNKtrend-System** monorepo (LiNKaios + `@linktrend/linklogic-sdk` + migrations). Do not stop at another “slice”; work until each §14 item is **done or explicitly deferred in the PRD with product sign-off**.
 
 ```
 You are implementing LiNKbrain in the LiNKtrend-System monorepo.

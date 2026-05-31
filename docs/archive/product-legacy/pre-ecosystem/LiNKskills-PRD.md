@@ -2,7 +2,7 @@
 
 **Status:** Draft — aligned with operator decisions (2026-04-15).  
 **Scope:** Central **skill library**, **skill metadata (including declared tools)**, **skill lifecycle**, and contracts to LiNKlogic / runtime.  
-**Companion document:** `docs/LiNKaios-tool-governance-spec.md` owns org/mission **policy**, **approvals**, **Zulip deep links**, **Projects** and **org settings** UI, and trace **payload** requirements for tool governance events.
+**Companion document:** `./LiNKaios-tool-governance-spec.md` owns org/mission **policy**, **approvals**, **Zulip deep links**, **Projects** and **org settings** UI, and trace **payload** requirements for tool governance events.
 
 **Out of scope for this PRD:** OpenClaw fork internals; exact model routing; implementation of Zulip-Gateway transport (specified at integration boundaries only).
 

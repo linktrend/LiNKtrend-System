@@ -1,6 +1,6 @@
 # LiNKaios — Tool governance & approvals (spec)
 
-**Status:** Draft — companion to `docs/LiNKskills-PRD.md` (2026-04-15).  
+**Status:** Draft — companion to `./LiNKskills-PRD.md` (2026-04-15).  
 **Purpose:** Specify everything LiNKaios must implement so **org + mission tool policy**, **approval workflows**, **Zulip deep links**, and **Traces** satisfy the LiNKskills / runtime model. LiNKskills PRD owns the skill library and **declared_tools** metadata; **this document owns policy surfaces and operator workflows.**
 
 ---
@@ -97,7 +97,7 @@ Exact migration names are implementation details; **required concepts:**
 - **Zulip-Gateway** (or LiNKaios notification worker) posts a message to the appropriate stream/topic with:
   - Short human summary (tool, mission or “org-wide”, skill).
   - **One-shot deep link** to LiNKaios approval screen (§5).
-- Integration must respect existing **stream → mission** routing (`gateway.stream_routing`); for org-wide blocks, routing rules in `docs/zulip-routing.md` may need extension (e.g. fallback stream or DMs to org admins — **implementation choice**, behavior: message must reach someone who can approve).
+- Integration must respect existing **stream → mission** routing (`gateway.stream_routing`); for org-wide blocks, routing rules in `./zulip-routing.md` may need extension (e.g. fallback stream or DMs to org admins — **implementation choice**, behavior: message must reach someone who can approve).
 
 ### 6.3 LiNKaios approval page
 
