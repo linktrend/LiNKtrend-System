@@ -125,3 +125,31 @@ VERIFY OK: tier A gates passed
 
 - **Before:** `program_id: bootstrap`, `phase: complete` (bootstrap DS-001…046 frozen)
 - **After:** `program_id: linktrend-system`, `phase: awaiting_go`, `issues: {}`, `next_orchestrator_trigger: go`
+
+---
+
+## Wire re-run (Cursor subagent — 2026-05-31)
+
+Step A re-executed per `EXECUTE-WIRE-LINKDEV.md` (§0–3, §6–7 only; §4–5 `pending_codex_ui`; §8–9 skipped).
+
+```bash
+git branch -a
+# * development, main, staging (+ feature branches); remotes origin/development, origin/main, origin/staging
+
+gh repo view
+# linktrend/LiNKtrend-System
+
+LiNKdev/factory/scripts/install-labels.sh
+# OK: labels ensured on linktrend/LiNKtrend-System (15 definitions)
+
+gh label list --limit 200 | grep -E 'linkdev:|runtime:|tier:'
+# 11 linkdev:* + runtime:cursor + runtime:codex + tier:standard + tier:critical
+
+diff -q .cursor/rules/00-linkdev-bootstrap.mdc LiNKdev/factory/install/portable-cursor/.cursor/rules/00-linkdev-bootstrap.mdc
+# (no output — identical)
+
+LiNKdev/factory/scripts/verify.sh
+# == verify passed == ; VERIFY OK: tier A gates passed ; exit 0
+```
+
+**Result:** All Step A checks pass. No file changes outside report. UI automations remain **pending_codex_ui**.
