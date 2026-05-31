@@ -1,15 +1,19 @@
 # Wire automation setup log
 
-Repo: **linktrend/LiNKtrend-System** · Branch: **development**
+Repo: **linktrend/LiNKtrend-System** · Branch: **development** · **Factory dispatch:** v2 (GitHub Actions)
 
-Draft specs for Codex UI agent: `LiNKdev/factory/install/automations/cursor/*.spec.md` and `codex/*.spec.md`.
+Canonical: `LiNKdev/factory/docs/DISPATCH.md`. Workflow: `.github/workflows/linkdev-dispatch.yml`.
 
-| Automation | Provider | Created | Trigger verified | Notes |
-|------------|----------|---------|------------------|-------|
-| LiNKdev-orchestrator | Cursor | | | Draft: `automations/cursor/LiNKdev-orchestrator.spec.md` |
-| LiNKdev-reviewer | Cursor | | | Draft: `automations/cursor/LiNKdev-reviewer.spec.md` |
-| LiNKdev-integrator | Cursor | | | Draft: `automations/cursor/LiNKdev-integrator.spec.md` |
-| LiNKdev-executor-cursor | Cursor | | | Draft: `automations/cursor/LiNKdev-executor-cursor.spec.md` |
-| LiNKdev-executor-codex | Codex | | | Draft: `automations/codex/LiNKdev-executor-codex.spec.md` |
+**Dispatch v2 replaces** Cursor Automations UI for orchestrator, reviewer, integrator, and executor-cursor (2026-06-01, template **v1.2.0**). Legacy UI automations from 2026-05-31 may still exist in Cursor; GitHub Actions is the authoritative trigger path.
 
-_Update **Created** and **Trigger verified** when the Codex UI automations agent completes CHECKLIST sections 4–5._
+| Factory role | Provider | Created (workflow) | Trigger verified | Trigger |
+|--------------|----------|-------------------|------------------|---------|
+| orchestrator | GitHub Actions | Y | pending | PR **closed** merged to `development` |
+| reviewer | GitHub Actions | Y | pending | Issue label `linkdev:review-ready` |
+| integrator | GitHub Actions | Y | pending | Issue label `linkdev:merge-ready` |
+| executor-cursor | GitHub Actions | Y | pending | Issue labels `linkdev:ready` **and** `runtime:cursor` |
+| executor-codex | — | N | N | Not wired (Codex Computer Use blocked) |
+
+**Secret:** `CURSOR_API_KEY` in GitHub Actions — **configured** (verified via `gh secret list`, 2026-06-01).
+
+_Update **Trigger verified** after a successful Actions run (Step C proof)._

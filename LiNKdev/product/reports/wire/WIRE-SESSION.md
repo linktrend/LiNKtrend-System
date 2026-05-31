@@ -3,7 +3,7 @@
 - **Repo:** linktrend/LiNKtrend-System
 - **Branch:** development
 - **Wire agent:** Cursor (Step A + Step B prep)
-- **Session date:** 2026-05-31
+- **Session date:** 2026-06-01 (dispatch v2 wire)
 
 ## Principal launch (only these lines)
 
@@ -12,19 +12,24 @@ See `LiNKdev/factory/install/PRINCIPAL-LAUNCH.md`.
 | Step | Status |
 |------|--------|
 | A — `EXECUTE-WIRE-LINKDEV.md` | **complete** |
-| B — `EXECUTE-LINKDEV-UI-AUTOMATIONS.md` | **pending_codex_ui** |
-| C — `EXECUTE-WIRE-LINKDEV-POST-UI.md` | **blocked** until B complete |
-| 8 — Go (Planner) | **blocked** until wire checklist §9 complete |
+| B — `EXECUTE-LINKDEV-DISPATCH-INSTALL.md` | **complete** (2026-06-01) |
+| C — `EXECUTE-WIRE-LINKDEV-POST-DISPATCH.md` | **complete_pending_go** (local proof; Actions run pending post-push) |
+| Legacy UI — `EXECUTE-LINKDEV-UI-AUTOMATIONS.md` | **superseded** by dispatch v2 (optional cleanup in Cursor UI) |
+| 8 — Go (Planner) | **blocked** until Principal says **Go** |
 
-## UI automations (Step B)
+## Dispatch v2 (Step B — 2026-06-01)
 
-- **Status:** pending_codex_ui
-- **Principal launches Codex with:** `Execute the EXECUTE-LINKDEV-UI-AUTOMATIONS.md prompt in LiNKdev/factory/install/`
-- **Prep done (Cursor):** draft `.spec.md` files under `LiNKdev/factory/install/automations/cursor/` and `codex/`; README paths filled for `linktrend/LiNKtrend-System`; `wire-automation-setup.md` ready for Codex log rows.
+- **Status:** **complete** on branch `development` (template **v1.2.0** sync + workflow copy).
+- **Workflows:** `.github/workflows/linkdev-dispatch.yml` added; `linkdev-guard.yml` and `branch-source-policy.yml` already present.
+- **Secret:** `CURSOR_API_KEY` — **configured** (`gh secret list`, name only; value not readable).
+- **Local dry-run:** `node LiNKdev/factory/scripts/dispatch-cursor-agent.mjs --role orchestrator --dry-run --repo linktrend/LiNKtrend-System` → exit 0.
+- **Legacy UI automations (2026-05-31):** superseded; optional to disable duplicate Cursor Automations to avoid double-firing.
 
-## Step C block
+## Step C (post-dispatch — 2026-06-01)
 
-Step C (`EXECUTE-WIRE-LINKDEV-POST-UI.md`) requires all five core automations in `wire-automation-setup.md` with **Created=Y** and **Trigger verified=Y**. Do not launch Step C until Step B is **complete**.
+- **verify.sh:** exit 0 (tier A gates passed).
+- **Actions proof:** after push, run `gh workflow run "LiNKdev dispatch" --ref development -f role=orchestrator` or label a dry-run issue (`linkdev:ready` + `runtime:cursor`); record run URL below when available.
+- **Wire status:** `complete_pending_go` — program **Go** not issued; STATE remains `awaiting_go`.
 
 ## Checklist (CHECKLIST.md)
 
@@ -52,14 +57,14 @@ Step C (`EXECUTE-WIRE-LINKDEV-POST-UI.md`) requires all five core automations in
 - [x] `.github/workflows/linkdev-guard.yml` on `development`
 - [x] Enabled when workflow file is on `development` (no Principal toggle required)
 
-### §4 Cursor automations — pending_codex_ui
+### §4 Cursor automations — complete
 
-- [ ] LiNKdev-orchestrator — merge to `development`
-- [ ] LiNKdev-reviewer — `linkdev:review-ready`
-- [ ] LiNKdev-integrator — `linkdev:merge-ready`
-- [ ] LiNKdev-executor-cursor — `linkdev:ready` + `runtime:cursor`
+- [x] LiNKdev-orchestrator — merge to `development`
+- [x] LiNKdev-reviewer — `linkdev:review-ready`
+- [x] LiNKdev-integrator — `linkdev:merge-ready`
+- [x] LiNKdev-executor-cursor — `linkdev:ready` + `runtime:cursor`
 
-### §5 Codex automations — pending_codex_ui
+### §5 Codex automations — blocked
 
 - [ ] LiNKdev-executor-codex — `linkdev:ready` + `runtime:codex`
 
@@ -80,11 +85,12 @@ Step C (`EXECUTE-WIRE-LINKDEV-POST-UI.md`) requires all five core automations in
 - [ ] Principal says **Go**
 - [ ] Program STATE phase = `running` (after Planner G2 PASS)
 
-### §9 Proof of wire — blocked until Step B + C
+### §9 Proof of wire — complete_pending_go (dispatch v2)
 
-- [ ] Dry-run test issue: executor automation fired
-- [ ] Report contains proof block
-- [ ] `verify.sh` exits 0 (Step A proof below)
+- [x] `verify.sh` exits 0 (2026-06-01)
+- [x] Local dispatch dry-run (orchestrator) exit 0
+- [ ] GitHub Actions **LiNKdev dispatch** run URL recorded (post-push workflow_dispatch or labeled issue)
+- [ ] Dry-run test issue: executor path fired via Actions (optional full E2E)
 
 ## Agent log
 
@@ -153,3 +159,28 @@ LiNKdev/factory/scripts/verify.sh
 ```
 
 **Result:** All Step A checks pass. No file changes outside report. UI automations remain **pending_codex_ui**.
+
+---
+
+## Dispatch v2 wire (Cursor agent — 2026-06-01)
+
+Part of Principal-authorized template publish **LiNKdev v1.2.0** (`964b66b`).
+
+```bash
+# Template sync from LiNKdev clone
+./scripts/sync-installations.sh /Users/linktrend/Projects/LiNKtrend-System
+
+cp LiNKdev/factory/install/github/linkdev-dispatch.yml .github/workflows/linkdev-dispatch.yml
+
+gh secret list
+# CURSOR_API_KEY present
+
+node LiNKdev/factory/scripts/dispatch-cursor-agent.mjs --role orchestrator --dry-run --repo linktrend/LiNKtrend-System
+# DRY_RUN: would POST /v1/agents … exit 0
+
+LiNKdev/factory/scripts/verify.sh
+# == verify passed == ; VERIFY OK: tier A gates passed
+```
+
+**GitHub Actions run URL (Step C):** _pending first run on `development` after push._
+
