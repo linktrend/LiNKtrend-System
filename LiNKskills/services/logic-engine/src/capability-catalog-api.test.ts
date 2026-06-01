@@ -5,6 +5,7 @@ import {
   listCapabilitiesApi,
   registerCapability,
   validateCapabilityModes,
+  validateCapabilityPluginContractPack,
   validateCapabilityReference,
   V1_MVO_CAPABILITY_SEEDS,
 } from "./capability-catalog-api.js";
@@ -98,5 +99,39 @@ describe("capability-catalog-api", () => {
     expect(await validateCapabilityReference(client as never, "cap.crm.odoo_shadow")).toBe(true);
     expect(await validateCapabilityModes(client as never, "cap.crm.odoo_shadow", "shadow")).toBe(true);
     expect(await validateCapabilityModes(client as never, "cap.crm.odoo_shadow", "live")).toBe(false);
+  });
+
+  it("seeds canonical connector contracts with connector-specific operations", () => {
+    const plane = V1_MVO_CAPABILITY_SEEDS.find((entry) => entry.capability_id === "cap.plane.execution_tracking");
+    const zulip = V1_MVO_CAPABILITY_SEEDS.find((entry) => entry.capability_id === "cap.zulip.run_messaging");
+
+    expect(plane?.target_software).toBe("plane");
+    expect(plane?.allowed_operations).toContain("project.ensure_mock");
+    expect(plane?.allowed_operations).toContain("task.ensure_mock");
+    expect(plane?.not_configured).toContain("Plane workspace structure policy");
+
+    expect(zulip?.target_software).toBe("zulip");
+    expect(zulip?.allowed_operations).toContain("channel.message.mock_send");
+    expect(zulip?.lease_requirements).toContain("zulip.channel.message.send");
+  });
+
+  it("keeps public web research read-only live while write connectors remain non-live", () => {
+    const research = V1_MVO_CAPABILITY_SEEDS.find((entry) => entry.capability_id === "cap.research.public_web");
+    const writeCapabilities = V1_MVO_CAPABILITY_SEEDS.filter((entry) =>
+      [
+        "cap.crm.odoo_shadow",
+        "cap.payload.local_sync",
+        "cap.supabase.mirror_content",
+        "cap.zulip.run_messaging",
+        "cap.asset.generation",
+        "cap.plane.execution_tracking",
+      ].includes(entry.capability_id),
+    );
+
+    expect(research?.mode_flags).toContain("live");
+    expect(writeCapabilities.every((entry) => !entry.mode_flags.includes("live"))).toBe(true);
+    for (const entry of V1_MVO_CAPABILITY_SEEDS) {
+      expect(validateCapabilityPluginContractPack(entry)).toEqual([]);
+    }
   });
 });
