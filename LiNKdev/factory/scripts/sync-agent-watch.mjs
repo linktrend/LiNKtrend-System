@@ -335,13 +335,21 @@ async function main() {
   const activeIssues = await loadActiveIssueNumbers();
   const healed = await autoHealStalls(args.repo, issueMap, activeIssues, args.dryRun);
 
+  const { notifyPrincipalSlack } = await import('./principal-slack-notify.mjs');
+  const slackSent = await notifyPrincipalSlack({
+    repo: args.repo,
+    issueMap,
+    activeIssueNumbers: activeIssues,
+    dryRun: args.dryRun,
+  });
+
   if (process.env.GITHUB_STEP_SUMMARY) {
     appendFileSync(
       process.env.GITHUB_STEP_SUMMARY,
-      `## LiNKdev agent watch\n\nUpdated **${updated}** issue/PR thread(s). Auto-healed **${healed}** stall(s).\n`,
+      `## LiNKdev agent watch\n\nUpdated **${updated}** issue/PR thread(s). Auto-healed **${healed}** stall(s). Slack **${slackSent}** alert(s).\n`,
     );
   }
-  console.log(`WATCH_OK updated=${updated} healed=${healed}`);
+  console.log(`WATCH_OK updated=${updated} healed=${healed} slack=${slackSent}`);
 }
 
 main().catch((err) => {

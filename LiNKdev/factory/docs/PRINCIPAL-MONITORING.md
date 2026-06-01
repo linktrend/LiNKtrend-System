@@ -23,7 +23,17 @@ You are **not** the on-call engineer for script lint failures, dispatch races, o
 
 ## Optional visibility (if you want it)
 
-Open the active wave issues — bot comments show status. Subscribe only if you want notifications; **absence of email does not mean nothing is happening.**
+**Slack (recommended):** Add GitHub Actions secret **`LINKDEV_SLACK_WEBHOOK_URL`** (Slack incoming webhook URL). The **LiNKdev agent watch** job posts plain-English alerts when:
+
+| Slack message | Meaning |
+|---------------|---------|
+| **Your turn** | `linkdev:principal-stop` — Continue or Stop |
+| **Blocked** | `linkdev:blocked` — factory stuck |
+| **Task stalled** | Active wave issue, no PR for 30+ minutes |
+
+No secret = no Slack (factory unchanged). At most one alert per issue per hour (duplicate suppression).
+
+GitHub issue comments remain the audit trail. Subscribe to issues only if you also want email.
 
 | Marker | Meaning |
 |--------|---------|
