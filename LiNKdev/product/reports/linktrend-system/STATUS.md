@@ -17,9 +17,14 @@
 
 ## Next
 
-1. Orchestrator marks wave 1 issues `ready` and applies `linkdev:ready`  
-2. Execution waves through PROGRAM.md parallel groups  
-3. LTS-108 E2E demo evidence recorded here when complete  
+1. **Bootstrap:** merge PR #14 to `development` (retarget base first) — see `BOOTSTRAP-2026-06-01.md`
+2. Orchestrator marks wave 1 issues `ready` and applies `linkdev:ready` (#20, #44, #30)
+3. Execution waves through PROGRAM.md parallel groups  
+4. LTS-108 E2E demo evidence recorded here when complete  
+
+## GitHub issues
+
+Mapping: `LiNKdev/product/reports/linktrend-system/github-issues.json` (LTS-001…900 → #16–#46)
 
 ## Demo evidence
 
