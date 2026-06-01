@@ -1,0 +1,110 @@
+{
+  "gate": "G3",
+  "program_id": "linktrend-system",
+  "reviewed_at": "2026-06-01T15:05:00Z",
+  "subject_artifacts": [
+    {
+      "label": "Wave 6 completion — LinkSites publish/outreach",
+      "path": "LiNKdev/product/reports/linktrend-system/STATUS.md"
+    },
+    {
+      "label": "MVO demo harness",
+      "path": "scripts/run-mvo-linksites-demo.sh"
+    },
+    {
+      "label": "Autowork MVO Payload mock client",
+      "path": "LiNKautowork/gateway/src/lib/mvo-payload-client.ts"
+    }
+  ],
+  "personas": [
+    {
+      "persona_id": "security-advisor",
+      "verdict": "PASS",
+      "summary": "MVO mock Payload mode preserves lease gates; outreach remains draft-only (D2 A); no secrets in demo script.",
+      "evidence": [
+        {
+          "type": "file",
+          "ref": "LiNKautowork/gateway/src/workflows/linksites-v2.ts",
+          "finding": "crm_ready_to_contact_mark requires lease_id and checks_passed === true."
+        },
+        {
+          "type": "file",
+          "ref": "LiNKbot/runtime-adapters/openclaw/bot-runtime/src/mission.ts",
+          "finding": "outreach_bot rejects live send without Principal approval."
+        }
+      ]
+    },
+    {
+      "persona_id": "architecture-advisor",
+      "verdict": "PASS",
+      "summary": "Seven-step LinkSites spine implemented in suites/linksites; kernel websitefactory plugin covers lead-to-preview technical stages; post-preview outreach/close in suite modules + bot runtime.",
+      "evidence": [
+        {
+          "type": "file",
+          "ref": "suites/linksites/workflow.md",
+          "finding": "Canonical business stage order matches PPD §5."
+        },
+        {
+          "type": "command",
+          "ref": "./scripts/run-mvo-linksites-demo.sh",
+          "finding": "Reproducible demo command chains suite tests + autowork + verify."
+        }
+      ]
+    },
+    {
+      "persona_id": "qa-advisor",
+      "verdict": "PASS",
+      "summary": "LTS-103/033 merged via PR #102/#103; wave 9–15 re-verified with tests and honest STATE after PR #95 reset.",
+      "evidence": [
+        {
+          "type": "command",
+          "ref": "pnpm dlx vitest run suites/linksites",
+          "finding": "16 tests PASS including publish fail-closed gates."
+        },
+        {
+          "type": "command",
+          "ref": "LiNKautowork/gateway linksites-v2.test.ts",
+          "finding": "13 tests PASS including MVO mock readiness chain."
+        }
+      ]
+    },
+    {
+      "persona_id": "dx-advisor",
+      "verdict": "PASS",
+      "summary": "MVO demo script and issue reports provide reproducible proof paths per LAW-01.",
+      "evidence": [
+        {
+          "type": "file",
+          "ref": "scripts/run-mvo-linksites-demo.sh",
+          "finding": "Single entry command for Principal and agents."
+        },
+        {
+          "type": "file",
+          "ref": "LiNKdev/product/reports/linktrend-system/STATUS.md",
+          "finding": "Program STATUS documents demo command and UI URLs."
+        }
+      ]
+    },
+    {
+      "persona_id": "product-advisor",
+      "verdict": "PASS",
+      "summary": "MVO demo bar documented in program STATUS; Client and Admin mvo-proof surfaces referenced.",
+      "evidence": [
+        {
+          "type": "file",
+          "ref": "LiNKdev/product/reports/linktrend-system/STATUS.md",
+          "finding": "Demo command and UI URLs recorded for Principal walkthrough."
+        }
+      ]
+    }
+  ],
+  "summary_status": "PASS",
+  "blockers": [],
+  "warnings": [
+    {
+      "persona_id": "product-advisor",
+      "message": "Live Payload VPS URL resolution requires studio GSM secrets — mock/shadow documented as MVO equivalent per CONTRACTS_MVO.md §11."
+    }
+  ],
+  "summary_markdown_path": "LiNKdev/product/reports/linktrend-system/council/G3-SUMMARY.md"
+}
