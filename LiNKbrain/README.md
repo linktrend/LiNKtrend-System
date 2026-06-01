@@ -25,13 +25,14 @@ See `../docs/architecture/system-completion-targets.md` for the platform complet
 
 LiNKbrain code is currently spread across:
 
+- `supabase/migrations/*linkbrain*`
 - `services/migrations/*linkbrain*`
 - `packages/linklogic-sdk/src/brain-*`
 - `LiNKaios/linkaios-web/src/components/linkbrain`
 - `LiNKaios/linkaios-web/src/lib/linkbrain-data.ts`
 - `LiNKdev/product/grounding/LINKBRAIN_*`
 
-This folder is the canonical ownership home. Runtime code will move here in migration-safe waves with compatibility exports where needed.
+This folder is the canonical ownership home. Runtime code will move here in migration-safe waves with compatibility exports where needed. The LinkSites MVO audit contract is documented in `events/linksites-mvo-audit-schema.yaml`, with its current Supabase write path in `../supabase/migrations/20260601012600_lts_020_linkbrain_mvo_audit.sql`.
 
 ## Completed-State Target
 
