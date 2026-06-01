@@ -125,6 +125,25 @@ Slack cooldown (`stall_*` event, 60m) suppresses repeat alerts from the false po
 - **Fix:** `linkdev-dispatch-payload.mjs` adds `autoCreatePR` + `workOnCurrentBranch`; dispatch workflow creates branch first; watch treats FINISHED-without-PR as ⚠️; 2nd heal → **LiNKdev executor actions** workflow; tests in verify. **Fixed** (2026-06-01). **Monitor** wave 4+ for PR URL in watch table.
 - **Cursor cloud verdict:** Keep for orchestrator/reviewer/integrator. Executors **require** hardened dispatch; if wave 4 fails, default to executor-actions path.
 
+### L-020 — Stale Slack/auto-heal on completed issues (LTS-001 #20)
+- **Symptom:** Slack ~1 min after wave 4 start for **LTS-001** (`finished_no_pr_escalation_20` / stall) though PR #55 merged and issue **closed**.
+- **Cause:**
+  1. Issue **closed** without `linkdev:done` (merge-sync missed or ran before label step); stale `linkdev:in-progress` kept stall logic alive.
+  2. `issueHasOpenPr` ignored **merged** PRs — factory treated done work as “no PR”.
+  3. When `activeIssueNumbers` was empty on **main** STATE, stall loop scanned **entire** `github-issues.json` (L-007 regression path).
+  4. Old `[linkdev-dispatch]` / FINISHED-without-PR comments on #20 still satisfied escalation heuristics.
+- **Fix:** `linkdev-issue-terminal.mjs` — skip **CLOSED**, `linkdev:done` / `review-ready`, **merged PR**, and issues not in STATE active set; empty active set → no stall scan; dispatch map skips closed issues; relabel #20 `linkdev:done`. **Fixed** (2026-06-01).
+
+### L-019 — Stale orchestrator handoff marker blocks wave advance
+- **Symptom:** Wave 4 did not start after wave 3 merge despite `next_orchestrator_trigger: merge_to_development` and orchestrator dispatch (#75). No `linkdev:ready` on LTS-012 (#42).
+- **Root cause:**
+  1. `.linkdev/handoff/orchestrator-wave-ready.json` from wave 2 orchestrator (PR #54, merged 02:37) was **never cleared** on `development`.
+  2. Staging promotion (PR #61) re-triggered **LiNKdev orchestrator bootstrap**, which hung 25m on “Merge orchestrator PR” for already-merged PR #54.
+  3. Bootstrap workflow uses repo-wide concurrency (`cancel-in-progress: false`) — stuck run blocked label application for any new orchestrator handoff.
+  4. Cloud orchestrator (#75) dispatched but agent-watch skips unmapped orchestrator agents — no visibility until PR/handoff lands.
+- **Fix:** Cancel stuck bootstrap run; move stale marker to `.processed.json`; advance STATE wave 4 (LTS-012 `ready`); apply labels via `apply-wave-labels-from-state.sh`. **Fixed** (2026-06-01).
+- **Monitor:** Bootstrap must always reach “Clear handoff marker” step; add idempotency when `pr_number` already merged.
+
 ---
 
 ## Template backlog (next iteration)

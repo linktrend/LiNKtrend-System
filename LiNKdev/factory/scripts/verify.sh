@@ -54,6 +54,7 @@ for wf in linkdev-dispatch.yml linkdev-guard.yml branch-source-policy.yml linkde
 done
 if command -v node >/dev/null 2>&1; then
   node --test LiNKdev/factory/scripts/linkdev-stall-clock.test.mjs || fail "stall-clock tests"
+  node --test LiNKdev/factory/scripts/linkdev-issue-terminal.test.mjs || fail "issue-terminal tests"
   node --test LiNKdev/factory/scripts/linkdev-factory-escalation.test.mjs || fail "factory-escalation tests"
   node --test LiNKdev/factory/scripts/linkdev-dispatch-payload.test.mjs || fail "dispatch-payload tests"
 fi
