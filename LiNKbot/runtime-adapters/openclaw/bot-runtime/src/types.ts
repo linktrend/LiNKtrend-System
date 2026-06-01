@@ -45,8 +45,23 @@ export const SessionRefsSchema = z.object({
   context_request_id: z.string().optional(),
   audit_event_ids: z.array(z.string()).default([]),
   model_run_id: z.string().optional(),
+  skill_disclosure_refs: z.array(z.object({
+    token_id: z.string().min(1),
+    manifest_id: z.string().min(1),
+    lease_id: z.string().min(1),
+    skill_ids: z.array(z.string().min(1)),
+    fragment_refs: z.array(z.object({
+      fragment_id: z.string().min(1),
+      skill_id: z.string().min(1),
+      fragment_type: z.string().min(1),
+      content_hash: z.string().min(1),
+    })),
+    expires_at: z.string().datetime(),
+    retention_policy: z.literal("session_only_no_persist"),
+  })).default([]),
 });
 export type SessionRefs = z.infer<typeof SessionRefsSchema>;
+export type SkillDisclosureSessionRef = SessionRefs["skill_disclosure_refs"][number];
 
 /**
  * Mission context

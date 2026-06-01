@@ -152,6 +152,7 @@ const MAX_TOKEN_TTL_SECONDS = 1800;    // 30 minutes maximum
 // Algorithm for signing - using HS256 for development simplicity
 // In production, use RS256 or Ed25519 with proper key management
 const SIGNING_ALGORITHM = "HS256";
+const MAX_SKILLS_PER_DISCLOSURE = 8;
 
 /** Token signing key - in production, this should be rotated and stored securely */
 function getSigningKey(env: DisclosureEnv): string {
@@ -428,6 +429,10 @@ function selectSkillFragments(
   return fragments;
 }
 
+function isFullCorpusSkillRequest(skillId: string): boolean {
+  return skillId === "*" || skillId === "skill.*" || skillId === "skill.full_corpus" || skillId.endsWith(".full_corpus");
+}
+
 /**
  * Generate a disclosure manifest for the given request.
  */
@@ -567,6 +572,28 @@ export async function issueDisclosure(
       failure: {
         code: "DISCLOSURE_REQUEST_INVALID",
         message: "Missing required fields: tenant_id, run_id, stage_id, capability_id",
+        retryable: false,
+      },
+    };
+  }
+
+  if (request.requested_skills?.some(isFullCorpusSkillRequest)) {
+    return {
+      success: false,
+      failure: {
+        code: "DISCLOSURE_SCOPE_DENIED",
+        message: "Full skill corpus disclosure is not permitted",
+        retryable: false,
+      },
+    };
+  }
+
+  if ((request.requested_skills?.length ?? 0) > MAX_SKILLS_PER_DISCLOSURE) {
+    return {
+      success: false,
+      failure: {
+        code: "DISCLOSURE_TOO_MANY_REQUESTS",
+        message: `Disclosure request exceeds ${MAX_SKILLS_PER_DISCLOSURE} skills`,
         retryable: false,
       },
     };

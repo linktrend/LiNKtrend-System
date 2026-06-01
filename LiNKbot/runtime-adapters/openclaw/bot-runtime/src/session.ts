@@ -18,6 +18,7 @@ import {
   MissionResult,
   FailureReport,
   SessionRefs,
+  SkillDisclosureSessionRef,
 } from "./types.js";
 
 /**
@@ -57,6 +58,7 @@ export function createBotSession(
       context_request_id: undefined,
       audit_event_ids: [],
       model_run_id: undefined,
+      skill_disclosure_refs: [],
     },
     created_at: now,
     updated_at: now,
@@ -214,6 +216,64 @@ export function addSessionModelRunId(session_id: string, model_run_id: string): 
 }
 
 /**
+ * Add a progressive skill disclosure reference to the session.
+ *
+ * The stored ref intentionally contains only token/manifest and fragment hashes.
+ * Skill bodies, previews, examples, and full-source material must never be
+ * persisted on the bot worker.
+ */
+export function addSessionSkillDisclosureRef(
+  session_id: string,
+  disclosure_ref: SkillDisclosureSessionRef
+): BotSessionContext {
+  const session = sessionStore.get(session_id);
+  if (!session) {
+    throw new Error(`Session not found: ${session_id}`);
+  }
+
+  const currentRefs: SessionRefs = session.refs;
+  const updatedRefs: SessionRefs = {
+    ...currentRefs,
+    skill_disclosure_refs: [...currentRefs.skill_disclosure_refs, disclosure_ref],
+  };
+
+  const updated: BotSessionContext = {
+    ...session,
+    refs: updatedRefs,
+    updated_at: new Date().toISOString(),
+  };
+
+  const validated = BotSessionContextSchema.parse(updated);
+  sessionStore.set(session_id, validated);
+
+  return validated;
+}
+
+/**
+ * Scrub temporary skill disclosure references from a live session.
+ */
+export function scrubSessionSkillDisclosureRefs(session_id: string): BotSessionContext {
+  const session = sessionStore.get(session_id);
+  if (!session) {
+    throw new Error(`Session not found: ${session_id}`);
+  }
+
+  const updated: BotSessionContext = {
+    ...session,
+    refs: {
+      ...session.refs,
+      skill_disclosure_refs: [],
+    },
+    updated_at: new Date().toISOString(),
+  };
+
+  const validated = BotSessionContextSchema.parse(updated);
+  sessionStore.set(session_id, validated);
+
+  return validated;
+}
+
+/**
  * Clean up session (LiNKguard will handle full cleanup)
  */
 export function cleanupBotSession(session_id: string): boolean {
@@ -222,8 +282,9 @@ export function cleanupBotSession(session_id: string): boolean {
     return false;
   }
 
-  // Mark as cleanup state before removal
+  // Mark as cleanup state and scrub disclosure metadata before removal.
   updateSessionState(session_id, "cleanup");
+  scrubSessionSkillDisclosureRefs(session_id);
   sessionStore.delete(session_id);
   return true;
 }

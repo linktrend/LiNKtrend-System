@@ -10,6 +10,8 @@ import {
   getBotSession,
   cleanupBotSession,
   listActiveSessions,
+  addSessionSkillDisclosureRef,
+  scrubSessionSkillDisclosureRefs,
 } from "./session.js";
 import { BotReasonRequest, ReasoningKind } from "./local-types.js";
 
@@ -204,6 +206,45 @@ describe("OpenClaw Adapter", () => {
 
       cleanupBotSession(session1.session_id);
       cleanupBotSession(session2.session_id);
+    });
+
+    it("stores only temporary disclosure refs and scrubs them during cleanup", () => {
+      const session = createBotSession(
+        "tenant-123",
+        "550e8400-e29b-41d4-a716-446655440004",
+        "stage-disclosure",
+        "website_builder_bot",
+        "copy_generation",
+        {},
+        "profile"
+      );
+
+      const updated = addSessionSkillDisclosureRef(session.session_id, {
+        token_id: "token-1",
+        manifest_id: "manifest-1",
+        lease_id: "lease-1",
+        skill_ids: ["skill.website_builder.v1"],
+        fragment_refs: [
+          {
+            fragment_id: "fragment-1",
+            skill_id: "skill.website_builder.v1",
+            fragment_type: "decision_tree",
+            content_hash: "sha256:abc123",
+          },
+        ],
+        expires_at: new Date(Date.now() + 60_000).toISOString(),
+        retention_policy: "session_only_no_persist",
+      });
+
+      expect(updated.refs.skill_disclosure_refs).toHaveLength(1);
+      expect(JSON.stringify(updated.refs.skill_disclosure_refs)).not.toContain("content_preview");
+      expect(JSON.stringify(updated.refs.skill_disclosure_refs)).not.toContain("full_source");
+
+      const scrubbed = scrubSessionSkillDisclosureRefs(session.session_id);
+      expect(scrubbed.refs.skill_disclosure_refs).toEqual([]);
+
+      cleanupBotSession(session.session_id);
+      expect(getBotSession(session.session_id)).toBeUndefined();
     });
   });
 });

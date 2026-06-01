@@ -13,6 +13,7 @@
 
 import { describe, it, expect } from "vitest";
 import { randomUUID, createHash } from "crypto";
+import { issueDisclosure } from "./disclosure.js";
 
 // Mock environment for testing
 const mockEnv = {
@@ -470,6 +471,48 @@ describe("Disclosure Issue Request Validation", () => {
 
     expect(request.scope).toBe("tenant");
     expect((request as { lease_id?: string }).lease_id).toBeUndefined();
+  });
+
+  it("should deny full skill corpus requests before lease lookup", async () => {
+    const result = await issueDisclosure({} as never, mockEnv as never, {
+      tenant_id: "test-tenant",
+      run_id: randomUUID(),
+      stage_id: "test-stage",
+      capability_id: "cap.research.public_web",
+      mode: "managed",
+      scope: "tenant",
+      requested_skills: ["skill.full_corpus"],
+      actor: { actor_kind: "bot", actor_id: "research_enrichment_bot" },
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.failure?.code).toBe("DISCLOSURE_SCOPE_DENIED");
+  });
+
+  it("should deny broad disclosure batches before lease lookup", async () => {
+    const result = await issueDisclosure({} as never, mockEnv as never, {
+      tenant_id: "test-tenant",
+      run_id: randomUUID(),
+      stage_id: "test-stage",
+      capability_id: "cap.research.public_web",
+      mode: "managed",
+      scope: "tenant",
+      requested_skills: [
+        "skill.one",
+        "skill.two",
+        "skill.three",
+        "skill.four",
+        "skill.five",
+        "skill.six",
+        "skill.seven",
+        "skill.eight",
+        "skill.nine",
+      ],
+      actor: { actor_kind: "bot", actor_id: "research_enrichment_bot" },
+    });
+
+    expect(result.success).toBe(false);
+    expect(result.failure?.code).toBe("DISCLOSURE_TOO_MANY_REQUESTS");
   });
 });
 

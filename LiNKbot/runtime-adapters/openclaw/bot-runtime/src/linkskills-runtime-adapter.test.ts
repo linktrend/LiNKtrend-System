@@ -68,4 +68,76 @@ describe("createLinkSkillsRuntimeAdapter", () => {
     expect(first).toMatchObject({ ok: true, replayed: false, lease_id: "lease-1" });
     expect(replay).toMatchObject({ ok: true, replayed: true, lease_id: "lease-1" });
   });
+
+  it("discloses only lease-scoped skill fragments just in time", () => {
+    const adapter = createLinkSkillsRuntimeAdapter({
+      governance,
+      leases: [{ lease_id: "lease-1", operation_ids: ["skill.website_builder.v1"] }],
+    });
+
+    const result = adapter.discloseSkills({
+      lease_id: "lease-1",
+      idempotency_key: "run-1:stage-1:skill.website_builder.v1",
+      requested_skill_ids: ["skill.website_builder.v1"],
+    });
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.manifest.retention_policy).toBe("session_only_no_persist");
+      expect(result.manifest.skill_ids).toEqual(["skill.website_builder.v1"]);
+      expect(result.manifest.fragment_refs.map((fragment) => fragment.fragment_type)).toEqual([
+        "decision_tree",
+        "phase_instructions",
+        "contracts",
+      ]);
+      expect(JSON.stringify(result.manifest)).not.toContain("content_preview");
+      expect(JSON.stringify(result.manifest)).not.toContain("full_source");
+    }
+  });
+
+  it("denies skill disclosure outside governance or lease scope", () => {
+    const adapter = createLinkSkillsRuntimeAdapter({
+      governance,
+      leases: [{ lease_id: "lease-1", operation_ids: ["skill.website_builder.v1"] }],
+    });
+
+    const result = adapter.discloseSkills({
+      lease_id: "lease-1",
+      idempotency_key: "run-1:stage-1:skill.unapproved",
+      requested_skill_ids: ["skill.unapproved"],
+    });
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.failure.code).toBe("LEASE_DENIED");
+    }
+  });
+
+  it("denies full corpus and full-source disclosure requests", () => {
+    const adapter = createLinkSkillsRuntimeAdapter({
+      governance,
+      leases: [{ lease_id: "lease-1", operation_ids: ["skill.website_builder.v1"] }],
+    });
+
+    const corpusResult = adapter.discloseSkills({
+      lease_id: "lease-1",
+      idempotency_key: "run-1:stage-1:skill.full_corpus",
+      requested_skill_ids: ["skill.full_corpus"],
+    });
+    const fullSourceResult = adapter.discloseSkills({
+      lease_id: "lease-1",
+      idempotency_key: "run-1:stage-1:skill.website_builder.v1:full_source",
+      requested_skill_ids: ["skill.website_builder.v1"],
+      requested_fragment_types: ["full_source"],
+    });
+
+    expect(corpusResult.ok).toBe(false);
+    expect(fullSourceResult.ok).toBe(false);
+    if (!corpusResult.ok) {
+      expect(corpusResult.failure.code).toBe("LEASE_DENIED");
+    }
+    if (!fullSourceResult.ok) {
+      expect(fullSourceResult.failure.code).toBe("LEASE_DENIED");
+    }
+  });
 });
