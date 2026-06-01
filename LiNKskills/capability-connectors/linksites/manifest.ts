@@ -109,11 +109,12 @@ export const linksitesCapabilityManifests: CapabilityConnectorManifest[] = [
     target_software: "zulip",
     allowed_operations: ["run.notify", "channel.message.mock_send", "connectivity.probe"],
     auth_requirements: ["zulip.base_url", "zulip.bot_email_ref", "zulip.api_key_ref", "zulip.stream_ref", "zulip.topic_template"],
-    mode_flags: ["development", "shadow"], // mock default for outbound
-    lease_requirements: ["zulip.run.notify", "zulip.channel.message.send"],
+    mode_flags: ["mock", "shadow"], // mock default for outbound
+    lease_requirements: ["zulip.run.notify", "zulip.channel.message.send", "zulip.connectivity.probe"],
     idempotency_rules: "(tenant_id, run_id, stage_id, message_purpose)",
     audit_events: [
       "capability.requested",
+      "lease.executed",
       "capability.executed",
       "zulip.notification.queued",
       "zulip.connectivity.checked",
@@ -201,11 +202,12 @@ export const linksitesCapabilityManifests: CapabilityConnectorManifest[] = [
     target_software: "plane",
     allowed_operations: ["project.ensure_mock", "task.ensure_mock", "readiness.probe"],
     auth_requirements: ["plane.base_url", "plane.workspace_ref", "plane.api_key_ref", "plane.project_template_ref"],
-    mode_flags: ["development", "shadow"], // mock default
+    mode_flags: ["mock", "shadow"], // mock default
     lease_requirements: ["plane.project.write", "plane.task.write", "plane.readiness.check"],
     idempotency_rules: "(tenant_id, run_id, execution_scope, normalized_title)",
     audit_events: [
       "capability.requested",
+      "lease.executed",
       "capability.executed",
       "plane.project.upserted",
       "plane.task.upserted",

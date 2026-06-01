@@ -28,7 +28,7 @@ export const DEMO_CONNECTOR_CATALOG_ROWS: ConnectorCatalogRow[] = [
   {
     id: "plane",
     name: "Plane",
-    capabilityScope: "plane.project.create, plane.task.create",
+    capabilityScope: "cap.plane.execution_tracking",
     status: "implemented",
     targetSoftware: "link-plane",
     usedBy: "All modules",
