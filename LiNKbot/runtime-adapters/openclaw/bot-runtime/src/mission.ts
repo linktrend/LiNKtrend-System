@@ -68,9 +68,9 @@ export const MISSION_ROLES: Record<LinkSitesV2RoleId, MissionConfig> = {
   },
   outreach_bot: {
     role_id: "outreach_bot",
-    capabilities_required: [],
-    max_attempts: 1,
-    timeout_ms: 60000,
+    capabilities_required: ["cap.crm.odoo_shadow", "cap.zulip.run_messaging"],
+    max_attempts: 2,
+    timeout_ms: 120000,
   },
   librarian_bot: {
     role_id: "librarian_bot",
@@ -135,44 +135,10 @@ export async function executeMission(
     return result;
   }
 
-  // Check for disabled roles in MVO
   if (role_id === "outreach_bot") {
-    // Emit role.skipped for disabled MVO roles
-    const skipped_event_id = await emitRoleStarted(
-      request.tenant_id,
-      request.run_id,
-      request.stage_id,
-      role_id,
-      session.session_id
-    );
-    if (skipped_event_id) {
-      addSessionAuditRef(session.session_id, skipped_event_id);
-    }
-
-    const mockResult: MissionResult = {
-      session_id: session.session_id,
-      run_id: request.run_id,
-      stage_id: request.stage_id,
-      outputs: {
-        status: "skipped",
-        reason: "role_disabled_in_mvo",
-        role_id,
-      },
-      provenance: {
-        model_run_id: "mock-disabled",
-        tokens_in: 0,
-        tokens_out: 0,
-        reasoning_duration_ms: 0,
-        context_refs: [],
-        lease_refs: [],
-        audit_refs: session.refs.audit_event_ids,
-      },
-      completed_at: new Date().toISOString(),
-      success: true,
-    };
-
+    const result = await executeOutreachDraft(request, session);
     cleanupBotSession(session.session_id);
-    return mockResult;
+    return result;
   }
 
   // Execute with retry logic
@@ -457,6 +423,190 @@ async function executeLeadScoutAcquisition(
   };
 }
 
+type OutreachGovernanceInput = {
+  lease_id?: string;
+  send_mode?: "draft_only" | "live";
+};
+
+function getOutreachGovernance(inputs: Record<string, unknown>): OutreachGovernanceInput {
+  const governance = inputs.governance;
+  if (governance && typeof governance === "object" && !Array.isArray(governance)) {
+    return governance as OutreachGovernanceInput;
+  }
+  return {};
+}
+
+function createOutreachFailure(
+  request: BotReasonRequest,
+  session: BotSessionContext,
+  message: string,
+  code: FailureReport["code"] = "LEASE_REQUEST_INVALID",
+): MissionResult {
+  const failure: FailureReport = {
+    code,
+    plane: "linkbot",
+    message,
+    retryable: code === "KERNEL_PERSISTENCE_FAILED",
+    approval_required: code === "POLICY_REQUIRES_APPROVAL" ? true : undefined,
+    occurred_at: new Date().toISOString(),
+  };
+  return createMissionFailure(request, "outreach_bot", failure, session);
+}
+
+/**
+ * Execute Principal D2-A governed outreach: draft-only with approval gate.
+ */
+async function executeOutreachDraft(
+  request: BotReasonRequest,
+  session: BotSessionContext,
+): Promise<MissionResult> {
+  const governance = getOutreachGovernance(request.inputs);
+  const sendMode = governance.send_mode ?? "draft_only";
+
+  if (sendMode === "live") {
+    return createOutreachFailure(
+      request,
+      session,
+      "outreach_bot live send is disabled for MVO; Principal must explicitly approve during demo.",
+      "POLICY_REQUIRES_APPROVAL",
+    );
+  }
+
+  if (!governance.lease_id) {
+    return createOutreachFailure(
+      request,
+      session,
+      "outreach_bot requires a LinkSkills lease_id before drafting outreach.",
+    );
+  }
+
+  const auditRefs: string[] = [];
+  addSessionLeaseRef(session.session_id, governance.lease_id);
+
+  const startedEventId = await emitRoleStarted(
+    request.tenant_id,
+    request.run_id,
+    request.stage_id,
+    "outreach_bot",
+    session.session_id,
+  );
+  if (!startedEventId) {
+    return createOutreachFailure(
+      request,
+      session,
+      "outreach_bot could not persist role.started audit event.",
+      "KERNEL_PERSISTENCE_FAILED",
+    );
+  }
+  auditRefs.push(startedEventId);
+  addSessionAuditRef(session.session_id, startedEventId);
+
+  const publishUrl =
+    typeof request.inputs.publish_url === "string"
+      ? request.inputs.publish_url
+      : "https://demo-lead.linktrend.media";
+  const outreachDraftRef = `outreach_draft:${request.tenant_id}:${request.run_id}`;
+  const modelRunId = `outreach-draft-${request.run_id}`;
+
+  const draftEvent = await emitAuditEvent({
+    tenant_id: request.tenant_id,
+    plane: "linkbot",
+    actor: { actor_kind: "bot", actor_id: "outreach_bot" },
+    action: "outreach.drafted",
+    subject: {
+      run_id: request.run_id,
+      stage_id: request.stage_id,
+      lease_id: governance.lease_id,
+      outreach_draft_ref: outreachDraftRef,
+    },
+    payload: {
+      role_id: "outreach_bot",
+      send_mode: "draft_only",
+      publish_url: publishUrl,
+      principal_decision: "D2 A",
+      approval_required: true,
+    },
+    schema_version: "1",
+  });
+  if (!draftEvent) {
+    return createOutreachFailure(
+      request,
+      session,
+      "outreach_bot could not persist outreach.drafted audit event.",
+      "KERNEL_PERSISTENCE_FAILED",
+    );
+  }
+  auditRefs.push(draftEvent.event_id);
+  addSessionAuditRef(session.session_id, draftEvent.event_id);
+
+  const heldEvent = await emitAuditEvent({
+    tenant_id: request.tenant_id,
+    plane: "linkbot",
+    actor: { actor_kind: "bot", actor_id: "outreach_bot" },
+    action: "outreach.held_for_approval",
+    subject: {
+      run_id: request.run_id,
+      stage_id: request.stage_id,
+      outreach_draft_ref: outreachDraftRef,
+    },
+    payload: {
+      reason: "mvo_draft_only_gate",
+      live_send_blocked: true,
+    },
+    schema_version: "1",
+  });
+  if (heldEvent) {
+    auditRefs.push(heldEvent.event_id);
+    addSessionAuditRef(session.session_id, heldEvent.event_id);
+  }
+
+  updateSessionState(session.session_id, "completed");
+  const completedEventId = await emitRoleCompleted(
+    request.tenant_id,
+    request.run_id,
+    request.stage_id,
+    "outreach_bot",
+    session.session_id,
+    modelRunId,
+    0,
+    0,
+  );
+  if (!completedEventId) {
+    return createOutreachFailure(
+      request,
+      session,
+      "outreach_bot could not persist role.completed audit event.",
+      "KERNEL_PERSISTENCE_FAILED",
+    );
+  }
+  auditRefs.push(completedEventId);
+  addSessionAuditRef(session.session_id, completedEventId);
+
+  const createdTime = new Date(session.created_at).getTime();
+  return {
+    session_id: session.session_id,
+    run_id: request.run_id,
+    stage_id: request.stage_id,
+    outputs: {
+      outreach_draft_ref: outreachDraftRef,
+      outreach_status: "draft_pending_principal_approval",
+      send_mode: "draft_only",
+      publish_url: publishUrl,
+    },
+    provenance: {
+      model_run_id: modelRunId,
+      tokens_in: 0,
+      tokens_out: 0,
+      reasoning_duration_ms: Date.now() - createdTime,
+      context_refs: [],
+      lease_refs: [governance.lease_id],
+      audit_refs: auditRefs,
+    },
+    completed_at: new Date().toISOString(),
+    success: true,
+  };
+}
+
 /**
  * Execute a single mission attempt
  */
@@ -615,6 +765,6 @@ export function listMissionRoles(): Array<{ role_id: LinkSitesV2RoleId; enabled_
     { role_id: "research_enrichment_bot", enabled_in_mvo: true },
     { role_id: "website_builder_bot", enabled_in_mvo: true },
     { role_id: "librarian_bot", enabled_in_mvo: true },
-    { role_id: "outreach_bot", enabled_in_mvo: false },
+    { role_id: "outreach_bot", enabled_in_mvo: true },
   ];
 }

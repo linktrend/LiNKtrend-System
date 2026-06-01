@@ -211,11 +211,9 @@ describe("LinkSites Role Execution", () => {
     });
   });
 
-  describe("Disabled Roles (MVO)", () => {
-    it("should document that outreach_bot is disabled in MVO", () => {
-      // This role is declared but disabled in MVO
-      // No outreach draft or send for v2
-      expect(true).toBe(true); // Documentation test
+  describe("Outreach role (MVO LTS-043)", () => {
+    it("should document that outreach_bot runs governed draft in MVO", () => {
+      expect(true).toBe(true);
     });
   });
 
@@ -326,7 +324,7 @@ describe("LinkSites Role Definitions", () => {
     expect(LINKSITES_MVO_ENABLED_ROLES).toContain("research_enrichment_bot");
     expect(LINKSITES_MVO_ENABLED_ROLES).toContain("website_builder_bot");
     expect(LINKSITES_MVO_ENABLED_ROLES).toContain("lead_scout_bot");
-    expect(LINKSITES_MVO_ENABLED_ROLES).not.toContain("outreach_bot");
+    expect(LINKSITES_MVO_ENABLED_ROLES).toContain("outreach_bot");
   });
 
   it("should have correct MVO disabled roles", async () => {
@@ -334,7 +332,7 @@ describe("LinkSites Role Definitions", () => {
       "../../../roles/suites/linksites/roles.js"
     );
 
-    expect(LINKSITES_MVO_DISABLED_ROLES).toContain("outreach_bot");
+    expect(LINKSITES_MVO_DISABLED_ROLES).not.toContain("outreach_bot");
     expect(LINKSITES_MVO_DISABLED_ROLES).not.toContain("lead_scout_bot");
     expect(LINKSITES_MVO_DISABLED_ROLES).not.toContain("research_enrichment_bot");
     expect(LINKSITES_MVO_DISABLED_ROLES).not.toContain("website_builder_bot");

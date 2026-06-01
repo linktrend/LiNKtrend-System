@@ -108,14 +108,25 @@ describe("Mission Management", () => {
       expect(result.outputs).toHaveProperty("world_brain_ref");
     });
 
-    it("should skip disabled outreach_bot in MVO", async () => {
+    it("should execute outreach_bot with governed draft in MVO", async () => {
       process.env.MOCK_CONTEXT = "true";
       process.env.MOCK_AUDIT = "true";
 
-      const result = await executeMission(baseRequest, "outreach_bot", mockConfig);
+      const outreachRequest: BotReasonRequest = {
+        ...baseRequest,
+        stage_id: "linksites.outreach",
+        inputs: {
+          ...baseRequest.inputs,
+          publish_url: "https://demo-lead.linktrend.media",
+          governance: { lease_id: "lease-outreach-1", send_mode: "draft_only" },
+        },
+      };
+
+      const result = await executeMission(outreachRequest, "outreach_bot", mockConfig);
 
       expect(result.success).toBe(true);
-      expect(result.outputs).toHaveProperty("status", "skipped");
+      expect(result.outputs).toHaveProperty("outreach_status", "draft_pending_principal_approval");
+      expect(result.outputs).toHaveProperty("send_mode", "draft_only");
     });
 
     it("should execute enabled research_enrichment_bot", async () => {
@@ -198,7 +209,7 @@ describe("Mission Management", () => {
       expect(builder?.enabled_in_mvo).toBe(true);
 
       const outreach = roles.find((r) => r.role_id === "outreach_bot");
-      expect(outreach?.enabled_in_mvo).toBe(false);
+      expect(outreach?.enabled_in_mvo).toBe(true);
     });
   });
 

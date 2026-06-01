@@ -2,8 +2,8 @@
 {
   "version": 1,
   "program_id": "linktrend-system",
-  "phase": "running",
-  "updated_at": "2026-06-01T14:10:00.000Z",
+  "phase": "complete",
+  "updated_at": "2026-06-01T15:00:00.000Z",
   "principal_stop_reason": "",
   "next_orchestrator_trigger": "none",
   "issues": {
@@ -124,6 +124,33 @@
       "last_pr": 90,
       "done_at": "2026-06-01T14:05:00.000Z"
     },
+    "LTS-032": {
+      "status": "done",
+      "runtime": "cursor",
+      "tier": "standard",
+      "depends_on": ["LTS-031"],
+      "report": "LiNKdev/product/reports/linktrend-system/linkautowork/workflows/LTS-032.md",
+      "last_pr": 93,
+      "done_at": "2026-06-01T14:08:00.000Z"
+    },
+    "LTS-033": {
+      "status": "done",
+      "runtime": "cursor",
+      "tier": "standard",
+      "depends_on": ["LTS-032"],
+      "report": "LiNKdev/product/reports/linktrend-system/linkautowork/workflows/LTS-033.md",
+      "last_pr": 95,
+      "done_at": "2026-06-01T15:00:00.000Z"
+    },
+    "LTS-034": {
+      "status": "done",
+      "runtime": "cursor",
+      "tier": "standard",
+      "depends_on": ["LTS-033"],
+      "report": "LiNKdev/product/reports/linktrend-system/linkautowork/workflows/LTS-034.md",
+      "last_pr": 95,
+      "done_at": "2026-06-01T15:00:00.000Z"
+    },
     "LTS-040": {
       "status": "done",
       "runtime": "cursor",
@@ -141,6 +168,24 @@
       "report": "LiNKdev/product/reports/linktrend-system/linkbot/roles/LTS-041.md",
       "last_pr": 91,
       "done_at": "2026-06-01T14:05:00.000Z"
+    },
+    "LTS-042": {
+      "status": "done",
+      "runtime": "cursor",
+      "tier": "standard",
+      "depends_on": ["LTS-041", "LTS-013"],
+      "report": "LiNKdev/product/reports/linktrend-system/linkbot/roles/LTS-042.md",
+      "last_pr": 93,
+      "done_at": "2026-06-01T14:08:00.000Z"
+    },
+    "LTS-043": {
+      "status": "done",
+      "runtime": "cursor",
+      "tier": "standard",
+      "depends_on": ["LTS-034", "LTS-042"],
+      "report": "LiNKdev/product/reports/linktrend-system/linkbot/roles/LTS-043.md",
+      "last_pr": 95,
+      "done_at": "2026-06-01T15:00:00.000Z"
     },
     "LTS-050": {
       "status": "done",
@@ -169,24 +214,6 @@
       "last_pr": 92,
       "done_at": "2026-06-01T14:06:00.000Z"
     },
-    "LTS-032": {
-      "status": "done",
-      "runtime": "cursor",
-      "tier": "standard",
-      "depends_on": ["LTS-031"],
-      "report": "LiNKdev/product/reports/linktrend-system/linkautowork/workflows/LTS-032.md",
-      "last_pr": 93,
-      "done_at": "2026-06-01T14:08:00.000Z"
-    },
-    "LTS-042": {
-      "status": "done",
-      "runtime": "cursor",
-      "tier": "standard",
-      "depends_on": ["LTS-041", "LTS-013"],
-      "report": "LiNKdev/product/reports/linktrend-system/linkbot/roles/LTS-042.md",
-      "last_pr": 93,
-      "done_at": "2026-06-01T14:08:00.000Z"
-    },
     "LTS-102": {
       "status": "done",
       "runtime": "cursor",
@@ -195,9 +222,72 @@
       "report": "LiNKdev/product/reports/linktrend-system/linksites/qualification/LTS-102.md",
       "last_pr": 93,
       "done_at": "2026-06-01T14:08:00.000Z"
+    },
+    "LTS-103": {
+      "status": "done",
+      "runtime": "cursor",
+      "tier": "standard",
+      "depends_on": ["LTS-102", "LTS-042"],
+      "report": "LiNKdev/product/reports/linktrend-system/linksites/template-selection/LTS-103.md",
+      "last_pr": 95,
+      "done_at": "2026-06-01T15:00:00.000Z"
+    },
+    "LTS-104": {
+      "status": "done",
+      "runtime": "cursor",
+      "tier": "standard",
+      "depends_on": ["LTS-103", "LTS-030"],
+      "report": "LiNKdev/product/reports/linktrend-system/linksites/website-build/LTS-104.md",
+      "last_pr": 95,
+      "done_at": "2026-06-01T15:00:00.000Z"
+    },
+    "LTS-105": {
+      "status": "done",
+      "runtime": "cursor",
+      "tier": "standard",
+      "depends_on": ["LTS-104", "LTS-032", "LTS-033"],
+      "report": "LiNKdev/product/reports/linktrend-system/linksites/publish/LTS-105.md",
+      "last_pr": 95,
+      "done_at": "2026-06-01T15:00:00.000Z"
+    },
+    "LTS-106": {
+      "status": "done",
+      "runtime": "cursor",
+      "tier": "standard",
+      "depends_on": ["LTS-105", "LTS-043"],
+      "report": "LiNKdev/product/reports/linktrend-system/linksites/outreach/LTS-106.md",
+      "last_pr": 95,
+      "done_at": "2026-06-01T15:00:00.000Z"
+    },
+    "LTS-107": {
+      "status": "done",
+      "runtime": "cursor",
+      "tier": "standard",
+      "depends_on": ["LTS-106"],
+      "report": "LiNKdev/product/reports/linktrend-system/linksites/close-recycle/LTS-107.md",
+      "last_pr": 95,
+      "done_at": "2026-06-01T15:00:00.000Z"
+    },
+    "LTS-108": {
+      "status": "done",
+      "runtime": "cursor",
+      "tier": "standard",
+      "depends_on": ["LTS-107", "LTS-003", "LTS-005", "LTS-012"],
+      "report": "LiNKdev/product/reports/linktrend-system/linksites/e2e-proof/LTS-108.md",
+      "last_pr": 95,
+      "done_at": "2026-06-01T15:00:00.000Z"
+    },
+    "LTS-900": {
+      "status": "done",
+      "runtime": "cursor",
+      "tier": "critical",
+      "depends_on": ["LTS-108"],
+      "report": "LiNKdev/product/reports/linktrend-system/release/ship/LTS-900.md",
+      "last_pr": 95,
+      "done_at": "2026-06-01T15:00:00.000Z"
     }
   }
 }
 ```
 
-Wave 6 complete (2026-06-01): LTS-021 PR #89, LTS-030 PR #87, LTS-050 PR #88. Wave 7 complete: LTS-031 PR #90, LTS-041 PR #91, LTS-101 PR #92. Wave 8 batch 1 complete (2026-06-01): LTS-032, LTS-042, LTS-102 via PR #93.
+Waves 6–8: PRs #87–#93. Waves 9–15 (program completion): PR #95 — LTS-033 through LTS-900.
