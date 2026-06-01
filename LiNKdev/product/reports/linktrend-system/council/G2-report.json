@@ -1,0 +1,111 @@
+{
+  "gate": "G2",
+  "program_id": "linktrend-system",
+  "reviewed_at": "2026-06-01T12:05:00Z",
+  "subject_artifacts": [
+    {
+      "label": "Program plan",
+      "path": "LiNKdev/product/programs/linktrend-system/PROGRAM.md"
+    },
+    {
+      "label": "DAG validation",
+      "path": "LiNKdev/factory/scripts/validate-dag.sh"
+    }
+  ],
+  "personas": [
+    {
+      "persona_id": "security-advisor",
+      "verdict": "PASS",
+      "summary": "Issues prohibit secrets paths; side-effecting stages route through LinkSkills leases and LiNKautowork workflows.",
+      "evidence": [
+        {
+          "type": "file",
+          "ref": "LiNKdev/product/programs/linktrend-system/modules/linksites/phases/outreach/issues/LTS-106.md",
+          "finding": "prohibited_files includes .env and secrets/** on all issues reviewed."
+        },
+        {
+          "type": "file",
+          "ref": "LiNKdev/product/grounding/CONTRACTS_MVO.md",
+          "finding": "MVO contract lists governed outreach and lease requirements aligned to issue graph."
+        }
+      ]
+    },
+    {
+      "persona_id": "architecture-advisor",
+      "verdict": "PASS",
+      "summary": "31 issues across eight modules with plane-per-module structure; LinkSites seven phases mirror PPD §5.",
+      "evidence": [
+        {
+          "type": "command",
+          "ref": "validate-dag.sh PROGRAM.md",
+          "finding": "DAG valid for 31 issues with no cycles or unknown dependencies."
+        },
+        {
+          "type": "file",
+          "ref": "LiNKdev/product/programs/linktrend-system/PROGRAM.md",
+          "finding": "Traceability matrix maps PPD sections to LTS issue IDs at ≥100% with D1–D4."
+        }
+      ]
+    },
+    {
+      "persona_id": "dx-advisor",
+      "verdict": "PASS",
+      "summary": "Each issue has read_first, allowed_files, acceptance_criteria, report_path, and branch naming convention.",
+      "evidence": [
+        {
+          "type": "file",
+          "ref": "LiNKdev/product/programs/linktrend-system/modules/linkaios/phases/kernel/issues/LTS-001.md",
+          "finding": "Issue contract fields complete on sample kernel issue."
+        },
+        {
+          "type": "file",
+          "ref": "LiNKdev/factory/scripts/verify.sh",
+          "finding": "proof_required references verify.sh on issues for mechanical proof path."
+        }
+      ]
+    },
+    {
+      "persona_id": "qa-advisor",
+      "verdict": "PASS",
+      "summary": "Acceptance criteria updated for D3 B (LTS-021) and D4 B (LTS-004/005); LTS-900 critical release tier present.",
+      "evidence": [
+        {
+          "type": "file",
+          "ref": "LiNKdev/product/programs/linktrend-system/modules/linkbrain/phases/librarian/issues/LTS-021.md",
+          "finding": "World brain contribution criterion added per D3 B."
+        },
+        {
+          "type": "file",
+          "ref": "LiNKdev/product/programs/linktrend-system/modules/release/phases/ship/issues/LTS-900.md",
+          "finding": "Release issue tier critical for LAW-03 and LAW-08 manifest."
+        }
+      ]
+    },
+    {
+      "persona_id": "product-advisor",
+      "verdict": "PASS",
+      "summary": "Program plan DoD links SHIP_CRITERIA; Principal Q&A D1–D4 bound in narrative and decisions table.",
+      "evidence": [
+        {
+          "type": "file",
+          "ref": "LiNKdev/product/programs/linktrend-system/PROGRAM.md",
+          "finding": "Finished-product narrative incorporates all four Principal Q&A answers."
+        },
+        {
+          "type": "file",
+          "ref": "LiNKdev/product/grounding/INTENT.md",
+          "finding": "Intent document links VISION.md and SHIP_CRITERIA.md per factory template."
+        }
+      ]
+    }
+  ],
+  "summary_status": "PASS",
+  "blockers": [],
+  "warnings": [
+    {
+      "persona_id": "dx-advisor",
+      "message": "D4 B expands Admin scope; LTS-004 title still references demo tenant — acceptance criteria carry the binding scope."
+    }
+  ],
+  "summary_markdown_path": "LiNKdev/product/reports/linktrend-system/council/G2-SUMMARY.md"
+}

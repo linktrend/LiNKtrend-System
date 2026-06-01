@@ -15,7 +15,7 @@ Humans stay in the loop for strategy and approvals; LiNKbots and automations exe
 
 **LiNKaios Client** serves the licensee company: the Principal, operators, and staff with role-based access to Projects, approvals, and LiNKbrain knowledge.
 
-**LiNKtrend Admin** serves the vendor: managing many licensee instances, Suite catalogues, LiNKbot fleet, and operational troubleshooting.
+**LiNKtrend Admin** serves the vendor: **full vendor catalogue** (**D4 B**) — cross-tenant fleet LiNKbot management, Capability admin, licensee and Suite operations, and troubleshooting — plus visibility into the LinkSites demo run.
 
 ## How work flows
 
@@ -25,8 +25,8 @@ Each Suite breaks down into Modules, Phases, and Issues. An Issue is the smalles
 
 The first proof is **not** every Suite finished. It is:
 
-1. **LiNKaios Client + LiNKtrend Admin** operational for the MVO scope.
-2. **One complete LinkSites run**: one lead from discovery through website build, publish on `businessname.linktrend.media`, and outreach — with Zulip, Plane, Supabase, leases, automations, bot steps, brain events, and traces visible in LiNKaios.
+1. **LiNKaios Client + LiNKtrend Admin** operational for MVO scope (**Admin = full vendor catalogue, D4 B**).
+2. **One complete LinkSites run**: one governed mock lead (**D1 B**) through qualification, build, publish on `businessname.linktrend.media`, governed draft outreach (**D2 A**), and close/recycle — with Librarian full loop (**D3 B**), Zulip, Plane, Supabase, leases, automations, bot steps, brain events, and traces visible in LiNKaios.
 
 Development continues without phasing until that outcome is real.
 

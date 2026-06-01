@@ -15,7 +15,7 @@ See `LiNKdev/factory/install/PRINCIPAL-LAUNCH.md`.
 | B — `EXECUTE-LINKDEV-DISPATCH-INSTALL.md` | **complete** (2026-06-01) |
 | C — `EXECUTE-WIRE-LINKDEV-POST-DISPATCH.md` | **complete_pending_go** (verify.sh + Actions orchestrator dispatch) |
 | Legacy UI — `EXECUTE-LINKDEV-UI-AUTOMATIONS.md` | **superseded** by dispatch v2 (optional cleanup in Cursor UI) |
-| 8 — Go (Planner) | **blocked** until Principal says **Go** |
+| 8 — Go (Planner) | **complete** (2026-06-01 — `linkdev-go`) |
 
 ## Dispatch v2 (Step B — 2026-06-01)
 
@@ -29,7 +29,7 @@ See `LiNKdev/factory/install/PRINCIPAL-LAUNCH.md`.
 
 - **verify.sh:** exit 0 (tier A gates passed).
 - **Actions proof:** `gh workflow run "LiNKdev dispatch" --ref main -f role=orchestrator` → success — https://github.com/linktrend/LiNKtrend-System/actions/runs/26728188505
-- **Wire status:** `complete_pending_go` — program **Go** not issued; STATE remains `awaiting_go`.
+- **Wire status:** `complete` — Planner Go issued; STATE `phase: running` for `linktrend-system`.
 
 ## Checklist (CHECKLIST.md)
 
@@ -82,8 +82,8 @@ See `LiNKdev/factory/install/PRINCIPAL-LAUNCH.md`.
 
 ### §8 Go — not executed (Principal only)
 
-- [ ] Principal says **Go**
-- [ ] Program STATE phase = `running` (after Planner G2 PASS)
+- [x] Principal says **Go** (2026-06-01)
+- [x] Program STATE phase = `running` (Planner G2 PASS)
 
 ### §9 Proof of wire — complete_pending_go (dispatch v2)
 

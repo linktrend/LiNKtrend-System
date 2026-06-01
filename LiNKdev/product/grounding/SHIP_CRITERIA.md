@@ -9,16 +9,17 @@ Checklist for **Program Definition of Done**. The program is not complete until 
 ## 1. System surfaces (Client + Admin)
 
 - [ ] **LiNKaios Client** — licensee can sign in, enable LinkSites Suite, launch a Project, and follow run progress with traces
-- [ ] **LiNKtrend Admin** — vendor can manage demo tenant, Suite visibility, and minimum fleet/troubleshoot surfaces for MVO
+- [ ] **LiNKtrend Admin** — vendor can operate **full vendor catalogue** (**D4 B**): licensees, Suite publish/visibility, cross-tenant LiNKbot fleet, Capability admin, troubleshoot — with cross-tenant safety
 - [ ] Role-based access works for operator approvals (budget, knowledge, side effects) per company policy
 
 ## 2. LinkSites end-to-end (one lead)
 
-- [ ] **Lead intake** — one lead enters the pipeline (Maps/search path or governed equivalent wired for MVO)
+- [ ] **Lead intake** — one **governed mock** demo lead (**D1 B**); full lease/audit/trace (live Maps post-MVO)
 - [ ] **Research & enrichment** — LiNKbot produces provenance-backed context for the lead
 - [ ] **Template & build** — website package generated from LiNKsites template guidance (external repo)
 - [ ] **Publish** — content synced to Payload CMS; preview/live URL at `businessname.linktrend.media` (or documented MVO equivalent on shared VPS)
-- [ ] **Outreach** — outreach step executed for the lead (governed send or Principal-approved MVO posture — not silently skipped)
+- [ ] **Outreach** — governed **draft-only** outreach (**D2 A**) with Principal approval gate; full trace; live send only on explicit approval
+- [ ] **Librarian loop** — company knowledge proposal accept/reject/edit **plus** anonymized world brain contribution (**D3 B**; LiNKguard policy)
 - [ ] **Trace completeness** — every side-effecting step shows lease + workflow + audit refs in LiNKaios trace view
 - [ ] **Close or recycle path** — documented behavior for subscribe/transfer vs recycle unsold site
 
