@@ -8,12 +8,12 @@ Initial session skipped **Principal Q&A** and set `phase: running` prematurely. 
 
 1. ~~Go triggered~~  
 2. ~~**Principal Q&A**~~ — **complete** (`PLANNER-QA.md`, D1–D4)  
-3. Finished-product narrative — in `PROGRAM.md` (draft; **awaiting Principal OK**)  
-4. Principal **OK** — pending  
-5. G1 council — pending narrative OK  
-6. Program files — **rebuilt** (31 issues, ≥98% PPD traceability)  
-7. G2 intent PASS — **blocked** until steps 2–4 complete  
-8. `phase: running` — **not set**
+3. ~~Finished-product narrative~~ — Principal **OK** (`PROGRAM.md`)  
+4. ~~Principal **OK**~~ — 2026-06-01  
+5. ~~G1 council~~ — PASS (`council/G1-report.json`)  
+6. Program files — **rebuilt** (31 issues, 100% PPD traceability)  
+7. ~~G2 intent PASS~~ — `intent-verdict.json` PASS; `validate-intent.sh` exit 0  
+8. ~~`phase: running`~~ — **set** in STATE  
 
 ## Rebuild summary
 

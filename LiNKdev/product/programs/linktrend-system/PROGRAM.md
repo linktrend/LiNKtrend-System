@@ -9,7 +9,7 @@ chairman_review_schedule:
 
 # Program plan: linktrend-system
 
-**Planner status:** Draft — **Principal Q&A complete** (2026-06-01). Awaiting Principal **OK** on finished-product narrative below. Do **not** set `phase: running` until narrative OK + G2 PASS.
+**Planner status:** **G2 PASS** — Principal Q&A + narrative OK (2026-06-01). Orchestrator may advance when `validate-intent.sh` passes and labels applied.
 
 ## Finished product (plain English)
 
@@ -57,7 +57,7 @@ When **all issues** in this program are done:
 | **D3** | **B** — Librarian **full loop** in MVO: company knowledge proposal (accept/reject/edit) **plus** anonymized world brain contribution; LiNKguard confidentiality policy enforced. |
 | **D4** | **B** — LiNKtrend Admin **full vendor catalogue**: cross-tenant fleet management, Capability admin, licensee/Suite ops, and troubleshooting — not demo-tenant-only. |
 
-**Alignment score:** **100%** with D1–D4 recorded; Q&A complete — awaiting Principal narrative **OK**.
+**Alignment score:** **100%** with D1–D4 recorded; Principal narrative **OK**; G1/G2 council PASS; intent verdict PASS.
 
 ## Program Definition of Done
 

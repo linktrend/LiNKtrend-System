@@ -13,7 +13,7 @@
 | 3 | Librarian depth for MVO demo | **D3: B** — full loop: company knowledge + anonymized world brain (LiNKguard policy) | closed |
 | 4 | Admin surface bar (minimum vs full fleet catalogue) | **D4: B** — full vendor catalogue: cross-tenant fleet, capability admin, licensee ops | closed |
 
-**Q&A status:** **Complete** (D1–D4). Awaiting Principal **OK** on finished-product narrative in `PROGRAM.md`.
+**Q&A status:** **Complete** (D1–D4). **Principal narrative OK** (2026-06-01). G1/G2 council PASS; G2 intent verdict PASS.
 
 _Answers recorded here after each Principal reply._
 

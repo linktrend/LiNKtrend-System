@@ -2,10 +2,10 @@
 {
   "version": 1,
   "program_id": "linktrend-system",
-  "phase": "planning",
-  "updated_at": "2026-06-01T00:16:04Z",
+  "phase": "running",
+  "updated_at": "2026-06-01T12:10:00Z",
   "principal_stop_reason": "",
-  "next_orchestrator_trigger": "none",
+  "next_orchestrator_trigger": "go",
   "issues": {
     "LTS-001": {
       "status": "planned",

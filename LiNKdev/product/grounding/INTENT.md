@@ -1,8 +1,8 @@
 # Product intent
 
 **Program ID:** `linktrend-system`  
-**Status:** approved — Principal MVO reset May 2026  
-**Last updated:** 2026-05-31
+**Status:** approved — Principal Q&A + narrative OK 2026-06-01  
+**Last updated:** 2026-06-01
 
 Complete the **LiNKtrend System MVO**: LiNKaios **Client + Admin** plus one full **LinkSites** end-to-end run (one lead → built site → published preview URL → outreach) with all planes wired per architecture rules — auditable, governable, and demo-ready.
 
@@ -21,8 +21,8 @@ Complete the **LiNKtrend System MVO**: LiNKaios **Client + Admin** plus one full
 When the program is complete, the Principal can demonstrate:
 
 1. **LiNKaios Client** — licensee operator flow for LinkSites: project launch, progress, approvals, traces, LiNKbrain visibility.
-2. **LiNKtrend Admin** — vendor surfaces needed to manage the demo tenant, Suite, and fleet for MVO.
-3. **LinkSites E2E** — one lead through lead generation, template-guided build, Payload/VPS publish (`businessname.linktrend.media`), and outreach, with:
+2. **LiNKtrend Admin** — **D4 B:** full vendor catalogue — cross-tenant fleet, Capability admin, licensee/Suite ops, troubleshooting (not demo-tenant-only).
+3. **LinkSites E2E** — one lead through qualification, template-guided build, Payload/VPS publish (`businessname.linktrend.media`), governed outreach (**D2 A** draft + approval gate), and close/recycle, with:
    - LinkSkills capability leases on every side effect
    - LiNKautowork deterministic workflow runs with audit
    - LiNKbot judgment steps (research, build, outreach)
@@ -41,7 +41,7 @@ LinkSites **product code** (templates, Payload, frontend) remains in the externa
 - LinkSites Suite workflow map and integration in `suites/linksites/`
 - Required Capabilities: Zulip, Plane, Supabase, CRM/Odoo shadow, Payload sync, public research, asset generation (as needed for E2E)
 - LiNKautowork workflow handles for deterministic LinkSites stages
-- LiNKbrain audit envelope, Librarian hooks (minimum viable for MVO proof)
+- LiNKbrain audit envelope, Librarian **full loop** (**D3 B**: company knowledge + anonymized world brain via LiNKguard)
 - LiNKbot roles for LinkSites (lead scout, research, builder, outreach)
 - LiNKdev factory coordination for this repo
 
@@ -76,5 +76,7 @@ Aligned with [`SHIP_CRITERIA.md`](SHIP_CRITERIA.md):
 | Item | Status | Date |
 |------|--------|------|
 | Product definition (`PRINCIPAL_PRODUCT_DEFINITION.md`) | OK | 2026-05 |
-| Intent (this document) | OK | 2026-05-31 |
-| Program Go (`linkdev-go`) | In progress — Q&A | 2026-06-01 |
+| Intent (this document) | OK | 2026-06-01 |
+| Planner Q&A (D1–D4) | OK | 2026-06-01 |
+| Finished-product narrative (`PROGRAM.md`) | OK | 2026-06-01 |
+| Program Go — Orchestrator handoff | Ready | 2026-06-01 |

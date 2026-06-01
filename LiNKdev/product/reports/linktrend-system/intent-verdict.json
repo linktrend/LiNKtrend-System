@@ -1,6 +1,6 @@
 {
   "program_id": "linktrend-system",
-  "status": "BLOCKED",
+  "status": "PASS",
   "laws_checked": [
     "LAW-01",
     "LAW-02",
@@ -12,14 +12,16 @@
     "LAW-08"
   ],
   "requirements_checked": [
-    "PROGRAM.md DAG valid",
-    "Principal traceability matrix present",
-    "Principal Q&A pending",
-    "Principal OK on finished-product narrative pending"
+    "INTENT.md present with required sections",
+    "VISION.md and SHIP_CRITERIA.md linked from INTENT.md",
+    "PROGRAM.md copied from template and DAG valid",
+    "Principal Q&A complete (D1-D4) recorded in PLANNER-QA.md",
+    "Principal OK on finished-product narrative recorded",
+    "Council G1: no BLOCKER verdicts",
+    "Council G2: no BLOCKER verdicts",
+    "validate-intent.sh exits 0"
   ],
-  "blockers": [
-    "Planner protocol: Principal Q&A not completed (ROLE steps 2-4)",
-    "STATE phase must remain planning until narrative OK and G2 PASS"
-  ],
-  "timestamp": "2026-06-01T00:16:04Z"
+  "blockers": [],
+  "timestamp": "2026-06-01T12:10:00Z",
+  "planner_narrative_sha256": "d7e596f893696097a395f0c16b2cf0d585265fd5ef824506a2eccffb373cf9fe"
 }
