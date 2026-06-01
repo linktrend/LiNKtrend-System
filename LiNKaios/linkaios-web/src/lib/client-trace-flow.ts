@@ -46,6 +46,27 @@ export type ProjectTraceRunRef = {
   runId: string | null;
 };
 
+export type KernelTraceRunRow = {
+  run_id: string;
+  tenant_id: string;
+  plugin_id: string;
+  status: string;
+  started_at: string | null;
+  ended_at: string | null;
+};
+
+export type KernelTraceStageRow = {
+  stage_id: string;
+  responsible_plane: string;
+  status: string;
+  attempt: number | null;
+  started_at: string | null;
+  ended_at: string | null;
+  lease_ids: string[] | null;
+  workflow_run_ids: string[] | null;
+  audit_event_ids: string[] | null;
+};
+
 export function projectTraceHref(projectId: string): string {
   return `/projects/${encodeURIComponent(projectId)}?tab=traces`;
 }
@@ -200,4 +221,44 @@ export function projectTraceSurfaceFromRun(projectId: string, run: RunOverview |
     steps: run.stages.map(traceStepFromRunStage),
     approvalGates: demoGates,
   };
+}
+
+export function projectTraceSurfaceFromKernelRows(
+  projectId: string,
+  run: KernelTraceRunRow | null,
+  stages: KernelTraceStageRow[],
+): ClientProjectTraceSurface {
+  if (!run) return projectTraceSurfaceFromRun(projectId, null);
+  return projectTraceSurfaceFromRun(projectId, {
+    run_id: run.run_id,
+    tenant_id: run.tenant_id,
+    plugin_id: run.plugin_id,
+    work_request_type: "project_trace",
+    status: run.status as RunOverview["status"],
+    started_at: run.started_at ?? "",
+    ended_at: run.ended_at,
+    stages: stages.map((stage) => ({
+      stage_id: stage.stage_id,
+      run_id: run.run_id,
+      display_name: stage.stage_id
+        .replace(/^linksites\./, "")
+        .replace(/[_-]+/g, " ")
+        .replace(/\b\w/g, (char) => char.toUpperCase()),
+      responsible_plane: stage.responsible_plane as RunStageView["responsible_plane"],
+      status: stage.status as RunStageView["status"],
+      attempt: stage.attempt ?? 1,
+      started_at: stage.started_at,
+      ended_at: stage.ended_at,
+      lease_ids: stage.lease_ids ?? [],
+      workflow_run_ids: stage.workflow_run_ids ?? [],
+      audit_event_ids: stage.audit_event_ids ?? [],
+      failure_message: null,
+    })),
+    total_stages: stages.length,
+    completed_stages: stages.filter((stage) => stage.status === "succeeded").length,
+    failed_stages: stages.filter((stage) => stage.status === "failed").length,
+    lease_count: stages.reduce((sum, stage) => sum + (stage.lease_ids?.length ?? 0), 0),
+    workflow_run_count: stages.reduce((sum, stage) => sum + (stage.workflow_run_ids?.length ?? 0), 0),
+    failure_summary: null,
+  });
 }

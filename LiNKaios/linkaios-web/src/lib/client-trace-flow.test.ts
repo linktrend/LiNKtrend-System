@@ -7,6 +7,7 @@ import {
   canApproveKnowledgeGate,
   canApproveProtectedSideEffectGate,
   projectTraceHref,
+  projectTraceSurfaceFromKernelRows,
   projectTraceSurfaceFromRun,
   selectProjectTraceRun,
 } from "./client-trace-flow";
@@ -134,6 +135,42 @@ describe("client trace flow (LTS-003)", () => {
       leaseIds: ["lease-live"],
       workflowRunIds: ["wf-live"],
       auditEventIds: ["audit-live"],
+      approvalGateType: "protected_side_effect",
+    });
+  });
+
+  it("maps kernel trace RPC rows into per-stage refs", () => {
+    const surface = projectTraceSurfaceFromKernelRows(
+      "demo-smb",
+      {
+        run_id: "kernel-run-2",
+        tenant_id: "tenant-1",
+        plugin_id: "linksites",
+        status: "succeeded",
+        started_at: "2026-06-01T00:00:00.000Z",
+        ended_at: "2026-06-01T00:01:00.000Z",
+      },
+      [
+        {
+          stage_id: "linksites.outreach",
+          responsible_plane: "linkbot",
+          status: "succeeded",
+          attempt: 1,
+          started_at: "2026-06-01T00:00:00.000Z",
+          ended_at: "2026-06-01T00:01:00.000Z",
+          lease_ids: ["lease-outreach"],
+          workflow_run_ids: ["wf-outreach"],
+          audit_event_ids: ["audit-outreach"],
+        },
+      ],
+    );
+
+    expect(surface.runId).toBe("kernel-run-2");
+    expect(surface.steps[0]).toMatchObject({
+      label: "Outreach",
+      leaseIds: ["lease-outreach"],
+      workflowRunIds: ["wf-outreach"],
+      auditEventIds: ["audit-outreach"],
       approvalGateType: "protected_side_effect",
     });
   });

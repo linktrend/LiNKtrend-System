@@ -10,13 +10,13 @@ import {
 import { ProjectTraceApprovalGates } from "@/components/project-trace-approval-gates";
 import { StatusPill } from "@/components/ui/status-pill";
 import { resolveProjectIdFromProps } from "@/lib/api/project-mission-id";
-import { loadRunOverview } from "@/lib/cockpit";
 import {
   buildDemoProjectTraceSurface,
-  projectTraceSurfaceFromRun,
-  selectProjectTraceRun,
+  projectTraceSurfaceFromKernelRows,
   type ClientProjectTraceSurface,
   type ClientTraceStep,
+  type KernelTraceRunRow,
+  type KernelTraceStageRow,
   type ProjectTraceRunRef,
 } from "@/lib/client-trace-flow";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -66,12 +66,21 @@ async function loadProjectTraceSurface(projectId: string): Promise<ClientProject
       traceRowId: row.trace_id ?? row.run_id ?? "",
       runId: row.run_id,
     }));
-  const tenantId =
-    ((spineRows ?? []) as { tenant_id?: string | null }[]).find((row) => row.tenant_id)?.tenant_id ??
-    "default";
-  const runOverviews = await loadRunOverview(supabase, tenantId, { time_range: "30d" });
-  const run = selectProjectTraceRun(runOverviews, refs);
-  return projectTraceSurfaceFromRun(projectId, run);
+  const runId = refs[0]?.runId ?? null;
+  if (!runId) {
+    return projectTraceSurfaceFromKernelRows(projectId, null, []);
+  }
+
+  const [{ data: runRows }, { data: stageRows }] = await Promise.all([
+    supabase.schema("linkaios_kernel").rpc("get_run_trace", { p_run_id: runId }),
+    supabase.schema("linkaios_kernel").rpc("get_run_stages", { p_run_id: runId }),
+  ]);
+
+  return projectTraceSurfaceFromKernelRows(
+    projectId,
+    ((runRows ?? []) as KernelTraceRunRow[])[0] ?? null,
+    (stageRows ?? []) as KernelTraceStageRow[],
+  );
 }
 
 function TraceRefsTable(props: { surface: ClientProjectTraceSurface }) {
