@@ -3,7 +3,7 @@
   "version": 1,
   "program_id": "linktrend-system",
   "phase": "running",
-  "updated_at": "2026-06-01T04:12:00Z",
+  "updated_at": "2026-06-01T04:14:43Z",
   "principal_stop_reason": "",
   "next_orchestrator_trigger": "none",
   "issues": {
@@ -47,7 +47,8 @@
       "runtime": "cursor",
       "tier": "standard",
       "depends_on": ["LTS-001"],
-      "report": "LiNKdev/product/reports/linktrend-system/linksites/LTS-060.md"
+      "report": "LiNKdev/product/reports/linktrend-system/linksites/suite-map/LTS-060.md",
+      "last_commit": "2599ec98741bac3f88ac0663503934bb5aeae5c5"
     }
   }
 }
