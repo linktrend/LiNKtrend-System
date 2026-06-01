@@ -1,37 +1,153 @@
 ```json
 {
   "version": 1,
-  "program_id": "bootstrap",
-  "phase": "complete",
-  "updated_at": "2026-05-29T12:00:00Z",
+  "program_id": "linktrend-system",
+  "phase": "running",
+  "updated_at": "2026-06-01T00:03:51Z",
   "principal_stop_reason": "",
-  "next_orchestrator_trigger": "none",
+  "next_orchestrator_trigger": "go",
   "issues": {
-    "DS-001": { "status": "done", "runtime": "cursor", "tier": "standard", "depends_on": [], "report": "LiNKdev/factory/reports/bootstrap/DS-001.md" },
-    "DS-002": { "status": "done", "runtime": "cursor", "tier": "standard", "depends_on": ["DS-001"], "report": "LiNKdev/factory/reports/bootstrap/DS-002.md" },
-    "DS-003": { "status": "done", "runtime": "codex", "tier": "standard", "depends_on": [], "report": "LiNKdev/factory/reports/bootstrap/DS-003.md" },
-    "DS-004": { "status": "done", "runtime": "codex", "tier": "standard", "depends_on": [], "report": "LiNKdev/factory/reports/bootstrap/DS-004.md" },
-    "DS-005": { "status": "done", "runtime": "cursor", "tier": "standard", "depends_on": ["DS-001"], "report": "LiNKdev/factory/reports/bootstrap/DS-005.md" },
-    "DS-011": { "status": "done", "runtime": "cursor", "tier": "standard", "depends_on": ["DS-001"], "report": "LiNKdev/factory/reports/bootstrap/DS-011.md" },
-    "DS-012": { "status": "done", "runtime": "cursor", "tier": "standard", "depends_on": ["DS-011"], "report": "LiNKdev/factory/reports/bootstrap/DS-012.md" },
-    "DS-013": { "status": "done", "runtime": "cursor", "tier": "standard", "depends_on": ["DS-011"], "report": "LiNKdev/factory/reports/bootstrap/DS-013.md" },
-    "DS-014": { "status": "done", "runtime": "codex", "tier": "standard", "depends_on": ["DS-011"], "report": "LiNKdev/factory/reports/bootstrap/DS-014.md" },
-    "DS-015": { "status": "done", "runtime": "codex", "tier": "standard", "depends_on": ["DS-004"], "report": "LiNKdev/factory/reports/bootstrap/DS-015.md" },
-    "DS-016": { "status": "done", "runtime": "cursor", "tier": "standard", "depends_on": ["DS-011"], "report": "LiNKdev/factory/reports/bootstrap/DS-016.md" },
-    "DS-021": { "status": "done", "runtime": "cursor", "tier": "standard", "depends_on": ["DS-011"], "report": "LiNKdev/factory/reports/bootstrap/DS-021.md" },
-    "DS-022": { "status": "done", "runtime": "codex", "tier": "standard", "depends_on": ["DS-011"], "report": "LiNKdev/factory/reports/bootstrap/DS-022.md" },
-    "DS-023": { "status": "done", "runtime": "codex", "tier": "standard", "depends_on": ["DS-003"], "report": "LiNKdev/factory/reports/bootstrap/DS-023.md" },
-    "DS-024": { "status": "done", "runtime": "cursor", "tier": "standard", "depends_on": ["DS-005", "DS-021"], "report": "LiNKdev/factory/reports/bootstrap/DS-024.md" },
-    "DS-031": { "status": "done", "runtime": "codex", "tier": "standard", "depends_on": ["DS-001"], "report": "LiNKdev/factory/reports/bootstrap/DS-031.md" },
-    "DS-032": { "status": "done", "runtime": "cursor", "tier": "standard", "depends_on": ["DS-013", "DS-031"], "report": "LiNKdev/factory/reports/bootstrap/DS-032.md" },
-    "DS-033": { "status": "done", "runtime": "cursor", "tier": "standard", "depends_on": ["DS-013"], "report": "LiNKdev/factory/reports/bootstrap/DS-033.md" },
-    "DS-034": { "status": "done", "runtime": "codex", "tier": "standard", "depends_on": ["DS-004"], "report": "LiNKdev/factory/reports/bootstrap/DS-034.md" },
-    "DS-041": { "status": "done", "runtime": "codex", "tier": "standard", "depends_on": ["DS-011"], "report": "LiNKdev/factory/reports/bootstrap/DS-041.md" },
-    "DS-042": { "status": "done", "runtime": "codex", "tier": "standard", "depends_on": ["DS-004"], "report": "LiNKdev/factory/reports/bootstrap/DS-042.md" },
-    "DS-043": { "status": "done", "runtime": "cursor", "tier": "standard", "depends_on": ["DS-021", "DS-022", "DS-031"], "report": "LiNKdev/factory/reports/bootstrap/DS-043.md" },
-    "DS-044": { "status": "done", "runtime": "cursor", "tier": "standard", "depends_on": ["DS-016"], "report": "LiNKdev/factory/reports/bootstrap/DS-044.md" },
-    "DS-045": { "status": "done", "runtime": "codex", "tier": "standard", "depends_on": ["DS-021"], "report": "LiNKdev/factory/reports/bootstrap/DS-045.md" },
-    "DS-046": { "status": "done", "runtime": "cursor", "tier": "standard", "depends_on": ["DS-043"], "report": "LiNKdev/factory/reports/bootstrap/DS-046.md" }
+    "LTS-001": {
+      "status": "planned",
+      "runtime": "cursor",
+      "tier": "standard",
+      "depends_on": [],
+      "report": "LiNKdev/product/reports/linktrend-system/linkaios/foundation/LTS-001.md"
+    },
+    "LTS-002": {
+      "status": "planned",
+      "runtime": "cursor",
+      "tier": "standard",
+      "depends_on": [
+        "LTS-001"
+      ],
+      "report": "LiNKdev/product/reports/linktrend-system/linkaios/foundation/LTS-002.md"
+    },
+    "LTS-003": {
+      "status": "planned",
+      "runtime": "cursor",
+      "tier": "standard",
+      "depends_on": [
+        "LTS-001"
+      ],
+      "report": "LiNKdev/product/reports/linktrend-system/linkaios/foundation/LTS-003.md"
+    },
+    "LTS-010": {
+      "status": "planned",
+      "runtime": "cursor",
+      "tier": "standard",
+      "depends_on": [
+        "LTS-001"
+      ],
+      "report": "LiNKdev/product/reports/linktrend-system/linkskills/governance/LTS-010.md"
+    },
+    "LTS-011": {
+      "status": "planned",
+      "runtime": "cursor",
+      "tier": "standard",
+      "depends_on": [
+        "LTS-010"
+      ],
+      "report": "LiNKdev/product/reports/linktrend-system/linkskills/governance/LTS-011.md"
+    },
+    "LTS-020": {
+      "status": "planned",
+      "runtime": "cursor",
+      "tier": "standard",
+      "depends_on": [
+        "LTS-001"
+      ],
+      "report": "LiNKdev/product/reports/linktrend-system/linkbrain/audit/LTS-020.md"
+    },
+    "LTS-030": {
+      "status": "planned",
+      "runtime": "cursor",
+      "tier": "standard",
+      "depends_on": [
+        "LTS-011",
+        "LTS-020"
+      ],
+      "report": "LiNKdev/product/reports/linktrend-system/linkautowork/workflows/LTS-030.md"
+    },
+    "LTS-040": {
+      "status": "planned",
+      "runtime": "cursor",
+      "tier": "standard",
+      "depends_on": [
+        "LTS-010",
+        "LTS-020"
+      ],
+      "report": "LiNKdev/product/reports/linktrend-system/linkbot/runtime/LTS-040.md"
+    },
+    "LTS-050": {
+      "status": "planned",
+      "runtime": "cursor",
+      "tier": "standard",
+      "depends_on": [
+        "LTS-040"
+      ],
+      "report": "LiNKdev/product/reports/linktrend-system/linkguard/security/LTS-050.md"
+    },
+    "LTS-060": {
+      "status": "planned",
+      "runtime": "cursor",
+      "tier": "standard",
+      "depends_on": [
+        "LTS-030",
+        "LTS-040"
+      ],
+      "report": "LiNKdev/product/reports/linktrend-system/linksites/integration/LTS-060.md"
+    },
+    "LTS-061": {
+      "status": "planned",
+      "runtime": "cursor",
+      "tier": "standard",
+      "depends_on": [
+        "LTS-002",
+        "LTS-060"
+      ],
+      "report": "LiNKdev/product/reports/linktrend-system/linksites/integration/LTS-061.md"
+    },
+    "LTS-062": {
+      "status": "planned",
+      "runtime": "cursor",
+      "tier": "standard",
+      "depends_on": [
+        "LTS-061",
+        "LTS-003"
+      ],
+      "report": "LiNKdev/product/reports/linktrend-system/linksites/integration/LTS-062.md"
+    },
+    "LTS-063": {
+      "status": "planned",
+      "runtime": "cursor",
+      "tier": "standard",
+      "depends_on": [
+        "LTS-062"
+      ],
+      "report": "LiNKdev/product/reports/linktrend-system/linksites/e2e/LTS-063.md"
+    },
+    "LTS-900": {
+      "status": "planned",
+      "runtime": "cursor",
+      "tier": "critical",
+      "depends_on": [
+        "LTS-001",
+        "LTS-002",
+        "LTS-003",
+        "LTS-010",
+        "LTS-011",
+        "LTS-020",
+        "LTS-030",
+        "LTS-040",
+        "LTS-050",
+        "LTS-060",
+        "LTS-061",
+        "LTS-062",
+        "LTS-063"
+      ],
+      "report": "LiNKdev/product/reports/linktrend-system/release/ship/LTS-900.md"
+    }
   }
 }
 ```

@@ -77,3 +77,4 @@ Aligned with [`SHIP_CRITERIA.md`](SHIP_CRITERIA.md):
 |------|--------|------|
 | Product definition (`PRINCIPAL_PRODUCT_DEFINITION.md`) | OK | 2026-05 |
 | Intent (this document) | OK | 2026-05-31 |
+| Program Go (`linkdev-go`) | OK | 2026-06-01 |

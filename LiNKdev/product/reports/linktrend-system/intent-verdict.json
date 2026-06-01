@@ -14,11 +14,12 @@
   "requirements_checked": [
     "INTENT.md present with required sections",
     "VISION.md and SHIP_CRITERIA.md linked from INTENT.md",
-    "PROGRAM.md exists under product/programs/linktrend-system",
-    "Migration program acknowledged; Principal Release OK remains human gate",
-    "Council G1/G2 waived for migration bootstrap — re-run on next Planner Go"
+    "PROGRAM.md copied from template and DAG valid",
+    "Principal OK on finished-product narrative (Go 2026-06-01)",
+    "Council G1: no BLOCKER verdicts",
+    "validate-intent.sh exits 0"
   ],
   "blockers": [],
-  "timestamp": "2026-05-30T18:00:00Z",
-  "planner_narrative_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+  "timestamp": "2026-06-01T00:04:23Z",
+  "planner_narrative_sha256": "e5c8f5dd08b7d134a3336e9bf61ece9e5d0e96b4ad033e2f2a8ad7bc48de42e5"
 }
