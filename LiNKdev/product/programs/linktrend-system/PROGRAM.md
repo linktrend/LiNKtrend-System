@@ -26,7 +26,7 @@ When **all issues** in this program are done:
 3. **Template selection** — from LiNKsites external repo  
 4. **Custom website build** — copy, media, style within template  
 5. **Publish** — Payload CMS; temp URL `businessname.linktrend.media`  
-6. **Outreach** — governed contact (not skipped)  
+6. **Outreach** — **D2 A:** governed **draft** + Principal approval gate (full trace; not skipped; live send only on explicit Principal approval)  
 7. **Close or recycle** — subscribe/transfer or archive for next lead  
 
 **Infrastructure (non-negotiable):** Supabase, Zulip, Plane, all planes wired with audit. **LiNKsites product code** stays in `/Users/linktrend/Projects/LiNKsites`.
@@ -53,8 +53,9 @@ When **all issues** in this program are done:
 | ID | Decision |
 |----|----------|
 | **D1** | **B** — MVO demo uses one **governed mock lead** (lease, audit, trace). Not a skip stage. Live Maps/search post-MVO unless reopened. |
+| **D2** | **A** — MVO outreach is **governed draft-only** with Principal approval gate. Full lease/audit/trace. Live send only if Principal explicitly approves during demo. Not a skip stage. |
 
-**Alignment score:** ≥**98%** with D1 recorded; remaining Q&A: D2–D4.
+**Alignment score:** ≥**98%** with D1–D2 recorded; remaining Q&A: D3–D4.
 
 ## Program Definition of Done
 
