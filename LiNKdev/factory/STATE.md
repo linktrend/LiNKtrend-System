@@ -3,9 +3,9 @@
   "version": 1,
   "program_id": "linktrend-system",
   "phase": "running",
-  "updated_at": "2026-06-01T04:35:00.000Z",
+  "updated_at": "2026-06-01T05:22:21.187Z",
   "principal_stop_reason": "",
-  "next_orchestrator_trigger": "none",
+  "next_orchestrator_trigger": "merge_to_development",
   "issues": {
     "LTS-002": {
       "status": "done",
@@ -59,13 +59,15 @@
       "done_at": "2026-06-01T04:23:02.786Z"
     },
     "LTS-012": {
-      "status": "ready",
+      "status": "done",
       "runtime": "cursor",
       "tier": "standard",
       "depends_on": [
         "LTS-010"
       ],
-      "report": "LiNKdev/product/reports/linktrend-system/linkskills/capabilities/LTS-012.md"
+      "report": "LiNKdev/product/reports/linktrend-system/linkskills/capabilities/LTS-012.md",
+      "last_pr": 80,
+      "done_at": "2026-06-01T05:22:21.187Z"
     },
     "LTS-060": {
       "status": "done",
@@ -80,4 +82,4 @@
 }
 ```
 
-Wave 4 active (2026-06-01): LTS-012 ready — studio Zulip + Plane default capabilities. Wave 3 complete: LTS-003 PR #69, LTS-005 PR #70, LTS-011 PR #72. Unblock: cleared stale orchestrator handoff marker (L-019); cancelled stuck bootstrap on staging.
+Wave 4 complete (2026-06-01): LTS-012 PR #80 merged — studio Zulip + Plane default capabilities. Wave 3 complete: LTS-003 PR #69, LTS-005 PR #70, LTS-011 PR #72. Next: orchestrator may advance program when `next_orchestrator_trigger` set.
