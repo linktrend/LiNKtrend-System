@@ -41,6 +41,11 @@ export type ClientProjectTraceSurface = {
   approvalGates: ClientTraceApprovalGate[];
 };
 
+export type ProjectTraceRunRef = {
+  traceRowId: string;
+  runId: string | null;
+};
+
 export function projectTraceHref(projectId: string): string {
   return `/projects/${encodeURIComponent(projectId)}?tab=traces`;
 }
@@ -50,11 +55,11 @@ export function canApproveBudgetGate(kind: AppActorKind, role: AppRoleTier): boo
 }
 
 export function canApproveKnowledgeGate(kind: AppActorKind, role: AppRoleTier): boolean {
-  return canApproveBrainInbox(kind, role);
+  return kind === "licensee" && canApproveBrainInbox(kind, role);
 }
 
 export function canApproveProtectedSideEffectGate(kind: AppActorKind, role: AppRoleTier): boolean {
-  return canApproveProtectedSideEffect(kind, role);
+  return kind === "licensee" && canApproveProtectedSideEffect(kind, role);
 }
 
 export function canApproveClientTraceGate(
@@ -134,8 +139,15 @@ export function buildDemoProjectTraceSurface(projectId: string): ClientProjectTr
       requiredRoleLabel: "Admin Or Super Admin",
     },
     {
-      id: "protected_side_effect_gate",
-      label: "Protected Side Effect Approval",
+      id: "publish_side_effect_gate",
+      label: "Publish Side Effect Approval",
+      type: "protected_side_effect",
+      stageId: "linksites.publish",
+      requiredRoleLabel: "Admin Or Super Admin",
+    },
+    {
+      id: "outreach_side_effect_gate",
+      label: "Outreach Side Effect Approval",
       type: "protected_side_effect",
       stageId: "linksites.outreach",
       requiredRoleLabel: "Admin Or Super Admin",
@@ -148,6 +160,15 @@ export function buildDemoProjectTraceSurface(projectId: string): ClientProjectTr
     steps,
     approvalGates,
   };
+}
+
+export function selectProjectTraceRun(
+  runs: RunOverview[],
+  refs: ProjectTraceRunRef[],
+): RunOverview | null {
+  const runIds = new Set(refs.map((ref) => ref.runId).filter((id): id is string => Boolean(id)));
+  if (runIds.size === 0) return null;
+  return runs.find((run) => runIds.has(run.run_id)) ?? null;
 }
 
 function traceStepFromRunStage(stage: RunStageView): ClientTraceStep {

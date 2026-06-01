@@ -1,4 +1,3 @@
-import { fetchMetricsSnapshot } from "@/app/(shell)/metrics/actions";
 import {
   DataTable,
   DataTableBody,
@@ -15,8 +14,10 @@ import { loadRunOverview } from "@/lib/cockpit";
 import {
   buildDemoProjectTraceSurface,
   projectTraceSurfaceFromRun,
+  selectProjectTraceRun,
   type ClientProjectTraceSurface,
   type ClientTraceStep,
+  type ProjectTraceRunRef,
 } from "@/lib/client-trace-flow";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { isUiMocksEnabled } from "@/lib/ui-mocks/flags";
@@ -56,19 +57,20 @@ async function loadProjectTraceSurface(projectId: string): Promise<ClientProject
   }
 
   const supabase = await createSupabaseServerClient();
-  const tenantId = "default";
-  const [runOverviews, metrics] = await Promise.all([
-    loadRunOverview(supabase, tenantId, { time_range: "30d" }),
-    fetchMetricsSnapshot({ days: 30, missionId: projectId, agentId: null }),
-  ]);
-  const projectRunIds = new Set(
-    (metrics.ok ? metrics.data.runs : [])
-      .map((run) => run.id)
-      .filter((id): id is string => Boolean(id)),
-  );
-  const run =
-    runOverviews.find((candidate) => projectRunIds.has(candidate.run_id)) ??
-    null;
+  const { data: spineRows } = await supabase.schema("linkaios").rpc("get_project_run_spine", {
+    p_project_id: projectId,
+  });
+  const refs: ProjectTraceRunRef[] = ((spineRows ?? []) as { run_id: string | null; trace_id?: string | null }[])
+    .filter((row) => row.run_id)
+    .map((row) => ({
+      traceRowId: row.trace_id ?? row.run_id ?? "",
+      runId: row.run_id,
+    }));
+  const tenantId =
+    ((spineRows ?? []) as { tenant_id?: string | null }[]).find((row) => row.tenant_id)?.tenant_id ??
+    "default";
+  const runOverviews = await loadRunOverview(supabase, tenantId, { time_range: "30d" });
+  const run = selectProjectTraceRun(runOverviews, refs);
   return projectTraceSurfaceFromRun(projectId, run);
 }
 

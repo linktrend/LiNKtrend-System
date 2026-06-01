@@ -7,7 +7,10 @@ import {
   canApproveKnowledgeGate,
   canApproveProtectedSideEffectGate,
   projectTraceHref,
+  projectTraceSurfaceFromRun,
+  selectProjectTraceRun,
 } from "./client-trace-flow";
+import type { RunOverview } from "./cockpit/cockpit-types";
 
 describe("client trace flow (LTS-003)", () => {
   it("shows lease, workflow, and audit refs for every trace step", () => {
@@ -69,8 +72,69 @@ describe("client trace flow (LTS-003)", () => {
 
     expect(canApproveKnowledgeGate("licensee", "user")).toBe(false);
     expect(canApproveKnowledgeGate("licensee", "admin")).toBe(true);
+    expect(canApproveKnowledgeGate("licensor", "super_admin")).toBe(false);
 
     expect(canApproveProtectedSideEffectGate("licensee", "user")).toBe(false);
     expect(canApproveProtectedSideEffectGate("licensee", "admin")).toBe(true);
+    expect(canApproveProtectedSideEffectGate("licensor", "super_admin")).toBe(false);
+  });
+
+  it("surfaces protected side-effect gates for publish and outreach", () => {
+    const surface = buildDemoProjectTraceSurface("demo-smb");
+
+    expect(
+      surface.approvalGates
+        .filter((gate) => gate.type === "protected_side_effect")
+        .map((gate) => gate.stageId),
+    ).toEqual(["linksites.publish", "linksites.outreach"]);
+  });
+
+  it("selects live project runs by kernel run ID, not metrics trace row ID", () => {
+    const run = {
+      run_id: "kernel-run-1",
+      tenant_id: "tenant-1",
+      plugin_id: "linksites",
+      work_request_type: "linksites.mvo",
+      status: "running",
+      started_at: "2026-06-01T00:00:00.000Z",
+      ended_at: null,
+      stages: [
+        {
+          stage_id: "linksites.publish",
+          run_id: "kernel-run-1",
+          display_name: "Publish",
+          responsible_plane: "linkautowork",
+          status: "running",
+          attempt: 1,
+          started_at: "2026-06-01T00:00:00.000Z",
+          ended_at: null,
+          lease_ids: ["lease-live"],
+          workflow_run_ids: ["wf-live"],
+          audit_event_ids: ["audit-live"],
+          failure_message: null,
+        },
+      ],
+      total_stages: 1,
+      completed_stages: 0,
+      failed_stages: 0,
+      lease_count: 1,
+      workflow_run_count: 1,
+      failure_summary: null,
+    } satisfies RunOverview;
+
+    expect(
+      selectProjectTraceRun([run], [
+        { traceRowId: "trace-row-1", runId: "kernel-run-1" },
+      ])?.run_id,
+    ).toBe("kernel-run-1");
+
+    const surface = projectTraceSurfaceFromRun("demo-smb", run);
+    expect(surface.steps[0]).toMatchObject({
+      id: "linksites.publish",
+      leaseIds: ["lease-live"],
+      workflowRunIds: ["wf-live"],
+      auditEventIds: ["audit-live"],
+      approvalGateType: "protected_side_effect",
+    });
   });
 });
