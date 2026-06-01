@@ -7,3 +7,4 @@
 
 export * from "./types.js";
 export * from "./linksites/manifest.js";
+export * from "./studio-defaults.js";
