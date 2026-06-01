@@ -2,10 +2,10 @@
 {
   "version": 1,
   "program_id": "linktrend-system",
-  "phase": "running",
-  "updated_at": "2026-06-01T15:10:00.000Z",
-  "principal_stop_reason": "",
-  "next_orchestrator_trigger": "merge_to_development",
+  "phase": "principal_stop",
+  "updated_at": "2026-06-01T15:15:47.000Z",
+  "principal_stop_reason": "Program complete; Principal Release OK is required before staging/main promotion.",
+  "next_orchestrator_trigger": "none",
   "issues": {
     "LTS-001": {
       "status": "done",
@@ -291,3 +291,5 @@
 ```
 
 Waves 1–8: individual PRs (#18–#93). **Reset 2026-06-01:** PR #95 falsely marked waves 9–15 done; re-verified on `issue/LTS-mvo-wave9-15-completion`. LTS-103/033 merged #102/#103. G3 council PASS. Demo: `./scripts/run-mvo-linksites-demo.sh`. **Principal Release OK** still required for staging/main.
+
+2026-06-01T15:15:47.000Z orchestrator: cleared duplicate `merge_to_development` trigger and scheduled `principal_stop` because all LTS issues are `done`; bootstrap handoff will delegate privileged GitHub labeling/merge actions.
