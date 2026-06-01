@@ -40,7 +40,8 @@ LiNKdev/factory/scripts/verify.sh
 LiNKdev/factory/scripts/proof-manifest.sh <report-path>
 ```
 
-6. Open PR; label `linkdev:review-ready`; only set `linkdev:merge-ready` if verify and tier A passed (DS-B9)
+6. Open PR targeting **`development`**; add label `linkdev:review-ready` on the PR; only set `linkdev:merge-ready` if verify and tier A passed (DS-B9)
+7. **Do not end the cloud run until the PR exists on GitHub** — a FINISHED status without a PR triggers immediate factory auto-heal and stalls the wave
 
 ## Skills
 
