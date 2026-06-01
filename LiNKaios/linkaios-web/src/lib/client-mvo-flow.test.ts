@@ -6,6 +6,7 @@ import {
   LINKSITES_SUITE_ID,
   projectLaunchHref,
   projectRunProgressHref,
+  projectTraceApprovalHref,
   suiteSubscribeHref,
 } from "./client-mvo-flow";
 
@@ -16,18 +17,21 @@ describe("client MVO flow (LTS-002)", () => {
       "subscribe_suite",
       "launch_project",
       "run_progress",
+      "trace_approvals",
     ]);
     expect(suiteSubscribeHref(LINKSITES_SUITE_ID)).toBe("/suites/linksites?tab=subscribe");
     expect(projectLaunchHref(LINKSITES_SUITE_ID)).toBe("/projects/new?suite=linksites");
     expect(projectRunProgressHref("proj-demo-1")).toBe("/projects/proj-demo-1?tab=runs");
+    expect(projectTraceApprovalHref("proj-demo-1")).toBe("/projects/proj-demo-1?tab=traces");
   });
 
-  it("acceptance: licensee sign-in, LinkSites subscribe, project launch, run progress", () => {
+  it("acceptance: licensee sign-in, LinkSites subscribe, project launch, run progress, traces, and approvals", () => {
     const result = assertClientMvoFlowComplete({
       canSignIn: true,
       linksitesSubscribed: true,
       canLaunchProject: true,
       hasRunProgressEntry: true,
+      hasTraceApprovalEntry: true,
     });
     expect(result.ok).toBe(true);
     expect(result.missing).toEqual([]);

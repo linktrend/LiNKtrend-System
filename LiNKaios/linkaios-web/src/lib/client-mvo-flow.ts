@@ -38,6 +38,12 @@ export const CLIENT_MVO_FLOW_STEPS: ClientMvoFlowStep[] = [
     route: "/projects/{projectId}?tab=runs",
     description: "Project detail Runs tab shows orchestration progress entry points",
   },
+  {
+    id: "trace_approvals",
+    label: "Trace approvals",
+    route: "/projects/{projectId}?tab=traces",
+    description: "Project detail Traces tab shows leases, automations, audits, and approval gates",
+  },
 ];
 
 export function suiteSubscribeHref(suiteId: string): string {
@@ -52,6 +58,10 @@ export function projectRunProgressHref(projectId: string): string {
   return `/projects/${encodeURIComponent(projectId)}?tab=runs`;
 }
 
+export function projectTraceApprovalHref(projectId: string): string {
+  return `/projects/${encodeURIComponent(projectId)}?tab=traces`;
+}
+
 export function clientFlowStep(id: string): ClientMvoFlowStep | undefined {
   return CLIENT_MVO_FLOW_STEPS.find((step) => step.id === id);
 }
@@ -61,11 +71,13 @@ export function assertClientMvoFlowComplete(checks: {
   linksitesSubscribed: boolean;
   canLaunchProject: boolean;
   hasRunProgressEntry: boolean;
+  hasTraceApprovalEntry?: boolean;
 }): { ok: boolean; missing: string[] } {
   const missing: string[] = [];
   if (!checks.canSignIn) missing.push("sign_in");
   if (!checks.linksitesSubscribed) missing.push("subscribe_suite");
   if (!checks.canLaunchProject) missing.push("launch_project");
   if (!checks.hasRunProgressEntry) missing.push("run_progress");
+  if (checks.hasTraceApprovalEntry === false) missing.push("trace_approvals");
   return { ok: missing.length === 0, missing };
 }

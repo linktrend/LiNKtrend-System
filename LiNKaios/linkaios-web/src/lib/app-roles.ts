@@ -174,6 +174,14 @@ export function canApproveBrainInbox(kind: AppActorKind, role: AppRoleTier): boo
   return role === "admin" || role === "super_admin";
 }
 
+export function canApproveProjectBudget(kind: AppActorKind, role: AppRoleTier): boolean {
+  return kind === "licensee" && (role === "admin" || role === "super_admin");
+}
+
+export function canApproveProtectedSideEffect(kind: AppActorKind, role: AppRoleTier): boolean {
+  return role === "admin" || role === "super_admin";
+}
+
 export function canDeleteWorkspaceAccount(kind: AppActorKind, role: AppRoleTier): boolean {
   if (kind === "licensor") return false;
   if (kind === "licensee") return role === "super_admin";
