@@ -7,8 +7,12 @@ on:
   schedule:
     - cron: '*/5 * * * *'
   workflow_dispatch:
+  workflow_run:
+    workflows: ['LiNKdev dispatch']
+    types: [completed]
 
 permissions:
+  actions: read
   contents: read
   issues: write
   pull-requests: write

@@ -29,7 +29,7 @@ You are **not** the on-call engineer for script lint failures, dispatch races, o
 |---------------|---------|
 | **Your turn** | `linkdev:principal-stop` — Continue or Stop |
 | **Blocked** | `linkdev:blocked` — factory stuck |
-| **Task stalled** | Active wave issue, no PR for 30+ minutes |
+| **Task stalled** | Active wave issue, no PR for 15+ minutes |
 
 No secret = no Slack (factory unchanged). At most one alert per issue per hour (duplicate suppression).
 
