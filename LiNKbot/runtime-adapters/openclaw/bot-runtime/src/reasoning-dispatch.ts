@@ -236,9 +236,19 @@ function generateStubResponse(userPrompt: string, systemPrompt: string): string 
         comparable_businesses: [
           { name: "Similar Local Co", industry: "Professional Services", url: "https://example.com/competitor1" },
         ],
+        citations: [
+          {
+            citation_id: "cite-mock-1",
+            source_type: "public_web",
+            label: "Comparable local professional services listing",
+            ref: "https://example.com/competitor1",
+            accessed_at: new Date().toISOString(),
+          },
+        ],
         provenance: {
           sources: ["public_web_search"],
           search_date: new Date().toISOString(),
+          citation_count: 1,
         },
       },
     });

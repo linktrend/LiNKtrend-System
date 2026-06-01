@@ -81,6 +81,9 @@ describe("LinkSites Role Execution", () => {
       // Should have output with lead_research_bundle
       expect(result.outputs).toBeDefined();
       expect(result.outputs.lead_research_bundle).toBeDefined();
+      const bundle = result.outputs.lead_research_bundle as Record<string, unknown>;
+      expect(Array.isArray(bundle.citations)).toBe(true);
+      expect((bundle.citations as unknown[]).length).toBeGreaterThan(0);
 
       // Should emit role.started and role.completed audit events
       const auditCalls = mockWriteBrainAuditEvent.mock.calls;
