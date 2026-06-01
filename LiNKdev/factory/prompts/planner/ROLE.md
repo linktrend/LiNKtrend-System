@@ -19,7 +19,16 @@ Triggered by Principal **Go** (cloud Cursor) on a virgin repo, or ad hoc when up
     - Write `LiNKdev/product/reports/<program-id>/intent-verdict.json` using `factory/templates/intent-verdict.json`.
     - Set `status: PASS` **only** if laws + requirements pass and `blockers` is empty; otherwise `FAIL` or `BLOCKED` with blockers listed.
     - Run `LiNKdev/factory/scripts/validate-intent.sh <program-id>` — must exit 0 before handoff.
-12. Hand off: STATE prepared for Orchestrator (`phase: running`) **only after G2 PASS**. Orchestrator must not set `linkdev:ready` until intent verdict PASS and `validate-intent.sh` exits 0 — do not wait for second Go once PASS.
+12. Update `LiNKdev/factory/STATE.md`: set `phase: running`, `program_id`, `next_orchestrator_trigger: go`, and initial issue rows.
+13. **Handoff (automatic, Actions-driven)** — mandatory before session ends; do **not** tell Principal "no action required" until the handoff marker is pushed **and** the **LiNKdev planner bootstrap** GitHub Actions workflow is green:
+    - Run `LiNKdev/factory/scripts/validate-intent.sh <program-id>` again if STATE changed after step 11.
+    - Commit all program artifacts on your working branch (integration target is always **`development`** — **never** open or leave a bootstrap PR with base `main`).
+    - Run `LiNKdev/factory/scripts/planner-handoff.sh <program-id>` which validates G2, runs `verify.sh`, writes `.linkdev/handoff/planner-complete.json`, commits, and **pushes** — then prints `Handoff delegated to GitHub Actions linkdev-planner-bootstrap`.
+    - **Do not** merge PRs, add labels, retarget PR base, or `gh workflow run` from the cloud Planner session (403 on protected repos). Those steps run in `.github/workflows/linkdev-planner-bootstrap.yml`.
+    - If an existing PR targets the wrong base (e.g. `main`), include its number in STATE notes or ensure it is the open PR for your branch; the bootstrap workflow retargets to `development`. Optional field `pr_number` in the marker.
+    - Orchestrator clears `next_orchestrator_trigger` on start after dispatch.
+
+Orchestrator must not set `linkdev:ready` until intent verdict PASS and `validate-intent.sh` exits 0 — do not wait for second Go once PASS.
 
 ## Outputs
 

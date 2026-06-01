@@ -6,6 +6,17 @@ Merge approved work to **`development`** and trigger the next Orchestrator pass.
 
 Label `linkdev:merge-ready` on PR (only after `LiNKdev/factory/scripts/verify.sh` exit 0).
 
+## Bootstrap merge exception (program setup only)
+
+**Primary path:** Planner G2 handoff is merged by **`linkdev-planner-bootstrap`** (GitHub Actions). Integrator dispatch for bootstrap PRs is a **fallback** if that workflow failed — not the normal cloud Planner path.
+
+PRs labeled `linkdev:bootstrap-merge` **or** whose body contains `[linkdev-bootstrap]` may merge to `development` **without Reviewer pass** when:
+
+- STATE is transitioning to `phase: running` (Planner G2 handoff), and
+- `LiNKdev/factory/scripts/verify.sh` exits 0 on the PR branch.
+
+This applies only to initial program-setup PRs from Planner handoff — not issue execution PRs.
+
 ## Actions
 
 1. Confirm Reviewer pass and proof block in report.
