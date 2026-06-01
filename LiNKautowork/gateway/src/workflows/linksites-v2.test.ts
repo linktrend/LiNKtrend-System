@@ -34,6 +34,7 @@ describe("LiNKautowork LinkSites v2 Workflows", () => {
   const auditWriter = createMockAuditWriter();
 
   beforeEach(() => {
+    delete process.env.LINKAUTOWORK_MVO_MODE;
     clearIdempotencyCache();
     clearWorkflowRegistry();
     clearLinksitesStores();
@@ -421,5 +422,83 @@ describe("LiNKautowork LinkSites v2 Workflows", () => {
     expect(result.outputs?.crm_record_id).toContain("lead-1");
     expect(result.outputs?.check_report_ref).toBe("readiness_report:tenant-1:run-1:key");
     expect(result.outputs?.site_id).toBe("site-1");
+  });
+
+  it("passes preview readiness and CRM gate in LINKAUTOWORK_MVO_MODE=mock", async () => {
+    const prev = process.env.LINKAUTOWORK_MVO_MODE;
+    process.env.LINKAUTOWORK_MVO_MODE = "mock";
+    try {
+      clearWorkflowRegistry();
+      bootstrapWebsiteFactoryWorkflows({ writeAuditEvent: auditWriter.write });
+
+      const payloadRequest: WorkflowInvokeRequest = {
+        tenant_id: "tenant-1",
+        run_id: "run-1",
+        stage_id: "payload_sync",
+        workflow_handle: LINKSITES_PAYLOAD_SYNC_LOCAL_HANDLE,
+        lease_id: "lease-payload-1",
+        inputs: {
+          site_id: "site-1",
+          site_generation_run_id: "gen-1",
+          mirror_write_ref: "supabase_mirror:tenant-1:site-1:gen-1",
+          payload_target_ref: "payload-local:site-1",
+        },
+        idempotency_key: "payload-mvo-1",
+      };
+      const payloadResult = await invokeWorkflow(payloadRequest, {
+        writeAuditEvent: auditWriter.write,
+      });
+      expect(payloadResult.status).toBe("succeeded");
+
+      const readinessRequest: WorkflowInvokeRequest = {
+        tenant_id: "tenant-1",
+        run_id: "run-1",
+        stage_id: "readiness_check",
+        workflow_handle: LINKSITES_PREVIEW_READINESS_CHECK_HANDLE,
+        inputs: {
+          site_id: "site-1",
+          site_generation_run_id: "gen-1",
+          payload_sync_ref: payloadResult.outputs?.payload_sync_ref,
+          preview_url: "https://demo-lead.linktrend.media",
+          required_pages: ["home", "about", "contact"],
+          required_navigation_items: ["home"],
+          required_content_blocks: ["hero"],
+          required_media_refs: ["logo"],
+        },
+        idempotency_key: "readiness-mvo-1",
+      };
+      const readinessResult = await invokeWorkflow(readinessRequest, {
+        writeAuditEvent: auditWriter.write,
+      });
+      expect(readinessResult.status).toBe("succeeded");
+      expect(readinessResult.outputs?.checks_passed).toBe(true);
+      expect(readinessResult.outputs?.preview_readiness_status).toBe("ready");
+
+      const crmRequest: WorkflowInvokeRequest = {
+        tenant_id: "tenant-1",
+        run_id: "run-1",
+        stage_id: "crm_mark",
+        workflow_handle: LINKSITES_CRM_READY_TO_CONTACT_MARK_HANDLE,
+        lease_id: "lease-crm-1",
+        inputs: {
+          lead_id: "lead-1",
+          site_id: "site-1",
+          site_generation_run_id: "gen-1",
+          checks_passed: true,
+          check_report_ref: readinessResult.outputs?.check_report_ref,
+          payload_sync_ref: payloadResult.outputs?.payload_sync_ref,
+        },
+        idempotency_key: "crm-mvo-1",
+      };
+      const crmResult = await invokeWorkflow(crmRequest, { writeAuditEvent: auditWriter.write });
+      expect(crmResult.status).toBe("succeeded");
+      expect(crmResult.outputs?.lead_status).toBe("ready_to_contact");
+    } finally {
+      if (prev === undefined) {
+        delete process.env.LINKAUTOWORK_MVO_MODE;
+      } else {
+        process.env.LINKAUTOWORK_MVO_MODE = prev;
+      }
+    }
   });
 });

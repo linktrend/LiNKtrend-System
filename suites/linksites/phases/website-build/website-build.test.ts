@@ -7,7 +7,7 @@ describe("LinkSites website build (LTS-104)", () => {
     const handoff = buildWebsiteHandoff({
       tenant_id: "tenant-1",
       run_id: "run-1",
-      template_id: "professional_v1",
+      template_id: "marketing-smb-v1",
       website_package: { copy: { hero_headline: "Welcome" } },
     });
 

@@ -1,7 +1,8 @@
 import { createHash } from "node:crypto";
 import type { WorkflowInvokeRequest } from "@linktrend/linklogic-sdk";
 import type { AuditEmitter } from "../lib/audit-emitter.js";
-import { createPayloadSyncClient, type PayloadSyncClient } from "../lib/payload-client.js";
+import type { PayloadSyncClient } from "../lib/payload-client.js";
+import { resolvePayloadSyncClient } from "../lib/mvo-payload-client.js";
 import { createSupabaseMirrorClient, type SupabaseMirrorClient } from "../lib/supabase-client.js";
 import { writeLinksitesArtifactBundle } from "../lib/linksites-artifact-writer.js";
 import type { WorkflowHandler } from "../types/index.js";
@@ -234,7 +235,7 @@ export function createPayloadSyncLocalHandler(
   auditEmitter: AuditEmitter,
   deps?: { payloadClient?: PayloadSyncClient },
 ): WorkflowHandler {
-  const payloadClient = deps?.payloadClient ?? createPayloadSyncClient();
+  const payloadClient = deps?.payloadClient ?? resolvePayloadSyncClient();
 
   return async (request, context) => {
     return withAudit(request, context.workflow_run_id, auditEmitter, async () => {
@@ -301,7 +302,7 @@ export function createPreviewReadinessCheckHandler(
   auditEmitter: AuditEmitter,
   deps?: { payloadClient?: PayloadSyncClient },
 ): WorkflowHandler {
-  const payloadClient = deps?.payloadClient ?? createPayloadSyncClient();
+  const payloadClient = deps?.payloadClient ?? resolvePayloadSyncClient();
 
   return async (request, context) => {
     const result = await withAudit(request, context.workflow_run_id, auditEmitter, async () => {
