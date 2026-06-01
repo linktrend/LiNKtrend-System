@@ -245,7 +245,9 @@ async function applyTerminalLabels(repo, target, status, dryRun) {
 }
 
 const HEAL_MARKER = '[linkdev-auto-heal]';
+const FINISHED_NO_PR_MARKER = '[linkdev-finished-no-pr]';
 const STALL_MINUTES = 10;
+const FINISHED_NO_PR_MINUTES = 0;
 const HEAL_COOLDOWN_MINUTES = 60;
 
 async function issueHasOpenPr(repo, ltsId) {
@@ -265,6 +267,24 @@ async function minutesSinceLastHeal(comments) {
   return minutesSinceLastHealInCycle(comments);
 }
 
+async function issueHasRecentFinishedNoPr(comments, agentId) {
+  const body = comments.map((c) => c.body).join('\n');
+  return body.includes(MARKER) && body.includes(agentId) && body.includes('FINISHED') && body.includes(FINISHED_NO_PR_MARKER);
+}
+
+async function redispatchIssue(repo, num, ltsId, reason, dryRun) {
+  const body = `${HEAL_MARKER} **Auto-heal:** ${reason} — re-dispatching executor automatically. No Principal action needed.`;
+  if (dryRun) {
+    console.log(`DRY_RUN heal issue #${num}: ${reason}`);
+    return;
+  }
+  await gh(['issue', 'comment', String(num), '--repo', repo, '--body', body]);
+  await gh(['issue', 'edit', String(num), '--repo', repo, '--remove-label', 'linkdev:ready']).catch(() => {});
+  await gh(['issue', 'edit', String(num), '--repo', repo, '--add-label', 'linkdev:ready']).catch(() => {});
+  await gh(['issue', 'edit', String(num), '--repo', repo, '--add-label', 'linkdev:in-progress']).catch(() => {});
+  console.log(`auto-heal redispatch issue #${num} (${ltsId}): ${reason}`);
+}
+
 async function autoHealStalls(repo, issueMap, activeIssueNumbers, dryRun) {
   let healed = 0;
   for (const [ltsId, meta] of Object.entries(issueMap)) {
@@ -276,26 +296,64 @@ async function autoHealStalls(repo, issueMap, activeIssueNumbers, dryRun) {
     );
     const labels = view.labels?.map((l) => l.name) ?? [];
     if (labels.includes('linkdev:review-ready') || labels.includes('linkdev:done')) continue;
-    if (!labels.includes('linkdev:in-progress')) continue;
+    const isActive = labels.includes('linkdev:in-progress') || labels.includes('linkdev:ready');
+    if (!isActive) continue;
     if (await issueHasOpenPr(repo, ltsId)) continue;
 
     const comments = view.comments ?? [];
     if ((await minutesSinceLastHeal(comments)) < HEAL_COOLDOWN_MINUTES) continue;
-    const sinceDispatch = await minutesSinceLastDispatch(comments);
-    if (sinceDispatch === Infinity || sinceDispatch < STALL_MINUTES) continue;
 
-    const body = `${HEAL_MARKER} **Auto-heal:** no PR after ${STALL_MINUTES}+ minutes — re-dispatching executor automatically. No Principal action needed.`;
-    if (dryRun) {
-      console.log(`DRY_RUN heal issue #${num}`);
-      continue;
-    }
-    await gh(['issue', 'comment', String(num), '--repo', repo, '--body', body]);
-    await gh(['issue', 'edit', String(num), '--repo', repo, '--remove-label', 'linkdev:in-progress']).catch(() => {});
-    await gh(['issue', 'edit', String(num), '--repo', repo, '--add-label', 'linkdev:ready']).catch(() => {});
+    const recentFinishedNoPr = comments.some(
+      (c) =>
+        c.body?.includes(MARKER) &&
+        c.body?.includes('FINISHED') &&
+        (c.body?.includes(FINISHED_NO_PR_MARKER) || !/\| PR \|/.test(c.body ?? '')),
+    );
+    const sinceDispatch = await minutesSinceLastDispatch(comments);
+    const stallThreshold = recentFinishedNoPr ? FINISHED_NO_PR_MINUTES : STALL_MINUTES;
+    if (sinceDispatch === Infinity || sinceDispatch < stallThreshold) continue;
+
+    const reason = recentFinishedNoPr
+      ? 'executor FINISHED without opening a PR'
+      : `no PR after ${STALL_MINUTES}+ minutes`;
+    await redispatchIssue(repo, num, ltsId, reason, dryRun);
     healed += 1;
-    console.log(`auto-heal redispatch issue #${num} (${ltsId})`);
   }
   return healed;
+}
+
+async function healFinishedWithoutPr(repo, issueMap, target, agent, run, dryRun) {
+  if (run.status !== 'FINISHED') return false;
+  const prUrl = run.git?.branches?.[0]?.prUrl;
+  if (prUrl) return false;
+
+  let ltsId = null;
+  for (const [id, meta] of Object.entries(issueMap)) {
+    if (meta.github_number === target.number) {
+      ltsId = id;
+      break;
+    }
+  }
+  if (!ltsId) return false;
+  if (await issueHasOpenPr(repo, ltsId)) return false;
+
+  const view = JSON.parse(
+    await gh(['issue', 'view', String(target.number), '--repo', repo, '--json', 'comments,labels']),
+  );
+  if (await issueHasRecentFinishedNoPr(view.comments ?? [], agent.id)) return false;
+
+  const finishedBody = `${FINISHED_NO_PR_MARKER} Executor \`${agent.id}\` finished without a PR (branch \`${run.git?.branches?.[0]?.branch ?? 'unknown'}\`). Auto-heal will re-dispatch.`;
+  if (!dryRun) {
+    await gh(['issue', 'comment', String(target.number), '--repo', repo, '--body', finishedBody]);
+  }
+  await redispatchIssue(
+    repo,
+    target.number,
+    ltsId,
+    'executor FINISHED without opening a PR',
+    dryRun,
+  );
+  return true;
 }
 
 async function loadActiveIssueNumbers(issueMap) {
@@ -380,6 +438,9 @@ async function main() {
 
     await postComment(args.repo, target, body, args.dryRun);
     await applyTerminalLabels(args.repo, target, run.status, args.dryRun);
+    if (isTerminal && run.status === 'FINISHED' && target.kind === 'issue') {
+      await healFinishedWithoutPr(args.repo, issueMap, target, agent, run, args.dryRun);
+    }
     updated += 1;
     console.log(`updated ${target.kind} #${target.number} agent=${agent.id} status=${run.status}`);
   }

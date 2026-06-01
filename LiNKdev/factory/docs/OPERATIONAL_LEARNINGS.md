@@ -33,8 +33,8 @@ Living log from the first production program run. Each item should drive a **tem
 - **Fix:** `linkdev-factory-heartbeat.yml` cron → `gh workflow run` agent watch every 5m. **Fixed** (pending deploy).
 
 ### L-009 — Executor FINISHED without opening PR (wave 2 repeat)
-- **Symptom:** Agents `FINISHED` ~115s on #18/#16/#39; branches exist; **no PR** on GitHub (same as LTS-001).
-- **Status:** **Open** — cloud executor reliability; local implement fallback or open PR from branch in watch.
+- **Symptom:** Agents `FINISHED` ~115s on #18/#16/#39; branches reported but **no commits/PR** on GitHub (same as LTS-001).
+- **Fix:** Immediate `healFinishedWithoutPr` in agent-watch; toggle `linkdev:ready` to re-dispatch; Slack `finished_no_pr_*` event; stronger executor dispatch prompt + ROLE.md PR mandate. **Fixed** (local implement fallback for wave 2).
 
 ### L-005 — Guard shellcheck SC2034 / SC2317 on `run-gates.sh`
 - **Fix:** Remove unused `SCRIPT_DIR`; `# shellcheck disable=SC2317`. **Fixed**.

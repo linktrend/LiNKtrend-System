@@ -143,19 +143,26 @@ export async function notifyPrincipalSlack(opts) {
     const labels = view.labels?.map((l) => l.name) ?? [];
     if (labels.includes('linkdev:review-ready') || labels.includes('linkdev:done')) continue;
     if (labels.includes('linkdev:blocked') || labels.includes('linkdev:principal-stop')) continue;
-    if (!labels.includes('linkdev:in-progress')) continue;
+    const isActive = labels.includes('linkdev:in-progress') || labels.includes('linkdev:ready');
+    if (!isActive) continue;
     if (await issueHasOpenPr(repo, ltsId)) continue;
 
     const comments = view.comments ?? [];
+    const recentFinishedNoPr = comments.some(
+      (c) => c.body?.includes('[linkdev-finished-no-pr]') || (c.body?.includes('[linkdev-agent-watch]') && c.body?.includes('FINISHED') && !/\| PR \|/.test(c.body ?? '')),
+    );
+    const stallThreshold = recentFinishedNoPr ? 0 : STALL_NOTIFY_MINUTES;
     const lastActivity = lastStallActivityAt(comments);
     if (!lastActivity) continue;
-    if (minutesSince(lastActivity) < STALL_NOTIFY_MINUTES) continue;
+    if (minutesSince(lastActivity) < stallThreshold) continue;
 
-    const eventKey = stallEventKey(num, comments);
+    const eventKey = recentFinishedNoPr ? `finished_no_pr_${num}` : stallEventKey(num, comments);
     const message = [
-      ':hourglass_flowing_sand: *LiNKdev — task stalled*',
+      recentFinishedNoPr ? ':warning: *LiNKdev — executor finished without PR*' : ':hourglass_flowing_sand: *LiNKdev — task stalled*',
       `*${view.title}* (${ltsId}, #${num})`,
-      `No PR for ${STALL_NOTIFY_MINUTES}+ minutes. Factory auto-heal may retry; no action needed unless this repeats.`,
+      recentFinishedNoPr
+        ? 'Cloud executor reported FINISHED but no PR exists. Factory auto-heal is re-dispatching.'
+        : `No PR for ${STALL_NOTIFY_MINUTES}+ minutes. Factory auto-heal may retry; no action needed unless this repeats.`,
       issueUrl(repo, num),
     ].join('\n');
     if (await notifyIssue(repo, { number: num, title: view.title, ltsId, eventKey, message, comments, dryRun })) {
