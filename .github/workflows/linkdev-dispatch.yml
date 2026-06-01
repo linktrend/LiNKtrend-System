@@ -88,6 +88,8 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Verify PR label
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           chmod +x LiNKdev/factory/scripts/check-labels-for-dispatch.sh
           LiNKdev/factory/scripts/check-labels-for-dispatch.sh pr-has \
@@ -132,6 +134,8 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Verify PR label
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           chmod +x LiNKdev/factory/scripts/check-labels-for-dispatch.sh
           LiNKdev/factory/scripts/check-labels-for-dispatch.sh pr-has \

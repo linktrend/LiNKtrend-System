@@ -280,8 +280,26 @@ async function redispatchIssue(repo, num, ltsId, reason, dryRun) {
   }
   await gh(['issue', 'comment', String(num), '--repo', repo, '--body', body]);
   await gh(['issue', 'edit', String(num), '--repo', repo, '--remove-label', 'linkdev:ready']).catch(() => {});
+  await gh(['issue', 'edit', String(num), '--repo', repo, '--remove-label', 'runtime:cursor']).catch(() => {});
   await gh(['issue', 'edit', String(num), '--repo', repo, '--add-label', 'linkdev:ready']).catch(() => {});
+  await gh(['issue', 'edit', String(num), '--repo', repo, '--add-label', 'runtime:cursor']).catch(() => {});
   await gh(['issue', 'edit', String(num), '--repo', repo, '--add-label', 'linkdev:in-progress']).catch(() => {});
+  if (process.env.CURSOR_API_KEY) {
+    const { spawnSync } = await import('node:child_process');
+    const { fileURLToPath } = await import('node:url');
+    const { dirname, join } = await import('node:path');
+    const script = join(dirname(fileURLToPath(import.meta.url)), 'dispatch-cursor-agent.mjs');
+    const r = spawnSync(
+      process.execPath,
+      [script, '--role', 'executor', '--repo', repo, '--issue', String(num)],
+      { encoding: 'utf8', env: process.env },
+    );
+    if (r.status === 0) {
+      console.log(`auto-heal direct executor dispatch issue #${num} (${ltsId})`);
+    } else {
+      console.warn(`auto-heal label toggle only for #${num}: ${r.stderr || r.stdout}`);
+    }
+  }
   console.log(`auto-heal redispatch issue #${num} (${ltsId}): ${reason}`);
 }
 

@@ -28,9 +28,14 @@ Living log from the first production program run. Each item should drive a **tem
 - **Fix:** Stall clock uses dispatch-after-heal only (`linkdev-stall-clock.mjs`). **Fixed** (this doc wave).
 
 ### L-004 — Scheduled agent-watch cron never fired
-- **Symptom:** Zero `schedule` events on `linkdev-agent-watch.yml`; no watch/auto-heal/Slack between 03:24–03:40.
-- **Cause:** GitHub `schedule` on watch workflow never ran (repo/org quirk or workflow never enabled on default branch early enough).
-- **Fix:** `linkdev-factory-heartbeat.yml` cron → `gh workflow run` agent watch every 5m. **Fixed** (pending deploy).
+- **Symptom:** Zero `schedule` events on `linkdev-agent-watch.yml` or heartbeat; no watch/auto-heal/Slack between 03:24–03:40.
+- **Cause:** GitHub `schedule` alone never ran (repo/org quirk or new workflow not yet picked up by cron scheduler).
+- **Fix:** `linkdev-factory-heartbeat.yml` cron + `workflow_run` chain (CI/dispatch/watch, throttled ≥4m) → `gh workflow run` agent watch. Manual `workflow_dispatch` verified 2026-06-01. **Fixed**.
+
+### L-010 — Reviewer/integrator dispatch failed on Verify PR label
+- **Symptom:** `dispatch-reviewer` and `dispatch-integrator` fail in ~7s on PRs #56–#59; `gh pr view` in `check-labels-for-dispatch.sh` exits 4 (no auth).
+- **Cause:** Verify PR label step missing `GH_TOKEN`; `gh` CLI requires explicit token in Actions runners.
+- **Fix:** Add `env: GH_TOKEN: ${{ github.token }}` to reviewer and integrator Verify PR label steps in `linkdev-dispatch.yml`. **Fixed**.
 
 ### L-009 — Executor FINISHED without opening PR (wave 2 repeat)
 - **Symptom:** Agents `FINISHED` ~115s on #18/#16/#39; branches reported but **no commits/PR** on GitHub (same as LTS-001).
