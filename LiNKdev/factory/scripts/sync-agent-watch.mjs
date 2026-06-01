@@ -6,6 +6,7 @@
  * Usage: node sync-agent-watch.mjs [--repo owner/name] [--dry-run]
  */
 import { appendFileSync } from 'node:fs';
+import { minutesSinceStallCycleStart } from './linkdev-stall-clock.mjs';
 
 const API = 'https://api.cursor.com/v1';
 const MARKER = '[linkdev-agent-watch]';
@@ -257,9 +258,7 @@ async function issueHasOpenPr(repo, ltsId) {
 }
 
 async function minutesSinceLastDispatch(comments) {
-  const dispatch = [...comments].reverse().find((c) => c.body?.includes('[linkdev-dispatch]'));
-  if (!dispatch?.createdAt) return Infinity;
-  return (Date.now() - new Date(dispatch.createdAt).getTime()) / 60000;
+  return minutesSinceStallCycleStart(comments);
 }
 
 async function minutesSinceLastHeal(comments) {
@@ -279,12 +278,13 @@ async function autoHealStalls(repo, issueMap, activeIssueNumbers, dryRun) {
     );
     const labels = view.labels?.map((l) => l.name) ?? [];
     if (labels.includes('linkdev:review-ready') || labels.includes('linkdev:done')) continue;
-    if (!labels.includes('linkdev:in-progress') && !labels.includes('linkdev:ready')) continue;
+    if (!labels.includes('linkdev:in-progress')) continue;
     if (await issueHasOpenPr(repo, ltsId)) continue;
 
     const comments = view.comments ?? [];
     if ((await minutesSinceLastHeal(comments)) < HEAL_COOLDOWN_MINUTES) continue;
-    if ((await minutesSinceLastDispatch(comments)) < STALL_MINUTES) continue;
+    const sinceDispatch = await minutesSinceLastDispatch(comments);
+    if (sinceDispatch === Infinity || sinceDispatch < STALL_MINUTES) continue;
 
     const body = `${HEAL_MARKER} **Auto-heal:** no PR after ${STALL_MINUTES}+ minutes — re-dispatching executor automatically. No Principal action needed.`;
     if (dryRun) {
@@ -300,7 +300,7 @@ async function autoHealStalls(repo, issueMap, activeIssueNumbers, dryRun) {
   return healed;
 }
 
-async function loadActiveIssueNumbers() {
+async function loadActiveIssueNumbers(issueMap) {
   const { readFileSync, existsSync } = await import('node:fs');
   const path = 'LiNKdev/factory/STATE.md';
   if (!existsSync(path)) return new Set();
@@ -314,6 +314,12 @@ async function loadActiveIssueNumbers() {
       for (const id of w.issue_ids ?? w.issues ?? []) {
         if (typeof id === 'number') nums.add(id);
       }
+    }
+    for (const [ltsId, row] of Object.entries(state.issues ?? {})) {
+      const status = row?.status ?? '';
+      if (!['ready', 'in_progress', 'in-progress'].includes(status)) continue;
+      const num = issueMap[ltsId]?.github_number;
+      if (typeof num === 'number') nums.add(num);
     }
     return nums;
   } catch {
@@ -380,7 +386,7 @@ async function main() {
     console.log(`updated ${target.kind} #${target.number} agent=${agent.id} status=${run.status}`);
   }
 
-  const activeIssues = await loadActiveIssueNumbers();
+  const activeIssues = await loadActiveIssueNumbers(issueMap);
   const healed = await autoHealStalls(args.repo, issueMap, activeIssues, args.dryRun);
 
   const { notifyPrincipalSlack } = await import('./principal-slack-notify.mjs');

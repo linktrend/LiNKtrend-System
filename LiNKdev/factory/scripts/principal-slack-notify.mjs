@@ -1,4 +1,6 @@
 #!/usr/bin/env node
+import { stallCycleStartAt } from './linkdev-stall-clock.mjs';
+
 /**
  * LiNKdev — optional Principal Slack alerts via incoming webhook.
  * Called from sync-agent-watch.mjs (GitHub Actions). No-op if LINKDEV_SLACK_WEBHOOK_URL unset.
@@ -72,14 +74,7 @@ async function issueHasOpenPr(repo, ltsId) {
 }
 
 function lastStallActivityAt(comments) {
-  let latest = 0;
-  for (const c of comments) {
-    // Auto-heal retries do not count as progress — stall timer follows dispatch/watch only.
-    if (!c.body?.match(/\[linkdev-(dispatch|agent-watch)\]/)) continue;
-    const t = new Date(c.createdAt).getTime();
-    if (t > latest) latest = t;
-  }
-  return latest ? new Date(latest).toISOString() : null;
+  return stallCycleStartAt(comments);
 }
 
 async function notifyIssue(repo, { number, title, ltsId, eventKey, message, comments, dryRun }) {
@@ -139,11 +134,12 @@ export async function notifyPrincipalSlack(opts) {
     const labels = view.labels?.map((l) => l.name) ?? [];
     if (labels.includes('linkdev:review-ready') || labels.includes('linkdev:done')) continue;
     if (labels.includes('linkdev:blocked') || labels.includes('linkdev:principal-stop')) continue;
-    if (!labels.includes('linkdev:in-progress') && !labels.includes('linkdev:ready')) continue;
+    if (!labels.includes('linkdev:in-progress')) continue;
     if (await issueHasOpenPr(repo, ltsId)) continue;
 
     const comments = view.comments ?? [];
     const lastActivity = lastStallActivityAt(comments);
+    if (!lastActivity) continue;
     if (minutesSince(lastActivity) < STALL_NOTIFY_MINUTES) continue;
 
     const eventKey = `stall_${num}`;

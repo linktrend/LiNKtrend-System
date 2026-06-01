@@ -67,6 +67,11 @@ for lts_id, row in issues.items():
         cmd.extend(["--add-label", lab])
     subprocess.run(cmd, check=True)
     print(f"labeled issue #{num} ({lts_id}): {', '.join(labels)}")
+    wave_body = f"[linkdev-wave-ready] Wave label applied from STATE ({program_id}). Stall timer starts at next executor dispatch."
+    subprocess.run(
+        ["gh", "issue", "comment", str(num), "--repo", repo, "--body", wave_body],
+        check=True,
+    )
     applied += 1
 
 if applied == 0:
