@@ -18,6 +18,7 @@ import {
   shouldSkipFactoryIssue,
 } from './linkdev-issue-terminal.mjs';
 import { minutesSinceStallCycleStart, minutesSinceLastHealInCycle, stallCycleStartAt } from './linkdev-stall-clock.mjs';
+import { createGhClient } from './linkdev-gh-api.mjs';
 
 const API = 'https://api.cursor.com/v1';
 const MARKER = '[linkdev-agent-watch]';
@@ -53,13 +54,19 @@ async function cursorApi(path) {
   return json;
 }
 
+let ghClient = null;
+
+function ensureGhClient() {
+  if (!ghClient) ghClient = createGhClient();
+  return ghClient;
+}
+
 async function gh(args) {
-  const { spawnSync } = await import('node:child_process');
-  const r = spawnSync('gh', args, { encoding: 'utf8' });
-  if (r.status !== 0) {
-    throw new Error(`gh ${args.join(' ')} failed: ${r.stderr || r.stdout}`);
-  }
-  return r.stdout;
+  return ensureGhClient().call(args);
+}
+
+function ghBound(args) {
+  return ensureGhClient().call(args);
 }
 
 function issueFromLtsToken(token, issueMap) {
@@ -94,9 +101,7 @@ function parseAgentTarget(name, run, agent, issueMap) {
 
 async function resolveTargetFromPr(repo, prNumber, issueMap) {
   try {
-    const pr = JSON.parse(
-      await gh(['pr', 'view', String(prNumber), '--repo', repo, '--json', 'title,headRefName,body']),
-    );
+    const pr = ensureGhClient().prView(repo, prNumber, 'title,headRefName,body');
     const title = pr.title ?? '';
     if (/orchestrator/i.test(title)) {
       return { kind: 'pr', number: prNumber };
@@ -138,19 +143,27 @@ const DISPATCH_MARKER = '[linkdev-dispatch]';
 const AGENT_ID_RE = /\| Agent \| `([^`]+)` \|/;
 
 /** Cursor API often ignores custom agent names — map agent id → issue/pr from dispatch comments. */
-async function buildDispatchAgentMap(repo, issueMap) {
+async function buildDispatchAgentMap(repo, issueMap, activeIssueNumbers) {
+  const client = ensureGhClient();
   const map = new Map();
-  const issueNumbers = [...new Set(Object.values(issueMap).map((m) => m.github_number))];
+  const finishedAgentIds = new Set();
+  const issueNumbers = [...new Set(Object.values(issueMap).map((m) => m.github_number))].filter(
+    (num) => activeIssueNumbers.size === 0 || activeIssueNumbers.has(num),
+  );
 
   for (const num of issueNumbers) {
     let view;
     try {
-      view = JSON.parse(await gh(['issue', 'view', String(num), '--repo', repo, '--json', 'state,comments']));
+      view = client.issueView(repo, num);
     } catch {
       continue;
     }
     if (view.state === 'CLOSED') continue;
     for (const comment of view.comments ?? []) {
+      if (comment.body?.includes(MARKER) && comment.body?.includes('FINISHED')) {
+        const finishedId = comment.body.match(AGENT_ID_RE)?.[1];
+        if (finishedId) finishedAgentIds.add(finishedId);
+      }
       if (!comment.body?.includes(DISPATCH_MARKER)) continue;
       const agentId = comment.body.match(AGENT_ID_RE)?.[1];
       if (agentId) map.set(agentId, { kind: 'issue', number: num });
@@ -159,7 +172,7 @@ async function buildDispatchAgentMap(repo, issueMap) {
 
   try {
     const prs = JSON.parse(
-      await gh(['pr', 'list', '--repo', repo, '--state', 'open', '--json', 'number', '--limit', '30']),
+      await gh(['pr', 'list', '--repo', repo, '--state', 'open', '--json', 'number', '--limit', '15']),
     );
     for (const pr of prs) {
       let comments;
@@ -169,6 +182,10 @@ async function buildDispatchAgentMap(repo, issueMap) {
         continue;
       }
       for (const comment of Array.isArray(comments) ? comments : comments.items ?? []) {
+        if (comment.body?.includes(MARKER) && comment.body?.includes('FINISHED')) {
+          const finishedId = comment.body.match(AGENT_ID_RE)?.[1];
+          if (finishedId) finishedAgentIds.add(finishedId);
+        }
         if (!comment.body?.includes(DISPATCH_MARKER)) continue;
         const agentId = comment.body.match(AGENT_ID_RE)?.[1];
         if (agentId) map.set(agentId, { kind: 'pr', number: pr.number });
@@ -178,7 +195,7 @@ async function buildDispatchAgentMap(repo, issueMap) {
     /* optional PR scan */
   }
 
-  return map;
+  return { map, finishedAgentIds };
 }
 
 function roleFromAgentName(name) {
@@ -336,7 +353,7 @@ async function issueHasRecentFinishedNoPr(comments, agentId) {
 
 async function normalizeIssueLabels(repo, num, labels, dryRun) {
   const labelNames = labels?.map((l) => (typeof l === 'string' ? l : l.name)) ?? [];
-  await applyNormalizeExecutorLabels(repo, num, labelNames, dryRun, gh);
+  await applyNormalizeExecutorLabels(repo, num, labelNames, dryRun, ghBound);
 }
 
 async function triggerActionsExecutorFallback(repo, issueNum, dryRun) {
@@ -362,7 +379,7 @@ async function triggerActionsExecutorFallback(repo, issueNum, dryRun) {
 async function redispatchIssue(repo, num, ltsId, reason, dryRun, comments = []) {
   const cycleStart = stallCycleStartAt(comments);
   if (shouldEscalateFinishedNoPr(comments, cycleStart)) {
-    await escalateExecutorNoPr(repo, num, ltsId, dryRun, gh);
+    await escalateExecutorNoPr(repo, num, ltsId, dryRun, ghBound);
     return;
   }
 
@@ -417,11 +434,9 @@ async function autoHealStalls(repo, issueMap, activeIssueNumbers, dryRun) {
   for (const [ltsId, meta] of Object.entries(issueMap)) {
     const num = meta.github_number;
 
-    const view = JSON.parse(
-      await gh(['issue', 'view', String(num), '--repo', repo, '--json', 'state,labels,comments']),
-    );
+    const view = ensureGhClient().issueView(repo, num);
     const labels = view.labels?.map((l) => l.name) ?? [];
-    const hasMergedPr = await issueHasMergedPr(repo, ltsId, gh);
+    const hasMergedPr = await issueHasMergedPr(repo, ltsId, ghBound);
     if (
       shouldSkipFactoryIssue({
         state: view.state,
@@ -478,9 +493,7 @@ async function healFinishedWithoutPr(repo, issueMap, target, agent, run, dryRun)
   if (!ltsId) return false;
   if (await issueHasOpenPr(repo, ltsId)) return false;
 
-  const view = JSON.parse(
-    await gh(['issue', 'view', String(target.number), '--repo', repo, '--json', 'state,comments,labels']),
-  );
+  const view = ensureGhClient().issueView(repo, target.number);
   const labels = view.labels?.map((l) => l.name) ?? [];
   if (
     shouldSkipFactoryIssue({
@@ -489,7 +502,7 @@ async function healFinishedWithoutPr(repo, issueMap, target, agent, run, dryRun)
       githubNumber: target.number,
       ltsId,
       activeIssueNumbers: new Set([target.number]),
-      hasMergedPr: await issueHasMergedPr(repo, ltsId, gh),
+      hasMergedPr: await issueHasMergedPr(repo, ltsId, ghBound),
     })
   ) {
     return false;
@@ -498,7 +511,7 @@ async function healFinishedWithoutPr(repo, issueMap, target, agent, run, dryRun)
   await normalizeIssueLabels(repo, target.number, labels, dryRun);
   const comments = view.comments ?? [];
   if (shouldEscalateFinishedNoPr(comments, stallCycleStartAt(comments))) {
-    await escalateExecutorNoPr(repo, target.number, ltsId, dryRun, gh);
+    await escalateExecutorNoPr(repo, target.number, ltsId, dryRun, ghBound);
     return true;
   }
   if (await issueHasRecentFinishedNoPr(comments, agent.id)) return false;
@@ -552,15 +565,26 @@ async function loadActiveIssueNumbers(issueMap) {
 
 async function main() {
   const args = parseArgs(process.argv);
+  ensureGhClient();
   const issueMap = await loadIssueMap();
-  const dispatchAgentMap = await buildDispatchAgentMap(args.repo, issueMap);
+  const activeIssues = await loadActiveIssueNumbers(issueMap);
+  const { map: dispatchAgentMap, finishedAgentIds } = await buildDispatchAgentMap(
+    args.repo,
+    issueMap,
+    activeIssues,
+  );
   const list = await cursorApi('/agents?limit=50');
   const items = list.items ?? [];
   let updated = 0;
+  let skippedFinished = 0;
 
   for (const agent of items) {
     if (!agent.name?.startsWith('LiNKdev-')) continue;
     if (!agent.latestRunId) continue;
+    if (finishedAgentIds.has(agent.id)) {
+      skippedFinished += 1;
+      continue;
+    }
 
     const run = await cursorApi(`/agents/${agent.id}/runs/${agent.latestRunId}`);
     let target = parseAgentTarget(agent.name, run, agent, issueMap);
@@ -612,7 +636,6 @@ async function main() {
     console.log(`updated ${target.kind} #${target.number} agent=${agent.id} status=${run.status}`);
   }
 
-  const activeIssues = await loadActiveIssueNumbers(issueMap);
   const healed = await autoHealStalls(args.repo, issueMap, activeIssues, args.dryRun);
 
   const { notifyPrincipalSlack } = await import('./principal-slack-notify.mjs');
@@ -629,7 +652,7 @@ async function main() {
       `## LiNKdev agent watch\n\nUpdated **${updated}** issue/PR thread(s). Auto-healed **${healed}** stall(s). Slack **${slackSent}** alert(s).\n`,
     );
   }
-  console.log(`WATCH_OK updated=${updated} healed=${healed} slack=${slackSent}`);
+  console.log(`WATCH_OK updated=${updated} skipped_finished=${skippedFinished} healed=${healed} slack=${slackSent}`);
 }
 
 main().catch((err) => {
