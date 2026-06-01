@@ -28,7 +28,7 @@ Do not set `linkdev:ready` until this passes (LAW-02, DS-B20).
 4. Mark completed issues `done`; unblock dependents.
 5. When all issues in a module phase are `done`, trigger council **G3**; on pass run tier B gates: `LiNKdev/factory/scripts/run-gates.sh --tier B --program <program-id>`.
 6. Mark **all DAG-unblocked** issues `ready` in STATE up to **active wave cap** in PROGRAM.md (not one PROGRAM parallel group at a time).
-7. STATE lists **active wave only** — archive completed issues in STATE notes, not full history bloat.
+7. Keep every completed issue as **`done` in the STATE JSON block** (DAG integrity for `advance-wave-on-merge.mjs`). Optional prose history belongs in STATE notes below the JSON — **never remove `done` rows** from the JSON block.
 8. Schedule chairman stop per program plan → label `linkdev:principal-stop`, set phase `principal_stop`.
 9. Never merge to `staging` or `main`.
 

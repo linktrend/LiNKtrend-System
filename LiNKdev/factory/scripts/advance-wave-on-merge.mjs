@@ -8,7 +8,11 @@
  */
 import { readFileSync, writeFileSync, existsSync, renameSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
-import { createGhClient } from './linkdev-gh-api.mjs';
+import {
+  buildDoneIdSet,
+  parseProgramIssues,
+  seedDoneAncestorsInState,
+} from './linkdev-state-dag.mjs';
 
 const HANDOFF_PATH = '.linkdev/handoff/orchestrator-wave-ready.json';
 const HANDOFF_PROCESSED = '.linkdev/handoff/orchestrator-wave-ready.processed.json';
@@ -61,32 +65,6 @@ function writeState(statePath, json, prefix, suffix, dryRun) {
   const nextText = `${prefix}\`\`\`json\n${nextBlock}\n\`\`\`${suffix}`;
   if (!dryRun) writeFileSync(statePath, nextText);
   return nextText;
-}
-
-/** @param {string} programPath */
-function parseProgramIssues(programPath) {
-  const text = readFileSync(programPath, 'utf8');
-  /** @type {Record<string, { depends: string[], wave: number, runtime: string, tier: string, report?: string }>} */
-  const issues = {};
-  for (const line of text.split('\n')) {
-    const m = line.match(/^\|\s*(LTS-\d+)\s*\|/);
-    if (!m) continue;
-    const parts = line.split('|').map((p) => p.trim());
-    if (parts.length < 7) continue;
-    const id = parts[1];
-    const runtime = parts[3] || 'cursor';
-    const tier = parts[4] || 'standard';
-    const depcol = parts[5] ?? '';
-    const waveCol = parts[6] ?? '';
-    const depends =
-      !depcol || depcol === '[]' || depcol === '—'
-        ? []
-        : depcol.split(',').map((d) => d.trim()).filter(Boolean);
-    const waveMatch = waveCol.match(/W(\d+)/);
-    const wave = waveMatch ? Number(waveMatch[1]) : 999;
-    issues[id] = { depends, wave, runtime, tier };
-  }
-  return issues;
 }
 
 /** Read active wave cap from PROGRAM.md (## Active wave cap section). */
@@ -170,11 +148,11 @@ function computePromotions(stateJson, programIssues, waveCap) {
   const slots = Math.max(0, waveCap - active);
   if (slots === 0) return [];
 
-  const doneIds = new Set(Object.entries(stateJson.issues ?? {}).filter(([, v]) => v?.status === 'done').map(([k]) => k));
+  const doneIds = buildDoneIdSet(stateJson, programIssues);
 
   /** @type {string[]} */
   const candidates = Object.keys(programIssues)
-    .filter((id) => !doneIds.has(id) && !isActive(stateJson, id))
+    .filter((id) => !doneIds.has(id) && !isActive(stateJson, id) && !isDone(stateJson, id))
     .filter((id) => {
       const deps = programIssues[id].depends;
       return deps.every((d) => doneIds.has(d));
@@ -209,6 +187,10 @@ async function main() {
   const stateText = readFileSync(args.statePath, 'utf8');
   const { json, prefix, suffix } = parseState(stateText);
   if (!json.issues) json.issues = {};
+
+  if (seedDoneAncestorsInState(json, programIssues, args.programId)) {
+    console.log('ADVANCE_WAVE seeded missing done ancestors in STATE (DAG preserve)');
+  }
 
   const promoted = computePromotions(json, programIssues, args.waveCap);
   let changed = false;

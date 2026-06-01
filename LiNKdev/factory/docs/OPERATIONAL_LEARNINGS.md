@@ -181,6 +181,10 @@ Slack cooldown (`stall_*` event, 60m) suppresses repeat alerts from the false po
 - **Principal proposal:** MVO can complete waves without Principal break-glass when integrator merges land; monitor wave 6+ for promotion correctness.
 - **Status:** **Fixed** (2026-06-01).
 
+### L-024 — STATE pruning dropped done ancestors; advance-wave re-promoted LTS-001
+- **Symptom:** Orchestrator "active wave only" removed `LTS-001` / `LTS-010` from STATE JSON while dependents stayed `done`. `advance-wave-on-merge.mjs` then promoted **LTS-001** again (empty deps) and blocked correct DAG-fill for wave 7.
+- **Fix:** `linkdev-state-dag.mjs` — infer satisfied deps from done descendants; `seedDoneAncestorsInState()` writes missing ancestors back as `done`; `sync-state-on-merge.mjs` seeds on merge; Orchestrator ROLE requires **`done` rows stay in STATE JSON**. **Fixed** (2026-06-01).
+
 ### L-023 — Parallel executor cap raised to 10 (DAG-fill)
 - **Symptom:** Factory advanced only one PROGRAM parallel group (lowest W*) per merge; with cap 3, waves 5–6 felt stalled while multiple DAG-ready issues waited.
 - **Root cause:** `computePromotions()` filtered candidates to a single `minWave` group before applying cap; Principal cap was 3.
