@@ -1,6 +1,8 @@
 import { fetchMetricsSnapshot } from "@/app/(shell)/metrics/actions";
 import { RecentRunsTable } from "@/components/metrics-recent-runs-table";
+import { ProjectRunTraceSpine } from "@/components/project-run-trace-spine";
 import { resolveProjectIdFromProps } from "@/lib/api/project-mission-id";
+import { buildClientRunTrace } from "@/lib/client-run-trace";
 import { buildMetricsSnapshotFromRows, type MetricsSnapshot } from "@/lib/metrics-snapshot";
 import { isUiMocksEnabled } from "@/lib/ui-mocks/flags";
 import { demoMetricsSnapshot } from "@/lib/ui-mocks/metrics-demo-snapshot";
@@ -43,12 +45,16 @@ export async function ProjectRunsPanel(props: {
     });
     snapshot = result.ok ? result.data : emptySnapshot();
   }
+  const trace = buildClientRunTrace(projectId);
 
   return (
-    <RecentRunsTable
-      snapshot={snapshot}
-      hideProjectColumn
-      tracesHref={`/settings/traces?project=${encodeURIComponent(projectId)}`}
-    />
+    <div className="space-y-4">
+      <ProjectRunTraceSpine trace={trace} />
+      <RecentRunsTable
+        snapshot={snapshot}
+        hideProjectColumn
+        tracesHref={`/memory?tab=audit&project=${encodeURIComponent(projectId)}`}
+      />
+    </div>
   );
 }
