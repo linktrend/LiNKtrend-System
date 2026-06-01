@@ -60,6 +60,7 @@ program_plan() {
   echo "LiNKdev/factory/programs/bootstrap/PROGRAM.md"
 }
 
+# shellcheck disable=SC2317
 release_report() {
   if [[ -n "$REPORT" && -f "$REPORT" ]]; then
     echo "$REPORT"
