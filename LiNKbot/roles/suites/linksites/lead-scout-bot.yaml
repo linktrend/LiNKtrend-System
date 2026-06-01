@@ -4,8 +4,10 @@
 role_id: lead_scout_bot
 version: "1.0.0"
 purpose: |
-  Future lead discovery and first-pass qualification for CRM intake.
-  NOT enabled in v2 MVO - role declared but skipped with mock substitution.
+  Governed lead acquisition for the LinkSites MVO.
+  The MVO path acquires the Principal-approved mock demo lead under a supplied
+  LinkSkills lease and records provenance/audit. Live Maps/search is prepared
+  as a future provider but remains blocked until Principal approval.
 
 # Module binding
 module: linksites
@@ -13,39 +15,48 @@ module_version: "2.0.0"
 
 # Inputs and outputs
 inputs:
-  - lead_input            # Mock only in MVO
+  - lead_input            # Principal-approved mock demo lead facts
   - acquisition_notes     # Optional operator notes
+  - governance            # LinkSkills lease_id, idempotency key, mode
 
 outputs:
-  - lead_record_ref       # From mock/local substitution only
+  - lead_record_ref       # Governed mock CRM/lead reference
+  - lead_provenance       # Provider, lease, audit, and source refs
 
 # MVO status
-enabled_in_mvo: false
+enabled_in_mvo: true
 declared_in_mvo: true
 
 # Allowed capabilities in MVO runtime path
-allowed_capabilities: []  # No capabilities in MVO path
+allowed_capabilities:
+  - cap.research.public_web   # Mock provider now; live Maps/search later
+  - cap.crm.odoo_shadow       # Mock/shadow lead reference only
+  - cap.zulip.run_messaging   # Run/operator trace status
+  - cap.plane.execution_tracking
 
 # Allowed skills in MVO runtime path
 allowed_skills: []  # No skills in MVO path
 
 # Development restrictions for MVO
 development_restrictions:
-  - disabled_in_mvo
-  - mock_input_only
+  - mock_mode_for_mvo
+  - lease_required
   - no_live_acquisition
   - no_public_scraping
+  - live_maps_requires_principal_approval
 
-# Audit events (only skip evidence)
+# Audit events
 audit_events:
-  - role.declared
-  - role.skipped
-  - role.mock_substitution
+  - role.started
+  - lead.acquired
+  - provenance.recorded
+  - role.completed
+  - role.failed
 
-# Model policy (not used in MVO due to disabled status)
+# Model policy
 model_policy:
   model_routing_profile: lead-scout-v1
-  max_tokens: 2000
+  max_tokens: 0
 
 # Memory rules
 memory_rules:
