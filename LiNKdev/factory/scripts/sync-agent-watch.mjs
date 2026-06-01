@@ -85,11 +85,24 @@ async function resolveTargetFromPr(repo, prNumber, issueMap) {
     const pr = JSON.parse(
       await gh(['pr', 'view', String(prNumber), '--repo', repo, '--json', 'title,headRefName,body']),
     );
-    const hit =
-      issueFromLtsToken(pr.headRefName ?? '', issueMap) ??
-      issueFromLtsToken(pr.title ?? '', issueMap) ??
-      issueFromLtsToken(pr.body ?? '', issueMap);
-    return hit ?? { kind: 'pr', number: prNumber };
+    const title = pr.title ?? '';
+    if (/orchestrator/i.test(title)) {
+      return { kind: 'pr', number: prNumber };
+    }
+    const titleHit = title.match(/^(LTS-\d+)\b/);
+    if (titleHit) {
+      const hit = issueFromLtsToken(titleHit[1], issueMap);
+      if (hit) return hit;
+    }
+    const headHit = issueFromLtsToken(pr.headRefName ?? '', issueMap);
+    if (headHit) return headHit;
+    const bodyMatches = [...(pr.body ?? '').matchAll(/\bLTS-\d+\b/g)].map((m) => m[0]);
+    const unique = [...new Set(bodyMatches)];
+    if (unique.length === 1) {
+      const hit = issueFromLtsToken(unique[0], issueMap);
+      if (hit) return hit;
+    }
+    return { kind: 'pr', number: prNumber };
   } catch {
     return { kind: 'pr', number: prNumber };
   }
