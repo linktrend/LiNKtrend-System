@@ -3,9 +3,9 @@
   "version": 1,
   "program_id": "linktrend-system",
   "phase": "running",
-  "updated_at": "2026-06-01T14:35:00.000Z",
+  "updated_at": "2026-06-01T06:43:03.000Z",
   "principal_stop_reason": "",
-  "next_orchestrator_trigger": "merge_to_development",
+  "next_orchestrator_trigger": "none",
   "issues": {
     "LTS-001": {
       "status": "done",
@@ -221,12 +221,13 @@
       "done_at": "2026-06-01T14:08:00.000Z"
     },
     "LTS-103": {
-      "status": "review_ready",
+      "status": "done",
       "runtime": "cursor",
       "tier": "standard",
       "depends_on": ["LTS-102", "LTS-042"],
       "report": "LiNKdev/product/reports/linktrend-system/linksites/template-selection/LTS-103.md",
-      "notes": "Executor complete 2026-06-01: external LiNKsites registry discovery; awaiting reviewer + integrator"
+      "last_pr": 100,
+      "done_at": "2026-06-01T06:39:06.000Z"
     },
     "LTS-104": {
       "status": "planned",
@@ -234,7 +235,7 @@
       "tier": "standard",
       "depends_on": ["LTS-103", "LTS-030"],
       "report": "LiNKdev/product/reports/linktrend-system/linksites/website-build/LTS-104.md",
-      "notes": "Reset 2026-06-01: blocked until LTS-103 merged with gates"
+      "notes": "Blocked 2026-06-01: LTS-103 merged, but G3/tier-B gates are not passable yet (missing G3 council-report.json; local deps absent for integration smoke/typecheck)"
     },
     "LTS-105": {
       "status": "planned",
@@ -280,4 +281,4 @@
 }
 ```
 
-Waves 1–8: individual PRs with linkdev:done (#18–#93). **Reset 2026-06-01:** PR #95 falsely marked waves 9–15 complete; 10 issues reopened in STATE. LTS-103 review-ready on branch `issue/LTS-103-template-selection-external-registry`.
+Waves 1–8: individual PRs with linkdev:done (#18–#93). **Reset 2026-06-01:** PR #95 falsely marked waves 9–15 complete; 10 issues reopened in STATE. LTS-103 completed via PR #100; next ready issue is LTS-033. LTS-104 is held until G3/tier-B gates pass.
