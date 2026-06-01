@@ -6,6 +6,7 @@ const TABS = [
   "agents",
   "runs",
   "leases",
+  "traces",
 ] as const;
 
 export type ProjectTabId = (typeof TABS)[number];
@@ -18,6 +19,7 @@ export const PROJECT_TAB_DEFS: { id: ProjectTabId; label: string }[] = [
   { id: "agents", label: "LiNKbots & Automations" },
   { id: "runs", label: "Runs" },
   { id: "leases", label: "Leases" },
+  { id: "traces", label: "Traces" },
 ];
 
 export const PROJECT_DEFAULT_TAB: ProjectTabId = "overview";
@@ -34,6 +36,7 @@ export function parseProjectTab(raw: string | string[] | undefined): ProjectTabI
   const v = Array.isArray(raw) ? raw[0] : raw;
   if (v === "activity" || v === "run") return "runs";
   if (v === "tools") return "leases";
+  if (v === "trace" || v === "audit") return "traces";
   if (v === "work-items" || v === "workflows" || v === "phases") return "phases";
   if (v === "processes" || v === "project-types") return "modules";
   if (v === "cycles") return "runs";

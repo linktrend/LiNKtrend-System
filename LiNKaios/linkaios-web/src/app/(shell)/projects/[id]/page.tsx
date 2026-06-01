@@ -14,6 +14,7 @@ import {
   ProjectLinkbotsAutomationsPanel,
 } from "@/components/project-linkbots-automations-panel";
 import { ProjectRunsPanel } from "@/components/project-runs-panel";
+import { ProjectTracePanel } from "@/components/project-trace-panel";
 import { ProjectWorkflowProgress } from "@/components/project-workflow-progress";
 import { ProjectWorkflowsPanel } from "@/components/project-workflows-panel";
 import { ShellPageHeaderClient } from "@/components/shell-page-header-client";
@@ -87,6 +88,10 @@ function DemoMissionTabs(props: {
     return <ProjectRunsPanel missionId={missionId} />;
   }
 
+  if (tab === "traces") {
+    return <ProjectTracePanel missionId={missionId} />;
+  }
+
   return null;
 }
 
@@ -124,6 +129,10 @@ function LiveMissionTabs(props: {
 
   if (tab === "runs") {
     return <ProjectRunsPanel missionId={mission.id} />;
+  }
+
+  if (tab === "traces") {
+    return <ProjectTracePanel missionId={mission.id} />;
   }
 
   return null;
