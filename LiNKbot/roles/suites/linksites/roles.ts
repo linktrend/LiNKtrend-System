@@ -30,9 +30,11 @@ export const LINKSITES_ROLE_IDS: LinkSitesRoleId[] = [
 
 /**
  * MVO-enabled roles that can execute in the current development mode.
- * lead_scout_bot and outreach_bot are explicitly disabled.
+ * lead_scout_bot runs Principal D1-B governed mock acquisition; outreach_bot
+ * remains disabled until the governed outreach issue.
  */
 export const LINKSITES_MVO_ENABLED_ROLES: LinkSitesRoleId[] = [
+  "lead_scout_bot",
   "research_enrichment_bot",
   "website_builder_bot",
 ];
@@ -41,31 +43,43 @@ export const LINKSITES_MVO_ENABLED_ROLES: LinkSitesRoleId[] = [
  * MVO-disabled roles (declared but not executed).
  */
 export const LINKSITES_MVO_DISABLED_ROLES: LinkSitesRoleId[] = [
-  "lead_scout_bot",
   "outreach_bot",
 ];
 
 /**
  * Role definition for lead_scout_bot.
  *
- * Declared but disabled in MVO. Mock CRM data supplies the lead path.
+ * Active in MVO as Principal D1-B governed mock acquisition.
+ * Live Maps/search remains blocked until Principal approval.
  */
 export const LEAD_SCOUT_BOT_ROLE: LiNKbotRoleAttachment = {
   role_id: "lead_scout_bot",
-  purpose: "Future lead discovery and first-pass qualification for CRM intake. Declared but disabled in MVO.",
-  inputs: ["lead_input"],
-  outputs: ["lead_record_ref"],
-  allowed_capabilities: [],
+  purpose: "Acquire the Principal-approved mock LinkSites demo lead under a supplied LinkSkills lease; prepare the same boundary for future live Maps/search.",
+  inputs: ["lead_input", "governance"],
+  outputs: ["lead_record_ref", "lead_provenance"],
+  allowed_capabilities: [
+    "cap.research.public_web",
+    "cap.crm.odoo_shadow",
+    "cap.zulip.run_messaging",
+    "cap.plane.execution_tracking",
+  ],
   allowed_skills: [],
   model_policy: {
     model_routing_profile: "fast",
   },
-  audit_events: ["role.skipped"],
+  audit_events: [
+    "role.started",
+    "lead.acquired",
+    "provenance.recorded",
+    "role.completed",
+    "role.failed",
+  ],
   development_restrictions: [
-    "disabled_in_mvo",
-    "mock_input_only",
+    "mock_mode_for_mvo",
+    "lease_required",
     "no_live_acquisition",
     "no_public_scraping",
+    "live_maps_requires_principal_approval",
   ],
 };
 
