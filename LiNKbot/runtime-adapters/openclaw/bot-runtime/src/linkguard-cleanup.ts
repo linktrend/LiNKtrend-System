@@ -7,7 +7,7 @@ import {
   registerSkillTrace,
   wipeSkillTracesForSession,
   type SkillTraceEntry,
-} from "../../../../LiNKguard/sidecar/linkguard/src/skill-trace-wipe.js";
+} from "./seams/skill-trace-wipe.js";
 
 export type BotSessionCleanupResult = {
   session_id: string;

@@ -2,8 +2,8 @@
  * Librarian bot mission execution (LTS-021).
  */
 
-import type { BotReasonRequest, MissionResult } from "./local-types.js";
-import type { BotSessionContext } from "./types.js";
+import type { BotReasonRequest } from "./local-types.js";
+import type { BotSessionContext, MissionResult } from "./types.js";
 import {
   attachWorldBrainContribution,
   anonymizeKnowledgeForWorldBrain,
@@ -11,8 +11,8 @@ import {
   buildKnowledgeProposal,
   reviewKnowledgeProposal,
   type KnowledgeProposal,
-} from "../../../../LiNKbrain/librarian/knowledge-loop.js";
-import { evaluateWorldBrainContribution } from "../../../../LiNKguard/sidecar/linkguard/src/world-brain-confidentiality.js";
+} from "./seams/librarian-knowledge-loop.js";
+import { evaluateWorldBrainContribution } from "./seams/linkguard-world-brain.js";
 import {
   emitAuditEvent,
   emitRoleCompleted,
@@ -163,7 +163,7 @@ export async function executeLibrarianKnowledgeLoop(
         false,
         {
           code: "POLICY_REQUIRES_APPROVAL",
-          plane: "linkguard",
+          plane: "linkbrain",
           message: guardCheck.reason,
           retryable: false,
           occurred_at: new Date().toISOString(),
@@ -177,7 +177,7 @@ export async function executeLibrarianKnowledgeLoop(
 
     const acceptedAudit = await emitMemoryAccepted(
       request,
-      knowledge_ref,
+      knowledge_ref ?? accepted.knowledge_ref ?? proposal.proposal_id,
       world_brain_ref,
       config,
     );
