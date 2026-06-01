@@ -146,6 +146,24 @@ Slack cooldown (`stall_*` event, 60m) suppresses repeat alerts from the false po
 
 ---
 
+## Wave 4 (LTS-012)
+
+### L-021 — GitHub API rate limit blocked factory handoff (~04:41 UTC)
+- **Symptom:** Cloud executor **FINISHED** on LTS-012 (#42) with PR #80 + `linkdev:review-ready`, but `dispatch-reviewer` failed in ~7s; agent-watch never posted FINISHED comment. Pipeline stuck until manual recovery.
+- **Cause:**
+  1. Factory burst: heartbeat `workflow_run` chain + dispatch completion + agent-watch each spawn many concurrent `gh` calls (issue views, PR comments, label checks).
+  2. GitHub App installation token **5 000 req/hr** shared across all Actions jobs; no retry on rate limit — hard fail.
+  3. `check-labels-for-dispatch.sh` reported “missing label” when `gh pr view` failed on rate limit (false negative).
+  4. `sync-agent-watch.mjs` re-fetched every mapped issue/PR each cycle with no cache or skip for already-FINISHED agents.
+- **Fix:**
+  1. `linkdev-gh-api.mjs` — in-run cache + exponential backoff (5s / 15s / 45s) on rate-limit errors.
+  2. `sync-agent-watch.mjs` — scan only STATE-active issues; skip agents with FINISHED watch marker; reuse cached issue views.
+  3. `check-labels-for-dispatch.sh` — `gh_retry` wrapper with same backoff.
+  4. Workflows — agent-watch concurrency (`cancel-in-progress`); remove `workflow_run` trigger from watch (heartbeat only); heartbeat throttle 240s → **480s**.
+- **Status:** **Fixed** (2026-06-01).
+
+---
+
 ## Template backlog (next iteration)
 
 1. ~~Unit tests for `linkdev-stall-clock.mjs` (dispatch/heal/wave-ready ordering).~~ **Fixed** — `linkdev-stall-clock.test.mjs` in verify.
