@@ -1,57 +1,43 @@
-# LiNKdev — Principal monitoring (plain English)
+# LiNKdev — Principal role (plain English)
 
-Version: 1.0 · Status: active (2026-06-01)
+Version: 2.0 · Status: active (2026-06-01)
 
-**Do not use the Cursor Web home dashboard as your LiNKdev control panel.** API-dispatched factory agents often do not appear there the same way as agents you typed into the Composer box.
+## What LiNKdev is supposed to do
 
-## Your one place to watch: GitHub Issues
+**LiNKdev runs itself.** Planner, orchestrator, executors, reviewers, and integrators work on GitHub. When something stalls or fails, **the factory fixes or re-dispatches automatically** — you do not babysit timers or interpret emails.
 
-For program host **LiNKtrend-System**, open the wave issues (example wave 1):
+## Your job (only two cases)
 
-- [#20 LTS-001](https://github.com/linktrend/LiNKtrend-System/issues/20)
-- [#44 LTS-010](https://github.com/linktrend/LiNKtrend-System/issues/44)
-- [#30 LTS-020](https://github.com/linktrend/LiNKtrend-System/issues/30)
+| When | What you do |
+|------|-------------|
+| **Normal operation** | **Nothing.** Go do your work. |
+| **Label `linkdev:principal-stop` on a program issue** | Read the briefing comment, then say **Continue** or **Stop** in any Cursor chat. |
 
-Each issue gets **automatic bot comments** from GitHub Actions:
+You are **not** the on-call engineer for script lint failures, dispatch races, or stuck executors. Those are factory problems.
+
+## Do not use these as your dashboard
+
+- GitHub Actions failure emails (often misleading — one check failed, not the whole program)
+- Cursor Web home (API-dispatched agents may not appear)
+- Waiting 30 minutes to see if something stuck
+
+## Optional visibility (if you want it)
+
+Open the active wave issues — bot comments show status. Subscribe only if you want notifications; **absence of email does not mean nothing is happening.**
 
 | Marker | Meaning |
 |--------|---------|
-| `[linkdev-dispatch]` | Agent **started** — includes link to open in Cursor (optional) |
-| `[linkdev-agent-watch]` | **Still running**, **finished**, or **failed** (every ~10 min while active) |
+| `[linkdev-dispatch]` | Executor started |
+| `[linkdev-agent-watch]` | Running / finished / failed (every ~5 min) |
+| `[linkdev-auto-heal]` | Factory detected a stall and re-dispatched **without asking you** |
 
-**Subscribe to notifications:** click **Subscribe** on each active issue (or watch the repo) — GitHub emails you when status comments arrive. You do not need to stare at a screen.
+## When the factory needs you
 
-## Label meanings (at a glance)
+Only when automation cannot decide:
 
-| Label | Meaning |
-|-------|---------|
-| `linkdev:ready` | Waiting for executor to start |
-| `linkdev:in-progress` | Executor dispatched / working |
-| `linkdev:review-ready` | PR ready for reviewer (executor done coding) |
-| `linkdev:merge-ready` | Integrator may merge to `development` |
-| `linkdev:done` | Issue closed on `development` |
-| `linkdev:blocked` | **Stopped — needs agent or Principal decision** |
-| `linkdev:principal-stop` | Scheduled briefing — you say Continue |
+- `linkdev:principal-stop` — strategic briefing
+- `linkdev:blocked` **and** comment says **Principal decision required** (rare; most blocks are auto-healed)
 
-## How you know each stage is done
-
-| Stage | Done when |
-|-------|-----------|
-| **Executor** | Issue comment says **FINISHED** *and* a PR exists with `linkdev:review-ready` |
-| **Reviewer** | PR gets `linkdev:merge-ready` |
-| **Integrator** | PR merged to `development`; issue moves toward `linkdev:done` |
-| **Orchestrator** | Next wave issues get `linkdev:ready` (or `STATE.md` on `development` shows `ready`) |
-| **Something broke** | `[linkdev-agent-watch]` comment with ❌, or label `linkdev:blocked`, or red **LiNKdev agent watch** / **LiNKdev dispatch** in Actions |
-
-## Optional checks (not required every day)
-
-1. **Actions** → `LiNKdev agent watch` (scheduled) and `LiNKdev dispatch` (on label events)
-2. **`LiNKdev/factory/STATE.md`** on branch `development` — program wave status (JSON)
-3. **Cursor agent link** in the dispatch comment — only if you want live detail; not required for pass/fail
-
-## If nothing updates for 30+ minutes
-
-Tell your LiNKdev agent (Cursor chat): *"LiNKdev stalled — check issue #N and agent watch."*  
-Do **not** manually merge, label, or re-run Go unless you see `linkdev:principal-stop` or `linkdev:blocked`.
+If you see a scary email and no `linkdev:principal-stop`, ignore it unless you want detail.
 
 See also: [DISPATCH.md](./DISPATCH.md)

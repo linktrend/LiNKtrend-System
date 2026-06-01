@@ -197,6 +197,84 @@ async function applyTerminalLabels(repo, target, status, dryRun) {
   }
 }
 
+const HEAL_MARKER = '[linkdev-auto-heal]';
+const STALL_MINUTES = 10;
+const HEAL_COOLDOWN_MINUTES = 60;
+
+async function issueHasOpenPr(repo, ltsId) {
+  try {
+    const prs = JSON.parse(await gh(['pr', 'list', '--repo', repo, '--state', 'open', '--json', 'number,title,headRefName', '--limit', '50']));
+    return prs.some((p) => (p.title + p.headRefName).includes(ltsId));
+  } catch {
+    return false;
+  }
+}
+
+async function minutesSinceLastDispatch(comments) {
+  const dispatch = [...comments].reverse().find((c) => c.body?.includes('[linkdev-dispatch]'));
+  if (!dispatch?.createdAt) return Infinity;
+  return (Date.now() - new Date(dispatch.createdAt).getTime()) / 60000;
+}
+
+async function minutesSinceLastHeal(comments) {
+  const heal = [...comments].reverse().find((c) => c.body?.includes(HEAL_MARKER));
+  if (!heal?.createdAt) return Infinity;
+  return (Date.now() - new Date(heal.createdAt).getTime()) / 60000;
+}
+
+async function autoHealStalls(repo, issueMap, activeIssueNumbers, dryRun) {
+  let healed = 0;
+  for (const [ltsId, meta] of Object.entries(issueMap)) {
+    const num = meta.github_number;
+    if (activeIssueNumbers.size > 0 && !activeIssueNumbers.has(num)) continue;
+
+    const view = JSON.parse(
+      await gh(['issue', 'view', String(num), '--repo', repo, '--json', 'labels,comments']),
+    );
+    const labels = view.labels?.map((l) => l.name) ?? [];
+    if (labels.includes('linkdev:review-ready') || labels.includes('linkdev:done')) continue;
+    if (!labels.includes('linkdev:in-progress') && !labels.includes('linkdev:ready')) continue;
+    if (await issueHasOpenPr(repo, ltsId)) continue;
+
+    const comments = view.comments ?? [];
+    if ((await minutesSinceLastHeal(comments)) < HEAL_COOLDOWN_MINUTES) continue;
+    if ((await minutesSinceLastDispatch(comments)) < STALL_MINUTES) continue;
+
+    const body = `${HEAL_MARKER} **Auto-heal:** no PR after ${STALL_MINUTES}+ minutes — re-dispatching executor automatically. No Principal action needed.`;
+    if (dryRun) {
+      console.log(`DRY_RUN heal issue #${num}`);
+      continue;
+    }
+    await gh(['issue', 'comment', String(num), '--repo', repo, '--body', body]);
+    await gh(['issue', 'edit', String(num), '--repo', repo, '--remove-label', 'linkdev:in-progress']).catch(() => {});
+    await gh(['issue', 'edit', String(num), '--repo', repo, '--add-label', 'linkdev:ready']).catch(() => {});
+    healed += 1;
+    console.log(`auto-heal redispatch issue #${num} (${ltsId})`);
+  }
+  return healed;
+}
+
+async function loadActiveIssueNumbers() {
+  const { readFileSync, existsSync } = await import('node:fs');
+  const path = 'LiNKdev/factory/STATE.md';
+  if (!existsSync(path)) return new Set();
+  const text = readFileSync(path, 'utf8');
+  const m = text.match(/```json\s*(\{[\s\S]*?\})\s*```/);
+  if (!m) return new Set();
+  try {
+    const state = JSON.parse(m[1]);
+    const nums = new Set();
+    for (const w of state.active_waves ?? state.waves ?? []) {
+      for (const id of w.issue_ids ?? w.issues ?? []) {
+        if (typeof id === 'number') nums.add(id);
+      }
+    }
+    return nums;
+  } catch {
+    return new Set();
+  }
+}
+
 async function main() {
   const args = parseArgs(process.argv);
   const issueMap = await loadIssueMap();
@@ -254,13 +332,16 @@ async function main() {
     console.log(`updated ${target.kind} #${target.number} agent=${agent.id} status=${run.status}`);
   }
 
+  const activeIssues = await loadActiveIssueNumbers();
+  const healed = await autoHealStalls(args.repo, issueMap, activeIssues, args.dryRun);
+
   if (process.env.GITHUB_STEP_SUMMARY) {
     appendFileSync(
       process.env.GITHUB_STEP_SUMMARY,
-      `## LiNKdev agent watch\n\nUpdated **${updated}** issue/PR thread(s).\n`,
+      `## LiNKdev agent watch\n\nUpdated **${updated}** issue/PR thread(s). Auto-healed **${healed}** stall(s).\n`,
     );
   }
-  console.log(`WATCH_OK updated=${updated}`);
+  console.log(`WATCH_OK updated=${updated} healed=${healed}`);
 }
 
 main().catch((err) => {
