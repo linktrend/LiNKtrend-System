@@ -82,6 +82,32 @@ describe("Mission Management", () => {
       expect(result.failure?.message).toContain("lease_id");
     });
 
+    it("should run librarian_bot knowledge proposal loop", async () => {
+      process.env.NODE_ENV = "development";
+      process.env.MOCK_CONTEXT = "true";
+      process.env.MOCK_AUDIT = "true";
+
+      const librarianRequest: BotReasonRequest = {
+        ...baseRequest,
+        stage_id: "linksites.librarian",
+        inputs: {
+          librarian_ingest: {
+            run_outputs: [{ ref: "audit://run-complete", summary: "Run completed" }],
+            zulip_thread_refs: [{ stream: "linksites", topic: "run-1" }],
+            auto_accept: true,
+            reviewed_by: "principal@linktrend.media",
+          },
+        },
+      };
+
+      const result = await executeMission(librarianRequest, "librarian_bot", mockConfig);
+
+      expect(result.success).toBe(true);
+      expect(result.outputs).toHaveProperty("knowledge_proposal_ref");
+      expect(result.outputs).toHaveProperty("knowledge_ref");
+      expect(result.outputs).toHaveProperty("world_brain_ref");
+    });
+
     it("should skip disabled outreach_bot in MVO", async () => {
       process.env.MOCK_CONTEXT = "true";
       process.env.MOCK_AUDIT = "true";
@@ -160,7 +186,7 @@ describe("Mission Management", () => {
     it("should return all roles with MVO status", () => {
       const roles = listMissionRoles();
 
-      expect(roles).toHaveLength(4);
+      expect(roles).toHaveLength(5);
 
       const leadScout = roles.find((r) => r.role_id === "lead_scout_bot");
       expect(leadScout?.enabled_in_mvo).toBe(true);
