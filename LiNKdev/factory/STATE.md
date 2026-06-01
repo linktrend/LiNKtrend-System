@@ -12,7 +12,8 @@
       "runtime": "cursor",
       "tier": "standard",
       "depends_on": ["LTS-001"],
-      "report": "LiNKdev/product/reports/linktrend-system/linkaios/client/LTS-002.md"
+      "report": "LiNKdev/product/reports/linktrend-system/linkaios/client/LTS-002.md",
+      "last_commit": "4915bb05e36b9daaed1bccc1541402cd8874dda6"
     },
     "LTS-003": {
       "status": "ready",
