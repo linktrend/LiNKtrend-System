@@ -7,8 +7,8 @@ Initial session skipped **Principal Q&A** and set `phase: running` prematurely. 
 ## Correct order (LiNKdev ROLE)
 
 1. ~~Go triggered~~  
-2. **Principal Q&A** — in progress (`PLANNER-QA.md`)  
-3. Finished-product narrative — in `PROGRAM.md` (draft)  
+2. ~~**Principal Q&A**~~ — **complete** (`PLANNER-QA.md`, D1–D4)  
+3. Finished-product narrative — in `PROGRAM.md` (draft; **awaiting Principal OK**)  
 4. Principal **OK** — pending  
 5. G1 council — pending narrative OK  
 6. Program files — **rebuilt** (31 issues, ≥98% PPD traceability)  

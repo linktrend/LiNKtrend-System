@@ -9,7 +9,7 @@ chairman_review_schedule:
 
 # Program plan: linktrend-system
 
-**Planner status:** Draft — **Principal Q&A in progress** (protocol correction 2026-06-01). Do **not** set `phase: running` until narrative OK + G2 PASS.
+**Planner status:** Draft — **Principal Q&A complete** (2026-06-01). Awaiting Principal **OK** on finished-product narrative below. Do **not** set `phase: running` until narrative OK + G2 PASS.
 
 ## Finished product (plain English)
 
@@ -17,7 +17,7 @@ When **all issues** in this program are done:
 
 **LiNKaios Client** — A licensee signs in, subscribes to the **LinkSites Suite**, launches a **Project** for **one lead**, approves budgets/knowledge/side effects per role policy, and follows the run on the Project detail page with **full traces** (LinkSkills leases, LiNKautowork workflow runs, LiNKbrain audit events, LiNKbot steps).
 
-**LiNKtrend Admin** — Vendor staff manage the **demo tenant**, **Suite catalogue**, **LiNKbot fleet**, and **troubleshooting** for the same run with cross-tenant safety.
+**LiNKtrend Admin** — **D4 B:** full vendor catalogue — cross-tenant **LiNKbot fleet management**, **Capability admin**, **licensee and Suite operations**, and troubleshooting; cross-tenant safety enforced; supports the LinkSites demo run and vendor ops beyond it.
 
 **LinkSites seven-step business process** (one lead, no stubs):
 
@@ -55,8 +55,9 @@ When **all issues** in this program are done:
 | **D1** | **B** — MVO demo uses one **governed mock lead** (lease, audit, trace). Not a skip stage. Live Maps/search post-MVO unless reopened. |
 | **D2** | **A** — MVO outreach is **governed draft-only** with Principal approval gate. Full lease/audit/trace. Live send only if Principal explicitly approves during demo. Not a skip stage. |
 | **D3** | **B** — Librarian **full loop** in MVO: company knowledge proposal (accept/reject/edit) **plus** anonymized world brain contribution; LiNKguard confidentiality policy enforced. |
+| **D4** | **B** — LiNKtrend Admin **full vendor catalogue**: cross-tenant fleet management, Capability admin, licensee/Suite ops, and troubleshooting — not demo-tenant-only. |
 
-**Alignment score:** ≥**98%** with D1–D3 recorded; remaining Q&A: **D4**.
+**Alignment score:** **100%** with D1–D4 recorded; Q&A complete — awaiting Principal narrative **OK**.
 
 ## Program Definition of Done
 
