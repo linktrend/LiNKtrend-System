@@ -125,6 +125,16 @@ Slack cooldown (`stall_*` event, 60m) suppresses repeat alerts from the false po
 - **Fix:** `linkdev-dispatch-payload.mjs` adds `autoCreatePR` + `workOnCurrentBranch`; dispatch workflow creates branch first; watch treats FINISHED-without-PR as ⚠️; 2nd heal → **LiNKdev executor actions** workflow; tests in verify. **Fixed** (2026-06-01). **Monitor** wave 4+ for PR URL in watch table.
 - **Cursor cloud verdict:** Keep for orchestrator/reviewer/integrator. Executors **require** hardened dispatch; if wave 4 fails, default to executor-actions path.
 
+### L-019 — Stale orchestrator handoff marker blocks wave advance
+- **Symptom:** Wave 4 did not start after wave 3 merge despite `next_orchestrator_trigger: merge_to_development` and orchestrator dispatch (#75). No `linkdev:ready` on LTS-012 (#42).
+- **Root cause:**
+  1. `.linkdev/handoff/orchestrator-wave-ready.json` from wave 2 orchestrator (PR #54, merged 02:37) was **never cleared** on `development`.
+  2. Staging promotion (PR #61) re-triggered **LiNKdev orchestrator bootstrap**, which hung 25m on “Merge orchestrator PR” for already-merged PR #54.
+  3. Bootstrap workflow uses repo-wide concurrency (`cancel-in-progress: false`) — stuck run blocked label application for any new orchestrator handoff.
+  4. Cloud orchestrator (#75) dispatched but agent-watch skips unmapped orchestrator agents — no visibility until PR/handoff lands.
+- **Fix:** Cancel stuck bootstrap run; move stale marker to `.processed.json`; advance STATE wave 4 (LTS-012 `ready`); apply labels via `apply-wave-labels-from-state.sh`. **Fixed** (2026-06-01).
+- **Monitor:** Bootstrap must always reach “Clear handoff marker” step; add idempotency when `pr_number` already merged.
+
 ---
 
 ## Template backlog (next iteration)
