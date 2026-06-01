@@ -204,6 +204,7 @@ export const AuditEventSubjectSchema = z.object({
   crm_record_id: z.string().optional(),
   project_id: z.string().optional(),
   task_id: z.string().optional(),
+  outreach_draft_ref: z.string().optional(),
 });
 export type AuditEventSubject = z.infer<typeof AuditEventSubjectSchema>;
 

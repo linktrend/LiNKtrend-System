@@ -7,8 +7,8 @@ import {
   getKnowledgeProposal,
   reviewKnowledgeProposal,
   type KnowledgeReviewDecision,
-} from "../../../../../LiNKbrain/librarian/knowledge-loop";
-import { evaluateWorldBrainContribution } from "../../../../../LiNKguard/sidecar/linkguard/src/world-brain-confidentiality";
+} from "../../../../../../LiNKbrain/librarian/knowledge-loop";
+import { evaluateWorldBrainContribution } from "../../../../../../LiNKguard/sidecar/linkguard/src/world-brain-confidentiality";
 import { revalidatePath } from "next/cache";
 
 import { canWriteCommandCentre, getCommandCentreRoleForUser } from "@/lib/command-centre-access";
