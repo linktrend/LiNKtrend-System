@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { stallCycleStartAt } from './linkdev-stall-clock.mjs';
+import { stallCycleStartAt, stallEventKey } from './linkdev-stall-clock.mjs';
 
 /**
  * LiNKdev — optional Principal Slack alerts via incoming webhook.
@@ -33,7 +33,16 @@ function minutesSince(iso) {
 }
 
 function recentSlackSent(comments, eventKey) {
-  const hit = [...comments].reverse().find((c) => c.body?.includes(SLACK_MARKER) && c.body?.includes(`event=${eventKey}`));
+  const cycleStart = stallCycleStartAt(comments);
+  const cycleStartMs = cycleStart ? new Date(cycleStart).getTime() : 0;
+  const hit = [...comments]
+    .reverse()
+    .find(
+      (c) =>
+        c.body?.includes(SLACK_MARKER) &&
+        c.body?.includes(`event=${eventKey}`) &&
+        new Date(c.createdAt).getTime() >= cycleStartMs,
+    );
   if (!hit?.createdAt) return false;
   return minutesSince(hit.createdAt) < NOTIFY_COOLDOWN_MINUTES;
 }
@@ -142,7 +151,7 @@ export async function notifyPrincipalSlack(opts) {
     if (!lastActivity) continue;
     if (minutesSince(lastActivity) < STALL_NOTIFY_MINUTES) continue;
 
-    const eventKey = `stall_${num}`;
+    const eventKey = stallEventKey(num, comments);
     const message = [
       ':hourglass_flowing_sand: *LiNKdev — task stalled*',
       `*${view.title}* (${ltsId}, #${num})`,

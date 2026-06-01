@@ -34,3 +34,25 @@ export function minutesSinceStallCycleStart(comments) {
   if (!start) return Infinity;
   return (Date.now() - new Date(start).getTime()) / 60000;
 }
+
+/** Heal cooldown applies only to auto-heals on or after the current cycle dispatch. */
+export function minutesSinceLastHealInCycle(comments) {
+  const cycleStart = stallCycleStartAt(comments);
+  if (!cycleStart) return Infinity;
+  const cycleStartMs = new Date(cycleStart).getTime();
+  const heal = [...comments]
+    .reverse()
+    .find(
+      (c) =>
+        c.body?.includes('[linkdev-auto-heal]') &&
+        new Date(c.createdAt).getTime() >= cycleStartMs,
+    );
+  if (!heal?.createdAt) return Infinity;
+  return (Date.now() - new Date(heal.createdAt).getTime()) / 60000;
+}
+
+export function stallEventKey(issueNumber, comments) {
+  const start = stallCycleStartAt(comments);
+  const suffix = start ? start.replace(/[:.]/g, '') : 'none';
+  return `stall_${issueNumber}_${suffix}`;
+}

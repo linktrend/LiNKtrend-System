@@ -1,0 +1,28 @@
+# LiNKdev factory heartbeat — scheduled trigger for agent watch.
+# GitHub `schedule` on the watch workflow alone has not fired in production (L-004);
+# this minimal workflow uses cron + workflow_dispatch to wake the watch job.
+
+name: LiNKdev factory heartbeat
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+
+permissions:
+  actions: write
+  contents: read
+
+jobs:
+  pulse:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger LiNKdev agent watch
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          gh workflow run "LiNKdev agent watch" \
+            --repo "${{ github.repository }}" \
+            --ref main
+          echo "Queued LiNKdev agent watch from heartbeat"

@@ -1,0 +1,27 @@
+# LiNKdev factory heartbeat — scheduled trigger for agent watch.
+# See LiNKdev/factory/docs/OPERATIONAL_LEARNINGS.md L-004.
+
+name: LiNKdev factory heartbeat
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+
+permissions:
+  actions: write
+  contents: read
+
+jobs:
+  pulse:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger LiNKdev agent watch
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          gh workflow run "LiNKdev agent watch" \
+            --repo "${{ github.repository }}" \
+            --ref main
+          echo "Queued LiNKdev agent watch from heartbeat"

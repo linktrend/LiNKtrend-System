@@ -6,7 +6,7 @@
  * Usage: node sync-agent-watch.mjs [--repo owner/name] [--dry-run]
  */
 import { appendFileSync } from 'node:fs';
-import { minutesSinceStallCycleStart } from './linkdev-stall-clock.mjs';
+import { minutesSinceStallCycleStart, minutesSinceLastHealInCycle } from './linkdev-stall-clock.mjs';
 
 const API = 'https://api.cursor.com/v1';
 const MARKER = '[linkdev-agent-watch]';
@@ -262,9 +262,7 @@ async function minutesSinceLastDispatch(comments) {
 }
 
 async function minutesSinceLastHeal(comments) {
-  const heal = [...comments].reverse().find((c) => c.body?.includes(HEAL_MARKER));
-  if (!heal?.createdAt) return Infinity;
-  return (Date.now() - new Date(heal.createdAt).getTime()) / 60000;
+  return minutesSinceLastHealInCycle(comments);
 }
 
 async function autoHealStalls(repo, issueMap, activeIssueNumbers, dryRun) {

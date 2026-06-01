@@ -27,9 +27,14 @@ Living log from the first production program run. Each item should drive a **tem
 - **Cause:** `[linkdev-auto-heal]` counted as “progress” for Slack.
 - **Fix:** Stall clock uses dispatch-after-heal only (`linkdev-stall-clock.mjs`). **Fixed** (this doc wave).
 
-### L-004 — Scheduled agent-watch cron never ran
-- **Symptom:** Only manual `workflow_dispatch` runs; no post-secret watch until manual trigger.
-- **Status:** **Monitor** — confirm cron on `main` after next push.
+### L-004 — Scheduled agent-watch cron never fired
+- **Symptom:** Zero `schedule` events on `linkdev-agent-watch.yml`; no watch/auto-heal/Slack between 03:24–03:40.
+- **Cause:** GitHub `schedule` on watch workflow never ran (repo/org quirk or workflow never enabled on default branch early enough).
+- **Fix:** `linkdev-factory-heartbeat.yml` cron → `gh workflow run` agent watch every 5m. **Fixed** (pending deploy).
+
+### L-009 — Executor FINISHED without opening PR (wave 2 repeat)
+- **Symptom:** Agents `FINISHED` ~115s on #18/#16/#39; branches exist; **no PR** on GitHub (same as LTS-001).
+- **Status:** **Open** — cloud executor reliability; local implement fallback or open PR from branch in watch.
 
 ### L-005 — Guard shellcheck SC2034 / SC2317 on `run-gates.sh`
 - **Fix:** Remove unused `SCRIPT_DIR`; `# shellcheck disable=SC2317`. **Fixed**.
