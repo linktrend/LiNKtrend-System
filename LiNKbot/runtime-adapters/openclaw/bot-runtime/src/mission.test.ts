@@ -9,6 +9,20 @@ describe("Mission Management", () => {
     engine_endpoint: "http://localhost:3999",
   };
 
+  const withLeadScoutGovernance = (request: BotReasonRequest): BotReasonRequest => ({
+    ...request,
+    stage_id: "linksites.lead_generation",
+    inputs: {
+      ...request.inputs,
+      governance: {
+        mode: "mock",
+        capability: "cap.research.public_web",
+        lease_id: "lease-linksites-lead-scout-mock-001",
+        idempotency_key: "tenant-123:550e8400-e29b-41d4-a716-446655440004:linksites.lead_generation:lead_scout_bot",
+      },
+    },
+  });
+
   describe("executeMission", () => {
     const baseRequest: BotReasonRequest = {
       tenant_id: "tenant-123",
@@ -30,15 +44,42 @@ describe("Mission Management", () => {
       pii_policy: "strip_contact",
     };
 
-    it("should skip disabled lead_scout_bot in MVO", async () => {
+    it("should run governed mock lead acquisition for lead_scout_bot", async () => {
+      process.env.NODE_ENV = "development";
+      process.env.MOCK_CONTEXT = "true";
+      process.env.MOCK_AUDIT = "true";
+
+      const result = await executeMission(
+        withLeadScoutGovernance(baseRequest),
+        "lead_scout_bot",
+        mockConfig
+      );
+
+      expect(result.success).toBe(true);
+      expect(result.outputs).toHaveProperty("lead_record_ref");
+      expect(result.outputs).toHaveProperty("lead_provenance");
+      expect(result.provenance.lease_refs).toEqual(["lease-linksites-lead-scout-mock-001"]);
+      expect(result.provenance.audit_refs.length).toBeGreaterThanOrEqual(4);
+
+      const leadRecord = result.outputs.lead_record_ref as Record<string, unknown>;
+      expect(leadRecord.source).toBe("mock_demo_lead");
+      expect(leadRecord.acquisition_mode).toBe("mock");
+
+      const governance = result.outputs.governance as Record<string, unknown>;
+      expect(governance.live_provider_ready).toEqual(["google_maps"]);
+      expect(governance.live_acquisition_enabled).toBe(false);
+    });
+
+    it("should fail lead_scout_bot without a LinkSkills lease reference", async () => {
+      process.env.NODE_ENV = "development";
       process.env.MOCK_CONTEXT = "true";
       process.env.MOCK_AUDIT = "true";
 
       const result = await executeMission(baseRequest, "lead_scout_bot", mockConfig);
 
-      expect(result.success).toBe(true);
-      expect(result.outputs).toHaveProperty("status", "skipped");
-      expect(result.outputs).toHaveProperty("reason", "role_disabled_in_mvo");
+      expect(result.success).toBe(false);
+      expect(result.failure?.code).toBe("LEASE_REQUEST_INVALID");
+      expect(result.failure?.message).toContain("lease_id");
     });
 
     it("should skip disabled outreach_bot in MVO", async () => {
@@ -122,7 +163,7 @@ describe("Mission Management", () => {
       expect(roles).toHaveLength(4);
 
       const leadScout = roles.find((r) => r.role_id === "lead_scout_bot");
-      expect(leadScout?.enabled_in_mvo).toBe(false);
+      expect(leadScout?.enabled_in_mvo).toBe(true);
 
       const research = roles.find((r) => r.role_id === "research_enrichment_bot");
       expect(research?.enabled_in_mvo).toBe(true);
@@ -153,11 +194,14 @@ describe("Mission Management", () => {
       expect(role.max_attempts).toBe(3);
     });
 
-    it("should define lead_scout_bot as disabled with no capabilities", () => {
+    it("should define lead_scout_bot as governed mock acquisition", () => {
       const role = MISSION_ROLES["lead_scout_bot"];
 
       expect(role).toBeDefined();
-      expect(role.capabilities_required).toEqual([]);
+      expect(role.capabilities_required).toEqual([
+        "cap.research.public_web",
+        "cap.crm.odoo_shadow",
+      ]);
       expect(role.max_attempts).toBe(1);
     });
   });

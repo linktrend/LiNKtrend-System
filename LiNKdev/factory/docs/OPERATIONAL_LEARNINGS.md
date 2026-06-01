@@ -164,6 +164,45 @@ Slack cooldown (`stall_*` event, 60m) suppresses repeat alerts from the false po
 
 ---
 
+## Wave 5+ autonomy (L-022)
+
+### L-022 — Cloud orchestrator not required for wave advance or labels
+- **Symptom:** Waves 2–5 stalled when cloud orchestrator failed to merge handoff PR, apply `linkdev:ready`, or clear `.linkdev/handoff/orchestrator-wave-ready.json`. Principal break-glass required for every wave.
+- **Root cause:**
+  1. Wave advance was delegated entirely to cloud orchestrator + bootstrap workflow; Actions merge hook only synced one issue to `done`.
+  2. Stale handoff marker blocked bootstrap; bootstrap hung on already-merged PR (L-019).
+  3. Cloud orchestrator tokens cannot reliably write issue labels (403).
+- **Fix (template — Actions-first):**
+  1. `advance-wave-on-merge.mjs` — after integrator merge to `development`, read PROGRAM DAG + STATE, promote next unblocked issues (wave cap from PROGRAM.md), set `next_orchestrator_trigger: none`, clear handoff marker, run `apply-wave-labels-from-state.sh`.
+  2. `linkdev-dispatch.yml` — post-merge job runs advance-wave **before** optional cloud orchestrator dispatch.
+  3. `linkdev-orchestrator-bootstrap.yml` — skip merge when PR already MERGED; `cancel-in-progress: true`; always attempt handoff clear.
+  4. L-018/L-021 ports — `autoCreatePR`, `prepare-executor-branch`, `linkdev-gh-api.mjs` rate-limit backoff.
+- **What stays cloud:** Executor, reviewer, integrator, planner, and optional orchestrator for complex council/G3 decisions — not routine label/wave advance.
+- **Principal proposal:** MVO can complete waves without Principal break-glass when integrator merges land; monitor wave 6+ for promotion correctness.
+- **Status:** **Fixed** (2026-06-01).
+
+### L-023 — Parallel executor cap raised to 10 (DAG-fill)
+- **Symptom:** Factory advanced only one PROGRAM parallel group (lowest W*) per merge; with cap 3, waves 5–6 felt stalled while multiple DAG-ready issues waited.
+- **Root cause:** `computePromotions()` filtered candidates to a single `minWave` group before applying cap; Principal cap was 3.
+- **Fix:**
+  1. Default and PROGRAM **active wave cap** → **10** concurrent `linkdev:ready` executors.
+  2. `advance-wave-on-merge.mjs` promotes **all** dependency-satisfied issues up to cap (wave order for sort only, not batch gating).
+  3. `parseWaveCapFromProgram()` reads cap from PROGRAM.md unless `--wave-cap` override.
+  4. Orchestrator ROLE: DAG-fill language, not “next parallel group.”
+- **Status:** **Fixed** (2026-06-01).
+
+---
+
+## Template sync (installations)
+
+After pushing LiNKdev template to `main`:
+
+1. **Product repos:** Copy `LiNKdev/factory/` from template; copy `LiNKdev/factory/install/github/*.yml` → `.github/workflows/` on `development` and `main` (workflows are not auto-synced by `sync-installations.sh`).
+2. **Tagged releases:** `registry/installations.json` repos receive `LiNKdev/factory/` via `scripts/sync-installations.sh` on tag — re-run wire copy for workflows.
+3. **Order:** Template commit → push `linktrend/LiNKdev` → sync host → push host `development` + `main` for Actions.
+
+---
+
 ## Template backlog (next iteration)
 
 1. ~~Unit tests for `linkdev-stall-clock.mjs` (dispatch/heal/wave-ready ordering).~~ **Fixed** — `linkdev-stall-clock.test.mjs` in verify.

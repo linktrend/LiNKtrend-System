@@ -1,0 +1,65 @@
+# Capability Connector: cap.supabase.mirror_content
+# Per CONTRACTS_MVO.md §0.A.5 — LinkSites Supabase mirror
+
+plugin_id: cap.supabase.mirror_content
+plugin_kind: capability
+plugin_name: Supabase Mirror Content
+version: "1.0.0-mvo"
+purpose: Governed site content mirror upserts to Supabase in shadow modes
+
+modes_supported:
+  - development
+  - shadow
+
+operations:
+  - operation_id: site_content.upsert
+    description: Upsert mirrored site content records
+    default_mode: shadow
+    lease_skus:
+      - supabase.mirror.write
+    idempotency_key_pattern: "${tenant_id}:${site_id}:${site_generation_run_id}:${payload_version}"
+    allowed_callers:
+      - linkautowork
+      - vertical_plugin
+
+  - operation_id: asset_refs.upsert
+    description: Upsert asset reference mirror rows
+    default_mode: shadow
+    lease_skus:
+      - supabase.mirror.write
+    idempotency_key_pattern: "${tenant_id}:${site_id}:${asset_prompt_hash}"
+    allowed_callers:
+      - linkautowork
+      - vertical_plugin
+
+  - operation_id: mirror.status.read
+    description: Read mirror sync status
+    default_mode: shadow
+    lease_skus:
+      - supabase.mirror.read
+    idempotency_key_pattern: "${tenant_id}:${site_id}:mirror.status"
+    allowed_callers:
+      - linkautowork
+      - vertical_plugin
+
+auth_config_surface:
+  - supabase.project_ref
+  - supabase.schema_ref
+  - supabase.credential_ref
+
+mvo_runtime_modes:
+  - development
+  - shadow
+
+audit_events:
+  - capability.requested
+  - capability.executed
+  - supabase.mirror.content.upserted
+  - supabase.mirror.asset_refs.upserted
+  - capability.failed
+
+non_ownership:
+  - Non-mirror business schema design
+
+required_by_modules:
+  - linksites

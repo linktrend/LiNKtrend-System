@@ -234,14 +234,14 @@ When **all issues** in this program are done:
 
 ## Parallel groups
 
-- **W1:** LTS-001, LTS-010, LTS-020 (cap 3)  
+- **W1:** LTS-001, LTS-010, LTS-020 (historical group; cap governs concurrency)  
 - **W2:** LTS-002, LTS-004, LTS-060  
 - **W3–W17:** per DAG above  
 - **Release:** LTS-900 after all  
 
 ## Active wave cap
 
-**3** concurrent `linkdev:ready` issues.
+**10** concurrent `linkdev:ready` issues.
 
 ## Cursor automation checklist
 

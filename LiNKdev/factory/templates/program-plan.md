@@ -47,7 +47,7 @@ Written after Principal Go Q&A. Describe what the product **does**, how it **beh
 
 ## Active wave cap
 
-Orchestrator sets at most **3** concurrent `linkdev:ready` issues (adjust per Principal).
+Orchestrator sets at most **10** concurrent `linkdev:ready` issues (adjust per Principal).
 
 ## Codex automation checklist
 

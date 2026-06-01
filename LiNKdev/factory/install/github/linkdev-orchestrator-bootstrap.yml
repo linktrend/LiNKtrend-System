@@ -23,7 +23,7 @@ permissions:
 
 concurrency:
   group: linkdev-orchestrator-bootstrap-${{ github.repository }}
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   bootstrap:
@@ -97,10 +97,17 @@ jobs:
 
       - name: Merge orchestrator PR
         if: steps.handoff.outputs.skip != 'true' && env.HANDOFF_BRANCH != env.INTEGRATION_BRANCH
+        id: merge_pr
         run: |
           set -euo pipefail
           REPO="${{ github.repository }}"
           PR="${{ steps.pr.outputs.pr_number }}"
+          PR_STATE="$(gh pr view "$PR" --repo "$REPO" --json state -q .state 2>/dev/null || echo OPEN)"
+          if [[ "$PR_STATE" == "MERGED" ]]; then
+            echo "PR #${PR} already merged — skip merge (L-019 idempotency)"
+            echo "already_merged=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
           gh pr ready "$PR" --repo "$REPO" 2>/dev/null || true
           echo "Waiting for PR #${PR} checks (up to 25m)"
           for _ in $(seq 1 50); do
@@ -133,7 +140,7 @@ jobs:
             --state LiNKdev/factory/STATE.md
 
       - name: Clear handoff marker on development
-        if: steps.handoff.outputs.skip != 'true' && success()
+        if: steps.handoff.outputs.skip != 'true'
         continue-on-error: true
         run: |
           set -euo pipefail

@@ -1,0 +1,69 @@
+# Capability Connector: cap.crm.odoo_shadow
+# Per CONTRACTS_MVO.md §0.A.5 — LinkSites CRM shadow connector
+
+plugin_id: cap.crm.odoo_shadow
+plugin_kind: capability
+plugin_name: Odoo CRM Shadow
+version: "1.0.0-mvo"
+purpose: Governed CRM lead read and status promotion in shadow/mock modes
+
+modes_supported:
+  - development
+  - shadow
+
+operations:
+  - operation_id: lead.read_mock
+    description: Read lead snapshot from mock/shadow CRM surface
+    default_mode: shadow
+    lease_skus:
+      - crm.lead.read
+    idempotency_key_pattern: "${tenant_id}:${lead_id}:lead.read_mock"
+    allowed_callers:
+      - vertical_plugin
+      - linkautowork
+      - linkbot
+
+  - operation_id: lead.status.set_ready_to_contact
+    description: Promote lead status in shadow CRM (no live Odoo writes in MVO)
+    default_mode: shadow
+    lease_skus:
+      - crm.lead.status.write
+    idempotency_key_pattern: "${tenant_id}:${lead_id}:${target_status}:${run_id}"
+    allowed_callers:
+      - vertical_plugin
+      - linkautowork
+
+  - operation_id: odoo.readiness.probe
+    description: CRM/Odoo connectivity readiness check
+    default_mode: shadow
+    lease_skus:
+      - crm.odoo.readiness.check
+    idempotency_key_pattern: "${tenant_id}:${probe_window_floor_ts}"
+    allowed_callers:
+      - vertical_plugin
+      - linkautowork
+
+auth_config_surface:
+  - crm.provider
+  - crm.mock_table_ref
+  - odoo.base_url
+  - odoo.credential_ref
+
+mvo_runtime_modes:
+  - development
+  - shadow
+
+audit_events:
+  - capability.requested
+  - capability.executed
+  - crm.lead.status.updated
+  - crm.odoo.readiness.checked
+  - capability.failed
+
+non_ownership:
+  - Odoo chart of accounts
+  - CRM stage taxonomy design
+  - Business master data
+
+required_by_modules:
+  - linksites

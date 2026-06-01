@@ -4,17 +4,30 @@ Module-specific LiNKbot roles for the LinkSites / WebsiteFactory module.
 
 ## Roles
 
-### `lead_scout_bot` (Declared, Disabled in MVO)
+### `lead_scout_bot`
 
-**Purpose:** Future lead discovery and first-pass qualification for CRM intake.
+**Purpose:** Governed lead acquisition for the LinkSites MVO.
 
-**Status:** Disabled in MVO. Mock CRM data supplies its output.
+**Status:** Active in MVO for Principal D1-B. It acquires the approved mock demo lead under a supplied LinkSkills lease, records provenance and audit, and keeps live Maps/search disabled until Principal approval.
+
+**Inputs:** `lead_input` mock demo lead facts, optional `acquisition_notes`, and `governance` with `lease_id`, mode, capability, and idempotency key.
+
+**Outputs:** `lead_record_ref`, `lead_provenance`
+
+**Allowed Capabilities:**
+- `cap.research.public_web` (mock provider now; live Maps/search later)
+- `cap.crm.odoo_shadow` (mock/shadow lead reference)
+- `cap.zulip.run_messaging` (run/operator trace status)
+- `cap.plane.execution_tracking`
+
+**Audit Events:** `role.started`, `lead.acquired`, `provenance.recorded`, `role.completed`, `role.failed`
 
 **Development Restrictions:**
-- `disabled_in_mvo`
-- `mock_input_only`
+- `mock_mode_for_mvo`
+- `lease_required`
 - `no_live_acquisition`
 - `no_public_scraping`
+- `live_maps_requires_principal_approval`
 
 ### `research_enrichment_bot`
 
