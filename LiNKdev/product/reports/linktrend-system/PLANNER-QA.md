@@ -8,7 +8,7 @@
 
 | # | Topic | Principal answer | Status |
 |---|--------|------------------|--------|
-| 1 | Lead generation path (Maps live vs governed mock) | _pending_ | open |
+| 1 | Lead generation path (Maps live vs governed mock) | **D1: B** — governed mock lead; full lease/audit/trace (not a skip stage) | closed |
 | 2 | Outreach MVO posture (draft-only vs approved send) | _pending_ | open |
 | 3 | Librarian depth for MVO demo | _pending_ | open |
 | 4 | Admin surface bar (minimum vs full fleet catalogue) | _pending_ | open |

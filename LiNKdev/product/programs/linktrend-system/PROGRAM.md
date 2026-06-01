@@ -21,7 +21,7 @@ When **all issues** in this program are done:
 
 **LinkSites seven-step business process** (one lead, no stubs):
 
-1. **Lead generation** — governed online search (e.g. Google Maps or Principal-approved provider)  
+1. **Lead generation** — **D1 B:** one governed **mock** demo lead (full governance; live Maps post-MVO)  
 2. **Qualification** — business type and industry  
 3. **Template selection** — from LiNKsites external repo  
 4. **Custom website build** — copy, media, style within template  
@@ -48,7 +48,13 @@ When **all issues** in this program are done:
 | §5 | Repo boundary | Workflow + issues forbid monorepo product move | LTS-060, 103, READMEs |
 | §6–7 | Principal + LiNKdev; non-goals | `release` + out-of-scope in module READMEs | LTS-900 |
 
-**Alignment score (Planner self-assessment):** ≥**98%** traceability at issue level; remaining ≤2% is Principal choice in Q&A (e.g. live Maps vs approved mock path, outreach send posture).
+**Principal Q&A decisions (binding for executors):**
+
+| ID | Decision |
+|----|----------|
+| **D1** | **B** — MVO demo uses one **governed mock lead** (lease, audit, trace). Not a skip stage. Live Maps/search post-MVO unless reopened. |
+
+**Alignment score:** ≥**98%** with D1 recorded; remaining Q&A: D2–D4.
 
 ## Program Definition of Done
 

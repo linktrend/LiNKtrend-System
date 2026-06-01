@@ -14,7 +14,7 @@ Implementation stays in owning planes (`LiNKaios/`, `LiNKbot/`, `LinkSkills/`, `
 
 | Order | Principal step | Stage ID | Summary | Primary assignee | Gate |
 | --- | --- | --- | --- | --- | --- |
-| 1 | Lead generation | `linksites.lead_generation` | Governed online search (e.g. Google Maps or Principal-approved provider) | `lead_scout_bot` | LinkSkills lease + provenance; **not** a skip stage |
+| 1 | Lead generation | `linksites.lead_generation` | **Principal D1 B:** governed **mock** demo lead (one fixed lead); full lease/audit/trace — not a skip stage. Live Maps deferred. | `lead_scout_bot` | Mock CRM + run bootstrap; lease + provenance recorded |
 | 2 | Qualification | `linksites.qualification` | Business type and industry identified | `research_enrichment_bot` | Audit event; enriches run record |
 | 3 | Template selection | `linksites.template_selection` | Template from LiNKsites registry (external repo) | `website_builder_bot` | No schema invention in monorepo |
 | 4 | Custom website creation | `linksites.website_build` | Copy, media, style within template | `website_builder_bot` → `autowork.linksites.artifact_write_local` | Package feeds autowork |
@@ -41,7 +41,7 @@ Implementation stays in owning planes (`LiNKaios/`, `LiNKbot/`, `LinkSkills/`, `
 
 | Role | Principal step | Notes |
 | --- | --- | --- |
-| `lead_scout_bot` | 1 | Governed acquisition; mock only if Principal approves in Q&A |
+| `lead_scout_bot` | 1 | **D1 B:** governed mock demo lead for MVO; live search post-MVO |
 | `research_enrichment_bot` | 2–3 | Read-only research; provenance bundle |
 | `website_builder_bot` | 3–4 | Template-guided package; no direct CRM/Payload writes |
 | `outreach_bot` | 6 | Governed outreach; visible in trace |
