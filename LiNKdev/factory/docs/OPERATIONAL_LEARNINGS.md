@@ -95,6 +95,28 @@ Slack cooldown (`stall_*` event, 60m) suppresses repeat alerts from the false po
 
 ---
 
+## Wave 3 (LTS-003, LTS-005, LTS-011)
+
+### L-014 — Duplicate Slack escalation alerts
+- **Symptom:** Two identical `finished_no_pr_escalation_*` Slack messages for #17/#19 at same second.
+- **Cause:** Parallel agent-watch workflow runs both passed `recentSlackSent` before either recorded marker.
+- **Fix:** Record `[linkdev-slack-sent]` comment **before** Slack webhook post; re-fetch and skip if duplicate marker. **Fixed**.
+
+### L-015 — Conflicting `linkdev:in-progress` + `linkdev:ready` labels
+- **Symptom:** Wave 3 issues show both labels after auto-heal redispatch.
+- **Cause:** `redispatchIssue` re-added `linkdev:ready` while `linkdev:in-progress` still set; dispatch script removes ready but heal path did not normalize.
+- **Fix:** `normalizeExecutorLabelPlan` + `applyNormalizeExecutorLabels` in agent-watch each cycle. **Fixed**.
+
+### L-016 — Infinite auto-heal after repeated FINISHED-without-PR
+- **Symptom:** Cloud executors finish ~50s with no PR; factory re-dispatches forever and spams Slack.
+- **Fix:** After 2 heal cycles, `escalateExecutorNoPr` applies `linkdev:principal-stop`, posts `[linkdev-local-fallback]`, stops redispatch. **Fixed**.
+
+### L-017 — Orphan orchestrator dispatch issues (#51, #53)
+- **Symptom:** Empty-label issues created when dispatch status could not attach to a program issue/PR.
+- **Mitigation:** Close with pointer to program issues; future: never open standalone dispatch issues (use comments only). **Fixed** (closed 2026-06-01).
+
+---
+
 ## Template backlog (next iteration)
 
 1. ~~Unit tests for `linkdev-stall-clock.mjs` (dispatch/heal/wave-ready ordering).~~ **Fixed** — `linkdev-stall-clock.test.mjs` in verify.
