@@ -2,20 +2,18 @@
 
 ## Goal
 
-LiNKguard: Bot session cleanup and skill-trace wipe.
+LiNKguard: Skill trace wipe session cleanup world brain confidentiality.
 
 ## Out of scope
 
 - Fleet-wide policy beyond MVO.
 
-## Key grounding files
+## Principal traceability
 
-- `LiNKdev/product/grounding/PRINCIPAL_PRODUCT_DEFINITION.md`
-- `LiNKdev/product/grounding/SHIP_CRITERIA.md`
-- `LiNKdev/product/grounding/CONTRACTS_MVO.md` (LinkSites issues)
+`LiNKdev/product/grounding/PRINCIPAL_PRODUCT_DEFINITION.md`
 
 ## Phases
 
 | Phase | Intent |
 |-------|--------|
-| `security` | See PROGRAM.md |
+| `security` | Issues in PROGRAM.md |

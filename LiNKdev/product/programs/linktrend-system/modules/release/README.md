@@ -2,20 +2,18 @@
 
 ## Goal
 
-Release: Program DoD, verify, manifests, demo evidence.
+Release: Program DoD verify manifests Principal Release OK gate.
 
 ## Out of scope
 
-- staging/main promotion (Principal).
+- staging main promotion.
 
-## Key grounding files
+## Principal traceability
 
-- `LiNKdev/product/grounding/PRINCIPAL_PRODUCT_DEFINITION.md`
-- `LiNKdev/product/grounding/SHIP_CRITERIA.md`
-- `LiNKdev/product/grounding/CONTRACTS_MVO.md` (LinkSites issues)
+`LiNKdev/product/grounding/PRINCIPAL_PRODUCT_DEFINITION.md`
 
 ## Phases
 
 | Phase | Intent |
 |-------|--------|
-| `ship` | See PROGRAM.md |
+| `ship` | Issues in PROGRAM.md |

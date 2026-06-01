@@ -2,20 +2,19 @@
 
 ## Goal
 
-LiNKbrain memory: Audit envelope, run/stage events, MVO memory writes.
+LiNKbrain: Audit envelope Librarian MVO knowledge loop.
 
 ## Out of scope
 
-- Full Librarian automation at scale.
+- Full council automation at production scale.
 
-## Key grounding files
+## Principal traceability
 
-- `LiNKdev/product/grounding/PRINCIPAL_PRODUCT_DEFINITION.md`
-- `LiNKdev/product/grounding/SHIP_CRITERIA.md`
-- `LiNKdev/product/grounding/CONTRACTS_MVO.md` (LinkSites issues)
+`LiNKdev/product/grounding/PRINCIPAL_PRODUCT_DEFINITION.md`
 
 ## Phases
 
 | Phase | Intent |
 |-------|--------|
-| `audit` | See PROGRAM.md |
+| `audit` | Issues in PROGRAM.md |
+| `librarian` | Issues in PROGRAM.md |

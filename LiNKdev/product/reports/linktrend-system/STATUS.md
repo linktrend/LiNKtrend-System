@@ -1,22 +1,17 @@
 # Program STATUS: linktrend-system
 
-**Phase:** `running` (Planner Go 2026-06-01)  
-**Wave cap:** 3 concurrent `linkdev:ready`  
-**First wave (W1):** LTS-001, LTS-010, LTS-020
+**Phase:** `planning` (Orchestrator **must not** set `linkdev:ready`)  
+**Planner:** Principal Q&A in progress — protocol correction 2026-06-01  
+**Alignment:** ≥98% issue-level traceability to `PRINCIPAL_PRODUCT_DEFINITION.md` (draft program)  
+**Issues:** 31 (8 modules, multiple phases per module)  
+**Intent verdict:** `BLOCKED` until Q&A + narrative OK + G2 PASS  
 
-## Planner handoff
+## Next
 
-| Gate | Result |
-|------|--------|
-| Principal Go | 2026-06-01 (`linkdev-go`) |
-| G1 council | No BLOCKER (LAW-07) |
-| G2 intent | PASS — `intent-verdict.json` |
-| DAG | `validate-dag.sh` exit 0 (14 issues) |
+1. Principal completes Planner Q&A  
+2. Principal **OK** on finished-product narrative  
+3. G1 council → G2 PASS → `phase: running`  
 
 ## Demo evidence
 
-_To be filled when LTS-063 and LTS-900 complete._
-
-## Principal Release OK
-
-_Not recorded — required before staging/main._
+_Pending LTS-108 after execution waves._

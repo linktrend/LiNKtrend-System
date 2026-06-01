@@ -2,20 +2,19 @@
 
 ## Goal
 
-LinkSkills governance: Capability catalog, leases, LinkSites connectors.
+LinkSkills: Catalog leases progressive disclosure studio and suite capabilities.
 
 ## Out of scope
 
-- Business logic inside Odoo/Payload.
+- External software internal business setup.
 
-## Key grounding files
+## Principal traceability
 
-- `LiNKdev/product/grounding/PRINCIPAL_PRODUCT_DEFINITION.md`
-- `LiNKdev/product/grounding/SHIP_CRITERIA.md`
-- `LiNKdev/product/grounding/CONTRACTS_MVO.md` (LinkSites issues)
+`LiNKdev/product/grounding/PRINCIPAL_PRODUCT_DEFINITION.md`
 
 ## Phases
 
 | Phase | Intent |
 |-------|--------|
-| `governance` | See PROGRAM.md |
+| `capabilities` | Issues in PROGRAM.md |
+| `governance` | Issues in PROGRAM.md |

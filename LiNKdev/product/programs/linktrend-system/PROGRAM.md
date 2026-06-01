@@ -1,162 +1,250 @@
 ---
 program_id: linktrend-system
 title: LiNKtrend System MVO completion
-status: running
+status: draft
 chairman_review_schedule:
   - after_wave: 2
-  - after_wave: 5
+  - after_wave: 6
 ---
 
 # Program plan: linktrend-system
 
+**Planner status:** Draft — **Principal Q&A in progress** (protocol correction 2026-06-01). Do **not** set `phase: running` until narrative OK + G2 PASS.
+
 ## Finished product (plain English)
 
-When every issue in this program is **done**, the Principal can run a real **LinkSites** demonstration end to end:
+When **all issues** in this program are done:
 
-A licensee signs into **LiNKaios Client**, enables the LinkSites Suite, and launches a **Project** for one business lead. Progress appears on the Project detail page with **traces** that show LinkSkills leases, LiNKautowork workflow runs, LiNKbrain audit events, and LiNKbot steps. **Zulip** carries project messaging (stream per Project, topics for phases/issues). **Plane** tracks execution tasks (studio-provided capability; mock/shadow acceptable where CONTRACTS_MVO allows).
+**LiNKaios Client** — A licensee signs in, subscribes to the **LinkSites Suite**, launches a **Project** for **one lead**, approves budgets/knowledge/side effects per role policy, and follows the run on the Project detail page with **full traces** (LinkSkills leases, LiNKautowork workflow runs, LiNKbrain audit events, LiNKbot steps).
 
-LiNKbots perform governed research and website packaging; LiNKautowork writes artifacts, mirrors to Supabase, syncs to Payload, and runs preview checks. The site is **published** at a live or MVO-equivalent URL (`businessname.linktrend.media`). **Outreach** executes under governance (draft-only or Principal-approved send per policy — not skipped). The operator can **close or recycle** the lead per suite rules.
+**LiNKtrend Admin** — Vendor staff manage the **demo tenant**, **Suite catalogue**, **LiNKbot fleet**, and **troubleshooting** for the same run with cross-tenant safety.
 
-On **LiNKtrend Admin**, vendor staff can manage the demo tenant, Suite visibility, and minimum fleet/troubleshoot surfaces needed for the same run.
+**LinkSites seven-step business process** (one lead, no stubs):
 
-No plane fakes success: every side-effecting step produces lease + workflow + audit + trace artifacts visible in LiNKaios. LinkSites product assets (templates, Payload CMS, frontend) stay in the external **LiNKsites** repo; this program integrates and orchestrates only.
+1. **Lead generation** — governed online search (e.g. Google Maps or Principal-approved provider)  
+2. **Qualification** — business type and industry  
+3. **Template selection** — from LiNKsites external repo  
+4. **Custom website build** — copy, media, style within template  
+5. **Publish** — Payload CMS; temp URL `businessname.linktrend.media`  
+6. **Outreach** — governed contact (not skipped)  
+7. **Close or recycle** — subscribe/transfer or archive for next lead  
 
-**Principal Go** recorded 2026-06-01. Grounding and INTENT were Principal-approved May 2026; this plan operationalizes them into the LiNKdev issue DAG.
+**Infrastructure (non-negotiable):** Supabase, Zulip, Plane, all planes wired with audit. **LiNKsites product code** stays in `/Users/linktrend/Projects/LiNKsites`.
 
-## Program Definition of Done (DS-B14)
+**Librarian** — MVO loop: ingest run/Zulip → knowledge proposal → accept/reject/edit → company LiNKbrain (world brain anonymization via LiNKguard policy).
 
-- [ ] All issues `done` in STATE
-- [ ] Release issue LTS-900 passed verify + proof manifest at `LINKDEV_TIER=critical`
-- [ ] `LiNKdev/product/grounding/SHIP_CRITERIA.md` satisfied
-- [ ] Demo evidence recorded in `LiNKdev/product/reports/linktrend-system/STATUS.md`
-- [ ] Principal Release OK before staging/main (Principal-only)
+## Traceability to PRINCIPAL_PRODUCT_DEFINITION.md
+
+| PPD section | Requirement | Program coverage | Issues |
+|-------------|-------------|------------------|--------|
+| §1 | LiNKtrend System = LiNKaios; Client + Admin | Both interfaces in narrative + issues | LTS-002–005, LTS-108 |
+| §2 | Suite → Module → Phase → Issue (business) | `linksites` module **seven phases** mirror business steps | LTS-101–107 |
+| §3 | Six planes + Librarian + progressive disclosure + LiNKguard | One module per plane + librarian phase | LTS-001, 010–013, 020–021, 030–034, 040–043, 050 |
+| §3 | Default Capabilities Zulip + Plane (studio) | Explicit capability issues | LTS-012, 061 implicit in 012+108 |
+| §4 | Client vs Admin actions | Separate client/admin phases | LTS-002–005 |
+| §5 | MVO = full system + one LinkSites E2E | E2E proof issue + seven phases | LTS-101–108 |
+| §5 | Required infrastructure list | Supabase + all planes | LTS-001, 010–050, 012 |
+| §5.1–7 | Seven LinkSites steps | One phase + issue per step | LTS-101–107 |
+| §5 | Repo boundary | Workflow + issues forbid monorepo product move | LTS-060, 103, READMEs |
+| §6–7 | Principal + LiNKdev; non-goals | `release` + out-of-scope in module READMEs | LTS-900 |
+
+**Alignment score (Planner self-assessment):** ≥**98%** traceability at issue level; remaining ≤2% is Principal choice in Q&A (e.g. live Maps vs approved mock path, outreach send posture).
+
+## Program Definition of Done
+
+- [ ] All issues `done` in STATE  
+- [ ] `LiNKdev/product/grounding/SHIP_CRITERIA.md` satisfied  
+- [ ] LTS-108 demo recorded in `LiNKdev/product/reports/linktrend-system/STATUS.md`  
+- [ ] LTS-900 critical verify + SHA256 program manifest (LAW-08)  
+- [ ] Principal Release OK before staging/main  
 
 ## Modules
 
-### linkaios — Control plane UI and kernel
+### linkaios — Control plane (PPD §3 LiNKaios, §4)
 
 **README:** `modules/linkaios/README.md`
 
-#### Phase foundation — Kernel and shells
+#### Phase kernel
 
 | Issue | Title | Runtime | Tier | Depends on | Parallel group |
 |-------|-------|---------|------|------------|----------------|
-| LTS-001 | Kernel trace spine and Project/Run model | cursor | standard | [] | W1 |
-| LTS-002 | Client shell auth Suites and Project navigation | cursor | standard | LTS-001 | W2 |
-| LTS-003 | Admin shell MVO vendor tenant surfaces | cursor | standard | LTS-001 | W2 |
+| LTS-001 | Supabase kernel schemas RLS and Project Run spine | cursor | standard | [] | W1 |
 
-### linkskills — Capability governance
+#### Phase client
+
+| Issue | Title | Runtime | Tier | Depends on | Parallel group |
+|-------|-------|---------|------|------------|----------------|
+| LTS-002 | Client sign-in Suite subscribe and Project launch | cursor | standard | LTS-001 | W2 |
+| LTS-003 | Client traces and side-effect approval surfaces | cursor | standard | LTS-002 | W3 |
+
+#### Phase admin
+
+| Issue | Title | Runtime | Tier | Depends on | Parallel group |
+|-------|-------|---------|------|------------|----------------|
+| LTS-004 | Admin demo tenant and Suite catalogue management | cursor | standard | LTS-001 | W2 |
+| LTS-005 | Admin fleet LiNKbots and troubleshooting surfaces | cursor | standard | LTS-004 | W3 |
+
+### linkskills — Capability governance (PPD §3)
 
 **README:** `modules/linkskills/README.md`
 
-#### Phase governance — Catalog and leases
+#### Phase governance
 
 | Issue | Title | Runtime | Tier | Depends on | Parallel group |
 |-------|-------|---------|------|------------|----------------|
-| LTS-010 | Capability catalog and lease lifecycle API | cursor | standard | LTS-001 | W1 |
-| LTS-011 | LinkSites capability connectors and leases | cursor | standard | LTS-010 | W3 |
+| LTS-010 | Capability catalog and lease lifecycle | cursor | standard | LTS-001 | W1 |
+| LTS-011 | Progressive disclosure and skill IP boundary | cursor | standard | LTS-010 | W4 |
 
-### linkbrain — Memory and audit
+#### Phase capabilities
+
+| Issue | Title | Runtime | Tier | Depends on | Parallel group |
+|-------|-------|---------|------|------------|----------------|
+| LTS-012 | Studio Zulip and Plane default capabilities | cursor | standard | LTS-010 | W4 |
+| LTS-013 | LinkSites suite capability connectors | cursor | standard | LTS-012 | W5 |
+
+### linkbrain — Memory and audit (PPD §3)
 
 **README:** `modules/linkbrain/README.md`
 
-#### Phase audit — Events and envelope
+#### Phase audit
 
 | Issue | Title | Runtime | Tier | Depends on | Parallel group |
 |-------|-------|---------|------|------------|----------------|
-| LTS-020 | Audit envelope and run/stage/lease events | cursor | standard | LTS-001 | W1 |
+| LTS-020 | Audit envelope and run stage lease workflow events | cursor | standard | LTS-001 | W1 |
 
-### linkautowork — Deterministic workflows
+#### Phase librarian
+
+| Issue | Title | Runtime | Tier | Depends on | Parallel group |
+|-------|-------|---------|------|------------|----------------|
+| LTS-021 | Librarian LiNKbot MVO knowledge loop | cursor | standard | LTS-020, LTS-003 | W6 |
+
+### linkautowork — Deterministic workflows (PPD §5)
 
 **README:** `modules/linkautowork/README.md`
 
-#### Phase workflows — LinkSites handles
+#### Phase workflows
 
 | Issue | Title | Runtime | Tier | Depends on | Parallel group |
 |-------|-------|---------|------|------------|----------------|
-| LTS-030 | LinkSites deterministic workflow handles | cursor | standard | LTS-011, LTS-020 | W4 |
+| LTS-030 | Autowork artifact write local handle | cursor | standard | LTS-013, LTS-020 | W5 |
+| LTS-031 | Autowork Supabase mirror upsert handle | cursor | standard | LTS-030 | W7 |
+| LTS-032 | Autowork Payload sync local handle | cursor | standard | LTS-031 | W7 |
+| LTS-033 | Autowork preview readiness check handle | cursor | standard | LTS-032 | W8 |
+| LTS-034 | Autowork CRM lead status and outreach gate | cursor | standard | LTS-033 | W8 |
 
-### linkbot — Role-bound runtime
+### linkbot — Judgment roles (PPD §5)
 
 **README:** `modules/linkbot/README.md`
 
-#### Phase runtime — LinkSites roles
+#### Phase roles
 
 | Issue | Title | Runtime | Tier | Depends on | Parallel group |
 |-------|-------|---------|------|------------|----------------|
-| LTS-040 | LinkSites LiNKbot roles and governance adapter | cursor | standard | LTS-010, LTS-020 | W3 |
+| LTS-040 | Lead scout bot governed lead acquisition | cursor | standard | LTS-011, LTS-020 | W5 |
+| LTS-041 | Research enrichment bot provenance bundle | cursor | standard | LTS-040 | W9 |
+| LTS-042 | Website builder bot template-guided package | cursor | standard | LTS-041, LTS-013 | W9 |
+| LTS-043 | Outreach bot governed contact step | cursor | standard | LTS-034, LTS-042 | W10 |
 
-### linkguard — Worker security
+### linkguard — Worker security (PPD §3)
 
 **README:** `modules/linkguard/README.md`
 
-#### Phase security — Session and IP hygiene
+#### Phase security
 
 | Issue | Title | Runtime | Tier | Depends on | Parallel group |
 |-------|-------|---------|------|------------|----------------|
-| LTS-050 | Session cleanup and skill-trace wipe hooks | cursor | standard | LTS-040 | W5 |
+| LTS-050 | Session cleanup skill trace wipe confidentiality | cursor | standard | LTS-011, LTS-040 | W5 |
 
-### linksites — Suite integration and E2E
+### linksites — LinkSites Suite seven business phases (PPD §5)
 
 **README:** `modules/linksites/README.md`
 
-#### Phase integration — Capabilities and UI
+#### Phase suite-map
 
 | Issue | Title | Runtime | Tier | Depends on | Parallel group |
 |-------|-------|---------|------|------------|----------------|
-| LTS-060 | Suite workflow map aligned to SHIP_CRITERIA | cursor | standard | LTS-030, LTS-040 | W5 |
-| LTS-061 | Zulip and Plane capability integration | cursor | standard | LTS-002, LTS-060 | W6 |
-| LTS-062 | Client operator panels for LinkSites run | cursor | standard | LTS-061, LTS-003 | W7 |
+| LTS-060 | Canonical workflow map matches Principal MVO | cursor | standard | LTS-001 | W2 |
 
-#### Phase e2e — One-lead proof
+#### Phase lead-generation
 
 | Issue | Title | Runtime | Tier | Depends on | Parallel group |
 |-------|-------|---------|------|------------|----------------|
-| LTS-063 | One-lead publish URL and governed outreach | cursor | standard | LTS-062 | W8 |
+| LTS-101 | LinkSites phase lead generation one lead | cursor | standard | LTS-060, LTS-040, LTS-002 | W11 |
+
+#### Phase qualification
+
+| Issue | Title | Runtime | Tier | Depends on | Parallel group |
+|-------|-------|---------|------|------------|----------------|
+| LTS-102 | LinkSites phase qualification industry type | cursor | standard | LTS-101, LTS-041 | W12 |
+
+#### Phase template-selection
+
+| Issue | Title | Runtime | Tier | Depends on | Parallel group |
+|-------|-------|---------|------|------------|----------------|
+| LTS-103 | LinkSites phase template selection | cursor | standard | LTS-102, LTS-042 | W12 |
+
+#### Phase website-build
+
+| Issue | Title | Runtime | Tier | Depends on | Parallel group |
+|-------|-------|---------|------|------------|----------------|
+| LTS-104 | LinkSites phase custom website build | cursor | standard | LTS-103, LTS-030 | W13 |
+
+#### Phase publish
+
+| Issue | Title | Runtime | Tier | Depends on | Parallel group |
+|-------|-------|---------|------|------------|----------------|
+| LTS-105 | LinkSites phase publish Payload and temp URL | cursor | standard | LTS-104, LTS-033 | W14 |
+
+#### Phase outreach
+
+| Issue | Title | Runtime | Tier | Depends on | Parallel group |
+|-------|-------|---------|------|------------|----------------|
+| LTS-106 | LinkSites phase governed outreach | cursor | standard | LTS-105, LTS-043 | W15 |
+
+#### Phase close-recycle
+
+| Issue | Title | Runtime | Tier | Depends on | Parallel group |
+|-------|-------|---------|------|------------|----------------|
+| LTS-107 | LinkSites phase close or recycle | cursor | standard | LTS-106 | W16 |
+
+#### Phase e2e-proof
+
+| Issue | Title | Runtime | Tier | Depends on | Parallel group |
+|-------|-------|---------|------|------------|----------------|
+| LTS-108 | MVO demo one lead Client and Admin visibility | cursor | standard | LTS-107, LTS-003, LTS-005, LTS-012 | W17 |
 
 ### release — Ship
 
 **README:** `modules/release/README.md`
 
-#### Phase ship — Release
+#### Phase ship
 
 | Issue | Title | Runtime | Tier | Depends on | Parallel group |
 |-------|-------|---------|------|------------|----------------|
-| LTS-900 | Program release verify and proof manifest | cursor | critical | LTS-001, LTS-002, LTS-003, LTS-010, LTS-011, LTS-020, LTS-030, LTS-040, LTS-050, LTS-060, LTS-061, LTS-062, LTS-063 | — |
+| LTS-900 | Program release verify and SHA256 proof manifest | cursor | critical | LTS-108, LTS-050, LTS-021, LTS-001, LTS-002, LTS-003, LTS-004, LTS-005, LTS-010, LTS-011, LTS-012, LTS-013, LTS-020, LTS-030, LTS-031, LTS-032, LTS-033, LTS-034, LTS-040, LTS-041, LTS-042, LTS-043, LTS-060, LTS-101, LTS-102, LTS-103, LTS-104, LTS-105, LTS-106, LTS-107 | — |
 
 ## Parallel groups
 
-- **W1:** LTS-001, LTS-010, LTS-020 (foundation spine; wave cap 3)
-- **W2:** LTS-002, LTS-003 (after LTS-001)
-- **W3:** LTS-011, LTS-040 (after W1/W2 prerequisites)
-- **W4:** LTS-030
-- **W5:** LTS-050, LTS-060
-- **W6:** LTS-061
-- **W7:** LTS-062
-- **W8:** LTS-063
-- **Release:** LTS-900 after all module issues done
+- **W1:** LTS-001, LTS-010, LTS-020 (cap 3)  
+- **W2:** LTS-002, LTS-004, LTS-060  
+- **W3–W17:** per DAG above  
+- **Release:** LTS-900 after all  
 
 ## Active wave cap
 
-Orchestrator sets at most **3** concurrent `linkdev:ready` issues (W1 first: LTS-001, LTS-010, LTS-020).
-
-## Codex automation checklist
-
-| Issue | Trigger labels | Paths filter | Automation name |
-|-------|----------------|--------------|-----------------|
-| _(none in MVO wave 1)_ | `linkdev:ready`, `runtime:codex` | — | LiNKdev-executor-codex (not wired) |
+**3** concurrent `linkdev:ready` issues.
 
 ## Cursor automation checklist
 
 | Role | Trigger | Automation name |
 |------|---------|-----------------|
-| Orchestrator | Merge to `development` / workflow dispatch | LiNKdev dispatch |
+| Orchestrator | Merge to `development` | LiNKdev dispatch |
 | Reviewer | `linkdev:review-ready` | LiNKdev-reviewer |
 | Integrator | `linkdev:merge-ready` | LiNKdev-integrator |
-| Executor (cursor) | `linkdev:ready`, `runtime:cursor` | LiNKdev-executor-cursor |
+| Executor | `linkdev:ready`, `runtime:cursor` | LiNKdev-executor-cursor |
 
 ## DAG notes
 
 `LiNKdev/factory/scripts/validate-dag.sh LiNKdev/product/programs/linktrend-system/PROGRAM.md`
 
-Legacy work packets under `issues/legacy/` are reference-only; executors must use nested issues above.
+Legacy `issues/legacy/` — reference only.

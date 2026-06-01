@@ -2,20 +2,20 @@
 
 ## Goal
 
-LiNKaios control plane: Client + Admin UI, kernel Projects/Runs/traces for MVO.
+LiNKaios control plane: Client Admin kernel Supabase spine for MVO.
 
 ## Out of scope
 
-- Other planes' internal schemas.
+- Other Suites beyond LinkSites.
 
-## Key grounding files
+## Principal traceability
 
-- `LiNKdev/product/grounding/PRINCIPAL_PRODUCT_DEFINITION.md`
-- `LiNKdev/product/grounding/SHIP_CRITERIA.md`
-- `LiNKdev/product/grounding/CONTRACTS_MVO.md` (LinkSites issues)
+`LiNKdev/product/grounding/PRINCIPAL_PRODUCT_DEFINITION.md`
 
 ## Phases
 
 | Phase | Intent |
 |-------|--------|
-| `foundation` | See PROGRAM.md |
+| `admin` | Issues in PROGRAM.md |
+| `client` | Issues in PROGRAM.md |
+| `kernel` | Issues in PROGRAM.md |

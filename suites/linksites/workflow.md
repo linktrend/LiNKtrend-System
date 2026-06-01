@@ -1,106 +1,94 @@
-# LinkSites — canonical workflow map (WebsiteFactory MVO v2)
+# LinkSites — canonical workflow map (Principal MVO)
 
-**Module:** `modules/linksites`  
-**Sources:** `LINKSITES_VERTICAL_MVO_V2.md`, `CONTRACTS_MVO.md` §0.A, `LINKSITES_COMPLETION_PLAN.md`  
-**External repo:** `/Users/linktrend/Projects/LiNKsites`  
-**Identity:** One canonical `site_id` per business/lead; each run uses `site_generation_run_id` (versioned retries).
+**Suite:** LinkSites (WebsiteFactory)  
+**Canonical definition:** `LiNKdev/product/grounding/PRINCIPAL_PRODUCT_DEFINITION.md` §5  
+**Contracts:** `LiNKdev/product/grounding/CONTRACTS_MVO.md`  
+**External product repo:** `/Users/linktrend/Projects/LiNKsites` (templates, Payload CMS, frontend, VPS publish — not in this monorepo)  
+**Identity:** One canonical `site_id` per business/lead; each **Run** uses `site_generation_run_id`.
 
-This document is the readable source of truth for stage order and cross-plane expectations. Implementation stays in owning planes (`LiNKautowork/`, `LiNKbot/`, `LiNKskills/`, `LiNKbrain/`, `LiNKaios/`).
-
----
-
-## Stage spine
-
-| Order | Stage ID | Summary | Primary plane | Inputs | Outputs | Gate / approval |
-| --- | --- | --- | --- | --- | --- | --- |
-| 1 | `linksites.run.bootstrap` | Bind tenant run to mock CRM lead and site identities | LiNKaios | `tenant_id`, mock `lead_record_ref`, optional prior research handles | `run_id`, `trace_id`, `site_id`, `site_generation_run_id` | Module enabled; kernel manifest valid |
-| 2 | `linksites.lead_scout.skip` | Lead Scout role declared; mock substitution only | LiNKbot | `lead_record_ref` | Skip evidence → mock path documented | **MVO:** role disabled; no live acquisition |
-| 3 | `linksites.research.enrich` | Governed public research + provenance | LiNKbot | `lead_record_ref`, business facts | `lead_research_bundle`, citation refs | Lease for `public_web_research.read`; provenance recorded |
-| 4 | `linksites.template_select_package` | Template-guided copy, media plan, style proposal | LiNKbot | `lead_research_bundle`, `template_id` / template ref from LiNKsites registry | `website_package` (structured) | Template from discovery/registry; no schema invention |
-| 5 | `linksites.artifact.write_local` | Persist generated package to local artifact folder | LiNKautowork | `website_package`, paths policy ref | Local artifact paths, digests | **`autowork.linksites.artifact_write_local`** |
-| 6 | `linksites.supabase.mirror_upsert` | Structured content + asset refs → mirror | LiNKautowork | Artifact + mirror schema refs | Mirror row/version refs | **`autowork.linksites.supabase_mirror_upsert`**; LinkSkills leases |
-| 7 | `linksites.payload.sync_local` | Sync mirror → local Payload CMS | LiNKautowork | Mirror refs, Payload connection ref | `payload_sync_status`, content refs | **`autowork.linksites.payload_sync_local`** |
-| 8 | `linksites.preview.verify` | Deterministic checks vs preview frontend | LiNKautowork | Preview base URL / service ref, check profile | `preview_check_report`, pass/fail detail | **`autowork.linksites.preview_readiness_check`** must pass to promote |
-| 9 | `linksites.crm.promote_ready` | Mock/shadow CRM lead status update | LiNKautowork + LinkSkills | `preview_check_report`, `lead_record_ref` | Lead status `ready_to_contact` | Only if stage 8 passed; **no real outreach** |
-| 10 | `linksites.outreach.declared_skip` | Outreach Bot declared disabled | LiNKbot | — | Skip / audit only | **MVO:** no draft send |
+Implementation stays in owning planes (`LiNKaios/`, `LiNKbot/`, `LinkSkills/`, `LiNKautowork/`, `LiNKbrain/`, `LiNKguard/`). This map is the **business stage spine**; LiNKdev program issues `LTS-101` … `LTS-107` implement each phase.
 
 ---
 
-## LiNKbot roles (contract roles)
+## Business stage spine (seven Principal steps)
 
-| Role | Stages | Notes |
+| Order | Principal step | Stage ID | Summary | Primary assignee | Gate |
+| --- | --- | --- | --- | --- | --- |
+| 1 | Lead generation | `linksites.lead_generation` | Governed online search (e.g. Google Maps or Principal-approved provider) | `lead_scout_bot` | LinkSkills lease + provenance; **not** a skip stage |
+| 2 | Qualification | `linksites.qualification` | Business type and industry identified | `research_enrichment_bot` | Audit event; enriches run record |
+| 3 | Template selection | `linksites.template_selection` | Template from LiNKsites registry (external repo) | `website_builder_bot` | No schema invention in monorepo |
+| 4 | Custom website creation | `linksites.website_build` | Copy, media, style within template | `website_builder_bot` → `autowork.linksites.artifact_write_local` | Package feeds autowork |
+| 5 | Publish | `linksites.publish` | Payload CMS + temp URL `businessname.linktrend.media` | LiNKautowork handles 031–033 | Preview readiness check must pass |
+| 6 | Outreach | `linksites.outreach` | Governed contact to sell site + hosting | `outreach_bot` | Draft-only or Principal-approved send; **not** declared skip |
+| 7 | Close or recycle | `linksites.close_or_recycle` | Subscribe/transfer domain OR recycle site for next lead | LiNKaios operator + CRM capability | Documented in trace and LiNKbrain |
+
+---
+
+## Technical sub-stages (deterministic, inside steps 4–5)
+
+| Stage ID | Parent step | Plane | Handle / role |
+| --- | --- | --- | --- |
+| `linksites.run.bootstrap` | 1 | LiNKaios | Bind tenant, Project, Run, `site_id`, CRM lead ref |
+| `linksites.artifact.write_local` | 4 | LiNKautowork | `autowork.linksites.artifact_write_local` |
+| `linksites.supabase.mirror_upsert` | 4–5 | LiNKautowork | `autowork.linksites.supabase_mirror_upsert` |
+| `linksites.payload.sync_local` | 5 | LiNKautowork | `autowork.linksites.payload_sync_local` |
+| `linksites.preview.verify` | 5 | LiNKautowork | `autowork.linksites.preview_readiness_check` |
+| `linksites.crm.promote_ready` | 5–6 | LiNKautowork | CRM status after preview pass; gates outreach |
+
+---
+
+## LiNKbot roles
+
+| Role | Principal step | Notes |
 | --- | --- | --- |
-| `lead_scout_bot` | 2 | Declared; disabled; mock CRM supplies path |
-| `research_enrichment_bot` | 3 | Read-only research; no direct CRM/Payload/Supabase writes |
-| `website_builder_bot` | 4 | Uses LiNKsites templates as guidance; local artifact targets only |
-| `outreach_bot` | 10 | Declared; disabled |
-
-Kernel issues LinkSkills leases; bots consume narrowed tooling per `CONTRACTS_MVO.md` §6.1.
-
----
-
-## Capability connectors (LinkSkills)
-
-Required for MVO v2 (connector IDs align with `CONTRACTS_MVO.md` §0.A.5 naming families):
-
-- CRM / lead status: Odoo or mock CRM connector — **mock/shadow** for writes.
-- `payload` / local CMS sync (Payload CMS local).
-- Supabase mirror / content structured writes.
-- `zulip` — run / operator notifications (`run.notify`, mock send posture).
-- `public_web_research` — governed read + provenance.
-- `asset_generation` — governed media generation + audit.
-- `plane` — internal tasks; mock/shadow default.
+| `lead_scout_bot` | 1 | Governed acquisition; mock only if Principal approves in Q&A |
+| `research_enrichment_bot` | 2–3 | Read-only research; provenance bundle |
+| `website_builder_bot` | 3–4 | Template-guided package; no direct CRM/Payload writes |
+| `outreach_bot` | 6 | Governed outreach; visible in trace |
+| `librarian_bot` | (cross-cutting) | Run outputs + Zulip threads → knowledge loop per PPD §3 |
 
 ---
 
-## LiNKautowork handles (Wave 2 implementation targets)
+## Default capabilities (studio-provided)
 
-| Handle | Stage | Purpose |
-| --- | --- | --- |
-| `autowork.linksites.artifact_write_local` | 5 | Write structured package to dev artifact folder |
-| `autowork.linksites.supabase_mirror_upsert` | 6 | Upsert mirror rows per discovered schemas |
-| `autowork.linksites.payload_sync_local` | 7 | Sync mirror → Payload |
-| `autowork.linksites.preview_readiness_check` | 8 | Deterministic preview validation |
-| `autowork.linksites.crm_lead_status_update` *(planned name)* | 9 | Promote mock lead to `ready_to_contact` behind lease |
+- **Zulip** — stream per Project, topics for phases/issues  
+- **Plane** — bundled execution tracking; bootstrap from Suite template  
+- **Supabase** — auth, RLS, brain/kernel/skills schemas  
+- **Suite connectors** — CRM shadow, Payload sync, public research, asset generation (see `CONTRACTS_MVO.md`)
 
 ---
 
-## LiNKbrain — audit / memory events (minimum)
+## Governance (every side-effecting step)
 
-Cross-plane lifecycle: `run.*`, `stage.*`, `workflow.*`, `lease.*` per `CONTRACTS_MVO.md` §6.3.
-
-Domain-oriented (non-exhaustive): `research.performed`, `provenance.recorded`, `template.guidance.selected`, `website.package.generated`, `payload.sync.completed`, `preview.check.completed`, `crm.lead.status.updated`, `role.started`, `role.completed`, `role.skipped`, `role.failed`.
-
-Memory objects hold refs/hashes — not raw secrets.
-
----
-
-## Plane tasks (shape)
-
-Mock/shadow default; tie tasks to `site_generation_run_id`:
-
-- **Epic / project:** “WebsiteFactory run — {site_id}”
-- **Per-stage tasks:** Research complete, package generated, artifact written, mirror updated, Payload synced, preview checks passed, CRM promoted.
-
-Exact taxonomy follows tenant Plane templates when live Plane is enabled.
+- LinkSkills capability **lease**  
+- LiNKautowork **workflow run** (deterministic steps)  
+- LiNKbrain **audit / memory** event  
+- LiNKaios **trace** visibility (Client; Admin where applicable)  
+- LiNKguard **session cleanup** on bot runs  
 
 ---
 
-## LiNKaios UI surfaces
+## LiNKdev program mapping
 
-- Cockpit run / trace view for kernel `run_id` / `trace_id`
-- WebsiteFactory module panels: lead/context, template selection, generation status, preview link, capability lease timeline, failure reports
-- Reference migration: legacy paths noted in `modules/linksites/README.md` and `manifest.ts` re-export source
+| Program phase | Issue IDs |
+| --- | --- |
+| `lead-generation` | LTS-101 |
+| `qualification` | LTS-102 |
+| `template-selection` | LTS-103 |
+| `website-build` | LTS-104 |
+| `publish` | LTS-105 |
+| `outreach` | LTS-106 |
+| `close-recycle` | LTS-107 |
+| E2E demo proof | LTS-108 |
+
+Plane modules for infrastructure: `linkaios`, `linkskills`, `linkbrain`, `linkautowork`, `linkbot`, `linkguard` — see `LiNKdev/product/programs/linktrend-system/PROGRAM.md`.
 
 ---
 
-## Proof criteria (module map level)
+## Explicit non-goals (until MVO ships)
 
-- This map is complete enough for Wave 2 handlers (`WP-212`+) to implement without reinterpretation.
-- End-to-end proof (later waves): mock lead → preview URL → checks pass → CRM status `ready_to_contact`, with audit + leases on every side effect.
-
----
-
-## Explicit non-goals (MVO)
-
-- Live lead acquisition, outreach send, production hosting/DNS/TLS, inventing Payload/Supabase schemas, writing artifacts to Git remotes — per `LINKSITES_VERTICAL_MVO_V2.md`.
+- LinkApps, LEXOS, other Suites (PPD §7)  
+- Customer-owned Plane/Odoo in MVO tenant settings  
+- Moving LiNKsites product code into this monorepo  
+- Treating Zulip, Plane, or Supabase as optional for MVO  
+- Preview-only or seed-CSV-only demos as substitute for full E2E (PPD §7)

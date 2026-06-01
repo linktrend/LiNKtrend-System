@@ -2,20 +2,18 @@
 
 ## Goal
 
-LiNKbot runtime: LinkSites roles with governance payload.
+LiNKbot: All four LinkSites judgment roles including outreach.
 
 ## Out of scope
 
 - Non-LinkSites suites.
 
-## Key grounding files
+## Principal traceability
 
-- `LiNKdev/product/grounding/PRINCIPAL_PRODUCT_DEFINITION.md`
-- `LiNKdev/product/grounding/SHIP_CRITERIA.md`
-- `LiNKdev/product/grounding/CONTRACTS_MVO.md` (LinkSites issues)
+`LiNKdev/product/grounding/PRINCIPAL_PRODUCT_DEFINITION.md`
 
 ## Phases
 
 | Phase | Intent |
 |-------|--------|
-| `runtime` | See PROGRAM.md |
+| `roles` | Issues in PROGRAM.md |
