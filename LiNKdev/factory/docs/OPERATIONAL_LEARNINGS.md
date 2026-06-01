@@ -115,6 +115,16 @@ Slack cooldown (`stall_*` event, 60m) suppresses repeat alerts from the false po
 - **Symptom:** Empty-label issues created when dispatch status could not attach to a program issue/PR.
 - **Mitigation:** Close with pointer to program issues; future: never open standalone dispatch issues (use comments only). **Fixed** (closed 2026-06-01).
 
+### L-018 — ROOT CAUSE: dispatch omitted `autoCreatePR` and LAW-05 branch prep
+- **Symptom:** Executors `FINISHED` in 47–94s on wave 3; watch shows `dev/blackcursor/...` branch but **404 on GitHub**; no PR; auto-heal loop until local implement (PRs #70–#72).
+- **Root cause:**
+  1. `POST /v1/agents` lacked **`autoCreatePR: true`** — Cursor supports it; factory never sent it.
+  2. No **`prepare-executor-branch.mjs`** — Cursor auto-branched ephemerally; nothing pushed to origin.
+  3. **`workOnCurrentBranch`** not set with a real `issue/<LTS>-<slug>` ref — LAW-05 branch never existed on GitHub.
+  4. ~60s FINISH = read-only exit treated as success by Cursor, failure by factory.
+- **Fix:** `linkdev-dispatch-payload.mjs` adds `autoCreatePR` + `workOnCurrentBranch`; dispatch workflow creates branch first; watch treats FINISHED-without-PR as ⚠️; 2nd heal → **LiNKdev executor actions** workflow; tests in verify. **Fixed** (2026-06-01). **Monitor** wave 4+ for PR URL in watch table.
+- **Cursor cloud verdict:** Keep for orchestrator/reviewer/integrator. Executors **require** hardened dispatch; if wave 4 fails, default to executor-actions path.
+
 ---
 
 ## Template backlog (next iteration)
