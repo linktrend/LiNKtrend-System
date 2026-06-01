@@ -41,7 +41,7 @@ const PLATFORM_AREAS: {
     summary: "Cross-tenant automation trace stream",
   },
   {
-    href: adminHref("/settings/prism"),
+    href: adminHref("/settings/linkguard"),
     title: "LiNKguard",
     description: "Automated cleanup worker health and recent activity from the LiNKguard sidecar.",
     actionLabel: "Manage LiNKguard",

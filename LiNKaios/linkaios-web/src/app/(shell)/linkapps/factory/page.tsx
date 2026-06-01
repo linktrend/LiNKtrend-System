@@ -1,6 +1,6 @@
 import { LinkappsAppFactoryDashboard } from "@/components/linkapps/linkapps-app-factory-dashboard";
 import { ShellPageHeaderClient } from "@/components/shell-page-header-client";
-import { LINKAPPS_FACTORY_DEMO_FIXTURE } from "@/lib/plugins/linkapps/fixtures";
+import { LINKAPPS_FACTORY_DEMO_FIXTURE } from "@/lib/suite-integrations/linkapps/fixtures";
 
 export default function LinkappsFactoryPage() {
   return (

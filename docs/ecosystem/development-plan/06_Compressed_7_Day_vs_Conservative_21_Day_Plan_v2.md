@@ -1,5 +1,7 @@
 # Compressed 7-Day vs Conservative 21-Day Plan v2
 
+> **Superseded for MVO bar (May 2026):** Calendar compression does not lower Principal’s MVO. See [`05_MVO_Scope_and_Demo_Flow_v2.md`](./05_MVO_Scope_and_Demo_Flow_v2.md). Use this file for day-by-day wiring sequencing only.
+
 ## Planning Philosophy
 
 Use the 21-day plan for engineering realism.
@@ -22,7 +24,7 @@ The 21-day target is:
 
 ## Day 1 — Decisions, Command Center, Reuse Map
 
-Create `.ai-swarm/`.
+Wire `LiNKdev/` and `LiNKdev/product/grounding/`.
 
 Add architect review report.
 

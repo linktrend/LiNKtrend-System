@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 
-import { ModuleProfileClient } from "@/components/modules/module-profile-client";
+import { ModuleProfileClient } from "@/components/suites/module-profile-client";
 import { getPublishedSuite } from "@/lib/suites-page-copy";
 
 export const dynamic = "force-dynamic";

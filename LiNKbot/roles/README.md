@@ -15,9 +15,9 @@ Shared roles live under `shared/`. Examples:
 - DevOps Engineer
 - QA Automation Engineer
 
-## Module Roles
+## Suite Roles
 
-Module-specific roles live under `modules/<module>/`. Examples:
+Suite-specific roles live under `LiNKbot/roles/suites/<suite>/`. Examples:
 
 - LEXOS Litigation Librarian
 - LinkSites Website Strategist
@@ -30,8 +30,8 @@ A role definition should include:
 
 - purpose
 - responsibilities
-- allowed modules
-- allowed capability connectors
+- allowed suites and suite modules
+- allowed capabilities (LinkSkills capability connectors)
 - allowed skills and tools
 - memory/context rules
 - model/runtime profile

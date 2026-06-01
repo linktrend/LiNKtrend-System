@@ -1,6 +1,6 @@
 /**
  * LiNKbrain audit envelope writer — implements `brain.audit.write`
- * per `.ai-swarm/CONTRACTS_MVO.md` §6.3 and `.ai-swarm/DECISIONS.md` D-08.
+ * per `LiNKdev/product/grounding/CONTRACTS_MVO.md` §6.3 and `LiNKdev/product/grounding/DECISIONS.md` D-08.
  *
  * Canonical contract types (`AuditEvent`, `AuditWriteResult`, `Plane`, …)
  * are imported from `./contracts-mvo` (WP-005). This module is the only

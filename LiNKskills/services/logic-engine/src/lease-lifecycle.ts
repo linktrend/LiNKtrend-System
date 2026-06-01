@@ -482,10 +482,15 @@ export async function executeLease(
     };
   }
 
-  // Check lease is in granted state
-  if (lease.status !== "granted" && lease.status !== "requires_approval") {
+  // Check lease is in granted state. Pending operator approval is not executable.
+  if (lease.status !== "granted") {
     let failureCode: FailureReport["code"] = "LEASE_DENIED";
     let message = `Lease status is "${lease.status}", expected "granted"`;
+
+    if (lease.status === "requires_approval") {
+      failureCode = "POLICY_REQUIRES_APPROVAL";
+      message = "Lease requires approval before execution";
+    }
 
     if (lease.status === "expired") {
       failureCode = "LEASE_EXPIRED";

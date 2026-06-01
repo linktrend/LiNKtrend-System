@@ -169,6 +169,27 @@ describe("LinkSkills integration harness", () => {
       expect(execResult.result).toEqual({ ok: true });
     });
 
+    it("fails closed when executing a lease that still requires approval", async () => {
+      harness.policyMode = "require_approval";
+      const client = harness.createSupabaseClient();
+      const req = baseLeaseRequest();
+
+      const pending = await requestLease(client, mockEnv, req);
+      expect(pending.status).toBe("requires_approval");
+
+      const handler = vi.fn(async () => ({ should_not_run: true }));
+      const execResult = await executeLease(
+        client,
+        mockEnv,
+        { lease_id: pending.lease_id, idempotency_key: req.idempotency_key },
+        handler,
+      );
+
+      expect(handler).not.toHaveBeenCalled();
+      expect(execResult.failure?.code).toBe("POLICY_REQUIRES_APPROVAL");
+      expect(execResult.failure?.message).toContain("requires approval");
+    });
+
     it("returns LEASE_EXPIRED when TTL elapsed", async () => {
       const client = harness.createSupabaseClient();
       const req = baseLeaseRequest();

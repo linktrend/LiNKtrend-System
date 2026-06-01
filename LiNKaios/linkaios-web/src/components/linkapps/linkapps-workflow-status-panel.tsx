@@ -1,4 +1,4 @@
-import type { LogLineFixture, WorkflowSubstageFixture } from "@/lib/plugins/linkapps/types";
+import type { LogLineFixture, WorkflowSubstageFixture } from "@/lib/suite-integrations/linkapps/types";
 
 function wfStateChip(state: WorkflowSubstageFixture["state"]): string {
   const base = "rounded-full px-2 py-0.5 text-[11px] font-medium ";

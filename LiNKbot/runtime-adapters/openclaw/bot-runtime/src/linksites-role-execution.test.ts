@@ -324,7 +324,7 @@ describe("LinkSites Role Execution", () => {
 describe("LinkSites Role Definitions", () => {
   it("should have correct MVO enabled roles", async () => {
     const { LINKSITES_MVO_ENABLED_ROLES } = await import(
-      "../../../roles/modules/linksites/roles.js"
+      "../../../roles/suites/linksites/roles.js"
     );
 
     expect(LINKSITES_MVO_ENABLED_ROLES).toContain("research_enrichment_bot");
@@ -335,7 +335,7 @@ describe("LinkSites Role Definitions", () => {
 
   it("should have correct MVO disabled roles", async () => {
     const { LINKSITES_MVO_DISABLED_ROLES } = await import(
-      "../../../roles/modules/linksites/roles.js"
+      "../../../roles/suites/linksites/roles.js"
     );
 
     expect(LINKSITES_MVO_DISABLED_ROLES).toContain("lead_scout_bot");
@@ -345,7 +345,7 @@ describe("LinkSites Role Definitions", () => {
   });
 
   it("should validate role execution correctly", async () => {
-    const { validateRoleExecution } = await import("../../../roles/modules/linksites/roles.js");
+    const { validateRoleExecution } = await import("../../../roles/suites/linksites/roles.js");
 
     // Enabled roles should be valid
     const enabledResult = validateRoleExecution("research_enrichment_bot");

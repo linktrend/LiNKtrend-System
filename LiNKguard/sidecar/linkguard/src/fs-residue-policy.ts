@@ -1,8 +1,7 @@
 import path from "node:path";
 
 /**
- * PRISM `cleanup_events.action` vocabulary (subset used by FS policy).
- * @see docs/PRISM-Defender-PRD.md §8
+ * LiNKguard `cleanup_events.action` vocabulary (subset used by FS policy).
  */
 
 /** Resolved file path must be exactly the root or strictly under it (prefix + sep). */

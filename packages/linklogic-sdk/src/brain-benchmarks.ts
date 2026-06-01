@@ -1,6 +1,6 @@
 /**
  * Privacy-safe benchmarking + memory feedback contracts for LiNKbrain (WP-089).
- * Specification: `.ai-swarm/LINKBRAIN_BENCHMARKING_SPEC.md`
+ * Specification: `LiNKdev/product/grounding/LINKBRAIN_BENCHMARKING_SPEC.md`
  *
  * Aggregation SQL / workers MUST NOT ship until WP-087 `brain_memory_objects` merges.
  */
@@ -9,7 +9,7 @@ import { z } from "zod";
 
 /**
  * Normalized key: strip underscores, lowercase. Used only for blocklist matching.
- * Keep this list aligned with `.ai-swarm/LINKBRAIN_BENCHMARKING_SPEC.md` §5.
+ * Keep this list aligned with `LiNKdev/product/grounding/LINKBRAIN_BENCHMARKING_SPEC.md` §5.
  */
 const FORBIDDEN_KEY_COMPACT = new Set([
   "tenantid",

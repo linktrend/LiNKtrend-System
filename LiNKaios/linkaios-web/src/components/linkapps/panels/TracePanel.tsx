@@ -2,12 +2,12 @@
 
 import { Activity, BarChart3, Clock, Filter, Layers, ArrowRight } from "lucide-react";
 
-import type { TraceSummary, TraceFilter } from "@/lib/plugins/linkapps/types/trace";
+import type { TraceSummary, TraceFilter } from "@/lib/suite-integrations/linkapps/types/trace";
 import {
   MOCK_TRACE_SUMMARIES,
   MOCK_TRACE_METRICS,
   MOCK_TRACE_QUERY_RESPONSE,
-} from "@/lib/plugins/linkapps/trace-fixtures";
+} from "@/lib/suite-integrations/linkapps/trace-fixtures";
 import { TraceMetricCard } from "@/components/linkapps/sidebar/TraceMetricCard";
 import { SummaryMetricCardGrid } from "@/components/summary-metric-card";
 

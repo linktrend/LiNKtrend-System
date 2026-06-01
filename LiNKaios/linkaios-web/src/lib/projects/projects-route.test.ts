@@ -1,4 +1,11 @@
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
+
+vi.mock("@/lib/projects/create-project-service", () => ({
+  createProject: async (input: import("./types").CreateProjectRequest) => {
+    const { createProjectStub } = await import("./create-project");
+    return createProjectStub(input);
+  },
+}));
 
 import { POST } from "@/app/api/projects/route";
 

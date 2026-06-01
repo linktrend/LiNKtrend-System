@@ -1,9 +1,15 @@
 import { ProjectTrackedItemsTable } from "@/components/project-tracked-items-table";
+import { resolveProjectIdFromProps } from "@/lib/api/project-mission-id";
 import { isUiMocksEnabled } from "@/lib/ui-mocks/flags";
 import { demoProjectWorkflows } from "@/lib/ui-mocks/project-workflows-issues-demo";
 
-export async function ProjectWorkflowsPanel(props: { missionId: string }) {
-  const items = isUiMocksEnabled() ? demoProjectWorkflows(props.missionId) : [];
+export async function ProjectWorkflowsPanel(props: {
+  projectId?: string;
+  /** @deprecated Use projectId */
+  missionId?: string;
+}) {
+  const projectId = resolveProjectIdFromProps(props);
+  const items = isUiMocksEnabled() ? demoProjectWorkflows(projectId) : [];
 
   return (
     <ProjectTrackedItemsTable

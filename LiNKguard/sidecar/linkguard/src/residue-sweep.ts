@@ -3,21 +3,21 @@ import { log } from "@linktrend/observability";
 import type { Env } from "@linktrend/shared-config";
 
 /**
- * Acknowledges closed worker sessions in `prism.swept_sessions` and logs `cleanup_events`.
+ * Acknowledges closed worker sessions in `linkguard.swept_sessions` and logs `cleanup_events`.
  * Requires migration `008` (table + RLS). Safe to run repeatedly; skips already swept ids.
  */
 export async function sweepWorkerResidue(env: Env, params: { batch: number }): Promise<number> {
   const client = createSupabaseServiceClient(env);
 
   const { data: sweptRows, error: sweptErr } = await client
-    .schema("prism")
+    .schema("linkguard")
     .from("swept_sessions")
     .select("worker_session_id")
     .limit(10_000);
 
   if (sweptErr) {
     log("warn", "residue sweep skipped (swept_sessions unavailable?)", {
-      service: "prism-defender",
+      service: "linkguard",
       message: sweptErr.message,
     });
     return 0;
@@ -36,7 +36,7 @@ export async function sweepWorkerResidue(env: Env, params: { batch: number }): P
 
   if (sessErr) {
     log("warn", "residue sweep session query failed", {
-      service: "prism-defender",
+      service: "linkguard",
       message: sessErr.message,
     });
     return 0;
@@ -46,35 +46,36 @@ export async function sweepWorkerResidue(env: Env, params: { batch: number }): P
 
   let n = 0;
   for (const s of candidates) {
-    const { error: evErr } = await client.schema("prism").from("cleanup_events").insert({
+    const { error: evErr } = await client.schema("linkguard").from("cleanup_events").insert({
       worker_session_id: s.id,
       action: "residue_sweep_ack",
       detail: {
+        source: "linkguard",
         sessionStatus: s.status,
         ended_at: s.ended_at,
       },
     });
     if (evErr) {
-      log("warn", "cleanup_events insert failed", { service: "prism-defender", message: evErr.message });
+      log("warn", "cleanup_events insert failed", { service: "linkguard", message: evErr.message });
       continue;
     }
 
     const { error: swErr } = await client
-      .schema("prism")
+      .schema("linkguard")
       .from("swept_sessions")
       .upsert(
-        { worker_session_id: s.id, detail: { source: "prism-defender" } },
+        { worker_session_id: s.id, detail: { source: "linkguard" } },
         { onConflict: "worker_session_id" },
       );
     if (swErr) {
-      log("warn", "swept_sessions insert failed", { service: "prism-defender", message: swErr.message });
+      log("warn", "swept_sessions insert failed", { service: "linkguard", message: swErr.message });
       continue;
     }
     n += 1;
   }
 
   if (n > 0) {
-    log("info", "residue sweep completed", { service: "prism-defender", acknowledged: n });
+    log("info", "residue sweep completed", { service: "linkguard", acknowledged: n });
   }
   return n;
 }

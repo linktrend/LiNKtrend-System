@@ -1,116 +1,104 @@
-# LiNKtrend-System Repo Architecture Target
+# LiNKtrend-System repo architecture target
 
 ## Purpose
 
-`LiNKtrend-System` is the operating-system repo for LiNKaios. It wires together the control plane, LiNKbot runtime adapters, workflows, memory, skills, tenant-enabled modules, and governed external software access. It is not a single product app and it should not contain full forked software systems from `/Users/linktrend/Projects`.
+**LiNKtrend-System** is the monorepo for **LiNKaios** (LiNKtrend System): the AI-native company operating system. It wires the control plane, execution planes, tenant-enabled **suites**, and governed **capabilities**. It is not a single vertical app and it does not host full forked third-party products.
 
-Use `system-completion-targets.md` for what each system must become to reach the 90-95% operational stage.
+**Completion bar:** `docs/architecture/system-completion-targets.md`  
+**Vocabulary:** `docs/terminology.md`  
+**Product truth:** `LiNKdev/product/grounding/PRINCIPAL_PRODUCT_DEFINITION.md`
 
-## Accepted Terms
+## LiNKtrend System = LiNKaios
 
-- **Plane:** A core subsystem with a clear ownership boundary.
-- **Module:** A tenant-enabled business or operational package. This replaces the old broad use of `vertical`.
-- **Capability connector:** A governed LinkSkills connector to external software or provider APIs.
-- **Skill:** A reusable learned/procedural capability governed by LinkSkills. Skills are not the same as capability connectors.
-- **Runtime adapter:** A bridge between LiNKbot and a bot engine such as OpenClaw, Agent Zero, or Agent Hermes.
-- **Mission-aware communications:** Tenant, mission, role, and audit mapping around channels. Native channel implementations stay in the engine that owns them.
-- **Deployable entrypoint:** Thin package/service entrypoint needed by tooling or deployment. Ownership should still point to the subsystem.
+One product, two primary surfaces:
 
-## Core Planes
+| Surface | Audience |
+|---------|----------|
+| **LiNKaios Client** | Licensee companies — run suites, projects, issues, traces |
+| **LiNKtrend Admin** | Vendor/licensor — tenants, suite catalogue, capabilities, fleet |
 
-- **LiNKaios:** Organizational control plane. Owns cockpit UI, routing, approvals, tenant/module activation, work contracts, and system governance.
-- **LinkSkills:** Capability governance plane. Owns leases, connector catalog, skills, tool permissions, idempotency, kill switches, approvals, and connector execution posture.
-- **LiNKbrain:** Institutional memory and audit intelligence plane. Owns memory objects, event/audit ledger, retrieval, context assembly, benchmarks, and learning loops.
-- **LiNKautowork:** Deterministic workflow execution plane. Owns gateway code, workflow templates, workflow runs, and the bridge to the external n8n fork.
-- **LiNKbot:** Role-bound worker plane. Owns bot roles, fleet/deployment metadata, runtime adapters, communication profiles, and engine-specific role packaging.
-- **LiNKguard:** Worker security and cleanup sidecar. Owns residue cleanup, filesystem policy, runtime guardrails, sidecar heartbeat, and audit hooks.
+## Planes (components, not separate products)
 
-## Modules
+These subsystems have clear ownership boundaries **inside** LiNKaios. They must not absorb one another’s responsibilities.
 
-Modules are tenant-enabled packages. A tenant may enable one module, many modules, or a custom set. Modules describe business workflows and required roles/connectors, but they do not own the external software implementation.
+| Plane | Owns |
+|-------|------|
+| **LiNKaios** | UI/kernel, routing, approvals, tenant/suite/project orchestration, work contracts, traces |
+| **LinkSkills** | Capability connectors, leases, skills, tools, idempotency, kill switches, approvals |
+| **LiNKbrain** | Event ledger, memory objects, audit union, context assembly, Librarian loop, learning |
+| **LiNKautowork** | Deterministic workflow gateway, templates, runs (UI: **Automation**) |
+| **LiNKbot** | Runtime adapters, role packs, communication profiles, mission payloads |
+| **LiNKguard** | Worker cleanup, skill IP wipe, confidentiality/anonymization hooks |
 
-Each module must have one canonical workflow map in its module folder. That map is the source of truth for what happens and in what order. It should reference, not duplicate, the owning planes:
+## Accepted terms
 
-- `workflow.ts` or `workflow.md`: workflow spine, stages, inputs, outputs, gates, and completion criteria.
-- `roles.ts` or `roles.md`: LiNKbot roles used by each stage.
-- `capabilities.ts` or `capabilities.md`: LinkSkills capability connectors and lease posture.
-- `audit-events.ts` or `audit-events.md`: LiNKbrain audit and memory events.
-- `plane-tasks.ts` or `plane-tasks.md`: Plane project/task expectations.
-- `manifest.ts` or `manifest.yaml`: module registration surface consumed by LiNKaios.
+- **Suite** — Tenant-enabled business process package (LinkSites, LinkApps, LEXOS, …).
+- **Module** — Vendor recipe inside a suite (phases, issues, template assignees).
+- **Phase** — Stage group inside a module.
+- **Issue** — Atomic governed task.
+- **Assignee** — LiNKbot or LiNKautowork automation on an issue.
+- **Capability** — Governed integration to external software (LinkSkills `capability-connectors/`).
+- **Project** — Tenant live work instance (maps to Plane project / Zulip stream when synced).
 
-Implementation still lives with the owning system. Deterministic handlers live in `LiNKautowork/`, bot role packs in `LiNKbot/`, connector definitions in `LiNKskills/`, memory/audit contracts in `LiNKbrain/`, and product/template code in the external module repo when one exists.
+## Suites in this repo
 
-Canonical module examples:
+Suite **orchestration** lives under `suites/`. Each active suite needs a canonical workflow map in its folder (`workflow.md` / `workflow.ts`, roles, capabilities, audit events, Plane expectations, manifest).
 
-- `modules/linksites`
-- `modules/linkapps`
-- `modules/linktrend-media`
-- `modules/lexos/litigation`
-- `modules/accounting`
-- `modules/finance`
-- `modules/legal-department`
-- `modules/business-development`
-- `modules/dental-clinic`
-- `modules/restaurant`
+| Suite | MVO |
+|-------|-----|
+| **`suites/linksites`** | **In scope** — full commercial loop (see MVO below) |
+| `suites/linkapps`, `suites/lexos/…`, others | **Post-MVO** — declarations may exist; completion not required for Principal demo |
 
-LEXOS is a module family. Litigation is the first practice area; intellectual property and corporate are reserved future areas.
+Suite maps **reference** owning planes; they do not duplicate implementation:
 
-## Capability Connectors
+- Deterministic steps → `LiNKautowork/`
+- Role packs → `LiNKbot/roles/suites/`
+- Connectors → `LinkSkills/capability-connectors/`
+- Memory/audit contracts → `LiNKbrain/`
+- **LinkSites** site factory, Payload, VPS publish → **external `LiNKsites` repo**
 
-All capability connectors live under LinkSkills. A connector may be used by any module even if it was first created for a specific one.
+## Capabilities
 
-Connectors are responsible for:
+All capability connectors live under **LinkSkills**. Default **v1** studio capabilities: **Zulip**, **Plane**. Others attach per suite (e.g. Odoo for accounting).
 
-- configuration surface
-- authentication and credential refs
-- capability contract
-- lease/audit hooks
-- idempotency and mode flags
-- communication path to external software or provider
+Connectors provide: config surface, credential refs, contract, lease/audit hooks, idempotency/modes — not invented business setup inside Odoo/Plane unless explicitly assigned.
 
-Connectors are not responsible for inventing the target software's internal business setup unless explicitly assigned.
+## MVO scope (this repo)
 
-## LiNKbot And Communication
+MVO is **not phased**. This monorepo must support:
 
-LiNKbot is engine-agnostic as a system. Individual LiNKbots can run through OpenClaw first, then Agent Zero, Agent Hermes, and future engines through runtime adapters.
+- LiNKaios **Client** + **Admin** surfaces
+- **LinkSites** suite orchestration end-to-end with real traces, leases, events, and capability calls into external publish stack
+- Default v1 **Zulip** + **Plane** capability paths operational for the demo
 
-Role definitions include:
+Publish URL pattern (Principal): `businessname.linktrend.media` via Payload + VPS — implemented in **LiNKsites**; orchestrated and visible from LiNKaios here.
 
-- identity/persona/soul files where the engine uses them
-- role purpose and duties
-- allowed modules
-- allowed capability connectors
-- allowed skills and tools
-- memory/context rules
-- model/runtime profile
-- LiNKguard cleanup/security profile
-- channel permissions
-- emitted audit events
+## LiNKbot and communication
 
-Native channel implementations remain in the owning bot engine. For OpenClaw, Slack, Telegram, WhatsApp, Discord, Matrix, Mattermost, Google Chat, MS Teams, Signal, LINE, IRC, and similar channels are not duplicated in this repo. This repo owns channel profiles, mission context, tenant routing, audit mapping, and temporary gaps such as Zulip until native support is adopted and verified.
+Engine-native channels stay in engine forks. This repo owns profiles, tenant/project routing, audit mapping, and temporary gateways (e.g. Zulip under `LiNKbot/communications/temporary-gateways/` until native support is verified).
 
-## Deployable Entrypoints
+## Deployable entrypoints
 
-Deployable entrypoints live under their owning subsystem. Do not recreate a generic `apps/` folder for new work.
+| Entrypoint | Owner |
+|------------|-------|
+| `LiNKaios/linkaios-web` | LiNKaios (Client + Admin) |
+| `LiNKbot/runtime-adapters/…` | LiNKbot |
+| `LiNKguard/sidecar/linkguard` | LiNKguard |
 
-Current deployable package homes:
+Do not add a generic root `apps/` folder for new work.
 
-- `LiNKaios/linkaios-web` belongs to LiNKaios.
-- `LiNKbot/runtime-adapters/openclaw/bot-runtime` belongs to LiNKbot.
-- `LiNKbot/runtime-adapters/openclaw/openclaw-shim` belongs to LiNKbot.
-- `LiNKbot/communications/temporary-gateways/zulip` belongs to LiNKbot communications while temporary.
-- `LiNKguard/sidecar/linkguard` belongs to LiNKguard.
+## External repos
 
-## External Repos
+| Repo | Relationship |
+|------|----------------|
+| **`LiNKsites`** | Site templates, Payload CMS, build/publish — **required for MVO** |
+| `link-*` forks (n8n, Odoo, …) | Referenced via capabilities; not copied into this monorepo |
+| `LiNKtrend-LEXOS`, `LiNKapps` | Post-MVO references |
 
-Forked software in `/Users/linktrend/Projects/link-*` remains separate. This repo references those systems through capability connectors, module manifests, workflow handles, and docs.
+## Migration rule
 
-## Migration Rule
-
-Prefer migration-safe moves:
-
-1. Add architecture docs and ownership READMEs.
-2. Move declarations/manifests before runtime code.
-3. Keep compatibility entrypoints or re-exports during transition.
-4. Verify after every wave.
-5. Record final ownership changes in `.ai-swarm/DECISIONS.md` and `.ai-swarm/REPO_INVENTORY.md`.
+1. Architecture docs and ownership READMEs first.
+2. Move manifests/declarations before runtime code.
+3. Compatibility shims during transition.
+4. Verify each wave.
+5. Record decisions in `LiNKdev/product/grounding/DECISIONS.md` and `REPO_INVENTORY.md` (LiNKdev only — agents do not invent paths there).

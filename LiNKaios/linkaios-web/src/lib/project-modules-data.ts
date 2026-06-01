@@ -4,9 +4,9 @@ import {
 import { MODULES_CATALOG_DEMO } from "@/lib/ui-mocks/modules-catalog-demo";
 import { MODULE_PROJECTS } from "@/lib/ui-mocks/module-project-demo";
 import {
-  DEMO_MISSION_DETAIL_SPECS,
-  DEMO_MISSION_PLANE_BRIDGE,
-} from "@/lib/ui-mocks/missions-fixtures";
+  DEMO_PROJECT_DETAIL_SPECS,
+  DEMO_PROJECT_PLANE_BRIDGE,
+} from "@/lib/ui-mocks/projects-fixtures";
 
 export type ProjectModuleRow = {
   order: number;
@@ -42,8 +42,8 @@ function rowFromProcess(processId: string, order: number): ProjectModuleRow | nu
 }
 
 function fallbackRow(projectId: string): ProjectModuleRow | null {
-  const bridge = DEMO_MISSION_PLANE_BRIDGE[projectId];
-  const spec = DEMO_MISSION_DETAIL_SPECS[projectId];
+  const bridge = DEMO_PROJECT_PLANE_BRIDGE[projectId];
+  const spec = DEMO_PROJECT_DETAIL_SPECS[projectId];
   const moduleLabel = bridge?.projectTypeName ?? spec?.projectTypeName;
   const suiteLabel = bridge?.moduleName ?? spec?.moduleName;
   if (!moduleLabel) return null;

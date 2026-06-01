@@ -5,36 +5,55 @@ alwaysApply: true
 
 # MVO Scope And Stubbing
 
-The first MVO is the LinkSites / WebsiteFactory lead-to-preview-site flow.
+**LiNKtrend System = LiNKaios.** MVO is the full company operating system — **LiNKaios Client + LiNKtrend Admin** — plus one complete **LinkSites** end-to-end run for one lead.
 
-The demo must show:
+Canonical product definition: `LiNKdev/product/grounding/PRINCIPAL_PRODUCT_DEFINITION.md`
 
-- lead selection/import
-- template selection
-- copy generation
-- preview site generation/publishing
-- CRM record or accepted CRM stub
-- Plane project/tasks or accepted Plane stub
-- LiNKbot mission execution
+## LinkSites commercial loop (required)
+
+One lead must flow through:
+
+1. **Lead discovery** — governed online search (e.g. Google Maps or Principal-approved provider)
+2. **Qualification** — business type and industry identified
+3. **Template selection** — industry template from LiNKsites (external repo)
+4. **Build** — custom copy, media, and style within template
+5. **Publish** — live site on Payload CMS with temp URL `businessname.linktrend.media`
+6. **Outreach** — contact lead to sell website + hosting (governed send; Principal approval gates apply to protected sends)
+7. **Close or recycle** — subscribe path (domain/transfer) or archive site for next matching lead
+
+Partial demos (preview without publish, publish without outreach, CSV-only leads as sole proof) do **not** count as MVO complete.
+
+## Required infrastructure (non-negotiable)
+
+- **Supabase** — auth, Postgres, RLS, brain/kernel schemas
+- **Zulip** — governed project messaging
+- **Plane** — execution tracking (studio-provided for MVO)
+- **LiNKbot**, **LinkSkills**, **LiNKautowork**, **LiNKbrain**, **LiNKguard** — wired on every meaningful step
+
+## Governance proof (every side-effecting step)
+
 - LinkSkills capability lease/run
-- LiNKautowork deterministic workflow run
+- LiNKautowork workflow run (deterministic steps)
 - LiNKbrain event/audit/memory write
-- LiNKaios trace/status view
+- LiNKaios trace/status visibility (Client; Admin where applicable)
+- LiNKguard session cleanup on bot runs
 
-If a third-party integration blocks the 7-day compression target, create a documented MVO stub and continue.
+## Acceptable stubs
 
-Acceptable stubs:
+Stubs are allowed **only** where explicitly documented in `LiNKdev/product/grounding/CONTRACTS_MVO.md` (§10–§11 and capability tables). Mock/shadow modes for individual capability backends are acceptable during development if lease + audit + memory + trace artifacts are still produced.
 
-- seed CSV instead of live lead provider
-- local CRM table instead of Chatwoot/Odoo
-- local project/task table instead of Plane
-- static/local preview instead of full hosted publishing
-- simplified policy response if the capability lease is still recorded
+Do **not** treat seed CSV, local-only preview, local CRM/Plane tables, or draft-only outreach as substitutes for MVO completion.
 
-Unacceptable stubs:
+## Unacceptable stubs
 
 - no audit event
 - no capability lease
 - no memory/event write
 - no trace/status visibility
 - fake success without proof
+- skipping publish, outreach, or recycle/close stages
+- treating Zulip, Plane, or Supabase as optional for MVO
+
+## Out of MVO scope
+
+LinkApps, LEXOS, and other suites beyond LinkSites until MVO ships.

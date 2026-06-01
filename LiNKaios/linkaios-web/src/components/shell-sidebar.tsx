@@ -20,8 +20,8 @@ import {
   Wrench,
 } from "lucide-react";
 
-import { ModulesSidebarSection } from "@/components/modules/modules-sidebar-section";
-import { LicensorSuitesSidebarSection } from "@/components/modules/licensor-suites-sidebar-section";
+import { ModulesSidebarSection } from "@/components/suites/modules-sidebar-section";
+import { LicensorSuitesSidebarSection } from "@/components/suites/licensor-suites-sidebar-section";
 
 import { useAppRole } from "@/components/role-preview-provider";
 import { SidebarRoleBadge } from "@/components/sidebar-role-preview";

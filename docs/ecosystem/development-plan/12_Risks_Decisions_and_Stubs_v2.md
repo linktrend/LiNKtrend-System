@@ -1,5 +1,7 @@
 # Risks, Decisions, And Stubs v2
 
+> **Superseded for MVO bar (May 2026):** Acceptable stubs below do **not** include seed-CSV-only leads, draft-only outreach, or static-only preview for Principal sign-off. MVO authority: [`05_MVO_Scope_and_Demo_Flow_v2.md`](./05_MVO_Scope_and_Demo_Flow_v2.md).
+
 ## Main Risk — Timeline
 
 Seven days is aggressive. Plan 21, execute for 7. Use stubs to keep the flow moving.

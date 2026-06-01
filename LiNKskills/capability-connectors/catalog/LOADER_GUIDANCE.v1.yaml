@@ -1,0 +1,45 @@
+# WP-114 — Kernel / catalog loader validation guidance (declaration-only)
+# Consume this file alongside seeds/cross_vertical_catalog.v1.yaml when wiring LinkSkills registry.
+---
+guidance_version: wp114-loader-v1
+applies_to:
+  - seeds/cross_vertical_catalog.v1.yaml
+  - LiNKskills/capability-connectors/lexos/*.yaml
+
+uniqueness_rules:
+  capability_id_primary_key: >-
+    Exactly one canonical row per `capability_id` in cross_vertical_catalog; vertical-specific nuance belongs in
+    `operation_variants_by_vertical`, `canonical_lease_permissions_union`, or `reconciliation_notes` — never a second plugin id.
+
+alias_policy: >-
+  Do not merge distinct legal vs public-web research connectors: `cap.research.legal` (LEXOS) and `cap.research.public_web`
+  (LinkSites/LiNKapps) remain separate capabilities with separate lease namespaces.
+
+reference_integrity:
+  - lexos_manifest_refs MUST match `capability_id` in sibling lexos YAML filenames / `capability_id` field when present.
+
+mode_semantics:
+  description: >-
+    Per CONTRACTS_MVO §0.A.9 and LINKAPPS_CAPABILITY_REQUIREMENTS §1: loaders must treat declared `modes.default_mvo`
+    as routing default; `shadow` probes must not mutate production SaaS tenant state unless a future vertical policy expands shadow.
+  enums:
+    - mock
+    - shadow
+    - live
+
+lease_integration:
+  - Every operation with writes_side_effect true MUST declare at least one `canonical_lease_permissions_union` entry when seed says side_effects_possible.
+  - Replay semantics follow CONTRACTS_MVO §6.2 globally; LEXOS manifests carry local `idempotency_rules` that MUST remain compatible with global `(tenant_id, idempotency_key)` uniqueness.
+
+not_configured_field:
+  description: >-
+    `not_configured` lists are declarative exclusions (target-software business setup). Loaders SHOULD surface these to ops UIs verbatim;
+    they MUST NOT be interpreted as API parameters or encrypted secrets.
+
+prohibited_in_seeds:
+  - Credential literals or tenant/account IDs.
+  - Live provider URLs or webhook secrets.
+  - Implementation of HTTP clients toward external SaaS.
+
+validation_checklist_for_future_loader:
+  - Union of `declaration_sources` IDs matches boot-time union of CONTRACTS §0.A.5.1 table, linkapps.manifest `required_capabilities`, and lexos `capability_id` set unless an explicit waiver decision documents an exception.

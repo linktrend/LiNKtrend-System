@@ -2,71 +2,68 @@
 
 ## Purpose
 
-This v2 development-plan document set replaces the earlier development-plan package. The change is based on the architect review report produced after inspecting the design documents, the development plan, active repos under `/Users/linktrend/Projects`, and archived repos under `/Users/linktrend/Projects/Archive`.
+This document set describes **how LiNKdev executes** against Principal product truth. It does not replace that truth.
 
-The key correction is simple:
+**Canonical MVO:** [`05_MVO_Scope_and_Demo_Flow_v2.md`](./05_MVO_Scope_and_Demo_Flow_v2.md)  
+**Principal definition:** `LiNKdev/product/grounding/PRINCIPAL_PRODUCT_DEFINITION.md`  
+**Terminology:** `docs/terminology.md`
 
-The project should be **planned as a 21-day conservative engineering plan**, but **executed as a 7-day compression sprint** using aggressive reuse, parallel agents, and daily integration checkpoints.
+## MVO posture (May 2026)
 
-The previous version treated several items as if they needed to be created from scratch. The architect review confirmed that substantial code already exists and should be wired, refactored, or reused:
+**MVO is not phased.** There is no “phase 1 demo” with a lower bar. MVO is **done** or **not done** when Principal can evaluate:
 
-- `LiNKtrend-System` already contains the LiNKaios monorepo and 12-route kernel web UI.
-- `LiNKskills` already contains a substantial Phase 0–3 logic-engine implementation.
-- `LiNKautowork` already contains a substantial n8n gateway MVO.
-- Archive `LiNKaios/packages/linkbrain` contains useful LiNKbrain SQL migrations and schemas.
-- `LiNKsites` already contains the Payload CMS website factory and `web-master` template.
-- `LiNKapps` contains the reusable UI/design system ancestor.
-- `LiNKbot-core` contains the OpenClaw-based runtime fork.
-- `LiNKtrend-LEXOS` should remain separate for now and be used as a later LawFirm vertical reference.
+- **LiNKaios Client** + **LiNKtrend Admin**
+- End-to-end **LinkSites Suite**: online lead discovery (e.g. Google Maps) → industry/template → custom site → **live publish** (`businessname.linktrend.media`) → **outreach** → subscribe (domain + transfer) or reject (recycle site)
 
-## Development Posture
+**Out of MVO:** LinkApps, LEXOS, other suites.
 
-The plan is no longer “build skeletons.”
+Older references in this folder to **7-day compression**, **21-day planning**, **seed CSV leads**, or **draft-only outreach** describe a **superseded execution style** — see banners on individual files. They remain useful for reuse maps and work-packet structure, not for lowering the MVO bar.
 
-The plan is:
+## Development posture
 
-> **Inventory, freeze decisions, wire existing code, stub blockers, prove one end-to-end flow, then harden.**
+> **Wire existing code, govern side effects, prove the full LinkSites commercial loop with audit traces.**
 
-The first MVO remains the **LinkSites / WebsiteFactory lead-to-preview-site flow**.
+Substantial assets already exist (LiNKaios web, LinkSkills logic-engine, LiNKautowork gateway, LiNKsites Payload stack, LiNKbot adapters). The job is integration and completion to Principal bar — not greenfield skeletons.
 
-## Target Flow
+## Target flow (summary)
 
-The first working demo should show:
+Operator or LiNKbot discovers a lead (Maps or approved provider), runs LinkSites issues under lease, publishes via external **LiNKsites** + VPS temp URL, executes **outreach**, records outcome in CRM/Plane equivalents, writes LiNKbrain events, and shows unified trace in LiNKaios Client; LiNKtrend Admin shows tenant and capability posture.
 
-A LiNKbot finds or selects a lead, chooses an industry template, generates copy, adjusts style/look-and-feel without changing structure, publishes a preview site, creates CRM and Plane records or accepted MVO stubs, requests capability leases from LinkSkills, triggers deterministic work through LiNKautowork, writes events/memory to LiNKbrain, and shows trace/status in LiNKaios.
+## Critical decisions (bind early)
 
-## Critical Day-1 Decisions
+Freeze in `LiNKdev/product/grounding/DECISIONS.md`:
 
-Day 1 must freeze decisions that the prior plan deferred too long:
+1. Lead provider API (Maps or approved alternative) — **not** seed-CSV-only for MVO completion.
+2. Publish path: Payload + VPS `*.linktrend.media` via **LiNKsites** repo.
+3. Outreach channel and approval posture — **real outreach required** for MVO (governed, not draft-only).
+4. Default v1 capabilities: **Zulip** + **Plane** operational for demo.
+5. OpenClaw / adapter source of truth for LinkSites roles.
+6. Audit union into LiNKbrain for every side effect.
 
-1. CRM: Chatwoot, Odoo CRM, or local CRM table for MVO.
-2. Plane: real Plane API integration or local task/project stub for MVO.
-3. Preview publishing: LinkSites/Payload, static preview, Vercel preview, or local preview.
-4. OpenClaw source: current `LiNKbot-core`, archive `LiNKopenclaw`, or upstream sync.
-5. Supabase: remote Supabase or local Postgres for the first integration.
-6. WebsiteFactory plugin manifest: roles, workflows, capabilities, memory scopes, and automation bindings.
-7. Model routing: OpenRouter first unless an existing LiteLLM setup is already working.
-8. Audit union: every service must emit standardized audit events into LiNKbrain.
+## Document index
 
-## Document Index
+| # | File | Notes |
+|---|------|--------|
+| 1 | `01_Development_Method_v2.md` | Method — **banner** for MVO bar |
+| 2 | `02_Tool_and_Model_Strategy_v2.md` | Models/tools |
+| 3 | `03_Swarm_Coordination_Model_v2.md` | Parallel agents |
+| 4 | `04_Repo_Strategy_and_Reuse_Map_v2.md` | Reuse map |
+| 5 | **`05_MVO_Scope_and_Demo_Flow_v2.md`** | **MVO authority** |
+| 6 | `06_Compressed_7_Day_vs_Conservative_21_Day_Plan_v2.md` | Timeline — **banner** |
+| 7 | `07_Work_Packets_v2.md` | Packets — **banner** |
+| 8 | `08_Branching_Worktree_and_Integration_v2.md` | Git/worktrees |
+| 9 | `09_Cost_Control_and_Model_Allocation_v2.md` | Cost |
+| 10 | `10_Agent_Operating_Rules_v2.md` | Agent rules — **banner** |
+| 11 | `11_Deployment_Target_v2.md` | Deploy |
+| 12 | `12_Risks_Decisions_and_Stubs_v2.md` | Stubs — **banner** |
 
-1. `01_Development_Method_v2.md`
-2. `02_Tool_and_Model_Strategy_v2.md`
-3. `03_Swarm_Coordination_Model_v2.md`
-4. `04_Repo_Strategy_and_Reuse_Map_v2.md`
-5. `05_MVO_Scope_and_Demo_Flow_v2.md`
-6. `06_Compressed_7_Day_vs_Conservative_21_Day_Plan_v2.md`
-7. `07_Work_Packets_v2.md`
-8. `08_Branching_Worktree_and_Integration_v2.md`
-9. `09_Cost_Control_and_Model_Allocation_v2.md`
-10. `10_Agent_Operating_Rules_v2.md`
-11. `11_Deployment_Target_v2.md`
-12. `12_Risks_Decisions_and_Stubs_v2.md`
+## First steps for LiNKdev
 
-## First Three Steps
+1. Confirm `LiNKdev/` wired; read **PRINCIPAL_PRODUCT_DEFINITION** and active issue `read_first`.
+2. Verify reuse map (`04_`) against current repos — especially **LiNKsites** publish path.
+3. Align WebsiteFactory / LinkSites suite manifest to **`05_`** before wide implementation.
 
-First, create `.ai-swarm/` in the LiNKaios monorepo.
+## Audience
 
-Second, run repo archaeology, but not as an open-ended discovery exercise. Use the architect review report as a starting map and verify the confirmed repos.
-
-Third, freeze MVO decisions and create the WebsiteFactory plugin manifest before any service implementation starts.
+- **Principal** — evaluates demo against **`05_`** and Principal definition.
+- **LiNKdev** — executes issues; updates grounding reports, not chat memory.

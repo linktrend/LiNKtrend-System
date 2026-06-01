@@ -1,0 +1,308 @@
+namespace: linksites_mvo
+version: "1.0.0"
+description: >
+  LiNKbrain audit and memory event contract for the LinkSites MVO path.
+  LiNKbrain records envelopes and memory provenance; LiNKaios, LinkSkills,
+  and LiNKautowork remain the authorities for orchestration, leases, and
+  deterministic workflow execution.
+
+audit_envelope:
+  required_fields:
+    - event_id
+    - tenant_id
+    - event_type
+    - event_version
+    - emitted_at
+    - actor.kind
+    - actor.id
+    - target.kind
+    - target.id
+    - payload
+    - integrity.hash
+    - integrity.algorithm
+  refs:
+    - run_id
+    - stage_id
+    - lease_id
+    - workflow_run_id
+    - capability_id
+    - project_id
+    - suite_id
+    - module_id
+  integrity:
+    algorithm: sha256
+    hash_material: "tenant_id:event_type:run_id:stage_id:payload:refs"
+
+run_stage_events:
+  - event_id: run.started
+    description: LinkSites project run started.
+    required_refs:
+      - run_id
+    required_payload:
+      - suite_id
+      - module_id
+      - project_id
+      - trigger
+    emitted_by:
+      - linkaios
+
+  - event_id: run.completed
+    description: LinkSites project run completed.
+    required_refs:
+      - run_id
+    required_payload:
+      - result_summary
+      - stage_count
+      - audit_event_count
+    emitted_by:
+      - linkaios
+
+  - event_id: run.failed
+    description: LinkSites project run failed with typed failure payload.
+    required_refs:
+      - run_id
+    required_payload:
+      - failure.code
+      - failure.message
+      - failure.retryable
+    emitted_by:
+      - linkaios
+
+  - event_id: stage.started
+    description: A LinkSites run stage started.
+    required_refs:
+      - run_id
+      - stage_id
+    required_payload:
+      - phase
+      - responsible_plane
+    emitted_by:
+      - linkaios
+
+  - event_id: stage.completed
+    description: A LinkSites run stage completed.
+    required_refs:
+      - run_id
+      - stage_id
+    required_payload:
+      - outputs_ref
+      - completion_summary
+    emitted_by:
+      - linkaios
+
+  - event_id: stage.failed
+    description: A LinkSites run stage failed.
+    required_refs:
+      - run_id
+      - stage_id
+    required_payload:
+      - failure.code
+      - failure.message
+      - failure.retryable
+    emitted_by:
+      - linkaios
+
+  - event_id: stage.awaiting_approval
+    description: A LinkSites stage is paused for Principal or operator approval.
+    required_refs:
+      - run_id
+      - stage_id
+    required_payload:
+      - approval_type
+      - approval_ref
+    emitted_by:
+      - linkaios
+
+lease_events:
+  - event_id: lease.requested
+    description: LinkSkills capability lease requested before a governed side effect.
+    required_refs:
+      - run_id
+      - capability_id
+    required_payload:
+      - operation
+      - idempotency_key
+      - requested_by
+    emitted_by:
+      - linkaios
+
+  - event_id: lease.granted
+    description: LinkSkills capability lease granted.
+    required_refs:
+      - run_id
+      - lease_id
+      - capability_id
+    required_payload:
+      - granted_until
+      - policy_ref
+    emitted_by:
+      - linkskills
+
+  - event_id: lease.executed
+    description: Capability action completed under a lease.
+    required_refs:
+      - run_id
+      - lease_id
+      - capability_id
+    required_payload:
+      - operation
+      - result_status
+      - operation_result_ref
+    emitted_by:
+      - linkautowork
+      - linkbot
+
+  - event_id: lease.denied
+    description: LinkSkills denied a capability lease request.
+    required_refs:
+      - run_id
+      - capability_id
+    required_payload:
+      - denial_reason
+      - policy_ref
+    emitted_by:
+      - linkskills
+
+  - event_id: lease.expired
+    description: LinkSkills lease expired before execution.
+    required_refs:
+      - run_id
+      - lease_id
+      - capability_id
+    required_payload:
+      - expired_at
+    emitted_by:
+      - linkskills
+
+workflow_events:
+  - event_id: workflow.invoked
+    description: LiNKautowork deterministic automation invoked.
+    required_refs:
+      - run_id
+      - workflow_run_id
+    required_payload:
+      - workflow_handle
+      - inputs_hash
+      - idempotency_key
+    emitted_by:
+      - linkaios
+      - linkautowork
+
+  - event_id: workflow.completed
+    description: LiNKautowork deterministic automation completed.
+    required_refs:
+      - run_id
+      - workflow_run_id
+    required_payload:
+      - workflow_handle
+      - outputs_ref
+      - duration_ms
+    emitted_by:
+      - linkautowork
+
+  - event_id: workflow.failed
+    description: LiNKautowork deterministic automation failed.
+    required_refs:
+      - run_id
+      - workflow_run_id
+    required_payload:
+      - workflow_handle
+      - failure.code
+      - failure.message
+      - error_log_ref
+    emitted_by:
+      - linkautowork
+
+memory_events:
+  - event_id: memory.proposed
+    description: Librarian proposed a knowledge or artifact memory object.
+    required_refs:
+      - run_id
+    required_payload:
+      - memory_type
+      - proposal_ref
+      - provenance_refs
+    emitted_by:
+      - linkbrain
+
+  - event_id: memory.accepted
+    description: Knowledge or artifact memory was accepted for company LiNKbrain.
+    required_refs:
+      - run_id
+    required_payload:
+      - memory_type
+      - accepted_ref
+      - accepted_by
+      - provenance_refs
+    emitted_by:
+      - linkbrain
+
+memory_objects:
+  - object_type: linksites_run_artifact
+    description: Durable reference to an output from one LinkSites run stage.
+    source_events:
+      - stage.completed
+      - workflow.completed
+      - memory.accepted
+    required_fields:
+      - run_id
+      - tenant_id
+      - artifact_ref
+      - provenance_refs
+      - summary
+
+  - object_type: linksites_accepted_knowledge
+    description: Principal-accepted or policy-accepted lesson from the MVO run.
+    source_events:
+      - memory.accepted
+    required_fields:
+      - run_id
+      - tenant_id
+      - knowledge_ref
+      - accepted_by
+      - provenance_refs
+      - summary
+
+proof_sequence:
+  description: Minimal accepted-memory proof stream for LTS-020.
+  events:
+    - event_type: run.started
+      refs:
+        run_id: 00000000-0000-4000-8000-000000000020
+      payload:
+        suite_id: linksites
+        module_id: websitefactory
+        project_id: demo-linksites-project
+        trigger: governed_mock_lead
+    - event_type: stage.started
+      refs:
+        run_id: 00000000-0000-4000-8000-000000000020
+        stage_id: lead-generation
+      payload:
+        phase: lead_generation
+        responsible_plane: linkbot
+    - event_type: lease.requested
+      refs:
+        run_id: 00000000-0000-4000-8000-000000000020
+        capability_id: cap.lead.mock_source
+      payload:
+        operation: acquire_mock_lead
+        idempotency_key: lts-020-proof-lead
+        requested_by: linkaios
+    - event_type: workflow.invoked
+      refs:
+        run_id: 00000000-0000-4000-8000-000000000020
+        workflow_run_id: wf-lts-020-proof
+      payload:
+        workflow_handle: linksites.lead.mock_acquire
+        inputs_hash: sha256:proof-inputs
+        idempotency_key: lts-020-proof-workflow
+    - event_type: memory.accepted
+      refs:
+        run_id: 00000000-0000-4000-8000-000000000020
+      payload:
+        memory_type: linksites_accepted_knowledge
+        accepted_ref: brain://company/linksites/knowledge/lts-020-proof
+        accepted_by: policy:mvo-auto-accept-proof
+        provenance_refs:
+          - audit://run/00000000-0000-4000-8000-000000000020/stage/lead-generation

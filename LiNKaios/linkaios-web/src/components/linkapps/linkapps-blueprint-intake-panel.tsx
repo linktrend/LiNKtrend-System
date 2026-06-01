@@ -1,4 +1,4 @@
-import type { BlueprintIntakeFixture } from "@/lib/plugins/linkapps/types";
+import type { BlueprintIntakeFixture } from "@/lib/suite-integrations/linkapps/types";
 
 export function LinkappsBlueprintIntakePanel(props: { blueprint: BlueprintIntakeFixture }) {
   const { blueprint } = props;

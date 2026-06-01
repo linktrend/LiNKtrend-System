@@ -3,12 +3,12 @@
 import { useCallback } from "react";
 import { Calendar, Layers, X } from "lucide-react";
 
-import type { TraceFilter, VerticalKey, StageSlug, TraceOutcome, TimeBucket } from "@/lib/plugins/linkapps/types/trace";
+import type { TraceFilter, VerticalKey, StageSlug, TraceOutcome, TimeBucket } from "@/lib/suite-integrations/linkapps/types/trace";
 import {
   VERTICAL_OPTIONS,
   STAGE_OPTIONS,
   OUTCOME_OPTIONS,
-} from "@/lib/plugins/linkapps/trace-fixtures";
+} from "@/lib/suite-integrations/linkapps/trace-fixtures";
 
 export type TraceFilterPanelProps = {
   /** Current filter state */

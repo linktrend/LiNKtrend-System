@@ -65,7 +65,7 @@ export async function LinkbrainAuditPanel(props: { licensorCollective?: boolean 
   const missionIds = [...new Set(raw.map((r) => r.mission_id).filter(Boolean))] as string[];
   const missionTitles = new Map<string, string>(DEMO_MISSION_TITLES);
   if (missionIds.length > 0) {
-    const { data: missions } = await supabase.schema("linkaios").from("missions").select("id, title").in("id", missionIds);
+    const { data: missions } = await supabase.schema("linkaios").from("projects").select("id, title").in("id", missionIds);
     for (const m of missions ?? []) {
       const row = m as { id: string; title: string };
       missionTitles.set(String(row.id), row.title);

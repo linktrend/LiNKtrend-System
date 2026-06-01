@@ -1,4 +1,4 @@
-import type { MissionRecord } from "@linktrend/shared-types";
+import type { ProjectRecord } from "@linktrend/shared-types";
 
 import {
   planeProjectBoardHref,
@@ -6,9 +6,9 @@ import {
 } from "@/lib/plane-links";
 import { getSuiteById } from "@/lib/suites-page-copy";
 import {
-  DEMO_MISSION_DETAIL_SPECS,
-  DEMO_MISSION_PLANE_BRIDGE,
-} from "@/lib/ui-mocks/missions-fixtures";
+  DEMO_PROJECT_DETAIL_SPECS,
+  DEMO_PROJECT_PLANE_BRIDGE,
+} from "@/lib/ui-mocks/projects-fixtures";
 import { projectsForModule } from "@/lib/ui-mocks/module-project-demo";
 
 export type ProjectIndexRow = {
@@ -27,7 +27,7 @@ function rowFromBridge(
   title: string,
   status: string,
   planeCfg: PlaneBridgeConfig,
-  bridge?: (typeof DEMO_MISSION_PLANE_BRIDGE)[string],
+  bridge?: (typeof DEMO_PROJECT_PLANE_BRIDGE)[string],
   suiteFallback?: string,
 ): ProjectIndexRow {
   return {
@@ -43,19 +43,19 @@ function rowFromBridge(
 }
 
 export function projectIndexRowFromMission(
-  mission: MissionRecord,
+  project: ProjectRecord,
   planeCfg: PlaneBridgeConfig,
-  bridge?: (typeof DEMO_MISSION_PLANE_BRIDGE)[string],
+  bridge?: (typeof DEMO_PROJECT_PLANE_BRIDGE)[string],
 ): ProjectIndexRow {
-  return rowFromBridge(String(mission.id), mission.title, mission.status, planeCfg, bridge);
+  return rowFromBridge(String(project.id), project.title, project.status, planeCfg, bridge);
 }
 
 /** All projects for a suite — fixture-backed for MVO demos. */
 export function suiteProjectIndexRows(suiteId: string, planeCfg: PlaneBridgeConfig): ProjectIndexRow[] {
   const suiteLabel = getSuiteById(suiteId)?.name ?? suiteId;
   return projectsForModule(suiteId).map((project) => {
-    const bridge = DEMO_MISSION_PLANE_BRIDGE[project.id];
-    const spec = DEMO_MISSION_DETAIL_SPECS[project.id];
+    const bridge = DEMO_PROJECT_PLANE_BRIDGE[project.id];
+    const spec = DEMO_PROJECT_DETAIL_SPECS[project.id];
     return rowFromBridge(
       project.id,
       project.name,

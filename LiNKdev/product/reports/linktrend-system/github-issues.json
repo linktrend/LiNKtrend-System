@@ -1,0 +1,161 @@
+{
+  "program_id": "linktrend-system",
+  "repo": "linktrend/LiNKtrend-System",
+  "issues": {
+    "LTS-004": {
+      "github_number": 16,
+      "title": "LTS-004: Admin demo tenant and Suite catalogue management",
+      "spec_path": "LiNKdev/product/programs/linktrend-system/modules/linkaios/phases/admin/issues/LTS-004.md"
+    },
+    "LTS-005": {
+      "github_number": 17,
+      "title": "LTS-005: Admin fleet LiNKbots and troubleshooting surfaces",
+      "spec_path": "LiNKdev/product/programs/linktrend-system/modules/linkaios/phases/admin/issues/LTS-005.md"
+    },
+    "LTS-002": {
+      "github_number": 18,
+      "title": "LTS-002: Client sign-in Suite subscribe and Project launch",
+      "spec_path": "LiNKdev/product/programs/linktrend-system/modules/linkaios/phases/client/issues/LTS-002.md"
+    },
+    "LTS-003": {
+      "github_number": 19,
+      "title": "LTS-003: Client traces and side-effect approval surfaces",
+      "spec_path": "LiNKdev/product/programs/linktrend-system/modules/linkaios/phases/client/issues/LTS-003.md"
+    },
+    "LTS-001": {
+      "github_number": 20,
+      "title": "LTS-001: Supabase kernel schemas RLS and Project Run spine",
+      "spec_path": "LiNKdev/product/programs/linktrend-system/modules/linkaios/phases/kernel/issues/LTS-001.md"
+    },
+    "LTS-030": {
+      "github_number": 21,
+      "title": "LTS-030: Autowork artifact write local handle",
+      "spec_path": "LiNKdev/product/programs/linktrend-system/modules/linkautowork/phases/workflows/issues/LTS-030.md"
+    },
+    "LTS-031": {
+      "github_number": 22,
+      "title": "LTS-031: Autowork Supabase mirror upsert handle",
+      "spec_path": "LiNKdev/product/programs/linktrend-system/modules/linkautowork/phases/workflows/issues/LTS-031.md"
+    },
+    "LTS-032": {
+      "github_number": 23,
+      "title": "LTS-032: Autowork Payload sync local handle",
+      "spec_path": "LiNKdev/product/programs/linktrend-system/modules/linkautowork/phases/workflows/issues/LTS-032.md"
+    },
+    "LTS-033": {
+      "github_number": 24,
+      "title": "LTS-033: Autowork preview readiness check handle",
+      "spec_path": "LiNKdev/product/programs/linktrend-system/modules/linkautowork/phases/workflows/issues/LTS-033.md"
+    },
+    "LTS-034": {
+      "github_number": 25,
+      "title": "LTS-034: Autowork CRM lead status and outreach gate",
+      "spec_path": "LiNKdev/product/programs/linktrend-system/modules/linkautowork/phases/workflows/issues/LTS-034.md"
+    },
+    "LTS-040": {
+      "github_number": 26,
+      "title": "LTS-040: Lead scout bot governed lead acquisition",
+      "spec_path": "LiNKdev/product/programs/linktrend-system/modules/linkbot/phases/roles/issues/LTS-040.md"
+    },
+    "LTS-041": {
+      "github_number": 27,
+      "title": "LTS-041: Research enrichment bot provenance bundle",
+      "spec_path": "LiNKdev/product/programs/linktrend-system/modules/linkbot/phases/roles/issues/LTS-041.md"
+    },
+    "LTS-042": {
+      "github_number": 28,
+      "title": "LTS-042: Website builder bot template-guided package",
+      "spec_path": "LiNKdev/product/programs/linktrend-system/modules/linkbot/phases/roles/issues/LTS-042.md"
+    },
+    "LTS-043": {
+      "github_number": 29,
+      "title": "LTS-043: Outreach bot governed contact step",
+      "spec_path": "LiNKdev/product/programs/linktrend-system/modules/linkbot/phases/roles/issues/LTS-043.md"
+    },
+    "LTS-020": {
+      "github_number": 30,
+      "title": "LTS-020: Audit envelope and run stage lease workflow events",
+      "spec_path": "LiNKdev/product/programs/linktrend-system/modules/linkbrain/phases/audit/issues/LTS-020.md"
+    },
+    "LTS-021": {
+      "github_number": 31,
+      "title": "LTS-021: Librarian LiNKbot MVO knowledge loop",
+      "spec_path": "LiNKdev/product/programs/linktrend-system/modules/linkbrain/phases/librarian/issues/LTS-021.md"
+    },
+    "LTS-050": {
+      "github_number": 32,
+      "title": "LTS-050: Session cleanup skill trace wipe confidentiality",
+      "spec_path": "LiNKdev/product/programs/linktrend-system/modules/linkguard/phases/security/issues/LTS-050.md"
+    },
+    "LTS-107": {
+      "github_number": 33,
+      "title": "LTS-107: LinkSites phase close or recycle",
+      "spec_path": "LiNKdev/product/programs/linktrend-system/modules/linksites/phases/close-recycle/issues/LTS-107.md"
+    },
+    "LTS-108": {
+      "github_number": 34,
+      "title": "LTS-108: MVO demo one lead Client and Admin visibility",
+      "spec_path": "LiNKdev/product/programs/linktrend-system/modules/linksites/phases/e2e-proof/issues/LTS-108.md"
+    },
+    "LTS-101": {
+      "github_number": 35,
+      "title": "LTS-101: LinkSites phase lead generation one lead",
+      "spec_path": "LiNKdev/product/programs/linktrend-system/modules/linksites/phases/lead-generation/issues/LTS-101.md"
+    },
+    "LTS-106": {
+      "github_number": 36,
+      "title": "LTS-106: LinkSites phase governed outreach",
+      "spec_path": "LiNKdev/product/programs/linktrend-system/modules/linksites/phases/outreach/issues/LTS-106.md"
+    },
+    "LTS-105": {
+      "github_number": 37,
+      "title": "LTS-105: LinkSites phase publish Payload and temp URL",
+      "spec_path": "LiNKdev/product/programs/linktrend-system/modules/linksites/phases/publish/issues/LTS-105.md"
+    },
+    "LTS-102": {
+      "github_number": 38,
+      "title": "LTS-102: LinkSites phase qualification industry type",
+      "spec_path": "LiNKdev/product/programs/linktrend-system/modules/linksites/phases/qualification/issues/LTS-102.md"
+    },
+    "LTS-060": {
+      "github_number": 39,
+      "title": "LTS-060: Canonical workflow map matches Principal MVO",
+      "spec_path": "LiNKdev/product/programs/linktrend-system/modules/linksites/phases/suite-map/issues/LTS-060.md"
+    },
+    "LTS-103": {
+      "github_number": 40,
+      "title": "LTS-103: LinkSites phase template selection",
+      "spec_path": "LiNKdev/product/programs/linktrend-system/modules/linksites/phases/template-selection/issues/LTS-103.md"
+    },
+    "LTS-104": {
+      "github_number": 41,
+      "title": "LTS-104: LinkSites phase custom website build",
+      "spec_path": "LiNKdev/product/programs/linktrend-system/modules/linksites/phases/website-build/issues/LTS-104.md"
+    },
+    "LTS-012": {
+      "github_number": 42,
+      "title": "LTS-012: Studio Zulip and Plane default capabilities",
+      "spec_path": "LiNKdev/product/programs/linktrend-system/modules/linkskills/phases/capabilities/issues/LTS-012.md"
+    },
+    "LTS-013": {
+      "github_number": 43,
+      "title": "LTS-013: LinkSites suite capability connectors",
+      "spec_path": "LiNKdev/product/programs/linktrend-system/modules/linkskills/phases/capabilities/issues/LTS-013.md"
+    },
+    "LTS-010": {
+      "github_number": 44,
+      "title": "LTS-010: Capability catalog and lease lifecycle",
+      "spec_path": "LiNKdev/product/programs/linktrend-system/modules/linkskills/phases/governance/issues/LTS-010.md"
+    },
+    "LTS-011": {
+      "github_number": 45,
+      "title": "LTS-011: Progressive disclosure and skill IP boundary",
+      "spec_path": "LiNKdev/product/programs/linktrend-system/modules/linkskills/phases/governance/issues/LTS-011.md"
+    },
+    "LTS-900": {
+      "github_number": 46,
+      "title": "LTS-900: Program release verify and SHA256 proof manifest",
+      "spec_path": "LiNKdev/product/programs/linktrend-system/modules/release/phases/ship/issues/LTS-900.md"
+    }
+  }
+}

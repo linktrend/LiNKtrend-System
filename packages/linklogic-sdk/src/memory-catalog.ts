@@ -27,7 +27,7 @@ export async function listMemoryEntries(
     const aid = params.agentId.trim();
     const { data: mids, error: mErr } = await client
       .schema("linkaios")
-      .from("missions")
+      .from("projects")
       .select("id")
       .eq("primary_agent_id", aid)
       .limit(500);

@@ -1,0 +1,111 @@
+{
+  "gate": "G1",
+  "program_id": "linktrend-system",
+  "reviewed_at": "2026-06-01T12:00:00Z",
+  "subject_artifacts": [
+    {
+      "label": "Finished-product narrative",
+      "path": "LiNKdev/product/programs/linktrend-system/PROGRAM.md"
+    },
+    {
+      "label": "Principal Q&A decisions",
+      "path": "LiNKdev/product/reports/linktrend-system/PLANNER-QA.md"
+    }
+  ],
+  "personas": [
+    {
+      "persona_id": "security-advisor",
+      "verdict": "PASS",
+      "summary": "Side effects are governed: D2 A draft-only outreach, D1 B mock lead with full trace, D3 B world brain gated by LiNKguard policy.",
+      "evidence": [
+        {
+          "type": "narrative",
+          "ref": "PROGRAM.md §Finished product step 6",
+          "finding": "Outreach defaults to governed draft with explicit Principal approval for live send."
+        },
+        {
+          "type": "file",
+          "ref": "LiNKdev/product/programs/linktrend-system/modules/linkguard/phases/security/issues/LTS-050.md",
+          "finding": "LiNKguard issue covers world brain confidentiality hooks for D3 B."
+        }
+      ]
+    },
+    {
+      "persona_id": "architecture-advisor",
+      "verdict": "PASS",
+      "summary": "Narrative respects plane ownership; LinkSites product stays external; six planes plus Librarian wired per PPD.",
+      "evidence": [
+        {
+          "type": "narrative",
+          "ref": "PROGRAM.md §Infrastructure",
+          "finding": "LiNKsites product code boundary explicit; orchestration owned by this repo."
+        },
+        {
+          "type": "file",
+          "ref": ".cursor/rules/02-ecosystem-boundaries.mdc",
+          "finding": "Suite workflow map and capability connectors align with monorepo boundaries."
+        }
+      ]
+    },
+    {
+      "persona_id": "dx-advisor",
+      "verdict": "PASS",
+      "summary": "D1–D4 decisions are binding in PROGRAM.md and issue acceptance criteria; narrative is actionable for decomposition.",
+      "evidence": [
+        {
+          "type": "file",
+          "ref": "LiNKdev/product/reports/linktrend-system/PLANNER-QA.md",
+          "finding": "Four closed Principal decisions with option text preserved for executors."
+        },
+        {
+          "type": "file",
+          "ref": "LiNKdev/product/programs/linktrend-system/PROGRAM.md",
+          "finding": "Principal Q&A decisions table binds D1–D4 to narrative sections."
+        }
+      ]
+    },
+    {
+      "persona_id": "qa-advisor",
+      "verdict": "PASS",
+      "summary": "MVO demo path is measurable: seven LinkSites steps, LTS-108 E2E proof, governance traces on every side effect.",
+      "evidence": [
+        {
+          "type": "narrative",
+          "ref": "PROGRAM.md §LinkSites seven-step",
+          "finding": "No skip stages; outreach and lead generation explicitly not stubbed."
+        },
+        {
+          "type": "file",
+          "ref": "LiNKdev/product/programs/linktrend-system/modules/linksites/phases/e2e-proof/issues/LTS-108.md",
+          "finding": "Dedicated E2E proof issue with verify.sh proof requirement."
+        }
+      ]
+    },
+    {
+      "persona_id": "product-advisor",
+      "verdict": "PASS",
+      "summary": "Narrative matches Principal MVO reset: Client + Admin + one LinkSites lead loop; Project terminology; Principal OK recorded.",
+      "evidence": [
+        {
+          "type": "file",
+          "ref": "LiNKdev/product/grounding/PRINCIPAL_PRODUCT_DEFINITION.md",
+          "finding": "PPD §5 seven-step LinkSites process mirrored in narrative."
+        },
+        {
+          "type": "narrative",
+          "ref": "PROGRAM.md §LiNKtrend Admin",
+          "finding": "D4 B full vendor catalogue reflects Principal choice over demo-only Admin."
+        }
+      ]
+    }
+  ],
+  "summary_status": "PASS",
+  "blockers": [],
+  "warnings": [
+    {
+      "persona_id": "security-advisor",
+      "message": "D3 B world brain path must produce auditable anonymization proof in LTS-021 and LTS-050 reports."
+    }
+  ],
+  "summary_markdown_path": "LiNKdev/product/reports/linktrend-system/council/G1-SUMMARY.md"
+}

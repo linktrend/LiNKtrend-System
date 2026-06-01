@@ -2,7 +2,7 @@
 
 import { CheckCircle2, XCircle, AlertCircle, Loader2, MinusCircle } from "lucide-react";
 
-import type { TraceListItem, TraceOutcome } from "@/lib/plugins/linkapps/types/trace";
+import type { TraceListItem, TraceOutcome } from "@/lib/suite-integrations/linkapps/types/trace";
 
 export type TraceSummaryListProps = {
   /** List of trace items to display */

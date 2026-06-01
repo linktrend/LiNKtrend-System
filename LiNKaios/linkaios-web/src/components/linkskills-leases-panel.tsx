@@ -10,6 +10,7 @@ import {
 } from "@/components/data-table";
 import { DomainStatusPill, StatusPill } from "@/components/ui/status-pill";
 import { loadLeaseStatus } from "@/lib/cockpit";
+import { resolveProjectIdFromProps } from "@/lib/api/project-mission-id";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { isUiMocksEnabled } from "@/lib/ui-mocks/flags";
 import { DEMO_LEASE_ROWS } from "@/lib/ui-mocks/leases-demo";
@@ -21,8 +22,15 @@ function leaseStatusForPill(raw: string): string {
   return raw;
 }
 
-export async function LinkskillsLeasesPanel(props?: { missionId?: string | null }) {
-  const missionId = props?.missionId?.trim() || null;
+export async function LinkskillsLeasesPanel(props?: {
+  projectId?: string | null;
+  /** @deprecated Use projectId */
+  missionId?: string | null;
+}) {
+  const projectId = resolveProjectIdFromProps({
+    projectId: props?.projectId,
+    missionId: props?.missionId,
+  }) || null;
   const supabase = await createSupabaseServerClient();
   const tenantId = "default";
   const mocksOn = isUiMocksEnabled();
@@ -30,10 +38,10 @@ export async function LinkskillsLeasesPanel(props?: { missionId?: string | null 
   let leases = await loadLeaseStatus(supabase, tenantId, { time_range: "24h" });
 
   if (mocksOn && leases.length === 0) {
-    leases = missionId ? DEMO_LEASE_ROWS.filter((l) => l.mission_id === missionId) : DEMO_LEASE_ROWS;
-  } else if (missionId) {
+    leases = projectId ? DEMO_LEASE_ROWS.filter((l) => l.mission_id === projectId) : DEMO_LEASE_ROWS;
+  } else if (projectId) {
     const { fetchMetricsSnapshot } = await import("@/app/(shell)/metrics/actions");
-    const metrics = await fetchMetricsSnapshot({ days: 30, missionId, agentId: null });
+    const metrics = await fetchMetricsSnapshot({ days: 30, missionId: projectId, agentId: null });
     const runIds = new Set(
       (metrics.ok ? metrics.data.runs : [])
         .map((r) => r.id)
@@ -42,7 +50,7 @@ export async function LinkskillsLeasesPanel(props?: { missionId?: string | null 
     leases = leases.filter((l) => l.run_id != null && runIds.has(l.run_id));
   }
 
-  const scoped = missionId != null;
+  const scoped = projectId != null;
   const sectionTitle = scoped ? "Leases for this project" : "Leases from the last 24 hours";
   const sectionBlurb = scoped
     ? "Capability grants and denials recorded for runs tied to this project in the rolling window."
