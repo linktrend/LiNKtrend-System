@@ -33,10 +33,12 @@ jobs:
       (github.event.label.name == 'linkdev:ready' || github.event.label.name == 'runtime:cursor')
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
       issues: write
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: development
 
       - name: Verify issue labels (AND)
         id: labels
@@ -49,17 +51,30 @@ jobs:
             "${{ github.repository }}" "${{ github.event.issue.number }}" \
             linkdev:ready runtime:cursor
 
+      - name: Prepare LAW-05 issue branch
+        id: branch
+        if: steps.labels.outcome == 'success'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          node LiNKdev/factory/scripts/prepare-executor-branch.mjs \
+            --repo "${{ github.repository }}" \
+            --issue "${{ github.event.issue.number }}"
+
       - name: Dispatch Cursor executor
         id: dispatch
         if: steps.labels.outcome == 'success'
         env:
           CURSOR_API_KEY: ${{ secrets.CURSOR_API_KEY }}
           GITHUB_REPOSITORY: ${{ github.repository }}
+          LINKDEV_EXECUTOR_BRANCH: ${{ steps.branch.outputs.branch }}
+          LINKDEV_EXECUTOR_HARDENED: '1'
         run: |
           node LiNKdev/factory/scripts/dispatch-cursor-agent.mjs \
             --role executor \
             --repo "${GITHUB_REPOSITORY}" \
-            --issue "${{ github.event.issue.number }}"
+            --issue "${{ github.event.issue.number }}" \
+            --branch "${{ steps.branch.outputs.branch }}"
 
       - name: Post dispatch status on issue
         if: steps.labels.outcome == 'success' && steps.dispatch.outcome == 'success'

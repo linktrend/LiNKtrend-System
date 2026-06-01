@@ -13,7 +13,7 @@ import {
 test('issueBranchName derives LAW-05 branch from title', () => {
   assert.equal(
     issueBranchName('LTS-005', 'LTS-005: Admin fleet LiNKbots and troubleshooting surfaces'),
-    'issue/LTS-005-admin-fleet-linkbots-and-troubleshooting-sur',
+    'issue/LTS-005-admin-fleet-linkbots-and-troubleshooting-surface',
   );
 });
 

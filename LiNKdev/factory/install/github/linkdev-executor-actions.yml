@@ -1,0 +1,74 @@
+# Copy to: .github/workflows/linkdev-executor-actions.yml
+# Hardened executor dispatch: LAW-05 branch prep + autoCreatePR (fallback after cloud FINISHED-without-PR).
+
+name: LiNKdev executor actions
+
+on:
+  workflow_dispatch:
+    inputs:
+      issue_number:
+        description: GitHub issue number for executor
+        required: true
+        type: string
+  repository_dispatch:
+    types: [linkdev-executor-fallback]
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  executor:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GITHUB_REPOSITORY: ${{ github.repository }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: development
+
+      - name: Resolve issue number
+        id: issue
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            echo "number=${{ github.event.inputs.issue_number }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "number=${{ github.event.client_payload.issue_number }}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Prepare LAW-05 issue branch
+        id: branch
+        run: |
+          node LiNKdev/factory/scripts/prepare-executor-branch.mjs \
+            --repo "${GITHUB_REPOSITORY}" \
+            --issue "${{ steps.issue.outputs.number }}"
+
+      - name: Dispatch hardened Cursor executor
+        id: dispatch
+        env:
+          CURSOR_API_KEY: ${{ secrets.CURSOR_API_KEY }}
+          LINKDEV_EXECUTOR_BRANCH: ${{ steps.branch.outputs.branch }}
+          LINKDEV_EXECUTOR_HARDENED: '1'
+        run: |
+          if [[ -z "${CURSOR_API_KEY:-}" ]]; then
+            echo "CURSOR_API_KEY not set — cannot dispatch"
+            exit 1
+          fi
+          node LiNKdev/factory/scripts/dispatch-cursor-agent.mjs \
+            --role executor \
+            --repo "${GITHUB_REPOSITORY}" \
+            --issue "${{ steps.issue.outputs.number }}" \
+            --branch "${{ steps.branch.outputs.branch }}"
+
+      - name: Post dispatch status on issue
+        if: steps.dispatch.outcome == 'success'
+        run: |
+          chmod +x LiNKdev/factory/scripts/post-linkdev-dispatch-status.sh
+          LiNKdev/factory/scripts/post-linkdev-dispatch-status.sh \
+            --role executor \
+            --repo "${{ github.repository }}" \
+            --issue "${{ steps.issue.outputs.number }}" \
+            --agent-id "${{ steps.dispatch.outputs.agent_id }}" \
+            --agent-url "${{ steps.dispatch.outputs.agent_url }}" \
+            --run-status "${{ steps.dispatch.outputs.run_status }}"

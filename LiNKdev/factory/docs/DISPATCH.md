@@ -58,6 +58,7 @@ Template stubs live under `LiNKdev/factory/install/github/`:
 | `linkdev-planner-bootstrap.yml` | `.github/workflows/linkdev-planner-bootstrap.yml` |
 | `linkdev-orchestrator-bootstrap.yml` | `.github/workflows/linkdev-orchestrator-bootstrap.yml` |
 | `linkdev-agent-watch.yml` | `.github/workflows/linkdev-agent-watch.yml` |
+| `linkdev-executor-actions.yml` | `.github/workflows/linkdev-executor-actions.yml` (hardened executor fallback) |
 | `linkdev-cursor-status.yml` | `.github/workflows/linkdev-cursor-status.yml` (diagnostic) |
 | `branch-source-policy.yml` | `.github/workflows/branch-source-policy.yml` |
 
@@ -93,7 +94,9 @@ Never commit API keys. Do not store `CURSOR_API_KEY` in `LiNKdev/` or `.env` in 
 |--------|---------|
 | [../scripts/check-labels-for-dispatch.sh](../scripts/check-labels-for-dispatch.sh) | `gh`-based AND label checks for issues and PRs; `state-requests-orchestrator` parses STATE.md |
 | [../scripts/planner-handoff.sh](../scripts/planner-handoff.sh) | Planner G2 handoff marker (push only; bootstrap workflow merges + dispatches) |
-| [../scripts/dispatch-cursor-agent.mjs](../scripts/dispatch-cursor-agent.mjs) | Build prompt from `ROLE.md`; `POST https://api.cursor.com/v1/agents` |
+| [../scripts/dispatch-cursor-agent.mjs](../scripts/dispatch-cursor-agent.mjs) | Build prompt from `ROLE.md`; `POST /v1/agents` with **`autoCreatePR: true`** for executors |
+| [../scripts/prepare-executor-branch.mjs](../scripts/prepare-executor-branch.mjs) | Create LAW-05 `issue/<id>-<slug>` on GitHub before executor dispatch |
+| [../scripts/linkdev-dispatch-payload.mjs](../scripts/linkdev-dispatch-payload.mjs) | API body helpers (`autoCreatePR`, `workOnCurrentBranch`) — unit tested |
 
 ### Local dry-run (no API call)
 
