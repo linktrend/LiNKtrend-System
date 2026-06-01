@@ -8,13 +8,13 @@ import { useAppSurface } from "@/components/app-surface-provider";
 import { ModuleProcessTree } from "@/components/suites/module-process-tree";
 import { ShellPageHeaderClient } from "@/components/shell-page-header-client";
 import { StatusPill } from "@/components/ui/status-pill";
+import { useLicensorSuiteProducts } from "@/hooks/use-licensor-suite-publish";
 import { LICENSOR_SUITE_PUBLISH_PILL_LABELS } from "@/lib/status-colors";
 import {
   canMarkSuiteReady,
   canPublishSuite,
   licensorSuitePublishLabel,
   licensorSuitePublishTone,
-  type LicensorSuiteProduct,
   suiteBuilderCompleteness,
 } from "@/lib/ui-mocks/licensor-suite-catalog";
 import { BUTTON, formatUiLabel, screenTabLinkClass } from "@/lib/ui-standards";
@@ -47,48 +47,57 @@ function StubAddButton(props: { label: string; icon: typeof Layers3 }) {
   );
 }
 
-export function LicensorSuiteBuilderPanel(props: { suite: LicensorSuiteProduct }) {
+export function LicensorSuiteBuilderPanel(props: { suiteId: string }) {
   const { href: appHref } = useAppSurface();
+  const { products, transitionPublish } = useLicensorSuiteProducts();
+  const suite = products.find((row) => row.id === props.suiteId);
   const [tab, setTab] = useState<BuilderTab>("composition");
-  const completeness = suiteBuilderCompleteness(props.suite);
+
+  if (!suite) {
+    return null;
+  }
+
+  const completeness = suiteBuilderCompleteness(suite);
 
   return (
     <main className="space-y-6">
       <ShellPageHeaderClient
-        title={props.suite.name}
-        subtitle={props.suite.summary}
+        title={suite.name}
+        subtitle={suite.summary}
         actions={
           <div className="flex flex-wrap items-center gap-2">
             <StatusPill
-              label={licensorSuitePublishLabel(props.suite.publishState)}
-              tone={licensorSuitePublishTone(props.suite.publishState)}
+              label={licensorSuitePublishLabel(suite.publishState)}
+              tone={licensorSuitePublishTone(suite.publishState)}
               equalWidthLabels={LICENSOR_SUITE_PUBLISH_PILL_LABELS}
             />
-            {props.suite.publishState === "draft" ? (
+            {suite.publishState === "draft" ? (
               <button
                 type="button"
                 className={`${BUTTON.secondaryCardAction} !mt-0 px-3 py-1.5 text-xs`}
-                disabled={!canMarkSuiteReady(props.suite)}
-                title={canMarkSuiteReady(props.suite) ? "Mark suite ready for review" : "Finish composition first"}
+                disabled={!canMarkSuiteReady(suite)}
+                title={canMarkSuiteReady(suite) ? "Mark suite ready for review" : "Finish composition first"}
+                onClick={() => transitionPublish(suite.id, "mark_ready")}
               >
                 Mark ready
               </button>
             ) : null}
-            {props.suite.publishState === "ready" ? (
+            {suite.publishState === "ready" ? (
               <button
                 type="button"
                 className={`${BUTTON.primaryRow} !mt-0 px-3 py-1.5 text-xs`}
-                disabled={!canPublishSuite(props.suite)}
+                disabled={!canPublishSuite(suite)}
                 title={
-                  canPublishSuite(props.suite)
+                  canPublishSuite(suite)
                     ? "Publish to licensee marketplace"
                     : "Link a Stripe product before publishing"
                 }
+                onClick={() => transitionPublish(suite.id, "publish")}
               >
                 Publish to marketplace
               </button>
             ) : null}
-            {props.suite.publishState === "published" ? (
+            {suite.publishState === "published" ? (
               <span className="text-xs text-zinc-500 dark:text-zinc-400">Live in licensee Marketplace</span>
             ) : null}
           </div>
@@ -100,9 +109,9 @@ export function LicensorSuiteBuilderPanel(props: { suite: LicensorSuiteProduct }
         <span className="text-zinc-700 dark:text-zinc-300">
           Composition <strong className="text-zinc-900 dark:text-zinc-100">{completeness}%</strong> complete
         </span>
-        {props.suite.stripeProductId ? (
+        {suite.stripeProductId ? (
           <span className="text-zinc-500 dark:text-zinc-400">
-            Stripe · <code className="text-xs">{props.suite.stripeProductId}</code>
+            Stripe · <code className="text-xs">{suite.stripeProductId}</code>
           </span>
         ) : (
           <Link href={appHref("/suites/billing")} className="font-medium text-sky-700 underline dark:text-sky-400">
@@ -140,8 +149,8 @@ export function LicensorSuiteBuilderPanel(props: { suite: LicensorSuiteProduct }
       </nav>
 
       {tab === "composition" ? (
-        props.suite.modules.length > 0 ? (
-          <ModuleProcessTree processes={props.suite.modules} variant="catalogue" />
+        suite.modules.length > 0 ? (
+          <ModuleProcessTree processes={suite.modules} variant="catalogue" />
         ) : (
           <p className="rounded-xl border border-dashed border-zinc-300 bg-zinc-50 px-4 py-8 text-center text-sm text-zinc-600 dark:border-zinc-700 dark:bg-zinc-900/30 dark:text-zinc-400">
             No modules yet. Use <strong>Add module</strong> to start assembling this suite.
@@ -151,16 +160,16 @@ export function LicensorSuiteBuilderPanel(props: { suite: LicensorSuiteProduct }
 
       {tab === "linkbots" ? (
         <p className="text-sm text-zinc-600 dark:text-zinc-400">
-          {props.suite.linkbotCount > 0
-            ? `${props.suite.linkbotCount} LiNKbot assignees across issues — edit from the composition tree or Add LiNKbot.`
+          {suite.linkbotCount > 0
+            ? `${suite.linkbotCount} LiNKbot assignees across issues — edit from the composition tree or Add LiNKbot.`
             : "Assign LiNKbots to issues so judgment work runs under governed sessions."}
         </p>
       ) : null}
 
       {tab === "automations" ? (
         <p className="text-sm text-zinc-600 dark:text-zinc-400">
-          {props.suite.automationCount > 0
-            ? `${props.suite.automationCount} LiNKautowork automations wired — deterministic steps run without model spend.`
+          {suite.automationCount > 0
+            ? `${suite.automationCount} LiNKautowork automations wired — deterministic steps run without model spend.`
             : "Add automations for deterministic workflow steps between LiNKbot judgment points."}
         </p>
       ) : null}

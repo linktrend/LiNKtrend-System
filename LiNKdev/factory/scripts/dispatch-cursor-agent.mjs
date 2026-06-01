@@ -63,6 +63,12 @@ function buildPrompt({ role, repo, issue, pr }) {
   ];
   if (issue) lines.push(`**Issue:** #${issue}`, '');
   if (pr) lines.push(`**Pull request:** #${pr}`, '');
+  if (role === 'executor') {
+    lines.push(
+      '**Mandatory handoff:** Push your branch, open a PR targeting development, and add linkdev:review-ready on the PR before finishing.',
+      '',
+    );
+  }
   lines.push('## Role contract (`LiNKdev/factory/prompts/.../ROLE.md)', '', roleMd, '', '---', 'Execute this role now in the repository.');
   return lines.join('\n');
 }

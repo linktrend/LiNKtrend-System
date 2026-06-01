@@ -15,9 +15,9 @@ import {
 } from "@/components/data-table";
 import { ShellPageHeaderClient } from "@/components/shell-page-header-client";
 import { StatusPill } from "@/components/ui/status-pill";
+import { useLicensorSuiteProducts } from "@/hooks/use-licensor-suite-publish";
 import { LICENSOR_SUITE_PUBLISH_PILL_LABELS } from "@/lib/status-colors";
 import {
-  LICENSOR_SUITE_PRODUCTS,
   licensorSuitePublishLabel,
   licensorSuitePublishTone,
   suiteBuilderCompleteness,
@@ -26,6 +26,7 @@ import { BUTTON, formatUiLabel } from "@/lib/ui-standards";
 
 export function LicensorSuitesIndex() {
   const { href: appHref } = useAppSurface();
+  const { products } = useLicensorSuiteProducts();
 
   return (
     <main className="space-y-6">
@@ -76,7 +77,7 @@ export function LicensorSuitesIndex() {
             </tr>
           </DataTableHead>
           <DataTableBody>
-            {LICENSOR_SUITE_PRODUCTS.map((suite) => {
+            {products.map((suite) => {
               const completeness = suiteBuilderCompleteness(suite);
               return (
                 <DataTableRow key={suite.id}>

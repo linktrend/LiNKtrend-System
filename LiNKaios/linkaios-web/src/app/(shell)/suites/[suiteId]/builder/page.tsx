@@ -13,5 +13,5 @@ export default async function LicensorSuiteBuilderPage(props: { params: Promise<
     notFound();
   }
 
-  return <LicensorSuiteBuilderPanel suite={suite} />;
+  return <LicensorSuiteBuilderPanel suiteId={suiteId} />;
 }

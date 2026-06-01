@@ -94,17 +94,15 @@ export type ModulesCatalogModel = {
 /** @deprecated Use SuiteModuleTemplate — kept for imports during migration. */
 export type ModuleProjectType = SuiteModuleTemplate;
 
+/** Seven Principal business steps — aligned with suites/linksites/workflow.md (no skip stages). */
 export const LINKSITES_MVO_STAGES: WorkflowStageFixture[] = [
-  { order: 1, stageId: "linksites.run.bootstrap", label: "Bootstrap", summary: "Bind tenant run to mock CRM lead and site identities", status: "completed", primaryPlane: "LiNKaios" },
-  { order: 2, stageId: "linksites.lead_scout.skip", label: "Lead scout", summary: "Lead Scout role declared; mock substitution only (MVO skip)", status: "skipped", primaryPlane: "LiNKbot" },
-  { order: 3, stageId: "linksites.research.enrich", label: "Research", summary: "Governed public research with provenance", status: "completed", primaryPlane: "LiNKbot" },
-  { order: 4, stageId: "linksites.template_select_package", label: "Template & copy", summary: "Template-guided copy, media plan, and style proposal", status: "completed", primaryPlane: "LiNKbot" },
-  { order: 5, stageId: "linksites.artifact.write_local", label: "Artifact write", summary: "Persist generated package to local artifact folder", status: "running", primaryPlane: "LiNKautowork" },
-  { order: 6, stageId: "linksites.supabase.mirror_upsert", label: "Mirror upsert", summary: "Structured content and asset refs to Supabase mirror", status: "pending", primaryPlane: "LiNKautowork" },
-  { order: 7, stageId: "linksites.payload.sync_local", label: "Payload sync", summary: "Sync mirror to local Payload CMS", status: "pending", primaryPlane: "LiNKautowork" },
-  { order: 8, stageId: "linksites.preview.verify", label: "Preview verify", summary: "Deterministic checks against preview frontend", status: "pending", primaryPlane: "LiNKautowork" },
-  { order: 9, stageId: "linksites.crm.promote_ready", label: "CRM promote", summary: "Mock CRM lead status update to ready_to_contact", status: "pending", primaryPlane: "LiNKautowork" },
-  { order: 10, stageId: "linksites.outreach.declared_skip", label: "Outreach", summary: "Outreach Bot declared disabled (MVO skip)", status: "skipped", primaryPlane: "LiNKbot" },
+  { order: 1, stageId: "linksites.lead_generation", label: "Lead generation", summary: "Governed mock demo lead with lease and trace", status: "completed", primaryPlane: "LiNKbot" },
+  { order: 2, stageId: "linksites.qualification", label: "Qualification", summary: "Business type and industry identified", status: "completed", primaryPlane: "LiNKbot" },
+  { order: 3, stageId: "linksites.template_selection", label: "Template selection", summary: "Industry template from LiNKsites registry", status: "completed", primaryPlane: "LiNKbot" },
+  { order: 4, stageId: "linksites.website_build", label: "Website build", summary: "Copy, media, and style within template", status: "running", primaryPlane: "LiNKbot" },
+  { order: 5, stageId: "linksites.publish", label: "Publish", summary: "Payload CMS + temp URL on linktrend.media", status: "pending", primaryPlane: "LiNKautowork" },
+  { order: 6, stageId: "linksites.outreach", label: "Outreach", summary: "Governed outreach — draft or Principal-approved send", status: "pending", primaryPlane: "LiNKbot" },
+  { order: 7, stageId: "linksites.close_or_recycle", label: "Close or recycle", summary: "Subscribe/transfer domain or recycle for next lead", status: "pending", primaryPlane: "LiNKaios" },
 ];
 
 export const MODULES_CATALOG_DEMO: ModulesCatalogModel = {
