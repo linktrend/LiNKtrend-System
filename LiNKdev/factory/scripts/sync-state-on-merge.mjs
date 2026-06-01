@@ -58,9 +58,9 @@ function resolveLtsId(pr, mapping) {
 async function main() {
   const args = parseArgs(process.argv);
   const pr = JSON.parse(
-    await gh(['pr', 'view', String(args.pr), '--repo', args.repo, '--json', 'title,headRefName,body,merged,baseRefName']),
+    await gh(['pr', 'view', String(args.pr), '--repo', args.repo, '--json', 'title,headRefName,body,mergedAt,baseRefName']),
   );
-  if (!pr.merged || pr.baseRefName !== 'development') {
+  if (!pr.mergedAt || pr.baseRefName !== 'development') {
     console.log('MERGE_SYNC_SKIP not merged to development');
     return;
   }
@@ -82,7 +82,7 @@ async function main() {
 
   if (!args.dryRun) {
     await gh(['issue', 'edit', String(issueNum), '--repo', args.repo, '--add-label', 'linkdev:done']).catch(() => {});
-    for (const lab of ['linkdev:ready', 'linkdev:in-progress', 'linkdev:review-ready', 'linkdev:merge-ready', 'runtime:cursor']) {
+    for (const lab of ['linkdev:ready', 'linkdev:in-progress', 'linkdev:review-ready', 'linkdev:merge-ready', 'linkdev:principal-stop', 'runtime:cursor']) {
       await gh(['issue', 'edit', String(issueNum), '--repo', args.repo, '--remove-label', lab]).catch(() => {});
     }
     const body = `[linkdev-merge-sync] PR #${args.pr} merged to development — issue marked done. Orchestrator may advance the program.`;

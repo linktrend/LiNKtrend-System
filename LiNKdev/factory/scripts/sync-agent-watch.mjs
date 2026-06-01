@@ -6,7 +6,14 @@
  * Usage: node sync-agent-watch.mjs [--repo owner/name] [--dry-run]
  */
 import { appendFileSync } from 'node:fs';
-import { minutesSinceStallCycleStart, minutesSinceLastHealInCycle } from './linkdev-stall-clock.mjs';
+import {
+  applyNormalizeExecutorLabels,
+  countFinishedNoPrHeals,
+  escalateExecutorNoPr,
+  shouldEscalateFinishedNoPr,
+} from './linkdev-factory-escalation.mjs';
+import { isIncompleteExecutorFinish } from './linkdev-dispatch-payload.mjs';
+import { minutesSinceStallCycleStart, minutesSinceLastHealInCycle, stallCycleStartAt } from './linkdev-stall-clock.mjs';
 
 const API = 'https://api.cursor.com/v1';
 const MARKER = '[linkdev-agent-watch]';
@@ -169,8 +176,14 @@ async function buildDispatchAgentMap(repo, issueMap) {
   return map;
 }
 
-function statusEmoji(status) {
+function roleFromAgentName(name) {
+  const m = name?.match(/^LiNKdev-(orchestrator|executor|reviewer|integrator)-/);
+  return m?.[1] ?? 'unknown';
+}
+
+function statusEmoji(status, incompleteFinish) {
   if (status === 'RUNNING' || status === 'CREATING') return '🔄';
+  if (status === 'FINISHED' && incompleteFinish) return '⚠️';
   if (status === 'FINISHED') return '✅';
   if (status === 'ERROR' || status === 'EXPIRED') return '❌';
   if (status === 'CANCELLED') return '⏹️';
@@ -178,12 +191,14 @@ function statusEmoji(status) {
 }
 
 function buildWatchBody({ agent, run, roleHint }) {
+  const role = roleHint ?? roleFromAgentName(agent.name);
+  const incompleteFinish = isIncompleteExecutorFinish(role, run);
   const status = run.status;
-  const emoji = statusEmoji(status);
+  const emoji = statusEmoji(status, incompleteFinish);
   const branch = run.git?.branches?.[0]?.branch;
   const prUrl = run.git?.branches?.[0]?.prUrl;
   const lines = [
-    `${MARKER} ${emoji} **Agent ${status.toLowerCase()}**`,
+    `${MARKER} ${emoji} **Agent ${incompleteFinish ? 'finished without PR' : status.toLowerCase()}**`,
     '',
     '| Field | Value |',
     '|-------|-------|',
@@ -197,8 +212,12 @@ function buildWatchBody({ agent, run, roleHint }) {
   if (prUrl) lines.push(`| PR | ${prUrl} |`);
   lines.push(`| Cursor | [Open agent](${agent.url}) |`);
   lines.push('');
-  if (status === 'FINISHED') {
-    lines.push('**Done signal:** Executor should open a PR with `linkdev:review-ready`. Integrator merges after review.');
+  if (incompleteFinish) {
+    lines.push(
+      '**Incomplete handoff:** Cursor reported FINISHED but no PR URL. Factory auto-heal will retry or escalate.',
+    );
+  } else if (status === 'FINISHED') {
+    lines.push('**Done signal:** PR should exist with `linkdev:review-ready`. Integrator merges after review.');
   } else if (TERMINAL.has(status) && status !== 'FINISHED') {
     lines.push('**Action:** Run failed or stopped. Tell your LiNKdev agent to investigate, or re-dispatch after fixing the blocker.');
   } else {
@@ -259,11 +278,29 @@ async function issueHasOpenPr(repo, ltsId) {
   }
 }
 
+async function branchHasCommitsAhead(repo, branch, base = 'development') {
+  try {
+    const out = await gh([
+      'api',
+      `repos/${repo}/compare/${base}...${branch}`,
+      '--jq',
+      '.ahead_by',
+    ]);
+    return Number(out) > 0;
+  } catch {
+    return false;
+  }
+}
+
 async function tryCreatePrFromBranch(repo, branch, ltsId, issueNum, dryRun) {
   if (!branch || dryRun) return false;
   try {
     const remote = await gh(['api', `repos/${repo}/git/ref/heads/${branch}`, '--jq', '.object.sha']).catch(() => null);
     if (!remote) return false;
+    if (!(await branchHasCommitsAhead(repo, branch))) {
+      console.warn(`auto-heal skip PR: branch ${branch} has no commits ahead of development`);
+      return false;
+    }
     const title = `${ltsId}: auto-opened from executor branch`;
     const body = `[linkdev-auto-heal] Opened PR from remote branch \`${branch}\` after executor FINISHED without PR.`;
     await gh([
@@ -292,13 +329,55 @@ async function issueHasRecentFinishedNoPr(comments, agentId) {
   return body.includes(MARKER) && body.includes(agentId) && body.includes('FINISHED') && body.includes(FINISHED_NO_PR_MARKER);
 }
 
-async function redispatchIssue(repo, num, ltsId, reason, dryRun) {
-  const body = `${HEAL_MARKER} **Auto-heal:** ${reason} — re-dispatching executor automatically. No Principal action needed.`;
+async function normalizeIssueLabels(repo, num, labels, dryRun) {
+  const labelNames = labels?.map((l) => (typeof l === 'string' ? l : l.name)) ?? [];
+  await applyNormalizeExecutorLabels(repo, num, labelNames, dryRun, gh);
+}
+
+async function triggerActionsExecutorFallback(repo, issueNum, dryRun) {
   if (dryRun) {
-    console.log(`DRY_RUN heal issue #${num}: ${reason}`);
+    console.log(`DRY_RUN actions executor fallback issue #${issueNum}`);
+    return true;
+  }
+  try {
+    await gh([
+      'workflow', 'run', 'LiNKdev executor actions',
+      '--repo', repo,
+      '--ref', 'development',
+      '-f', `issue_number=${issueNum}`,
+    ]);
+    console.log(`auto-heal triggered Actions executor fallback for #${issueNum}`);
+    return true;
+  } catch (err) {
+    console.warn(`actions executor fallback failed for #${issueNum}: ${err.message}`);
+    return false;
+  }
+}
+
+async function redispatchIssue(repo, num, ltsId, reason, dryRun, comments = []) {
+  const cycleStart = stallCycleStartAt(comments);
+  if (shouldEscalateFinishedNoPr(comments, cycleStart)) {
+    await escalateExecutorNoPr(repo, num, ltsId, dryRun, gh);
+    return;
+  }
+
+  const healCount = countFinishedNoPrHeals(comments, cycleStart);
+  const useActionsFallback = healCount >= 1;
+
+  const body = useActionsFallback
+    ? `${HEAL_MARKER} **Auto-heal:** ${reason} — triggering **GitHub Actions hardened executor** (branch prep + \`autoCreatePR\`).`
+    : `${HEAL_MARKER} **Auto-heal:** ${reason} — re-dispatching executor automatically. No Principal action needed.`;
+  if (dryRun) {
+    console.log(`DRY_RUN heal issue #${num}: ${reason} actions=${useActionsFallback}`);
     return;
   }
   await gh(['issue', 'comment', String(num), '--repo', repo, '--body', body]);
+
+  if (useActionsFallback && (await triggerActionsExecutorFallback(repo, num, dryRun))) {
+    console.log(`auto-heal actions fallback issue #${num} (${ltsId}): ${reason}`);
+    return;
+  }
+
   await gh(['issue', 'edit', String(num), '--repo', repo, '--remove-label', 'linkdev:ready']).catch(() => {});
   await gh(['issue', 'edit', String(num), '--repo', repo, '--remove-label', 'runtime:cursor']).catch(() => {});
   await gh(['issue', 'edit', String(num), '--repo', repo, '--add-label', 'linkdev:ready']).catch(() => {});
@@ -312,7 +391,7 @@ async function redispatchIssue(repo, num, ltsId, reason, dryRun) {
     const r = spawnSync(
       process.execPath,
       [script, '--role', 'executor', '--repo', repo, '--issue', String(num)],
-      { encoding: 'utf8', env: process.env },
+      { encoding: 'utf8', env: { ...process.env, LINKDEV_EXECUTOR_HARDENED: '1' } },
     );
     if (r.status === 0) {
       console.log(`auto-heal direct executor dispatch issue #${num} (${ltsId})`);
@@ -334,11 +413,14 @@ async function autoHealStalls(repo, issueMap, activeIssueNumbers, dryRun) {
     );
     const labels = view.labels?.map((l) => l.name) ?? [];
     if (labels.includes('linkdev:review-ready') || labels.includes('linkdev:done')) continue;
+    if (labels.includes('linkdev:principal-stop')) continue;
     const isActive = labels.includes('linkdev:in-progress') || labels.includes('linkdev:ready');
     if (!isActive) continue;
+    await normalizeIssueLabels(repo, num, labels, dryRun);
     if (await issueHasOpenPr(repo, ltsId)) continue;
 
     const comments = view.comments ?? [];
+    if (shouldEscalateFinishedNoPr(comments, stallCycleStartAt(comments))) continue;
     if ((await minutesSinceLastHeal(comments)) < HEAL_COOLDOWN_MINUTES) continue;
 
     const recentFinishedNoPr = comments.some(
@@ -354,7 +436,7 @@ async function autoHealStalls(repo, issueMap, activeIssueNumbers, dryRun) {
     const reason = recentFinishedNoPr
       ? 'executor FINISHED without opening a PR'
       : `no PR after ${STALL_MINUTES}+ minutes`;
-    await redispatchIssue(repo, num, ltsId, reason, dryRun);
+    await redispatchIssue(repo, num, ltsId, reason, dryRun, comments);
     healed += 1;
   }
   return healed;
@@ -378,7 +460,15 @@ async function healFinishedWithoutPr(repo, issueMap, target, agent, run, dryRun)
   const view = JSON.parse(
     await gh(['issue', 'view', String(target.number), '--repo', repo, '--json', 'comments,labels']),
   );
-  if (await issueHasRecentFinishedNoPr(view.comments ?? [], agent.id)) return false;
+  const labels = view.labels?.map((l) => l.name) ?? [];
+  if (labels.includes('linkdev:principal-stop')) return false;
+  await normalizeIssueLabels(repo, target.number, labels, dryRun);
+  const comments = view.comments ?? [];
+  if (shouldEscalateFinishedNoPr(comments, stallCycleStartAt(comments))) {
+    await escalateExecutorNoPr(repo, target.number, ltsId, dryRun, gh);
+    return true;
+  }
+  if (await issueHasRecentFinishedNoPr(comments, agent.id)) return false;
 
   const branch = run.git?.branches?.[0]?.branch;
   if (branch && (await tryCreatePrFromBranch(repo, branch, ltsId, target.number, dryRun))) {
@@ -395,6 +485,7 @@ async function healFinishedWithoutPr(repo, issueMap, target, agent, run, dryRun)
     ltsId,
     'executor FINISHED without opening a PR',
     dryRun,
+    comments,
   );
   return true;
 }
