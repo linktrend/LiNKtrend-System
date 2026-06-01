@@ -170,28 +170,34 @@
       "done_at": "2026-06-01T14:06:00.000Z"
     },
     "LTS-032": {
-      "status": "ready",
+      "status": "done",
       "runtime": "cursor",
       "tier": "standard",
       "depends_on": ["LTS-031"],
-      "report": "LiNKdev/product/reports/linktrend-system/linkautowork/workflows/LTS-032.md"
+      "report": "LiNKdev/product/reports/linktrend-system/linkautowork/workflows/LTS-032.md",
+      "last_pr": 93,
+      "done_at": "2026-06-01T14:08:00.000Z"
     },
     "LTS-042": {
-      "status": "ready",
+      "status": "done",
       "runtime": "cursor",
       "tier": "standard",
       "depends_on": ["LTS-041", "LTS-013"],
-      "report": "LiNKdev/product/reports/linktrend-system/linkbot/roles/LTS-042.md"
+      "report": "LiNKdev/product/reports/linktrend-system/linkbot/roles/LTS-042.md",
+      "last_pr": 93,
+      "done_at": "2026-06-01T14:08:00.000Z"
     },
     "LTS-102": {
-      "status": "ready",
+      "status": "done",
       "runtime": "cursor",
       "tier": "standard",
       "depends_on": ["LTS-101", "LTS-041"],
-      "report": "LiNKdev/product/reports/linktrend-system/linksites/qualification/LTS-102.md"
+      "report": "LiNKdev/product/reports/linktrend-system/linksites/qualification/LTS-102.md",
+      "last_pr": 93,
+      "done_at": "2026-06-01T14:08:00.000Z"
     }
   }
 }
 ```
 
-Wave 6 complete (2026-06-01): LTS-021 PR #89, LTS-030 PR #87, LTS-050 PR #88. Wave 7 complete: LTS-031 PR #90, LTS-041 PR #91, LTS-101 PR #92. Wave 8 launched: LTS-032, LTS-042, LTS-102 (manual break-glass advance).
+Wave 6 complete (2026-06-01): LTS-021 PR #89, LTS-030 PR #87, LTS-050 PR #88. Wave 7 complete: LTS-031 PR #90, LTS-041 PR #91, LTS-101 PR #92. Wave 8 batch 1 complete (2026-06-01): LTS-032, LTS-042, LTS-102 via PR #93.
