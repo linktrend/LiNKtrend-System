@@ -6,7 +6,8 @@ This file maps current compatibility code to the canonical LiNKbrain ownership h
 
 - `packages/linklogic-sdk/src/brain-*`: audit, memory, retrieval, embedding, benchmark, and virtual-file SDK helpers.
 - `packages/linklogic-sdk/src/context-assembly.ts`: context bundle schema and assembly helpers.
-- `services/migrations/*linkbrain*` and related `brain_*` migrations: current Postgres/Supabase persistence.
+- `supabase/migrations/*linkbrain*`: current LiNKbrain Supabase persistence migrations.
+- `services/migrations/*linkbrain*` and related `brain_*` migrations: legacy compatibility persistence.
 - `LiNKaios/linkaios-web/src/components/linkbrain/`: operator-facing LiNKbrain UI components.
 - `LiNKaios/linkaios-web/src/lib/linkbrain-data.ts`: LiNKbrain UI data helpers.
 - `LiNKaios/linkaios-web/src/lib/ui-mocks/linkbrain-demo-overlay.ts`: demo overlay for UI review.
