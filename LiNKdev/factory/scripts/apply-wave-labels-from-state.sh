@@ -74,6 +74,31 @@ for lts_id, row in issues.items():
     )
     applied += 1
 
-if applied == 0:
+principal_stop_applied = False
+if state.get("phase") == "principal_stop":
+    target_lts = "LTS-900" if "LTS-900" in mapping else None
+    if target_lts is None and mapping:
+        target_lts = sorted(mapping.keys())[0]
+    meta = mapping.get(target_lts) if target_lts else None
+    if meta and meta.get("github_number"):
+        num = int(meta["github_number"])
+        subprocess.run(
+            ["gh", "issue", "edit", str(num), "--repo", repo, "--add-label", "linkdev:principal-stop"],
+            check=True,
+        )
+        body = (
+            "[linkdev-principal-stop] Orchestrator scheduled a Principal checkpoint from STATE. "
+            f"Program `{program_id}` phase is `principal_stop`; release/promotion remains gated on Principal Release OK."
+        )
+        subprocess.run(
+            ["gh", "issue", "comment", str(num), "--repo", repo, "--body", body],
+            check=True,
+        )
+        print(f"labeled issue #{num} ({target_lts}): linkdev:principal-stop")
+        principal_stop_applied = True
+    else:
+        print("principal_stop set in STATE, but no GitHub issue mapping is available", file=sys.stderr)
+
+if applied == 0 and not principal_stop_applied:
     print("No ready issues in STATE — nothing to label")
 PY

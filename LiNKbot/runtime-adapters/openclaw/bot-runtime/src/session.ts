@@ -19,6 +19,7 @@ import {
   FailureReport,
   SessionRefs,
 } from "./types.js";
+import { cleanupBotSessionWithLinkguard } from "./linkguard-cleanup.js";
 
 /**
  * In-memory session store (production uses persistent store)
@@ -214,7 +215,7 @@ export function addSessionModelRunId(session_id: string, model_run_id: string): 
 }
 
 /**
- * Clean up session (LiNKguard will handle full cleanup)
+ * Clean up session (LiNKguard wipes skill traces before session removal).
  */
 export function cleanupBotSession(session_id: string): boolean {
   const session = sessionStore.get(session_id);
@@ -222,7 +223,10 @@ export function cleanupBotSession(session_id: string): boolean {
     return false;
   }
 
-  // Mark as cleanup state before removal
+  if (process.env.LINKGUARD_SKILL_TRACE_WIPE !== "0") {
+    cleanupBotSessionWithLinkguard(session_id);
+  }
+
   updateSessionState(session_id, "cleanup");
   sessionStore.delete(session_id);
   return true;

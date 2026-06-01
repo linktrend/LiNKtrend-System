@@ -30,21 +30,19 @@ export const LINKSITES_ROLE_IDS: LinkSitesRoleId[] = [
 
 /**
  * MVO-enabled roles that can execute in the current development mode.
- * lead_scout_bot runs Principal D1-B governed mock acquisition; outreach_bot
- * remains disabled until the governed outreach issue.
+ * outreach_bot runs Principal D2-A governed draft-only outreach (LTS-043).
  */
 export const LINKSITES_MVO_ENABLED_ROLES: LinkSitesRoleId[] = [
   "lead_scout_bot",
   "research_enrichment_bot",
   "website_builder_bot",
+  "outreach_bot",
 ];
 
 /**
  * MVO-disabled roles (declared but not executed).
  */
-export const LINKSITES_MVO_DISABLED_ROLES: LinkSitesRoleId[] = [
-  "outreach_bot",
-];
+export const LINKSITES_MVO_DISABLED_ROLES: LinkSitesRoleId[] = [];
 
 /**
  * Role definition for lead_scout_bot.
@@ -161,24 +159,34 @@ export const WEBSITE_BUILDER_BOT_ROLE: LiNKbotRoleAttachment = {
 /**
  * Role definition for outreach_bot.
  *
- * Declared but disabled in MVO. Future outreach drafting/sending role.
+ * Principal D2 A: governed draft-only outreach in MVO; live send requires explicit approval.
  */
 export const OUTREACH_BOT_ROLE: LiNKbotRoleAttachment = {
   role_id: "outreach_bot",
-  purpose: "Future outreach drafting/sending role for post-MVO phases. Declared but disabled in MVO.",
-  inputs: ["lead_record_ref", "website_package"],
-  outputs: [],
-  allowed_capabilities: [],
+  purpose: "Draft governed outreach to sell the ready-made site; live send only on Principal approval.",
+  inputs: ["lead_record_ref", "publish_url", "governance"],
+  outputs: ["outreach_draft_ref", "outreach_status"],
+  allowed_capabilities: [
+    "cap.crm.odoo_shadow",
+    "cap.zulip.run_messaging",
+    "cap.plane.execution_tracking",
+  ],
   allowed_skills: [],
   model_policy: {
-    model_routing_profile: "default",
+    model_routing_profile: "quality",
   },
-  audit_events: ["role.skipped"],
+  audit_events: [
+    "role.started",
+    "outreach.drafted",
+    "outreach.held_for_approval",
+    "role.completed",
+    "role.failed",
+  ],
   development_restrictions: [
-    "disabled_in_mvo",
-    "no_outreach_draft",
-    "no_outreach_send",
-    "no_external_contact",
+    "draft_only_for_mvo",
+    "lease_required",
+    "no_live_send_without_principal_approval",
+    "full_trace_required",
   ],
 };
 
