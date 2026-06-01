@@ -50,21 +50,49 @@ async function gh(args) {
   return r.stdout;
 }
 
-function parseAgentTarget(name, run, issueMap) {
+function issueFromLtsToken(token, issueMap) {
+  if (!token) return null;
+  for (const [ltsId, meta] of Object.entries(issueMap)) {
+    if (token.includes(ltsId)) {
+      return { kind: 'issue', number: meta.github_number };
+    }
+  }
+  return null;
+}
+
+function parseAgentTarget(name, run, agent, issueMap) {
   const issue = name.match(/^LiNKdev-(?:orchestrator|executor|reviewer|integrator)-issue-(\d+)-/);
   if (issue) return { kind: 'issue', number: Number(issue[1]) };
   const pr = name.match(/^LiNKdev-(?:orchestrator|executor|reviewer|integrator)-pr-(\d+)-/);
   if (pr) return { kind: 'pr', number: Number(pr[1]) };
+
+  for (const repo of agent?.repos ?? []) {
+    const prUrl = repo.prUrl ?? '';
+    const prNum = prUrl.match(/\/pull\/(\d+)/)?.[1];
+    if (prNum) return { kind: 'pr', number: Number(prNum) };
+  }
+
   const branches = run?.git?.branches ?? [];
   for (const b of branches) {
-    const branch = b.branch ?? '';
-    for (const [ltsId, meta] of Object.entries(issueMap)) {
-      if (branch.includes(ltsId)) {
-        return { kind: 'issue', number: meta.github_number };
-      }
-    }
+    const hit = issueFromLtsToken(b.branch ?? '', issueMap);
+    if (hit) return hit;
   }
   return null;
+}
+
+async function resolveTargetFromPr(repo, prNumber, issueMap) {
+  try {
+    const pr = JSON.parse(
+      await gh(['pr', 'view', String(prNumber), '--repo', repo, '--json', 'title,headRefName,body']),
+    );
+    const hit =
+      issueFromLtsToken(pr.headRefName ?? '', issueMap) ??
+      issueFromLtsToken(pr.title ?? '', issueMap) ??
+      issueFromLtsToken(pr.body ?? '', issueMap);
+    return hit ?? { kind: 'pr', number: prNumber };
+  } catch {
+    return { kind: 'pr', number: prNumber };
+  }
 }
 
 async function loadIssueMap() {
@@ -168,10 +196,13 @@ async function main() {
     if (!agent.latestRunId) continue;
 
     const run = await cursorApi(`/agents/${agent.id}/runs/${agent.latestRunId}`);
-    const target = parseAgentTarget(agent.name, run, issueMap);
+    let target = parseAgentTarget(agent.name, run, agent, issueMap);
     if (!target) {
       console.log(`skip unmapped agent ${agent.id} name=${agent.name}`);
       continue;
+    }
+    if (target.kind === 'pr') {
+      target = await resolveTargetFromPr(args.repo, target.number, issueMap);
     }
     const isTerminal = TERMINAL.has(run.status);
     const isActive = run.status === 'RUNNING' || run.status === 'CREATING';
