@@ -86,6 +86,17 @@ function lastStallActivityAt(comments) {
   return stallCycleStartAt(comments);
 }
 
+function countFinishedNoPrHeals(comments) {
+  const cycleStart = stallCycleStartAt(comments);
+  const cycleStartMs = cycleStart ? new Date(cycleStart).getTime() : 0;
+  return comments.filter(
+    (c) =>
+      (c.body?.includes('[linkdev-finished-no-pr]') ||
+        (c.body?.includes('[linkdev-auto-heal]') && c.body?.includes('FINISHED without'))) &&
+      new Date(c.createdAt).getTime() >= cycleStartMs,
+  ).length;
+}
+
 async function notifyIssue(repo, { number, title, ltsId, eventKey, message, comments, dryRun }) {
   if (recentSlackSent(comments, eventKey)) return false;
   const sent = dryRun ? true : await postSlack(message);
@@ -148,6 +159,21 @@ export async function notifyPrincipalSlack(opts) {
     if (await issueHasOpenPr(repo, ltsId)) continue;
 
     const comments = view.comments ?? [];
+    const finishedNoPrCount = countFinishedNoPrHeals(comments);
+    if (finishedNoPrCount >= 2) {
+      const eventKey = `finished_no_pr_escalation_${num}`;
+      const message = [
+        ':rotating_light: *LiNKdev — executor failed twice without PR*',
+        `*${view.title}* (${ltsId}, #${num})`,
+        'Auto-heal re-dispatched twice but no PR exists. Principal review may be needed.',
+        issueUrl(repo, num),
+      ].join('\n');
+      if (await notifyIssue(repo, { number: num, title: view.title, ltsId, eventKey, message, comments, dryRun })) {
+        sent += 1;
+        continue;
+      }
+    }
+
     const recentFinishedNoPr = comments.some(
       (c) => c.body?.includes('[linkdev-finished-no-pr]') || (c.body?.includes('[linkdev-agent-watch]') && c.body?.includes('FINISHED') && !/\| PR \|/.test(c.body ?? '')),
     );

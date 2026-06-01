@@ -259,6 +259,26 @@ async function issueHasOpenPr(repo, ltsId) {
   }
 }
 
+async function tryCreatePrFromBranch(repo, branch, ltsId, issueNum, dryRun) {
+  if (!branch || dryRun) return false;
+  try {
+    const remote = await gh(['api', `repos/${repo}/git/ref/heads/${branch}`, '--jq', '.object.sha']).catch(() => null);
+    if (!remote) return false;
+    const title = `${ltsId}: auto-opened from executor branch`;
+    const body = `[linkdev-auto-heal] Opened PR from remote branch \`${branch}\` after executor FINISHED without PR.`;
+    await gh([
+      'pr', 'create', '--repo', repo, '--base', 'development', '--head', branch,
+      '--title', title, '--body', body,
+    ]);
+    await gh(['issue', 'comment', String(issueNum), '--repo', repo, '--body', `${FINISHED_NO_PR_MARKER} Opened PR from branch \`${branch}\`.`]);
+    console.log(`auto-heal created PR from branch ${branch} for ${ltsId}`);
+    return true;
+  } catch (err) {
+    console.warn(`auto-heal pr create failed for ${branch}: ${err.message}`);
+    return false;
+  }
+}
+
 async function minutesSinceLastDispatch(comments) {
   return minutesSinceStallCycleStart(comments);
 }
@@ -360,7 +380,12 @@ async function healFinishedWithoutPr(repo, issueMap, target, agent, run, dryRun)
   );
   if (await issueHasRecentFinishedNoPr(view.comments ?? [], agent.id)) return false;
 
-  const finishedBody = `${FINISHED_NO_PR_MARKER} Executor \`${agent.id}\` finished without a PR (branch \`${run.git?.branches?.[0]?.branch ?? 'unknown'}\`). Auto-heal will re-dispatch.`;
+  const branch = run.git?.branches?.[0]?.branch;
+  if (branch && (await tryCreatePrFromBranch(repo, branch, ltsId, target.number, dryRun))) {
+    return true;
+  }
+
+  const finishedBody = `${FINISHED_NO_PR_MARKER} Executor \`${agent.id}\` finished without a PR (branch \`${branch ?? 'unknown'}\`). Auto-heal will re-dispatch.`;
   if (!dryRun) {
     await gh(['issue', 'comment', String(target.number), '--repo', repo, '--body', finishedBody]);
   }
