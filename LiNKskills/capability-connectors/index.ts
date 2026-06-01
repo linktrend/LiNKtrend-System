@@ -7,4 +7,5 @@
 
 export * from "./types.js";
 export * from "./linksites/manifest.js";
+export * from "./linksites-suite-defaults.js";
 export * from "./studio-defaults.js";

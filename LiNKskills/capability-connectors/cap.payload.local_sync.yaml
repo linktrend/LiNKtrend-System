@@ -1,0 +1,68 @@
+# Capability Connector: cap.payload.local_sync
+# Per CONTRACTS_MVO.md §0.A.5 — LinkSites Payload local sync
+
+plugin_id: cap.payload.local_sync
+plugin_kind: capability
+plugin_name: Payload Local Sync
+version: "1.0.0-mvo"
+purpose: Governed local Payload CMS content sync and preview in shadow modes
+
+modes_supported:
+  - development
+  - shadow
+
+operations:
+  - operation_id: content.upsert_local
+    description: Upsert content package to local/shadow Payload surface
+    default_mode: shadow
+    lease_skus:
+      - payload.content.write
+    idempotency_key_pattern: "${tenant_id}:${site_id}:${site_generation_run_id}:${content_checksum}"
+    allowed_callers:
+      - linkautowork
+      - vertical_plugin
+
+  - operation_id: preview.publish_local
+    description: Publish preview URL on local Payload handle
+    default_mode: shadow
+    lease_skus:
+      - payload.preview.publish
+    idempotency_key_pattern: "${tenant_id}:${site_id}:${site_generation_run_id}:preview"
+    allowed_callers:
+      - linkautowork
+      - vertical_plugin
+
+  - operation_id: sync.status.read
+    description: Read Payload sync status without live publish
+    default_mode: shadow
+    lease_skus:
+      - payload.sync.read
+    idempotency_key_pattern: "${tenant_id}:${site_id}:sync.status.read"
+    allowed_callers:
+      - linkautowork
+      - vertical_plugin
+
+auth_config_surface:
+  - payload.base_url
+  - payload.space_ref
+  - payload.credential_ref
+  - payload.schema_source_ref
+
+mvo_runtime_modes:
+  - development
+  - shadow
+
+audit_events:
+  - capability.requested
+  - capability.executed
+  - payload.content.upserted
+  - payload.preview.updated
+  - payload.sync.checked
+  - capability.failed
+
+non_ownership:
+  - Payload collection/schema design
+  - Editorial workflow policy
+
+required_by_modules:
+  - linksites
