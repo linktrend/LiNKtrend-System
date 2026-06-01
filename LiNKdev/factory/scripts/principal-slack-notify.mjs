@@ -1,4 +1,8 @@
 #!/usr/bin/env node
+import {
+  countFinishedNoPrHeals,
+  FINISHED_NO_PR_MAX_HEALS,
+} from './linkdev-factory-escalation.mjs';
 import { stallCycleStartAt, stallEventKey } from './linkdev-stall-clock.mjs';
 
 /**
@@ -86,22 +90,31 @@ function lastStallActivityAt(comments) {
   return stallCycleStartAt(comments);
 }
 
-function countFinishedNoPrHeals(comments) {
-  const cycleStart = stallCycleStartAt(comments);
-  const cycleStartMs = cycleStart ? new Date(cycleStart).getTime() : 0;
-  return comments.filter(
-    (c) =>
-      (c.body?.includes('[linkdev-finished-no-pr]') ||
-        (c.body?.includes('[linkdev-auto-heal]') && c.body?.includes('FINISHED without'))) &&
-      new Date(c.createdAt).getTime() >= cycleStartMs,
-  ).length;
+async function refreshIssueComments(repo, number) {
+  try {
+    const view = JSON.parse(await gh(['issue', 'view', String(number), '--repo', repo, '--json', 'comments']));
+    return view.comments ?? [];
+  } catch {
+    return [];
+  }
 }
 
 async function notifyIssue(repo, { number, title, ltsId, eventKey, message, comments, dryRun }) {
   if (recentSlackSent(comments, eventKey)) return false;
+  // Record marker before Slack post to dedupe parallel watch runs (L-014).
+  if (!dryRun) {
+    await recordSlackSent(repo, number, eventKey, message.split('\n')[0], dryRun);
+    const fresh = await refreshIssueComments(repo, number);
+    if (fresh.filter((c) => c.body?.includes(SLACK_MARKER) && c.body?.includes(`event=${eventKey}`)).length > 1) {
+      console.log(`slack dedupe skip #${number} event=${eventKey} (parallel marker)`);
+      return false;
+    }
+  }
   const sent = dryRun ? true : await postSlack(message);
   if (!sent) return false;
-  await recordSlackSent(repo, number, eventKey, message.split('\n')[0], dryRun);
+  if (dryRun) {
+    await recordSlackSent(repo, number, eventKey, message.split('\n')[0], dryRun);
+  }
   console.log(`slack notify #${number} event=${eventKey}`);
   return true;
 }
@@ -159,13 +172,14 @@ export async function notifyPrincipalSlack(opts) {
     if (await issueHasOpenPr(repo, ltsId)) continue;
 
     const comments = view.comments ?? [];
-    const finishedNoPrCount = countFinishedNoPrHeals(comments);
-    if (finishedNoPrCount >= 2) {
+    const cycleStart = stallCycleStartAt(comments);
+    const finishedNoPrCount = countFinishedNoPrHeals(comments, cycleStart);
+    if (finishedNoPrCount >= FINISHED_NO_PR_MAX_HEALS) {
       const eventKey = `finished_no_pr_escalation_${num}`;
       const message = [
         ':rotating_light: *LiNKdev — executor failed twice without PR*',
         `*${view.title}* (${ltsId}, #${num})`,
-        'Auto-heal re-dispatched twice but no PR exists. Principal review may be needed.',
+        'Auto-heal paused; issue labeled `linkdev:principal-stop`. Local implementer should open PR.',
         issueUrl(repo, num),
       ].join('\n');
       if (await notifyIssue(repo, { number: num, title: view.title, ltsId, eventKey, message, comments, dryRun })) {
