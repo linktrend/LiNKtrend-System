@@ -230,10 +230,19 @@ export async function createRun(
   }
 
   // Create new run
+  const projectId =
+    typeof workRequest.payload === "object" &&
+    workRequest.payload !== null &&
+    "project_id" in workRequest.payload &&
+    typeof (workRequest.payload as { project_id?: unknown }).project_id === "string"
+      ? (workRequest.payload as { project_id: string }).project_id
+      : null;
+
   const { data: runData, error } = await supabase.schema("linkaios_kernel").rpc("create_run", {
     p_work_request_id: workRequest.work_request_id,
     p_tenant_id: workRequest.tenant_id,
     p_plugin_id: workRequest.plugin_id,
+    ...(projectId ? { p_project_id: projectId } : {}),
   });
 
   if (error || !runData) {

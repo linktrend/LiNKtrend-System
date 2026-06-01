@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 
-import { createProjectStub, parseCreateProjectRequest } from "@/lib/projects/create-project";
+import { createProject } from "@/lib/projects/create-project-service";
+import { parseCreateProjectRequest } from "@/lib/projects/create-project";
 import { CreateProjectError } from "@/lib/projects/types";
 
 /**
@@ -14,7 +15,7 @@ export async function POST(req: Request) {
 
   try {
     const input = parseCreateProjectRequest(body);
-    const result = createProjectStub(input);
+    const result = await createProject(input);
     return NextResponse.json(result, { status: 201 });
   } catch (err) {
     if (err instanceof CreateProjectError) {
