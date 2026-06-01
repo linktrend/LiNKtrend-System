@@ -13,7 +13,6 @@ concurrency:
   cancel-in-progress: true
 
 permissions:
-  actions: read
   contents: read
   issues: write
   pull-requests: write
@@ -29,7 +28,6 @@ jobs:
       - name: Sync agent status to GitHub
         env:
           CURSOR_API_KEY: ${{ secrets.CURSOR_API_KEY }}
-          LINKDEV_SLACK_WEBHOOK_URL: ${{ secrets.LINKDEV_SLACK_WEBHOOK_URL }}
           GITHUB_REPOSITORY: ${{ github.repository }}
         run: |
           set -euo pipefail

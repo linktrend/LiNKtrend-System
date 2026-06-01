@@ -247,6 +247,39 @@ jobs:
           git commit -m "chore(linkdev): sync STATE after PR #${{ github.event.pull_request.number }} merge"
           git push origin HEAD:development
 
+      - name: Advance wave (Actions — no cloud orchestrator required)
+        if: steps.merged.outcome == 'success'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          PROGRAM_ID=$(python3 - <<'PY'
+          import json, re
+          text = open("LiNKdev/factory/STATE.md", encoding="utf-8").read()
+          m = re.search(r"```json\s*(\{.*?\})\s*```", text, re.S)
+          print(json.loads(m.group(1)).get("program_id", "linktrend-system"))
+          PY
+          )
+          node LiNKdev/factory/scripts/advance-wave-on-merge.mjs \
+            --program "$PROGRAM_ID" \
+            --repo "${{ github.repository }}" \
+            --apply-labels \
+            --clear-handoff
+
+      - name: Commit wave advance to development
+        if: steps.merged.outcome == 'success'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git add LiNKdev/factory/STATE.md .linkdev/handoff/ 2>/dev/null || true
+          if git diff --cached --quiet; then
+            echo "Wave advance unchanged — skip commit"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "chore(linkdev): advance wave after PR #${{ github.event.pull_request.number }} merge"
+          git push origin HEAD:development
+
       - name: Dispatch Cursor orchestrator
         id: dispatch
         if: steps.merged.outcome == 'success'

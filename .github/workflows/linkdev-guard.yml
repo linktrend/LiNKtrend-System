@@ -1,3 +1,6 @@
+# Copy to: .github/workflows/linkdev-guard.yml
+# Mechanical verify on LiNKdev-touched PRs.
+
 name: LiNKdev guard
 
 on:
