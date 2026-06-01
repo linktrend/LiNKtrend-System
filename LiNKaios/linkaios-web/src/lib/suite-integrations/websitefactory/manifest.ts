@@ -143,6 +143,8 @@ const REQUIRED_AUDIT_EVENTS = [
   "lease.granted",
   "lease.executed",
   "preview.published",
+  "outreach.drafted",
+  "outreach.held_for_approval",
   "research.performed",
   "provenance.recorded",
   "template.guidance.selected",
