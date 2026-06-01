@@ -7,7 +7,6 @@ PROGRAM=""
 REPORT=""
 SCOPE="${LINKDEV_SCOPE:-LiNKdev}"
 ROOT="$(cd "$(dirname "$0")/../../.." && pwd)"
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 CATALOG="$ROOT/LiNKdev/factory/gates/catalog.json"
 
 FAILURES=0
