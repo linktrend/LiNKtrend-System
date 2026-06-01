@@ -2,10 +2,10 @@
 {
   "version": 1,
   "program_id": "linktrend-system",
-  "phase": "complete",
-  "updated_at": "2026-06-01T15:00:00.000Z",
+  "phase": "running",
+  "updated_at": "2026-06-01T14:35:00.000Z",
   "principal_stop_reason": "",
-  "next_orchestrator_trigger": "none",
+  "next_orchestrator_trigger": "merge_to_development",
   "issues": {
     "LTS-001": {
       "status": "done",
@@ -134,22 +134,20 @@
       "done_at": "2026-06-01T14:08:00.000Z"
     },
     "LTS-033": {
-      "status": "done",
+      "status": "ready",
       "runtime": "cursor",
       "tier": "standard",
       "depends_on": ["LTS-032"],
       "report": "LiNKdev/product/reports/linktrend-system/linkautowork/workflows/LTS-033.md",
-      "last_pr": 95,
-      "done_at": "2026-06-01T15:00:00.000Z"
+      "notes": "Reset 2026-06-01: batch-marked done in PR #95 without linkdev:done or passing build-test"
     },
     "LTS-034": {
-      "status": "done",
+      "status": "planned",
       "runtime": "cursor",
       "tier": "standard",
       "depends_on": ["LTS-033"],
       "report": "LiNKdev/product/reports/linktrend-system/linkautowork/workflows/LTS-034.md",
-      "last_pr": 95,
-      "done_at": "2026-06-01T15:00:00.000Z"
+      "notes": "Reset 2026-06-01: PR #95 theater — needs proper executor/reviewer/integrator cycle"
     },
     "LTS-040": {
       "status": "done",
@@ -179,13 +177,12 @@
       "done_at": "2026-06-01T14:08:00.000Z"
     },
     "LTS-043": {
-      "status": "done",
+      "status": "planned",
       "runtime": "cursor",
       "tier": "standard",
       "depends_on": ["LTS-034", "LTS-042"],
       "report": "LiNKdev/product/reports/linktrend-system/linkbot/roles/LTS-043.md",
-      "last_pr": 95,
-      "done_at": "2026-06-01T15:00:00.000Z"
+      "notes": "Reset 2026-06-01: PR #95 batch without gates"
     },
     "LTS-050": {
       "status": "done",
@@ -224,70 +221,63 @@
       "done_at": "2026-06-01T14:08:00.000Z"
     },
     "LTS-103": {
-      "status": "done",
+      "status": "review_ready",
       "runtime": "cursor",
       "tier": "standard",
       "depends_on": ["LTS-102", "LTS-042"],
       "report": "LiNKdev/product/reports/linktrend-system/linksites/template-selection/LTS-103.md",
-      "last_pr": 95,
-      "done_at": "2026-06-01T15:00:00.000Z"
+      "notes": "Executor complete 2026-06-01: external LiNKsites registry discovery; awaiting reviewer + integrator"
     },
     "LTS-104": {
-      "status": "done",
+      "status": "planned",
       "runtime": "cursor",
       "tier": "standard",
       "depends_on": ["LTS-103", "LTS-030"],
       "report": "LiNKdev/product/reports/linktrend-system/linksites/website-build/LTS-104.md",
-      "last_pr": 95,
-      "done_at": "2026-06-01T15:00:00.000Z"
+      "notes": "Reset 2026-06-01: blocked until LTS-103 merged with gates"
     },
     "LTS-105": {
-      "status": "done",
+      "status": "planned",
       "runtime": "cursor",
       "tier": "standard",
       "depends_on": ["LTS-104", "LTS-032", "LTS-033"],
       "report": "LiNKdev/product/reports/linktrend-system/linksites/publish/LTS-105.md",
-      "last_pr": 95,
-      "done_at": "2026-06-01T15:00:00.000Z"
+      "notes": "Reset 2026-06-01: PR #95 stub — publish not operational"
     },
     "LTS-106": {
-      "status": "done",
+      "status": "planned",
       "runtime": "cursor",
       "tier": "standard",
       "depends_on": ["LTS-105", "LTS-043"],
       "report": "LiNKdev/product/reports/linktrend-system/linksites/outreach/LTS-106.md",
-      "last_pr": 95,
-      "done_at": "2026-06-01T15:00:00.000Z"
+      "notes": "Reset 2026-06-01: PR #95 stub"
     },
     "LTS-107": {
-      "status": "done",
+      "status": "planned",
       "runtime": "cursor",
       "tier": "standard",
       "depends_on": ["LTS-106"],
       "report": "LiNKdev/product/reports/linktrend-system/linksites/close-recycle/LTS-107.md",
-      "last_pr": 95,
-      "done_at": "2026-06-01T15:00:00.000Z"
+      "notes": "Reset 2026-06-01: PR #95 stub"
     },
     "LTS-108": {
-      "status": "done",
+      "status": "planned",
       "runtime": "cursor",
       "tier": "standard",
       "depends_on": ["LTS-107", "LTS-003", "LTS-005", "LTS-012"],
       "report": "LiNKdev/product/reports/linktrend-system/linksites/e2e-proof/LTS-108.md",
-      "last_pr": 95,
-      "done_at": "2026-06-01T15:00:00.000Z"
+      "notes": "Reset 2026-06-01: no demo recorded; SHIP_CRITERIA §2 unchecked"
     },
     "LTS-900": {
-      "status": "done",
+      "status": "planned",
       "runtime": "cursor",
       "tier": "critical",
       "depends_on": ["LTS-108"],
       "report": "LiNKdev/product/reports/linktrend-system/release/ship/LTS-900.md",
-      "last_pr": 95,
-      "done_at": "2026-06-01T15:00:00.000Z"
+      "notes": "Reset 2026-06-01: release blocked until MVO genuinely complete"
     }
   }
 }
 ```
 
-Waves 6–8: PRs #87–#93. Waves 9–15 (program completion): PR #95 — LTS-033 through LTS-900.
+Waves 1–8: individual PRs with linkdev:done (#18–#93). **Reset 2026-06-01:** PR #95 falsely marked waves 9–15 complete; 10 issues reopened in STATE. LTS-103 review-ready on branch `issue/LTS-103-template-selection-external-registry`.
