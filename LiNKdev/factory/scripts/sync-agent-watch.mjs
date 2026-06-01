@@ -13,6 +13,10 @@ import {
   shouldEscalateFinishedNoPr,
 } from './linkdev-factory-escalation.mjs';
 import { isIncompleteExecutorFinish } from './linkdev-dispatch-payload.mjs';
+import {
+  issueHasMergedPr,
+  shouldSkipFactoryIssue,
+} from './linkdev-issue-terminal.mjs';
 import { minutesSinceStallCycleStart, minutesSinceLastHealInCycle, stallCycleStartAt } from './linkdev-stall-clock.mjs';
 
 const API = 'https://api.cursor.com/v1';
@@ -141,10 +145,11 @@ async function buildDispatchAgentMap(repo, issueMap) {
   for (const num of issueNumbers) {
     let view;
     try {
-      view = JSON.parse(await gh(['issue', 'view', String(num), '--repo', repo, '--json', 'comments']));
+      view = JSON.parse(await gh(['issue', 'view', String(num), '--repo', repo, '--json', 'state,comments']));
     } catch {
       continue;
     }
+    if (view.state === 'CLOSED') continue;
     for (const comment of view.comments ?? []) {
       if (!comment.body?.includes(DISPATCH_MARKER)) continue;
       const agentId = comment.body.match(AGENT_ID_RE)?.[1];
@@ -404,15 +409,31 @@ async function redispatchIssue(repo, num, ltsId, reason, dryRun, comments = []) 
 
 async function autoHealStalls(repo, issueMap, activeIssueNumbers, dryRun) {
   let healed = 0;
+  if (activeIssueNumbers.size === 0) {
+    console.log('auto-heal skip: no active program issues in STATE');
+    return 0;
+  }
+
   for (const [ltsId, meta] of Object.entries(issueMap)) {
     const num = meta.github_number;
-    if (activeIssueNumbers.size > 0 && !activeIssueNumbers.has(num)) continue;
 
     const view = JSON.parse(
-      await gh(['issue', 'view', String(num), '--repo', repo, '--json', 'labels,comments']),
+      await gh(['issue', 'view', String(num), '--repo', repo, '--json', 'state,labels,comments']),
     );
     const labels = view.labels?.map((l) => l.name) ?? [];
-    if (labels.includes('linkdev:review-ready') || labels.includes('linkdev:done')) continue;
+    const hasMergedPr = await issueHasMergedPr(repo, ltsId, gh);
+    if (
+      shouldSkipFactoryIssue({
+        state: view.state,
+        labelNames: labels,
+        githubNumber: num,
+        ltsId,
+        activeIssueNumbers,
+        hasMergedPr,
+      })
+    ) {
+      continue;
+    }
     if (labels.includes('linkdev:principal-stop')) continue;
     const isActive = labels.includes('linkdev:in-progress') || labels.includes('linkdev:ready');
     if (!isActive) continue;
@@ -458,9 +479,21 @@ async function healFinishedWithoutPr(repo, issueMap, target, agent, run, dryRun)
   if (await issueHasOpenPr(repo, ltsId)) return false;
 
   const view = JSON.parse(
-    await gh(['issue', 'view', String(target.number), '--repo', repo, '--json', 'comments,labels']),
+    await gh(['issue', 'view', String(target.number), '--repo', repo, '--json', 'state,comments,labels']),
   );
   const labels = view.labels?.map((l) => l.name) ?? [];
+  if (
+    shouldSkipFactoryIssue({
+      state: view.state,
+      labelNames: labels,
+      githubNumber: target.number,
+      ltsId,
+      activeIssueNumbers: new Set([target.number]),
+      hasMergedPr: await issueHasMergedPr(repo, ltsId, gh),
+    })
+  ) {
+    return false;
+  }
   if (labels.includes('linkdev:principal-stop')) return false;
   await normalizeIssueLabels(repo, target.number, labels, dryRun);
   const comments = view.comments ?? [];
