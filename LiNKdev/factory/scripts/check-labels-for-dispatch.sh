@@ -21,12 +21,46 @@ require_gh() {
   }
 }
 
+is_rate_limited() {
+  local msg="$1"
+  [[ "$msg" == *"rate limit"* ]] || [[ "$msg" == *"403"* ]] || [[ "$msg" == *"429"* ]]
+}
+
+# Retry gh on rate limit (L-021): exponential backoff 5s / 15s / 45s
+gh_retry() {
+  local attempt=0
+  local max=3
+  local wait
+  local combined=""
+  while [[ $attempt -le $max ]]; do
+    combined=""
+    if combined="$(gh "$@" 2>&1)"; then
+      [[ -n "$combined" ]] && printf '%s\n' "$combined"
+      return 0
+    fi
+    if ! is_rate_limited "$combined" || [[ $attempt -eq $max ]]; then
+      echo "$combined" >&2
+      return 1
+    fi
+    case $attempt in
+      0) wait=5 ;;
+      1) wait=15 ;;
+      *) wait=45 ;;
+    esac
+    echo "check-labels: gh rate limit (attempt $((attempt + 1))/$((max + 1))), waiting ${wait}s…" >&2
+    sleep "$wait"
+    attempt=$((attempt + 1))
+  done
+  echo "$combined" >&2
+  return 1
+}
+
 issue_has_all() {
   local repo="$1" issue="$2"
   shift 2
   local labels=("$@")
   local present want
-  present="$(gh issue view "$issue" --repo "$repo" --json labels -q '.labels[].name')"
+  present="$(gh_retry issue view "$issue" --repo "$repo" --json labels -q '.labels[].name')"
   for want in "${labels[@]}"; do
     if ! echo "$present" | grep -Fxq "$want"; then
       echo "check-labels: issue #${issue} missing label: ${want}" >&2
@@ -38,7 +72,7 @@ issue_has_all() {
 
 pr_has() {
   local repo="$1" pr="$2" want="$3"
-  if gh pr view "$pr" --repo "$repo" --json labels -q '.labels[].name' | grep -Fxq "$want"; then
+  if gh_retry pr view "$pr" --repo "$repo" --json labels -q '.labels[].name' | grep -Fxq "$want"; then
     echo "check-labels: PR #${pr} has ${want}"
     return 0
   fi
@@ -49,8 +83,8 @@ pr_has() {
 pr_merged_to() {
   local repo="$1" pr="$2" base="$3"
   local merged base_ref
-  merged="$(gh pr view "$pr" --repo "$repo" --json merged -q '.merged')"
-  base_ref="$(gh pr view "$pr" --repo "$repo" --json baseRefName -q '.baseRefName')"
+  merged="$(gh_retry pr view "$pr" --repo "$repo" --json merged -q '.merged')"
+  base_ref="$(gh_retry pr view "$pr" --repo "$repo" --json baseRefName -q '.baseRefName')"
   if [[ "$merged" != "true" ]]; then
     echo "check-labels: PR #${pr} not merged" >&2
     return 1

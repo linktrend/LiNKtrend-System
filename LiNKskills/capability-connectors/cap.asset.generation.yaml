@@ -1,0 +1,71 @@
+# Capability Connector: cap.asset.generation
+# Per CONTRACTS_MVO.md §0.A.5 — governed asset generation (mock/shadow MVO)
+
+plugin_id: cap.asset.generation
+plugin_kind: capability
+plugin_name: Asset Generation
+version: "1.0.0-mvo"
+purpose: Governed image/video asset generation with provenance audit
+
+modes_supported:
+  - development
+  - shadow
+
+operations:
+  - operation_id: image.generate
+    description: Generate image asset under lease (mock/shadow in MVO)
+    default_mode: shadow
+    lease_skus:
+      - asset.generate.image
+    idempotency_key_pattern: "${tenant_id}:${site_id}:${site_generation_run_id}:${asset_prompt_hash}:image"
+    allowed_callers:
+      - linkbot
+      - vertical_plugin
+      - linkautowork
+
+  - operation_id: video.generate
+    description: Generate video asset under lease (mock/shadow in MVO)
+    default_mode: shadow
+    lease_skus:
+      - asset.generate.video
+    idempotency_key_pattern: "${tenant_id}:${site_id}:${site_generation_run_id}:${asset_prompt_hash}:video"
+    allowed_callers:
+      - linkbot
+      - vertical_plugin
+      - linkautowork
+
+  - operation_id: asset.metadata.record
+    description: Record asset provenance metadata
+    default_mode: shadow
+    lease_skus:
+      - asset.metadata.write
+    idempotency_key_pattern: "${tenant_id}:${site_id}:${asset_prompt_hash}:metadata"
+    allowed_callers:
+      - linkbot
+      - vertical_plugin
+      - linkautowork
+
+auth_config_surface:
+  - asset.provider
+  - asset.model_profile
+  - asset.output_path_template
+  - asset.credential_ref
+
+mvo_runtime_modes:
+  - development
+  - shadow
+
+audit_events:
+  - capability.requested
+  - capability.executed
+  - asset.generated
+  - asset.provenance.recorded
+  - capability.failed
+
+non_ownership:
+  - Brand guideline authoring
+  - DAM taxonomy design
+  - Production media rights policy
+
+required_by_modules:
+  - linksites

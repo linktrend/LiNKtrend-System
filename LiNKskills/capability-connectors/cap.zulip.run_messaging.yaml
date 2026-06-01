@@ -66,8 +66,20 @@ auth_config_surface:
   - zulip.topic_template
   - tenant.stream_routing_ref
 
+studio_secret_source:
+  provider: google_secret_manager
+  version: latest
+  refs:
+    zulip.bot_email_ref: LINKTREND_AIOS_PROD_ZULIP_BOT_EMAIL
+    zulip.api_key_ref: LINKTREND_AIOS_PROD_ZULIP_API_KEY
+
+mvo_runtime_modes:
+  - mock
+  - shadow
+
 audit_events:
   - capability.requested
+  - lease.executed
   - capability.executed
   - zulip.notification.queued
   - zulip.connectivity.checked

@@ -33,10 +33,12 @@ jobs:
       (github.event.label.name == 'linkdev:ready' || github.event.label.name == 'runtime:cursor')
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
       issues: write
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: development
 
       - name: Verify issue labels (AND)
         id: labels
@@ -49,17 +51,30 @@ jobs:
             "${{ github.repository }}" "${{ github.event.issue.number }}" \
             linkdev:ready runtime:cursor
 
+      - name: Prepare LAW-05 issue branch
+        id: branch
+        if: steps.labels.outcome == 'success'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          node LiNKdev/factory/scripts/prepare-executor-branch.mjs \
+            --repo "${{ github.repository }}" \
+            --issue "${{ github.event.issue.number }}"
+
       - name: Dispatch Cursor executor
         id: dispatch
         if: steps.labels.outcome == 'success'
         env:
           CURSOR_API_KEY: ${{ secrets.CURSOR_API_KEY }}
           GITHUB_REPOSITORY: ${{ github.repository }}
+          LINKDEV_EXECUTOR_BRANCH: ${{ steps.branch.outputs.branch }}
+          LINKDEV_EXECUTOR_HARDENED: '1'
         run: |
           node LiNKdev/factory/scripts/dispatch-cursor-agent.mjs \
             --role executor \
             --repo "${GITHUB_REPOSITORY}" \
-            --issue "${{ github.event.issue.number }}"
+            --issue "${{ github.event.issue.number }}" \
+            --branch "${{ steps.branch.outputs.branch }}"
 
       - name: Post dispatch status on issue
         if: steps.labels.outcome == 'success' && steps.dispatch.outcome == 'success'
@@ -230,6 +245,39 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add LiNKdev/factory/STATE.md
           git commit -m "chore(linkdev): sync STATE after PR #${{ github.event.pull_request.number }} merge"
+          git push origin HEAD:development
+
+      - name: Advance wave (Actions — no cloud orchestrator required)
+        if: steps.merged.outcome == 'success'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          PROGRAM_ID=$(python3 - <<'PY'
+          import json, re
+          text = open("LiNKdev/factory/STATE.md", encoding="utf-8").read()
+          m = re.search(r"```json\s*(\{.*?\})\s*```", text, re.S)
+          print(json.loads(m.group(1)).get("program_id", "linktrend-system"))
+          PY
+          )
+          node LiNKdev/factory/scripts/advance-wave-on-merge.mjs \
+            --program "$PROGRAM_ID" \
+            --repo "${{ github.repository }}" \
+            --apply-labels \
+            --clear-handoff
+
+      - name: Commit wave advance to development
+        if: steps.merged.outcome == 'success'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git add LiNKdev/factory/STATE.md .linkdev/handoff/ 2>/dev/null || true
+          if git diff --cached --quiet; then
+            echo "Wave advance unchanged — skip commit"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "chore(linkdev): advance wave after PR #${{ github.event.pull_request.number }} merge"
           git push origin HEAD:development
 
       - name: Dispatch Cursor orchestrator

@@ -204,6 +204,7 @@ export const AuditEventSubjectSchema = z.object({
   crm_record_id: z.string().optional(),
   project_id: z.string().optional(),
   task_id: z.string().optional(),
+  outreach_draft_ref: z.string().optional(),
 });
 export type AuditEventSubject = z.infer<typeof AuditEventSubjectSchema>;
 
@@ -295,5 +296,6 @@ export const LinkSitesV2RoleIdSchema = z.enum([
   "research_enrichment_bot",
   "website_builder_bot",
   "outreach_bot",
+  "librarian_bot",
 ]);
 export type LinkSitesV2RoleId = z.infer<typeof LinkSitesV2RoleIdSchema>;

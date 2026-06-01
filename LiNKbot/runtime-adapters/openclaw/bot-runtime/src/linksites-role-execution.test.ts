@@ -3,8 +3,8 @@
  *
  * Tests for LiNKbot role execution in the LinkSites / WebsiteFactory module.
  * Verifies that:
- * - Enabled roles (research_enrichment_bot, website_builder_bot) can execute
- * - Disabled roles (lead_scout_bot, outreach_bot) cannot execute in MVO
+ * - Enabled roles (lead_scout_bot, research_enrichment_bot, website_builder_bot) can execute
+ * - Disabled roles (outreach_bot) cannot execute in MVO
  * - Role outputs feed downstream stages
  * - Audit/session/provenance refs are emitted
  *
@@ -81,6 +81,9 @@ describe("LinkSites Role Execution", () => {
       // Should have output with lead_research_bundle
       expect(result.outputs).toBeDefined();
       expect(result.outputs.lead_research_bundle).toBeDefined();
+      const bundle = result.outputs.lead_research_bundle as Record<string, unknown>;
+      expect(Array.isArray(bundle.citations)).toBe(true);
+      expect((bundle.citations as unknown[]).length).toBeGreaterThan(0);
 
       // Should emit role.started and role.completed audit events
       const auditCalls = mockWriteBrainAuditEvent.mock.calls;
@@ -208,18 +211,9 @@ describe("LinkSites Role Execution", () => {
     });
   });
 
-  describe("Disabled Roles (MVO)", () => {
-    it("should document that lead_scout_bot is disabled in MVO", () => {
-      // This role is declared but disabled in MVO
-      // It should not be invoked in the runtime path
-      // Mock CRM data supplies its output instead
-      expect(true).toBe(true); // Documentation test
-    });
-
-    it("should document that outreach_bot is disabled in MVO", () => {
-      // This role is declared but disabled in MVO
-      // No outreach draft or send for v2
-      expect(true).toBe(true); // Documentation test
+  describe("Outreach role (MVO LTS-043)", () => {
+    it("should document that outreach_bot runs governed draft in MVO", () => {
+      expect(true).toBe(true);
     });
   });
 
@@ -329,8 +323,8 @@ describe("LinkSites Role Definitions", () => {
 
     expect(LINKSITES_MVO_ENABLED_ROLES).toContain("research_enrichment_bot");
     expect(LINKSITES_MVO_ENABLED_ROLES).toContain("website_builder_bot");
-    expect(LINKSITES_MVO_ENABLED_ROLES).not.toContain("lead_scout_bot");
-    expect(LINKSITES_MVO_ENABLED_ROLES).not.toContain("outreach_bot");
+    expect(LINKSITES_MVO_ENABLED_ROLES).toContain("lead_scout_bot");
+    expect(LINKSITES_MVO_ENABLED_ROLES).toContain("outreach_bot");
   });
 
   it("should have correct MVO disabled roles", async () => {
@@ -338,8 +332,8 @@ describe("LinkSites Role Definitions", () => {
       "../../../roles/suites/linksites/roles.js"
     );
 
-    expect(LINKSITES_MVO_DISABLED_ROLES).toContain("lead_scout_bot");
-    expect(LINKSITES_MVO_DISABLED_ROLES).toContain("outreach_bot");
+    expect(LINKSITES_MVO_DISABLED_ROLES).not.toContain("outreach_bot");
+    expect(LINKSITES_MVO_DISABLED_ROLES).not.toContain("lead_scout_bot");
     expect(LINKSITES_MVO_DISABLED_ROLES).not.toContain("research_enrichment_bot");
     expect(LINKSITES_MVO_DISABLED_ROLES).not.toContain("website_builder_bot");
   });
@@ -351,9 +345,12 @@ describe("LinkSites Role Definitions", () => {
     const enabledResult = validateRoleExecution("research_enrichment_bot");
     expect(enabledResult.valid).toBe(true);
 
-    // Disabled roles should be invalid
-    const disabledResult = validateRoleExecution("lead_scout_bot");
-    expect(disabledResult.valid).toBe(false);
-    expect(disabledResult.reason).toContain("disabled in MVO");
+    // Lead scout is valid for mock/shadow MVO, but not live acquisition.
+    const leadScoutResult = validateRoleExecution("lead_scout_bot");
+    expect(leadScoutResult.valid).toBe(true);
+
+    const liveLeadScoutResult = validateRoleExecution("lead_scout_bot", { mode: "live" });
+    expect(liveLeadScoutResult.valid).toBe(false);
+    expect(liveLeadScoutResult.reason).toContain("live mode");
   });
 });

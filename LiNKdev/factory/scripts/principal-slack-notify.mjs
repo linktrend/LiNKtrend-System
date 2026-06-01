@@ -3,6 +3,7 @@ import {
   countFinishedNoPrHeals,
   FINISHED_NO_PR_MAX_HEALS,
 } from './linkdev-factory-escalation.mjs';
+import { issueHasMergedPr, shouldSkipFactoryIssue } from './linkdev-issue-terminal.mjs';
 import { stallCycleStartAt, stallEventKey } from './linkdev-stall-clock.mjs';
 
 /**
@@ -157,15 +158,30 @@ export async function notifyPrincipalSlack(opts) {
     }
   }
 
+  if (activeIssueNumbers.size === 0) {
+    console.log('SLACK_SKIP no active program issues in STATE');
+  }
+
   for (const [ltsId, meta] of Object.entries(issueMap)) {
     const num = meta.github_number;
-    if (activeIssueNumbers.size > 0 && !activeIssueNumbers.has(num)) continue;
 
     const view = JSON.parse(
-      await gh(['issue', 'view', String(num), '--repo', repo, '--json', 'title,labels,comments']),
+      await gh(['issue', 'view', String(num), '--repo', repo, '--json', 'title,state,labels,comments']),
     );
     const labels = view.labels?.map((l) => l.name) ?? [];
-    if (labels.includes('linkdev:review-ready') || labels.includes('linkdev:done')) continue;
+    const hasMergedPr = await issueHasMergedPr(repo, ltsId, gh);
+    if (
+      shouldSkipFactoryIssue({
+        state: view.state,
+        labelNames: labels,
+        githubNumber: num,
+        ltsId,
+        activeIssueNumbers,
+        hasMergedPr,
+      })
+    ) {
+      continue;
+    }
     if (labels.includes('linkdev:blocked') || labels.includes('linkdev:principal-stop')) continue;
     const isActive = labels.includes('linkdev:in-progress') || labels.includes('linkdev:ready');
     if (!isActive) continue;

@@ -26,7 +26,13 @@ import {
   cleanupBotSession,
   sessionToMissionResult,
 } from "./session.js";
-import { emitRoleStarted, emitRoleCompleted, emitRoleFailed } from "./context-adapter.js";
+import {
+  emitAuditEvent,
+  emitRoleStarted,
+  emitRoleCompleted,
+  emitRoleFailed,
+  emitProvenanceRecorded,
+} from "./context-adapter.js";
 
 /**
  * Mission configuration
@@ -44,7 +50,7 @@ export interface MissionConfig {
 export const MISSION_ROLES: Record<LinkSitesV2RoleId, MissionConfig> = {
   lead_scout_bot: {
     role_id: "lead_scout_bot",
-    capabilities_required: [],
+    capabilities_required: ["cap.research.public_web", "cap.crm.odoo_shadow"],
     max_attempts: 1,
     timeout_ms: 60000,
   },
@@ -62,9 +68,15 @@ export const MISSION_ROLES: Record<LinkSitesV2RoleId, MissionConfig> = {
   },
   outreach_bot: {
     role_id: "outreach_bot",
-    capabilities_required: [],
+    capabilities_required: ["cap.crm.odoo_shadow", "cap.zulip.run_messaging"],
+    max_attempts: 2,
+    timeout_ms: 120000,
+  },
+  librarian_bot: {
+    role_id: "librarian_bot",
+    capabilities_required: ["cap.zulip.run_messaging"],
     max_attempts: 1,
-    timeout_ms: 60000,
+    timeout_ms: 120000,
   },
 };
 
@@ -110,44 +122,23 @@ export async function executeMission(
     request.model_routing_profile
   );
 
-  // Check for disabled roles in MVO
-  if (role_id === "lead_scout_bot" || role_id === "outreach_bot") {
-    // Emit role.skipped for disabled MVO roles
-    const skipped_event_id = await emitRoleStarted(
-      request.tenant_id,
-      request.run_id,
-      request.stage_id,
-      role_id,
-      session.session_id
-    );
-    if (skipped_event_id) {
-      addSessionAuditRef(session.session_id, skipped_event_id);
-    }
-
-    const mockResult: MissionResult = {
-      session_id: session.session_id,
-      run_id: request.run_id,
-      stage_id: request.stage_id,
-      outputs: {
-        status: "skipped",
-        reason: "role_disabled_in_mvo",
-        role_id,
-      },
-      provenance: {
-        model_run_id: "mock-disabled",
-        tokens_in: 0,
-        tokens_out: 0,
-        reasoning_duration_ms: 0,
-        context_refs: [],
-        lease_refs: [],
-        audit_refs: session.refs.audit_event_ids,
-      },
-      completed_at: new Date().toISOString(),
-      success: true,
-    };
-
+  if (role_id === "lead_scout_bot") {
+    const result = await executeLeadScoutAcquisition(request, session);
     cleanupBotSession(session.session_id);
-    return mockResult;
+    return result;
+  }
+
+  if (role_id === "librarian_bot") {
+    const { executeLibrarianKnowledgeLoop } = await import("./librarian-mission.js");
+    const result = await executeLibrarianKnowledgeLoop(request, session, undefined);
+    cleanupBotSession(session.session_id);
+    return result;
+  }
+
+  if (role_id === "outreach_bot") {
+    const result = await executeOutreachDraft(request, session);
+    cleanupBotSession(session.session_id);
+    return result;
   }
 
   // Execute with retry logic
@@ -188,6 +179,432 @@ export async function executeMission(
   const failedResult = createMissionFailure(request, role_id, failure, session);
   cleanupBotSession(session.session_id);
   return failedResult;
+}
+
+type LeadScoutGovernanceInput = {
+  mode?: "mock" | "shadow" | "live";
+  capability?: string;
+  lease_id?: string;
+  idempotency_key?: string;
+};
+
+function getLeadScoutGovernance(inputs: Record<string, unknown>): LeadScoutGovernanceInput {
+  const governance = inputs.governance;
+  if (governance && typeof governance === "object" && !Array.isArray(governance)) {
+    return governance as LeadScoutGovernanceInput;
+  }
+  return {};
+}
+
+function getLeadInput(inputs: Record<string, unknown>): Record<string, unknown> {
+  const leadInput = inputs.lead_input;
+  if (leadInput && typeof leadInput === "object" && !Array.isArray(leadInput)) {
+    return leadInput as Record<string, unknown>;
+  }
+  return {};
+}
+
+function slugifyLeadId(value: unknown): string {
+  const raw = typeof value === "string" && value.trim().length > 0 ? value : "mock-demo-lead";
+  const slug = raw
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 48);
+  return slug || "mock-demo-lead";
+}
+
+function createLeadScoutFailure(
+  request: BotReasonRequest,
+  session: BotSessionContext,
+  message: string,
+  code: FailureReport["code"] = "LEASE_REQUEST_INVALID",
+): MissionResult {
+  const failure: FailureReport = {
+    code,
+    plane: "linkbot",
+    message,
+    retryable: code === "KERNEL_PERSISTENCE_FAILED",
+    approval_required: code === "POLICY_REQUIRES_APPROVAL" ? true : undefined,
+    occurred_at: new Date().toISOString(),
+  };
+  return createMissionFailure(request, "lead_scout_bot", failure, session);
+}
+
+/**
+ * Execute Principal D1-B lead generation: one governed mock demo lead.
+ *
+ * LinkSkills owns lease issuance; LiNKbot only requires and records the supplied
+ * lease reference, then emits the role/provenance audit trail for traceability.
+ */
+async function executeLeadScoutAcquisition(
+  request: BotReasonRequest,
+  session: BotSessionContext,
+): Promise<MissionResult> {
+  const governance = getLeadScoutGovernance(request.inputs);
+  const mode = governance.mode ?? "mock";
+  const capability = governance.capability ?? "cap.research.public_web";
+
+  if (mode === "live") {
+    return createLeadScoutFailure(
+      request,
+      session,
+      "lead_scout_bot live acquisition is disabled for MVO; Principal approval is required before live Maps/search.",
+      "POLICY_REQUIRES_APPROVAL",
+    );
+  }
+
+  if (!governance.lease_id) {
+    return createLeadScoutFailure(
+      request,
+      session,
+      "lead_scout_bot requires a LinkSkills lease_id before acquiring the mock demo lead.",
+    );
+  }
+
+  const auditRefs: string[] = [];
+  const leaseRefs = [governance.lease_id];
+  addSessionLeaseRef(session.session_id, governance.lease_id);
+
+  const startedEventId = await emitRoleStarted(
+    request.tenant_id,
+    request.run_id,
+    request.stage_id,
+    "lead_scout_bot",
+    session.session_id,
+  );
+  if (!startedEventId) {
+    return createLeadScoutFailure(
+      request,
+      session,
+      "lead_scout_bot could not persist role.started audit event.",
+      "KERNEL_PERSISTENCE_FAILED",
+    );
+  }
+  auditRefs.push(startedEventId);
+  addSessionAuditRef(session.session_id, startedEventId);
+
+  const leadInput = getLeadInput(request.inputs);
+  const businessName = leadInput.business_name ?? "Mock LinkSites Demo Lead";
+  const leadSlug = slugifyLeadId(businessName);
+  const acquiredAt = new Date().toISOString();
+  const modelRunId = `lead-scout-mock-${leadSlug}`;
+  addSessionModelRunId(session.session_id, modelRunId);
+
+  const leadRecordRef = {
+    lead_id: `mock-lead-${leadSlug}`,
+    tenant_id: request.tenant_id,
+    crm_record_id: `mock-crm-${leadSlug}`,
+    source: "mock_demo_lead",
+    acquisition_mode: "mock",
+    capability,
+    idempotency_key:
+      governance.idempotency_key ??
+      `${request.tenant_id}:${request.run_id}:${request.stage_id}:lead_scout_bot`,
+    acquired_at: acquiredAt,
+  };
+  const provenanceRefs = [
+    `mock-demo-lead:${leadRecordRef.lead_id}`,
+    `lease:${governance.lease_id}`,
+  ];
+
+  const acquisitionEvent = await emitAuditEvent({
+    tenant_id: request.tenant_id,
+    plane: "linkbot",
+    actor: {
+      actor_kind: "bot",
+      actor_id: "lead_scout_bot",
+    },
+    action: "lead.acquired",
+    subject: {
+      run_id: request.run_id,
+      stage_id: request.stage_id,
+      lease_id: governance.lease_id,
+      capability,
+      lead_id: leadRecordRef.lead_id,
+      crm_record_id: leadRecordRef.crm_record_id,
+    },
+    payload: {
+      role_id: "lead_scout_bot",
+      mode,
+      source: "mock_demo_lead",
+      live_acquisition_enabled: false,
+      live_provider_ready: ["google_maps"],
+      principal_decision: "D1 B",
+      idempotency_key: leadRecordRef.idempotency_key,
+    },
+    schema_version: "1",
+  });
+  if (!acquisitionEvent) {
+    return createLeadScoutFailure(
+      request,
+      session,
+      "lead_scout_bot could not persist lead.acquired audit event.",
+      "KERNEL_PERSISTENCE_FAILED",
+    );
+  }
+  auditRefs.push(acquisitionEvent.event_id);
+  addSessionAuditRef(session.session_id, acquisitionEvent.event_id);
+
+  const provenanceEventId = await emitProvenanceRecorded(
+    request.tenant_id,
+    request.run_id,
+    request.stage_id,
+    "lead_scout_bot",
+    provenanceRefs,
+  );
+  if (!provenanceEventId) {
+    return createLeadScoutFailure(
+      request,
+      session,
+      "lead_scout_bot could not persist provenance.recorded audit event.",
+      "KERNEL_PERSISTENCE_FAILED",
+    );
+  }
+  auditRefs.push(provenanceEventId);
+  addSessionAuditRef(session.session_id, provenanceEventId);
+
+  updateSessionState(session.session_id, "completed");
+  const completedEventId = await emitRoleCompleted(
+    request.tenant_id,
+    request.run_id,
+    request.stage_id,
+    "lead_scout_bot",
+    session.session_id,
+    modelRunId,
+    0,
+    0,
+  );
+  if (!completedEventId) {
+    return createLeadScoutFailure(
+      request,
+      session,
+      "lead_scout_bot could not persist role.completed audit event.",
+      "KERNEL_PERSISTENCE_FAILED",
+    );
+  }
+  auditRefs.push(completedEventId);
+  addSessionAuditRef(session.session_id, completedEventId);
+
+  const createdTime = new Date(session.created_at).getTime();
+  return {
+    session_id: session.session_id,
+    run_id: request.run_id,
+    stage_id: request.stage_id,
+    outputs: {
+      lead_record_ref: leadRecordRef,
+      lead_provenance: {
+        provenance_refs: provenanceRefs,
+        acquired_at: acquiredAt,
+        provider: "mock_demo_lead",
+        lease_id: governance.lease_id,
+        audit_event_ids: auditRefs,
+      },
+      governance: {
+        mode,
+        capability,
+        lease_id: governance.lease_id,
+        live_provider_ready: ["google_maps"],
+        live_acquisition_enabled: false,
+        policy: "MVO uses governed mock lead; live Maps/search requires Principal approval.",
+      },
+    },
+    provenance: {
+      model_run_id: modelRunId,
+      tokens_in: 0,
+      tokens_out: 0,
+      reasoning_duration_ms: Date.now() - createdTime,
+      context_refs: [],
+      lease_refs: leaseRefs,
+      audit_refs: auditRefs,
+    },
+    completed_at: new Date().toISOString(),
+    success: true,
+  };
+}
+
+type OutreachGovernanceInput = {
+  lease_id?: string;
+  send_mode?: "draft_only" | "live";
+};
+
+function getOutreachGovernance(inputs: Record<string, unknown>): OutreachGovernanceInput {
+  const governance = inputs.governance;
+  if (governance && typeof governance === "object" && !Array.isArray(governance)) {
+    return governance as OutreachGovernanceInput;
+  }
+  return {};
+}
+
+function createOutreachFailure(
+  request: BotReasonRequest,
+  session: BotSessionContext,
+  message: string,
+  code: FailureReport["code"] = "LEASE_REQUEST_INVALID",
+): MissionResult {
+  const failure: FailureReport = {
+    code,
+    plane: "linkbot",
+    message,
+    retryable: code === "KERNEL_PERSISTENCE_FAILED",
+    approval_required: code === "POLICY_REQUIRES_APPROVAL" ? true : undefined,
+    occurred_at: new Date().toISOString(),
+  };
+  return createMissionFailure(request, "outreach_bot", failure, session);
+}
+
+/**
+ * Execute Principal D2-A governed outreach: draft-only with approval gate.
+ */
+async function executeOutreachDraft(
+  request: BotReasonRequest,
+  session: BotSessionContext,
+): Promise<MissionResult> {
+  const governance = getOutreachGovernance(request.inputs);
+  const sendMode = governance.send_mode ?? "draft_only";
+
+  if (sendMode === "live") {
+    return createOutreachFailure(
+      request,
+      session,
+      "outreach_bot live send is disabled for MVO; Principal must explicitly approve during demo.",
+      "POLICY_REQUIRES_APPROVAL",
+    );
+  }
+
+  if (!governance.lease_id) {
+    return createOutreachFailure(
+      request,
+      session,
+      "outreach_bot requires a LinkSkills lease_id before drafting outreach.",
+    );
+  }
+
+  const auditRefs: string[] = [];
+  addSessionLeaseRef(session.session_id, governance.lease_id);
+
+  const startedEventId = await emitRoleStarted(
+    request.tenant_id,
+    request.run_id,
+    request.stage_id,
+    "outreach_bot",
+    session.session_id,
+  );
+  if (!startedEventId) {
+    return createOutreachFailure(
+      request,
+      session,
+      "outreach_bot could not persist role.started audit event.",
+      "KERNEL_PERSISTENCE_FAILED",
+    );
+  }
+  auditRefs.push(startedEventId);
+  addSessionAuditRef(session.session_id, startedEventId);
+
+  const publishUrl =
+    typeof request.inputs.publish_url === "string"
+      ? request.inputs.publish_url
+      : "https://demo-lead.linktrend.media";
+  const outreachDraftRef = `outreach_draft:${request.tenant_id}:${request.run_id}`;
+  const modelRunId = `outreach-draft-${request.run_id}`;
+
+  const draftEvent = await emitAuditEvent({
+    tenant_id: request.tenant_id,
+    plane: "linkbot",
+    actor: { actor_kind: "bot", actor_id: "outreach_bot" },
+    action: "outreach.drafted",
+    subject: {
+      run_id: request.run_id,
+      stage_id: request.stage_id,
+      lease_id: governance.lease_id,
+      outreach_draft_ref: outreachDraftRef,
+    },
+    payload: {
+      role_id: "outreach_bot",
+      send_mode: "draft_only",
+      publish_url: publishUrl,
+      principal_decision: "D2 A",
+      approval_required: true,
+    },
+    schema_version: "1",
+  });
+  if (!draftEvent) {
+    return createOutreachFailure(
+      request,
+      session,
+      "outreach_bot could not persist outreach.drafted audit event.",
+      "KERNEL_PERSISTENCE_FAILED",
+    );
+  }
+  auditRefs.push(draftEvent.event_id);
+  addSessionAuditRef(session.session_id, draftEvent.event_id);
+
+  const heldEvent = await emitAuditEvent({
+    tenant_id: request.tenant_id,
+    plane: "linkbot",
+    actor: { actor_kind: "bot", actor_id: "outreach_bot" },
+    action: "outreach.held_for_approval",
+    subject: {
+      run_id: request.run_id,
+      stage_id: request.stage_id,
+      outreach_draft_ref: outreachDraftRef,
+    },
+    payload: {
+      reason: "mvo_draft_only_gate",
+      live_send_blocked: true,
+    },
+    schema_version: "1",
+  });
+  if (heldEvent) {
+    auditRefs.push(heldEvent.event_id);
+    addSessionAuditRef(session.session_id, heldEvent.event_id);
+  }
+
+  updateSessionState(session.session_id, "completed");
+  const completedEventId = await emitRoleCompleted(
+    request.tenant_id,
+    request.run_id,
+    request.stage_id,
+    "outreach_bot",
+    session.session_id,
+    modelRunId,
+    0,
+    0,
+  );
+  if (!completedEventId) {
+    return createOutreachFailure(
+      request,
+      session,
+      "outreach_bot could not persist role.completed audit event.",
+      "KERNEL_PERSISTENCE_FAILED",
+    );
+  }
+  auditRefs.push(completedEventId);
+  addSessionAuditRef(session.session_id, completedEventId);
+
+  const createdTime = new Date(session.created_at).getTime();
+  return {
+    session_id: session.session_id,
+    run_id: request.run_id,
+    stage_id: request.stage_id,
+    outputs: {
+      outreach_draft_ref: outreachDraftRef,
+      outreach_status: "draft_pending_principal_approval",
+      send_mode: "draft_only",
+      publish_url: publishUrl,
+    },
+    provenance: {
+      model_run_id: modelRunId,
+      tokens_in: 0,
+      tokens_out: 0,
+      reasoning_duration_ms: Date.now() - createdTime,
+      context_refs: [],
+      lease_refs: [governance.lease_id],
+      audit_refs: auditRefs,
+    },
+    completed_at: new Date().toISOString(),
+    success: true,
+  };
 }
 
 /**
@@ -344,9 +761,10 @@ export function validateMission(
  */
 export function listMissionRoles(): Array<{ role_id: LinkSitesV2RoleId; enabled_in_mvo: boolean }> {
   return [
-    { role_id: "lead_scout_bot", enabled_in_mvo: false },
+    { role_id: "lead_scout_bot", enabled_in_mvo: true },
     { role_id: "research_enrichment_bot", enabled_in_mvo: true },
     { role_id: "website_builder_bot", enabled_in_mvo: true },
-    { role_id: "outreach_bot", enabled_in_mvo: false },
+    { role_id: "librarian_bot", enabled_in_mvo: true },
+    { role_id: "outreach_bot", enabled_in_mvo: true },
   ];
 }

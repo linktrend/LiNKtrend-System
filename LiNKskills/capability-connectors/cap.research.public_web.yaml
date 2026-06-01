@@ -1,0 +1,70 @@
+# Capability Connector: cap.research.public_web
+# Per CONTRACTS_MVO.md §0.A.5 — governed public web research (read-only)
+
+plugin_id: cap.research.public_web
+plugin_kind: capability
+plugin_name: Public Web Research
+version: "1.0.0-mvo"
+purpose: Governed search and citation extraction from public web sources
+
+modes_supported:
+  - development
+  - shadow
+  - live
+
+operations:
+  - operation_id: search.query
+    description: Execute governed search query against approved provider
+    default_mode: shadow
+    lease_skus:
+      - research.public.read
+    idempotency_key_pattern: "${tenant_id}:${run_id}:${query_hash}:${provider}"
+    allowed_callers:
+      - linkbot
+      - vertical_plugin
+      - linkautowork
+
+  - operation_id: page.fetch
+    description: Fetch public page content under lease
+    default_mode: shadow
+    lease_skus:
+      - research.public.read
+    idempotency_key_pattern: "${tenant_id}:${run_id}:${url_hash}"
+    allowed_callers:
+      - linkbot
+      - vertical_plugin
+
+  - operation_id: citation.extract
+    description: Extract citation bundle from fetched content
+    default_mode: shadow
+    lease_skus:
+      - research.public.read
+    idempotency_key_pattern: "${tenant_id}:${run_id}:${citation_hash}"
+    allowed_callers:
+      - linkbot
+      - vertical_plugin
+
+auth_config_surface:
+  - research.provider
+  - research.api_key_ref
+  - research.allow_domains
+  - research.blocked_domains
+
+mvo_runtime_modes:
+  - development
+  - shadow
+  - live
+
+audit_events:
+  - capability.requested
+  - capability.executed
+  - research.query.performed
+  - research.citation.recorded
+  - capability.failed
+
+non_ownership:
+  - Target-site account setup
+  - Outreach write actions on external sites
+
+required_by_modules:
+  - linksites

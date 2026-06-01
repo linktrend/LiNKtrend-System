@@ -1,10 +1,33 @@
 # Program STATUS: linktrend-system
 
-**Phase:** `running` (Orchestrator may set `linkdev:ready` on wave 1 issues)  
-**Planner:** Complete — Q&A, narrative OK, G1/G2 council PASS, intent verdict PASS (2026-06-01)  
-**Alignment:** 100% issue-level traceability to `PRINCIPAL_PRODUCT_DEFINITION.md`  
-**Issues:** 31 (8 modules, multiple phases per module)  
-**Intent verdict:** `PASS`  
+**Phase:** `running` — **MVO implementation complete on `development`** (verify 2026-06-01)  
+**Planner:** G1/G2 council PASS at program start  
+**Wave 6 council:** G3 PASS — `LiNKdev/product/reports/linktrend-system/council/G3-report.json`  
+**Issues:** 31 total — **31 done** on `development` after wave 9–15 re-verification (PR #95 reset honored, PR #102/#103 + completion PR)
+
+## MVO demo (LTS-108)
+
+Reproducible command (no live Payload/VPS required for proof):
+
+```bash
+cd /path/to/LiNKtrend-System
+./scripts/run-mvo-linksites-demo.sh
+```
+
+Optional kernel E2E (requires local `.env` with `BOT_KERNEL_API_SECRET`, `NEXT_PUBLIC_SUPABASE_URL`, `SUPABASE_SECRET_KEY`):
+
+```bash
+pnpm exec tsx scripts/run-e2e.ts
+```
+
+**UI surfaces** (start `linkaios-web` dev server):
+
+| Surface | URL |
+|---------|-----|
+| Client MVO proof | http://localhost:3000/devtools/mvo-proof |
+| Admin MVO proof | http://localhost:3000/admin/devtools/mvo-proof |
+
+**Temp publish URL pattern (MVO):** `https://{business-slug}.linktrend.media` — produced after `payload_sync_local` + `preview_readiness_check` pass; live Payload uses `LINKAUTOWORK_PAYLOAD_*` env, mock uses `LINKAUTOWORK_MVO_MODE=mock`.
 
 ## Principal Q&A (binding)
 
@@ -15,22 +38,15 @@
 | D3 | B | Full Librarian loop + world brain |
 | D4 | B | Full Admin vendor catalogue |
 
-## Next
+## Verify (2026-06-01)
 
-1. **Bootstrap:** merge PR #14 to `development` (retarget base first) — see `BOOTSTRAP-2026-06-01.md`
-2. Orchestrator marks wave 1 issues `ready` and applies `linkdev:ready` (#20, #44, #30)
-3. Execution waves through PROGRAM.md parallel groups  
-4. LTS-108 E2E demo evidence recorded here when complete  
+```bash
+pnpm build
+./scripts/run-mvo-linksites-demo.sh
+LINKDEV_TIER=critical LINKDEV_PROGRAM=linktrend-system LiNKdev/factory/scripts/verify.sh
+LiNKdev/factory/scripts/program-proof-manifest.sh linktrend-system
+```
 
-## GitHub issues
+## Release
 
-Mapping: `LiNKdev/product/reports/linktrend-system/github-issues.json` (LTS-001…900 → #16–#46)
-
-## Demo evidence
-
-_Pending LTS-108 after execution waves._
-
-## Council warnings (non-blocking)
-
-- D3 B: world brain anonymization proof required in LTS-021 / LTS-050 reports  
-- D4 B: LTS-004 title still says demo tenant; acceptance criteria carry full vendor scope  
+**Blocked on Principal only:** Release OK before `development` → `staging` → `main`. SHIP_CRITERIA §5 Principal Release OK remains unchecked until human approval.

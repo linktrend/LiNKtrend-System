@@ -6,7 +6,7 @@
  */
 
 export type PluginKind = "vertical" | "capability";
-export type PluginMode = "development" | "shadow" | "live";
+export type PluginMode = "mock" | "development" | "shadow" | "live";
 export type AllowedCaller = "linkaios" | "vertical_plugin" | "linkbot" | "linkautowork";
 
 export interface CapabilityConnectorManifest {
@@ -27,7 +27,7 @@ export interface CapabilityConnectorManifest {
 export interface CapabilityConnectorRuntime {
   manifest: CapabilityConnectorManifest;
   isReady: (tenantId: string) => Promise<boolean>;
-  execute: (operation: string, args: Record<string, unknown>, context: CapabilityContext) => Promise<unknown>;
+  execute: (operation: string, args: Record<string, unknown>, context: CapabilityContext) => Promise<CapabilityExecutionResult>;
 }
 
 export interface CapabilityContext {
@@ -43,11 +43,30 @@ export interface CapabilityContext {
 export interface CapabilityExecutionResult {
   success: boolean;
   result?: unknown;
+  audit_events: CapabilityAuditEvent[];
   error?: {
     code: string;
     message: string;
     retryable: boolean;
   };
+}
+
+export interface CapabilityAuditEvent {
+  event_id: string;
+  tenant_id: string;
+  run_id: string;
+  stage_id: string;
+  plane: "linkskills";
+  actor: { actor_kind: string; actor_id: string };
+  action: string;
+  subject: {
+    capability_id: string;
+    operation: string;
+    lease_id?: string;
+    idempotency_key: string;
+  };
+  payload: Record<string, unknown>;
+  schema_version: "linkskills.capability.audit.v1";
 }
 
 export interface CapabilityReadinessCheck {
