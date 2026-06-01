@@ -149,14 +149,14 @@ describe("chatwoot readiness timeout config", () => {
 
 describe("chatwoot readiness trace payload", () => {
   it("does not include token or credentialed URL", () => {
-    const secret = "super-secret-token";
+    const fixtureToken = "fixture-token-value";
     const payload = buildChatwootReadinessTracePayload({
       env: envWith({
         CRM_PROVIDER: "chatwoot",
         CRM_MODE: "shadow_readiness",
         CHATWOOT_BASE_URL: "https://user:pass@chatwoot.example.com",
         CHATWOOT_ACCOUNT_ID: "42",
-        CHATWOOT_API_ACCESS_TOKEN: secret,
+        CHATWOOT_API_ACCESS_TOKEN: fixtureToken,
       }),
       outcome: "auth_failed",
       success: false,
@@ -168,7 +168,7 @@ describe("chatwoot readiness trace payload", () => {
 
     const serialized = JSON.stringify(payload);
 
-    expect(serialized).not.toContain(secret);
+    expect(serialized).not.toContain(fixtureToken);
     expect(serialized).not.toContain("user:pass");
     expect(payload).toMatchObject({
       integration: "chatwoot",
