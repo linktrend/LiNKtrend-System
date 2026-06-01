@@ -122,6 +122,52 @@ async function loadIssueMap() {
   return {};
 }
 
+const DISPATCH_MARKER = '[linkdev-dispatch]';
+const AGENT_ID_RE = /\| Agent \| `([^`]+)` \|/;
+
+/** Cursor API often ignores custom agent names — map agent id → issue/pr from dispatch comments. */
+async function buildDispatchAgentMap(repo, issueMap) {
+  const map = new Map();
+  const issueNumbers = [...new Set(Object.values(issueMap).map((m) => m.github_number))];
+
+  for (const num of issueNumbers) {
+    let view;
+    try {
+      view = JSON.parse(await gh(['issue', 'view', String(num), '--repo', repo, '--json', 'comments']));
+    } catch {
+      continue;
+    }
+    for (const comment of view.comments ?? []) {
+      if (!comment.body?.includes(DISPATCH_MARKER)) continue;
+      const agentId = comment.body.match(AGENT_ID_RE)?.[1];
+      if (agentId) map.set(agentId, { kind: 'issue', number: num });
+    }
+  }
+
+  try {
+    const prs = JSON.parse(
+      await gh(['pr', 'list', '--repo', repo, '--state', 'open', '--json', 'number', '--limit', '30']),
+    );
+    for (const pr of prs) {
+      let comments;
+      try {
+        comments = JSON.parse(await gh(['api', `repos/${repo}/issues/${pr.number}/comments`, '--paginate']));
+      } catch {
+        continue;
+      }
+      for (const comment of Array.isArray(comments) ? comments : comments.items ?? []) {
+        if (!comment.body?.includes(DISPATCH_MARKER)) continue;
+        const agentId = comment.body.match(AGENT_ID_RE)?.[1];
+        if (agentId) map.set(agentId, { kind: 'pr', number: pr.number });
+      }
+    }
+  } catch {
+    /* optional PR scan */
+  }
+
+  return map;
+}
+
 function statusEmoji(status) {
   if (status === 'RUNNING' || status === 'CREATING') return '🔄';
   if (status === 'FINISHED') return '✅';
@@ -278,6 +324,7 @@ async function loadActiveIssueNumbers() {
 async function main() {
   const args = parseArgs(process.argv);
   const issueMap = await loadIssueMap();
+  const dispatchAgentMap = await buildDispatchAgentMap(args.repo, issueMap);
   const list = await cursorApi('/agents?limit=50');
   const items = list.items ?? [];
   let updated = 0;
@@ -288,6 +335,7 @@ async function main() {
 
     const run = await cursorApi(`/agents/${agent.id}/runs/${agent.latestRunId}`);
     let target = parseAgentTarget(agent.name, run, agent, issueMap);
+    if (!target) target = dispatchAgentMap.get(agent.id) ?? null;
     if (!target) {
       console.log(`skip unmapped agent ${agent.id} name=${agent.name}`);
       continue;

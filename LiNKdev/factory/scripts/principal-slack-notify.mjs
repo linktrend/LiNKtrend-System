@@ -6,10 +6,10 @@
  * Notifies on:
  * - linkdev:principal-stop (your turn)
  * - linkdev:blocked (factory stuck)
- * - active-wave stall: in-progress/ready, no PR, 30+ min without factory progress
+ * - active-wave stall: in-progress/ready, no PR, 15+ min without factory progress
  */
 const SLACK_MARKER = '[linkdev-slack-sent]';
-const STALL_NOTIFY_MINUTES = 30;
+const STALL_NOTIFY_MINUTES = 15;
 const NOTIFY_COOLDOWN_MINUTES = 60;
 
 async function gh(args) {
@@ -71,10 +71,11 @@ async function issueHasOpenPr(repo, ltsId) {
   }
 }
 
-function lastFactoryActivityAt(comments) {
+function lastStallActivityAt(comments) {
   let latest = 0;
   for (const c of comments) {
-    if (!c.body?.match(/\[linkdev-(dispatch|agent-watch|auto-heal)\]/)) continue;
+    // Auto-heal retries do not count as progress — stall timer follows dispatch/watch only.
+    if (!c.body?.match(/\[linkdev-(dispatch|agent-watch)\]/)) continue;
     const t = new Date(c.createdAt).getTime();
     if (t > latest) latest = t;
   }
@@ -142,7 +143,7 @@ export async function notifyPrincipalSlack(opts) {
     if (await issueHasOpenPr(repo, ltsId)) continue;
 
     const comments = view.comments ?? [];
-    const lastActivity = lastFactoryActivityAt(comments);
+    const lastActivity = lastStallActivityAt(comments);
     if (minutesSince(lastActivity) < STALL_NOTIFY_MINUTES) continue;
 
     const eventKey = `stall_${num}`;
