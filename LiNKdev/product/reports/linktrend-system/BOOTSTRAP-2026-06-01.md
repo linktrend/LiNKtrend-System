@@ -13,7 +13,7 @@
 
 ## Wave 1 GitHub mapping
 
-Per `PROGRAM.md` **W1** (parallel cap **3**):
+Per `PROGRAM.md` **W1** (parallel cap **10**):
 
 | LTS | GitHub | Title |
 |-----|--------|-------|

@@ -173,12 +173,22 @@ Slack cooldown (`stall_*` event, 60m) suppresses repeat alerts from the false po
   2. Stale handoff marker blocked bootstrap; bootstrap hung on already-merged PR (L-019).
   3. Cloud orchestrator tokens cannot reliably write issue labels (403).
 - **Fix (template — Actions-first):**
-  1. `advance-wave-on-merge.mjs` — after integrator merge to `development`, read PROGRAM DAG + STATE, promote next unblocked issues (wave cap 3), set `next_orchestrator_trigger: none`, clear handoff marker, run `apply-wave-labels-from-state.sh`.
+  1. `advance-wave-on-merge.mjs` — after integrator merge to `development`, read PROGRAM DAG + STATE, promote next unblocked issues (wave cap from PROGRAM.md), set `next_orchestrator_trigger: none`, clear handoff marker, run `apply-wave-labels-from-state.sh`.
   2. `linkdev-dispatch.yml` — post-merge job runs advance-wave **before** optional cloud orchestrator dispatch.
   3. `linkdev-orchestrator-bootstrap.yml` — skip merge when PR already MERGED; `cancel-in-progress: true`; always attempt handoff clear.
   4. L-018/L-021 ports — `autoCreatePR`, `prepare-executor-branch`, `linkdev-gh-api.mjs` rate-limit backoff.
 - **What stays cloud:** Executor, reviewer, integrator, planner, and optional orchestrator for complex council/G3 decisions — not routine label/wave advance.
 - **Principal proposal:** MVO can complete waves without Principal break-glass when integrator merges land; monitor wave 6+ for promotion correctness.
+- **Status:** **Fixed** (2026-06-01).
+
+### L-023 — Parallel executor cap raised to 10 (DAG-fill)
+- **Symptom:** Factory advanced only one PROGRAM parallel group (lowest W*) per merge; with cap 3, waves 5–6 felt stalled while multiple DAG-ready issues waited.
+- **Root cause:** `computePromotions()` filtered candidates to a single `minWave` group before applying cap; Principal cap was 3.
+- **Fix:**
+  1. Default and PROGRAM **active wave cap** → **10** concurrent `linkdev:ready` executors.
+  2. `advance-wave-on-merge.mjs` promotes **all** dependency-satisfied issues up to cap (wave order for sort only, not batch gating).
+  3. `parseWaveCapFromProgram()` reads cap from PROGRAM.md unless `--wave-cap` override.
+  4. Orchestrator ROLE: DAG-fill language, not “next parallel group.”
 - **Status:** **Fixed** (2026-06-01).
 
 ---

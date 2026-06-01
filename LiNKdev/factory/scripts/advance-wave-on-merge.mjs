@@ -12,7 +12,7 @@ import { createGhClient } from './linkdev-gh-api.mjs';
 
 const HANDOFF_PATH = '.linkdev/handoff/orchestrator-wave-ready.json';
 const HANDOFF_PROCESSED = '.linkdev/handoff/orchestrator-wave-ready.processed.json';
-const DEFAULT_CAP = 3;
+const DEFAULT_CAP = 10;
 
 function parseArgs(argv) {
   const out = {
@@ -24,6 +24,7 @@ function parseArgs(argv) {
     clearHandoff: true,
     dryRun: false,
     waveCap: DEFAULT_CAP,
+    waveCapExplicit: false,
   };
   for (let i = 2; i < argv.length; i += 1) {
     const a = argv[i];
@@ -35,8 +36,10 @@ function parseArgs(argv) {
     else if (a === '--clear-handoff') out.clearHandoff = true;
     else if (a === '--no-clear-handoff') out.clearHandoff = false;
     else if (a === '--dry-run') out.dryRun = true;
-    else if (a === '--wave-cap') out.waveCap = Number(argv[++i]);
-    else throw new Error(`Unknown argument: ${a}`);
+    else if (a === '--wave-cap') {
+      out.waveCap = Number(argv[++i]);
+      out.waveCapExplicit = true;
+    } else throw new Error(`Unknown argument: ${a}`);
   }
   if (!out.programId) throw new Error('--program is required');
   if (!out.programPath) {
@@ -84,6 +87,18 @@ function parseProgramIssues(programPath) {
     issues[id] = { depends, wave, runtime, tier };
   }
   return issues;
+}
+
+/** Read active wave cap from PROGRAM.md (## Active wave cap section). */
+function parseWaveCapFromProgram(programPath, fallback = DEFAULT_CAP) {
+  const text = readFileSync(programPath, 'utf8');
+  const section = text.match(/## Active wave cap[\s\S]*?(?=\n## |\n*$)/);
+  if (!section) return fallback;
+  const concurrent = section[0].match(/\*\*(\d+)\*\*\s+concurrent/i);
+  if (concurrent) return Number(concurrent[1]);
+  const atMost = section[0].match(/at most\s+\*\*(\d+)\*\*/i);
+  if (atMost) return Number(atMost[1]);
+  return fallback;
 }
 
 function issueStatus(state, id) {
@@ -173,8 +188,7 @@ function computePromotions(stateJson, programIssues, waveCap) {
 
   if (candidates.length === 0) return [];
 
-  const minWave = programIssues[candidates[0]].wave;
-  return candidates.filter((id) => programIssues[id].wave === minWave).slice(0, slots);
+  return candidates.slice(0, slots);
 }
 
 async function main() {
@@ -189,6 +203,9 @@ async function main() {
   }
 
   const programIssues = parseProgramIssues(args.programPath);
+  if (!args.waveCapExplicit) {
+    args.waveCap = parseWaveCapFromProgram(args.programPath, args.waveCap);
+  }
   const stateText = readFileSync(args.statePath, 'utf8');
   const { json, prefix, suffix } = parseState(stateText);
   if (!json.issues) json.issues = {};
@@ -206,7 +223,7 @@ async function main() {
       report: json.issues[ltsId]?.report ?? defaultReportPath(args.programId, ltsId),
     };
     changed = true;
-    console.log(`ADVANCE_WAVE promote ${ltsId} → ready (wave W${meta.wave})`);
+    console.log(`ADVANCE_WAVE promote ${ltsId} → ready (DAG-unblocked, W${meta.wave})`);
   }
 
   json.next_orchestrator_trigger = 'none';
