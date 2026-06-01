@@ -7,6 +7,7 @@ PROGRAM=""
 REPORT=""
 SCOPE="${LINKDEV_SCOPE:-LiNKdev}"
 ROOT="$(cd "$(dirname "$0")/../../.." && pwd)"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 CATALOG="$ROOT/LiNKdev/factory/gates/catalog.json"
 
 FAILURES=0
@@ -59,7 +60,6 @@ program_plan() {
   echo "LiNKdev/factory/programs/bootstrap/PROGRAM.md"
 }
 
-# shellcheck disable=SC2317
 release_report() {
   if [[ -n "$REPORT" && -f "$REPORT" ]]; then
     echo "$REPORT"
