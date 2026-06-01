@@ -295,5 +295,6 @@ export const LinkSitesV2RoleIdSchema = z.enum([
   "research_enrichment_bot",
   "website_builder_bot",
   "outreach_bot",
+  "librarian_bot",
 ]);
 export type LinkSitesV2RoleId = z.infer<typeof LinkSitesV2RoleIdSchema>;

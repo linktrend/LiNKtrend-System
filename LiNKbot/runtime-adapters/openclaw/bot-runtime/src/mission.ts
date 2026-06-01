@@ -72,6 +72,12 @@ export const MISSION_ROLES: Record<LinkSitesV2RoleId, MissionConfig> = {
     max_attempts: 1,
     timeout_ms: 60000,
   },
+  librarian_bot: {
+    role_id: "librarian_bot",
+    capabilities_required: ["cap.zulip.run_messaging"],
+    max_attempts: 1,
+    timeout_ms: 120000,
+  },
 };
 
 /**
@@ -118,6 +124,13 @@ export async function executeMission(
 
   if (role_id === "lead_scout_bot") {
     const result = await executeLeadScoutAcquisition(request, session);
+    cleanupBotSession(session.session_id);
+    return result;
+  }
+
+  if (role_id === "librarian_bot") {
+    const { executeLibrarianKnowledgeLoop } = await import("./librarian-mission.js");
+    const result = await executeLibrarianKnowledgeLoop(request, session, undefined);
     cleanupBotSession(session.session_id);
     return result;
   }
@@ -601,6 +614,7 @@ export function listMissionRoles(): Array<{ role_id: LinkSitesV2RoleId; enabled_
     { role_id: "lead_scout_bot", enabled_in_mvo: true },
     { role_id: "research_enrichment_bot", enabled_in_mvo: true },
     { role_id: "website_builder_bot", enabled_in_mvo: true },
+    { role_id: "librarian_bot", enabled_in_mvo: true },
     { role_id: "outreach_bot", enabled_in_mvo: false },
   ];
 }
