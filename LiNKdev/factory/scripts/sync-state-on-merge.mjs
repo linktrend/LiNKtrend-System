@@ -5,6 +5,7 @@
  * Usage: node sync-state-on-merge.mjs --repo owner/name --pr <number> [--state LiNKdev/factory/STATE.md] [--dry-run]
  */
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
+import { parseProgramIssues, seedDoneAncestorsInState } from './linkdev-state-dag.mjs';
 
 function parseArgs(argv) {
   const out = {
@@ -110,6 +111,15 @@ async function main() {
   row.last_pr = args.pr;
   row.done_at = new Date().toISOString();
   json.updated_at = row.done_at;
+
+  const programId = json.program_id ?? 'linktrend-system';
+  const programPath = `LiNKdev/product/programs/${programId}/PROGRAM.md`;
+  if (existsSync(programPath)) {
+    const programIssues = parseProgramIssues(programPath);
+    if (seedDoneAncestorsInState(json, programIssues, programId)) {
+      console.log('MERGE_SYNC seeded done ancestors in STATE');
+    }
+  }
 
   const readyLeft = Object.entries(json.issues ?? {}).filter(([, v]) => v?.status === 'ready' || v?.status === 'in_progress' || v?.status === 'in-progress');
   if (readyLeft.length === 0 && json.phase === 'running') {

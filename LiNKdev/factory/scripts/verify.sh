@@ -57,6 +57,7 @@ if command -v node >/dev/null 2>&1; then
   node --test LiNKdev/factory/scripts/linkdev-issue-terminal.test.mjs || fail "issue-terminal tests"
   node --test LiNKdev/factory/scripts/linkdev-factory-escalation.test.mjs || fail "factory-escalation tests"
   node --test LiNKdev/factory/scripts/linkdev-dispatch-payload.test.mjs || fail "dispatch-payload tests"
+  node --test LiNKdev/factory/scripts/linkdev-state-dag.test.mjs || fail "state-dag tests"
   node LiNKdev/factory/scripts/linkdev-gh-api.test.mjs || fail "gh-api tests"
 fi
 if command -v python3 >/dev/null 2>&1; then
