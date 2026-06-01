@@ -110,7 +110,7 @@ function PlatformBirdsEye(props: { href: (path: string) => string }) {
 
   const quickLinks = [
     { href: props.href("/work"), icon: Activity, title: "Work", description: "Platform attention feed and operator inbox." },
-    { href: props.href("/workers"), icon: Bot, title: "LiNKbots", description: "Fleet sessions and runtime health." },
+    { href: props.href("/workers"), icon: Bot, title: "LiNKbots", description: "Fleet sessions, troubleshoot actions, and runtime health." },
     { href: props.href("/suites"), icon: Layers3, title: "Suites", description: "Compose suite products and publish to Marketplace." },
     { href: props.href("/skills"), icon: Wrench, title: "LinkSkills", description: "Capabilities, leases, and tools." },
     { href: props.href("/memory"), icon: Brain, title: "LiNKbrain", description: "Memory files and audit surfaces." },
