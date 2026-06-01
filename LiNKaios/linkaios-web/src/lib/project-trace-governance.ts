@@ -1,5 +1,3 @@
-import { isUiMocksEnabled } from "@/lib/ui-mocks/flags";
-
 export type ProjectTraceStepStatus = "completed" | "running" | "pending" | "blocked";
 
 export type ProjectTraceStep = {
@@ -179,6 +177,7 @@ function workflowStatusToStepStatus(status: string): ProjectTraceStepStatus {
 }
 
 export async function loadProjectTraceSurface(projectId: string): Promise<ProjectTraceSurface> {
+  const { isUiMocksEnabled } = await import("@/lib/ui-mocks/flags");
   if (isUiMocksEnabled()) {
     return demoProjectTraceSurface(projectId);
   }

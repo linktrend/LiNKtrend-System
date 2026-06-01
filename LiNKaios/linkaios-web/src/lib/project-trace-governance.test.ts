@@ -65,7 +65,12 @@ describe("project trace governance (LTS-003)", () => {
       }),
     ).toEqual({
       ok: false,
-      missing: ["step:missing-audit:linkbrainAuditRef", "gate:gate-1:allowedRoles"],
+      missing: [
+        "step:missing-audit:linkbrainAuditRef",
+        "gate:budget",
+        "gate:knowledge",
+        "gate:gate-1:allowedRoles",
+      ],
     });
   });
 });
