@@ -162,7 +162,7 @@ AS $$
   FROM linkaios.projects p
   LEFT JOIN linkaios_kernel.runs r ON r.project_id = p.id
   WHERE p.id = p_project_id
-  ORDER BY r.created_at NULLS LAST;
+  ORDER BY r.started_at NULLS LAST;
 $$;
 
 REVOKE ALL ON FUNCTION linkaios.get_project_run_spine(uuid) FROM PUBLIC;

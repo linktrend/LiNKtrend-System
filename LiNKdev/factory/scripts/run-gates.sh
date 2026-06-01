@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # Run LiNKdev completion gates from factory/gates/catalog.json.
+# shellcheck disable=SC2317
 set -euo pipefail
 
 TIER=""
