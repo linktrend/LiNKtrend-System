@@ -10,8 +10,8 @@
 |---|--------|------------------|--------|
 | 1 | Lead generation path (Maps live vs governed mock) | **D1: B** — governed mock lead; full lease/audit/trace (not a skip stage) | closed |
 | 2 | Outreach MVO posture (draft-only vs approved send) | **D2: A** — governed draft-only + Principal approval gate; full trace; live send only on explicit Principal approval | closed |
-| 3 | Librarian depth for MVO demo | _pending_ | **open** |
-| 4 | Admin surface bar (minimum vs full fleet catalogue) | _pending_ | open |
+| 3 | Librarian depth for MVO demo | **D3: B** — full loop: company knowledge + anonymized world brain (LiNKguard policy) | closed |
+| 4 | Admin surface bar (minimum vs full fleet catalogue) | _pending_ | **open** |
 
 _Answers recorded here after each Principal reply._
 
@@ -37,7 +37,7 @@ For MVO step 6 (outreach), what is the default demo bar?
 
 **Principal:** **A**
 
-### D3 — Librarian depth (open)
+### D3 — Librarian depth (closed)
 
 How deep should the Librarian LiNKbot loop go in the MVO demo?
 
@@ -45,9 +45,9 @@ How deep should the Librarian LiNKbot loop go in the MVO demo?
 - **B** — **Full loop:** company knowledge **plus** anonymized contribution to **world brain** (LiNKguard policy enforced)  
 - **C** — **Minimal:** audit/events only; no interactive proposal UI for MVO  
 
-**Principal:** _pending_
+**Principal:** **B**
 
-### D4 — Admin surface bar (pending)
+### D4 — Admin surface bar (open)
 
 What is the minimum LiNKtrend Admin bar for MVO?
 

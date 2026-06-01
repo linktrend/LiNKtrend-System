@@ -31,7 +31,7 @@ When **all issues** in this program are done:
 
 **Infrastructure (non-negotiable):** Supabase, Zulip, Plane, all planes wired with audit. **LiNKsites product code** stays in `/Users/linktrend/Projects/LiNKsites`.
 
-**Librarian** — MVO loop: ingest run/Zulip → knowledge proposal → accept/reject/edit → company LiNKbrain (world brain anonymization via LiNKguard policy).
+**Librarian** — **D3 B:** full MVO loop — ingest run/Zulip → knowledge proposal → accept/reject/edit → company LiNKbrain → anonymized **world brain** contribution (LiNKguard policy enforced).
 
 ## Traceability to PRINCIPAL_PRODUCT_DEFINITION.md
 
@@ -54,8 +54,9 @@ When **all issues** in this program are done:
 |----|----------|
 | **D1** | **B** — MVO demo uses one **governed mock lead** (lease, audit, trace). Not a skip stage. Live Maps/search post-MVO unless reopened. |
 | **D2** | **A** — MVO outreach is **governed draft-only** with Principal approval gate. Full lease/audit/trace. Live send only if Principal explicitly approves during demo. Not a skip stage. |
+| **D3** | **B** — Librarian **full loop** in MVO: company knowledge proposal (accept/reject/edit) **plus** anonymized world brain contribution; LiNKguard confidentiality policy enforced. |
 
-**Alignment score:** ≥**98%** with D1–D2 recorded; remaining Q&A: D3–D4.
+**Alignment score:** ≥**98%** with D1–D3 recorded; remaining Q&A: **D4**.
 
 ## Program Definition of Done
 
