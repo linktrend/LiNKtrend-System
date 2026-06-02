@@ -13,6 +13,7 @@ import { DEMO_CHANNEL_THREADS } from "@/lib/ui-mocks/channel-threads";
 import { isUiMocksEnabled } from "@/lib/ui-mocks/flags";
 import { DEMO_SESSION_THREADS } from "@/lib/ui-mocks/session-threads";
 import { DEMO_WORK_ALERTS } from "@/lib/ui-mocks/work-alert-fixtures";
+import { fetchRecentTraces, traceRowToLegacy } from "@/lib/traces-db";
 import { traceToWorkAlert } from "@/lib/work-alerts";
 import { groupZulipIntoThreads, prepareChannelThreads } from "@/lib/work-messages";
 import { getZulipSiteUrlFromEnv } from "@/lib/zulip-links";
@@ -29,14 +30,9 @@ export default async function WorkDashboardPage() {
   const supabase = await createSupabaseServerClient();
   const uiMocksEnabled = isUiMocksEnabled();
 
-  const [tracesRes, zulipRes, sessionsRes, agentsRes, brainDraftCountRes, runningSessionsRes, brainDraftsPreview] =
+  const [tracesResult, zulipRes, sessionsRes, agentsRes, brainDraftCountRes, runningSessionsRes, brainDraftsPreview] =
     await Promise.all([
-      supabase
-        .schema("linkaios")
-        .from("traces")
-        .select("id, event_type, mission_id, created_at, payload")
-        .order("created_at", { ascending: false })
-        .limit(20),
+      fetchRecentTraces(supabase, { limit: 20 }),
       supabase
         .schema("gateway")
         .from("zulip_message_links")
@@ -64,14 +60,8 @@ export default async function WorkDashboardPage() {
     ]);
 
   const traceAlerts =
-    tracesRes.data?.map((t) =>
-      traceToWorkAlert({
-        id: String(t.id),
-        event_type: String(t.event_type),
-        mission_id: t.mission_id as string | null,
-        created_at: String(t.created_at),
-        payload: t.payload,
-      }),
+    tracesResult.rows.map((t) =>
+      traceToWorkAlert({ ...traceRowToLegacy(t), id: String(t.id) }),
     ) ?? [];
   const alertsMerged = [...(uiMocksEnabled ? DEMO_WORK_ALERTS : []), ...traceAlerts].sort(
     (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
