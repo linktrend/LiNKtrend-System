@@ -39,14 +39,15 @@ export function StubPageNotice(props: { message: string }) {
   );
 }
 
-export type PlaneSyncStubResponse = {
-  status: "stub";
+export type PlaneSyncResponse = {
+  status: "stub" | "live" | "shadow" | "error";
   message: string;
-  missionId: string;
-  planeSyncStatus: "synced";
+  missionId?: string;
+  planeSyncStatus?: "synced" | "pending";
+  planeUrl?: string | null;
 };
 
-/** Plane sync affordance for project tools — calls stub API and surfaces demo feedback. */
+/** Plane sync affordance for project tools — live sync when LINKSKILLS_PLANE_MODE=live. */
 export function PlaneSyncStubPanel(props: { missionId: string; canWrite?: boolean }) {
   const [pending, setPending] = useState(false);
   const [flash, setFlash] = useState<string | null>(null);
@@ -57,11 +58,18 @@ export function PlaneSyncStubPanel(props: { missionId: string; canWrite?: boolea
     setFlash(null);
     try {
       const res = await fetch(`/api/projects/${encodeURIComponent(props.missionId)}/plane-sync`, { method: "POST" });
-      const body = (await res.json()) as Partial<PlaneSyncStubResponse> & { error?: string };
+      const body = (await res.json()) as Partial<PlaneSyncResponse> & { error?: string };
       if (!res.ok) {
-        throw new Error(body.error ?? "Sync request failed");
+        throw new Error(body.error ?? body.message ?? "Sync request failed");
       }
-      setFlash(body.message ?? "Demo response — Plane sync is not connected in MVO.");
+      if (body.planeSyncStatus !== "synced") {
+        throw new Error(body.message ?? "Plane sync did not complete");
+      }
+      setFlash(
+        body.planeUrl
+          ? `${body.message ?? "Synced to Plane."} Open: ${body.planeUrl}`
+          : (body.message ?? "Synced to Plane."),
+      );
     } catch {
       setFlash("Demo sync could not be recorded. Try again or contact your operator.");
     } finally {
@@ -76,10 +84,9 @@ export function PlaneSyncStubPanel(props: { missionId: string; canWrite?: boolea
         <div className="min-w-0 space-y-1">
           <div className="flex flex-wrap items-center gap-2">
             <h2 className="text-sm font-semibold text-zinc-500 dark:text-zinc-400">Plane sync</h2>
-            <StubBadge label="Demo stub" />
           </div>
           <p className="max-w-2xl text-xs text-zinc-600 sm:text-sm">
-            Records operator intent only. No work items are created or updated in Plane until the execution bridge is live.
+            Pushes this project to Plane (modules, issues, and Run cycle from the suite template) when live mode is enabled.
           </p>
         </div>
         <button

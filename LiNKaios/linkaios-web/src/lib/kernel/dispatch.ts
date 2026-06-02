@@ -33,12 +33,18 @@ import { log } from "@linktrend/observability";
 import type { DispatchContext, DispatchResult } from "./types";
 import type { Env } from "@linktrend/shared-config";
 import { createPlaneAdapter, PlaneReadinessError } from "./plane-adapter";
+import {
+  executeLeaseThroughLogicEngine,
+  isLinkSkillsExecutionGateRequired,
+  parseCapabilityFromExecuteRequest,
+} from "./linkskills-execution";
 import type { LinktrendGovernancePayload } from "@linktrend/shared-types";
 import {
   discoverTemplateRegistry,
   buildTemplateContextForLiNKbot,
   isValidTemplateId,
 } from "@/lib/suite-integrations/websitefactory/template-registry-discovery";
+import { shouldUseLiveAutoworkDispatch } from "./linkautowork-dispatch-mode";
 
 // Retry config
 const DEFAULT_RETRY_ATTEMPTS = 3;
@@ -547,7 +553,7 @@ export async function executeLinkSkillsLease(
   ctx: DispatchContext,
   request: LeaseExecuteRequest,
 ): Promise<DispatchResult> {
-  const capability = request.idempotency_key.split(':')[2];
+  const capability = parseCapabilityFromExecuteRequest(request);
 
   if (capability === "crm.upsert") {
     const readiness = await validateCrmReadiness(env);
@@ -557,6 +563,35 @@ export async function executeLinkSkillsLease(
         failure: readiness.failure,
       };
     }
+  }
+
+  if (isLinkSkillsExecutionGateRequired(env)) {
+    const exec = await executeLeaseThroughLogicEngine(env, request);
+    if (exec.failure) {
+      return { success: false, failure: exec.failure, lease_id: request.lease_id };
+    }
+
+    await writeStageAuditEvent(env, ctx, "lease.executed", {
+      lease_id: request.lease_id,
+      capability,
+      ledger_entry_id: exec.ledger_entry_id,
+      audit_event_id: exec.audit_event_id,
+    }, "linkskills");
+
+    const outputAuditEventIds = await writeCapabilityOutputAuditEvents(
+      env,
+      ctx,
+      capability,
+      exec.result ?? {},
+    );
+
+    return {
+      success: true,
+      outputs: exec.result,
+      lease_id: request.lease_id,
+      audit_event_id: exec.audit_event_id || outputAuditEventIds.at(-1),
+      audit_event_ids: outputAuditEventIds,
+    };
   }
 
   const supabase = createSupabaseServiceClient(env);
@@ -574,12 +609,11 @@ export async function executeLinkSkillsLease(
   } else if (capability === "plane.project.create") {
     try {
       const planeAdapter = createPlaneAdapter(env);
-      // WP-033: live mode remains local stub; shadow_readiness performs read-only checks.
       const planeResult = await planeAdapter.provisionProjectAndWorkItem({
         tenant_id: ctx.tenant_id,
-        lead_id: "",
-        project_name: "",
-        work_item_title: "",
+        lead_id: ctx.run_id,
+        project_name: `Run ${ctx.run_id}`,
+        work_item_title: "Kernel plane bootstrap",
       });
       mockResult = {
         project_id: planeResult.project_id,
@@ -594,13 +628,19 @@ export async function executeLinkSkillsLease(
       }
       throw error;
     }
+  } else {
+    const exec = await executeLeaseThroughLogicEngine(env, request);
+    if (exec.failure) {
+      return { success: false, failure: exec.failure, lease_id: request.lease_id };
+    }
+    mockResult = exec.result ?? {};
   }
 
   const { data, error } = await supabase.schema("linkskills").rpc("record_execution", {
     p_lease_id: request.lease_id,
     p_idempotency_key: request.idempotency_key,
-    p_result: mockResult, // MVO mock response
-    p_audit_event_id: null, // Will be set by capability backend
+    p_result: mockResult,
+    p_audit_event_id: null,
   });
 
   if (error) {
@@ -616,10 +656,7 @@ export async function executeLinkSkillsLease(
 
   const result = Array.isArray(data) ? data[0] : data;
   const isDuplicate = result?.is_duplicate as boolean;
-  const execResult = result?.result as Record<string, unknown>;
-
-  // For MVO, we use stub backends that directly return results
-  // In real implementation, this would call the capability backend
+  const execResult = (result?.result as Record<string, unknown>) ?? mockResult;
 
   await writeStageAuditEvent(env, ctx, "lease.executed", {
     lease_id: request.lease_id,
@@ -630,7 +667,7 @@ export async function executeLinkSkillsLease(
     env,
     ctx,
     capability,
-    execResult || {},
+    execResult,
   );
 
   return {
@@ -792,6 +829,25 @@ async function writeCapabilityOutputAuditEvents(
     return eventIds;
   }
 
+  if (capability === "cap.zulip.run_messaging") {
+    await write("zulip.connectivity.checked", {
+      connectivity: outputs.connectivity,
+      operation: outputs.operation,
+      status: outputs.status,
+    });
+    return eventIds;
+  }
+
+  if (capability === "cap.plane.execution_tracking") {
+    await write("plane.readiness.checked", {
+      plane_ref: outputs.plane_ref,
+      connectivity: outputs.connectivity,
+      operation: outputs.operation,
+      status: outputs.status,
+    });
+    return eventIds;
+  }
+
   return eventIds;
 }
 
@@ -811,8 +867,45 @@ export async function dispatchToLinkAutowork(
     ...request,
   };
 
-  // MVO: LiNKautowork dispatch is a stub
-  // Real implementation calls n8n gateway via HTTP
+  if (!shouldUseLiveAutoworkDispatch()) {
+    return dispatchToLinkAutoworkMock(env, ctx, request);
+  }
+
+  const { invokeLinkAutoworkWorkflow } = await import("./linkautowork-runtime");
+  const result = await invokeLinkAutoworkWorkflow(env, fullRequest);
+  const workflowRunId = result.workflow_run_id;
+  const auditEventIds = result.audit_event_ids ?? [];
+
+  if (result.status === "failed" || result.status === "compensated" || result.failure) {
+    return {
+      success: false,
+      failure: result.failure ?? {
+        code: "WORKFLOW_STEP_FAILED",
+        plane: "linkautowork",
+        message: `Workflow ${request.workflow_handle} ended with status ${result.status}`,
+        retryable: false,
+        occurred_at: new Date().toISOString(),
+      },
+      workflow_run_id: workflowRunId,
+      audit_event_ids: auditEventIds,
+      outputs: result.outputs,
+    };
+  }
+
+  return {
+    success: true,
+    outputs: result.outputs,
+    workflow_run_id: workflowRunId,
+    audit_event_ids: auditEventIds,
+  };
+}
+
+/** Legacy mock dispatch for tests and LINKAUTOWORK_DISPATCH_MODE=mock. */
+async function dispatchToLinkAutoworkMock(
+  env: Env,
+  ctx: DispatchContext,
+  request: Omit<WorkflowInvokeRequest, "tenant_id" | "run_id" | "stage_id">,
+): Promise<DispatchResult> {
   const leaseRequiredHandles = new Set([
     "autowork.linksites.supabase_mirror_upsert",
     "autowork.linksites.payload_sync_local",
@@ -847,7 +940,6 @@ export async function dispatchToLinkAutowork(
     };
   }
 
-  // Mock success
   const mockOutputs: Record<string, unknown> =
     request.workflow_handle === "autowork.websitefactory.render"
       ? { render_spec: request.inputs }

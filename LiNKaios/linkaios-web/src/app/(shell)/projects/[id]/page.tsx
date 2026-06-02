@@ -18,7 +18,9 @@ import { ProjectWorkflowProgress } from "@/components/project-workflow-progress"
 import { ProjectWorkflowsPanel } from "@/components/project-workflows-panel";
 import { ShellPageHeaderClient } from "@/components/shell-page-header-client";
 import { StatusPill } from "@/components/ui/status-pill";
-import { getPlaneBridgeConfig, planeProjectBoardHref, planeWorkspaceProjectsHref } from "@/lib/plane-links";
+import { getPlaneBridgeConfig, planeProjectBoardHref, planeProjectBoardHrefFromEnv, planeWorkspaceProjectsHref } from "@/lib/plane-links";
+import { loadPlaneBridgesForProjects } from "@/lib/plane-project-bridge";
+import { isPlaneLiveConfigured } from "@/lib/kernel/plane-project-sync";
 import { parseProjectTab, type ProjectTabId } from "@/lib/project-tabs";
 import {
   PROJECT_LIFECYCLE_PILL_LABELS,
@@ -202,8 +204,16 @@ export default async function MissionDetailPage(props: {
   }
 
   const m = project as { id: string; title: string; status: string; primary_agent_id: string | null };
-  const bridge = DEMO_MISSION_PLANE_BRIDGE[m.id];
-  const livePlaneHref = planeProjectBoardHref(planeCfg, bridge?.code ?? null) ?? planeProjectsHref;
+  const persistedBridge = isPlaneLiveConfigured()
+    ? (await loadPlaneBridgesForProjects([m.id]))[m.id]
+    : undefined;
+  const demoBridge = DEMO_MISSION_PLANE_BRIDGE[m.id];
+  const livePlaneHref =
+    (persistedBridge?.planeProjectId
+      ? planeProjectBoardHrefFromEnv(persistedBridge.planeProjectId, persistedBridge.code)
+      : null) ??
+    planeProjectBoardHref(planeCfg, demoBridge?.code ?? null) ??
+    planeProjectsHref;
 
   return (
     <main className="space-y-8">
