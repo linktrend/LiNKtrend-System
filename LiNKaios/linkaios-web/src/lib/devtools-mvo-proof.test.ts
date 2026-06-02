@@ -1,11 +1,17 @@
+import os from "node:os";
+import path from "node:path";
+
 import { describe, expect, it } from "vitest";
 
 import { buildDevtoolsMvoProof } from "@/lib/devtools-mvo-proof";
 
 describe("devtools MVO proof helper", () => {
   it("builds deterministic WebsiteFactory, LEXOS, and LiNKapps proof sections", () => {
-    const proof = buildDevtoolsMvoProof();
+    const proof = buildDevtoolsMvoProof({
+      cwd: path.join(os.tmpdir(), "linkaios-devtools-mvo-proof-no-manifest"),
+    });
 
+    expect(proof.source).toBe("static-sample");
     expect(proof.websitefactory.status).toBe("succeeded");
     expect(proof.websitefactory.timeline.length).toBeGreaterThanOrEqual(2);
     expect(proof.websitefactory.lease_ids.length).toBeGreaterThan(0);

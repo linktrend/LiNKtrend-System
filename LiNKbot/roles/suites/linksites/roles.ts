@@ -16,7 +16,8 @@ export type LinkSitesRoleId =
   | "lead_scout_bot"
   | "research_enrichment_bot"
   | "website_builder_bot"
-  | "outreach_bot";
+  | "outreach_bot"
+  | "librarian_bot";
 
 /**
  * All LinkSites role IDs in execution order.
@@ -37,6 +38,7 @@ export const LINKSITES_MVO_ENABLED_ROLES: LinkSitesRoleId[] = [
   "research_enrichment_bot",
   "website_builder_bot",
   "outreach_bot",
+  "librarian_bot",
 ];
 
 /**
@@ -161,6 +163,26 @@ export const WEBSITE_BUILDER_BOT_ROLE: LiNKbotRoleAttachment = {
  *
  * Principal D2 A: governed draft-only outreach in MVO; live send requires explicit approval.
  */
+/**
+ * Role definition for librarian_bot (LTS-021).
+ *
+ * Cross-cutting: ingests run outputs and Zulip thread refs into LiNKbrain knowledge proposals.
+ */
+export const LIBRARIAN_BOT_ROLE: LiNKbotRoleAttachment = {
+  role_id: "librarian_bot",
+  purpose:
+    "Ingest completed LinkSites run outputs and Zulip threads into governed knowledge proposals for Principal review.",
+  inputs: ["run_outputs", "zulip_thread_refs", "project_id"],
+  outputs: ["knowledge_proposal_ref", "proposal_status"],
+  allowed_capabilities: ["cap.zulip.run_messaging"],
+  allowed_skills: [],
+  model_policy: {
+    model_routing_profile: "fast",
+  },
+  audit_events: ["role.started", "memory.proposed", "memory.accepted", "role.completed", "role.failed"],
+  development_restrictions: ["proposal_pending_until_principal_review", "world_brain_requires_linkguard_check"],
+};
+
 export const OUTREACH_BOT_ROLE: LiNKbotRoleAttachment = {
   role_id: "outreach_bot",
   purpose: "Draft governed outreach to sell the ready-made site; live send only on Principal approval.",
@@ -198,6 +220,7 @@ export const LINKSITES_ROLES: Record<LinkSitesRoleId, LiNKbotRoleAttachment> = {
   research_enrichment_bot: RESEARCH_ENRICHMENT_BOT_ROLE,
   website_builder_bot: WEBSITE_BUILDER_BOT_ROLE,
   outreach_bot: OUTREACH_BOT_ROLE,
+  librarian_bot: LIBRARIAN_BOT_ROLE,
 };
 
 /**

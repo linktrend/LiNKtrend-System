@@ -85,6 +85,14 @@ const WEBSITE_FACTORY_STAGES: PluginManifestStage[] = [
     failure_mode: "retryable" as FailureMode,
   },
   {
+    stage_id: "outreach_draft",
+    display_name: "Draft outreach (Principal D2 A)",
+    responsible_plane: "linkaios" as Plane,
+    inputs: ["lead_record_ref", "publish_url", "crm_record_id"],
+    outputs: ["outreach_draft_ref", "outreach_status", "outreach_lease_id"],
+    failure_mode: "retryable" as FailureMode,
+  },
+  {
     stage_id: "plane_execution_tracking",
     display_name: "Write execution tracking project/task (mock/shadow)",
     responsible_plane: "linkskills" as Plane,
@@ -99,6 +107,14 @@ const WEBSITE_FACTORY_STAGES: PluginManifestStage[] = [
     inputs: ["run_id", "site_id", "site_generation_run_id"],
     outputs: ["message_id"],
     failure_mode: "require_approval" as FailureMode,
+  },
+  {
+    stage_id: "close_or_recycle",
+    display_name: "Close or recycle lead",
+    responsible_plane: "linkaios" as Plane,
+    inputs: ["lead_record_ref", "crm_record_id", "site_id", "outreach_draft_ref"],
+    outputs: ["close_recycle_outcome", "lead_status", "crm_status_updated_at"],
+    failure_mode: "retryable" as FailureMode,
   },
   {
     stage_id: "record_run",

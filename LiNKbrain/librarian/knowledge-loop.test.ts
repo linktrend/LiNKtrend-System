@@ -8,7 +8,7 @@ import {
   clearLibrarianProposalStore,
   ingestLibrarianSources,
   reviewKnowledgeProposal,
-} from "./knowledge-loop.js";
+} from "./knowledge-loop";
 
 describe("Librarian knowledge loop (LTS-021)", () => {
   beforeEach(() => {

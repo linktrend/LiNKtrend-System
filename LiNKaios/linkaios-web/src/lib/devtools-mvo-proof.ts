@@ -1,14 +1,22 @@
 import { buildPreviewPanelView, generatePreviewRoute } from "@/lib/suite-integrations/websitefactory/preview-panel";
 import { buildLexosOperatorFlowProof } from "@/lib/suite-integrations/lexos-litigation/operator-flow";
 import { buildLinkappsOperatorFlowProof } from "@/lib/suite-integrations/linkapps-app-factory/operator-flow";
+import {
+  readMvoLatestRunManifest,
+  resolveMvoRunManifestPath,
+  type MvoLatestRunManifest,
+} from "@/lib/mvo-run-manifest";
 
 const SAMPLE_RUN_ID = "11111111-1111-4111-8111-111111111111";
 const SAMPLE_WORK_REQUEST_ID = "22222222-2222-4222-8222-222222222222";
 const SAMPLE_TENANT_ID = "tenant-dev";
 
 export type DevtoolsMvoProof = {
+  source: "persisted-run" | "static-sample";
+  manifestPath: string | null;
   websitefactory: {
     run_id: string;
+    project_id: string | null;
     status: string;
     timeline: { stage_id: string; status: string; started_at?: string; ended_at?: string }[];
     lease_ids: string[];
@@ -21,7 +29,7 @@ export type DevtoolsMvoProof = {
   linkapps: ReturnType<typeof buildLinkappsOperatorFlowProof>;
 };
 
-export function buildDevtoolsMvoProof(): DevtoolsMvoProof {
+function buildStaticWebsitefactoryProof(): DevtoolsMvoProof["websitefactory"] {
   const now = new Date("2026-05-18T10:00:00.000Z").toISOString();
   const wfStages = [
     {
@@ -79,25 +87,58 @@ export function buildDevtoolsMvoProof(): DevtoolsMvoProof {
   const preview = buildPreviewPanelView(wfRun, wfStages);
 
   return {
-    websitefactory: {
-      run_id: preview.runId,
-      status: preview.status,
-      timeline: wfStages.map((stage) => ({
-        stage_id: stage.stage_id,
-        status: stage.status,
-        started_at: stage.started_at,
-        ended_at: stage.ended_at,
-      })),
-      lease_ids: preview.leaseIds,
-      workflow_run_ids: preview.workflowRunIds,
-      audit_event_ids: preview.auditEventIds,
-      bot_refs: ["bot:websitefactory_researcher", "bot:websitefactory_copywriter", "bot:websitefactory_publisher"],
-      preview: {
-        preview_url: preview.previewUrl,
-        preview_artifact_ref: preview.previewArtifactRef,
-        preview_local_route: generatePreviewRoute(SAMPLE_TENANT_ID, SAMPLE_RUN_ID),
-      },
+    run_id: preview.runId,
+    project_id: null,
+    status: preview.status,
+    timeline: wfStages.map((stage) => ({
+      stage_id: stage.stage_id,
+      status: stage.status,
+      started_at: stage.started_at,
+      ended_at: stage.ended_at,
+    })),
+    lease_ids: preview.leaseIds,
+    workflow_run_ids: preview.workflowRunIds,
+    audit_event_ids: preview.auditEventIds,
+    bot_refs: ["bot:websitefactory_researcher", "bot:websitefactory_copywriter", "bot:websitefactory_publisher"],
+    preview: {
+      preview_url: preview.previewUrl,
+      preview_artifact_ref: preview.previewArtifactRef,
+      preview_local_route: generatePreviewRoute(SAMPLE_TENANT_ID, SAMPLE_RUN_ID),
     },
+  };
+}
+
+function websitefactoryFromManifest(manifest: MvoLatestRunManifest): DevtoolsMvoProof["websitefactory"] {
+  return {
+    run_id: manifest.run_id,
+    project_id: manifest.project_id,
+    status: manifest.status,
+    timeline: manifest.phase_timeline.map((stage) => ({
+      stage_id: stage.stage_id,
+      status: stage.status,
+      started_at: stage.started_at,
+      ended_at: stage.ended_at,
+    })),
+    lease_ids: manifest.lease_ids,
+    workflow_run_ids: manifest.workflow_run_ids,
+    audit_event_ids: manifest.audit_event_ids,
+    bot_refs: [],
+    preview: {
+      preview_url: manifest.preview_url ?? manifest.publish_url ?? "",
+      preview_artifact_ref: manifest.preview_artifact_ref ?? "",
+      preview_local_route: generatePreviewRoute(manifest.tenant_id, manifest.run_id),
+    },
+  };
+}
+
+export function buildDevtoolsMvoProof(opts: { cwd?: string } = {}): DevtoolsMvoProof {
+  const manifest = readMvoLatestRunManifest(opts.cwd);
+  const websitefactory = manifest ? websitefactoryFromManifest(manifest) : buildStaticWebsitefactoryProof();
+
+  return {
+    source: manifest ? "persisted-run" : "static-sample",
+    manifestPath: manifest ? resolveMvoRunManifestPath(opts.cwd) : null,
+    websitefactory,
     lexos: buildLexosOperatorFlowProof({
       run_id: "run-lexos-proof-1",
       tenant_id: SAMPLE_TENANT_ID,

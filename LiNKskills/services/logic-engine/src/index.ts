@@ -32,6 +32,10 @@ export type {
 } from "./types.js";
 
 // Lease lifecycle
+export { executeGrantedLease, resolveCapabilityFromIdempotencyKey } from "./execute-granted-lease.js";
+export { createLinkSkillsHttpServer, startLinkSkillsHttpServer } from "./http-server.js";
+export { isLinkSkillsLiveOpsEnabled, probePlaneApi, probeZulipGateway } from "./operational-probes.js";
+
 export {
   requestLease,
   executeLease,

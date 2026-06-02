@@ -118,7 +118,7 @@ export class LinkskillsIntegrationHarness {
   }
 
   queryMaybeSingle(table: string, ops: Op[]): { data: unknown; error: null } {
-    if (table === "capabilities") {
+    if (table === "capability_catalog" || table === "capabilities") {
       const capId = ops.find((o): o is Extract<Op, { kind: "eq" }> => o.kind === "eq" && o.col === "capability_id")?.val;
       if (typeof capId !== "string" || !this.registeredCapabilities.has(capId)) {
         return { data: null, error: null };
@@ -145,7 +145,7 @@ export class LinkskillsIntegrationHarness {
       };
     }
 
-    if (table === "lease_requests") {
+    if (table === "lease_ledger" || table === "lease_requests") {
       const rows = [...this.leases.values()];
       const match = rows.find((r) =>
         matchesOps(r as unknown as Record<string, unknown>, ops),
@@ -512,7 +512,7 @@ export class LinkskillsIntegrationHarness {
             return updateChain;
           },
           select: (_cols?: string) => {
-            if (table === "lease_requests") {
+            if (table === "lease_ledger" || table === "lease_requests") {
               return harness.finishLeasePatch(patch, uops, true);
             }
             return Promise.resolve({ data: [], error: null });
@@ -521,7 +521,7 @@ export class LinkskillsIntegrationHarness {
             onFulfilled?: (value: { data: unknown; error: null }) => unknown,
             onRejected?: (reason: unknown) => unknown,
           ) => {
-            if (table === "lease_requests") {
+            if (table === "lease_ledger" || table === "lease_requests") {
               return harness.finishLeasePatch(patch, uops, false).then(onFulfilled as never, onRejected as never);
             }
             if (table === "kill_switches") {

@@ -1,9 +1,13 @@
+import { AlertCircle } from "lucide-react";
+
+import { IntegrationWarningBanner } from "@/components/integration-warning-banner";
+import { ShellPageHeaderClient } from "@/components/shell-page-header-client";
 import { isUiMocksEnabled } from "@/lib/ui-mocks/flags";
 import { DEMO_WORK_ALERTS } from "@/lib/ui-mocks/work-alert-fixtures";
 import { traceToWorkAlert, type WorkAlert } from "@/lib/work-alerts";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
-import { ShellPageHeaderClient } from "@/components/shell-page-header-client";
+import { WorkEmptyState } from "../work-empty-state";
 import { AlertsInbox } from "../alerts-inbox";
 
 export const dynamic = "force-dynamic";
@@ -31,7 +35,8 @@ export default async function WorkAlertsPage() {
           }),
         );
 
-  const merged = [...(uiMocksEnabled ? DEMO_WORK_ALERTS : []), ...fromDb].sort(
+  const fixtureAlerts = uiMocksEnabled ? DEMO_WORK_ALERTS : [];
+  const merged = [...fixtureAlerts, ...fromDb].sort(
     (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
   );
 
@@ -50,15 +55,51 @@ export default async function WorkAlertsPage() {
     }
   }
 
+  const traceLoadFailed = Boolean(error);
+  const hasFixtureRows = fixtureAlerts.length > 0;
+  const blockingLoadFailure = !uiMocksEnabled && traceLoadFailed && fromDb.length === 0;
+
+  if (blockingLoadFailure) {
+    const reason = error?.message ?? "System logs could not be queried.";
+    const schemaHint = reason.includes("schema") || reason.toLowerCase().includes("pgrst");
+    return (
+      <main>
+        <ShellPageHeaderClient
+          title="Alerts"
+          subtitle="Problems and warnings that may need you to review or fix something."
+        />
+        <div className="mt-8">
+          <WorkEmptyState
+            icon={AlertCircle}
+            title="Alerts could not be loaded"
+            description={
+              schemaHint
+                ? "The database may not be fully set up yet. Confirm Supabase schemas are exposed and migrations have run, then refresh."
+                : reason
+            }
+            actions={[
+              { kind: "link", label: "Open system logs", href: "/settings/traces", variant: "secondary" },
+              { kind: "link", label: "Platform settings", href: "/settings/platform", variant: "secondary" },
+            ]}
+          />
+        </div>
+      </main>
+    );
+  }
+
   return (
     <main>
       <ShellPageHeaderClient
         title="Alerts"
         subtitle="Problems and warnings that may need you to review or fix something."
       />
-      <div className="mt-8">
-        {error ? (
-          <p className="mb-4 text-sm text-amber-800 dark:text-amber-200">Alerts could not be loaded from system logs.</p>
+      <div className="mt-8 space-y-4">
+        {traceLoadFailed && (uiMocksEnabled || hasFixtureRows) ? (
+          <IntegrationWarningBanner
+            title="Live system logs are unavailable — fixture alerts shown below"
+            reason={error?.message ?? "The traces query did not succeed."}
+            retryHint="Check Supabase connectivity and schema exposure (linkaios.traces), then use Refresh in the toolbar. Your inbox is not empty — review fixture rows while integration is restored."
+          />
         ) : null}
         <AlertsInbox
           items={merged}

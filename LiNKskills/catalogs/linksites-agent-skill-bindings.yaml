@@ -1,0 +1,30 @@
+# LinkSites suite — certified agent ↔ skill ↔ capability bindings (Area 5)
+# Canonical runtime seed: services/migrations/031_linkskills_operational_seed.sql
+
+suite_id: linksites
+
+agents:
+  linksites-builder:
+    role: website_builder_bot
+    skills:
+      - skill_id: content.generation
+        version: "1.0.0"
+        capabilities: [cap.asset.generation, cap.research.public_web]
+  linksites-ops:
+    role: linksites_ops
+    skills:
+      - skill_id: linksites.publish
+        version: "1.0.0"
+        capabilities: [cap.payload.local_sync, cap.supabase.mirror_content]
+  lisa:
+    role: operator_assistant
+    skills:
+      - skill_id: operator.assistant
+        version: "1.0.0"
+        capabilities: [cap.zulip.run_messaging]
+  librarian:
+    role: librarian_bot
+    skills:
+      - skill_id: knowledge.ingest
+        version: "1.0.0"
+        capabilities: [cap.zulip.run_messaging]

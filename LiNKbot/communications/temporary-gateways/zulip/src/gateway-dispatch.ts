@@ -6,6 +6,7 @@ import { recordTrace } from "@linktrend/linklogic-sdk";
 import { log } from "@linktrend/observability";
 import type { Env } from "@linktrend/shared-config";
 
+import { loadZulipGatewayConfigFromEnv } from "./load-config.js";
 import { resolveMissionId } from "./resolve-mission-id.js";
 import type {
   GatewayDispatchRequest,
@@ -96,6 +97,7 @@ export async function checkGatewayHealth(config: ZulipGatewayConfig = DEFAULT_GA
 export async function dispatchGatewayOperation(
   request: GatewayDispatchRequest,
   config: ZulipGatewayConfig = DEFAULT_GATEWAY_CONFIG,
+  env?: Env,
 ): Promise<GatewayDispatchResult> {
   if (!ALLOWED_OPERATIONS.includes(request.operation as (typeof ALLOWED_OPERATIONS)[number])) {
     return {
@@ -140,6 +142,7 @@ export async function dispatchGatewayOperation(
       config,
       notification.details as Record<string, unknown> | undefined,
       request.lease_id,
+      env,
     );
     return {
       success: result.success,
@@ -153,9 +156,10 @@ export async function dispatchGatewayOperation(
   if (request.operation === "channel.message.mock_send") {
     const payload = {
       ...request.arguments,
-      mode: "mock",
+      mode: config.mode,
+      lease_id: request.lease_id ?? (request.arguments as { lease_id?: string }).lease_id,
     } as ZulipMessagePayload;
-    const result = await sendZulipMessage(payload, { ...config, mode: "mock" });
+    const result = await sendZulipMessage(payload, config, env);
     return {
       success: result.success,
       operation: request.operation,
@@ -250,10 +254,28 @@ export async function handleZulipWebhook(
 
 export async function dispatch(req: IncomingMessage, res: ServerResponse, env: Env) {
   const url = new URL(req.url ?? "/", `http://${req.headers.host ?? "localhost"}`);
+  const config = loadZulipGatewayConfigFromEnv(env);
 
   if (req.method === "GET" && url.pathname === "/health") {
+    const health = await checkGatewayHealth(config);
     res.writeHead(200, { "content-type": "application/json" });
-    res.end(JSON.stringify({ ok: true, service: "zulip-gateway" }));
+    res.end(JSON.stringify({ ok: health.status === "healthy", service: "zulip-gateway", ...health }));
+    return;
+  }
+
+  if (req.method === "POST" && url.pathname === "/v1/dispatch") {
+    const raw = await text(req);
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(raw) as unknown;
+    } catch {
+      res.writeHead(400, { "content-type": "application/json" });
+      res.end(JSON.stringify({ success: false, error: "invalid json" }));
+      return;
+    }
+    const result = await dispatchGatewayOperation(parsed as GatewayDispatchRequest, config, env);
+    res.writeHead(result.success ? 200 : 422, { "content-type": "application/json" });
+    res.end(JSON.stringify(result));
     return;
   }
 

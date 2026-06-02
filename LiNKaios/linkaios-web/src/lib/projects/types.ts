@@ -9,7 +9,7 @@
 
 export type ProjectCadence = "once" | "continuous";
 
-export type PlaneBootstrapStatus = "pending" | "stub";
+export type PlaneBootstrapStatus = "pending" | "stub" | "live";
 
 export type CreateProjectRequest = {
   name: string;

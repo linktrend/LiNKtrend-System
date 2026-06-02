@@ -12,6 +12,15 @@
  */
 
 import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Env } from "@linktrend/shared-config";
+import { loadEnv, zulipRunMessagingMode } from "@linktrend/shared-config";
+import {
+  loadZulipGatewayConfigFromEnv,
+  sendRunNotification,
+  sendZulipMessage,
+  probeZulipConnectivity,
+} from "@linktrend/zulip-gateway";
+import type { ZulipMessagePayload } from "@linktrend/zulip-gateway";
 import type {
   CrmUpsertArgs,
   CrmUpsertResult,
@@ -23,6 +32,7 @@ import type {
   PreviewPublishResult,
 } from "@linktrend/linklogic-sdk";
 import type { CapabilityContext } from "./types.js";
+import { isLinkSkillsLiveOpsEnabled, probePlaneApi } from "./operational-probes.js";
 
 export class CapabilityExecutionError extends Error {
   code: string;
@@ -55,13 +65,15 @@ interface ZulipRunMessagingArgs {
 
 interface ZulipRunMessagingResult extends Record<string, unknown> {
   operation: "run.notify" | "channel.message.mock_send" | "connectivity.probe";
-  mode: "mock" | "shadow";
-  status: "queued_mock" | "readiness_checked";
+  mode: "mock" | "shadow" | "live";
+  status: "queued_mock" | "readiness_checked" | "sent_live" | "shadow_only";
   message_ref?: string;
+  zulip_message_id?: string;
   connectivity?: {
     ok: boolean;
     checked_at: string;
-    reason: "shadow_probe_placeholder";
+    reason?: string;
+    authenticated?: boolean;
   };
 }
 
@@ -241,46 +253,128 @@ export async function handlePreviewPublish(
 /**
  * Zulip run messaging handler (§0.A.5.1, INT-043).
  *
- * Development defaults:
- * - outbound send operations are mock-only
- * - connectivity checks may run in shadow mode as readiness placeholders
- * - live mode is blocked
+ * Respects `ZULIP_RUN_MESSAGING_MODE`:
+ * - mock: queued ref only
+ * - shadow: connectivity probe
+ * - live: real outbound via zulip-gateway send helpers
  */
 export async function handleZulipRunMessaging(
   _client: SupabaseClient,
   args: ZulipRunMessagingArgs,
   context: CapabilityContext,
+  env?: Env,
 ): Promise<ZulipRunMessagingResult> {
+  const runtimeEnv = env ?? loadEnv();
   const operation = args.operation;
-  const requestedMode = args.mode ?? "mock";
-
-  if (requestedMode === "live") {
-    throw new CapabilityExecutionError(
-      "LEASE_DENIED",
-      "Live Zulip messaging is disabled in development mode",
-    );
-  }
+  const envMode = zulipRunMessagingMode(runtimeEnv);
+  const requestedMode = args.mode ?? envMode;
+  const config = loadZulipGatewayConfigFromEnv(runtimeEnv);
+  const effectiveConfig = { ...config, mode: requestedMode };
 
   if (operation === "connectivity.probe") {
-    const mode: "mock" | "shadow" = requestedMode === "shadow" ? "shadow" : "mock";
+    const connectivity = await probeZulipConnectivity(effectiveConfig);
     return {
       operation,
-      mode,
+      mode: requestedMode === "live" ? "live" : requestedMode === "shadow" ? "shadow" : "mock",
       status: "readiness_checked",
       connectivity: {
-        ok: true,
-        checked_at: new Date().toISOString(),
-        reason: "shadow_probe_placeholder",
+        ok: connectivity.reachable && (requestedMode !== "live" || connectivity.authenticated),
+        checked_at: connectivity.checked_at,
+        ...(connectivity.error ? { reason: connectivity.error } : {}),
+        ...(connectivity.authenticated !== undefined
+          ? { authenticated: connectivity.authenticated }
+          : {}),
       },
     };
   }
 
-  // Outbound sends remain mock-only for v2 MVO.
   if (requestedMode === "shadow") {
-    throw new CapabilityExecutionError(
-      "LEASE_DENIED",
-      `Operation "${operation}" is mock-only in development mode`,
-    );
+    const connectivity = await probeZulipConnectivity(effectiveConfig);
+    return {
+      operation,
+      mode: "shadow",
+      status: "shadow_only",
+      connectivity: {
+        ok: connectivity.reachable,
+        checked_at: connectivity.checked_at,
+        ...(connectivity.error ? { reason: connectivity.error } : {}),
+        ...(connectivity.authenticated !== undefined
+          ? { authenticated: connectivity.authenticated }
+          : {}),
+      },
+    };
+  }
+
+  if (requestedMode === "live") {
+    if (!context.lease_id?.trim()) {
+      throw new CapabilityExecutionError("LEASE_DENIED", "Lease required for live Zulip messaging");
+    }
+
+    const stream =
+      args.to?.stream ??
+      effectiveConfig.default_stream;
+    const topic =
+      args.to?.topic ??
+      effectiveConfig.topic_template.replace("{run_id}", context.run_id);
+
+    if (operation === "run.notify") {
+      const result = await sendRunNotification(
+        context.tenant_id,
+        args.run_id ?? context.run_id,
+        args.stage_id ?? context.stage_id,
+        String((args as { role_id?: string }).role_id ?? "linkbot"),
+        "started",
+        args.message?.content ?? String(args.message_purpose ?? "Run notification"),
+        effectiveConfig,
+        undefined,
+        context.lease_id,
+        runtimeEnv,
+      );
+      if (!result.success) {
+        throw new CapabilityExecutionError(
+          "INTEGRATION_UNAVAILABLE",
+          result.error?.message ?? "Zulip send failed",
+        );
+      }
+      return {
+        operation,
+        mode: "live",
+        status: "sent_live",
+        message_ref: `zulip-live:${context.tenant_id}:${context.run_id}:${context.stage_id}`,
+        ...(result.message_id ? { zulip_message_id: result.message_id } : {}),
+      };
+    }
+
+    if (operation === "channel.message.mock_send") {
+      const payload: ZulipMessagePayload = {
+        content: args.message?.content ?? "LiNKaios notification",
+        stream,
+        topic,
+        mission_context: {
+          tenant_id: context.tenant_id,
+          run_id: args.run_id ?? context.run_id,
+          stage_id: args.stage_id ?? context.stage_id,
+          role_id: String((args as { role_id?: string }).role_id ?? "linkbot"),
+          message_purpose: "run_notification",
+        },
+        lease_id: context.lease_id,
+        mode: "live",
+      };
+      const result = await sendZulipMessage(payload, effectiveConfig, runtimeEnv);
+      if (!result.success) {
+        throw new CapabilityExecutionError(
+          "INTEGRATION_UNAVAILABLE",
+          result.error?.message ?? "Zulip send failed",
+        );
+      }
+      return {
+        operation,
+        mode: "live",
+        status: "sent_live",
+        message_ref: `zulip-live:${context.tenant_id}:${context.run_id}:${topic}`,
+        ...(result.message_id ? { zulip_message_id: result.message_id } : {}),
+      };
+    }
   }
 
   const runRef = args.run_id ?? context.run_id;
@@ -414,8 +508,19 @@ export async function handleCapPlaneExecutionTracking(
 ): Promise<Record<string, unknown>> {
   const mode = getMode(args);
   const operation = requireString(args.operation, "operation");
+  const env = (context as CapabilityContext & { env?: Env }).env ?? (process.env as Env);
 
   if (operation === "readiness.probe") {
+    if (isLinkSkillsLiveOpsEnabled(env) && (mode === "shadow" || mode === "live")) {
+      const probe = await probePlaneApi(env);
+      return {
+        operation,
+        mode: "shadow",
+        status: probe.ok ? "readiness_checked" : "readiness_failed",
+        plane_ref: `plane-readiness:${context.tenant_id}:${context.run_id}:${context.stage_id}`,
+        connectivity: probe,
+      };
+    }
     return {
       operation,
       mode: mode === "live" ? "shadow" : mode,

@@ -34,6 +34,13 @@ else
   echo "SKIP: set BOT_KERNEL_API_SECRET, NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SECRET_KEY for live kernel E2E"
 fi
 
+MANIFEST_PATH="${MVO_LATEST_RUN_PATH:-LiNKdev/product/reports/linktrend-system/mvo-latest-run.json}"
+if [[ -f "$MANIFEST_PATH" ]]; then
+  echo ""
+  echo "Latest MVO manifest: $MANIFEST_PATH"
+  echo "  Open Client proof with persisted run IDs after starting linkaios-web."
+fi
+
 echo ""
 echo "================================================================="
 echo "MVO UI surfaces (start linkaios-web dev server first)"

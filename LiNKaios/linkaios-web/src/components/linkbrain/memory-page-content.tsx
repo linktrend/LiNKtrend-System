@@ -41,6 +41,8 @@ export type MemoryPageSearchParams = {
   c_pattern?: string;
   c_use_case?: string;
   c_submission?: string;
+  /** LinkSites MVO run id — audit tab shows linkbrain.audit_events union for this run. */
+  run?: string;
   err?: string;
 };
 
@@ -240,7 +242,9 @@ export async function MemoryPageContent(props: {
         />
       ) : null}
 
-      {tab === "audit" ? <LinkbrainAuditPanel licensorCollective={props.licensorCollective} /> : null}
+      {tab === "audit" ? (
+        <LinkbrainAuditPanel licensorCollective={props.licensorCollective} mvoRunId={sp.run?.trim() || null} />
+      ) : null}
     </main>
   );
 }

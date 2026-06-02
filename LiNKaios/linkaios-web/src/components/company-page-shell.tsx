@@ -64,7 +64,7 @@ function CompanyPageShellInner() {
       return;
     }
     if (rawTab === "overview") {
-      router.replace(appendLicenseeContext("/app", { companyId, brandId: effectiveBrandId }));
+      router.replace(appendLicenseeContext("/client", { companyId, brandId: effectiveBrandId }));
     }
   }, [router, rawTab, companyId, effectiveBrandId, isLicensorLicenseeView]);
 

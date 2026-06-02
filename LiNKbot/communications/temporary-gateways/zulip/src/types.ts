@@ -3,7 +3,7 @@
  *
  * Per CONTRACTS_MVO.md §0.A.5 - Zulip capability contract:
  * - Operations: run.notify, channel.message.mock_send, connectivity.probe
- * - Modes: mock default, shadow for connectivity, live disabled
+ * Modes: mock default, shadow for connectivity, live when ZULIP_RUN_MESSAGING_MODE=live
  * - All messaging routes through cap.zulip.run_messaging lease-gated
  *
  * This is a TEMPORARY gateway until OpenClaw (or another engine) adopts

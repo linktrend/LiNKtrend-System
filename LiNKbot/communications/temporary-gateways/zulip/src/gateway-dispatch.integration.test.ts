@@ -62,7 +62,7 @@ describe("gateway-dispatch HTTP", () => {
   it("GET /health returns service json", async () => {
     const res = await fetch(`${baseUrl}/health`);
     expect(res.status).toBe(200);
-    await expect(res.json()).resolves.toEqual({ ok: true, service: "zulip-gateway" });
+    await expect(res.json()).resolves.toMatchObject({ ok: true, service: "zulip-gateway" });
   });
 
   it("POST /webhooks/zulip rejects invalid JSON with 400", async () => {

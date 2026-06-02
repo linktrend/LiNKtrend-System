@@ -9,6 +9,7 @@ import {
   anonymizeKnowledgeForWorldBrain,
   buildCompanyKnowledgeRecord,
   buildKnowledgeProposal,
+  getKnowledgeProposal,
   reviewKnowledgeProposal,
   type KnowledgeProposal,
 } from "./seams/librarian-knowledge-loop.js";
@@ -116,14 +117,65 @@ export async function executeLibrarianKnowledgeLoop(
 
   let proposal: KnowledgeProposal;
   try {
-    proposal = buildKnowledgeProposal({
-      tenant_id: request.tenant_id,
-      run_id: request.run_id,
-      stage_id: request.stage_id,
-      project_id: ingest.project_id,
-      run_outputs: ingest.run_outputs,
-      zulip_thread_refs: ingest.zulip_thread_refs,
-    });
+    const proposeUrl = process.env.LINKAIOS_LIBRARIAN_PROPOSE_URL?.trim();
+    const proposeSecret =
+      process.env.LINKAIOS_CRON_SECRET?.trim() ||
+      process.env.BOT_BRAIN_API_SECRET?.trim() ||
+      process.env.CRON_SECRET?.trim();
+
+    if (proposeUrl && proposeSecret) {
+      const response = await fetch(proposeUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${proposeSecret}`,
+        },
+        body: JSON.stringify({
+          tenant_id: request.tenant_id,
+          run_id: request.run_id,
+          stage_id: request.stage_id,
+          project_id: ingest.project_id,
+          run_outputs: ingest.run_outputs,
+          zulip_thread_refs: ingest.zulip_thread_refs,
+        }),
+        signal: AbortSignal.timeout(config?.request_timeout_ms ?? 30_000),
+      });
+      if (!response.ok) {
+        const text = await response.text();
+        throw new Error(`Librarian propose failed (${response.status}): ${text.slice(0, 240)}`);
+      }
+      const payload = (await response.json()) as {
+        proposal?: KnowledgeProposal;
+        proposal_id?: string;
+      };
+      if (payload.proposal) {
+        proposal = payload.proposal;
+      } else {
+        const proposalId =
+          payload.proposal_id ??
+          `librarian-proposal-${request.run_id}-${request.stage_id}`;
+        proposal =
+          getKnowledgeProposal(proposalId) ??
+          buildKnowledgeProposal({
+            tenant_id: request.tenant_id,
+            run_id: request.run_id,
+            stage_id: request.stage_id,
+            project_id: ingest.project_id,
+            run_outputs: ingest.run_outputs,
+            zulip_thread_refs: ingest.zulip_thread_refs,
+            proposal_id: proposalId,
+          });
+      }
+    } else {
+      proposal = buildKnowledgeProposal({
+        tenant_id: request.tenant_id,
+        run_id: request.run_id,
+        stage_id: request.stage_id,
+        project_id: ingest.project_id,
+        run_outputs: ingest.run_outputs,
+        zulip_thread_refs: ingest.zulip_thread_refs,
+      });
+    }
   } catch (error) {
     const message = error instanceof Error ? error.message : "Librarian ingest failed";
     return sessionToMissionResult(

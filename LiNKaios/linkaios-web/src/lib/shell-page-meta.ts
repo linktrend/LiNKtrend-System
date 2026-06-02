@@ -243,7 +243,7 @@ function shellRoutePath(pathname: string): string {
 /** Routes that render their own page header inside page content or a section layout. */
 export function suppressesAutoShellPageHeader(pathname: string): boolean {
   const route = shellRoutePath(pathname);
-  if (route === "/" || route === "/app" || route === "/app/") return true;
+  if (route === "/" || route === "/client" || route === "/client/" || route === "/app" || route === "/app/") return true;
   if (route === "/work" || route.startsWith("/work/")) return true;
   if (/^\/workers\/[^/]+/.test(route)) return true;
   if (route === "/workers") return true;

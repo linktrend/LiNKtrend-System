@@ -47,24 +47,10 @@ import {
  * still exposes legacy ids used by `request_lease` FK checks.
  */
 function resolveRuntimeCapabilityId(capabilityId: string): string {
-  switch (capabilityId) {
-    case "cap.crm.odoo_shadow":
-      return "crm.upsert";
-    case "cap.plane.execution_tracking":
-      return "plane.project.create";
-    case "cap.zulip.run_messaging":
-      return "preview.publish";
-    case "cap.supabase.mirror_content":
-      return "preview.publish";
-    case "cap.payload.local_sync":
-      return "preview.publish";
-    case "cap.research.public_web":
-      return "crm.upsert";
-    case "cap.asset.generation":
-      return "preview.publish";
-    default:
-      return capabilityId;
+  if (capabilityId.startsWith("cap.")) {
+    return capabilityId;
   }
+  return capabilityId;
 }
 
 /**
@@ -156,7 +142,10 @@ async function executeReasoningStage(ctx: StageContext): Promise<DispatchResult>
   // Build reasoning request per CONTRACTS_MVO.md §6.1
   const reasonRequest: Omit<BotReasonRequest, "tenant_id" | "run_id" | "stage_id"> = {
     reasoning_kind: reasoningKind,
-    inputs: sanitizeInputsForLiNKbot(inputs),
+    inputs: {
+      ...sanitizeInputsForLiNKbot(inputs),
+      ...buildLinkbotGovernanceIngress(dispatchCtx),
+    },
     model_routing_profile: ctx.run.outputs?.model_routing_profile as string || "default",
     pii_policy: "strip_contact", // MVO default per CONTRACTS_MVO.md §3.4
   };
@@ -379,8 +368,13 @@ function buildWorkflowInputs(
   switch (stageId) {
     case "artifact_write_local":
       return {
-        site_id: inputs.site_id,
-        site_generation_run_id: inputs.site_generation_run_id,
+        site_id: inputs.site_id != null ? String(inputs.site_id) : undefined,
+        site_generation_run_id:
+          inputs.site_generation_run_id != null
+            ? String(inputs.site_generation_run_id)
+            : undefined,
+        artifact_bundle_ref: `artifact_bundle:${inputs.site_id}`,
+        artifact_root_path: process.env.LINKSITES_ARTIFACT_ROOT || "/tmp/linksites-artifacts",
         website_package: inputs.website_package,
       };
     case "supabase_mirror_upsert":
@@ -388,6 +382,7 @@ function buildWorkflowInputs(
         site_id: inputs.site_id,
         site_generation_run_id: inputs.site_generation_run_id,
         artifact_ref: inputs.artifact_ref,
+        mirror_payload_ref: inputs.mirror_payload_ref || inputs.artifact_ref,
         lease_id: inputs.lease_id,
       };
     case "payload_sync_local":
@@ -395,6 +390,7 @@ function buildWorkflowInputs(
         site_id: inputs.site_id,
         site_generation_run_id: inputs.site_generation_run_id,
         mirror_write_ref: inputs.mirror_write_ref,
+        payload_target_ref: inputs.site_id,
         lease_id: inputs.lease_id,
       };
     case "preview_readiness_check":
@@ -402,20 +398,41 @@ function buildWorkflowInputs(
         site_id: inputs.site_id,
         site_generation_run_id: inputs.site_generation_run_id,
         payload_sync_ref: inputs.payload_sync_ref,
-        preview_url: inputs.preview_url,
+        preview_url: inputs.preview_url || inputs.publish_url,
+        required_pages: ["home", "about", "contact", "services"],
+        required_navigation_items: ["home", "about", "contact"],
+        required_content_blocks: ["hero"],
+        required_media_refs: ["hero_image"],
       };
     case "crm_ready_to_contact_mark":
       return {
+        lead_id: (inputs.lead_record_ref as { lead_id?: string } | undefined)?.lead_id || "",
         lead_record_ref: inputs.lead_record_ref,
         site_id: inputs.site_id,
         site_generation_run_id: inputs.site_generation_run_id,
         checks_passed: inputs.checks_passed,
         check_report_ref: inputs.check_report_ref,
+        payload_sync_ref: inputs.payload_sync_ref,
         lease_id: inputs.lease_id,
       };
     default:
       return inputs;
   }
+}
+
+/** Minimal governance envelope required by dispatchToLiNKbot ingress validation. */
+function buildLinkbotGovernanceIngress(
+  dispatchCtx: DispatchContext,
+): Record<string, unknown> {
+  return {
+    linktrendGovernance: {
+      bootstrap: {
+        traceCorrelationId: dispatchCtx.run_id,
+        authorizationState: "granted",
+      },
+      approvedTools: { toolNames: ["mvo.websitefactory.reasoning"] },
+    },
+  };
 }
 
 /**

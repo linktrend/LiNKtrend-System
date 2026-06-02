@@ -49,4 +49,14 @@ LiNKdev/factory/scripts/program-proof-manifest.sh linktrend-system
 
 ## Release
 
-**Blocked on Principal only:** Release OK before `development` → `staging` → `main`. SHIP_CRITERIA §5 Principal Release OK remains unchecked until human approval.
+**Principal Release OK:** 2026-06-01
+
+**Promotion (PR, branch protection):** `development` → `staging` ([#109](https://github.com/linktrend/LiNKtrend-System/pull/109)); `staging` → `main` ([#110](https://github.com/linktrend/LiNKtrend-System/pull/110)). Sync merge `main` → `staging` (`050afbc`) required before #110 (diverged history).
+
+| Branch | SHA (post-promotion) |
+|--------|----------------------|
+| `development` | `e743be7` |
+| `staging` | `050afbc` |
+| `main` | `2cb36d7` |
+
+**Notes:** Local uncommitted MVO WIP was stashed (`promotion-stash-2026-06-01-release-ok`) and not included in this release.

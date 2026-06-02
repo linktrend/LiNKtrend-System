@@ -86,11 +86,14 @@ export async function storeIdempotencyResult(
   const payload_hash = hashPayload(payload);
   const expires_at = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
 
+  const cache_key = `${tenant_id}:${idempotency_key}:${capability}`;
+
   const { error } = await client
     .schema("linkskills")
     .from("idempotency_cache")
     .upsert(
       {
+        cache_key,
         tenant_id,
         idempotency_key,
         capability,
@@ -99,7 +102,7 @@ export async function storeIdempotencyResult(
         ledger_entry_id: ledger_entry_id ?? null,
         expires_at,
       },
-      { onConflict: "tenant_id,idempotency_key,capability" },
+      { onConflict: "cache_key" },
     );
 
   if (error) {

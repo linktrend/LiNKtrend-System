@@ -45,7 +45,7 @@ describe("loadWebsiteFactoryManifest", () => {
     expect(manifest.non_goals).toBeDefined();
   });
 
-  it("declares the 11 LinkSites v2 stages", () => {
+  it("declares the 13 LinkSites v2 stages", () => {
     const manifest = loadWebsiteFactoryManifest();
     const stageIds = manifest.stages.map((s) => s.stage_id);
 
@@ -57,10 +57,12 @@ describe("loadWebsiteFactoryManifest", () => {
     expect(stageIds).toContain("payload_sync_local");
     expect(stageIds).toContain("preview_readiness_check");
     expect(stageIds).toContain("crm_ready_to_contact_mark");
+    expect(stageIds).toContain("outreach_draft");
     expect(stageIds).toContain("plane_execution_tracking");
     expect(stageIds).toContain("zulip_run_notify");
-        expect(stageIds).toContain("record_run");
-    expect(stageIds).toHaveLength(11);
+    expect(stageIds).toContain("close_or_recycle");
+    expect(stageIds).toContain("record_run");
+    expect(stageIds).toHaveLength(13);
   });
 
   it("maps stages to correct responsible planes per §7", () => {
@@ -454,7 +456,7 @@ describe("plugin extension point wiring", () => {
     const manifest = getWebsiteFactoryManifest();
 
     expect(manifest.plugin_id).toBe("websitefactory");
-    expect(manifest.stages).toHaveLength(11);
+    expect(manifest.stages).toHaveLength(13);
     expect(manifest.required_capabilities).toContain("cap.crm.odoo_shadow");
     expect(manifest.required_workflow_hooks).toContain("autowork.linksites.artifact_write_local");
   });

@@ -12,13 +12,16 @@
     "test:watch": "vitest"
   },
   "dependencies": {
+    "@linktrend/autowork-gateway": "workspace:*",
     "@linktrend/auth": "workspace:*",
     "@linktrend/db": "workspace:*",
     "@linktrend/linklogic-sdk": "workspace:*",
+    "@linktrend/linkskills-logic-engine": "workspace:*",
     "@linktrend/observability": "workspace:*",
     "@linktrend/shared-config": "workspace:*",
     "@linktrend/shared-types": "workspace:*",
     "@linktrend/ui": "workspace:*",
+    "@linktrend/zulip-gateway": "workspace:*",
     "@supabase/ssr": "^0.6.1",
     "@supabase/supabase-js": "^2.49.8",
     "class-variance-authority": "^0.7.1",

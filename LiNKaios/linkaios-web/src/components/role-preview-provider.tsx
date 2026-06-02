@@ -40,14 +40,22 @@ type RolePreviewContextValue = {
 
 const RolePreviewContext = createContext<RolePreviewContextValue | null>(null);
 
-export function RolePreviewProvider(props: { surface: AppSurface; children: React.ReactNode }) {
+export function RolePreviewProvider(props: {
+  surface: AppSurface;
+  initialRole?: AppRoleTier;
+  children: React.ReactNode;
+}) {
   const kind: AppActorKind = props.surface === "admin" ? "licensor" : "licensee";
-  const [role, setRoleState] = useState<AppRoleTier>("super_admin");
+  const [role, setRoleState] = useState<AppRoleTier>(props.initialRole ?? "super_admin");
 
   useEffect(() => {
     const stored = readStoredRoles()[kind];
-    setRoleState(stored ? parseAppRoleTier(stored) : kind === "licensor" ? "super_admin" : "admin");
-  }, [kind]);
+    setRoleState(
+      stored
+        ? parseAppRoleTier(stored)
+        : (props.initialRole ?? (kind === "licensor" ? "super_admin" : "admin")),
+    );
+  }, [kind, props.initialRole]);
 
   const setRole = useCallback(
     (next: AppRoleTier) => {

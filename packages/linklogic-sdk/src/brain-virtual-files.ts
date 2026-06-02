@@ -73,9 +73,9 @@ export function normaliseBrainInboxItemType(
 }
 
 function scopeParams(scope: BrainScope, missionId?: string | null, agentId?: string | null) {
-  if (scope === "company") return { mission_id: null, agent_id: null };
-  if (scope === "mission") return { mission_id: missionId ?? null, agent_id: null };
-  return { mission_id: null, agent_id: agentId ?? null };
+  if (scope === "company") return { project_id: null, agent_id: null };
+  if (scope === "mission") return { project_id: missionId ?? null, agent_id: null };
+  return { project_id: null, agent_id: agentId ?? null };
 }
 
 export async function getOrCreateBrainVirtualFile(
@@ -91,14 +91,14 @@ export async function getOrCreateBrainVirtualFile(
     memoryTags?: BrainMemoryTags | null;
   },
 ): Promise<{ data: BrainVirtualFileRow | null; error: Error | null }> {
-  const { mission_id, agent_id } = scopeParams(params.scope, params.missionId, params.agentId);
+  const { project_id, agent_id } = scopeParams(params.scope, params.missionId, params.agentId);
   let q = client
     .schema("linkaios")
     .from("brain_virtual_files")
     .select("*")
     .eq("scope", params.scope)
     .eq("logical_path", params.logicalPath);
-  if (params.scope === "mission") q = q.eq("mission_id", mission_id as string);
+  if (params.scope === "mission") q = q.eq("project_id", project_id as string);
   if (params.scope === "agent") q = q.eq("agent_id", agent_id as string);
   const { data: existing, error: selErr } = await q.maybeSingle();
   if (selErr) return { data: null, error: new Error(selErr.message) };
@@ -107,7 +107,7 @@ export async function getOrCreateBrainVirtualFile(
   const insertRow: Record<string, unknown> = {
     logical_path: params.logicalPath,
     scope: params.scope,
-    mission_id,
+    project_id,
     agent_id,
     legal_entity_id: params.legalEntityId?.trim() || DEFAULT_BRAIN_LEGAL_ENTITY_ID,
     sensitivity: (params.sensitivity as string) || "internal",
@@ -131,14 +131,14 @@ export async function findBrainVirtualFile(
   client: SupabaseClient,
   params: { scope: BrainScope; logicalPath: string; missionId?: string | null; agentId?: string | null },
 ): Promise<{ data: BrainVirtualFileRow | null; error: Error | null }> {
-  const { mission_id, agent_id } = scopeParams(params.scope, params.missionId, params.agentId);
+  const { project_id, agent_id } = scopeParams(params.scope, params.missionId, params.agentId);
   let q = client
     .schema("linkaios")
     .from("brain_virtual_files")
     .select("*")
     .eq("scope", params.scope)
     .eq("logical_path", params.logicalPath);
-  if (params.scope === "mission") q = q.eq("mission_id", mission_id as string);
+  if (params.scope === "mission") q = q.eq("project_id", project_id as string);
   if (params.scope === "agent") q = q.eq("agent_id", agent_id as string);
   const { data: existing, error: selErr } = await q.maybeSingle();
   if (selErr) return { data: null, error: new Error(selErr.message) };
@@ -309,7 +309,7 @@ export async function listBrainDraftsForInbox(
   const { data: files, error: fErr } = await client
     .schema("linkaios")
     .from("brain_virtual_files")
-    .select("id, logical_path, scope, mission_id, agent_id, file_kind, sensitivity, memory_tags")
+    .select("id, logical_path, scope, project_id, agent_id, file_kind, sensitivity, memory_tags")
     .in("id", fileIds);
   if (fErr) return { data: [], error: new Error(fErr.message) };
   const predBodyMap = new Map<string, string>();
@@ -325,7 +325,7 @@ export async function listBrainDraftsForInbox(
       predBodyMap.set(pr.id, pr.body ?? "");
     }
   }
-  const fmap = new Map((files as BrainVirtualFileRow[]).map((f) => [f.id, f]));
+  const fmap = new Map((files as unknown as BrainVirtualFileRow[]).map((f) => [f.id, f]));
   let mapped: BrainInboxRow[] = drows.map((r) => {
     const f = fmap.get(r.file_id);
     const fk = f?.file_kind ?? "standard";
@@ -335,7 +335,7 @@ export async function listBrainDraftsForInbox(
       ...r,
       logical_path: f?.logical_path ?? "",
       scope: (f?.scope ?? "company") as BrainScope,
-      mission_id: f?.mission_id ?? null,
+      mission_id: (f as { project_id?: string | null })?.project_id ?? null,
       agent_id: f?.agent_id ?? null,
       file_kind: fk,
       sensitivity: f?.sensitivity ?? "internal",
@@ -356,7 +356,7 @@ export async function listBrainVirtualFilesByScope(
   opts?: { missionId?: string; agentId?: string; fileKind?: BrainFileKind | string | null },
 ): Promise<{ data: BrainVirtualFileRow[]; error: Error | null }> {
   let q = client.schema("linkaios").from("brain_virtual_files").select("*").eq("scope", scope);
-  if (scope === "mission" && opts?.missionId) q = q.eq("mission_id", opts.missionId);
+  if (scope === "mission" && opts?.missionId) q = q.eq("project_id", opts.missionId);
   if (scope === "agent" && opts?.agentId) q = q.eq("agent_id", opts.agentId);
   if (opts?.fileKind) q = q.eq("file_kind", opts.fileKind);
   const { data, error } = await q.order("logical_path");

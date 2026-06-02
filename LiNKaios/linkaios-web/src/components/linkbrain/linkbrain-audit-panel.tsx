@@ -1,4 +1,6 @@
 import { LinkbrainAuditTable, type AuditTraceRow } from "@/components/linkbrain/linkbrain-audit-table";
+import { fetchMvoAuditEventsForRun } from "@/lib/linkbrain-mvo-audit";
+import { fetchRecentTraces } from "@/lib/traces-db";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { isUiMocksEnabled } from "@/lib/ui-mocks/flags";
 import { DEMO_TRACE_ROWS } from "@/lib/ui-mocks/traces-demo";
@@ -39,24 +41,25 @@ const COLLECTIVE_AUDIT_FIXTURES: AuditTraceRow[] = [
   },
 ];
 
-export async function LinkbrainAuditPanel(props: { licensorCollective?: boolean }) {
+export async function LinkbrainAuditPanel(props: {
+  licensorCollective?: boolean;
+  /** When set, merges canonical linkbrain.audit_events for this LinkSites run (MVO union). */
+  mvoRunId?: string | null;
+}) {
   const supabase = await createSupabaseServerClient();
   const uiMocksEnabled = isUiMocksEnabled();
 
-  let raw: { event_type: string; mission_id: string | null; created_at: string }[] = [];
-
-  const { data, error } = await supabase
-    .schema("linkaios")
-    .from("traces")
-    .select("event_type, mission_id, created_at")
-    .order("created_at", { ascending: false })
-    .limit(500);
+  const { rows: traceRows, error } = await fetchRecentTraces(supabase, { limit: 500 });
 
   if (error && !uiMocksEnabled && !props.licensorCollective) {
     return <p className="text-sm text-red-700 dark:text-red-300">Audit trace log could not be loaded.</p>;
   }
 
-  raw = (data ?? []) as { event_type: string; mission_id: string | null; created_at: string }[];
+  let raw: { event_type: string; mission_id: string | null; created_at: string }[] = traceRows.map((row) => ({
+    event_type: row.event_type,
+    mission_id: row.project_id,
+    created_at: row.created_at,
+  }));
 
   if ((uiMocksEnabled || props.licensorCollective) && raw.length === 0) {
     raw = DEMO_TRACE_ROWS;
@@ -81,6 +84,20 @@ export async function LinkbrainAuditPanel(props: { licensorCollective?: boolean 
         : (row.mission_id ?? null),
     created_at: row.created_at,
   }));
+
+  const runFilter = props.mvoRunId?.trim();
+  if (runFilter) {
+    const { rows: mvoRows, error: mvoErr } = await fetchMvoAuditEventsForRun(supabase, runFilter);
+    if (!mvoErr && mvoRows.length > 0) {
+      const mvoMapped: AuditTraceRow[] = mvoRows.map((ev) => ({
+        event_type: ev.action,
+        mission_id: runFilter,
+        mission_title: missionTitles.get(runFilter) ?? `Run ${runFilter.slice(0, 8)}`,
+        created_at: ev.ts,
+      }));
+      rows = [...mvoMapped, ...rows.filter((r) => r.mission_id !== runFilter)];
+    }
+  }
 
   if (props.licensorCollective) {
     rows = [...COLLECTIVE_AUDIT_FIXTURES, ...rows.map((r, i) => {

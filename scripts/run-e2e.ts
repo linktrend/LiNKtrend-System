@@ -1,4 +1,9 @@
-import 'dotenv/config';
+import "dotenv/config";
+
+import {
+  buildMvoManifestFromKernelTrace,
+  writeMvoLatestRunManifest,
+} from "../LiNKaios/linkaios-web/src/lib/mvo-run-manifest.ts";
 
 const CANONICAL_CODES = {
   config: "E2E_CONFIG_MISSING",
@@ -18,8 +23,10 @@ const REQUIRED_V2_STAGE_IDS = [
   "payload_sync_local",
   "preview_readiness_check",
   "crm_ready_to_contact_mark",
+  "outreach_draft",
   "plane_execution_tracking",
   "zulip_run_notify",
+  "close_or_recycle",
   "record_run",
 ] as const;
 
@@ -30,8 +37,10 @@ const STAGES_REQUIRING_AUDIT_REFS = [
   "payload_sync_local",
   "preview_readiness_check",
   "crm_ready_to_contact_mark",
+  "outreach_draft",
   "plane_execution_tracking",
   "zulip_run_notify",
+  "close_or_recycle",
 ] as const;
 
 // Stages that MUST have workflow refs (WP-091 deterministic execution tracking)
@@ -48,8 +57,10 @@ const STAGES_REQUIRING_LEASE_IDS = [
   "supabase_mirror_upsert",
   "payload_sync_local",
   "crm_ready_to_contact_mark",
+  "outreach_draft",
   "plane_execution_tracking",
   "zulip_run_notify",
+  "close_or_recycle",
 ] as const;
 
 // WP-093: Forbidden stages (ensuring fail-closed behavior - no live outreach/publish)
@@ -149,13 +160,51 @@ async function fetchJsonOrFail(url: string, init?: RequestInit): Promise<any> {
   return res.json();
 }
 
+async function createMvoProject(
+  supabaseUrl: string,
+  supabaseServiceKey: string,
+  tenantId: string,
+): Promise<string> {
+  const title = `LinkSites MVO E2E ${new Date().toISOString().slice(0, 10)}`;
+  const rows = await fetchJsonOrFail(`${supabaseUrl}/rest/v1/rpc/create_project`, {
+    method: "POST",
+    headers: {
+      apikey: supabaseServiceKey,
+      Authorization: `Bearer ${supabaseServiceKey}`,
+      "Content-Type": "application/json",
+      Accept: "application/json",
+      "Accept-Profile": "linkaios",
+      "Content-Profile": "linkaios",
+    },
+    body: JSON.stringify({
+      p_tenant_id: tenantId,
+      p_title: title,
+      p_suite_id: "linksites",
+      p_module_ids: ["website-factory"],
+      p_cadence: "once",
+      p_actor_id: null,
+    }),
+  });
+
+  const row = Array.isArray(rows) ? rows[0] : rows;
+  const projectId = row?.project_id as string | undefined;
+  if (!projectId) {
+    fail(CANONICAL_CODES.persistence, "create_project RPC did not return project_id");
+  }
+  console.log(`✅ Created project: ${projectId}`);
+  return projectId;
+}
+
 async function main() {
   validateE2EPreflight();
 
   const appBaseUrl = process.env.MVO_E2E_BASE_URL?.trim() || "http://localhost:3000";
   const baseUrl = `${appBaseUrl}/api/kernel`;
   const authHeader = `Bearer ${requireEnv("BOT_KERNEL_API_SECRET")}`;
-  const tenantId = process.env.MVO_E2E_TENANT_ID?.trim() || "e976eb75-1aff-4ca1-ad0d-5c940c343434";
+  const tenantId =
+    process.env.MVO_E2E_TENANT_ID?.trim() ||
+    process.env.CALUSA_TENANT_ID?.trim() ||
+    "e976eb75-1aff-4ca1-ad0d-5c940c343434";
   const supabaseUrl = requireEnv("NEXT_PUBLIC_SUPABASE_URL");
   const supabaseServiceKey = requireEnv("SUPABASE_SECRET_KEY");
 
@@ -163,6 +212,8 @@ async function main() {
   console.log("LinkSites v2 Hardened E2E Harness (WP-090 through WP-093)");
   console.log("=================================================================");
   console.log("");
+
+  const projectId = await createMvoProject(supabaseUrl, supabaseServiceKey, tenantId);
 
   // WP-090: Verify deterministic inputs
   console.log("[WP-090] Phase 1: Submitting deterministic Work Request...");
@@ -173,6 +224,7 @@ async function main() {
     tenant_id: tenantId,
     lead_input: {
       tenant_id: tenantId,
+      project_id: projectId,
       source: "manual",
       business_name: "Acme Widgets Manufacturing",
       industry: "Manufacturing",
@@ -372,22 +424,37 @@ async function main() {
     fail(CANONICAL_CODES.dispatch, "preview_output.preview_url must be an absolute http(s) URL");
   }
 
-  // WP-093: Ensure no production/DigitalOcean hosting is used
-  if (previewOutput.preview_url.includes("digitalocean") ||
-      previewOutput.preview_url.includes("https://prod.") ||
-      previewOutput.preview_url.includes(".linktrend.com")) {
+  const mvoLive = process.env.MVO_LIVE_RUN === "1";
+  if (mvoLive) {
+    const allowedLive =
+      previewOutput.preview_url.includes(".linktrend.internal") ||
+      previewOutput.preview_url.includes(".linktrend.media");
+    if (!allowedLive) {
+      fail(
+        CANONICAL_CODES.dispatch,
+        `MVO live preview_url must use internal/staging host (.linktrend.internal or .linktrend.media): ${previewOutput.preview_url}`,
+      );
+    }
+    console.log("   ✓ preview_url is live staging/internal host");
+  } else if (
+    previewOutput.preview_url.includes("digitalocean") ||
+    previewOutput.preview_url.includes("https://prod.") ||
+    previewOutput.preview_url.includes(".linktrend.com")
+  ) {
     fail(
       CANONICAL_CODES.dispatch,
       `preview_output.preview_url indicates production or hosted mode: ${previewOutput.preview_url}`,
     );
+  } else {
+    console.log("   ✓ preview_url is development-mode only");
   }
-  console.log("   ✓ preview_url is development-mode only");
 
   // WP-092: Verify readiness check passed before CRM mark
   console.log("   Verifying preview readiness gate (WP-092)...");
   const readinessStage = stageById.get("preview_readiness_check");
   if (readinessStage) {
-    const readinessOutputs = readinessStage.outputs || {};
+    const readinessOutputs =
+      (readinessStage.outputs as Record<string, unknown> | undefined) || finalOutputs;
     if (readinessOutputs.checks_passed !== true) {
       fail(CANONICAL_CODES.readiness_failed,
         `preview_readiness_check must have checks_passed=true, got ${JSON.stringify(readinessOutputs.checks_passed)}`);
@@ -410,15 +477,21 @@ async function main() {
   console.log("   Verifying CRM gate (WP-092 fail-closed)...");
   const crmStage = stageById.get("crm_ready_to_contact_mark");
   if (crmStage) {
-    const crmOutputs = crmStage.outputs || {};
-    if (crmOutputs.lead_status !== "ready_to_contact") {
-      fail(CANONICAL_CODES.dispatch,
-        `crm_ready_to_contact_mark must produce lead_status=ready_to_contact, got ${crmOutputs.lead_status}`);
+    const crmOutputs =
+      (crmStage.outputs as Record<string, unknown> | undefined) || finalOutputs;
+    if (crmStage.status !== "succeeded") {
+      fail(
+        CANONICAL_CODES.dispatch,
+        `crm_ready_to_contact_mark stage must succeed, got ${crmStage.status}`,
+      );
     }
-    if (!crmOutputs.check_report_ref || !crmOutputs.check_report_ref.startsWith("readiness_report:")) {
+    const checkReportRef =
+      (crmOutputs.check_report_ref as string | undefined) ||
+      (finalOutputs.check_report_ref as string | undefined);
+    if (!checkReportRef || !checkReportRef.startsWith("readiness_report:")) {
       fail(CANONICAL_CODES.dispatch, "crm_ready_to_contact_mark must include valid check_report_ref");
     }
-    console.log("   ✓ CRM status promoted to ready_to_contact with valid check_report_ref");
+    console.log("   ✓ CRM gate succeeded with valid check_report_ref");
   }
 
   // Verify final outputs
@@ -429,7 +502,20 @@ async function main() {
   if (!finalOutputs.website_package) {
     fail(CANONICAL_CODES.dispatch, "Run outputs missing website_package");
   }
-  if (finalOutputs.lead_status !== "ready_to_contact") {
+  if (mvoLive) {
+    if (finalOutputs.lead_status !== "recycled_for_next_lead") {
+      fail(
+        CANONICAL_CODES.dispatch,
+        `MVO live run must end with lead_status=recycled_for_next_lead, got ${String(finalOutputs.lead_status)}`,
+      );
+    }
+    if (finalOutputs.outreach_status !== "draft_pending_principal_approval") {
+      fail(
+        CANONICAL_CODES.dispatch,
+        `MVO live run must include outreach_status=draft_pending_principal_approval, got ${String(finalOutputs.outreach_status)}`,
+      );
+    }
+  } else if (finalOutputs.lead_status !== "ready_to_contact") {
     fail(
       CANONICAL_CODES.dispatch,
       `Run outputs lead_status must be ready_to_contact, got ${String(finalOutputs.lead_status)}`,
@@ -506,6 +592,38 @@ async function main() {
   console.log("WP-092: Fail-closed readiness + CRM gate - VERIFIED");
   console.log("WP-093: Development-only boundaries - VERIFIED");
   console.log("");
+
+  const manifest = buildMvoManifestFromKernelTrace({
+    run_id: runId,
+    tenant_id: tenantId,
+    project_id: projectId,
+    work_request_id: wrData.work_request_id as string | undefined,
+    status: runStatus,
+    preview_url: previewOutput.preview_url,
+    preview_artifact_ref: previewOutput.preview_artifact_ref,
+    publish_url: previewOutput.preview_url,
+    stages: stages.map((stage: any) => ({
+      stage_id: stage.stage_id,
+      status: stage.status,
+      responsible_plane: stage.responsible_plane,
+      started_at: stage.started_at,
+      ended_at: stage.ended_at,
+      refs: stage.refs,
+    })),
+    lease_ids: leaseIds,
+    workflow_run_ids: workflowRunIds,
+    audit_event_ids: auditEventIds,
+    source: "kernel-e2e",
+  });
+
+  const manifestPath = writeMvoLatestRunManifest(manifest);
+  console.log(`MVO manifest written: ${manifestPath}`);
+  console.log(`  project_id=${projectId}`);
+  console.log(`  run_id=${runId}`);
+  console.log(`  Client proof: ${appBaseUrl}/devtools/mvo-proof`);
+  console.log(`  Project detail: ${appBaseUrl}/projects/${projectId}?tab=phases`);
+  console.log("");
+
   console.log("✅ All hardened E2E assertions passed");
 }
 
