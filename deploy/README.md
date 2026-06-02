@@ -35,7 +35,7 @@ docker compose -f docker-compose.linktrend.yml up
 
 ## LiNKguard and disk paths
 
-If you enable filesystem cleanup, set `PRISM_RESIDUE_ROOTS` to **directories inside the container** and mount matching **volumes** from the host (example: add a `volumes:` block under the **`linkguard`** service in `docker-compose.linktrend.yml`). Do not point LiNKguard at host paths that are not mounted into its container.
+If you enable filesystem cleanup, set `LINKGUARD_RESIDUE_ROOTS` to **directories inside the container** and mount matching **volumes** from the host (example: add a `volumes:` block under the **`linkguard`** service in `docker-compose.linktrend.yml`). Do not point LiNKguard at host paths that are not mounted into its container. Legacy `PRISM_*` env names are still read as fallback when `LINKGUARD_*` is unset.
 
 ## Security notes
 
@@ -55,3 +55,59 @@ docker build -f deploy/docker/bot-runtime.Dockerfile -t linktrend-bot-runtime:lo
 ```
 
 Same pattern for the other three Dockerfiles.
+
+## Production VPS (linkdroplet-00)
+
+One **Compose project name** per stack on the VPS. The LiNKaios monorepo stack uses project **`linkaios`** (set via `name:` in `docker-compose.deploy.yml` at repo root).
+
+| Path on VPS | Compose file | Project name |
+|-------------|--------------|--------------|
+| `/opt/linktrend/linkaios` | `docker-compose.deploy.yml` | **`linkaios`** |
+| `/opt/linktrend/n8n/deploy/prod` | `docker-compose.yml` | **`prod`** |
+| `/opt/linktrend/cms` | `docker-compose.deploy.yml` | **`cms`** |
+| `/opt/linktrend/linkbot-core` | `docker-compose.deploy.yml` | **`linkbot-core`** |
+| `/opt/linktrend/traefik/deploy` | `docker-compose.yml` | **`deploy`** |
+
+Traefik runs on external network **`linktrend-network`** (referenced as `traefik` in LiNKaios compose).
+
+### LiNKaios deploy (canonical)
+
+From `/opt/linktrend/linkaios`:
+
+```bash
+# Render runtime secrets (GSM → prod.env.runtime)
+./ops/render-runtime-env-from-gsm.sh prod --output /opt/linktrend/runtime/linkaios/prod.env.runtime
+
+# Build and (re)start — project name comes from compose `name: linkaios`
+docker compose -f docker-compose.deploy.yml build
+docker compose -f docker-compose.deploy.yml up -d --remove-orphans
+```
+
+Do **not** mix `-p linktrend-system` and `-p linkaios` for the same file; that creates duplicate containers. If orphans appear from an old project name:
+
+```bash
+docker compose -p linktrend-system -f docker-compose.deploy.yml down --remove-orphans
+```
+
+### Other stacks
+
+```bash
+# n8n + gateway + NATS
+cd /opt/linktrend/n8n/deploy/prod && docker compose up -d --remove-orphans
+
+# LinkSites CMS + app1
+cd /opt/linktrend/cms && docker compose -f docker-compose.deploy.yml up -d --remove-orphans
+
+# OpenClaw gateway (LiNKbot)
+cd /opt/linktrend/linkbot-core && docker compose -f docker-compose.deploy.yml up -d --remove-orphans
+```
+
+### Health URLs (Tailscale / internal DNS)
+
+| Service | URL |
+|---------|-----|
+| LiNKaios | `https://linkaios.linktrend.internal/login` |
+| CMS | `https://cms.linktrend.internal` |
+| App1 preview | `https://app1.linktrend.internal` |
+| n8n | `https://n8n.linktrend.internal` |
+| LiNKbot gateway | `https://linkbot.linktrend.internal/healthz` |
