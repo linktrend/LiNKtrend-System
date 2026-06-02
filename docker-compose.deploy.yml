@@ -11,6 +11,8 @@ services:
     env_file:
       - ${LINKTREND_RUNTIME_ENV_FILE:-/opt/linktrend/runtime/linkaios/prod.env.runtime}
     restart: unless-stopped
+    extra_hosts:
+      - "zulip.linktrend.internal:${ZULIP_INTERNAL_HOST_IP:-100.86.158.30}"
     labels:
       - traefik.enable=true
       - traefik.http.routers.${TRAEFIK_ROUTER_NAME:-linkaios}.rule=Host(`${TRAEFIK_HOST:-linkaios.linktrend.internal}`)
@@ -35,12 +37,29 @@ services:
     env_file:
       - ${LINKTREND_RUNTIME_ENV_FILE:-/opt/linktrend/runtime/linkaios/prod.env.runtime}
     restart: unless-stopped
+    extra_hosts:
+      - "zulip.linktrend.internal:${ZULIP_INTERNAL_HOST_IP:-100.86.158.30}"
     expose:
       - "8790"
     volumes:
       - ${GOOGLE_APPLICATION_CREDENTIALS_HOST_PATH:-/etc/linktrend/gcp/linktrend-service-account.json}:${GOOGLE_APPLICATION_CREDENTIALS:-/etc/linktrend/gcp/linktrend-service-account.json}:ro
     networks:
       - traefik
+
+  linkskills:
+    build:
+      context: .
+      dockerfile: deploy/docker/linkskills-logic-engine.Dockerfile
+    env_file:
+      - ${LINKTREND_RUNTIME_ENV_FILE:-/opt/linktrend/runtime/linkaios/prod.env.runtime}
+    restart: unless-stopped
+    expose:
+      - "3002"
+    volumes:
+      - ${GOOGLE_APPLICATION_CREDENTIALS_HOST_PATH:-/etc/linktrend/gcp/linktrend-service-account.json}:${GOOGLE_APPLICATION_CREDENTIALS:-/etc/linktrend/gcp/linktrend-service-account.json}:ro
+    networks:
+      - traefik
+      - linktrend-network
 
   bot-runtime:
     build:
@@ -53,6 +72,10 @@ services:
       - ${GOOGLE_APPLICATION_CREDENTIALS_HOST_PATH:-/etc/linktrend/gcp/linktrend-service-account.json}:${GOOGLE_APPLICATION_CREDENTIALS:-/etc/linktrend/gcp/linktrend-service-account.json}:ro
     networks:
       - traefik
+      - linktrend-network
+
+  # bot-runtime reaches OpenClaw via container DNS on linktrend-network:
+  # OPENCLAW_AGENT_RUN_URL=http://openclaw-gateway:18789/v1/linktrend/agent-run
 
   linkguard:
     build:
@@ -68,4 +91,6 @@ services:
 
 networks:
   traefik:
+    external: true
+  linktrend-network:
     external: true

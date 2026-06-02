@@ -2,7 +2,7 @@
 
 CREATE TABLE IF NOT EXISTS gateway.stream_routing (
   zulip_stream_id bigint PRIMARY KEY,
-  mission_id uuid NOT NULL REFERENCES linkaios.missions (id) ON DELETE CASCADE,
+  mission_id uuid NOT NULL REFERENCES linkaios.projects (id) ON DELETE CASCADE,
   note text,
   created_at timestamptz NOT NULL DEFAULT now()
 );

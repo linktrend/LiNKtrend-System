@@ -6,7 +6,7 @@ CREATE TABLE gateway.zulip_message_links (
   zulip_message_id text NOT NULL,
   stream_id bigint,
   topic text,
-  mission_id uuid REFERENCES linkaios.missions (id) ON DELETE SET NULL,
+  mission_id uuid REFERENCES linkaios.projects (id) ON DELETE SET NULL,
   payload jsonb NOT NULL DEFAULT '{}'::jsonb,
   created_at timestamptz NOT NULL DEFAULT now(),
   UNIQUE (zulip_message_id)

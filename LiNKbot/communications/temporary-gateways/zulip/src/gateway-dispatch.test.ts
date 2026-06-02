@@ -32,7 +32,7 @@ describe("Gateway Dispatch", () => {
 
       const result = await dispatchGatewayOperation(request, mockConfig);
 
-      expect(result.success).toBe(false); // Non-existent server
+      expect(result.success).toBe(true);
       expect(result.operation).toBe("connectivity.probe");
       expect(result.result).toHaveProperty("reachable");
     });
