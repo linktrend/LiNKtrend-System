@@ -18,7 +18,6 @@ services:
       - traefik.http.routers.${TRAEFIK_ROUTER_NAME:-linkaios}.rule=Host(`${TRAEFIK_HOST:-linkaios.linktrend.internal}`)
       - traefik.http.routers.${TRAEFIK_ROUTER_NAME:-linkaios}.entrypoints=${TRAEFIK_ENTRYPOINTS:-websecure}
       - traefik.http.routers.${TRAEFIK_ROUTER_NAME:-linkaios}.tls=true
-      - traefik.http.routers.${TRAEFIK_ROUTER_NAME:-linkaios}.tls.certresolver=${TRAEFIK_CERTRESOLVER:-letsencrypt}
       - traefik.http.services.${TRAEFIK_ROUTER_NAME:-linkaios}.loadbalancer.server.port=3000
       - traefik.http.routers.${TRAEFIK_ROUTER_NAME:-linkaios}-http.rule=Host(`${TRAEFIK_HOST:-linkaios.linktrend.internal}`)
       - traefik.http.routers.${TRAEFIK_ROUTER_NAME:-linkaios}-http.entrypoints=web

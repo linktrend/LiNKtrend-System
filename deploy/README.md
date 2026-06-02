@@ -112,6 +112,21 @@ cd /opt/linktrend/linkbot-core && docker compose -f docker-compose.deploy.yml up
 | n8n | `https://n8n.linktrend.internal` |
 | LiNKbot gateway | `https://linkbot.linktrend.internal/healthz` |
 
+### Internal TLS (no browser warning)
+
+Staging uses Traefik on linkdroplet-00 with a **LiNKtrend internal CA** wildcard cert for `*.linktrend.internal` (Let's Encrypt cannot issue for private `.internal` DNS).
+
+**Principal — one-time on each Mac:**
+
+```bash
+scp linkdroplet-00:/opt/linktrend/data/traefik/certs/linktrend-internal-ca.crt ~/Downloads/
+sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain ~/Downloads/linktrend-internal-ca.crt
+```
+
+Then reopen the browser and visit `https://linkaios.linktrend.internal/admin` — padlock, no interstitial.
+
+Canonical ops doc: `link-traefik` repo `deploy/README.md` (VPS path `/opt/linktrend/traefik/deploy`).
+
 ### LiNKbot-core (OpenClaw gateway)
 
 From `/opt/linktrend/linkbot-core`:
