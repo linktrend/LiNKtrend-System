@@ -1,18 +1,20 @@
 "use client";
 
-import { ShellMainFrame } from "@/components/shell-main-frame";
-import { ShellSidebar, type SidebarUser } from "@/components/shell-sidebar";
 import { AppSurfaceProvider } from "@/components/app-surface-provider";
 import { AppToastListener } from "@/components/app-toast-listener";
+import { ShellMainFrame } from "@/components/shell-main-frame";
+import { ShellSidebar, type SidebarUser } from "@/components/shell-sidebar";
 import { ThemeRoot } from "@/components/theme-root";
+import type { DataEnvironmentState } from "@/lib/data-environment";
+import type { AppSurface } from "@/lib/app-surface";
 import { Menu } from "lucide-react";
 import { Suspense, useState } from "react";
-import type { AppSurface } from "@/lib/app-surface";
 
 export function ShellLayout(props: {
   children: React.ReactNode;
   sidebarUser: SidebarUser | null;
   uiMocksEnabled: boolean;
+  dataEnvironment: DataEnvironmentState;
   surface?: AppSurface;
 }) {
   const surface = props.surface ?? "licensee";
@@ -45,7 +47,9 @@ export function ShellLayout(props: {
                 Menu
               </button>
             </div>
-            <ShellMainFrame uiMocksEnabled={props.uiMocksEnabled}>{props.children}</ShellMainFrame>
+            <ShellMainFrame uiMocksEnabled={props.uiMocksEnabled} dataEnvironment={props.dataEnvironment}>
+              {props.children}
+            </ShellMainFrame>
           </div>
         <AppToastListener />
         </div>

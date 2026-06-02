@@ -1,14 +1,20 @@
 import { RolePreviewProvider } from "@/components/role-preview-provider";
 import { ShellLayout } from "@/components/shell-layout";
+import { getAppRoleTierForUser } from "@/lib/command-centre-access";
+import { resolveDataEnvironment } from "@/lib/data-environment";
 import { isUiMocksEnabled } from "@/lib/ui-mocks/flags";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export default async function ShellAppLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createSupabaseServerClient();
   const uiMocksEnabled = isUiMocksEnabled();
+  const dataEnvironment = resolveDataEnvironment();
   const {
     data: { user },
   } = await supabase.auth.getUser();
+  const initialRole = user?.id
+    ? await getAppRoleTierForUser(supabase, { userId: user.id, email: user.email })
+    : undefined;
   const meta = user?.user_metadata as Record<string, unknown> | undefined;
   const pickStr = (v: unknown) => (typeof v === "string" && v.trim() ? v.trim() : null);
   const sidebarUser = user
@@ -20,8 +26,8 @@ export default async function ShellAppLayout({ children }: { children: React.Rea
     : null;
 
   return (
-    <RolePreviewProvider surface="licensee">
-      <ShellLayout sidebarUser={sidebarUser} uiMocksEnabled={uiMocksEnabled} surface="licensee">
+    <RolePreviewProvider surface="licensee" initialRole={initialRole}>
+      <ShellLayout sidebarUser={sidebarUser} uiMocksEnabled={uiMocksEnabled} dataEnvironment={dataEnvironment} surface="licensee">
         {children}
       </ShellLayout>
     </RolePreviewProvider>
