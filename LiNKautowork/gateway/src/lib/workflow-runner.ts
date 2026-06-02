@@ -27,6 +27,7 @@ import {
   type IdempotencyStore,
 } from "./idempotency-store.js";
 import { getRunController, getMutableRunControllerForTesting } from "./run-controller.js";
+import { publishWorkflowRun } from "./workflow-run-store.js";
 
 /**
  * Registry of all workflow handlers.
@@ -106,6 +107,8 @@ export async function invokeWorkflow(
     return cached;
   }
 
+  const runStartedAt = new Date().toISOString();
+
   // Check lease requirement
   if (workflow.requires_lease && !request.lease_id) {
     const workflow_run_id = randomUUID();
@@ -123,12 +126,14 @@ export async function invokeWorkflow(
       { code: failure.code, message: failure.message, retryable: failure.retryable },
       invokedEventId,
     );
-    return {
+    const leaseDeniedResult = {
       workflow_run_id,
-      status: "failed",
+      status: "failed" as const,
       audit_event_ids: [invokedEventId, failedEventId],
       failure,
     };
+    await publishWorkflowRun(request, leaseDeniedResult, runStartedAt);
+    return leaseDeniedResult;
   }
 
   const workflow_run_id = randomUUID();
@@ -212,6 +217,7 @@ export async function invokeWorkflow(
           finalResult,
         );
         runController.markRunFinished(request.tenant_id, workflow_run_id);
+        await publishWorkflowRun(request, finalResult, runStartedAt, attempt);
         return finalResult;
       }
 
@@ -241,6 +247,7 @@ export async function invokeWorkflow(
             finalResult,
           );
           runController.markRunFinished(request.tenant_id, workflow_run_id);
+          await publishWorkflowRun(request, finalResult, runStartedAt, attempt);
           return finalResult;
         }
 
@@ -265,6 +272,7 @@ export async function invokeWorkflow(
         finalResult,
       );
       runController.markRunFinished(request.tenant_id, workflow_run_id);
+      await publishWorkflowRun(request, finalResult, runStartedAt, attempt);
       return finalResult;
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "Unexpected workflow error";
@@ -303,6 +311,7 @@ export async function invokeWorkflow(
           finalResult,
         );
         runController.markRunFinished(request.tenant_id, workflow_run_id);
+        await publishWorkflowRun(request, finalResult, runStartedAt, attempt);
         return finalResult;
       }
 
@@ -332,6 +341,7 @@ export async function invokeWorkflow(
     fallbackResult,
   );
   runController.markRunFinished(request.tenant_id, workflow_run_id);
+  await publishWorkflowRun(request, fallbackResult, runStartedAt);
   return fallbackResult;
 }
 

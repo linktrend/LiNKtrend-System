@@ -94,8 +94,15 @@ async function withAudit(
 export function createArtifactWriteLocalHandler(auditEmitter: AuditEmitter): WorkflowHandler {
   return async (request, context) => {
     return withAudit(request, context.workflow_run_id, auditEmitter, async () => {
-      if (process.env.NODE_ENV === "production") {
-        return { failure: fail("WORKFLOW_STEP_FAILED", "artifact_write_local is development-only") };
+      const artifactRootAllowed =
+        process.env.NODE_ENV !== "production" || Boolean(process.env.LINKAUTOWORK_ARTIFACT_ROOT?.trim());
+      if (!artifactRootAllowed) {
+        return {
+          failure: fail(
+            "WORKFLOW_STEP_FAILED",
+            "artifact_write_local requires LINKAUTOWORK_ARTIFACT_ROOT in production",
+          ),
+        };
       }
 
       const siteId = asString(request, "site_id");
