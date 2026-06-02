@@ -27,6 +27,7 @@ services:
       - traefik.http.middlewares.${TRAEFIK_ROUTER_NAME:-linkaios}-redirect.redirectscheme.permanent=true
     volumes:
       - ${GOOGLE_APPLICATION_CREDENTIALS_HOST_PATH:-/etc/linktrend/gcp/linktrend-service-account.json}:${GOOGLE_APPLICATION_CREDENTIALS:-/etc/linktrend/gcp/linktrend-service-account.json}:ro
+      - ${MVO_ARTIFACTS_HOST_DIR:-./LiNKdev/product/reports/linktrend-system}:/app/mvo-artifacts:rw
     networks:
       - traefik
 

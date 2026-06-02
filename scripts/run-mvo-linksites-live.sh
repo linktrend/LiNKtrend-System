@@ -33,6 +33,7 @@ export MVO_LIVE_PUBLISH_PATH="${MVO_LIVE_PUBLISH_PATH:-$ROOT/LiNKdev/product/rep
 export MVO_LIVE_PUBLISH_JSON=""
 export MVO_E2E_TENANT_ID="${MVO_E2E_TENANT_ID:-${CALUSA_TENANT_ID:-e976eb75-1aff-4ca1-ad0d-5c940c343434}}"
 export MVO_LIVE_RUN="${MVO_LIVE_RUN:-1}"
+export MVO_E2E_BASE_URL="${MVO_E2E_BASE_URL:-http://localhost:3000}"
 
 echo "================================================================="
 echo "LinkSites MVO LIVE (Area 7)"
@@ -64,7 +65,7 @@ if [[ -z "${BOT_KERNEL_API_SECRET:-}" ]] || [[ -z "${NEXT_PUBLIC_SUPABASE_URL:-}
 fi
 
 export LINKAIOS_ENABLE_MVO_SERVICE_BYPASS="${LINKAIOS_ENABLE_MVO_SERVICE_BYPASS:-true}"
-pnpm exec tsx scripts/run-e2e.ts
+(cd "$ROOT/LiNKaios/linkaios-web" && ../../node_modules/.bin/tsx ../../scripts/run-e2e.ts)
 
 echo ""
 echo "Live publish artifact: $MVO_LIVE_PUBLISH_PATH"
