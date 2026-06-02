@@ -61,6 +61,7 @@ export async function middleware(request: NextRequest) {
   const isPublicBrainApi = path.startsWith("/api/brain/");
   const isInternalBrainEmbed = path.startsWith("/api/internal/brain-embed");
   const isInternalSkillEmbed = path.startsWith("/api/internal/skill-embed");
+  const isInternalServiceApi = path.startsWith("/api/internal/");
   const isPublicSkillsExecution = path.startsWith("/api/skills/execution");
   const kernelServiceSecret = process.env.BOT_KERNEL_API_SECRET?.trim();
   const isKernelServiceBypassEnabled = isTruthy(process.env.LINKAIOS_ENABLE_MVO_SERVICE_BYPASS);
@@ -83,6 +84,7 @@ export async function middleware(request: NextRequest) {
     !isPublicBrainApi &&
     !isInternalBrainEmbed &&
     !isInternalSkillEmbed &&
+    !isInternalServiceApi &&
     !isPublicSkillsExecution &&
     !isKernelApiBypass &&
     !isDevAuthBypassRoute
