@@ -1,0 +1,97 @@
+name: linkaios
+
+services:
+  linkaios:
+    build:
+      context: .
+      dockerfile: deploy/docker/linkaios-web.Dockerfile
+      args:
+        NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL}
+        NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY}
+    env_file:
+      - ${LINKTREND_RUNTIME_ENV_FILE:-/opt/linktrend/runtime/linkaios/prod.env.runtime}
+    restart: unless-stopped
+    extra_hosts:
+      - "zulip.linktrend.internal:${ZULIP_INTERNAL_HOST_IP:-100.86.158.30}"
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.${TRAEFIK_ROUTER_NAME:-linkaios}.rule=Host(`${TRAEFIK_HOST:-linkaios.linktrend.internal}`)
+      - traefik.http.routers.${TRAEFIK_ROUTER_NAME:-linkaios}.entrypoints=${TRAEFIK_ENTRYPOINTS:-websecure}
+      - traefik.http.routers.${TRAEFIK_ROUTER_NAME:-linkaios}.tls=true
+      - traefik.http.routers.${TRAEFIK_ROUTER_NAME:-linkaios}.tls.certresolver=${TRAEFIK_CERTRESOLVER:-letsencrypt}
+      - traefik.http.services.${TRAEFIK_ROUTER_NAME:-linkaios}.loadbalancer.server.port=3000
+      - traefik.http.routers.${TRAEFIK_ROUTER_NAME:-linkaios}-http.rule=Host(`${TRAEFIK_HOST:-linkaios.linktrend.internal}`)
+      - traefik.http.routers.${TRAEFIK_ROUTER_NAME:-linkaios}-http.entrypoints=web
+      - traefik.http.routers.${TRAEFIK_ROUTER_NAME:-linkaios}-http.middlewares=${TRAEFIK_ROUTER_NAME:-linkaios}-redirect
+      - traefik.http.middlewares.${TRAEFIK_ROUTER_NAME:-linkaios}-redirect.redirectscheme.scheme=https
+      - traefik.http.middlewares.${TRAEFIK_ROUTER_NAME:-linkaios}-redirect.redirectscheme.permanent=true
+    volumes:
+      - ${GOOGLE_APPLICATION_CREDENTIALS_HOST_PATH:-/etc/linktrend/gcp/linktrend-service-account.json}:${GOOGLE_APPLICATION_CREDENTIALS:-/etc/linktrend/gcp/linktrend-service-account.json}:ro
+      - ${MVO_ARTIFACTS_HOST_DIR:-./LiNKdev/product/reports/linktrend-system}:/app/mvo-artifacts:rw
+    networks:
+      - traefik
+
+  zulip-gateway:
+    build:
+      context: .
+      dockerfile: deploy/docker/zulip-gateway.Dockerfile
+    env_file:
+      - ${LINKTREND_RUNTIME_ENV_FILE:-/opt/linktrend/runtime/linkaios/prod.env.runtime}
+    restart: unless-stopped
+    extra_hosts:
+      - "zulip.linktrend.internal:${ZULIP_INTERNAL_HOST_IP:-100.86.158.30}"
+    expose:
+      - "8790"
+    volumes:
+      - ${GOOGLE_APPLICATION_CREDENTIALS_HOST_PATH:-/etc/linktrend/gcp/linktrend-service-account.json}:${GOOGLE_APPLICATION_CREDENTIALS:-/etc/linktrend/gcp/linktrend-service-account.json}:ro
+    networks:
+      - traefik
+
+  linkskills:
+    build:
+      context: .
+      dockerfile: deploy/docker/linkskills-logic-engine.Dockerfile
+    env_file:
+      - ${LINKTREND_RUNTIME_ENV_FILE:-/opt/linktrend/runtime/linkaios/prod.env.runtime}
+    restart: unless-stopped
+    expose:
+      - "3002"
+    volumes:
+      - ${GOOGLE_APPLICATION_CREDENTIALS_HOST_PATH:-/etc/linktrend/gcp/linktrend-service-account.json}:${GOOGLE_APPLICATION_CREDENTIALS:-/etc/linktrend/gcp/linktrend-service-account.json}:ro
+    networks:
+      - traefik
+      - linktrend-network
+
+  bot-runtime:
+    build:
+      context: .
+      dockerfile: deploy/docker/bot-runtime.Dockerfile
+    env_file:
+      - ${LINKTREND_RUNTIME_ENV_FILE:-/opt/linktrend/runtime/linkaios/prod.env.runtime}
+    restart: unless-stopped
+    volumes:
+      - ${GOOGLE_APPLICATION_CREDENTIALS_HOST_PATH:-/etc/linktrend/gcp/linktrend-service-account.json}:${GOOGLE_APPLICATION_CREDENTIALS:-/etc/linktrend/gcp/linktrend-service-account.json}:ro
+    networks:
+      - traefik
+      - linktrend-network
+
+  # bot-runtime reaches OpenClaw via container DNS on linktrend-network:
+  # OPENCLAW_AGENT_RUN_URL=http://openclaw-gateway:18789/v1/linktrend/agent-run
+
+  linkguard:
+    build:
+      context: .
+      dockerfile: deploy/docker/linkguard.Dockerfile
+    env_file:
+      - ${LINKTREND_RUNTIME_ENV_FILE:-/opt/linktrend/runtime/linkaios/prod.env.runtime}
+    restart: unless-stopped
+    volumes:
+      - ${GOOGLE_APPLICATION_CREDENTIALS_HOST_PATH:-/etc/linktrend/gcp/linktrend-service-account.json}:${GOOGLE_APPLICATION_CREDENTIALS:-/etc/linktrend/gcp/linktrend-service-account.json}:ro
+    networks:
+      - traefik
+
+networks:
+  traefik:
+    external: true
+  linktrend-network:
+    external: true

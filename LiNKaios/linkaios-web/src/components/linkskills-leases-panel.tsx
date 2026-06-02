@@ -10,8 +10,10 @@ import {
 } from "@/components/data-table";
 import { DomainStatusPill, StatusPill } from "@/components/ui/status-pill";
 import { loadLeaseStatus } from "@/lib/cockpit";
+import { resolveCalusaTenantId } from "@/lib/admin-linkskills-tenant";
 import { resolveProjectIdFromProps } from "@/lib/api/project-mission-id";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { loadEnv } from "@linktrend/shared-config";
+import { createSupabaseServiceClient } from "@linktrend/db";
 import { isUiMocksEnabled } from "@/lib/ui-mocks/flags";
 import { DEMO_LEASE_ROWS } from "@/lib/ui-mocks/leases-demo";
 
@@ -31,8 +33,9 @@ export async function LinkskillsLeasesPanel(props?: {
     projectId: props?.projectId,
     missionId: props?.missionId,
   }) || null;
-  const supabase = await createSupabaseServerClient();
-  const tenantId = "default";
+  const env = loadEnv();
+  const supabase = createSupabaseServiceClient(env);
+  const tenantId = await resolveCalusaTenantId();
   const mocksOn = isUiMocksEnabled();
 
   let leases = await loadLeaseStatus(supabase, tenantId, { time_range: "24h" });

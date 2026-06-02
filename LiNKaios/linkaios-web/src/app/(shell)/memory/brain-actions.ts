@@ -31,6 +31,7 @@ import {
   parseMemoryTagsFromForm,
   type MemoryItemTags,
 } from "@/lib/memory-item-tags";
+import { reviewLibrarianKnowledgeProposalByVersionAction } from "@/app/(shell)/memory/librarian-actions";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -77,6 +78,28 @@ export async function publishBrainDraftAction(versionId: string) {
   if (error || !user) return { ok: false as const, error: error ?? "unauthorized" };
   const { data: before } = await getBrainFileVersionById(supabase, versionId);
   const fileId = before?.file_id;
+
+  if (fileId) {
+    const { data: fileMeta } = await supabase
+      .schema("linkaios")
+      .from("brain_virtual_files")
+      .select("file_kind")
+      .eq("id", fileId)
+      .maybeSingle();
+    if ((fileMeta as { file_kind?: string } | null)?.file_kind === "librarian") {
+      const librarian = await reviewLibrarianKnowledgeProposalByVersionAction({
+        versionId,
+        decision: "accept",
+      });
+      revalidatePath("/memory");
+      revalidatePath(`/memory/drafts/${versionId}`);
+      if (!librarian.ok) {
+        return { ok: false as const, error: librarian.error ?? "Librarian accept failed" };
+      }
+      return { ok: true as const, error: null as string | null };
+    }
+  }
+
   const { error: pErr } = await publishBrainVersion(supabase, versionId);
   revalidatePath("/memory");
   revalidatePath(`/memory/drafts/${versionId}`);

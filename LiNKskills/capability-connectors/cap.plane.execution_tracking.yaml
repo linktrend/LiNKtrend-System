@@ -81,6 +81,7 @@ studio_secret_source:
 mvo_runtime_modes:
   - mock
   - shadow
+  - live
 
 audit_events:
   - capability.requested

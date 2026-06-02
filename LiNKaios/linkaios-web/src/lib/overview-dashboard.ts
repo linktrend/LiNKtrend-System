@@ -6,6 +6,7 @@ import { mapWorkerSessionsToThreads } from "@/lib/work-sessions";
 import { DEMO_CHANNEL_THREADS } from "@/lib/ui-mocks/channel-threads";
 import { DEMO_SIDEBAR_AGENTS, DEMO_SIDEBAR_MISSIONS, isDemoAgentId } from "@/lib/ui-mocks/entities";
 import { DEMO_WORK_ALERTS } from "@/lib/ui-mocks/work-alert-fixtures";
+import { fetchRecentTraces, traceRowToLegacy } from "@/lib/traces-db";
 import { traceToWorkAlert, type WorkAlert } from "@/lib/work-alerts";
 import { groupZulipIntoThreads, prepareChannelThreads, type ZulipMessageLinkRow } from "@/lib/work-messages";
 import { getZulipSiteUrlFromEnv } from "@/lib/zulip-links";
@@ -129,24 +130,12 @@ export function alertToneFromMerged(alerts: WorkAlert[]): WorkRowTone {
 }
 
 async function loadAlertsList(supabase: SupabaseClient, uiMocksEnabled: boolean) {
-  const { data: traces, error } = await supabase
-    .schema("linkaios")
-    .from("traces")
-    .select("id, event_type, mission_id, created_at, payload")
-    .order("created_at", { ascending: false })
-    .limit(50);
-  const fromDb =
-    error || !traces?.length
-      ? []
-      : traces.map((t) =>
-          traceToWorkAlert({
-            id: String((t as { id: string }).id),
-            event_type: String((t as { event_type: string }).event_type),
-            mission_id: (t as { mission_id: string | null }).mission_id,
-            created_at: String((t as { created_at: string }).created_at),
-            payload: (t as { payload: unknown }).payload,
-          }),
-        );
+  const { rows: traces, error } = await fetchRecentTraces(supabase, { limit: 50 });
+  const fromDb = error
+    ? []
+    : traces.map((t) =>
+        traceToWorkAlert({ ...traceRowToLegacy(t), id: String(t.id) }),
+      );
   const merged = uiMocksEnabled ? [...DEMO_WORK_ALERTS, ...fromDb] : fromDb;
   return merged.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 }

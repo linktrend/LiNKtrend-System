@@ -11,6 +11,8 @@ import {
   SummaryMetricCardSection,
 } from "@/components/summary-metric-card";
 import { getPlaneBridgeConfig, planeWorkspaceProjectsHref } from "@/lib/plane-links";
+import { loadPlaneBridgesForProjects } from "@/lib/plane-project-bridge";
+import { isPlaneLiveConfigured } from "@/lib/kernel/plane-project-sync";
 import { projectIndexRowFromMission } from "@/lib/project-index-rows";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { ProjectSummaryColumnKey } from "@/lib/project-status-ui";
@@ -58,6 +60,12 @@ export default async function ProjectsListPage() {
     ? [...demoMissionsFixtureRows(), ...api.filter((m) => !demoIds.has(String(m.id)))]
     : api;
 
+  const planeLive = isPlaneLiveConfigured();
+  const planeBridges =
+    !uiMocksEnabled && planeLive
+      ? await loadPlaneBridgesForProjects(merged.map((m) => String(m.id)))
+      : {};
+
   const byColumn = COLUMN_ORDER.map((col) => ({
     ...col,
     items: merged.filter((m) => col.statuses.includes(m.status)),
@@ -96,13 +104,28 @@ export default async function ProjectsListPage() {
         ) : (
           <ProjectsIndexTable
             planeWorkspaceHref={planeProjectsHref}
-            rows={merged.map((m) =>
-              projectIndexRowFromMission(
-                m,
-                planeCfg,
-                uiMocksEnabled ? DEMO_MISSION_PLANE_BRIDGE[String(m.id)] : undefined,
-              ),
-            )}
+            rows={merged.map((m) => {
+              const id = String(m.id);
+              const liveBridge = planeBridges[id];
+              const mockBridge = uiMocksEnabled ? DEMO_MISSION_PLANE_BRIDGE[id] : undefined;
+              const bridge = mockBridge
+                ? mockBridge
+                : liveBridge
+                  ? {
+                      code: liveBridge.code,
+                      activeCycle: "",
+                      openWorkItems: 0,
+                      blockers: 0,
+                      moduleName: "",
+                      projectTypeName: "",
+                      workflowName: "",
+                      activeIssue: "",
+                      approvalGate: "",
+                      planeSyncStatus: liveBridge.planeSyncStatus,
+                    }
+                  : undefined;
+              return projectIndexRowFromMission(m, planeCfg, bridge);
+            })}
           />
         )}
       </section>

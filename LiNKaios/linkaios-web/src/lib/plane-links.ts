@@ -26,10 +26,23 @@ export function planeWorkspaceProjectsHref(cfg: PlaneBridgeConfig): string | nul
   return `${cfg.workspaceUrl}/`;
 }
 
-/** Per-project Plane board when a project code/slug mapping exists (full mapping pending PM-004). */
+/** Per-project Plane board — uses project identifier or Plane project id from mapping. */
 export function planeProjectBoardHref(cfg: PlaneBridgeConfig, projectCode: string | null | undefined): string | null {
   const workspace = planeWorkspaceProjectsHref(cfg);
   if (!workspace || !projectCode?.trim()) return workspace;
   const base = workspace.replace(/\/$/, "");
   return `${base}/${encodeURIComponent(projectCode.trim())}/`;
+}
+
+/** Direct URL when NEXT_PUBLIC_PLANE_* is set (preferred for live sync). */
+export function planeProjectBoardHrefFromEnv(
+  planeProjectId: string,
+  identifier?: string | null,
+): string | null {
+  const cfg = getPlaneBridgeConfig();
+  if (!cfg.workspaceUrl) return null;
+  const slug = cfg.workspaceSlug ?? process.env.PLANE_WORKSPACE_SLUG?.trim();
+  if (!slug) return null;
+  const segment = identifier?.trim() || planeProjectId;
+  return `${cfg.workspaceUrl}/${slug}/projects/${encodeURIComponent(segment)}/`;
 }

@@ -19,8 +19,8 @@ export async function getCapability(
 ): Promise<{ data: CapabilityCatalogRow | null; error: Error | null }> {
   const { data, error } = await client
     .schema("linkskills")
-    .from("capabilities")
-    .select("*")
+    .from("capability_catalog")
+    .select("capability_id, display_name, description, policy_mode, args_schema, result_schema, tenant_scoped, created_at, updated_at")
     .eq("capability_id", capability_id)
     .maybeSingle();
 
@@ -79,17 +79,13 @@ export async function listCapabilities(
 
   let query = client
     .schema("linkskills")
-    .from("capabilities")
-    .select("*")
+    .from("capability_catalog")
+    .select("capability_id, display_name, description, policy_mode, tenant_scoped, created_at, updated_at")
     .order("capability_id", { ascending: true })
     .limit(limit);
 
-  if (params.mode) {
-    query = query.contains("mode_flags", [params.mode]);
-  }
-
   if (params.target_software) {
-    query = query.eq("target_software", params.target_software);
+    query = query.ilike("description", `%${params.target_software}%`);
   }
 
   const { data, error } = await query;
@@ -98,7 +94,7 @@ export async function listCapabilities(
     return { data: [], error: new Error(error.message) };
   }
 
-  return { data: (data ?? []) as CapabilityCatalogRow[], error: null };
+  return { data: (data ?? []) as unknown as CapabilityCatalogRow[], error: null };
 }
 
 /**

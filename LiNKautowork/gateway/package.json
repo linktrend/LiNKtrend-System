@@ -26,7 +26,8 @@
   "dependencies": {
     "@linktrend/linklogic-sdk": "workspace:*",
     "@linktrend/db": "workspace:*",
-    "@linktrend/shared-config": "workspace:*"
+    "@linktrend/shared-config": "workspace:*",
+    "@supabase/supabase-js": "^2.49.8"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",

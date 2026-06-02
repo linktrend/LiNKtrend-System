@@ -9,6 +9,7 @@ export const DEMO_WORK_ALERTS: WorkAlert[] = [
     detail: "This item only appears when UI mocks are enabled.",
     source: "Fixture",
     createdAt: new Date(Date.now() - 50 * 60 * 1000).toISOString(),
+    isFixture: true,
   },
   {
     id: "demo-alert-2",
@@ -18,5 +19,6 @@ export const DEMO_WORK_ALERTS: WorkAlert[] = [
     detail: "Open Tool permissions in Settings to review defaults.",
     source: "Fixture",
     createdAt: new Date(Date.now() - 6 * 60 * 60 * 1000).toISOString(),
+    isFixture: true,
   },
 ];

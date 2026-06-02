@@ -4,6 +4,7 @@ import { buildMetricsSnapshotFromRows, type MetricsSnapshot } from "@/lib/metric
 import { matchesActivityCategory, type MetricsActivityCategory } from "@/lib/metrics-filters";
 import { scopePayloadMatches, toCanonicalMetricsScope, type MetricsScopeState } from "@/lib/metrics-scope-filters";
 import { modelFromPayload } from "@/lib/trace-metrics";
+import { fetchTracesInRange } from "@/lib/traces-db";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export type { MetricsSnapshot, MetricsRunRow } from "@/lib/metrics-snapshot";
@@ -64,31 +65,22 @@ export async function fetchMetricsSnapshot(input: {
     }
   }
 
-  let q = supabase
-    .schema("linkaios")
-    .from("traces")
-    .select("id, event_type, mission_id, payload, created_at")
-    .gte("created_at", fromIso)
-    .lte("created_at", toIso)
-    .order("created_at", { ascending: false })
-    .limit(8000);
+  const { rows: rawList, error: traceError } = await fetchTracesInRange(supabase, {
+    fromIso,
+    toIso,
+    limit: 8000,
+    projectId: input.missionId,
+    projectIds: missionIdsForAgent,
+  });
+  if (traceError) return { ok: false, error: traceError };
 
-  if (input.missionId && input.missionId !== "all") {
-    q = q.eq("mission_id", input.missionId);
-  } else if (missionIdsForAgent) {
-    q = q.in("mission_id", missionIdsForAgent);
-  }
-
-  const { data: rows, error } = await q;
-  if (error) return { ok: false, error: error.message };
-
-  const list = (rows ?? []) as Array<{
-    id: string;
-    event_type: string;
-    mission_id: string | null;
-    payload: Record<string, unknown> | null;
-    created_at: string;
-  }>;
+  const list = rawList.map((r) => ({
+    id: r.id,
+    event_type: r.event_type,
+    mission_id: r.project_id,
+    payload: (r.payload ?? null) as Record<string, unknown> | null,
+    created_at: r.created_at,
+  }));
 
   const missionIds = [...new Set(list.map((r) => r.mission_id).filter(Boolean))] as string[];
   const missionMeta = new Map<string, { title: string; agent_id: string | null }>();

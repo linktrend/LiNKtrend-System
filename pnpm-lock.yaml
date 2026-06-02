@@ -26,12 +26,18 @@ importers:
       '@linktrend/auth':
         specifier: workspace:*
         version: link:../../packages/auth
+      '@linktrend/autowork-gateway':
+        specifier: workspace:*
+        version: link:../../LiNKautowork/gateway
       '@linktrend/db':
         specifier: workspace:*
         version: link:../../packages/db
       '@linktrend/linklogic-sdk':
         specifier: workspace:*
         version: link:../../packages/linklogic-sdk
+      '@linktrend/linkskills-logic-engine':
+        specifier: workspace:*
+        version: link:../../LiNKskills/services/logic-engine
       '@linktrend/observability':
         specifier: workspace:*
         version: link:../../packages/observability
@@ -44,6 +50,9 @@ importers:
       '@linktrend/ui':
         specifier: workspace:*
         version: link:../../packages/ui
+      '@linktrend/zulip-gateway':
+        specifier: workspace:*
+        version: link:../../LiNKbot/communications/temporary-gateways/zulip
       '@supabase/ssr':
         specifier: ^0.6.1
         version: 0.6.1(@supabase/supabase-js@2.103.0)
@@ -135,6 +144,9 @@ importers:
       '@linktrend/shared-config':
         specifier: workspace:*
         version: link:../../packages/shared-config
+      '@supabase/supabase-js':
+        specifier: ^2.49.8
+        version: 2.103.0
     devDependencies:
       '@types/node':
         specifier: ^20.0.0
@@ -160,6 +172,9 @@ importers:
       '@linktrend/shared-config':
         specifier: workspace:*
         version: link:../../../../packages/shared-config
+      '@supabase/supabase-js':
+        specifier: ^2.49.8
+        version: 2.103.0
       zod:
         specifier: ^3.25.76
         version: 3.25.76
@@ -284,9 +299,15 @@ importers:
       '@linktrend/linklogic-sdk':
         specifier: workspace:*
         version: link:../../../packages/linklogic-sdk
+      '@linktrend/observability':
+        specifier: workspace:*
+        version: link:../../../packages/observability
       '@linktrend/shared-config':
         specifier: workspace:*
         version: link:../../../packages/shared-config
+      '@linktrend/zulip-gateway':
+        specifier: workspace:*
+        version: link:../../../LiNKbot/communications/temporary-gateways/zulip
       '@supabase/supabase-js':
         specifier: ^2.49.8
         version: 2.103.0
@@ -294,6 +315,9 @@ importers:
       '@types/node':
         specifier: ^20.19.39
         version: 20.19.39
+      dotenv:
+        specifier: ^16.5.0
+        version: 16.6.1
       vitest:
         specifier: ^3.2.4
         version: 3.2.4(@types/node@20.19.39)(jiti@2.6.1)(lightningcss@1.32.0)(msw@2.14.6(@types/node@20.19.39)(typescript@5.9.3))(tsx@4.21.0)

@@ -1,0 +1,12 @@
+{
+  "generated_at": "2026-06-02T10:20:00.000Z",
+  "site_slug": "calusa-demo-mvo-20260602020406",
+  "site_id": 7,
+  "hostname": "calusa-demo-mvo-20260602020406.linktrend.internal",
+  "preview_url": "https://calusa-demo-mvo-20260602020406.linktrend.internal/en",
+  "publish_url": "https://calusa-demo-mvo-20260602020406.linktrend.internal/en",
+  "payload_sync_ref": "payload_sync:7:mvo-live",
+  "artifact_ref": "payload_site:7",
+  "business_name": "Calusa Demo Lawn Care",
+  "cms_base_url": "https://cms.linktrend.internal"
+}

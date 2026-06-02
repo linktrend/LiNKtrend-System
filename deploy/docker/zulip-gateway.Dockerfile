@@ -1,5 +1,6 @@
 # syntax=docker/dockerfile:1
-# Build from repository root: docker build -f deploy/docker/zulip-gateway.Dockerfile .
+# Build Zulip temporary gateway from repository root:
+# docker build -f deploy/docker/zulip-gateway.Dockerfile .
 ARG NODE_VERSION=20
 FROM node:${NODE_VERSION}-bookworm-slim AS base
 WORKDIR /app
@@ -17,7 +18,7 @@ RUN pnpm install --frozen-lockfile
 COPY --from=pruner /prune/full/ .
 COPY tsconfig.base.json /app/tsconfig.base.json
 RUN pnpm exec turbo run build --filter=@linktrend/zulip-gateway
-RUN pnpm --filter=@linktrend/zulip-gateway deploy --prod --legacy /out/app
+RUN pnpm --filter @linktrend/zulip-gateway deploy --prod --legacy /out/app
 
 FROM node:${NODE_VERSION}-bookworm-slim AS runner
 WORKDIR /app

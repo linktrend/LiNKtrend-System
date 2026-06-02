@@ -539,6 +539,8 @@ export const AUDIT_ACTIONS = [
   "approval.granted",
   "approval.rejected",
   "approval.timed_out",
+  "memory.proposed",
+  "memory.accepted",
 ] as const;
 export type AuditAction = (typeof AUDIT_ACTIONS)[number];
 

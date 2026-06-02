@@ -1,5 +1,10 @@
 import "server-only";
 
+import { loadEnv } from "@linktrend/shared-config";
+import { bootstrapProjectZulip, zulipLiveReady } from "@linktrend/zulip-gateway";
+import { recordTrace } from "@linktrend/linklogic-sdk";
+
+import { isPlaneLiveConfigured, syncLinkaiosProjectToPlane } from "@/lib/kernel/plane-project-sync";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 
 import type { CreateProjectRequest, CreateProjectResponse } from "./types";
@@ -21,10 +26,14 @@ async function resolveTenantId(): Promise<string> {
   const fromEnv = process.env.MVO_E2E_TENANT_ID?.trim();
   if (fromEnv) return fromEnv;
 
+  const tenantSlug = process.env.MVO_TENANT_SLUG?.trim() || "demo";
+  const displayName =
+    tenantSlug === "calusa" ? "Calusa" : tenantSlug === "demo" ? "Demo Tenant" : tenantSlug;
+
   const supabase = getSupabaseAdmin();
   const { data, error } = await supabase.schema("linkaios_kernel").rpc("seed_demo_tenant", {
-    p_slug: "demo",
-    p_display_name: "Demo Tenant",
+    p_slug: tenantSlug,
+    p_display_name: displayName,
   });
   if (error || !data?.length) {
     throw new Error(`Failed to resolve tenant: ${error?.message ?? "empty seed_demo_tenant result"}`);
@@ -60,10 +69,50 @@ export async function createProjectPersisted(
   }
 
   const row = data[0] as CreateProjectRow;
+  let planeBootstrap: CreateProjectResponse["planeBootstrap"] = "pending";
+
+  if (isPlaneLiveConfigured(loadEnv())) {
+    const plane = await syncLinkaiosProjectToPlane({
+      tenant_id: tenantId,
+      linkaios_project_id: row.project_id,
+      project_title: input.name,
+      suite_id: input.suiteId,
+      module_ids: input.moduleIds,
+      cadence: input.cadence,
+    });
+    planeBootstrap = plane.synced ? "live" : "pending";
+  }
+
+  const env = loadEnv();
+  if (zulipLiveReady(env)) {
+    try {
+      const zulip = await bootstrapProjectZulip(env, supabase, {
+        projectId: row.project_id,
+        projectTitle: input.name,
+        tenantId,
+        suiteId: input.suiteId,
+      });
+      if (zulip.bootstrapped) {
+        await recordTrace(env, {
+          eventType: "project.zulip_bootstrapped",
+          missionId: row.project_id,
+          payload: {
+            stream_name: zulip.stream_name,
+            stream_id: zulip.stream_id,
+            topics: zulip.topics,
+            welcome_message_id: zulip.welcome_message_id,
+          },
+        });
+      }
+    } catch (err) {
+      console.error("Zulip project bootstrap failed (non-fatal):", err);
+    }
+  }
+
   return {
     projectId: row.project_id,
     missionId: row.project_id,
-    planeBootstrap: "pending",
+    planeBootstrap,
     createdAt: row.created_at,
   };
 }

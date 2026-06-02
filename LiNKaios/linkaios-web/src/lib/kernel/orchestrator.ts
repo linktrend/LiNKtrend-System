@@ -27,6 +27,7 @@ import type { ManifestValidationError } from "./manifest-loader";
 import {
   writeRunAuditEvent,
   writeStageAuditEvent,
+  requestLinkSkillsLease,
   RETRY_DELAY_MS,
 } from "./dispatch";
 // WebsiteFactory plugin extension point
@@ -50,6 +51,9 @@ import type {
   KernelConfig,
 } from "./types";
 import { DEFAULT_KERNEL_CONFIG } from "./types";
+import { recordCloseOrRecycle } from "../../../../../suites/linksites/phases/close-recycle/close-recycle";
+import { readFileSync, existsSync } from "node:fs";
+import { resolve } from "node:path";
 
 // ============================================================================
 // Work Request Intake
@@ -569,8 +573,59 @@ async function executeStage(
   return result;
 }
 
+type MvoLivePublishContext = {
+  site_id: string;
+  site_slug: string;
+  preview_url: string;
+  publish_url: string;
+  payload_sync_ref?: string;
+  artifact_ref?: string;
+};
+
+function loadMvoLivePublishContext(): MvoLivePublishContext | null {
+  const inline = process.env.MVO_LIVE_PUBLISH_JSON?.trim();
+  const filePath = process.env.MVO_LIVE_PUBLISH_PATH?.trim();
+  let raw = inline;
+  if (!raw && filePath && existsSync(filePath)) {
+    raw = readFileSync(filePath, "utf8");
+  }
+  if (!raw) {
+    const defaultPath = resolve(
+      process.cwd(),
+      "LiNKdev/product/reports/linktrend-system/mvo-live-publish.json",
+    );
+    if (existsSync(defaultPath)) {
+      raw = readFileSync(defaultPath, "utf8");
+    }
+  }
+  if (!raw) return null;
+  try {
+    const parsed = JSON.parse(raw) as Record<string, unknown>;
+    const siteId =
+      typeof parsed.site_id === "string"
+        ? parsed.site_id
+        : typeof parsed.site_id === "number" && Number.isFinite(parsed.site_id)
+          ? String(parsed.site_id)
+          : "";
+    const previewUrl = typeof parsed.preview_url === "string" ? parsed.preview_url : "";
+    if (!siteId || !previewUrl) return null;
+    return {
+      site_id: siteId,
+      site_slug: typeof parsed.site_slug === "string" ? parsed.site_slug : siteId,
+      preview_url: previewUrl,
+      publish_url:
+        typeof parsed.publish_url === "string" ? parsed.publish_url : previewUrl,
+      payload_sync_ref:
+        typeof parsed.payload_sync_ref === "string" ? parsed.payload_sync_ref : undefined,
+      artifact_ref: typeof parsed.artifact_ref === "string" ? parsed.artifact_ref : undefined,
+    };
+  } catch {
+    return null;
+  }
+}
+
 /**
- * Execute a kernel-owned stage (lead_intake).
+ * Execute a kernel-owned stage (lead_intake, outreach, close/recycle).
  */
 async function executeKernelStage(
   env: Env,
@@ -594,17 +649,122 @@ async function executeKernelStage(
       };
     }
 
-    // Lead is already registered during work_request intake
-    // Return lead_record_ref
+    const live = loadMvoLivePublishContext();
+    const leadRecordRef = {
+      lead_id: (inputs.lead_id as string) || "unknown",
+      tenant_id: ctx.tenant_id,
+      idempotency_key: computeIdempotencyKey(leadInput),
+    };
+
+    const outputs: Record<string, unknown> = { lead_record_ref: leadRecordRef };
+    if (live) {
+      outputs.site_id = String(live.site_id);
+      outputs.site_slug = live.site_slug;
+      outputs.site_generation_run_id = ctx.run_id;
+      outputs.preview_url = live.preview_url;
+      outputs.publish_url = live.publish_url;
+      outputs.preview_artifact_ref =
+        live.artifact_ref || `payload_site:${live.site_id}`;
+      if (live.payload_sync_ref) outputs.payload_sync_ref = live.payload_sync_ref;
+      if (live.artifact_ref) outputs.artifact_ref = live.artifact_ref;
+    }
+
+    return { success: true, outputs };
+  }
+
+  if (stage.stage_id === "outreach_draft") {
+    const publishUrl =
+      (inputs.publish_url as string) || (inputs.preview_url as string) || "";
+    if (!publishUrl) {
+      return {
+        success: false,
+        failure: {
+          code: "WORKFLOW_STEP_FAILED",
+          plane: "linkaios",
+          message: "outreach_draft requires publish_url from live publish",
+          retryable: false,
+          occurred_at: new Date().toISOString(),
+        },
+      };
+    }
+
+    const leaseRequest = await requestLinkSkillsLease(env, ctx, {
+      capability: "crm.upsert",
+      arguments: {
+        action: "outreach_draft",
+        publish_url: publishUrl,
+        lead_record_ref: inputs.lead_record_ref,
+      },
+      idempotency_key: `${ctx.run_id}:outreach_draft:crm.upsert`,
+      actor: { actor_kind: "plugin", actor_id: "linkaios.kernel" },
+    });
+    if (!leaseRequest.success || !leaseRequest.lease_id) {
+      return leaseRequest;
+    }
+
+    const outreachDraftRef = `outreach_draft:${ctx.tenant_id}:${ctx.run_id}`;
+    const draftedAudit = await writeStageAuditEvent(env, ctx, "outreach.drafted", {
+      outreach_draft_ref: outreachDraftRef,
+      publish_url: publishUrl,
+      lease_id: leaseRequest.lease_id,
+      outreach_status: "draft_pending_principal_approval",
+    }, "linkbot");
+    const heldAudit = await writeStageAuditEvent(env, ctx, "outreach.held_for_approval", {
+      outreach_draft_ref: outreachDraftRef,
+      publish_url: publishUrl,
+      lease_id: leaseRequest.lease_id,
+    }, "linkbot");
+
     return {
       success: true,
       outputs: {
-        lead_record_ref: {
-          lead_id: (inputs.lead_id as string) || "unknown",
-          tenant_id: ctx.tenant_id,
-          idempotency_key: computeIdempotencyKey(leadInput),
-        },
+        outreach_draft_ref: outreachDraftRef,
+        outreach_status: "draft_pending_principal_approval",
+        outreach_lease_id: leaseRequest.lease_id,
       },
+      lease_id: leaseRequest.lease_id,
+      audit_event_ids: [draftedAudit.event_id, heldAudit.event_id],
+    };
+  }
+
+  if (stage.stage_id === "close_or_recycle") {
+    const leaseRequest = await requestLinkSkillsLease(env, ctx, {
+      capability: "crm.upsert",
+      arguments: {
+        action: "close_or_recycle",
+        outcome: "recycle",
+        lead_record_ref: inputs.lead_record_ref,
+        crm_record_id: inputs.crm_record_id,
+        site_id: inputs.site_id,
+      },
+      idempotency_key: `${ctx.run_id}:close_or_recycle:crm.upsert`,
+      actor: { actor_kind: "plugin", actor_id: "linkaios.kernel" },
+    });
+    if (!leaseRequest.success || !leaseRequest.lease_id) {
+      return leaseRequest;
+    }
+
+    const record = recordCloseOrRecycle({
+      tenant_id: ctx.tenant_id,
+      run_id: ctx.run_id,
+      outcome: "recycle",
+    });
+    const crmAudit = await writeStageAuditEvent(env, ctx, "crm.status_updated", {
+      lead_status: "recycled_for_next_lead",
+      outcome: record.outcome,
+      site_id: inputs.site_id,
+      lease_id: leaseRequest.lease_id,
+    }, "linkskills");
+
+    return {
+      success: true,
+      outputs: {
+        close_recycle_outcome: record.outcome,
+        lead_status: "recycled_for_next_lead",
+        crm_status_updated_at: record.recorded_at,
+      },
+      lease_id: leaseRequest.lease_id,
+      audit_event_ids: [crmAudit.event_id],
     };
   }
 

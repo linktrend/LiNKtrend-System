@@ -106,6 +106,18 @@ const envSchema = z.object({
   ZULIP_BOT_EMAIL: optionalNonEmpty(),
   /** Zulip realm URL, e.g. https://chat.example.com */
   ZULIP_SITE_URL: optionalNonEmpty(),
+  /** `mock` | `shadow` | `live` — outbound Zulip capability mode (default mock). */
+  ZULIP_RUN_MESSAGING_MODE: z.enum(["mock", "shadow", "live"]).optional(),
+  /** Default stream name for run notifications when project stream is unresolved. */
+  ZULIP_RUN_STREAM: optionalNonEmpty(),
+  /** Topic template for run notifications; `{run_id}` is substituted. */
+  ZULIP_RUN_TOPIC_TEMPLATE: optionalNonEmpty(),
+  /** Outbound Zulip HTTP timeout (ms). Default 15000. */
+  ZULIP_REQUEST_TIMEOUT_MS: optionalNonEmpty(),
+  /** Set to `1` for studio Traefik self-signed cert on internal Zulip (VPS only). */
+  ZULIP_TLS_INSECURE: z.string().optional(),
+  /** Set to `1` to skip lease_id validation in zulip-gateway (local dev only). */
+  ZULIP_GATEWAY_SKIP_LEASE: z.string().optional(),
   /** Fallback Zulip stream id when mission cannot be resolved (org-wide blocks). */
   ZULIP_FALLBACK_STREAM_ID: optionalNonEmpty(),
   /** Topic for governance notify messages (optional). */
@@ -168,6 +180,21 @@ const envSchema = z.object({
   DISCLOSURE_SIGNING_KEY: optionalNonEmpty(),
   /** Fallback signing key for LinkSkills operations. */
   LINKSKILLS_SIGNING_KEY: optionalNonEmpty(),
+  /**
+   * `required` — side effects must execute through LinkSkills handlers (no kernel mock bypass).
+   * Default: `required` in production, `permissive` otherwise.
+   */
+  LINKSKILLS_EXECUTION_GATE: z.enum(["required", "permissive"]).optional(),
+  /** LinkSkills logic-engine HTTP base URL (bot-runtime lease loop). */
+  LINKSKILLS_ENDPOINT: optionalNonEmpty(),
+  /** LinkSkills logic-engine listen port (default 3002). */
+  LINKSKILLS_HTTP_PORT: optionalNonEmpty(),
+  /** `1` / `true` enables live shadow connectivity probes for Plane/Zulip. */
+  LINKSKILLS_LIVE_OPS: optionalNonEmpty(),
+  /** Calusa (MVO licensee) tenant id for LiNKtrend Admin governance surfaces. */
+  CALUSA_TENANT_ID: optionalNonEmpty(),
+  /** Disable in-process mock lease responses in bot-runtime (`1` = real LinkSkills HTTP only). */
+  LINKSKILLS_DISABLE_MOCK_LEASES: optionalNonEmpty(),
 });
 
 export type Env = z.infer<typeof envSchema>;
@@ -299,4 +326,11 @@ export function prismFsMaxDepth(env: Env): number {
  */
 export function linkaiosUiMocksEnabled(env: NodeJS.ProcessEnv = process.env): boolean {
   return parseEnvBool01(env.LINKAIOS_UI_MOCKS, false);
+}
+
+/** Zulip capability outbound mode. Default `mock`. */
+export function zulipRunMessagingMode(env: NodeJS.ProcessEnv = process.env): "mock" | "shadow" | "live" {
+  const raw = env.ZULIP_RUN_MESSAGING_MODE?.trim().toLowerCase();
+  if (raw === "live" || raw === "shadow" || raw === "mock") return raw;
+  return "mock";
 }

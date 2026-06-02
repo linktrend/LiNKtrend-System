@@ -1,17 +1,16 @@
 "use server";
 
-import {
-  attachWorldBrainContribution,
-  anonymizeKnowledgeForWorldBrain,
-  buildCompanyKnowledgeRecord,
-  getKnowledgeProposal,
-  reviewKnowledgeProposal,
-  type KnowledgeReviewDecision,
-} from "../../../../../../LiNKbrain/librarian/knowledge-loop";
 import { evaluateWorldBrainContribution } from "../../../../../../LiNKguard/sidecar/linkguard/src/world-brain-confidentiality";
+import {
+  finalizeLibrarianKnowledgeProposal,
+  getKnowledgeProposalByVersionId,
+  getKnowledgeProposalFromDb,
+  type KnowledgeReviewDecision,
+} from "../../../../../../LiNKbrain/librarian/persistence";
 import { revalidatePath } from "next/cache";
 
 import { canWriteCommandCentre, getCommandCentreRoleForUser } from "@/lib/command-centre-access";
+import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 async function requirePrincipalOrAdmin() {
@@ -39,41 +38,47 @@ export async function reviewLibrarianKnowledgeProposalAction(params: {
     return { ok: false, error: gate.error ?? "unauthorized" };
   }
 
-  const existing = getKnowledgeProposal(params.proposalId);
+  const admin = getSupabaseAdmin();
+  const existing = await getKnowledgeProposalFromDb(admin, params.proposalId);
   if (!existing) {
     return { ok: false, error: "Knowledge proposal not found." };
   }
 
-  if (params.decision === "reject") {
-    reviewKnowledgeProposal({
-      proposal_id: params.proposalId,
-      decision: "reject",
-      reviewed_by: gate.user.email ?? gate.user.id,
+  try {
+    const result = await finalizeLibrarianKnowledgeProposal(admin, {
+      proposalId: params.proposalId,
+      decision: params.decision,
+      reviewedBy: gate.user.email ?? gate.user.id,
+      editedBody: params.editedBody,
+      guardCheck: (payload) => evaluateWorldBrainContribution(payload),
     });
+
     revalidatePath("/memory");
-    return { ok: true };
+    return {
+      ok: true,
+      knowledge_ref: result.knowledge_ref,
+      world_brain_ref: result.world_brain_ref,
+    };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Librarian review failed";
+    return { ok: false, error: message };
   }
+}
 
-  const reviewed = reviewKnowledgeProposal({
-    proposal_id: params.proposalId,
+/** Inbox approve path: resolve proposal from brain draft version id. */
+export async function reviewLibrarianKnowledgeProposalByVersionAction(params: {
+  versionId: string;
+  decision: KnowledgeReviewDecision;
+  editedBody?: string;
+}): Promise<{ ok: boolean; error?: string; knowledge_ref?: string; world_brain_ref?: string }> {
+  const admin = getSupabaseAdmin();
+  const proposal = await getKnowledgeProposalByVersionId(admin, params.versionId);
+  if (!proposal) {
+    return { ok: false, error: "No librarian proposal linked to this inbox item." };
+  }
+  return reviewLibrarianKnowledgeProposalAction({
+    proposalId: proposal.proposal_id,
     decision: params.decision,
-    reviewed_by: gate.user.email ?? gate.user.id,
-    edited_body: params.editedBody,
+    editedBody: params.editedBody,
   });
-
-  const companyRecord = buildCompanyKnowledgeRecord(reviewed);
-  const guardCheck = evaluateWorldBrainContribution(companyRecord.payload);
-  if (!guardCheck.allowed) {
-    return { ok: false, error: guardCheck.reason };
-  }
-
-  const world = anonymizeKnowledgeForWorldBrain(companyRecord);
-  attachWorldBrainContribution(reviewed, world);
-
-  revalidatePath("/memory");
-  return {
-    ok: true,
-    knowledge_ref: reviewed.knowledge_ref,
-    world_brain_ref: world.world_brain_ref,
-  };
 }

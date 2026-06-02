@@ -68,8 +68,11 @@ export async function requestLease(
   };
 
   try {
-    // In development mode, simulate lease grant
-    if (process.env.NODE_ENV === "development" && process.env.MOCK_LEASES === "true") {
+    const mockDisabled =
+      process.env.LINKSKILLS_DISABLE_MOCK_LEASES === "1" ||
+      process.env.NODE_ENV === "production";
+
+    if (process.env.NODE_ENV === "development" && process.env.MOCK_LEASES === "true" && !mockDisabled) {
       return {
         lease_id: `lease-${Date.now()}-${Math.random().toString(36).slice(2)}`,
         status: "granted",
@@ -135,8 +138,11 @@ export async function executeLease(
   };
 
   try {
-    // In development mode, simulate execution
-    if (process.env.NODE_ENV === "development" && process.env.MOCK_LEASES === "true") {
+    const mockDisabled =
+      process.env.LINKSKILLS_DISABLE_MOCK_LEASES === "1" ||
+      process.env.NODE_ENV === "production";
+
+    if (process.env.NODE_ENV === "development" && process.env.MOCK_LEASES === "true" && !mockDisabled) {
       return {
         lease_id,
         capability: "mock.capability",

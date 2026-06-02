@@ -38,19 +38,20 @@ export async function requestProjectToolAdd(projectId: string, toolId: string): 
   const { error: insErr } = await g.supabase.schema("linkaios").from("tool_governance_requests").insert({
     status: "pending",
     request_type: "mission_binding_add",
-    mission_id: projectId,
+    project_id: projectId,
     tool_id: toolId,
     requested_by: g.userId,
   });
   if (insErr) return;
 
   await g.supabase.schema("linkaios").from("traces").insert({
-    mission_id: projectId,
+    project_id: projectId,
     event_type: "tool.request.created",
     payload: {
       event_type: "tool.request.created",
       tool_name: tool.name,
       tool_id: toolId,
+      project_id: projectId,
       mission_id: projectId,
       request_type: "mission_binding_add",
       actor_user_id: g.userId,
@@ -70,19 +71,20 @@ export async function requestProjectToolRemove(projectId: string, toolId: string
   const { error: insErr } = await g.supabase.schema("linkaios").from("tool_governance_requests").insert({
     status: "pending",
     request_type: "mission_binding_remove",
-    mission_id: projectId,
+    project_id: projectId,
     tool_id: toolId,
     requested_by: g.userId,
   });
   if (insErr) return;
 
   await g.supabase.schema("linkaios").from("traces").insert({
-    mission_id: projectId,
+    project_id: projectId,
     event_type: "tool.request.created",
     payload: {
       event_type: "tool.request.created",
       tool_name: tool.name,
       tool_id: toolId,
+      project_id: projectId,
       mission_id: projectId,
       request_type: "mission_binding_remove",
       actor_user_id: g.userId,
@@ -100,14 +102,14 @@ export async function approveToolGovernanceRequest(requestId: string): Promise<v
   const { data: reqRow } = await g.supabase
     .schema("linkaios")
     .from("tool_governance_requests")
-    .select("mission_id")
+    .select("project_id")
     .eq("id", requestId)
     .maybeSingle();
 
   const { error } = await g.supabase.schema("linkaios").rpc("tool_governance_approve", { p_request_id: requestId });
   if (error) return;
 
-  if (reqRow?.mission_id) revalidatePath(`/projects/${reqRow.mission_id}`);
+  if (reqRow?.project_id) revalidatePath(`/projects/${reqRow.project_id}`);
   revalidatePath("/settings/tools");
 }
 
@@ -119,7 +121,7 @@ export async function rejectToolGovernanceRequest(requestId: string, reason: str
   const { data: reqRow } = await g.supabase
     .schema("linkaios")
     .from("tool_governance_requests")
-    .select("mission_id")
+    .select("project_id")
     .eq("id", requestId)
     .maybeSingle();
 
@@ -129,7 +131,7 @@ export async function rejectToolGovernanceRequest(requestId: string, reason: str
   });
   if (error) return;
 
-  if (reqRow?.mission_id) revalidatePath(`/projects/${reqRow.mission_id}`);
+  if (reqRow?.project_id) revalidatePath(`/projects/${reqRow.project_id}`);
   revalidatePath("/settings/tools");
 }
 

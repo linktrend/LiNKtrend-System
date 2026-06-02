@@ -1,6 +1,8 @@
 import type { WorkAlert } from "@/lib/work-alerts";
 import type { ChannelMessageThread } from "@/lib/work-messages";
 import type { SessionThreadRow } from "@/lib/work-sessions";
+import { isDemoAgentId } from "@/lib/ui-mocks/entities";
+import { isUiMockWorkAlert } from "@/lib/ui-mocks/fixture-provenance";
 
 /** Unified queue for Overview + All Work (routing only; no new execution paths). */
 export type AttentionFeedItem = {
@@ -12,6 +14,8 @@ export type AttentionFeedItem = {
   subtitle?: string;
   href: string;
   alertSeverity?: WorkAlert["severity"];
+  /** True when row originates from UI mock fixtures. */
+  isFixture?: boolean;
 };
 
 type Sortable = AttentionFeedItem & { _sort: [number, number] };
@@ -50,6 +54,7 @@ export function buildAttentionFeed(input: {
       subtitle: a.summary.trim() ? a.summary.trim().slice(0, 140) : undefined,
       href: "/work/alerts",
       alertSeverity: a.severity,
+      isFixture: isUiMockWorkAlert(a),
       _sort: [sevRank, -new Date(a.createdAt).getTime()],
     });
   }
@@ -63,6 +68,7 @@ export function buildAttentionFeed(input: {
       title: `${m.channel}: ${m.subject}`,
       subtitle: m.preview?.trim() ? m.preview.trim().slice(0, 120) : undefined,
       href: m.openHref?.trim() ? m.openHref : "/work/messages",
+      isFixture: m.id.startsWith("demo-channel"),
       _sort: [3, -new Date(m.lastActivity).getTime()],
     });
   }
@@ -80,6 +86,7 @@ export function buildAttentionFeed(input: {
       title: `${s.agentName} — ${s.sessionTitle}`,
       subtitle: s.preview.trim() ? s.preview.trim().slice(0, 120) : undefined,
       href: s.openHref,
+      isFixture: isDemoAgentId(s.agentId),
       _sort: [4, -new Date(s.startedAt).getTime()],
     });
   }
@@ -107,6 +114,7 @@ export function buildAttentionFeed(input: {
       title: `${s.agentName} — ${s.sessionTitle}`,
       subtitle: s.preview.trim() ? s.preview.trim().slice(0, 120) : undefined,
       href: s.openHref,
+      isFixture: isDemoAgentId(s.agentId),
       _sort: [sessionPriorityBand(s), -new Date(s.startedAt).getTime()],
     });
   }

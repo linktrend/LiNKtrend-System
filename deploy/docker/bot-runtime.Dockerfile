@@ -1,5 +1,6 @@
 # syntax=docker/dockerfile:1
-# Build from repository root: docker build -f deploy/docker/bot-runtime.Dockerfile .
+# Build LiNKbot runtime adapter from repository root:
+# docker build -f deploy/docker/bot-runtime.Dockerfile .
 ARG NODE_VERSION=20
 FROM node:${NODE_VERSION}-bookworm-slim AS base
 WORKDIR /app
@@ -15,10 +16,9 @@ COPY --from=pruner /prune/json/ .
 COPY --from=pruner /prune/pnpm-lock.yaml ./pnpm-lock.yaml
 RUN pnpm install --frozen-lockfile
 COPY --from=pruner /prune/full/ .
-# turbo prune omits repo-root files not linked as deps; workspace tsconfigs extend this.
 COPY tsconfig.base.json /app/tsconfig.base.json
 RUN pnpm exec turbo run build --filter=@linktrend/bot-runtime
-RUN pnpm --filter=@linktrend/bot-runtime deploy --prod --legacy /out/app
+RUN pnpm --filter @linktrend/bot-runtime deploy --prod --legacy /out/app
 
 FROM node:${NODE_VERSION}-bookworm-slim AS runner
 WORKDIR /app

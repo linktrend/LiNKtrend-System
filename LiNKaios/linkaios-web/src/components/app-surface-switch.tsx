@@ -23,7 +23,7 @@ export function AppSurfaceSwitch(props: { className?: string }) {
         router.push(next);
       }}
     >
-      <option value="licensee">User</option>
+      <option value="licensee">Client</option>
       <option value="admin">Admin</option>
     </InsetSelect>
   );

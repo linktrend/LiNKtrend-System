@@ -323,7 +323,7 @@ export async function getLease(
 ): Promise<{ data: LeaseLedgerRow | null; error: Error | null }> {
   const { data, error } = await client
     .schema("linkskills")
-    .from("lease_requests")
+    .from("lease_ledger")
     .select("*")
     .eq("lease_id", lease_id)
     .maybeSingle();
@@ -345,7 +345,7 @@ export async function getLeaseByIdempotencyKey(
 ): Promise<{ data: LeaseLedgerRow | null; error: Error | null }> {
   const { data, error } = await client
     .schema("linkskills")
-    .from("lease_requests")
+    .from("lease_ledger")
     .select("*")
     .eq("tenant_id", tenant_id)
     .eq("idempotency_key", idempotency_key)
@@ -367,10 +367,10 @@ export async function listLeasesForRun(
 ): Promise<{ data: LeaseLedgerRow[]; error: Error | null }> {
   const { data, error } = await client
     .schema("linkskills")
-    .from("lease_requests")
+    .from("lease_ledger")
     .select("*")
     .eq("run_id", run_id)
-    .order("created_at", { ascending: true });
+    .order("requested_at", { ascending: true });
 
   if (error) {
     return { data: [], error: new Error(error.message) };
@@ -413,9 +413,7 @@ export async function executeLease(
       failure,
     };
   }
-  const leaseCapability = (lease as unknown as { capability?: string; capability_id?: string }).capability_id
-    ?? (lease as unknown as { capability?: string }).capability
-    ?? "";
+  const leaseCapability = lease.capability_id ?? "";
 
   // Validate idempotency key matches
   if (lease.idempotency_key !== request.idempotency_key) {
@@ -520,7 +518,7 @@ export async function executeLease(
     // Update status to expired
     await client
       .schema("linkskills")
-      .from("lease_requests")
+      .from("lease_ledger")
       .update({ status: "expired", updated_at: new Date().toISOString() })
       .eq("lease_id", lease.lease_id);
 
@@ -550,6 +548,7 @@ export async function executeLease(
     lease_id: lease.lease_id,
     actor: { actor_kind: lease.actor_kind, actor_id: lease.actor_id },
     idempotency_key: lease.idempotency_key,
+    env,
   };
 
   try {
@@ -667,7 +666,7 @@ export async function expireLeases(
   const nowIso = now.toISOString();
   const { data, error } = await client
     .schema("linkskills")
-    .from("lease_requests")
+    .from("lease_ledger")
     .update({ status: "expired", updated_at: nowIso })
     .in("status", ["granted", "requires_approval"])
     .lte("expires_at", nowIso)
@@ -684,7 +683,7 @@ export async function revokeLease(
 ): Promise<boolean> {
   const { error } = await client
     .schema("linkskills")
-    .from("lease_requests")
+    .from("lease_ledger")
     .update({ status: "revoked", decision_reason: reason, revoked_at: new Date().toISOString() })
     .eq("lease_id", lease_id)
     .in("status", ["requested", "granted", "requires_approval"]);

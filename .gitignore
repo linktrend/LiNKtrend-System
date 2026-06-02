@@ -8,6 +8,13 @@ coverage
 .env
 .env.*
 !.env.example
+!deploy/prod/.env.example
+deploy/prod/.env
+deploy/prod/.env.runtime
+**/prod.env.runtime
+LiNKdev/product/reports/linktrend-system/mvo-latest-run.json
+.playwright-mcp/
+test-results/
 .DS_Store
 *.tsbuildinfo
 .pnpm-store

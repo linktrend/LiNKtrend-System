@@ -83,7 +83,8 @@ export function ProjectsIndexTable(props: {
 
     try {
       const res = await fetch(`/api/projects/${encodeURIComponent(row.id)}/plane-sync`, { method: "POST" });
-      if (!res.ok) throw new Error("sync failed");
+      const body = (await res.json()) as { planeSyncStatus?: string };
+      if (!res.ok || body.planeSyncStatus !== "synced") throw new Error("sync failed");
       setSyncById((prev) => ({ ...prev, [row.id]: "synced" }));
     } catch {
       setSyncById((prev) => ({ ...prev, [row.id]: "pending" }));

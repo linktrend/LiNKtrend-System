@@ -60,12 +60,16 @@ export function buildOpenClawAgentIngressBody(
   }
   const message = env.OPENCLAW_AGENT_INGRESS_MESSAGE ?? "ping";
   const sessionKey = env.OPENCLAW_AGENT_SESSION_KEY ?? "agent:main:main";
-  return {
+  const body: Record<string, unknown> = {
     message,
     idempotencyKey: randomId(),
     sessionKey,
     linktrendGovernance: governance,
   };
+  if (env.OPENCLAW_AGENT_ID?.trim()) {
+    body.agentId = env.OPENCLAW_AGENT_ID.trim();
+  }
+  return body;
 }
 
 /**

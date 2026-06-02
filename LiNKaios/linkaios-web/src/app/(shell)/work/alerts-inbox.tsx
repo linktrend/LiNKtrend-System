@@ -12,6 +12,7 @@ import {
   accentFromAlert,
   actionQueueIconClass,
 } from "@/components/action-queue";
+import { FixturePill } from "@/components/fixture-pill";
 import { useAppRole } from "@/components/role-preview-provider";
 import { useAppSurface } from "@/components/app-surface-provider";
 import { StatusPill } from "@/components/ui/status-pill";
@@ -25,6 +26,7 @@ import {
   readSupportTicketsForLicensee,
   supportTicketToWorkAlert,
 } from "@/lib/support-tickets";
+import { isUiMockWorkAlert } from "@/lib/ui-mocks/fixture-provenance";
 import type { WorkAlert } from "@/lib/work-alerts";
 
 const RESOLVED_STORAGE_KEY = "linkaios_work_alerts_resolved_ids_v1";
@@ -293,6 +295,7 @@ export function AlertsInbox(props: {
                   title={
                     <span className="inline-flex min-w-0 flex-wrap items-center gap-2">
                       <span className="truncate">{a.title}</span>
+                      {isUiMockWorkAlert(a) ? <FixturePill /> : null}
                       {isResolved ? <StatusPill label="Resolved" tone="success" /> : null}
                     </span>
                   }

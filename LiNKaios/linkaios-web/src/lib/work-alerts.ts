@@ -8,15 +8,20 @@ export type WorkAlert = {
   detail: string;
   source: string;
   createdAt: string;
+  /** Set when row originates from `src/lib/ui-mocks/*` fixtures. */
+  isFixture?: boolean;
 };
 
 export function traceToWorkAlert(row: {
   id: string;
   event_type: string;
-  mission_id: string | null;
+  project_id?: string | null;
+  /** @deprecated Use project_id */
+  mission_id?: string | null;
   created_at: string;
   payload: unknown;
 }): WorkAlert {
+  const projectId = row.project_id ?? row.mission_id ?? null;
   const type = row.event_type;
   const isCritical =
     type.includes("openclaw_error") || type.includes("critical") || type.includes("fatal");
@@ -31,7 +36,7 @@ export function traceToWorkAlert(row: {
     severity,
     summary: payloadStr.slice(0, 160) + (payloadStr.length > 160 ? "…" : ""),
     detail: `Event type: ${type}\n\nPayload:\n${payloadStr.slice(0, 4000)}${payloadStr.length > 4000 ? "\n…" : ""}`,
-    source: row.mission_id ? `project ${row.mission_id}` : "System logs",
+    source: projectId ? `project ${projectId}` : "System logs",
     createdAt: row.created_at,
   };
 }

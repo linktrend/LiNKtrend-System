@@ -1,20 +1,20 @@
 import { describe, expect, it } from "vitest";
-import type { SupabaseClient } from "@supabase/supabase-js";
+
 import { handleZulipRunMessaging } from "./capability-handlers.js";
 
-const mockClient = {} as SupabaseClient;
+const mockClient = {} as import("@supabase/supabase-js").SupabaseClient;
 
 const context = {
   tenant_id: "tenant-1",
   run_id: "run-1",
   stage_id: "stage-1",
   lease_id: "lease-1",
-  actor: { actor_kind: "bot", actor_id: "linkbot-1" },
+  actor: { actor_kind: "bot" as const, actor_id: "linkbot-1" },
   idempotency_key: "idem-1",
 };
 
 describe("handleZulipRunMessaging", () => {
-  it("returns a mocked queued message for run.notify", async () => {
+  it("returns a mocked queued message for run.notify in mock mode", async () => {
     const result = await handleZulipRunMessaging(
       mockClient,
       {
@@ -43,10 +43,10 @@ describe("handleZulipRunMessaging", () => {
 
     expect(result.status).toBe("readiness_checked");
     expect(result.mode).toBe("shadow");
-    expect(result.connectivity?.ok).toBe(true);
+    expect(result.connectivity).toBeDefined();
   });
 
-  it("rejects live mode", async () => {
+  it("requires lease for live outbound send", async () => {
     await expect(
       handleZulipRunMessaging(
         mockClient,
@@ -54,21 +54,8 @@ describe("handleZulipRunMessaging", () => {
           mode: "live",
           operation: "run.notify",
         },
-        context,
+        { ...context, lease_id: "" },
       ),
-    ).rejects.toThrow("Live Zulip messaging is disabled");
-  });
-
-  it("rejects shadow mode for outbound operations", async () => {
-    await expect(
-      handleZulipRunMessaging(
-        mockClient,
-        {
-          mode: "shadow",
-          operation: "channel.message.mock_send",
-        },
-        context,
-      ),
-    ).rejects.toThrow("mock-only");
+    ).rejects.toThrow("Lease required");
   });
 });

@@ -1,6 +1,9 @@
 import type { Env } from "@linktrend/shared-config";
 import type { FailureCode } from "@linktrend/linklogic-sdk";
 
+import { bootstrapPlaneProjectFromSuite } from "./plane-bootstrap";
+import { planeV1WorkspacePath, resolvePlaneApiConfig } from "./plane-api-client";
+
 export type PlaneMode = "stub" | "shadow_readiness" | "live";
 
 export type PlaneProvisionInput = {
@@ -16,6 +19,7 @@ export type PlaneProvisionInput = {
 export type PlaneProvisionResult = {
   project_id: string;
   task_id: string;
+  project_identifier?: string;
 };
 
 export interface PlaneAdapter {
@@ -52,14 +56,35 @@ class StubPlaneAdapter implements PlaneAdapter {
   }
 }
 
+class LivePlaneAdapter implements PlaneAdapter {
+  constructor(private readonly env: Env) {}
+
+  async provisionProjectAndWorkItem(input: PlaneProvisionInput): Promise<PlaneProvisionResult> {
+    const leadId = input.lead_id?.trim() || `lead-${Date.now()}`;
+    const projectName = input.project_name?.trim() || "LiNKaios project";
+    const result = await bootstrapPlaneProjectFromSuite(this.env, {
+      tenant_id: input.tenant_id,
+      linkaios_project_id: leadId,
+      project_title: projectName,
+      suite_id: "linksites",
+      module_ids: ["website-factory"],
+      cadence: "once",
+    });
+    return {
+      project_id: result.plane_project_id,
+      task_id: result.task_id,
+      project_identifier: result.plane_project_identifier,
+    };
+  }
+}
+
 class ShadowReadinessPlaneAdapter implements PlaneAdapter {
   constructor(private readonly env: Env) {}
 
   async provisionProjectAndWorkItem(_: PlaneProvisionInput): Promise<PlaneProvisionResult> {
-    const { baseUrl, workspaceSlug, apiKey } = validateReadinessEnv(this.env);
+    const config = validateReadinessEnv(this.env);
 
-    await this.checkReadOnlyEndpoint(baseUrl, workspaceSlug, apiKey, `/api/workspaces/${encodeURIComponent(workspaceSlug)}`);
-    await this.checkReadOnlyEndpoint(baseUrl, workspaceSlug, apiKey, `/api/workspaces/${encodeURIComponent(workspaceSlug)}/projects/`);
+    await this.checkReadOnlyEndpoint(config, planeV1WorkspacePath(config, "/projects/"));
 
     return {
       project_id: `plane-shadow-project-${Date.now()}`,
@@ -67,22 +92,16 @@ class ShadowReadinessPlaneAdapter implements PlaneAdapter {
     };
   }
 
-  private async checkReadOnlyEndpoint(
-    baseUrl: string,
-    workspaceSlug: string,
-    apiKey: string,
-    path: string,
-  ): Promise<void> {
+  private async checkReadOnlyEndpoint(config: ReturnType<typeof resolvePlaneApiConfig>, path: string): Promise<void> {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), PLANE_READINESS_TIMEOUT_MS);
 
     try {
-      const response = await fetch(new URL(path, withTrailingSlash(baseUrl)).toString(), {
+      const response = await fetch(new URL(path, withTrailingSlash(config.baseUrl)).toString(), {
         method: "GET",
         headers: {
-          "x-api-key": apiKey,
+          "X-Api-Key": config.apiKey,
           "Content-Type": "application/json",
-          "X-Workspace-Slug": workspaceSlug,
         },
         signal: controller.signal,
       });
@@ -113,32 +132,8 @@ class ShadowReadinessPlaneAdapter implements PlaneAdapter {
   }
 }
 
-function validateReadinessEnv(env: Env): {
-  baseUrl: string;
-  workspaceSlug: string;
-  apiKey: string;
-} {
-  const baseUrl = env.PLANE_API_BASE_URL;
-  const workspaceSlug = env.PLANE_WORKSPACE_SLUG;
-  const apiKey = env.PLANE_API_KEY;
-
-  const missing: string[] = [];
-  if (!baseUrl) missing.push("PLANE_API_BASE_URL");
-  if (!workspaceSlug) missing.push("PLANE_WORKSPACE_SLUG");
-  if (!apiKey) missing.push("PLANE_API_KEY");
-
-  if (missing.length > 0) {
-    throw new PlaneReadinessError(
-      "INTEGRATION_AUTH_FAILED",
-      `Missing Plane readiness configuration: ${missing.join(", ")}`,
-    );
-  }
-
-  return {
-    baseUrl: baseUrl as string,
-    workspaceSlug: workspaceSlug as string,
-    apiKey: apiKey as string,
-  };
+function validateReadinessEnv(env: Env) {
+  return resolvePlaneApiConfig(env);
 }
 
 function withTrailingSlash(value: string): string {
@@ -152,9 +147,8 @@ export function createPlaneAdapter(env: Env): PlaneAdapter {
     return new ShadowReadinessPlaneAdapter(env);
   }
 
-  // WP-033 safety guard: live mode still uses local stub behavior until remote-write cutover.
   if (mode === "live") {
-    return new StubPlaneAdapter();
+    return new LivePlaneAdapter(env);
   }
 
   return new StubPlaneAdapter();

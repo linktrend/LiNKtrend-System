@@ -1,4 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
+
+vi.mock("server-only", () => ({}));
 import type { Env } from "@linktrend/shared-config";
 import type { DispatchContext } from "./types";
 import {
