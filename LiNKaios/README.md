@@ -5,7 +5,7 @@ LiNKaios is the organizational execution control plane.
 ## Owns
 
 - tenant and module activation
-- cockpit UI and dashboards
+- LiNKaios Client UI and dashboards
 - work contracts and work routing
 - approvals and operator control
 - system-level governance

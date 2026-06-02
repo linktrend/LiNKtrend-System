@@ -28,7 +28,9 @@ function readInput(request: WorkflowInvokeRequest, key: string): unknown {
 
 function asString(request: WorkflowInvokeRequest, key: string): string | undefined {
   const value = readInput(request, key);
-  return typeof value === "string" && value.length > 0 ? value : undefined;
+  if (typeof value === "string" && value.length > 0) return value;
+  if (typeof value === "number" && Number.isFinite(value)) return String(value);
+  return undefined;
 }
 
 function asStringArray(request: WorkflowInvokeRequest, key: string): string[] {

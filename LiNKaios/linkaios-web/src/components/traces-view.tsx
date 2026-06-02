@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { TracesLogEventsTable } from "@/components/traces-log-events-table";
 import { InsetSelect } from "@/components/forms";
+import { fetchRecentTraces } from "@/lib/traces-db";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { FIELD, FORM } from "@/lib/ui-standards";
 
@@ -21,23 +22,12 @@ export async function TracesView(props: TracesViewProps) {
   const { basePath } = props;
 
   const supabase = await createSupabaseServerClient();
-  let q = supabase
-    .schema("linkaios")
-    .from("traces")
-    .select("event_type, mission_id, created_at")
-    .order("created_at", { ascending: false })
-    .limit(100);
-
-  if (MISSION_ID_RE.test(missionFilter)) {
-    q = q.eq("mission_id", missionFilter);
-  }
-  if (eventFilter) {
-    q = q.eq("event_type", eventFilter);
-  } else if (eventPrefix === "tool") {
-    q = q.like("event_type", "tool.%");
-  }
-
-  const { data, error } = await q;
+  const { rows: data, error } = await fetchRecentTraces(supabase, {
+    limit: 100,
+    projectId: MISSION_ID_RE.test(missionFilter) ? missionFilter : undefined,
+    eventType: eventFilter || undefined,
+    eventPrefix: !eventFilter && eventPrefix === "tool" ? "tool." : undefined,
+  });
 
   if (error) {
     return (
@@ -47,9 +37,9 @@ export async function TracesView(props: TracesViewProps) {
     );
   }
 
-  const tableRows = (data ?? []).map((row) => ({
+  const tableRows = data.map((row) => ({
     event_type: row.event_type,
-    project: row.mission_id,
+    project: row.project_id,
     created_at: row.created_at ?? "",
   }));
 
@@ -98,7 +88,7 @@ export async function TracesView(props: TracesViewProps) {
       </form>
 
       <div className="mt-8">
-        {!error && (data ?? []).length === 0 ? (
+        {!error && data.length === 0 ? (
           <p className="mb-4 text-sm text-zinc-600 dark:text-zinc-400">No rows match the current filters.</p>
         ) : null}
         <TracesLogEventsTable rows={tableRows} />

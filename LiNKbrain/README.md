@@ -32,7 +32,7 @@ LiNKbrain code is currently spread across:
 - `LiNKaios/linkaios-web/src/lib/linkbrain-data.ts`
 - `LiNKdev/product/grounding/LINKBRAIN_*`
 
-This folder is the canonical ownership home. Runtime code will move here in migration-safe waves with compatibility exports where needed. The LinkSites MVO audit contract is documented in `events/linksites-mvo-audit-schema.yaml`, with its current Supabase write path in `../supabase/migrations/20260601012600_lts_020_linkbrain_mvo_audit.sql`.
+This folder is the canonical ownership home. Runtime code will move here in migration-safe waves with compatibility exports where needed. The LinkSites MVO audit contract is documented in `events/linksites-mvo-audit-schema.yaml`, with its Supabase write path in `../supabase/migrations/20260602120000_lts_020_linkbrain_mvo_audit_compat.sql` (adapter RPCs on canonical `linkbrain.audit_events` / `memory_objects` from migrations 023/031).
 
 ## Completed-State Target
 

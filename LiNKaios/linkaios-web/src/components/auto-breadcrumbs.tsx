@@ -126,8 +126,8 @@ export function AutoBreadcrumbs(props: { fixtureLabelsInNav?: boolean }) {
       }
     }
     enrichShellBreadcrumbs(route, searchParams, items, kind);
-  } else if (route === "/app" || route === "/app/") {
-    items.push({ href: appHref("/app"), label: "LiNKaios" }, { label: "Overview" });
+  } else if (route === "/client" || route === "/client/" || route === "/app" || route === "/app/") {
+    items.push({ href: appHref("/client"), label: "LiNKaios" }, { label: "Overview" });
   } else if (route === "/suites" || route.startsWith("/suites/")) {
     items.push(
       ...buildModulesBreadcrumbItems(route, searchParams.get("tab"), uuidLabels, moduleHubForProfile).map((item) =>
@@ -135,7 +135,7 @@ export function AutoBreadcrumbs(props: { fixtureLabelsInNav?: boolean }) {
       ),
     );
   } else {
-    items.push({ href: appHref("/app"), label: "LiNKaios" });
+    items.push({ href: appHref("/client"), label: "LiNKaios" });
     let acc = "";
     for (let i = 0; i < parts.length; i++) {
       const seg = parts[i]!;

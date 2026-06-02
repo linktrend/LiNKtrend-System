@@ -126,7 +126,7 @@ export function companyOverviewHref(companyId: string, brandId?: string | null):
   params.set("companyId", companyId);
   if (brandId) params.set("brandId", brandId);
   const query = params.toString();
-  return query ? `/app?${query}` : "/app";
+  return query ? `/client?${query}` : "/client";
 }
 
 export const COMPANY_SECTION_COPY = {

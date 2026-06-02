@@ -198,20 +198,10 @@ const EXACT: Record<string, PageHelpContent> = {
     "Cost, tokens, latency, and success rates across projects, LiNKbots, models, tools, and skills.",
     "Use filters to find runaway spend or failing capabilities before they affect customer delivery.",
   ),
-  "/cockpit": help(
-    "Cockpit",
-    "Cross-plane health: suite status, automation runs, and system signals.",
-    "Leases and skill detail remain under LiNKskills; this view is for operational situational awareness.",
-  ),
-  "/cockpit/runs": help(
-    "Cockpit — Automation runs",
-    "Deterministic LiNKautowork executions with status, idempotency keys, and audit linkage.",
-    "Contrast with LiNKbot sessions when you need repeatable automation rather than reasoning.",
-  ),
-  "/cockpit/leases": help(
-    "Cockpit — Leases",
-    "Shortcut to in-flight capability leases across the tenant.",
-    "Revoke or inspect leases when a capability misbehaves or a project must be frozen.",
+  "/client": help(
+    "LiNKaios Client",
+    "Licensee overview — projects, workforce, attention queue, and cross-plane status.",
+    "This is your day-to-day operator home. Switch to Admin for vendor-wide controls.",
   ),
   "/company": COMPANY_TAB_HELP.overview!,
   "/workers": help(
@@ -287,10 +277,10 @@ const PREFIX: { prefix: string; content: PageHelpContent }[] = [
     ),
   },
   {
-    prefix: "/cockpit/",
+    prefix: "/client/",
     content: help(
-      "Cockpit",
-      "Cross-plane operations — suite health, automation runs, and lease shortcuts.",
+      "LiNKaios Client",
+      "Licensee workspace — projects, suites, workers, and operational execution.",
     ),
   },
 ];

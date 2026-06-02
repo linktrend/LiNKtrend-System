@@ -9,10 +9,15 @@ function intentLabel(next: string): string {
   if (next === ADMIN_BASE_PATH || next.startsWith(`${ADMIN_BASE_PATH}/`)) {
     return "LiNKaios Admin (operator workspace)";
   }
-  if (next === LICENSEE_HOME_PATH || next.startsWith("/work") || next.startsWith("/app")) {
-    return "User workspace";
+  if (
+    next === LICENSEE_HOME_PATH ||
+    next.startsWith("/work") ||
+    next.startsWith("/client") ||
+    next.startsWith("/app")
+  ) {
+    return "LiNKaios Client";
   }
-  return "your workspace";
+  return "LiNKaios Client";
 }
 
 /** When `?next=` is set, explain why sign-in is required and scroll to the form. */

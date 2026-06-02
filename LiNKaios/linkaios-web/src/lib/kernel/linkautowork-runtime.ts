@@ -18,7 +18,7 @@ export async function ensureLinkAutoworkWorkflows(env: Env): Promise<void> {
   if (bootstrapped) return;
   const gw = await loadAutoworkGateway();
   gw.clearWorkflowRegistry();
-  gw.bootstrapAllWorkflows({
+  gw.bootstrapWebsiteFactoryWorkflows({
     writeAuditEvent: (event) => writeAutoworkAudit(env, event),
   });
   bootstrapped = true;

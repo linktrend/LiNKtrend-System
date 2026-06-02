@@ -14,6 +14,15 @@ const nextConfig: NextConfig = {
   devIndicators: false,
   async redirects() {
     return [
+      { source: "/app", destination: "/client", permanent: false },
+      { source: "/cockpit", destination: "/client", permanent: false },
+      { source: "/cockpit/runs", destination: "/work", permanent: false },
+      { source: "/cockpit/leases", destination: "/skills/leases", permanent: false },
+      { source: "/cockpit/:path*", destination: "/client", permanent: false },
+      { source: "/admin/cockpit", destination: "/admin", permanent: false },
+      { source: "/admin/cockpit/runs", destination: "/admin/work", permanent: false },
+      { source: "/admin/cockpit/leases", destination: "/admin/skills/leases", permanent: false },
+      { source: "/admin/cockpit/:path*", destination: "/admin", permanent: false },
       { source: "/missions", destination: "/projects", permanent: false },
       { source: "/missions/:path*", destination: "/projects/:path*", permanent: false },
       { source: "/modules/my-modules", destination: "/suites/my-suites", permanent: false },

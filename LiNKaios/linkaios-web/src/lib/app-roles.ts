@@ -98,7 +98,7 @@ export function canSeeNavSection(kind: AppActorKind, role: AppRoleTier, section:
 
 export function defaultLandingPath(kind: AppActorKind, role: AppRoleTier): string {
   if (kind === "licensee") {
-    return role === "super_admin" ? "/app" : "/work";
+    return role === "super_admin" ? "/client" : "/work";
   }
   return "/admin";
 }

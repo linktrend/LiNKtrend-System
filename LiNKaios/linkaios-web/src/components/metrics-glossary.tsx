@@ -45,7 +45,7 @@ export function MetricsGlossary() {
             <strong>Reliability</strong> — failure, timeout, tool/model error rates.
           </p>
           <p className="text-zinc-500 dark:text-zinc-400">
-            Data comes from LiNKaios traces and run payloads. Open individual runs from the recent runs table or Cockpit
+            Data comes from LiNKaios traces and run payloads. Open individual runs from the recent runs table or Overview
             for full audit detail.
           </p>
           <div

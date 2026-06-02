@@ -6,6 +6,7 @@ describe("devtools MVO proof helper", () => {
   it("builds deterministic WebsiteFactory, LEXOS, and LiNKapps proof sections", () => {
     const proof = buildDevtoolsMvoProof();
 
+    expect(proof.source).toBe("static-sample");
     expect(proof.websitefactory.status).toBe("succeeded");
     expect(proof.websitefactory.timeline.length).toBeGreaterThanOrEqual(2);
     expect(proof.websitefactory.lease_ids.length).toBeGreaterThan(0);

@@ -109,6 +109,7 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    // Exclude bot/kernel service routes — they authenticate via BOT_KERNEL_API_SECRET on the route handler.
+    "/((?!_next/static|_next/image|favicon.ico|api/kernel|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };

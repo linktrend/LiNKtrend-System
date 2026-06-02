@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 
-/** Cockpit retired — cross-plane summary lives on Overview. */
+/** Legacy `/cockpit` — LiNKaios Client overview. */
 export default function CockpitRedirectPage() {
-  redirect("/app");
+  redirect("/client");
 }

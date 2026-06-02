@@ -12,14 +12,37 @@ export default function DevtoolsMvoProofPage() {
     <div className="space-y-10">
       <ShellPageHeaderClient
         title="MVO Proof Surfaces"
-        subtitle="Deterministic, no-side-effect proof snapshots for browser QA — local operator fixtures only."
+        subtitle={
+          proof.source === "persisted-run"
+            ? "Live kernel run manifest — persisted MVO demo output."
+            : "Static sample fixtures — run ./scripts/run-mvo-linksites-demo.sh with Supabase env for live IDs."
+        }
       />
+
+      <p className="text-sm text-zinc-600 dark:text-zinc-400">
+        Data source:{" "}
+        <span className="font-medium text-zinc-900 dark:text-zinc-100">
+          {proof.source === "persisted-run" ? "Persisted run manifest" : "Static sample (no manifest on disk)"}
+        </span>
+        {proof.manifestPath ? (
+          <>
+            {" "}
+            · <span className="font-mono text-xs">{proof.manifestPath}</span>
+          </>
+        ) : null}
+      </p>
 
       <section className="space-y-3 rounded-xl border border-zinc-200 p-4 dark:border-zinc-800">
         <h3 className="text-base font-semibold text-zinc-900 dark:text-zinc-100">WebsiteFactory / LinkSites proof</h3>
         <p className="text-sm text-zinc-700 dark:text-zinc-300">
-          Run: <span className="font-mono text-xs">{proof.websitefactory.run_id}</span> | Status:{" "}
-          <span className="font-medium">{proof.websitefactory.status}</span>
+          Run: <span className="font-mono text-xs">{proof.websitefactory.run_id}</span>
+          {proof.websitefactory.project_id ? (
+            <>
+              {" "}
+              · Project: <span className="font-mono text-xs">{proof.websitefactory.project_id}</span>
+            </>
+          ) : null}{" "}
+          | Status: <span className="font-medium">{proof.websitefactory.status}</span>
         </p>
         <ul className="list-disc space-y-1 pl-5 text-sm text-zinc-700 dark:text-zinc-300">
           {proof.websitefactory.timeline.map((stage) => (

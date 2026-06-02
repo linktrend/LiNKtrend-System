@@ -23,6 +23,7 @@ import {
 import { AttentionQueueRow } from "@/components/action-queue";
 import { CompanySummaryPanel } from "@/components/company-summary-panel";
 import { LicenseeOnboardingBanner, LicenseeOnboardingWizard } from "@/components/onboarding/licensee-onboarding-wizard";
+import { MvoProofCard } from "@/components/mvo-proof-card";
 import { useAppRole } from "@/components/role-preview-provider";
 import { ShellPageHeader } from "@/components/shell-page-header";
 import {
@@ -37,6 +38,7 @@ import {
   type LicenseeOnboardingStepId,
 } from "@/lib/onboarding-progress";
 import type { OverviewData, SystemStatusLevel } from "@/lib/overview-dashboard";
+import type { MvoProofSnapshot } from "@/lib/mvo-proof-snapshot";
 import { toOperatorSystemIssueLabel } from "@/lib/operator-copy";
 import { BUTTON } from "@/lib/ui-standards";
 
@@ -148,7 +150,7 @@ function OrganisationSnapshot() {
   );
 }
 
-export function OverviewHome(props: { data: OverviewData }) {
+export function OverviewHome(props: { data: OverviewData; mvoProof: MvoProofSnapshot }) {
   const { data } = props;
   const { role } = useAppRole();
   const isSuperAdmin = role === "super_admin";
@@ -211,6 +213,8 @@ export function OverviewHome(props: { data: OverviewData }) {
       />
 
       {isSuperAdmin ? <LicenseeOnboardingBanner /> : null}
+
+      <MvoProofCard snapshot={props.mvoProof} />
 
       {isSuperAdmin ? <GovernanceChecklist /> : null}
 

@@ -26,7 +26,7 @@ export default async function LicenseeLoginPage() {
       {signedIn ? (
         <LoginSignedInActions
           workspaceHref={LICENSEE_HOME_PATH}
-          workspaceLabel="User workspace"
+          workspaceLabel="LiNKaios Client"
           signOutRedirect={LICENSEE_LOGIN_PATH}
         />
       ) : (

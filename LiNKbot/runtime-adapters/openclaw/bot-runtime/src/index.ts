@@ -118,6 +118,24 @@ async function main() {
       });
     }
 
+    const linkskillsEndpoint = env.LINKSKILLS_ENDPOINT ?? "http://linkskills:3002";
+    try {
+      const health = await fetch(`${linkskillsEndpoint.replace(/\/+$/, "")}/health`, {
+        signal: AbortSignal.timeout(5000),
+      });
+      log(health.ok ? "info" : "warn", "linkskills health", {
+        service: "bot-runtime",
+        endpoint: linkskillsEndpoint,
+        status: health.status,
+      });
+    } catch (error) {
+      log("warn", "linkskills unreachable", {
+        service: "bot-runtime",
+        endpoint: linkskillsEndpoint,
+        message: error instanceof Error ? error.message : String(error),
+      });
+    }
+
     const handoff = await postGovernanceToOpenClaw(env, governance);
     if (env.OPENCLAW_AGENT_RUN_URL) {
       log(handoff.ok ? "info" : "warn", "openclaw handoff", {

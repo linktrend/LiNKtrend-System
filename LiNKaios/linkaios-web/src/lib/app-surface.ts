@@ -1,7 +1,8 @@
 /** LiNKaios licensee vs licensor (admin) application surfaces — same repo, different URL prefix. */
 
 export const ADMIN_BASE_PATH = "/admin";
-export const LICENSEE_HOME_PATH = "/app";
+/** LiNKaios Client — licensee operator home (Overview). */
+export const LICENSEE_HOME_PATH = "/client";
 export const LICENSEE_LOGIN_PATH = "/login";
 export const ADMIN_LOGIN_PATH = "/admin/login";
 

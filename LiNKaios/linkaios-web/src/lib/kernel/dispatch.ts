@@ -628,12 +628,15 @@ export async function executeLinkSkillsLease(
       }
       throw error;
     }
-  } else {
+  } else if (isLinkSkillsExecutionGateRequired(env)) {
     const exec = await executeLeaseThroughLogicEngine(env, request);
     if (exec.failure) {
       return { success: false, failure: exec.failure, lease_id: request.lease_id };
     }
     mockResult = exec.result ?? {};
+  } else {
+    // Permissive dev/MVO: side-effect proof is carried by LiNKautowork workflows; skip logic-engine exec idempotency.
+    mockResult = { capability_executed: capability };
   }
 
   const { data, error } = await supabase.schema("linkskills").rpc("record_execution", {

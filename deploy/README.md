@@ -111,3 +111,35 @@ cd /opt/linktrend/linkbot-core && docker compose -f docker-compose.deploy.yml up
 | App1 preview | `https://app1.linktrend.internal` |
 | n8n | `https://n8n.linktrend.internal` |
 | LiNKbot gateway | `https://linkbot.linktrend.internal/healthz` |
+
+### LiNKbot-core (OpenClaw gateway)
+
+From `/opt/linktrend/linkbot-core`:
+
+```bash
+./ops/render-runtime-env-from-gsm.sh prod --output /opt/linktrend/runtime/linkbot-core/prod.env.runtime
+./ops/bootstrap-linkbot-state.sh
+docker compose -f docker-compose.deploy.yml up -d --build --remove-orphans
+```
+
+Agents in `deploy/prod/openclaw.json`: `linksites-builder` (default), `linksites-ops`, `lisa`, `librarian`.
+
+**bot-runtime → gateway (LiNKaios stack):** set in rendered linkaios runtime env:
+
+```text
+OPENCLAW_AGENT_RUN_URL=http://openclaw-gateway:18789/v1/linktrend/agent-run
+OPENCLAW_RUN_AUTH_BEARER=<same as OPENCLAW_LINKTREND_RUN_BEARER on gateway>
+```
+
+Both stacks must attach **`linktrend-network`** so `openclaw-gateway` resolves from `bot-runtime`. Do not use `localhost:18789` from inside the LiNKaios containers.
+
+Smoke test (external, Traefik):
+
+```bash
+curl -k -sS -X POST "https://linkbot.linktrend.internal/v1/linktrend/agent-run" \
+  -H "Authorization: Bearer $OPENCLAW_RUN_AUTH_BEARER" \
+  -H "Content-Type: application/json" \
+  -d '{"message":"ping","idempotencyKey":"'"$(uuidgen)"'","agentId":"lisa","linktrendGovernance":{"bootstrap":{"traceCorrelationId":"smoke","authorizationState":"granted"},"approvedTools":{"toolNames":["read"]}}}'
+```
+
+Expect `"ok": true` and a `runId` (model reply depends on provider keys in gateway runtime env).
