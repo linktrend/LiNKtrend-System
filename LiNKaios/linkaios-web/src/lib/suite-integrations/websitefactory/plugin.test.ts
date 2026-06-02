@@ -85,9 +85,9 @@ describe("WebsiteFactory Plugin Manifest", () => {
     expect(manifest.preview_output_shape.status).toContain("succeeded");
   });
 
-  it("declares the 11 LinkSites v2 stages per §10 stage trace", () => {
+  it("declares the 13 LinkSites v2 stages per §10 stage trace", () => {
     const manifest = getWebsiteFactoryManifest();
-    expect(manifest.stages).toHaveLength(11);
+    expect(manifest.stages).toHaveLength(13);
 
     const stageIds = manifest.stages.map((s) => s.stage_id);
     expect(stageIds).toContain("lead_intake");
@@ -98,9 +98,11 @@ describe("WebsiteFactory Plugin Manifest", () => {
     expect(stageIds).toContain("payload_sync_local");
     expect(stageIds).toContain("preview_readiness_check");
     expect(stageIds).toContain("crm_ready_to_contact_mark");
+    expect(stageIds).toContain("outreach_draft");
     expect(stageIds).toContain("plane_execution_tracking");
     expect(stageIds).toContain("zulip_run_notify");
-        expect(stageIds).toContain("record_run");
+    expect(stageIds).toContain("close_or_recycle");
+    expect(stageIds).toContain("record_run");
   });
 
   it("maps stages to correct responsible planes per §7", () => {
@@ -369,11 +371,13 @@ describe("Role-Bleed Self-Check (CONTRACTS_MVO.md §12.2)", () => {
     // Kernel is responsible for persisting stage results
     const manifest = getWebsiteFactoryManifest();
 
+    const linkaiosOrchestrationStages = new Set(["lead_intake", "outreach_draft", "close_or_recycle"]);
     for (const stage of manifest.stages) {
-      // All stages have responsible_plane != linkaios except lead_intake
-      if (stage.stage_id !== "lead_intake") {
-        expect(stage.responsible_plane).not.toBe("linkaios");
+      if (linkaiosOrchestrationStages.has(stage.stage_id)) {
+        expect(stage.responsible_plane).toBe("linkaios");
+        continue;
       }
+      expect(stage.responsible_plane).not.toBe("linkaios");
     }
   });
 

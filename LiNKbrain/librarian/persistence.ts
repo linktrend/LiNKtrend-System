@@ -2,8 +2,6 @@
  * Supabase persistence for Librarian knowledge loop (LTS-021).
  */
 
-import type { SupabaseClient } from "@supabase/supabase-js";
-
 import {
   createBrainDraft,
   getOrCreateBrainVirtualFile,
@@ -11,7 +9,9 @@ import {
   replaceChunksForVersion,
   upsertBrainEmbedJobPending,
   type BrainFileVersionRow,
-} from "@linktrend/linklogic-sdk";
+} from "../../packages/linklogic-sdk/dist/index.js";
+
+type SupabaseClient = Parameters<typeof createBrainDraft>[0];
 
 import {
   anonymizeKnowledgeForWorldBrain,
@@ -20,7 +20,9 @@ import {
   type KnowledgeProposal,
   type KnowledgeReviewDecision,
   type LibrarianIngestInput,
-} from "./knowledge-loop.js";
+} from "./knowledge-loop";
+
+export type { KnowledgeReviewDecision } from "./knowledge-loop";
 
 export type ProposeLibrarianResult = {
   proposal: KnowledgeProposal;

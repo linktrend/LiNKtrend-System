@@ -113,6 +113,9 @@ export default async function ProjectsListPage() {
                 : liveBridge
                   ? {
                       code: liveBridge.code,
+                      activeCycle: "",
+                      openWorkItems: 0,
+                      blockers: 0,
                       moduleName: "",
                       projectTypeName: "",
                       workflowName: "",

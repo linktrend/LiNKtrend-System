@@ -214,6 +214,7 @@ export default async function MissionDetailPage(props: {
       : null) ??
     planeProjectBoardHref(planeCfg, demoBridge?.code ?? null) ??
     planeProjectsHref;
+  const bridge = demoBridge;
 
   return (
     <main className="space-y-8">
