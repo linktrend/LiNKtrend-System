@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { AuditEvent, WorkflowInvokeRequest } from "@linktrend/linklogic-sdk";
 import { N8nHttpClient } from "./n8n-client.js";
+import { clearN8nWorkflowIdMapForTesting } from "./n8n-workflow-id-map.js";
 import {
   clearIdempotencyCache,
   clearWorkflowRegistry,
@@ -36,10 +37,13 @@ function createMockAuditWriter() {
 }
 
 describe("N8nHttpClient", () => {
+  const originalWorkflowIds = process.env.N8N_WORKFLOW_IDS;
+
   beforeEach(() => {
     clearIdempotencyCache();
     clearWorkflowRegistry();
     setN8nClientForTesting(undefined);
+    clearN8nWorkflowIdMapForTesting();
   });
 
   afterEach(() => {
@@ -49,6 +53,12 @@ describe("N8nHttpClient", () => {
     } else {
       process.env.AUTOWORK_MODE = originalMode;
     }
+    if (originalWorkflowIds === undefined) {
+      delete process.env.N8N_WORKFLOW_IDS;
+    } else {
+      process.env.N8N_WORKFLOW_IDS = originalWorkflowIds;
+    }
+    clearN8nWorkflowIdMapForTesting();
   });
 
   it("imports and executes workflow via mocked n8n API", async () => {
@@ -63,11 +73,30 @@ describe("N8nHttpClient", () => {
 
     const client = new N8nHttpClient({ baseUrl: "http://127.0.0.1:5678", apiKey: "dev-key" });
     const imported = await client.importWorkflow({ name: "template" });
-    const executed = await client.executeWorkflow(imported.workflowId, { k: "v" });
+    const executed = await client.executeWorkflow("autowork.test.n8n", { k: "v" });
 
     expect(imported.workflowId).toBe("wf-123");
     expect(executed.executionId).toBe("exec-456");
     expect(executed.result).toEqual({ ok: true });
+    expect(fetchMock.mock.calls[1]?.[0]).toBe("http://127.0.0.1:5678/webhook/test-n8n");
+  });
+
+  it("uses n8n 2.14 production webhook path when workflow id is mapped", async () => {
+    process.env.N8N_WORKFLOW_IDS = JSON.stringify({
+      "autowork.linkdeveloper.product_run_bootstrap": "8730597a-7e19-430a-8118-845464093bf5",
+    });
+
+    const fetchMock = vi.fn().mockResolvedValueOnce(
+      new Response(JSON.stringify({ executionId: "exec-789", data: { ok: true } }), { status: 200 }),
+    );
+    global.fetch = fetchMock as typeof fetch;
+
+    const client = new N8nHttpClient({ baseUrl: "http://127.0.0.1:5678" });
+    await client.executeWorkflow("autowork.linkdeveloper.product_run_bootstrap", { k: "v" });
+
+    expect(fetchMock.mock.calls[0]?.[0]).toBe(
+      "http://127.0.0.1:5678/webhook/8730597a-7e19-430a-8118-845464093bf5/webhook/linkdeveloper-product_run_bootstrap",
+    );
   });
 
   it("dispatches to n8n when AUTOWORK_MODE=n8n", async () => {

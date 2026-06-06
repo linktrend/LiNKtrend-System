@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
-import { workflowHandleToN8nWebhookPath } from "./workflow-handle-path.js";
+import { buildN8nWebhookInvokePath } from "./workflow-handle-path.js";
+import { resolveN8nWorkflowId } from "./n8n-workflow-id-map.js";
 
 interface N8nWorkflowListResponse {
   data?: Array<{ id?: string | number; name?: string }>;
@@ -51,12 +52,13 @@ export class N8nHttpClient implements N8nClient {
   }
 
   async executeWorkflow(
-    workflowId: string,
+    workflowHandle: string,
     payload: Record<string, unknown>,
   ): Promise<{ executionId: string; result?: unknown }> {
-    const webhookPath = workflowHandleToN8nWebhookPath(workflowId);
+    const n8nWorkflowId = resolveN8nWorkflowId(workflowHandle);
+    const webhookPath = buildN8nWebhookInvokePath(workflowHandle, n8nWorkflowId);
     const response = await this.requestJson<N8nExecutionResponse>(
-      `/webhook/${encodeURIComponent(webhookPath)}`,
+      webhookPath,
       {
         method: "POST",
         body: JSON.stringify(payload),
