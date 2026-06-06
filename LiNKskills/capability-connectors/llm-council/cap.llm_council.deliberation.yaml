@@ -1,0 +1,69 @@
+# Capability Connector: cap.llm_council.deliberation
+# STUDIO_FORWARD_PLAN Wave 3 — shared platform council service (link-llm-council)
+
+plugin_id: cap.llm_council.deliberation
+plugin_kind: capability
+plugin_name: LLM Council Gate Deliberation
+version: "1.0.0-mvo"
+purpose: Governed multi-model gate deliberation (G1–G5) via link-llm-council API
+
+modes_supported:
+  - mock
+  - shadow
+  - live
+
+operations:
+  - operation_id: gate.deliberate
+    description: Run 3-stage council deliberation for an approval gate
+    default_mode: mock
+    lease_skus:
+      - llm_council.gate.deliberate
+    idempotency_key_pattern: "${tenant_id}:${run_id}:${stage_id}:gate.deliberate:${gate}:${program_id}"
+    allowed_callers:
+      - linkaios
+      - vertical_plugin
+      - linkbot
+      - linkautowork
+    failure_mapping:
+      entitlement_missing: LEASE_DENIED
+      service_unavailable: INTEGRATION_UNAVAILABLE
+      auth: INTEGRATION_AUTH_FAILED
+      invalid_gate: LEASE_REQUEST_INVALID
+
+auth_config_surface:
+  - llm_council.base_url
+  - openrouter.api_key_ref
+
+studio_secret_source:
+  provider: google_secret_manager
+  version: latest
+  refs:
+    openrouter.api_key_ref: LINKTREND_AIOS_PROD_OPENROUTER_API_KEY
+
+mvo_runtime_modes:
+  - mock
+  - shadow
+  - live
+
+audit_events:
+  - capability.requested
+  - lease.executed
+  - capability.executed
+  - llm_council.deliberation.completed
+  - llm_council.deliberation.failed
+  - capability.failed
+
+non_ownership:
+  - Resident council bot fleet per suite
+  - Gate policy authoring (owned by LiNKdeveloper / LiNKsuitegen runtimes)
+  - Principal approval decisions
+
+required_by_modules:
+  - linkdeveloper.product_qualification
+  - linkdeveloper.release_readiness
+  - linksuitegen.factory_publish
+
+notes: >
+  Live mode POSTs to link-llm-council /deliberate on linkdroplet-00.
+  Client base subscription includes llm_council_enabled tenant entitlement.
+  Shadow mode validates connectivity without OpenRouter spend.

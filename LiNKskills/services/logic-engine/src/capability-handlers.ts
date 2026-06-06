@@ -33,17 +33,10 @@ import type {
 } from "@linktrend/linklogic-sdk";
 import type { CapabilityContext } from "./types.js";
 import { isLinkSkillsLiveOpsEnabled, probePlaneApi } from "./operational-probes.js";
+import { CapabilityExecutionError } from "./capability-errors.js";
+import { handleLlmCouncilDeliberation } from "./llm-council-handler.js";
 
-export class CapabilityExecutionError extends Error {
-  code: string;
-  retryable: boolean;
-
-  constructor(code: string, message: string, retryable = false) {
-    super(message);
-    this.code = code;
-    this.retryable = retryable;
-  }
-}
+export { CapabilityExecutionError } from "./capability-errors.js";
 
 interface ZulipRunMessagingArgs {
   mode?: "mock" | "shadow" | "live";
@@ -589,6 +582,29 @@ export async function handleCapPostizDistribution(
   };
 }
 
+export async function handleCapStripeProductManagement(
+  _client: SupabaseClient,
+  args: GenericLinksitesV2Args,
+  context: CapabilityContext,
+): Promise<Record<string, unknown>> {
+  const mode = getMode(args);
+  ensureNoLiveWrites("cap.stripe.product_management", mode);
+  const operation = requireString(args.operation, "operation");
+  const suiteId =
+    typeof args.suite_id === "string" && args.suite_id.length > 0
+      ? args.suite_id
+      : context.stage_id;
+  const productId = `stripe_prod_${suiteId}_${context.run_id}`.replace(/[^a-zA-Z0-9_]/g, "_");
+  return {
+    operation,
+    mode,
+    status: "product_fixture_created",
+    stripe_product_id: productId,
+    product_id: productId,
+    pricing_model: ["subscription"],
+  };
+}
+
 /**
  * Get the appropriate handler for a capability.
  */
@@ -606,6 +622,16 @@ export function getCapabilityHandler(capability_id: string) {
     "cap.asset.generation": handleCapAssetGeneration as unknown as (client: SupabaseClient, args: unknown, context: CapabilityContext) => Promise<Record<string, unknown>>,
     "cap.plane.execution_tracking": handleCapPlaneExecutionTracking as unknown as (client: SupabaseClient, args: unknown, context: CapabilityContext) => Promise<Record<string, unknown>>,
     "cap.postiz.distribution": handleCapPostizDistribution as unknown as (client: SupabaseClient, args: unknown, context: CapabilityContext) => Promise<Record<string, unknown>>,
+    "cap.stripe.product_management": handleCapStripeProductManagement as unknown as (
+      client: SupabaseClient,
+      args: unknown,
+      context: CapabilityContext,
+    ) => Promise<Record<string, unknown>>,
+    "cap.llm_council.deliberation": handleLlmCouncilDeliberation as unknown as (
+      client: SupabaseClient,
+      args: unknown,
+      context: CapabilityContext,
+    ) => Promise<Record<string, unknown>>,
   };
 
   return handlers[capability_id] ?? null;

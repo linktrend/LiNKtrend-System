@@ -129,6 +129,7 @@ export function getMvoCapabilityIds(): string[] {
     "cap.asset.generation",
     "cap.plane.execution_tracking",
     "cap.postiz.distribution",
+    "cap.llm_council.deliberation",
   ];
 }
 
