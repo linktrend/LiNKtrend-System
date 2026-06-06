@@ -11,6 +11,6 @@ Runtime adapters bridge LiNKbot to concrete agent engines.
 
 ## Initial Engines
 
-- `openclaw`: first runtime adapter, backed by the external `/Users/linktrend/Projects/LiNKbot-core` fork.
-- `agent-zero`: reserved future adapter.
+- `openclaw`: first runtime adapter, backed by the external LiNKbot-core fork.
+- `agent-zero`: production adapter (`LiNKbot/runtime-adapters/agent-zero/bot-runtime`) — eight fleet lanes on link-agentzero worker.
 - `agent-hermes`: reserved future adapter.

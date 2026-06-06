@@ -7,6 +7,7 @@ This folder holds **Dockerfiles** for the current deployable service entrypoints
 | LiNKaios (`linkaios-web`) | `docker/linkaios-web.Dockerfile` | **3000** |
 | `zulip-gateway` | `docker/zulip-gateway.Dockerfile` | **8790** |
 | `bot-runtime` | `docker/bot-runtime.Dockerfile` | *(none — outbound only)* |
+| `agent-zero` | `docker/agent-zero.Dockerfile` | **80** (`/api/health`) |
 | `linkguard` | `docker/linkguard.Dockerfile` | *(none)* |
 
 The **Compose file** lives at the **repository root**: `docker-compose.linktrend.yml`, so Docker can read your **`.env`** for both **build-time** and **runtime** settings.
@@ -111,6 +112,27 @@ cd /opt/linktrend/linkbot-core && docker compose -f docker-compose.deploy.yml up
 | App1 preview | `https://app1.linktrend.internal` |
 | n8n | `https://n8n.linktrend.internal` |
 | LiNKbot gateway | `https://linkbot.linktrend.internal/healthz` |
+| Agent Zero worker | `https://agentzero.linktrend.internal/api/health` |
+
+### Agent Zero worker (link-agentzero, Wave 2)
+
+Build context is the **link-agentzero** repo on linkdroplet-00 (`/opt/linktrend/link-agentzero`). LiNKaios compose references `deploy/docker/agent-zero.Dockerfile` via `LINK_AGENTZERO_DOCKERFILE`.
+
+```bash
+# From /opt/linktrend/linkaios (after cloning link-agentzero alongside)
+export LINK_AGENTZERO_BUILD_CONTEXT=/opt/linktrend/link-agentzero
+export LINK_AGENTZERO_DOCKERFILE=/opt/linktrend/linkaios/deploy/docker/agent-zero.Dockerfile
+docker compose -f docker-compose.deploy.yml up -d agent-zero --build
+```
+
+**bot-runtime → agent-zero** (rendered linkaios runtime env):
+
+```text
+AGENT_ZERO_WORKER_URL=http://agent-zero:80
+AGENT_ZERO_STUB_MODE=0
+```
+
+GSM secret names (`.env.example` only): `LINKTREND_AIOS_PROD_OPENROUTER_API_KEY`, `LINKTREND_AIOS_PROD_AGENTZERO_INGRESS_TOKEN`.
 
 ### LiNKbot-core (OpenClaw gateway)
 
