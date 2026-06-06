@@ -1,29 +1,33 @@
 {
-  "name": "@linktrend/bot-runtime",
+  "name": "@linktrend/agent-zero-runtime",
   "version": "0.0.0",
   "private": true,
   "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "dev": "tsx watch src/index.ts",
-    "start": "node dist/index.js",
-    "lint": "eslint .",
     "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "eslint .",
     "test": "vitest run"
   },
   "dependencies": {
-    "@linktrend/agent-zero-runtime": "workspace:*",
+    "@linktrend/db": "workspace:*",
     "@linktrend/linklogic-sdk": "workspace:*",
     "@linktrend/observability": "workspace:*",
     "@linktrend/shared-config": "workspace:*",
-    "@linktrend/shared-types": "workspace:*",
     "zod": "^3.25.76"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.4",
     "@types/node": "^20.19.39",
     "eslint": "^9.39.4",
-    "tsx": "^4.19.4",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.58.2",
     "vitest": "^3.2.4"
