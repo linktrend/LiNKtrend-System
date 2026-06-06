@@ -61,6 +61,18 @@ import {
   DEPLOY_HANDLE,
   COMPILE_HANDOFF_HANDLE,
 } from "./linkapps.js";
+import {
+  bootstrapLinksuitegenWorkflows,
+  LINKSUITEGEN_CRM_STEP_HANDLE,
+  LINKSUITEGEN_ODOO_LEAD_CREATE_HANDLE,
+} from "./linksuitegen.js";
+import {
+  bootstrapLinkdeveloperWorkflows,
+  LINKDEVELOPER_ARTIFACT_WRITE_HANDLE,
+  LINKDEVELOPER_ISSUE_DISPATCH_HANDLE,
+  LINKDEVELOPER_PRODUCT_RUN_BOOTSTRAP_HANDLE,
+  LINKDEVELOPER_VALIDATION_RECORD_HANDLE,
+} from "./linkdeveloper.js";
 
 /**
  * Bootstrap all WebsiteFactory workflows.
@@ -251,7 +263,23 @@ export function bootstrapAllWorkflows(deps: {
 }): void {
   bootstrapWebsiteFactoryWorkflows(deps);
   bootstrapLexosWorkflows(deps);
+  bootstrapLinksuitegenWorkflows(deps);
+  bootstrapLinkdeveloperWorkflows(deps);
 }
+
+export {
+  bootstrapLinksuitegenWorkflows,
+  LINKSUITEGEN_CRM_STEP_HANDLE,
+  LINKSUITEGEN_ODOO_LEAD_CREATE_HANDLE,
+};
+
+export {
+  bootstrapLinkdeveloperWorkflows,
+  LINKDEVELOPER_PRODUCT_RUN_BOOTSTRAP_HANDLE,
+  LINKDEVELOPER_ISSUE_DISPATCH_HANDLE,
+  LINKDEVELOPER_VALIDATION_RECORD_HANDLE,
+  LINKDEVELOPER_ARTIFACT_WRITE_HANDLE,
+};
 
 export {
   RENDER_HANDLE as WEBSITE_FACTORY_RENDER_HANDLE,
