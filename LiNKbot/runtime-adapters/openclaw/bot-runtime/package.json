@@ -12,6 +12,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@linktrend/agent-zero-runtime": "workspace:*",
     "@linktrend/linklogic-sdk": "workspace:*",
     "@linktrend/observability": "workspace:*",
     "@linktrend/shared-config": "workspace:*",

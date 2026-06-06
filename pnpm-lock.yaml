@@ -240,6 +240,9 @@ importers:
 
   LiNKbot/runtime-adapters/openclaw/bot-runtime:
     dependencies:
+      '@linktrend/agent-zero-runtime':
+        specifier: workspace:*
+        version: link:../../agent-zero/bot-runtime
       '@linktrend/linklogic-sdk':
         specifier: workspace:*
         version: link:../../../../packages/linklogic-sdk
