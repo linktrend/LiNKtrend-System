@@ -8,6 +8,7 @@ This registry tracks tenant-enabled **Suites** (product packages). A suite may b
 | --- | --- | --- | --- | --- |
 | `linksites` | Active MVO | Lead-to-preview-site WebsiteFactory flow. | `/Users/linktrend/Projects/LiNKsites` | Declarations in `suites/linksites/`. LiNKaios integration code still lives under `LiNKaios/linkaios-web/src/lib/plugins/` (WebsiteFactory, LinkApps); target folder is `lib/suite-integrations/` — not renamed yet. |
 | `linkapps` | Active discovery | App factory for venture software creation. | `/Users/linktrend/Projects/LiNKapps` | Declarations in `suites/linkapps/` (where present). LiNKaios reads LinkApps fixtures/handlers from `lib/plugins/linkapps/` today. |
+| `linkdeveloper` | Active discovery | Software development lifecycle suite (Client: Linktrend v1). | `https://github.com/linktrend/LiNKdeveloper` (`/Users/linktrend/Projects/LiNKdeveloper`) | Declarations in `suites/linkdeveloper/`. Client operator UX + Zulip; Admin support API optional. Forward plan: `LiNKdev/product/reports/linktrend-system/STUDIO_FORWARD_PLAN.md`. |
 | `linktrend-media` | Planned | Content and marketing production workflows. | TBD | Uses Postiz/Listmonk/Typebot/asset generation and other marketing capabilities as approved. |
 | `lexos/litigation` | Active discovery | LEXOS litigation practice workflow. | `/Users/linktrend/Projects/LiNKtrend-LEXOS` | First practice area in LEXOS suite family. |
 | `lexos/intellectual-property` | Reserved | Future LEXOS IP practice area. | `/Users/linktrend/Projects/LiNKtrend-LEXOS` | No workflow invented yet. |

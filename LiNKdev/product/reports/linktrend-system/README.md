@@ -1,31 +1,19 @@
-# LinkSites MVO run manifest
+# Linktrend System — product reports
 
-After a successful kernel E2E (`./scripts/run-mvo-linksites-demo.sh` with Supabase env), the harness writes:
+## Active forward plan
 
-`LiNKdev/product/reports/linktrend-system/mvo-latest-run.json` (gitignored)
+**`STUDIO_FORWARD_PLAN.md`** — canonical cross-repo implementation plan (Waves 0–12):
 
-Copy `mvo-latest-run.example.json` for shape reference.
+- LiNKaios Admin + Client
+- LiNKbot-core (5 OpenClaw profiles)
+- link-agentzero (8 lanes)
+- LiNKautowork automations
+- LiNKsites, LiNKsuitegen, LiNKdeveloper
+- DigitalOcean launch → Hetzner migration
 
-## Prerequisites (local dev)
+Fleet policy: `docs/ecosystem/FLEET_AND_RUNTIME_POLICY.md`
 
-Apply database migrations so `linkaios.traces.project_id` exists (Mission → Project wave):
+## MVO proof
 
-```bash
-pnpm db:migrate
-# or: supabase db push (when using Supabase CLI against your project)
-```
-
-Required migrations include:
-
-- `services/migrations/033_linkaios_project_terminology.sql` — renames `mission_id` → `project_id` on `linkaios.traces`
-- `supabase/migrations/202606010002_project_run_spine.sql` — project ↔ run spine RPCs
-
-Without `033`, UI queries selecting `project_id` against an unmigrated DB will fail; legacy DBs still expose `mission_id` only.
-
-## UI surfaces
-
-| Surface | Reads |
-|---------|--------|
-| `/devtools/mvo-proof` | `mvo-latest-run.json` when present, else static sample (labeled) |
-| `/projects/[id]?tab=phases` | `get_project_run_spine` + `get_run_stages` from Supabase |
-| `/work/alerts` | `linkaios.traces` via `project_id` column |
+- `MVO_AREA1_PROOF_2026-06-02.md`
+- `mvo-latest-run.json` (gitignored; see `mvo-latest-run.example.json`)
