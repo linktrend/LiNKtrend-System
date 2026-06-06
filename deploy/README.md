@@ -66,6 +66,7 @@ One **Compose project name** per stack on the VPS. The LiNKaios monorepo stack u
 | `/opt/linktrend/n8n/deploy/prod` | `docker-compose.yml` | **`prod`** |
 | `/opt/linktrend/cms` | `docker-compose.deploy.yml` | **`cms`** |
 | `/opt/linktrend/linkbot-core` | `docker-compose.deploy.yml` | **`linkbot-core`** |
+| `/opt/linktrend/link-llm-council` | `docker-compose.deploy.yml` | **`link-llm-council`** |
 | `/opt/linktrend/traefik/deploy` | `docker-compose.yml` | **`deploy`** |
 
 Traefik runs on external network **`linktrend-network`** (referenced as `traefik` in LiNKaios compose).
@@ -100,6 +101,9 @@ cd /opt/linktrend/cms && docker compose -f docker-compose.deploy.yml up -d --rem
 
 # OpenClaw gateway (LiNKbot)
 cd /opt/linktrend/linkbot-core && docker compose -f docker-compose.deploy.yml up -d --remove-orphans
+
+# LLM Council API (Wave 3)
+cd /opt/linktrend/link-llm-council && docker compose -f docker-compose.deploy.yml up -d --remove-orphans
 ```
 
 ### Health URLs (Tailscale / internal DNS)
@@ -111,6 +115,7 @@ cd /opt/linktrend/linkbot-core && docker compose -f docker-compose.deploy.yml up
 | App1 preview | `https://app1.linktrend.internal` |
 | n8n | `https://n8n.linktrend.internal` |
 | LiNKbot gateway | `https://linkbot.linktrend.internal/healthz` |
+| LLM Council API | `https://llm-council.linktrend.internal/healthz` |
 
 ### LiNKbot-core (OpenClaw gateway)
 
@@ -122,7 +127,7 @@ From `/opt/linktrend/linkbot-core`:
 docker compose -f docker-compose.deploy.yml up -d --build --remove-orphans
 ```
 
-Agents in `deploy/prod/openclaw.json`: `linksites-builder` (default), `linksites-ops`, `lisa`, `librarian`.
+**Fleet v1 target** (see `LiNKdev/product/reports/linktrend-system/STUDIO_FORWARD_PLAN.md` Wave 1): `admin-openclaw`, `ceo-client`, `linksites-head`, `linkdeveloper-orchestrator`, `linkdeveloper-steward` — five profiles on one `openclaw-gateway`. Legacy agents in `openclaw.json` until Wave 1 lands.
 
 **bot-runtime → gateway (LiNKaios stack):** set in rendered linkaios runtime env:
 

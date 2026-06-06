@@ -114,6 +114,18 @@ export {
   getCapabilityHandler,
 } from "./capability-handlers.js";
 
+export {
+  handleLlmCouncilDeliberation,
+  mapDeliberationToCouncilReport,
+  validateCouncilReport,
+  COUNCIL_GATES,
+  COUNCIL_PERSONA_IDS,
+  type CouncilGate,
+  type CouncilReport,
+  type LlmCouncilDeliberationArgs,
+  type LlmCouncilDeliberationResult,
+} from "./llm-council-handler.js";
+
 // Audit events
 export {
   buildLeaseRequestedEvent,

@@ -138,6 +138,10 @@ const envSchema = z.object({
    * Optional for MVO — if not set, LiNKbot operates in stub mode for testing.
    */
   OPENROUTER_API_KEY: optionalNonEmpty(),
+  /** link-llm-council API base (in-container DNS on linktrend-network). */
+  LLM_COUNCIL_BASE_URL: optionalNonEmpty(),
+  /** mock | shadow | live — cap.llm_council.deliberation execution mode. */
+  LLM_COUNCIL_MODE: z.enum(["mock", "shadow", "live"]).optional(),
   /** Integration provider selector. Keep `stub` by default for no external writes. */
   CRM_PROVIDER: z.enum(["stub", "chatwoot"]).optional(),
   /** Integration execution mode. Keep `stub_write` by default for no external writes. */

@@ -14,7 +14,7 @@
   "properties": {
     "gate": {
       "type": "string",
-      "enum": ["G1", "G2", "G3", "G4"]
+      "enum": ["G1", "G2", "G3", "G4", "G5"]
     },
     "program_id": {
       "type": "string",

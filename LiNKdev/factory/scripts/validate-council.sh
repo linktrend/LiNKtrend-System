@@ -7,7 +7,7 @@ EXPECTED_GATE=""
 ALLOW_WARN=0
 
 usage() {
-  echo "usage: validate-council.sh <report.json> [--gate G1|G2|G3|G4] [--allow-warn]" >&2
+  echo "usage: validate-council.sh <report.json> [--gate G1|G2|G3|G4|G5] [--allow-warn]" >&2
   exit 2
 }
 
@@ -55,7 +55,7 @@ REQUIRED_PERSONAS = [
     "qa-advisor",
     "product-advisor",
 ]
-VALID_GATES = {"G1", "G2", "G3", "G4"}
+VALID_GATES = {"G1", "G2", "G3", "G4", "G5"}
 VALID_VERDICTS = {"PASS", "WARN", "BLOCKER"}
 VALID_EVIDENCE_TYPES = {"file", "command", "report", "narrative"}
 
