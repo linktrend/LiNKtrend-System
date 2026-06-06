@@ -78,6 +78,9 @@ services:
   # bot-runtime reaches OpenClaw via container DNS on linktrend-network:
   # OPENCLAW_AGENT_RUN_URL=http://openclaw-gateway:18789/v1/linktrend/agent-run
 
+  # LiNKsuitegen factory API (Wave 10) — see LiNKsuitegen/deploy/docker-compose.linksuitegen.yml
+  # linksuitegen-api exposes :3099 on linkdroplet-00; compose file lives in LiNKsuitegen repo.
+
   linkguard:
     build:
       context: .

@@ -1,16 +1,15 @@
 /**
- * Suite role → OpenClaw agentId (mirrors LiNKaios suite-role-mapping.ts).
+ * Suite role → OpenClaw agentId barrel (fleet v1).
  */
 
-const ROLE_TO_AGENT: Record<string, string> = {
-  lead_scout_bot: "linksites-builder",
-  research_enrichment_bot: "linksites-builder",
-  website_builder_bot: "linksites-builder",
-  outreach_bot: "linksites-ops",
-  librarian_bot: "librarian",
-};
+import { OPENCLAW_ROLE_TO_AGENT } from "./fleet-runtime-mappings.js";
 
-/** Resolve OpenClaw agentId for a LiNKbot role_id. */
+/** Resolve OpenClaw agentId for a LiNKbot role_id. Returns null when role uses Agent Zero or automation only. */
 export function openClawAgentIdForRole(roleId: string): string | null {
-  return ROLE_TO_AGENT[roleId] ?? null;
+  return OPENCLAW_ROLE_TO_AGENT[roleId] ?? null;
+}
+
+/** All role_ids with a fleet v1 OpenClaw mapping (for tests and dispatch guards). */
+export function listOpenClawMappedRoleIds(): string[] {
+  return Object.keys(OPENCLAW_ROLE_TO_AGENT);
 }

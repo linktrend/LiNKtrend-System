@@ -201,8 +201,51 @@ importers:
         specifier: ^3.2.4
         version: 3.2.4(@types/node@20.19.39)(jiti@2.6.1)(lightningcss@1.32.0)(msw@2.14.6(@types/node@20.19.39)(typescript@5.9.3))(tsx@4.21.0)
 
+  LiNKbot/runtime-adapters/agent-zero/bot-runtime:
+    dependencies:
+      '@linktrend/db':
+        specifier: workspace:*
+        version: link:../../../../packages/db
+      '@linktrend/linklogic-sdk':
+        specifier: workspace:*
+        version: link:../../../../packages/linklogic-sdk
+      '@linktrend/observability':
+        specifier: workspace:*
+        version: link:../../../../packages/observability
+      '@linktrend/shared-config':
+        specifier: workspace:*
+        version: link:../../../../packages/shared-config
+      zod:
+        specifier: ^3.25.76
+        version: 3.25.76
+    devDependencies:
+      '@eslint/js':
+        specifier: ^9.39.4
+        version: 9.39.4
+      '@types/node':
+        specifier: ^20.19.39
+        version: 20.19.39
+      eslint:
+        specifier: ^9.39.4
+        version: 9.39.4(jiti@2.6.1)
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+      typescript-eslint:
+        specifier: ^8.58.2
+        version: 8.59.0(eslint@9.39.4(jiti@2.6.1))(typescript@5.9.3)
+      vitest:
+        specifier: ^3.2.4
+        version: 3.2.4(@types/node@20.19.39)(jiti@2.6.1)(lightningcss@1.32.0)(msw@2.14.6(@types/node@20.19.39)(typescript@5.9.3))(tsx@4.21.0)
+
   LiNKbot/runtime-adapters/openclaw/bot-runtime:
     dependencies:
+      '@linktrend/agent-zero-runtime':
+        specifier: workspace:*
+        version: link:../../agent-zero/bot-runtime
+      '@linktrend/db':
+        specifier: workspace:*
+        version: link:../../../../packages/db
       '@linktrend/linklogic-sdk':
         specifier: workspace:*
         version: link:../../../../packages/linklogic-sdk

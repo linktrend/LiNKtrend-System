@@ -15,6 +15,8 @@ import {
 } from "./local-types.js";
 import { BotLeaseRequest } from "./types.js";
 
+export type { BotLeaseRequest };
+
 /**
  * Lease adapter configuration
  */

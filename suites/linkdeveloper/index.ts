@@ -1,0 +1,47 @@
+/**
+ * LiNKdeveloper suite — declaration exports for LiNKtrend-System registry.
+ *
+ * @packageDocumentation
+ */
+
+export {
+  LINKDEVELOPER_ADMIN_CROSS_TENANT_SUPPORT,
+  LINKDEVELOPER_ENTITLED_TENANT_SLUGS,
+  LINKDEVELOPER_EXTERNAL_REPO_LOCAL_PATH,
+  LINKDEVELOPER_ROLE_IDS,
+  LINKDEVELOPER_REQUIRED_CAPABILITIES,
+  LINKDEVELOPER_SUITE_ID,
+  LINKDEVELOPER_UI_PANELS,
+  LINKDEVELOPER_VERSION,
+  LINKDEVELOPER_VISIBILITY,
+  LINKDEVELOPER_WORK_REQUEST_TYPES,
+  LINKDEVELOPER_WORKFLOW_HANDLES,
+  LINKDEVELOPER_WORKFLOW_MODULES,
+  LinkDeveloperManifest,
+} from "./manifest";
+
+export type {
+  LinkDeveloperExtendedManifest,
+  LinkDeveloperVisibility,
+} from "./manifest";
+
+export {
+  LINKDEVELOPER_EXTERNAL_REPO,
+  LINKDEVELOPER_EXTERNAL_REPO_LOCAL,
+  LINKDEVELOPER_IMPLEMENTATION_PACKAGE_REF,
+  LINKDEVELOPER_MANIFEST_LOADER_PATH,
+  LINKDEVELOPER_MANIFEST_SCHEMA_PATH,
+  LINKDEVELOPER_MODULE_CATALOGUE_HOOK,
+  LINKDEVELOPER_MODULE_KEYS,
+  LINKDEVELOPER_SUITE_MANIFEST_PATH,
+  LINKDEVELOPER_SUITE_MAP_REF,
+  resolveModuleCatalogueManifestRef,
+} from "./module-catalogue";
+
+export type {
+  LinkDeveloperModuleCatalogueHook,
+  LinkDeveloperModuleKey,
+  ModuleCatalogueResolveOptions,
+} from "./module-catalogue";
+
+export const VERSION = "1.0.0";

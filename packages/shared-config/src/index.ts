@@ -138,6 +138,18 @@ const envSchema = z.object({
    * Optional for MVO — if not set, LiNKbot operates in stub mode for testing.
    */
   OPENROUTER_API_KEY: optionalNonEmpty(),
+  /** Agent Zero worker base URL (in-container DNS: http://agent-zero:80). */
+  AGENT_ZERO_WORKER_URL: optionalNonEmpty(),
+  /** Agent Zero mission POST timeout (ms). Default 120000. */
+  AGENT_ZERO_REQUEST_TIMEOUT_MS: optionalNonEmpty(),
+  /** Capability lease TTL for AZ lane execution (seconds). Default 300. */
+  AGENT_ZERO_LEASE_TTL_SECONDS: optionalNonEmpty(),
+  /** `1` = stub worker responses (local/CI); unset = live POST to link-agentzero. */
+  AGENT_ZERO_STUB_MODE: z.string().optional(),
+  /** Ingress bearer for link-agentzero mission API (GSM: LINKTREND_AIOS_PROD_AGENTZERO_INGRESS_TOKEN). */
+  AGENT_ZERO_INGRESS_TOKEN: optionalNonEmpty(),
+  /** LiNKdeveloper HTTP service (Wave 5.8). When set, Admin/Client use live API instead of in-memory stub. */
+  LINKDEVELOPER_SERVICE_URL: optionalNonEmpty(),
   /** Integration provider selector. Keep `stub` by default for no external writes. */
   CRM_PROVIDER: z.enum(["stub", "chatwoot"]).optional(),
   /** Integration execution mode. Keep `stub_write` by default for no external writes. */
