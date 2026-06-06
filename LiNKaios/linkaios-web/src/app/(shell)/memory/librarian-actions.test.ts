@@ -3,6 +3,14 @@ import { describe, expect, it, vi } from "vitest";
 vi.mock("@/lib/supabase/server", () => ({
   createSupabaseServerClient: vi.fn(),
 }));
+vi.mock("@/lib/supabase-admin", () => ({
+  getSupabaseAdmin: vi.fn(),
+}));
+vi.mock("../../../../../../LiNKbrain/librarian/persistence", () => ({
+  finalizeLibrarianKnowledgeProposal: vi.fn(),
+  getKnowledgeProposalByVersionId: vi.fn(),
+  getKnowledgeProposalFromDb: vi.fn(),
+}));
 vi.mock("next/cache", () => ({
   revalidatePath: vi.fn(),
 }));
