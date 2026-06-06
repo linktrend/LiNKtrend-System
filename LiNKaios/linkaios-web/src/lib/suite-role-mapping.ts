@@ -1,9 +1,11 @@
 /**
- * LinkSites suite role → runtime identity mapping (OpenClaw, Plane, Zulip).
+ * LinkSites suite role → runtime identity mapping (fleet v1).
  *
- * User-facing suite roles (lead scout, website builder, outreach, librarian) map to
- * LiNKbot role_ids, OpenClaw agentIds on linkbot.linktrend.internal, Plane service
- * users, and Zulip bot emails (GSM-backed on VPS).
+ * Synced with LiNKbot/roles/suites/linksites/* (Wave 1 / Wave 5).
+ * User-facing suite role keys map to LiNKbot role_ids, OpenClaw agentIds,
+ * Plane assignees, and Zulip bot env keys.
+ *
+ * @see docs/ecosystem/FLEET_AND_RUNTIME_POLICY.md
  */
 
 export type SuiteRoleKey =
@@ -20,12 +22,19 @@ export const SUITE_ROLE_TO_LINKBOT_ROLE: Record<SuiteRoleKey, string> = {
   librarian: "librarian_bot",
 };
 
-/** OpenClaw gateway agentId (LiNKbot-core deploy/prod/openclaw.json). */
-export const SUITE_ROLE_TO_OPENCLAW_AGENT: Record<SuiteRoleKey, string> = {
-  lead_scout: "linksites-builder",
-  website_builder: "linksites-builder",
-  outreach: "linksites-ops",
-  librarian: "librarian",
+/**
+ * OpenClaw gateway agentId when role uses OpenClaw head (fleet v1).
+ * Research/build/librarian use Agent Zero — no OpenClaw mapping.
+ */
+export const SUITE_ROLE_TO_OPENCLAW_AGENT: Partial<Record<SuiteRoleKey, string>> = {
+  outreach: "linksites-head",
+};
+
+/** Agent Zero lanes for roles not on OpenClaw (fleet v1). */
+export const SUITE_ROLE_TO_AGENT_ZERO_LANE: Partial<Record<SuiteRoleKey, string>> = {
+  lead_scout: "az-linksites-research",
+  website_builder: "az-linksites-build",
+  librarian: "az-librarian",
 };
 
 /**
@@ -50,7 +59,21 @@ export const SUITE_ROLE_TO_ZULIP_BOT_ENV: Record<SuiteRoleKey, string> = {
 export function openClawAgentForRole(roleId: string): string | null {
   const entry = Object.entries(SUITE_ROLE_TO_LINKBOT_ROLE).find(([, v]) => v === roleId);
   if (!entry) return null;
-  return SUITE_ROLE_TO_OPENCLAW_AGENT[entry[0] as SuiteRoleKey];
+  return SUITE_ROLE_TO_OPENCLAW_AGENT[entry[0] as SuiteRoleKey] ?? null;
+}
+
+export function agentZeroLaneForSuiteRole(roleId: string): string | null {
+  switch (roleId) {
+    case "lead_scout_bot":
+    case "research_enrichment_bot":
+      return "az-linksites-research";
+    case "website_builder_bot":
+      return "az-linksites-build";
+    case "librarian_bot":
+      return "az-librarian";
+    default:
+      return null;
+  }
 }
 
 export function planeAssigneeForRole(roleId: string): string | null {
