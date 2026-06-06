@@ -32,11 +32,13 @@ Wave 5 wires LiNKaios kernel fleet policy into code: `runtime_tier` on suite iss
 
 ## Test results
 
-```text
-pnpm --filter @linktrend/bot-runtime test
-pnpm --filter @linktrend/linkaios-web test -- src/lib/kernel/fleet src/lib/suite-role-mapping src/lib/admin/linksuitegen/machine-review/openclaw-dispatch
-node scripts/validate-runtime-tiers.mjs
-```
+**Status: PASS** (2026-06-06)
+
+| Command | Result |
+|---------|--------|
+| `pnpm --filter @linktrend/bot-runtime test` | 19 files, 121 tests — pass |
+| `pnpm exec vitest run` (kernel/fleet + mapping + openclaw-dispatch) | 6 files, 16 tests — pass |
+| `node scripts/validate-runtime-tiers.mjs` | pass |
 
 ## Integrator
 
