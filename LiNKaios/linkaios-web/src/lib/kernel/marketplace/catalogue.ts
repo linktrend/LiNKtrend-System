@@ -29,7 +29,8 @@ type ManifestMarketplace = {
   };
 };
 
-function parseMarketplaceMeta(
+/** @internal Exported for unit tests (Wave 6.4). */
+export function parseMarketplaceMeta(
   pluginId: string,
   manifest: ManifestMarketplace,
   purpose: string,
@@ -37,7 +38,8 @@ function parseMarketplaceMeta(
   status: string,
 ): MarketplaceCatalogueItem | null {
   const m = manifest.marketplace;
-  const listed = m?.marketplace_listed ?? pluginId === "websitefactory" || pluginId === "linksites";
+  const listed =
+    m?.marketplace_listed ?? (pluginId === "websitefactory" || pluginId === "linksites");
   const clientVisible = m?.client_visible ?? true;
   if (!listed || !clientVisible) return null;
 

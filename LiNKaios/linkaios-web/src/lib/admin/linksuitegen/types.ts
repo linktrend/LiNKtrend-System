@@ -70,7 +70,7 @@ export type HandoffImportBody = {
   suite_family: string;
   suite_version: string;
   bundle_path: string;
-  validation_status: string;
+  validation_status: "validated" | "failed" | "pending";
   display_name?: string;
   target_context?: Record<string, unknown>;
   admin_install_target?: { admin_only_source_suite?: boolean };

@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { getProjectById } from "@linktrend/linklogic-sdk";
 
 import { LeadLinkbotAffordance } from "@/components/lead-linkbot-affordance";
+import { ProjectChannelParityPanel } from "@/components/project-channel-parity-panel";
 import { ProjectCreatedBanner } from "@/components/projects/project-created-banner";
 import { ProjectDetailMetaGrid } from "@/components/project-detail-meta-grid";
 import { ProjectDetailTabNav } from "@/components/project-detail-tab-nav";
@@ -189,6 +190,8 @@ export default async function MissionDetailPage(props: {
         />
         <ProjectWorkflowProgress percent={projectWorkflowProgressPercent(demo.status)} />
 
+        <ProjectChannelParityPanel projectId={demo.id} projectTitle={demo.title} />
+
         <ProjectDetailTabNav missionId={id} tab={tab} />
 
         <DemoMissionTabs spec={demo} tab={tab} missionId={id} />
@@ -255,6 +258,8 @@ export default async function MissionDetailPage(props: {
       />
 
       <ProjectWorkflowProgress percent={projectWorkflowProgressPercent(m.status)} />
+
+      <ProjectChannelParityPanel projectId={m.id} projectTitle={m.title} />
 
       <ProjectDetailTabNav missionId={m.id} tab={tab} />
 

@@ -15,6 +15,16 @@ export type CompanyFixture = {
 
 export const COMPANY_FIXTURES: CompanyFixture[] = [
   {
+    id: "linktrend-studio",
+    name: "LiNKtrend Venture Studio LLC",
+    code: "LNK",
+    industry: "Venture studio",
+    displayName: "LiNKtrend",
+    description: "AI-native venture studio operating LinkSites and LiNKdeveloper on LiNKaios Client.",
+    website: "https://linktrend.media",
+    userCount: 4,
+  },
+  {
     id: "xyz-marketing",
     name: "XYZ Marketing Agency LLC",
     code: "XYZ",
@@ -87,6 +97,24 @@ export type ModuleSubscriptionFixture = {
 };
 
 const MODULES_BY_COMPANY: Record<string, ModuleSubscriptionFixture[]> = {
+  "linktrend-studio": [
+    {
+      id: "linksites",
+      moduleId: "linksites",
+      module: "LinkSites",
+      description: "Lead-to-preview website factory — MVO commercial loop for studio outreach.",
+      status: "active",
+      plan: "Enterprise",
+    },
+    {
+      id: "linkdeveloper",
+      moduleId: "linkdeveloper",
+      module: "LiNKdeveloper",
+      description: "Client-only software factory — product runs through governed gates on Linktrend tenant.",
+      status: "active",
+      plan: "Enterprise",
+    },
+  ],
   "xyz-marketing": [
     {
       id: "linksites",

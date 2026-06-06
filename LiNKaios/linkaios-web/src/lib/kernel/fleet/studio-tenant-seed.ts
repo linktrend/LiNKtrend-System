@@ -4,8 +4,8 @@
  * SQL: supabase/migrations/20260606140000_wave6_7_studio_tenants.sql
  */
 
-import { buildTenantFleetProvision } from "./tenant-provision";
-import { subscribeSuiteFleet, type FleetOpenClawSlot } from "./suite-subscribe";
+import { buildTenantFleetProvision, type FleetOpenClawSlot } from "./tenant-provision";
+import { subscribeSuiteFleet } from "./suite-subscribe";
 
 export const STUDIO_ADMIN_TENANT_SLUG = "linktrend-admin";
 export const STUDIO_CLIENT_TENANT_SLUG = "linktrend";
