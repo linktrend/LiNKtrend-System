@@ -26,7 +26,7 @@ export async function postLinksuitegenOpenClawRun(
     headers.authorization = `Bearer ${env.OPENCLAW_RUN_AUTH_BEARER.trim()}`;
   }
 
-  const body = {
+  const body: Record<string, unknown> = {
     ...buildOpenClawAgentIngressBody(env, governance),
     message,
   };
