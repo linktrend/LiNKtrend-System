@@ -9,7 +9,7 @@ RUN corepack enable && corepack prepare pnpm@10.26.1 --activate
 
 FROM base AS pruner
 COPY . .
-RUN pnpm dlx turbo@2.9.6 prune @linktrend/bot-runtime --docker --out-dir=/prune
+RUN pnpm dlx turbo@2.9.6 prune @linktrend/bot-runtime @linktrend/agent-zero-runtime --docker --out-dir=/prune
 
 FROM base AS build
 COPY --from=pruner /prune/json/ .
@@ -17,7 +17,7 @@ COPY --from=pruner /prune/pnpm-lock.yaml ./pnpm-lock.yaml
 RUN pnpm install --frozen-lockfile
 COPY --from=pruner /prune/full/ .
 COPY tsconfig.base.json /app/tsconfig.base.json
-RUN pnpm exec turbo run build --filter=@linktrend/bot-runtime
+RUN pnpm exec turbo run build --filter=@linktrend/bot-runtime --filter=@linktrend/agent-zero-runtime
 RUN pnpm --filter @linktrend/bot-runtime deploy --prod --legacy /out/app
 
 FROM node:${NODE_VERSION}-bookworm-slim AS runner
