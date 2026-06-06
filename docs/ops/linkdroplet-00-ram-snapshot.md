@@ -74,3 +74,26 @@ Swap:            0B          0B          0B
 - `STUDIO_FORWARD_PLAN.md` Wave 11.5, §5 RAM note
 - `LiNKdev/product/reports/linktrend-system/wave11-do-acceptance.md`
 - `docs/deploy/WAVE12_HETZNER_MIGRATION_DEFERRED.md`
+
+## Snapshot — 2026-06-06T07:45:01Z
+
+**Host:** LiNKtrend-Mini.local  
+**Load context:** Wave 11.5 acceptance re-run
+
+### free -h
+
+```
+free unavailable
+```
+
+### docker stats (snapshot)
+
+```
+
+```
+
+### peak notes (operator)
+
+- Record peak RSS during parallel Agent Zero lanes + OpenClaw sub-agents.
+- Compare against 16 GB DO minimum; Hetzner 64 GB migration is **deferred** (Wave 12).
+
