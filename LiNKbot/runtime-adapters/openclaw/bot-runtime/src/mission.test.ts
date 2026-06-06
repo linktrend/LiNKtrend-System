@@ -109,6 +109,7 @@ describe("Mission Management", () => {
     });
 
     it("should execute outreach_bot with governed draft in MVO", async () => {
+      process.env.NODE_ENV = "development";
       process.env.MOCK_CONTEXT = "true";
       process.env.MOCK_AUDIT = "true";
 
@@ -130,6 +131,7 @@ describe("Mission Management", () => {
     });
 
     it("should dispatch approved outreach when principal_approval is true", async () => {
+      process.env.NODE_ENV = "development";
       process.env.MOCK_CONTEXT = "true";
       process.env.MOCK_AUDIT = "true";
 
@@ -156,6 +158,7 @@ describe("Mission Management", () => {
     });
 
     it("should block live outreach without principal approval", async () => {
+      process.env.NODE_ENV = "development";
       process.env.MOCK_CONTEXT = "true";
       process.env.MOCK_AUDIT = "true";
 

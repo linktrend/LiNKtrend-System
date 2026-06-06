@@ -9,7 +9,7 @@ echo "==> LinkSites outreach phase tests"
 pnpm dlx vitest run suites/linksites/phases/outreach --root .
 
 echo "==> Bot-runtime mission outreach governance"
-pnpm dlx vitest run LiNKbot/runtime-adapters/openclaw/bot-runtime/src/mission.test.ts --root .
+NODE_ENV=development pnpm dlx vitest run LiNKbot/runtime-adapters/openclaw/bot-runtime/src/mission.test.ts --root .
 
 echo "==> LiNKautowork outreach_dispatch workflow"
 cd LiNKautowork/gateway

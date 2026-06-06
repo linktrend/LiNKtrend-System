@@ -23,9 +23,12 @@ Wave 9 closes LinkSites production gaps after Area 1 proof: monorepo-root CMS Do
 ## Verify locally
 
 ```bash
-bash LiNKtrend-System/scripts/verify-wave9-linksites.sh
-bash LiNKsites/scripts/verify-docker-build.sh   # optional; builds images
+bash scripts/verify-wave9-linksites.sh
+# optional Docker build (long-running):
+bash ../LiNKsites/scripts/verify-docker-build.sh
 ```
+
+**2026-06-06 local pass:** outreach phase 2/2, mission 16/16, linksites-v2 15/15.
 
 ## Operator follow-up (DO)
 
