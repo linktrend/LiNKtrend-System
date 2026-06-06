@@ -81,6 +81,21 @@ describe("N8nHttpClient", () => {
     expect(fetchMock.mock.calls[1]?.[0]).toBe("http://127.0.0.1:5678/webhook/test-n8n");
   });
 
+  it("accepts empty JSON bodies from n8n production webhooks", async () => {
+    process.env.N8N_WORKFLOW_IDS = JSON.stringify({
+      "autowork.linkdeveloper.product_run_bootstrap": "8730597a-7e19-430a-8118-845464093bf5",
+    });
+
+    const fetchMock = vi.fn().mockResolvedValueOnce(new Response("", { status: 200 }));
+    global.fetch = fetchMock as typeof fetch;
+
+    const client = new N8nHttpClient({ baseUrl: "http://127.0.0.1:5678" });
+    const executed = await client.executeWorkflow("autowork.linkdeveloper.product_run_bootstrap", { k: "v" });
+
+    expect(executed.executionId).toBeTruthy();
+    expect(executed.result).toBeUndefined();
+  });
+
   it("uses n8n 2.14 production webhook path when workflow id is mapped", async () => {
     process.env.N8N_WORKFLOW_IDS = JSON.stringify({
       "autowork.linkdeveloper.product_run_bootstrap": "8730597a-7e19-430a-8118-845464093bf5",

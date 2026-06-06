@@ -99,7 +99,11 @@ export class N8nHttpClient implements N8nClient {
       if (response.status === 204) {
         return {} as T;
       }
-      return await response.json() as T;
+      const raw = await response.text();
+      if (!raw.trim()) {
+        return {} as T;
+      }
+      return JSON.parse(raw) as T;
     } finally {
       clearTimeout(timeout);
     }
