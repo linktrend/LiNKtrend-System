@@ -45,6 +45,7 @@ export async function invokeGovernedCapability(
   );
 
   const leaseRequest: BotLeaseRequest = {
+    session_id: invocation.session_id,
     tenant_id: invocation.tenant_id,
     run_id: invocation.run_id,
     stage_id: invocation.stage_id,
@@ -88,7 +89,9 @@ export async function invokeGovernedCapability(
   recordBotSkillTrace({
     session_id: invocation.session_id,
     skill_id: invocation.capability,
-    disclosed_at: new Date().toISOString(),
+    skill_name: invocation.capability,
+    captured_at: new Date().toISOString(),
+    trace_digest: invocation.capability,
   });
 
   const auditIds: string[] = [];

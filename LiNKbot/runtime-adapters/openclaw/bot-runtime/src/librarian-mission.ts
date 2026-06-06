@@ -156,15 +156,17 @@ export async function executeLibrarianKnowledgeLoop(
           `librarian-proposal-${request.run_id}-${request.stage_id}`;
         proposal =
           getKnowledgeProposal(proposalId) ??
-          buildKnowledgeProposal({
-            tenant_id: request.tenant_id,
-            run_id: request.run_id,
-            stage_id: request.stage_id,
-            project_id: ingest.project_id,
-            run_outputs: ingest.run_outputs,
-            zulip_thread_refs: ingest.zulip_thread_refs,
-            proposal_id: proposalId,
-          });
+          buildKnowledgeProposal(
+            {
+              tenant_id: request.tenant_id,
+              run_id: request.run_id,
+              stage_id: request.stage_id,
+              project_id: ingest.project_id,
+              run_outputs: ingest.run_outputs,
+              zulip_thread_refs: ingest.zulip_thread_refs,
+            },
+            { proposal_id: proposalId },
+          );
       }
     } else {
       proposal = buildKnowledgeProposal({
