@@ -1,0 +1,26 @@
+---
+description: Fleet v1, runtime ladder, tenant isolation — read before kernel/fleet or bot-runtime dispatch work
+globs:
+  - LiNKaios/linkaios-web/src/lib/kernel/fleet/**
+  - LiNKbot/runtime-adapters/**/unified-dispatch.ts
+  - LiNKbot/runtime-adapters/**/runtime-dispatch.ts
+  - LiNKbot/roles/platform/fleet-v1-openclaw.ts
+  - LiNKbot/roles/platform/agent-zero-lanes.ts
+  - LiNKbot/roles/suites/**/openclaw-mapping.ts
+  - LiNKbot/roles/suites/**/agent-zero-mapping.ts
+  - docs/ecosystem/FLEET_AND_RUNTIME_POLICY.md
+alwaysApply: false
+---
+
+# Fleet and runtime policy
+
+Before changing fleet bindings, issue dispatch, or tenant provision:
+
+1. Read **`docs/ecosystem/FLEET_AND_RUNTIME_POLICY.md`** (canonical).
+2. OpenClaw fleet v1 = five profiles on one gateway; mappings in `LiNKbot/roles/platform/fleet-v1-openclaw.ts`.
+3. Agent Zero = eight lanes in `LiNKbot/roles/platform/agent-zero-lanes.ts`.
+4. Every issue template MUST declare `runtime_tier` (`automation` | `agent_zero` | `openclaw_head` | `openclaw_subagent` | `codex_lane` | `council`).
+5. Tenant isolation is enforced in LiNKaios kernel (`tenant_id` on runs, leases, brain context) — never rely on OpenClaw alone.
+6. Legacy LiNKaios UI mappings (`suite-role-mapping.ts`, `openclaw-dispatch.ts`) MUST stay aligned with LiNKbot suite mapping files (Wave 1).
+
+Do not add legacy OpenClaw profile names (`linksites-builder`, `librarian`, `linksuitegen-factory`, etc.) in new code.

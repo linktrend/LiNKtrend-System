@@ -1,0 +1,119 @@
+# LiNKdeveloper Software Development Lifecycle suite — declaration-only manifest (LD-17).
+# Sources: LiNKdeveloper manifest/linkdeveloper.suite.json, docs/LINKDEVELOPER_AS_SUITE_MAP.md,
+# docs/LINKAIOS_ADMIN_INTEGRATION_SPEC.md, docs/IMPLEMENTATION_PACKAGE_INDEX.md.
+# Loader integration and Admin API routes follow in LD-18+.
+
+plugin_id: linkdeveloper
+plugin_kind: vertical
+plugin_name: LiNKdeveloper Software Development Lifecycle Suite
+version: "1.0.0"
+visibility: client_entitled
+entitled_tenant_slugs:
+  - linktrend
+admin_cross_tenant_support: true
+purpose: >-
+  Governed software product lifecycle from opportunity intake through launch and continuous
+  improvement. LiNKaios Client operator UX for Linktrend tenant v1; optional Admin cross-tenant
+  support routes; Product Steward per-product memory; Suite Orchestrator control plane.
+
+external_repo: https://github.com/linktrend/LiNKdeveloper
+external_repo_local: /Users/linktrend/Projects/LiNKdeveloper
+implementation_package_ref: docs/IMPLEMENTATION_PACKAGE_INDEX.md
+module_catalogue_manifest: manifest/linkdeveloper.suite.json
+module_catalogue_loader: suite/load-manifest.mjs
+module_catalogue_schema: suite/schema.mjs
+first_proof_target: linksuitegen
+canonical_work_unit: issue
+primary_controller_role: suite_orchestrator_linkbot
+per_product_memory_owner_role: product_steward_linkbot
+
+modes_supported:
+  - development
+
+public_surfaces:
+  work_request_types:
+    - linkdeveloper.product_run.create
+    - linkdeveloper.product_run.start
+    - linkdeveloper.issue.dispatch
+    - linkdeveloper.issue.validate
+    - linkdeveloper.issue.approve
+    - linkdeveloper.issue.create_repair
+    - linkdeveloper.approval.review
+    - linkdeveloper.executor.monitor
+    - linkdeveloper.release_readiness.check
+  ui_panels:
+    - linkdeveloper.product_runs
+    - linkdeveloper.work_graph
+    - linkdeveloper.artifacts
+    - linkdeveloper.approvals
+    - linkdeveloper.executor_runs
+    - linkdeveloper.validation_results
+    - linkdeveloper.release_readiness
+  read_views:
+    - linkdeveloper.modules.catalogue
+    - linkdeveloper.product_runs.list
+
+modules:
+  - module_key: module_01_opportunity_intake
+    title: Opportunity Intake And Triage
+  - module_key: module_02_market_feasibility
+    title: Market, Feasibility, And Validation
+  - module_key: module_03_product_blueprint
+    title: Product Blueprint And Approval
+  - module_key: module_04_architecture_reuse
+    title: Architecture, Tech Stack, And Reuse Strategy
+  - module_key: module_05_implementation_planning
+    title: Implementation Planning And Work Graph
+  - module_key: module_06_development_execution
+    title: Development Execution
+  - module_key: module_07_continuous_validation
+    title: Continuous Validation And Self-Healing
+  - module_key: module_08_release_readiness
+    title: Release Readiness And Deployment
+  - module_key: module_09_launch_operations
+    title: Launch, Monitoring, And Product Operations Transition
+  - module_key: module_10_continuous_improvement
+    title: Continuous Improvement And Next Product Loop
+
+required_capabilities:
+  - cap.plane.execution_tracking
+  - cap.zulip.run_messaging
+  - cap.linkdeveloper.executor_dispatch
+  - cap.linkdeveloper.validation_run
+  - cap.linkdeveloper.artifact_persist
+
+required_workflow_hooks:
+  - autowork.linkdeveloper.product_run_bootstrap
+  - autowork.linkdeveloper.issue_dispatch
+  - autowork.linkdeveloper.validation_record
+  - autowork.linkdeveloper.artifact_write
+
+required_audit_event_prefixes:
+  - linkdeveloper.product_run
+  - linkdeveloper.issue
+  - linkdeveloper.validation
+  - linkdeveloper.approval
+  - linkdeveloper.executor
+
+required_linkbot_roles:
+  - role_id: suite_orchestrator_linkbot
+    purpose: Permanent suite controller; work graph and dispatch authority.
+  - role_id: product_steward_linkbot
+    purpose: Per-product memory owner from intake through operations transition.
+  - role_id: market_linkbot
+    purpose: Market and competitor research for validation modules.
+  - role_id: requirements_linkbot
+    purpose: PRD and blueprint refinement.
+  - role_id: architecture_linkbot
+    purpose: Architecture, stack, and reuse decisions.
+  - role_id: qa_linkbot
+    purpose: Validation strategy and quality gates.
+  - role_id: security_linkbot
+    purpose: Security review checkpoints.
+  - role_id: devops_linkbot
+    purpose: Release readiness and deployment posture.
+
+non_goals:
+  - Copying LiNKdeveloper implementation, services, or migrations into LiNKtrend-System.
+  - General client marketplace listing or tenant self-subscribe outside entitled slugs in v1.
+  - Inventing GitHub, Plane, or executor business configuration beyond connector surfaces.

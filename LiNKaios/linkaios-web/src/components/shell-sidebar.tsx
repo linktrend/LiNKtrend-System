@@ -20,6 +20,7 @@ import {
   Wrench,
 } from "lucide-react";
 
+import { AdminLinksuitegenSidebarLink } from "@/components/admin/admin-linksuitegen-sidebar";
 import { ModulesSidebarSection } from "@/components/suites/modules-sidebar-section";
 import { LicensorSuitesSidebarSection } from "@/components/suites/licensor-suites-sidebar-section";
 
@@ -316,6 +317,15 @@ export function ShellSidebar(props: {
           ) : null}
 
           {show("suites") ? (isAdmin ? <LicensorSuitesSidebarSection /> : <ModulesSidebarSection />) : null}
+
+          {isAdmin ? (
+            <div className={subMenuRail + " mt-1"}>
+              <AdminLinksuitegenSidebarLink />
+              <Link href={appHref("/admin/fleet")} className={subLinkClass(route.startsWith("/admin/fleet"))}>
+                Fleet v1
+              </Link>
+            </div>
+          ) : null}
 
           {show("metrics") ? (
             <div className="mt-1">
