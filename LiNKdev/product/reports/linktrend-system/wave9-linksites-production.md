@@ -28,7 +28,7 @@ bash scripts/verify-wave9-linksites.sh
 bash ../LiNKsites/scripts/verify-docker-build.sh
 ```
 
-**2026-06-06 local pass:** outreach phase 2/2, mission 16/16, linksites-v2 15/15.
+**2026-06-06 local pass:** outreach phase 2/2, mission 16/16, linksites-v2 15/15, fleet mapping 8/8 (`suite-role-openclaw.test.ts`).
 
 ## Operator follow-up (DO)
 

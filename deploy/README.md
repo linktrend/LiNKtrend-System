@@ -123,7 +123,7 @@ From `/opt/linktrend/linkbot-core`:
 docker compose -f docker-compose.deploy.yml up -d --build --remove-orphans
 ```
 
-Agents in `deploy/prod/openclaw.json`: `linksites-builder` (default), `linksites-ops`, `lisa`, `librarian`.
+Fleet v1 OpenClaw profiles in `LiNKbot-core/deploy/prod/openclaw.json`: `admin-openclaw`, `ceo-client`, `linksites-head`, `linkdeveloper-orchestrator`, `linkdeveloper-steward`. LinkSites research/build roles route to Agent Zero lanes (`az-linksites-research`, `az-linksites-build`); outreach uses `linksites-head`.
 
 **bot-runtime → gateway (LiNKaios stack):** set in rendered linkaios runtime env:
 
