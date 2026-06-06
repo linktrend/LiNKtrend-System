@@ -76,6 +76,7 @@ export {
   LINKSITES_PAYLOAD_SYNC_LOCAL_HANDLE,
   LINKSITES_PREVIEW_READINESS_CHECK_HANDLE,
   LINKSITES_CRM_READY_TO_CONTACT_MARK_HANDLE,
+  LINKSITES_OUTREACH_DISPATCH_HANDLE,
   // Store accessors (for testing/integration)
   getRenderedArtifact,
   renderArtifactStore,

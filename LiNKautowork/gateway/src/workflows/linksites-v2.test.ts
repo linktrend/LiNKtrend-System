@@ -14,6 +14,7 @@ import {
   LINKSITES_PAYLOAD_SYNC_LOCAL_HANDLE,
   LINKSITES_PREVIEW_READINESS_CHECK_HANDLE,
   LINKSITES_CRM_READY_TO_CONTACT_MARK_HANDLE,
+  LINKSITES_OUTREACH_DISPATCH_HANDLE,
 } from "../index.js";
 
 function createMockAuditWriter() {
@@ -500,5 +501,52 @@ describe("LiNKautowork LinkSites v2 Workflows", () => {
         process.env.LINKAUTOWORK_MVO_MODE = prev;
       }
     }
+  });
+
+  it("fails outreach_dispatch without principal approval", async () => {
+    const result = await invokeWorkflow(
+      {
+        tenant_id: "tenant-1",
+        run_id: "run-outreach-1",
+        stage_id: "outreach_dispatch",
+        workflow_handle: LINKSITES_OUTREACH_DISPATCH_HANDLE,
+        lease_id: "lease-outreach-1",
+        inputs: {
+          outreach_draft_ref: "outreach_draft:tenant-1:run-outreach-1",
+          publish_url: "https://demo.linktrend.internal/en",
+          send_mode: "live",
+          principal_approval: false,
+        },
+        idempotency_key: "outreach-dispatch-deny-1",
+      },
+      { writeAuditEvent: auditWriter.write },
+    );
+
+    expect(result.status).toBe("failed");
+    expect(result.failure?.code).toBe("POLICY_REQUIRES_APPROVAL");
+  });
+
+  it("succeeds outreach_dispatch with lease and principal approval", async () => {
+    const result = await invokeWorkflow(
+      {
+        tenant_id: "tenant-1",
+        run_id: "run-outreach-2",
+        stage_id: "outreach_dispatch",
+        workflow_handle: LINKSITES_OUTREACH_DISPATCH_HANDLE,
+        lease_id: "lease-outreach-2",
+        inputs: {
+          outreach_draft_ref: "outreach_draft:tenant-1:run-outreach-2",
+          publish_url: "https://demo.linktrend.internal/en",
+          send_mode: "live",
+          principal_approval: true,
+        },
+        idempotency_key: "outreach-dispatch-ok-1",
+      },
+      { writeAuditEvent: auditWriter.write },
+    );
+
+    expect(result.status).toBe("succeeded");
+    expect(result.outputs?.outreach_status).toBe("dispatched");
+    expect(result.outputs?.send_mode).toBe("live");
   });
 });

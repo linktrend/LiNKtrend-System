@@ -95,8 +95,8 @@ docker compose -p linktrend-system -f docker-compose.deploy.yml down --remove-or
 # n8n + gateway + NATS
 cd /opt/linktrend/n8n/deploy/prod && docker compose up -d --remove-orphans
 
-# LinkSites CMS + app1
-cd /opt/linktrend/cms && docker compose -f docker-compose.deploy.yml up -d --remove-orphans
+# LinkSites CMS + shared frontend (wildcard *.linktrend.internal previews)
+cd /opt/linktrend/cms && docker compose -f deploy/docker-compose.deploy.yml up -d --remove-orphans
 
 # OpenClaw gateway (LiNKbot)
 cd /opt/linktrend/linkbot-core && docker compose -f docker-compose.deploy.yml up -d --remove-orphans
@@ -108,7 +108,8 @@ cd /opt/linktrend/linkbot-core && docker compose -f docker-compose.deploy.yml up
 |---------|-----|
 | LiNKaios | `https://linkaios.linktrend.internal/login` |
 | CMS | `https://cms.linktrend.internal` |
-| App1 preview | `https://app1.linktrend.internal` |
+| Per-site preview | `https://{site-slug}.linktrend.internal/en` |
+| App1 preview (legacy alias) | `https://app1.linktrend.internal` |
 | n8n | `https://n8n.linktrend.internal` |
 | LiNKbot gateway | `https://linkbot.linktrend.internal/healthz` |
 
@@ -122,7 +123,7 @@ From `/opt/linktrend/linkbot-core`:
 docker compose -f docker-compose.deploy.yml up -d --build --remove-orphans
 ```
 
-Agents in `deploy/prod/openclaw.json`: `linksites-builder` (default), `linksites-ops`, `lisa`, `librarian`.
+Fleet v1 OpenClaw profiles in `LiNKbot-core/deploy/prod/openclaw.json`: `admin-openclaw`, `ceo-client`, `linksites-head`, `linkdeveloper-orchestrator`, `linkdeveloper-steward`. LinkSites research/build roles route to Agent Zero lanes (`az-linksites-research`, `az-linksites-build`); outreach uses `linksites-head`.
 
 **bot-runtime → gateway (LiNKaios stack):** set in rendered linkaios runtime env:
 
