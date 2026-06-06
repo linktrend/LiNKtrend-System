@@ -17,6 +17,17 @@ export {
   issueTemplateById,
 } from "./issue-templates";
 
+export { buildFleetV1DashboardSummary, type FleetDashboardSummary } from "./fleet-dashboard";
+
+export {
+  buildStudioTenantSeedPlans,
+  isSuiteVisibleInMarketplace,
+  LINKTREND_CLIENT_SUITE_IDS,
+  STUDIO_ADMIN_TENANT_SLUG,
+  STUDIO_CLIENT_TENANT_SLUG,
+  type StudioTenantSeedPlan,
+} from "./studio-tenant-seed";
+
 export {
   buildTenantFleetProvision,
   tenantFleetConfigJson,

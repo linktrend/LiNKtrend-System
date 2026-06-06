@@ -1,0 +1,180 @@
+{
+  "suite_id": "linksuitegen",
+  "version": "1.0.0",
+  "display_name": "LiNKsuitegen Suite Builder",
+  "visibility": "admin_only",
+  "continuous_mode": true,
+  "primary_controller_role_id": "suitegen_orchestrator_linkbot",
+  "modules": [
+    {
+      "module_key": "module_01_discovery_intake",
+      "display_name": "Discovery & intake",
+      "phases": [
+        {
+          "phase_key": "phase_source_discovery",
+          "display_name": "Source discovery",
+          "issues": [
+            {
+              "issue_id": "collect_discovery_sources",
+              "display_name": "Collect discovery sources",
+              "assignee_type": "automation",
+              "workflow_handle": "autowork.linksuitegen.discovery_collect",
+              "criticality": "critical"
+            },
+            {
+              "issue_id": "classify_source_quality",
+              "display_name": "Classify source quality",
+              "assignee_type": "linkbot",
+              "role_id": "discovery_analyst_linkbot",
+              "criticality": "non_critical"
+            }
+          ]
+        },
+        {
+          "phase_key": "phase_opportunity_ranking",
+          "display_name": "Opportunity ranking",
+          "issues": [
+            {
+              "issue_id": "compute_opportunity_rankings",
+              "display_name": "Compute opportunity rankings",
+              "assignee_type": "automation",
+              "workflow_handle": "autowork.linksuitegen.ranking_persist",
+              "criticality": "critical"
+            },
+            {
+              "issue_id": "select_build_opportunity",
+              "display_name": "Select build opportunity",
+              "assignee_type": "linkbot",
+              "role_id": "suitegen_orchestrator_linkbot",
+              "criticality": "critical"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "module_key": "module_02_candidate_generation",
+      "display_name": "Candidate generation",
+      "phases": [
+        {
+          "phase_key": "phase_bop_synthesis",
+          "display_name": "BOP synthesis",
+          "issues": [
+            {
+              "issue_id": "synthesize_evidence_bop",
+              "display_name": "Synthesize evidence-grounded BOP",
+              "assignee_type": "linkbot",
+              "role_id": "bop_architect_linkbot",
+              "criticality": "critical"
+            }
+          ]
+        },
+        {
+          "phase_key": "phase_suite_decomposition",
+          "display_name": "Suite decomposition",
+          "issues": [
+            {
+              "issue_id": "decompose_suite_graph",
+              "display_name": "Decompose suite module graph",
+              "assignee_type": "linkbot",
+              "role_id": "bop_architect_linkbot",
+              "criticality": "critical"
+            },
+            {
+              "issue_id": "map_executors_capabilities",
+              "display_name": "Map executors and capabilities",
+              "assignee_type": "automation",
+              "workflow_handle": "autowork.linksuitegen.factory_generate",
+              "criticality": "critical"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "module_key": "module_03_validation",
+      "display_name": "Validation",
+      "phases": [
+        {
+          "phase_key": "phase_structural_validation",
+          "display_name": "Structural validation",
+          "issues": [
+            {
+              "issue_id": "run_validation_rules",
+              "display_name": "Run validation rulebook",
+              "assignee_type": "automation",
+              "workflow_handle": "autowork.linksuitegen.factory_validate",
+              "criticality": "critical"
+            },
+            {
+              "issue_id": "review_validation_findings",
+              "display_name": "Review validation findings",
+              "assignee_type": "linkbot",
+              "role_id": "validation_qa_linkbot",
+              "criticality": "critical"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "module_key": "module_04_export_handoff",
+      "display_name": "Export & handoff",
+      "phases": [
+        {
+          "phase_key": "phase_bundle_export",
+          "display_name": "Bundle export",
+          "issues": [
+            {
+              "issue_id": "export_candidate_bundle",
+              "display_name": "Export candidate bundle",
+              "assignee_type": "automation",
+              "workflow_handle": "autowork.linksuitegen.factory_export",
+              "criticality": "critical"
+            },
+            {
+              "issue_id": "submit_admin_handoff",
+              "display_name": "Submit Admin handoff",
+              "assignee_type": "automation",
+              "workflow_handle": "autowork.linksuitegen.admin_handoff",
+              "criticality": "critical"
+            },
+            {
+              "issue_id": "confirm_handoff_readiness",
+              "display_name": "Confirm handoff readiness",
+              "assignee_type": "linkbot",
+              "role_id": "handoff_coordinator_linkbot",
+              "criticality": "non_critical"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "module_key": "module_05_continuous_orchestration",
+      "display_name": "Continuous orchestration",
+      "phases": [
+        {
+          "phase_key": "phase_factory_cycle",
+          "display_name": "Factory cycle",
+          "issues": [
+            {
+              "issue_id": "orchestrator_promote_work_graph",
+              "display_name": "Promote work graph and next issue",
+              "assignee_type": "linkbot",
+              "role_id": "suitegen_orchestrator_linkbot",
+              "criticality": "critical"
+            },
+            {
+              "issue_id": "run_scheduled_factory_cycle",
+              "display_name": "Run scheduled factory cycle",
+              "assignee_type": "automation",
+              "workflow_handle": "autowork.linksuitegen.orchestrator_cycle",
+              "criticality": "critical"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
