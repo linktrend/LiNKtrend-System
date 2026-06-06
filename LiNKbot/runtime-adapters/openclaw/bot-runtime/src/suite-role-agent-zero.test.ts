@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { FLEET_V1_AGENT_ZERO_LANE_IDS } from "../../../../roles/platform/agent-zero-lanes.js";
+import { FLEET_V1_AGENT_ZERO_LANE_IDS } from "./fleet-runtime-mappings.js";
 import { agentZeroLaneForRole, listAgentZeroMappedRoleIds } from "./suite-role-agent-zero.js";
 
 describe("suite-role-agent-zero barrel (Wave 2.4)", () => {
