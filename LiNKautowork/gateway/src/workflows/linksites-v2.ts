@@ -12,11 +12,13 @@ export const SUPABASE_MIRROR_UPSERT_HANDLE = "autowork.linksites.supabase_mirror
 export const PAYLOAD_SYNC_LOCAL_HANDLE = "autowork.linksites.payload_sync_local";
 export const PREVIEW_READINESS_CHECK_HANDLE = "autowork.linksites.preview_readiness_check";
 export const CRM_READY_TO_CONTACT_MARK_HANDLE = "autowork.linksites.crm_ready_to_contact_mark";
+export const OUTREACH_DISPATCH_HANDLE = "autowork.linksites.outreach_dispatch";
 
 const artifactWrites = new Map<string, Record<string, unknown>>();
 const mirrorWrites = new Map<string, Record<string, unknown>>();
 const payloadSyncs = new Map<string, Record<string, unknown>>();
 const crmMarks = new Map<string, Record<string, unknown>>();
+const outreachDispatches = new Map<string, Record<string, unknown>>();
 
 function digest(value: unknown): string {
   return createHash("sha256").update(JSON.stringify(value)).digest("hex");
@@ -509,6 +511,64 @@ export function createCrmReadyToContactMarkHandler(auditEmitter: AuditEmitter): 
   };
 }
 
+export function createOutreachDispatchHandler(auditEmitter: AuditEmitter): WorkflowHandler {
+  return async (request, context) => {
+    return withAudit(request, context.workflow_run_id, auditEmitter, async () => {
+      const leaseCheck = requireLeaseId(request);
+      if (!leaseCheck.ok) return { failure: leaseCheck.failure };
+
+      const outreachDraftRef = asString(request, "outreach_draft_ref");
+      const publishUrl = asString(request, "publish_url");
+      const principalApproval = readInput(request, "principal_approval") === true;
+      const sendMode = asString(request, "send_mode") ?? "live";
+
+      if (!outreachDraftRef || !publishUrl) {
+        return {
+          failure: fail(
+            "WORKFLOW_STEP_FAILED",
+            "Missing required outreach_dispatch inputs: outreach_draft_ref and publish_url",
+          ),
+        };
+      }
+
+      if (sendMode !== "live" || !principalApproval) {
+        return {
+          failure: fail(
+            "POLICY_REQUIRES_APPROVAL",
+            "outreach_dispatch requires send_mode=live and principal_approval=true",
+          ),
+        };
+      }
+
+      const dispatchRef = `outreach_dispatch:${request.tenant_id}:${request.run_id}`;
+      const dispatchedAt = new Date().toISOString();
+
+      outreachDispatches.set(dispatchRef, {
+        dispatch_ref: dispatchRef,
+        outreach_draft_ref: outreachDraftRef,
+        publish_url: publishUrl,
+        send_mode: "live",
+        principal_approval: true,
+        lease_id: leaseCheck.leaseId,
+        dispatched_at: dispatchedAt,
+        workflow_run_id: context.workflow_run_id,
+      });
+
+      return {
+        outputs: {
+          outreach_dispatch_ref: dispatchRef,
+          outreach_status: "dispatched",
+          send_mode: "live",
+          publish_url: publishUrl,
+          outreach_draft_ref: outreachDraftRef,
+          dispatched_at: dispatchedAt,
+          principal_approval: true,
+        },
+      };
+    });
+  };
+}
+
 export function getArtifactWrite(ref: string): Record<string, unknown> | undefined {
   return artifactWrites.get(ref);
 }
@@ -518,4 +578,9 @@ export function clearLinksitesStores(): void {
   mirrorWrites.clear();
   payloadSyncs.clear();
   crmMarks.clear();
+  outreachDispatches.clear();
+}
+
+export function getOutreachDispatch(ref: string): Record<string, unknown> | undefined {
+  return outreachDispatches.get(ref);
 }

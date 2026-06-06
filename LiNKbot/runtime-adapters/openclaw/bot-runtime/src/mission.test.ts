@@ -129,6 +129,52 @@ describe("Mission Management", () => {
       expect(result.outputs).toHaveProperty("send_mode", "draft_only");
     });
 
+    it("should dispatch approved outreach when principal_approval is true", async () => {
+      process.env.MOCK_CONTEXT = "true";
+      process.env.MOCK_AUDIT = "true";
+
+      const outreachRequest: BotReasonRequest = {
+        ...baseRequest,
+        stage_id: "linksites.outreach",
+        inputs: {
+          ...baseRequest.inputs,
+          publish_url: "https://demo-lead.linktrend.internal/en",
+          outreach_draft_ref: "outreach_draft:tenant-1:run-1",
+          governance: {
+            lease_id: "lease-outreach-2",
+            send_mode: "live",
+            principal_approval: true,
+          },
+        },
+      };
+
+      const result = await executeMission(outreachRequest, "outreach_bot", mockConfig);
+
+      expect(result.success).toBe(true);
+      expect(result.outputs).toHaveProperty("outreach_status", "dispatched");
+      expect(result.outputs).toHaveProperty("send_mode", "live");
+    });
+
+    it("should block live outreach without principal approval", async () => {
+      process.env.MOCK_CONTEXT = "true";
+      process.env.MOCK_AUDIT = "true";
+
+      const outreachRequest: BotReasonRequest = {
+        ...baseRequest,
+        stage_id: "linksites.outreach",
+        inputs: {
+          ...baseRequest.inputs,
+          publish_url: "https://demo-lead.linktrend.media",
+          governance: { lease_id: "lease-outreach-3", send_mode: "live" },
+        },
+      };
+
+      const result = await executeMission(outreachRequest, "outreach_bot", mockConfig);
+
+      expect(result.success).toBe(false);
+      expect(result.failure?.code).toBe("POLICY_REQUIRES_APPROVAL");
+    });
+
     it("should execute enabled research_enrichment_bot", async () => {
       process.env.MOCK_CONTEXT = "true";
       process.env.MOCK_AUDIT = "true";

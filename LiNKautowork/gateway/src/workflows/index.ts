@@ -28,11 +28,13 @@ import {
   createPayloadSyncLocalHandler,
   createPreviewReadinessCheckHandler,
   createCrmReadyToContactMarkHandler,
+  createOutreachDispatchHandler,
   ARTIFACT_WRITE_LOCAL_HANDLE,
   SUPABASE_MIRROR_UPSERT_HANDLE,
   PAYLOAD_SYNC_LOCAL_HANDLE,
   PREVIEW_READINESS_CHECK_HANDLE,
   CRM_READY_TO_CONTACT_MARK_HANDLE,
+  OUTREACH_DISPATCH_HANDLE,
 } from "./linksites-v2.js";
 import {
   createEvidenceIngestHandler,
@@ -132,6 +134,14 @@ export function bootstrapWebsiteFactoryWorkflows(deps: {
     description: "Mark CRM lead ready_to_contact after deterministic checks pass",
     requires_lease: true,
     handler: createCrmReadyToContactMarkHandler(auditEmitter),
+  });
+
+  registerWorkflow({
+    handle: OUTREACH_DISPATCH_HANDLE,
+    display_name: "LinkSites Outreach Dispatch",
+    description: "Governed outreach send after Principal approval (lease + audit)",
+    requires_lease: true,
+    handler: createOutreachDispatchHandler(auditEmitter),
   });
 
   // Register LiNKapps workflow pack (Phase 5 stages)
@@ -263,6 +273,7 @@ export {
   PAYLOAD_SYNC_LOCAL_HANDLE as LINKSITES_PAYLOAD_SYNC_LOCAL_HANDLE,
   PREVIEW_READINESS_CHECK_HANDLE as LINKSITES_PREVIEW_READINESS_CHECK_HANDLE,
   CRM_READY_TO_CONTACT_MARK_HANDLE as LINKSITES_CRM_READY_TO_CONTACT_MARK_HANDLE,
+  OUTREACH_DISPATCH_HANDLE as LINKSITES_OUTREACH_DISPATCH_HANDLE,
 };
 
 // LEXOS workflow handle exports
