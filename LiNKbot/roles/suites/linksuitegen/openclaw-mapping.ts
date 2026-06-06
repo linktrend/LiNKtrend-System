@@ -1,0 +1,74 @@
+/**
+ * LiNKsuitegen: orchestrator roles → Admin OpenClaw head; factory roles → Agent Zero.
+ *
+ * Catalogue issues keep distinct role_ids for Plane assignees. Fleet runtime uses
+ * `admin-openclaw` for orchestration and `az-suitegen-factory` for analyst work.
+ */
+
+import { FLEET_V1_OPENCLAW_AGENTS } from "../../platform/fleet-v1-openclaw.js";
+
+/** OpenClaw agentId — vendor executive + LiNKsuitegen suite head (Admin tenant). */
+export const LINKSUITEGEN_OPENCLAW_ORCHESTRATOR_AGENT = FLEET_V1_OPENCLAW_AGENTS.ADMIN;
+
+/** Agent Zero lane — factory analyst judgment plane (not OpenClaw). */
+export const LINKSUITEGEN_AGENT_ZERO_FACTORY_LANE = "az-suitegen-factory";
+
+/** Roles executed by the orchestrator LiNKbot on OpenClaw. */
+export const LINKSUITEGEN_ORCHESTRATOR_ROLE_IDS = [
+  "suitegen_orchestrator_linkbot",
+  "handoff_coordinator_linkbot",
+] as const;
+
+/** Roles executed on the Agent Zero factory lane (never OpenClaw). */
+export const LINKSUITEGEN_FACTORY_ANALYST_ROLE_IDS = [
+  "discovery_analyst_linkbot",
+  "bop_architect_linkbot",
+  "validation_qa_linkbot",
+  "linksuitegen_crm_classifier_linkbot",
+] as const;
+
+export type LinksuitegenOrchestratorRoleId = (typeof LINKSUITEGEN_ORCHESTRATOR_ROLE_IDS)[number];
+export type LinksuitegenFactoryRoleId = (typeof LINKSUITEGEN_FACTORY_ANALYST_ROLE_IDS)[number];
+
+export const LINKSUITEGEN_ROLE_TO_OPENCLAW_AGENT: Record<LinksuitegenOrchestratorRoleId, string> = {
+  suitegen_orchestrator_linkbot: LINKSUITEGEN_OPENCLAW_ORCHESTRATOR_AGENT,
+  handoff_coordinator_linkbot: LINKSUITEGEN_OPENCLAW_ORCHESTRATOR_AGENT,
+};
+
+export const LINKSUITEGEN_FACTORY_ROLE_TO_AGENT_ZERO_LANE: Record<LinksuitegenFactoryRoleId, string> = {
+  discovery_analyst_linkbot: LINKSUITEGEN_AGENT_ZERO_FACTORY_LANE,
+  bop_architect_linkbot: LINKSUITEGEN_AGENT_ZERO_FACTORY_LANE,
+  validation_qa_linkbot: LINKSUITEGEN_AGENT_ZERO_FACTORY_LANE,
+  linksuitegen_crm_classifier_linkbot: LINKSUITEGEN_AGENT_ZERO_FACTORY_LANE,
+};
+
+export type LinksuitegenRuntime =
+  | { runtime: "openclaw"; agentId: string }
+  | { runtime: "agent_zero"; laneId: string };
+
+/** Resolve primary runtime for a LiNKsuitegen role_id. */
+export function runtimeForLinksuitegenRole(roleId: string): LinksuitegenRuntime | null {
+  if (roleId in LINKSUITEGEN_ROLE_TO_OPENCLAW_AGENT) {
+    return {
+      runtime: "openclaw",
+      agentId: LINKSUITEGEN_ROLE_TO_OPENCLAW_AGENT[roleId as LinksuitegenOrchestratorRoleId],
+    };
+  }
+  if (roleId in LINKSUITEGEN_FACTORY_ROLE_TO_AGENT_ZERO_LANE) {
+    return {
+      runtime: "agent_zero",
+      laneId: LINKSUITEGEN_FACTORY_ROLE_TO_AGENT_ZERO_LANE[roleId as LinksuitegenFactoryRoleId],
+    };
+  }
+  return null;
+}
+
+/** Resolve OpenClaw agentId for orchestrator LiNKsuitegen roles only. */
+export function openClawAgentIdForLinksuitegenRole(roleId: string): string | null {
+  return LINKSUITEGEN_ROLE_TO_OPENCLAW_AGENT[roleId as LinksuitegenOrchestratorRoleId] ?? null;
+}
+
+/** Resolve Agent Zero lane for factory analyst roles. */
+export function agentZeroLaneForLinksuitegenRole(roleId: string): string | null {
+  return LINKSUITEGEN_FACTORY_ROLE_TO_AGENT_ZERO_LANE[roleId as LinksuitegenFactoryRoleId] ?? null;
+}

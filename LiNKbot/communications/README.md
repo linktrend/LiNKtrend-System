@@ -19,3 +19,7 @@ This folder owns mission-aware communication profiles for LiNKbot.
 ## Zulip
 
 Zulip is currently represented by `LiNKbot/communications/temporary-gateways/zulip`, a temporary mission-aware gateway. OpenClaw has Zulip channel work in upstream PR/plugin form. The target is to adopt native OpenClaw Zulip support when it satisfies LiNKtrend requirements for tenant routing, mission mapping, LiNKbot identity, audit/trace writes, and LinkSkills permission checks.
+
+## Fleet v1 channel profiles
+
+`LiNKbot/communications/profiles/zulip-channel-profiles.ts` registers one **communication profile id** per OpenClaw fleet agent (`admin-openclaw`, `ceo-client`, `linksites-head`, `linkdeveloper-orchestrator`, `linkdeveloper-steward`). LiNKaios and bot-runtime resolve `profile_id` → Zulip bot identity (GSM secret names with `ZULIP_BOT_*` fallbacks) and governed `cap.zulip.run_messaging` dispatch.
