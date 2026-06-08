@@ -4,20 +4,26 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import { useAppSurface } from "@/components/app-surface-provider";
-import { WORKER_DETAIL_TABS } from "@/lib/worker-detail-tabs";
+import { WORKER_DETAIL_TABS, type WorkerDetailTabId } from "@/lib/worker-detail-tabs";
 import { screenTabLinkClass } from "@/lib/ui-standards";
 
-export function WorkerSubnav(props: { agentId: string }) {
+export function WorkerSubnav(props: {
+  agentId: string;
+  visibleTabIds?: ReadonlySet<WorkerDetailTabId>;
+}) {
   const pathname = usePathname() ?? "";
   const { href: appHref, routePath } = useAppSurface();
   const route = routePath(pathname);
-  const { agentId } = props;
+  const { agentId, visibleTabIds } = props;
+  const tabs = visibleTabIds
+    ? WORKER_DETAIL_TABS.filter((tab) => visibleTabIds.has(tab.id))
+    : WORKER_DETAIL_TABS;
 
   return (
     <nav aria-label="LiNKbot sections" className="sticky top-0 z-10 -mx-1 bg-zinc-50/95 py-1 backdrop-blur dark:bg-zinc-950/90">
       <div className="min-w-0 overflow-x-auto pb-px [-webkit-overflow-scrolling:touch]">
         <div className="flex w-max min-w-full flex-nowrap items-end gap-1 border-b border-zinc-200 dark:border-zinc-800 md:w-auto md:min-w-0">
-          {WORKER_DETAIL_TABS.map((tab) => {
+          {tabs.map((tab) => {
             const href = appHref(tab.href(agentId));
             const active = tab.match(route, agentId);
             return (

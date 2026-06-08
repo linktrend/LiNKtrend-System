@@ -14,12 +14,13 @@ export function WorkersPageHeader() {
   let subtitle = "Your AI workforce — fleet status, sessions, skills, and configuration.";
   if (isAdmin) {
     if (isAllLicensees) {
-      subtitle = "Licensee LiNKbot fleets across the platform — not the licensor operator workforce.";
+      subtitle =
+        "Vendor fleet monitor — aggregate LiNKbot status across all licensees. Select a licensee scope to troubleshoot sessions and capabilities.";
     } else {
       const licensee = resolveLicenseeRegistry(scope);
       subtitle = licensee
-        ? `${licensorScopeLabel(scope, licensee.name)} — LiNKbots registered to this licensee.`
-        : "LiNKbots for the selected licensee workspace.";
+        ? `${licensorScopeLabel(scope, licensee.name)} — Monitor and troubleshoot LiNKbots provisioned for this licensee.`
+        : "Monitor and troubleshoot LiNKbots for the selected licensee scope.";
     }
   }
 

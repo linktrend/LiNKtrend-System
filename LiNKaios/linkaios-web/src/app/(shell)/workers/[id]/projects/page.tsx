@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 
 import { listProjects } from "@linktrend/linklogic-sdk";
 import type { ProjectRecord } from "@linktrend/shared-types";
@@ -10,6 +10,9 @@ import {
   SummaryMetricCardSection,
 } from "@/components/summary-metric-card";
 import { WorkerTabSectionHeader } from "@/components/worker-tab-section-header";
+import { resolveLicensorTenantId } from "@/lib/admin-linkskills-tenant";
+import { isAdminBot } from "@/lib/agent-fleet-classification";
+import { readAppSurfaceFromHeaders, withAppBasePath } from "@/lib/app-surface";
 import { getPlaneBridgeConfig, planeWorkspaceProjectsHref } from "@/lib/plane-links";
 import { projectIndexRowFromMission } from "@/lib/project-index-rows";
 import { formatCardTitle } from "@/lib/ui-standards";
@@ -34,6 +37,7 @@ const COLUMN_ORDER: {
 
 export default async function WorkerProjectsPage(props: { params: Promise<{ id: string }> }) {
   const { id } = await props.params;
+  const surface = await readAppSurfaceFromHeaders();
   const uiMocksEnabled = isUiMocksEnabled();
   const planeCfg = getPlaneBridgeConfig();
   const planeProjectsHref = planeWorkspaceProjectsHref(planeCfg);
@@ -42,6 +46,13 @@ export default async function WorkerProjectsPage(props: { params: Promise<{ id: 
   let displayName = id;
 
   if (isDemoAgentId(id)) {
+    if (surface === "admin") {
+      const licensorTenantId = await resolveLicensorTenantId();
+      const showProjects = isAdminBot({ id, runtime_settings: null }, { licensorTenantId, uiMocksDemoAgent: uiMocksEnabled });
+      if (!showProjects) {
+        redirect(withAppBasePath(`/workers/${id}/sessions`, surface));
+      }
+    }
     const demoMerged = demoMissionsFixtureRows().filter((m) => m.primary_agent_id === id);
     const sidebar = DEMO_SIDEBAR_MISSIONS.filter((m) => m.primary_agent_id === id);
     const seen = new Set<string>();
@@ -57,12 +68,23 @@ export default async function WorkerProjectsPage(props: { params: Promise<{ id: 
     const { data: agent, error: agentErr } = await supabase
       .schema("linkaios")
       .from("agents")
-      .select("id, display_name")
+      .select("id, display_name, runtime_settings")
       .eq("id", id)
       .maybeSingle();
 
     if (agentErr || !agent) {
       notFound();
+    }
+
+    if (surface === "admin") {
+      const licensorTenantId = await resolveLicensorTenantId();
+      const showProjects = isAdminBot(
+        { id: String(agent.id), runtime_settings: (agent as { runtime_settings?: unknown }).runtime_settings as Record<string, unknown> | null },
+        { licensorTenantId, uiMocksDemoAgent: uiMocksEnabled },
+      );
+      if (!showProjects) {
+        redirect(withAppBasePath(`/workers/${id}/sessions`, surface));
+      }
     }
 
     displayName = String((agent as { display_name: string }).display_name);

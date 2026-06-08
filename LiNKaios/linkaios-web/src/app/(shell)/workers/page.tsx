@@ -20,6 +20,7 @@ import {
 import { AddLinkbotHeaderAction } from "@/components/role-gated-ui";
 import { AddLinkbotRoot } from "@/components/add-linkbot";
 import { WorkersPageHeader } from "@/components/workers-page-header";
+import { readAppSurfaceFromHeaders, withAppBasePath } from "@/lib/app-surface";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { BADGE, BUTTON } from "@/lib/ui-standards";
 import { parseRuntimeSettings } from "@/lib/agent-runtime-settings";
@@ -94,6 +95,8 @@ export default async function WorkersPage(props: { searchParams: Promise<{ view?
   const view: FleetView = parseFleetView(sp.view);
   const filter = parseFleetPresenceFilter(sp.filter);
   const uiMocksEnabled = isUiMocksEnabled();
+  const surface = await readAppSurfaceFromHeaders();
+  const isAdminSurface = surface === "admin";
 
   const supabase = await createSupabaseServerClient();
 
@@ -142,7 +145,9 @@ export default async function WorkersPage(props: { searchParams: Promise<{ view?
           role,
           operationalUx,
           statusLabel,
-          projectLine: "Projects load on the LiNKbot detail tab.",
+          projectLine: isAdminSurface
+            ? "Open Sessions for troubleshooting."
+            : "Projects load on the LiNKbot detail tab.",
           lastHeartbeatIso: latest?.last_heartbeat ?? null,
           description,
         };
@@ -169,7 +174,7 @@ export default async function WorkersPage(props: { searchParams: Promise<{ view?
 
   return (
     <main className="space-y-6">
-      <AddLinkbotRoot />
+      {!isAdminSurface ? <AddLinkbotRoot /> : null}
       <WorkersPageHeader />
       <FleetSummaryStatsGrid
         total={fleet.length}
@@ -184,13 +189,31 @@ export default async function WorkersPage(props: { searchParams: Promise<{ view?
       {fleet.length === 0 ? (
         <div className="rounded-xl border border-dashed border-zinc-300 bg-zinc-50/80 p-8 text-center dark:border-zinc-700 dark:bg-zinc-900/40">
           <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">No LiNKbots yet</p>
-          <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">Add a LiNKbot to see it listed here.</p>
-          <div className="mt-4 flex flex-wrap justify-center gap-2">
-            <AddLinkbotHeaderAction className={BUTTON.addRow} />
-            <Link href="/settings/platform" className={BUTTON.secondaryRow}>
-              Integration routing
-            </Link>
-          </div>
+          {isAdminSurface ? (
+            <>
+              <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
+                LiNKbots appear here when provisioned through suite composition for a licensee workspace.
+              </p>
+              <div className="mt-4 flex flex-wrap justify-center gap-2">
+                <Link href={withAppBasePath("/suites", surface)} className={BUTTON.addRow}>
+                  Open Suites
+                </Link>
+                <Link href={withAppBasePath("/settings/platform", surface)} className={BUTTON.secondaryRow}>
+                  Integration routing
+                </Link>
+              </div>
+            </>
+          ) : (
+            <>
+              <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">Add a LiNKbot to see it listed here.</p>
+              <div className="mt-4 flex flex-wrap justify-center gap-2">
+                <AddLinkbotHeaderAction className={BUTTON.addRow} />
+                <Link href="/settings/platform" className={BUTTON.secondaryRow}>
+                  Integration routing
+                </Link>
+              </div>
+            </>
+          )}
         </div>
       ) : null}
 
@@ -216,7 +239,7 @@ export default async function WorkersPage(props: { searchParams: Promise<{ view?
                     <p className="font-semibold text-zinc-900 dark:text-zinc-100">{agent.display_name}</p>
                     <p className="mt-0.5 text-xs font-medium text-violet-800 dark:text-violet-300">Role · {agent.role}</p>
                     <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-zinc-600 dark:text-zinc-400">
-                      Projects · {agent.projectLine}
+                      {isAdminSurface ? "Monitor ·" : "Projects ·"} {agent.projectLine}
                     </p>
                     {agent.lastHeartbeatIso ? (
                       <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
@@ -259,7 +282,7 @@ export default async function WorkersPage(props: { searchParams: Promise<{ view?
                     </span>
                   </div>
                   <p className="mt-3 line-clamp-2 text-xs leading-relaxed text-zinc-600 dark:text-zinc-400">
-                    Projects · {agent.projectLine}
+                    {isAdminSurface ? "Monitor ·" : "Projects ·"} {agent.projectLine}
                   </p>
                   {agent.lastHeartbeatIso ? (
                     <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">

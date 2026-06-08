@@ -60,3 +60,14 @@ export const WORKER_DETAIL_TABS: {
 export function resolveWorkerDetailTab(pathname: string, agentId: string): (typeof WORKER_DETAIL_TABS)[number] | null {
   return WORKER_DETAIL_TABS.find((tab) => tab.match(pathname, agentId)) ?? null;
 }
+
+export function workerDetailTabsForSurface(options: {
+  isAdminSurface: boolean;
+  showProjectsOnAdmin: boolean;
+}): typeof WORKER_DETAIL_TABS {
+  return WORKER_DETAIL_TABS.filter((tab) => {
+    if (tab.id !== "projects") return true;
+    if (!options.isAdminSurface) return true;
+    return options.showProjectsOnAdmin;
+  });
+}
