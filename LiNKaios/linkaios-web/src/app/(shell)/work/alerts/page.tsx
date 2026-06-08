@@ -1,5 +1,7 @@
 import { AlertCircle } from "lucide-react";
+import { Suspense } from "react";
 
+import { fetchRecentTraces } from "@/lib/traces-db";
 import { IntegrationWarningBanner } from "@/components/integration-warning-banner";
 import { ShellPageHeaderClient } from "@/components/shell-page-header-client";
 import { isUiMocksEnabled } from "@/lib/ui-mocks/flags";
@@ -15,21 +17,16 @@ export const dynamic = "force-dynamic";
 export default async function WorkAlertsPage() {
   const supabase = await createSupabaseServerClient();
   const uiMocksEnabled = isUiMocksEnabled();
-  const { data: traces, error } = await supabase
-    .schema("linkaios")
-    .from("traces")
-    .select("id, event_type, mission_id, created_at, payload")
-    .order("created_at", { ascending: false })
-    .limit(50);
+  const { rows: traces, error } = await fetchRecentTraces(supabase, { limit: 50 });
 
   const fromDb: WorkAlert[] =
-    error || !traces?.length
+    error || !traces.length
       ? []
       : traces.map((t) =>
           traceToWorkAlert({
             id: String(t.id),
             event_type: String(t.event_type),
-            mission_id: t.mission_id as string | null,
+            project_id: t.project_id,
             created_at: String(t.created_at),
             payload: t.payload,
           }),
@@ -60,7 +57,7 @@ export default async function WorkAlertsPage() {
   const blockingLoadFailure = !uiMocksEnabled && traceLoadFailed && fromDb.length === 0;
 
   if (blockingLoadFailure) {
-    const reason = error?.message ?? "System logs could not be queried.";
+    const reason = error ?? "System logs could not be queried.";
     const schemaHint = reason.includes("schema") || reason.toLowerCase().includes("pgrst");
     return (
       <main>
@@ -97,15 +94,17 @@ export default async function WorkAlertsPage() {
         {traceLoadFailed && (uiMocksEnabled || hasFixtureRows) ? (
           <IntegrationWarningBanner
             title="Live system logs are unavailable — fixture alerts shown below"
-            reason={error?.message ?? "The traces query did not succeed."}
+            reason={error ?? "The traces query did not succeed."}
             retryHint="Check Supabase connectivity and schema exposure (linkaios.traces), then use Refresh in the toolbar. Your inbox is not empty — review fixture rows while integration is restored."
           />
         ) : null}
-        <AlertsInbox
-          items={merged}
-          traceAckPersistenceEnabled={traceAckPersistenceEnabled}
-          initialResolvedIds={initialResolvedIds}
-        />
+        <Suspense fallback={<p className="text-sm text-zinc-500">Loading alerts…</p>}>
+          <AlertsInbox
+            items={merged}
+            traceAckPersistenceEnabled={traceAckPersistenceEnabled}
+            initialResolvedIds={initialResolvedIds}
+          />
+        </Suspense>
       </div>
     </main>
   );

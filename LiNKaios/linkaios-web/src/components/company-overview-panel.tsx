@@ -22,7 +22,7 @@ import {
 import { formatIsoDateDisplay } from "@/lib/date-field-utils";
 import { formatPersonalAddressNatural, formatPersonalPhoneDisplay } from "@/lib/personal-contact-display";
 
-function formatAddressDisplay(address: CorporateProfileFixture["registeredOffice"]): string {
+function formatAddressDisplay(address: CorporateProfileFixture["registeredOffice"] | undefined): string {
   const lines = formatPersonalAddressNatural(address);
   return lines.length > 0 ? lines.join(" · ") : "—";
 }

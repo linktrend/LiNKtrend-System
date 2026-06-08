@@ -15,7 +15,8 @@ export function formatPersonalPhoneDisplay(countryCode: string, phoneNumber: str
 }
 
 /** Natural mailing address for profile view (not tax-form layout). */
-export function formatPersonalAddressNatural(parts: PersonalAddressParts): string[] {
+export function formatPersonalAddressNatural(parts: PersonalAddressParts | null | undefined): string[] {
+  if (!parts) return [];
   const lines: string[] = [];
   const street = [parts.streetAddress1.trim(), parts.streetAddress2.trim()].filter(Boolean).join(", ");
   if (street) lines.push(street);
