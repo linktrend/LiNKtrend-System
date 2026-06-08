@@ -4,8 +4,9 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
-import { ChevronDown, ChevronRight, Layers3, Plus } from "lucide-react";
+import { ChevronDown, ChevronRight, Layers3 } from "lucide-react";
 
+import { AdminLinksuitegenSidebarLink } from "@/components/admin/admin-linksuitegen-sidebar";
 import { useAppSurface } from "@/components/app-surface-provider";
 
 function subLinkClass(active: boolean) {
@@ -24,7 +25,8 @@ export function LicensorSuitesSidebarSection() {
   const pathname = usePathname() ?? "/";
   const { href: appHref, routePath } = useAppSurface();
   const route = routePath(pathname);
-  const suitesPath = route.startsWith("/suites") || route.startsWith("/modules");
+  const suitesPath =
+    route.startsWith("/suites") || route.startsWith("/modules") || route.startsWith("/linksuitegen");
   const [open, setOpen] = useState(suitesPath);
 
   useEffect(() => {
@@ -34,8 +36,7 @@ export function LicensorSuitesSidebarSection() {
   const allSuitesActive =
     route === "/suites" ||
     route === "/suites/" ||
-    route.startsWith("/suites/") && !route.startsWith("/suites/new") && !route.startsWith("/suites/billing");
-  const addSuiteActive = route === "/suites/new";
+    (route.startsWith("/suites/") && !route.startsWith("/suites/billing"));
   const billingActive = route === "/suites/billing";
 
   return (
@@ -57,18 +58,13 @@ export function LicensorSuitesSidebarSection() {
       </button>
       {open ? (
         <div className={subMenuRail}>
-          <Link href={appHref("/suites")} className={subLinkClass(allSuitesActive && route !== "/suites/new" && route !== "/suites/billing")}>
+          <Link href={appHref("/suites")} className={subLinkClass(allSuitesActive && !billingActive)}>
             All suites
-          </Link>
-          <Link href={appHref("/suites/new")} className={subLinkClass(addSuiteActive)}>
-            <span className="inline-flex items-center gap-1.5">
-              <Plus className="h-3 w-3" aria-hidden />
-              Add suite
-            </span>
           </Link>
           <Link href={appHref("/suites/billing")} className={subLinkClass(billingActive)}>
             Stripe products
           </Link>
+          <AdminLinksuitegenSidebarLink />
         </div>
       ) : null}
     </div>
