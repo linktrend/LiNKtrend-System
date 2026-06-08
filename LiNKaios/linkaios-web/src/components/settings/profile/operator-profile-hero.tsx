@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRef } from "react";
 import { Building2, FolderKanban, Layers, Pencil, Shield, Smartphone, Workflow } from "lucide-react";
 
-import type { OperatorAccessScope } from "@/lib/operator-access-scope";
+import { isPlatformAccessScope, type OperatorAccessScope } from "@/lib/operator-access-scope";
 import { PROFILE_CARD } from "@/lib/ui-standards";
 
 type OperatorProfileHeroProps = {
@@ -151,26 +151,48 @@ export function OperatorProfileHero(props: OperatorProfileHeroProps) {
         </div>
 
         <div className={PROFILE_CARD.heroStatsGrid}>
-          <HeroMetric
-            label="Companies"
-            value={props.accessScope.companies.length}
-            icon={<Building2 className="h-3.5 w-3.5" aria-hidden />}
-          />
-          <HeroMetric
-            label="Projects"
-            value={props.accessScope.projects.length}
-            icon={<FolderKanban className="h-3.5 w-3.5" aria-hidden />}
-          />
-          <HeroMetric
-            label="Suites"
-            value={props.accessScope.modules.length}
-            icon={<Layers className="h-3.5 w-3.5" aria-hidden />}
-          />
-          <HeroMetric
-            label="Modules"
-            value={props.accessScope.processes.length}
-            icon={<Workflow className="h-3.5 w-3.5" aria-hidden />}
-          />
+          {isPlatformAccessScope(props.accessScope) ? (
+            <>
+              <HeroMetric
+                label="Platform role"
+                value={props.accessScope.roleTierLabel}
+                icon={<Shield className="h-3.5 w-3.5" aria-hidden />}
+              />
+              <HeroMetric
+                label="Licensees"
+                value={props.accessScope.licensees.length}
+                icon={<Building2 className="h-3.5 w-3.5" aria-hidden />}
+              />
+              <HeroMetric
+                label="Admin sections"
+                value={props.accessScope.navSections.length}
+                icon={<Layers className="h-3.5 w-3.5" aria-hidden />}
+              />
+            </>
+          ) : (
+            <>
+              <HeroMetric
+                label="Companies"
+                value={props.accessScope.companies.length}
+                icon={<Building2 className="h-3.5 w-3.5" aria-hidden />}
+              />
+              <HeroMetric
+                label="Projects"
+                value={props.accessScope.projects.length}
+                icon={<FolderKanban className="h-3.5 w-3.5" aria-hidden />}
+              />
+              <HeroMetric
+                label="Suites"
+                value={props.accessScope.modules.length}
+                icon={<Layers className="h-3.5 w-3.5" aria-hidden />}
+              />
+              <HeroMetric
+                label="Modules"
+                value={props.accessScope.processes.length}
+                icon={<Workflow className="h-3.5 w-3.5" aria-hidden />}
+              />
+            </>
+          )}
           <HeroMetric
             label="2FA"
             href="/settings/two-factor"
