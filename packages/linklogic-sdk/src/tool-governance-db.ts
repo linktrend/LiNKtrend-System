@@ -37,7 +37,7 @@ export async function loadMissionToolNames(client: SupabaseClient, missionId: st
     .schema("linkaios")
     .from("mission_tools")
     .select("tool_id")
-    .eq("mission_id", missionId);
+    .eq("project_id", missionId);
   if (error) throw new Error(error.message);
   const ids = (rows ?? []).map((r: { tool_id: string }) => r.tool_id).filter(Boolean);
   const { names, error: e2 } = await toolNamesForToolIds(client, ids);
@@ -91,7 +91,7 @@ export async function ensureRuntimeBlockedRequest(
   const { error } = await client.schema("linkaios").from("tool_governance_requests").insert({
     status: "pending",
     request_type: "runtime_blocked",
-    mission_id: params.missionId ?? null,
+    project_id: params.missionId ?? null,
     tool_id: params.toolId,
     correlation_id: params.correlationId ?? null,
   });

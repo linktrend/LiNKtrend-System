@@ -12,7 +12,7 @@ export async function recordTrace(
   const client = createSupabaseServiceClient(env);
   await client.schema("linkaios").from("traces").insert({
     event_type: params.eventType,
-    mission_id: params.missionId ?? null,
+    project_id: params.missionId ?? null,
     payload: params.payload ?? {},
   });
 }

@@ -24,12 +24,20 @@ export default async function BrainDraftEditPage(props: { params: Promise<{ vers
   const { data: fileRow } = await supabase
     .schema("linkaios")
     .from("brain_virtual_files")
-    .select("logical_path, scope, mission_id, agent_id")
+    .select("logical_path, scope, project_id, agent_id")
     .eq("id", ver.file_id)
     .maybeSingle();
-  const file = fileRow as
-    | { logical_path: string; scope: string; mission_id: string | null; agent_id: string | null }
+  const fileRowTyped = fileRow as
+    | { logical_path: string; scope: string; project_id: string | null; agent_id: string | null }
     | null;
+  const file = fileRowTyped
+    ? {
+        logical_path: fileRowTyped.logical_path,
+        scope: fileRowTyped.scope,
+        mission_id: fileRowTyped.project_id,
+        agent_id: fileRowTyped.agent_id,
+      }
+    : null;
 
   return (
     <main className="mx-auto max-w-3xl space-y-6">

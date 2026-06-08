@@ -107,7 +107,7 @@ export async function loadLinkbrainPageData(
   const { data: lightRaw, error: lightErr } = await supabase
     .schema("linkaios")
     .from("memory_entries")
-    .select("mission_id, classification, created_at")
+    .select("project_id, classification, created_at")
     .order("created_at", { ascending: false })
     .limit(12_000);
 
@@ -115,7 +115,14 @@ export async function loadLinkbrainPageData(
     return { ...empty(), error: lightErr.message };
   }
 
-  const lightEntries = (lightRaw ?? []) as Array<{ mission_id: string | null; classification: string; created_at: string }>;
+  const lightEntries = (lightRaw ?? []).map((row) => {
+    const r = row as { project_id: string | null; classification: string; created_at: string };
+    return {
+      mission_id: r.project_id,
+      classification: r.classification,
+      created_at: r.created_at,
+    };
+  });
 
   const byMission = new Map<string, { count: number; last: string }>();
   const classSet = new Set<string>();

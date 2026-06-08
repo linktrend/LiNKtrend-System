@@ -72,6 +72,22 @@ export function normaliseBrainInboxItemType(
   return "standard";
 }
 
+function mapBrainVirtualFileRow(raw: Record<string, unknown>): BrainVirtualFileRow {
+  const projectId = (raw.project_id ?? raw.mission_id ?? null) as string | null;
+  return {
+    id: String(raw.id),
+    logical_path: String(raw.logical_path),
+    scope: raw.scope as BrainScope,
+    mission_id: projectId,
+    agent_id: (raw.agent_id as string | null) ?? null,
+    created_at: String(raw.created_at),
+    legal_entity_id: String(raw.legal_entity_id),
+    sensitivity: String(raw.sensitivity),
+    file_kind: String(raw.file_kind),
+    memory_tags: (raw.memory_tags as BrainVirtualFileRow["memory_tags"]) ?? null,
+  };
+}
+
 function scopeParams(scope: BrainScope, missionId?: string | null, agentId?: string | null) {
   if (scope === "company") return { project_id: null, agent_id: null };
   if (scope === "mission") return { project_id: missionId ?? null, agent_id: null };
@@ -102,7 +118,7 @@ export async function getOrCreateBrainVirtualFile(
   if (params.scope === "agent") q = q.eq("agent_id", agent_id as string);
   const { data: existing, error: selErr } = await q.maybeSingle();
   if (selErr) return { data: null, error: new Error(selErr.message) };
-  if (existing) return { data: existing as BrainVirtualFileRow, error: null };
+  if (existing) return { data: mapBrainVirtualFileRow(existing as Record<string, unknown>), error: null };
 
   const insertRow: Record<string, unknown> = {
     logical_path: params.logicalPath,
@@ -123,7 +139,7 @@ export async function getOrCreateBrainVirtualFile(
     .select("*")
     .single();
   if (insErr) return { data: null, error: new Error(insErr.message) };
-  return { data: created as BrainVirtualFileRow, error: null };
+  return { data: mapBrainVirtualFileRow(created as Record<string, unknown>), error: null };
 }
 
 /** Select-only: does not insert a row (use for reads / retrieval / bot bridge). */
@@ -142,7 +158,10 @@ export async function findBrainVirtualFile(
   if (params.scope === "agent") q = q.eq("agent_id", agent_id as string);
   const { data: existing, error: selErr } = await q.maybeSingle();
   if (selErr) return { data: null, error: new Error(selErr.message) };
-  return { data: (existing as BrainVirtualFileRow) ?? null, error: null };
+  return {
+    data: existing ? mapBrainVirtualFileRow(existing as Record<string, unknown>) : null,
+    error: null,
+  };
 }
 
 /** Published markdown body for a path when the virtual file already exists (no insert). */
@@ -325,7 +344,12 @@ export async function listBrainDraftsForInbox(
       predBodyMap.set(pr.id, pr.body ?? "");
     }
   }
-  const fmap = new Map((files as unknown as BrainVirtualFileRow[]).map((f) => [f.id, f]));
+  const fmap = new Map(
+    (files ?? []).map((f) => {
+      const mapped = mapBrainVirtualFileRow(f as Record<string, unknown>);
+      return [mapped.id, mapped] as const;
+    }),
+  );
   let mapped: BrainInboxRow[] = drows.map((r) => {
     const f = fmap.get(r.file_id);
     const fk = f?.file_kind ?? "standard";
@@ -335,7 +359,7 @@ export async function listBrainDraftsForInbox(
       ...r,
       logical_path: f?.logical_path ?? "",
       scope: (f?.scope ?? "company") as BrainScope,
-      mission_id: (f as { project_id?: string | null })?.project_id ?? null,
+      mission_id: f?.mission_id ?? null,
       agent_id: f?.agent_id ?? null,
       file_kind: fk,
       sensitivity: f?.sensitivity ?? "internal",
@@ -361,7 +385,10 @@ export async function listBrainVirtualFilesByScope(
   if (opts?.fileKind) q = q.eq("file_kind", opts.fileKind);
   const { data, error } = await q.order("logical_path");
   if (error) return { data: [], error: new Error(error.message) };
-  return { data: (data ?? []) as BrainVirtualFileRow[], error: null };
+  return {
+    data: (data ?? []).map((row) => mapBrainVirtualFileRow(row as Record<string, unknown>)),
+    error: null,
+  };
 }
 
 /** Company scope: optionally narrow to files tagged with a specific org node. */
@@ -388,7 +415,10 @@ export async function listBrainVirtualFilesByScopeAndOrgTag(
     if (opts.fileKind) q = q.eq("file_kind", opts.fileKind);
     const { data, error } = await q.order("logical_path");
     if (error) return { data: [], error: new Error(error.message) };
-    return { data: (data ?? []) as BrainVirtualFileRow[], error: null };
+    return {
+      data: (data ?? []).map((row) => mapBrainVirtualFileRow(row as Record<string, unknown>)),
+      error: null,
+    };
   }
   return listBrainVirtualFilesByScope(client, scope, opts);
 }
@@ -430,7 +460,7 @@ export async function getBrainVirtualFileById(
     .eq("id", fileId)
     .maybeSingle();
   if (error) return { data: null, error: new Error(error.message) };
-  return { data: (data as BrainVirtualFileRow) ?? null, error: null };
+  return { data: data ? mapBrainVirtualFileRow(data as Record<string, unknown>) : null, error: null };
 }
 
 /** Open a new concurrent draft seeded from the current published body (edit proposal). */

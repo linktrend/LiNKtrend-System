@@ -48,7 +48,7 @@ export async function ProjectToolsSection(props: {
     .schema("linkaios")
     .from("mission_tools")
     .select("tool_id")
-    .eq("mission_id", projectId);
+    .eq("project_id", projectId);
 
   const mtIds = (mtRows ?? []).map((r: { tool_id: string }) => r.tool_id).filter(Boolean);
   const { data: boundTools } =
@@ -61,7 +61,7 @@ export async function ProjectToolsSection(props: {
     .schema("linkaios")
     .from("tool_governance_requests")
     .select("id, request_type, tool_id, org_admin_approved_by, project_head_approved_by")
-    .eq("mission_id", projectId)
+    .eq("project_id", projectId)
     .eq("status", "pending")
     .order("created_at", { ascending: false });
 

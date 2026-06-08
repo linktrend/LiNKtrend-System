@@ -34,7 +34,7 @@ export default async function SettingsToolsPage() {
     .schema("linkaios")
     .from("tool_governance_requests")
     .select("id, request_type, tool_id, status")
-    .is("mission_id", null)
+    .is("project_id", null)
     .eq("status", "pending")
     .order("created_at", { ascending: false });
 

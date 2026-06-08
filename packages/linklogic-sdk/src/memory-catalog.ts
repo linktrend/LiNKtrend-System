@@ -2,12 +2,35 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 
 export type MemoryEntryRow = {
   id: string;
+  /** @deprecated DB column is `project_id`; populated on read for legacy callers. */
   mission_id: string | null;
   classification: string;
   body: string;
   metadata: Record<string, unknown>;
   created_at: string;
 };
+
+const MEMORY_ENTRY_COLUMNS = "id, project_id, classification, body, metadata, created_at" as const;
+
+function mapMemoryEntryRow(raw: {
+  id: string;
+  project_id?: string | null;
+  mission_id?: string | null;
+  classification: string;
+  body: string;
+  metadata: Record<string, unknown>;
+  created_at: string;
+}): MemoryEntryRow {
+  const projectId = raw.project_id ?? raw.mission_id ?? null;
+  return {
+    id: raw.id,
+    mission_id: projectId,
+    classification: raw.classification,
+    body: raw.body,
+    metadata: raw.metadata,
+    created_at: raw.created_at,
+  };
+}
 
 export async function listMemoryEntries(
   client: SupabaseClient,
@@ -16,7 +39,7 @@ export async function listMemoryEntries(
     classification?: string | null;
     /** Entries whose mission is led by this agent (`missions.primary_agent_id`). */
     agentId?: string | null;
-    /** Company-wide rows: `mission_id` is null. */
+    /** Company-wide rows: `project_id` is null. */
     unscopedOnly?: boolean;
     limit?: number;
   } = {},
@@ -41,28 +64,31 @@ export async function listMemoryEntries(
     let q = client
       .schema("linkaios")
       .from("memory_entries")
-      .select("id, mission_id, classification, body, metadata, created_at")
-      .in("mission_id", ids)
+      .select(MEMORY_ENTRY_COLUMNS)
+      .in("project_id", ids)
       .order("created_at", { ascending: false })
       .limit(limit);
     if (params.classification?.trim()) {
       q = q.eq("classification", params.classification.trim());
     }
     const { data, error } = await q;
-    return { data: (data ?? []) as MemoryEntryRow[], error: error ? new Error(error.message) : null };
+    return {
+      data: (data ?? []).map((row) => mapMemoryEntryRow(row as Parameters<typeof mapMemoryEntryRow>[0])),
+      error: error ? new Error(error.message) : null,
+    };
   }
 
   let q = client
     .schema("linkaios")
     .from("memory_entries")
-    .select("id, mission_id, classification, body, metadata, created_at")
+    .select(MEMORY_ENTRY_COLUMNS)
     .order("created_at", { ascending: false })
     .limit(limit);
 
   if (params.unscopedOnly) {
-    q = q.is("mission_id", null);
+    q = q.is("project_id", null);
   } else if (params.missionId) {
-    q = q.eq("mission_id", params.missionId);
+    q = q.eq("project_id", params.missionId);
   }
 
   if (params.classification?.trim()) {
@@ -70,5 +96,8 @@ export async function listMemoryEntries(
   }
 
   const { data, error } = await q;
-  return { data: (data ?? []) as MemoryEntryRow[], error: error ? new Error(error.message) : null };
+  return {
+    data: (data ?? []).map((row) => mapMemoryEntryRow(row as Parameters<typeof mapMemoryEntryRow>[0])),
+    error: error ? new Error(error.message) : null,
+  };
 }

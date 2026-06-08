@@ -34,7 +34,7 @@ export async function appendMissionMemory(
     return { ok: false, error: "Memory body is required." };
   }
   const { error } = await supabase.schema("linkaios").from("memory_entries").insert({
-    mission_id: missionId,
+    project_id: missionId,
     classification: "working",
     body,
     metadata: {},

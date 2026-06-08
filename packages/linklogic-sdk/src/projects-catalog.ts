@@ -36,7 +36,7 @@ export async function listManifestsForProject(
     .schema("linkaios")
     .from("manifests")
     .select("id, version, payload, created_at")
-    .eq("mission_id", projectId)
+    .eq("project_id", projectId)
     .order("version", { ascending: false });
   return {
     data: (data ?? []) as Array<{ id: string; version: number; payload: unknown; created_at: string }>,

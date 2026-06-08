@@ -26,7 +26,7 @@ export async function appendCentralMemoryEntry(
     throw new Error(`LiNKlogic: mission "${params.missionId}" not found; memory not written.`);
   }
   const { error } = await client.schema("linkaios").from("memory_entries").insert({
-    mission_id: params.missionId,
+    project_id: params.missionId,
     classification: params.classification ?? "working",
     body: params.body,
     metadata: params.metadata ?? {},
