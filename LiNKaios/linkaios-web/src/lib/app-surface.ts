@@ -8,6 +8,15 @@ export const ADMIN_LOGIN_PATH = "/admin/login";
 
 export type AppSurface = "licensee" | "admin";
 
+/** Set by middleware so server components can detect Admin vs Client surface. */
+export const APP_SURFACE_HEADER = "x-linkaios-surface";
+
+export async function readAppSurfaceFromHeaders(): Promise<AppSurface> {
+  const { headers } = await import("next/headers");
+  const value = (await headers()).get(APP_SURFACE_HEADER);
+  return value === "admin" ? "admin" : "licensee";
+}
+
 export function appBasePath(surface: AppSurface): string {
   return surface === "admin" ? ADMIN_BASE_PATH : "";
 }

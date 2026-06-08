@@ -8,7 +8,7 @@ export default function AdminSkillsGovernancePage() {
     <main className="space-y-8">
       <ShellPageHeaderClient
         title="LinkSkills governance"
-        subtitle="Calusa tenant — capability kill switches and lease ledger for LiNKtrend Admin."
+        subtitle="Licensor tenant — capability kill switches and lease ledger for LiNKtrend Admin."
       />
       <AdminLinkskillsGovernancePanel />
     </main>

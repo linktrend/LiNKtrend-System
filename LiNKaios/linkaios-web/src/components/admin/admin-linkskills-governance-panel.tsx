@@ -11,7 +11,7 @@ import {
 } from "@/components/data-table";
 import { DomainStatusPill, StatusPill } from "@/components/ui/status-pill";
 import { loadLeaseStatus } from "@/lib/cockpit";
-import { resolveCalusaTenantId } from "@/lib/admin-linkskills-tenant";
+import { resolveLicensorTenantId } from "@/lib/admin-linkskills-tenant";
 import { listKillSwitches } from "@linktrend/linkskills-logic-engine";
 
 function leaseStatusForPill(raw: string): string {
@@ -23,12 +23,12 @@ function leaseStatusForPill(raw: string): string {
 
 export async function AdminLinkskillsGovernancePanel() {
   const env = loadEnv();
-  const tenantId = await resolveCalusaTenantId();
+  const tenantId = await resolveLicensorTenantId();
   const supabase = createSupabaseServiceClient(env);
 
   const [leases, killSwitchResult] = await Promise.all([
-    loadLeaseStatus(supabase, tenantId, { time_range: "24h" }),
-    listKillSwitches(supabase, tenantId),
+    tenantId != null ? loadLeaseStatus(supabase, tenantId, { time_range: "24h" }) : Promise.resolve([]),
+    tenantId != null ? listKillSwitches(supabase, tenantId) : Promise.resolve({ data: [] }),
   ]);
 
   const killSwitches = killSwitchResult.data;
@@ -39,7 +39,7 @@ export async function AdminLinkskillsGovernancePanel() {
         <div>
           <h2 className="text-lg font-medium text-zinc-800 dark:text-zinc-100">Capability kill switches</h2>
           <p className="text-sm text-zinc-500 dark:text-zinc-400">
-            Calusa tenant ({tenantId.slice(0, 8)}…) — tripped switches deny new leases without deleting history.
+            Licensor tenant ({tenantId?.slice(0, 8) ?? "unresolved"}) — tripped switches deny new leases without deleting history.
           </p>
         </div>
         <DataTableShell scrollableBody>
@@ -92,7 +92,7 @@ export async function AdminLinkskillsGovernancePanel() {
         <div>
           <h2 className="text-lg font-medium text-zinc-800 dark:text-zinc-100">Lease ledger (24h)</h2>
           <p className="text-sm text-zinc-500 dark:text-zinc-400">
-            Recent capability leases for Calusa — request, grant, execute, and denial events.
+            Recent capability leases for the licensor tenant — request, grant, execute, and denial events.
           </p>
         </div>
         <DataTableShell scrollableBody>

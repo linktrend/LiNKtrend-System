@@ -4,6 +4,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import {
   ADMIN_BASE_PATH,
   ADMIN_LOGIN_PATH,
+  APP_SURFACE_HEADER,
   isAdminPathname,
   isLicensorOnlyLicenseePath,
   isPublicLandingPath,
@@ -30,6 +31,7 @@ export async function middleware(request: NextRequest) {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
   if (!url || !key) {
+    supabaseResponse.headers.set(APP_SURFACE_HEADER, isAdminPathname(path) ? "admin" : "licensee");
     return supabaseResponse;
   }
 
@@ -106,6 +108,7 @@ export async function middleware(request: NextRequest) {
     }
   }
 
+  supabaseResponse.headers.set(APP_SURFACE_HEADER, isAdminPathname(path) ? "admin" : "licensee");
   return supabaseResponse;
 }
 
