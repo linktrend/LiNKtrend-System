@@ -123,10 +123,10 @@ export function TeamMembersAddButton(props: {
   inviteAction?: InviteAction;
   roleOptions?: AppRoleTier[];
 }) {
-  if (props.canInvite === false) return null;
-
   const copy = props.copy ?? PERMISSIONS_PAGE_COPY;
   const [modalOpen, setModalOpen] = useState(false);
+
+  if (props.canInvite === false) return null;
 
   return (
     <>
