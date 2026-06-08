@@ -11,7 +11,7 @@ export type TwoFactorState = {
 
 export const TWO_FACTOR_COPY = {
   pageNote:
-    "Demo 2FA — verification is stored locally for MVO proof. Production uses Supabase Auth MFA (TOTP) with hashed backup codes.",
+    "Demo 2FA — no live QR enrollment yet. Verification is stored locally for MVO proof. Production uses Supabase Auth MFA (TOTP) with a scannable QR and hashed backup codes.",
   disabledTitle: "Two-factor authentication is off",
   disabledBody: "Add a second step at sign-in so a password or magic link alone is not enough to access your workspace.",
   enabledTitle: "Two-factor authentication is on",

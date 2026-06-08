@@ -12,29 +12,18 @@ import {
   DataTableShell,
   DT,
 } from "@/components/data-table";
+import { useAppRole } from "@/components/role-preview-provider";
 import { TitledCardHeader } from "@/components/titled-card-header";
+import { canManageTeamRoles } from "@/lib/app-roles";
 import {
   PERMISSIONS_TABS,
   parsePermissionsTab,
   permissionsTabHref,
   ROLE_PERMISSION_MATRIX,
-  type PermissionsTabId,
 } from "@/lib/permissions-page-copy";
 import { formatCardTitle, formatUiLabel, screenTabLinkClass, TABS } from "@/lib/ui-standards";
 
 import { TeamMembersAddButton } from "@/components/settings/team-members-add-button";
-
-function PermissionsTabNav(props: { active: PermissionsTabId }) {
-  return (
-    <nav className={TABS.row} aria-label="Permissions sections">
-      {PERMISSIONS_TABS.map((tab) => (
-        <Link key={tab.id} href={permissionsTabHref(tab.id)} className={screenTabLinkClass(props.active === tab.id)}>
-          {tab.label}
-        </Link>
-      ))}
-    </nav>
-  );
-}
 
 function PermissionCell(props: { allowed: boolean }) {
   return (
@@ -96,18 +85,29 @@ function RolePermissionsMatrix() {
 
 export function PermissionsPageShell(props: { teamPanel: React.ReactNode }) {
   const searchParams = useSearchParams();
+  const { kind, role } = useAppRole();
+  const canManageTeam = canManageTeamRoles(kind, role);
   const activeTab = parsePermissionsTab(searchParams.get("tab"));
+  const visibleTabs = canManageTeam
+    ? PERMISSIONS_TABS
+    : PERMISSIONS_TABS.filter((tab) => tab.id === "team");
 
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-3">
-        <PermissionsTabNav active={activeTab} />
-        {activeTab === "team" ? <TeamMembersAddButton /> : null}
+        <nav className={TABS.row} aria-label="Permissions sections">
+          {visibleTabs.map((tab) => (
+            <Link key={tab.id} href={permissionsTabHref(tab.id)} className={screenTabLinkClass(activeTab === tab.id)}>
+              {tab.label}
+            </Link>
+          ))}
+        </nav>
+        {activeTab === "team" && canManageTeam ? <TeamMembersAddButton canInvite /> : null}
       </div>
 
       {activeTab === "team" ? <section className="space-y-4">{props.teamPanel}</section> : null}
 
-      {activeTab === "roles" ? <RolePermissionsMatrix /> : null}
+      {activeTab === "roles" && canManageTeam ? <RolePermissionsMatrix /> : null}
     </div>
   );
 }

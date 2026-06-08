@@ -14,32 +14,18 @@ import {
 } from "@/components/data-table";
 import { useAppSurface } from "@/components/app-surface-provider";
 import { TitledCardHeader } from "@/components/titled-card-header";
+import { useAppRole } from "@/components/role-preview-provider";
 import { TeamMembersAddButton } from "@/components/settings/team-members-add-button";
+import { inviteLicensorOperator } from "@/app/(admin-shell)/admin/settings/access/actions";
+import { canManageLicensorOperatorTeam } from "@/lib/app-roles";
 import {
   LICENSOR_PERMISSIONS_PAGE_COPY,
   LICENSOR_PERMISSIONS_TABS,
   LICENSOR_ROLE_PERMISSION_MATRIX,
   licensorPermissionsTabHref,
   parseLicensorPermissionsTab,
-  type LicensorPermissionsTabId,
 } from "@/lib/licensor-permissions-page-copy";
 import { formatCardTitle, formatUiLabel, screenTabLinkClass, TABS } from "@/lib/ui-standards";
-
-function LicensorPermissionsTabNav(props: { active: LicensorPermissionsTabId; href: (path: string) => string }) {
-  return (
-    <nav className={TABS.row} aria-label="Operator permissions sections">
-      {LICENSOR_PERMISSIONS_TABS.map((tab) => (
-        <Link
-          key={tab.id}
-          href={props.href(licensorPermissionsTabHref(tab.id))}
-          className={screenTabLinkClass(props.active === tab.id)}
-        >
-          {tab.label}
-        </Link>
-      ))}
-    </nav>
-  );
-}
 
 function PermissionCell(props: { allowed: boolean }) {
   return (
@@ -102,20 +88,43 @@ function LicensorRolePermissionsMatrix() {
 export function LicensorPermissionsPageShell(props: { teamPanel: React.ReactNode }) {
   const searchParams = useSearchParams();
   const { href } = useAppSurface();
+  const { kind, role } = useAppRole();
+  const canManageTeam = canManageLicensorOperatorTeam(kind, role);
   const activeTab = parseLicensorPermissionsTab(searchParams.get("tab"));
+  const visibleTabs = canManageTeam
+    ? LICENSOR_PERMISSIONS_TABS
+    : LICENSOR_PERMISSIONS_TABS.filter((tab) => tab.id === "team");
 
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-3">
-        <LicensorPermissionsTabNav active={activeTab} href={href} />
-        {activeTab === "team" ? (
-          <TeamMembersAddButton copy={LICENSOR_PERMISSIONS_PAGE_COPY} />
+        <nav className={TABS.row} aria-label="Operator permissions sections">
+          {visibleTabs.map((tab) => (
+            <Link
+              key={tab.id}
+              href={href(licensorPermissionsTabHref(tab.id))}
+              className={screenTabLinkClass(activeTab === tab.id)}
+            >
+              {tab.label}
+            </Link>
+          ))}
+        </nav>
+        {activeTab === "team" && canManageTeam ? (
+          <TeamMembersAddButton
+            copy={LICENSOR_PERMISSIONS_PAGE_COPY}
+            canInvite
+            inviteAction={inviteLicensorOperator}
+          />
         ) : null}
       </div>
 
+      {!canManageTeam && activeTab === "roles" ? (
+        <p className="text-sm text-zinc-600 dark:text-zinc-400">{LICENSOR_PERMISSIONS_PAGE_COPY.nonAdminNote}</p>
+      ) : null}
+
       {activeTab === "team" ? <section className="space-y-4">{props.teamPanel}</section> : null}
 
-      {activeTab === "roles" ? <LicensorRolePermissionsMatrix /> : null}
+      {activeTab === "roles" && canManageTeam ? <LicensorRolePermissionsMatrix /> : null}
     </div>
   );
 }

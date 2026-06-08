@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Copy, Shield, ShieldCheck, ShieldOff, Smartphone } from "lucide-react";
 
+import { StubPageNotice } from "@/components/stub-badge";
 import { TitledCardHeader } from "@/components/titled-card-header";
 import {
   emptyTwoFactorState,
@@ -172,6 +173,7 @@ export function TwoFactorPage() {
 
   return (
     <div className="space-y-6">
+      <StubPageNotice message={TWO_FACTOR_COPY.pageNote} />
       <section className="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <TitledCardHeader

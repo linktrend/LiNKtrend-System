@@ -34,7 +34,7 @@ export const LICENSOR_PERMISSIONS_PAGE_COPY = {
   addTeamMember: "Add Team Member",
   inviteTeamMemberTitle: "Invite operator",
   inviteTeamMemberBody:
-    "Send an invitation email to add a LiNKtrend staff member to the Admin app. Invitations are recorded for audit; delivery is stubbed in this MVO build.",
+    "Create the operator account with full name, email, and role, then send an invite. On first sign-in they must set a new password. Invitations are audit-logged; email delivery may be stubbed in this MVO build.",
 } as const;
 
 export type LicensorRolePermissionRow = LicenseePermissionRow;
