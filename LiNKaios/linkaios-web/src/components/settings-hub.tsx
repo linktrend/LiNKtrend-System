@@ -21,7 +21,11 @@ import {
 } from "lucide-react";
 
 import { useAppRole } from "@/components/role-preview-provider";
-import { canManageBilling, canDeleteWorkspaceAccount } from "@/lib/app-roles";
+import {
+  canManageBilling,
+  canDeleteWorkspaceAccount,
+  canSeePlatformSettingsTab,
+} from "@/lib/app-roles";
 import { DeleteAccountCard } from "@/components/settings/delete-account-card";
 import { SettingCard, SettingCardFacts } from "@/components/settings/setting-card";
 import { StubBadge } from "@/components/stub-badge";
@@ -265,19 +269,21 @@ export function SettingsHub(props: {
   const { isAdmin, href: appHref } = useAppSurface();
   const { role, kind } = useAppRole();
   const showPlatformTab = props.showPlatformTab === true || isAdmin;
-  const showBilling = kind === "licensee" && canManageBilling(kind, role);
-  const showDeleteAccount = canDeleteWorkspaceAccount(kind, role);
+  const canSeePlatformTab = showPlatformTab && canSeePlatformSettingsTab(kind, role);
+  const showLicenseeAccountExtras = !isAdmin && kind === "licensee";
+  const showBilling = showLicenseeAccountExtras && canManageBilling(kind, role);
+  const showDeleteAccount = showLicenseeAccountExtras && canDeleteWorkspaceAccount(kind, role);
   const tabFromUrl = parseSettingsHubTab(searchParams.get("tab"));
   const [activeTab, setActiveTab] = useState<SettingsHubTabId>(tabFromUrl);
 
   useEffect(() => {
-    if (!showPlatformTab && tabFromUrl === "platform") {
+    if (!canSeePlatformTab && tabFromUrl === "platform") {
       router.replace(appHref("/settings"), { scroll: false });
       setActiveTab("account");
       return;
     }
     setActiveTab(tabFromUrl);
-  }, [tabFromUrl, showPlatformTab, router]);
+  }, [tabFromUrl, canSeePlatformTab, router, appHref]);
 
   const selectTab = useCallback(
     (tab: SettingsHubTabId) => {
@@ -291,10 +297,10 @@ export function SettingsHub(props: {
       const qs = params.toString();
       router.replace(appHref(qs ? `/settings?${qs}` : "/settings"), { scroll: false });
     },
-    [router, searchParams],
+    [router, searchParams, appHref],
   );
 
-  const tabs = visibleSettingsHubTabs(showPlatformTab, role);
+  const tabs = visibleSettingsHubTabs(showPlatformTab, { kind, role });
 
   return (
     <div className="space-y-6">
@@ -344,7 +350,7 @@ export function SettingsHub(props: {
             </SettingCard>
           ) : null}
 
-          {kind === "licensee" ? (
+          {showLicenseeAccountExtras ? (
             <SettingCard
               icon={Headphones}
               title="Support"
@@ -478,7 +484,7 @@ export function SettingsHub(props: {
             <DataSettingsSummary />
           </SettingCard>
 
-          {kind === "licensee" ? (
+          {showLicenseeAccountExtras ? (
             <SettingCard
               icon={Link2}
               title="Integrations"

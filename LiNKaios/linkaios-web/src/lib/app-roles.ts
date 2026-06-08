@@ -98,6 +98,11 @@ export function canSeeNavSection(kind: AppActorKind, role: AppRoleTier, section:
   return map[role].has(section);
 }
 
+/** Licensor Admin nav sections visible for an operator platform tier. */
+export function visibleLicensorNavSections(role: AppRoleTier): ShellNavSection[] {
+  return [...LICENSOR_NAV[role]];
+}
+
 export function defaultLandingPath(kind: AppActorKind, role: AppRoleTier): string {
   if (kind === "licensee") {
     return role === "super_admin" ? "/client" : "/work";
@@ -187,6 +192,11 @@ export function canDeleteWorkspaceAccount(kind: AppActorKind, role: AppRoleTier)
   if (kind === "licensor") return false;
   if (kind === "licensee") return role === "super_admin";
   return false;
+}
+
+/** Platform tab in Settings — licensor Admin and Super Admin on the Admin app. */
+export function canSeePlatformSettingsTab(kind: AppActorKind, role: AppRoleTier): boolean {
+  return kind === "licensor" && (role === "admin" || role === "super_admin");
 }
 
 /** Suspend / terminate / delete LiNKbots — Super Admin on licensee; Admin+ on licensor. */

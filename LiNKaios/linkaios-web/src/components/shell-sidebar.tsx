@@ -196,7 +196,7 @@ export function ShellSidebar(props: {
   const mobileOpen = props.mobileOpen ?? false;
   const setMobileOpen = props.onMobileOpenChange ?? (() => {});
   const homePath = isAdmin ? ADMIN_BASE_PATH : LICENSEE_HOME_PATH;
-  const settingsNavItems = settingsSidebarItems(isAdmin, role).map((item) => ({
+  const settingsNavItems = settingsSidebarItems(isAdmin, { kind, role }).map((item) => ({
     ...item,
     href: appHref(item.href),
     match: (path: string, search?: string) => item.match(routePath(path), search),
@@ -498,7 +498,7 @@ export function ShellSidebar(props: {
                 <div className={subMenuRail}>
                   {kind === "licensor" ? (
                     <Link href={appHref("/licensees")} className={subLinkClass(companyActive)}>
-                      Licensee Registry
+                      Registry
                     </Link>
                   ) : (
                     COMPANY_SIDEBAR_ITEMS.map((item) => (

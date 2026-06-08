@@ -1,4 +1,4 @@
-import type { AppRoleTier } from "@/lib/app-roles";
+import { canSeePlatformSettingsTab, type AppActorKind, type AppRoleTier } from "@/lib/app-roles";
 
 export type SettingsHubTabId = "account" | "security" | "preferences" | "data" | "platform";
 
@@ -22,15 +22,45 @@ export function settingsHubTabHref(id: SettingsHubTabId): string {
   return `/settings?tab=${id}`;
 }
 
-export function settingsHubTabLabel(id: SettingsHubTabId): string {
+export type SettingsHubTabsOptions = {
+  kind?: AppActorKind;
+  role?: AppRoleTier;
+};
+
+export function settingsHubTabLabel(id: SettingsHubTabId, kind?: AppActorKind): string {
+  if (id === "data" && kind === "licensor") return "Data";
   return SETTINGS_HUB_TABS.find((tab) => tab.id === id)?.label ?? id;
 }
 
-export function visibleSettingsHubTabs(showPlatformTab: boolean, role?: AppRoleTier) {
-  let tabs = showPlatformTab ? SETTINGS_HUB_TABS : SETTINGS_HUB_TABS.filter((t) => t.id !== "platform");
-  if (role === "user") {
-    tabs = tabs.filter((t) => t.id === "account" || t.id === "preferences");
+function resolveSettingsHubTabsOptions(
+  options?: AppRoleTier | SettingsHubTabsOptions,
+): SettingsHubTabsOptions {
+  if (typeof options === "string") return { role: options };
+  return options ?? {};
+}
+
+function withActorTabLabels(tabs: typeof SETTINGS_HUB_TABS, kind?: AppActorKind) {
+  if (kind !== "licensor") return tabs;
+  return tabs.map((tab) => (tab.id === "data" ? { ...tab, label: "Data" } : tab));
+}
+
+export function visibleSettingsHubTabs(
+  showPlatformTab: boolean,
+  options?: AppRoleTier | SettingsHubTabsOptions,
+) {
+  const { kind, role } = resolveSettingsHubTabsOptions(options);
+  let tabs = withActorTabLabels(SETTINGS_HUB_TABS, kind);
+
+  const platformVisible =
+    showPlatformTab && (kind ? canSeePlatformSettingsTab(kind, role ?? "user") : showPlatformTab);
+  if (!platformVisible) {
+    tabs = tabs.filter((tab) => tab.id !== "platform");
   }
+
+  if (role === "user") {
+    tabs = tabs.filter((tab) => tab.id === "account" || tab.id === "preferences");
+  }
+
   return tabs;
 }
 

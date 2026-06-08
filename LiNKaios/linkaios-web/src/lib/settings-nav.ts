@@ -13,8 +13,11 @@ export type SettingsNavItem = {
 };
 
 /** Sidebar sections for Settings — mirrors Settings hub tabs. */
-export function settingsSidebarItems(showPlatformTab = false, role?: import("@/lib/app-roles").AppRoleTier): SettingsNavItem[] {
-  const tabs = visibleSettingsHubTabs(showPlatformTab, role);
+export function settingsSidebarItems(
+  showPlatformTab = false,
+  options?: import("@/lib/app-roles").AppRoleTier | import("@/lib/settings-hub-tabs").SettingsHubTabsOptions,
+): SettingsNavItem[] {
+  const tabs = visibleSettingsHubTabs(showPlatformTab, options);
   return tabs.map((tab) => ({
     href: settingsHubTabHref(tab.id),
     label: tab.label,
