@@ -3,7 +3,7 @@
 import { Suspense } from "react";
 
 import { LicenseeRegistryPanel } from "@/components/admin/licensee-registry-panel";
-import { CompanyPageShell } from "@/components/company-page-shell";
+import { LicensorLicenseePageShell } from "@/components/licensor/licensor-licensee-page-shell";
 import { ShellPageHeaderClient } from "@/components/shell-page-header-client";
 import { useLicensorScope } from "@/components/role-preview-provider";
 import { LICENSEES_PAGE_HEADER } from "@/lib/company-page-copy";
@@ -23,11 +23,7 @@ function AdminCompanyPageInner() {
     );
   }
 
-  return (
-    <main className="space-y-6">
-      <CompanyPageShell />
-    </main>
-  );
+  return <LicensorLicenseePageShell />;
 }
 
 export function AdminCompanyPage() {

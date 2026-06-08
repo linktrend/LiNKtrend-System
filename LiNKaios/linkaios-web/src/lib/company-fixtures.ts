@@ -192,6 +192,15 @@ export type CorporateProfileFixture = {
   constitutionalDocs: string;
 };
 
+const EMPTY_CORPORATE_ADDRESS: PersonalAddressValue = {
+  streetAddress1: "",
+  streetAddress2: "",
+  city: "",
+  state: "",
+  postalCode: "",
+  country: "",
+};
+
 export function mergeCorporateProfile(
   base: CorporateProfileFixture,
   draft: Partial<CorporateProfileFixture>,
@@ -199,8 +208,14 @@ export function mergeCorporateProfile(
   return {
     ...base,
     ...draft,
-    registeredOffice: { ...base.registeredOffice, ...draft.registeredOffice },
-    principalPlace: { ...base.principalPlace, ...draft.principalPlace },
+    registeredOffice: {
+      ...(base.registeredOffice ?? EMPTY_CORPORATE_ADDRESS),
+      ...(draft.registeredOffice ?? {}),
+    },
+    principalPlace: {
+      ...(base.principalPlace ?? EMPTY_CORPORATE_ADDRESS),
+      ...(draft.principalPlace ?? {}),
+    },
   };
 }
 

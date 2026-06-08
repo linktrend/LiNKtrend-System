@@ -45,15 +45,15 @@ export function CompanyOverviewPanel(props: { company: CompanyFixture }) {
       const updated: Partial<CorporateProfileFixture> = { ...current, ...next };
       if (next.registeredOffice) {
         updated.registeredOffice = {
-          ...profile.registeredOffice,
-          ...current.registeredOffice,
+          ...(profile.registeredOffice ?? {}),
+          ...(current.registeredOffice ?? {}),
           ...next.registeredOffice,
         };
       }
       if (next.principalPlace) {
         updated.principalPlace = {
-          ...profile.principalPlace,
-          ...current.principalPlace,
+          ...(profile.principalPlace ?? {}),
+          ...(current.principalPlace ?? {}),
           ...next.principalPlace,
         };
       }

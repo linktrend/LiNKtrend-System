@@ -28,6 +28,7 @@ import {
 } from "@/components/summary-metric-card";
 import { StatusPill } from "@/components/ui/status-pill";
 import { licensorScopeIsReadOnly } from "@/lib/app-roles";
+import { CLIENTS_LICENSEES_LABEL } from "@/lib/company-page-copy";
 import { LICENSEE_REGISTRY, resolveLicenseeRegistry } from "@/lib/licensee-registry";
 import { DEMO_CHANNEL_THREADS } from "@/lib/ui-mocks/channel-threads";
 import { DEMO_SESSION_THREADS } from "@/lib/ui-mocks/session-threads";
@@ -114,17 +115,22 @@ function PlatformBirdsEye(props: { href: (path: string) => string }) {
     { href: props.href("/suites"), icon: Layers3, title: "Suites", description: "Compose suite products and publish to Marketplace." },
     { href: props.href("/skills"), icon: Wrench, title: "LinkSkills", description: "Capabilities, leases, and tools." },
     { href: props.href("/memory"), icon: Brain, title: "LiNKbrain", description: "Memory files and audit surfaces." },
-    { href: props.href("/licensees"), icon: Building2, title: "Licensees", description: "Registry, billing status, and org topology." },
+    {
+      href: props.href("/licensees"),
+      icon: Building2,
+      title: CLIENTS_LICENSEES_LABEL,
+      description: "Registry, billing status, and org topology.",
+    },
     { href: props.href("/metrics"), icon: Zap, title: "Metrics", description: "Platform KPIs and usage snapshots." },
     { href: props.href("/settings"), icon: Settings, title: "Settings", description: "Operator users and platform controls." },
   ];
 
   return (
     <div className="space-y-8">
-      <SummaryMetricCardSection title={formatUiLabel("Licensee snapshot")}>
+      <SummaryMetricCardSection title={formatUiLabel(`${CLIENTS_LICENSEES_LABEL} snapshot`)}>
         <SummaryMetricCardGrid statusPillLabels={["Active", "Trialing", "Suspended"]}>
           <SummaryMetricCard
-            title="Licensees"
+            title={CLIENTS_LICENSEES_LABEL}
             icon={Building2}
             metric={stats.total}
             compactMetric
@@ -277,9 +283,9 @@ function LicenseeBirdsEye(props: { licenseeId: string; href: (path: string) => s
   if (!row) {
     return (
       <p className="text-sm text-zinc-600 dark:text-zinc-400">
-        Licensee not found in the demo registry.{" "}
+        Client / licensee not found in the demo registry.{" "}
         <Link href={props.href("/licensees")} className="font-medium text-sky-700 underline dark:text-sky-400">
-          Open Licensee Registry
+          Open {CLIENTS_LICENSEES_LABEL}
         </Link>
       </p>
     );
@@ -293,8 +299,8 @@ function LicenseeBirdsEye(props: { licenseeId: string; href: (path: string) => s
     {
       href: props.href("/licensees"),
       icon: Building2,
-      title: "Licensee profile",
-      description: "Legal entities, brands, and org structure for this licensee.",
+      title: "Client / Licensee profile",
+      description: "Service profile, companies & brands index, billing, and support for this tenant.",
     },
     {
       href: props.href("/work"),
@@ -342,7 +348,7 @@ function LicenseeBirdsEye(props: { licenseeId: string; href: (path: string) => s
 
   return (
     <div className="space-y-8">
-      <SummaryMetricCardSection title={formatUiLabel("Licensee snapshot")}>
+      <SummaryMetricCardSection title={formatUiLabel("Client / licensee snapshot")}>
         <SummaryMetricCardGrid statusPillLabels={["Active billing", "Trialing", "Suspended", "Past due"]}>
           <SummaryMetricCard
             title="Plan"

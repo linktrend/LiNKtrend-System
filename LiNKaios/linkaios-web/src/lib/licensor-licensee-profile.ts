@@ -1,5 +1,6 @@
 import { brandsForCompany } from "@/lib/brand-fixtures";
 import { corporateProfileForCompany, type CompanyFixture } from "@/lib/company-fixtures";
+import type { PersonalAddressValue } from "@/lib/form-types";
 import { resolveLicenseeRegistry } from "@/lib/licensee-registry";
 import {
   BILLING_DEMO_INVOICES,
@@ -150,15 +151,30 @@ export function companiesBrandsIndexForLicensee(licenseeId: string, companies: C
   return rows;
 }
 
+const EMPTY_REGISTERED_OFFICE: PersonalAddressValue = {
+  streetAddress1: "",
+  streetAddress2: "",
+  city: "",
+  state: "",
+  postalCode: "",
+  country: "",
+};
+
+function operationalRegisteredOffice(profile: ReturnType<typeof corporateProfileForCompany>): PersonalAddressValue {
+  return profile.registeredOffice ?? EMPTY_REGISTERED_OFFICE;
+}
+
+/** Contract-party summary for licensor overview — operational fields only, no corporate dossier depth. */
 export function contractEntitySummaryForLicensee(licenseeId: string, primaryCompany: CompanyFixture) {
   const profile = corporateProfileForCompany(primaryCompany.id);
   const registry = resolveLicenseeRegistry(licenseeId);
+  const office = operationalRegisteredOffice(profile);
   return {
-    legalName: profile.registeredName || primaryCompany.name,
-    registrationNumber: profile.registrationNumber,
-    registeredOffice: profile.registeredOffice,
-    email: profile.email,
-    phone: profile.phoneNumber ? `${profile.phoneCountryCode} ${profile.phoneNumber}` : "—",
+    legalName: profile.registeredName?.trim() || primaryCompany.displayName || primaryCompany.name,
+    registrationNumber: profile.registrationNumber?.trim() || "—",
+    registeredOffice: office,
+    email: profile.email?.trim() || "—",
+    phone: profile.phoneNumber?.trim() ? `${profile.phoneCountryCode} ${profile.phoneNumber}`.trim() : "—",
     industry: primaryCompany.industry,
     plan: registry?.plan ?? BILLING_DEMO_LINKAIOS_PLAN.name,
     status: registry?.status ?? "active",

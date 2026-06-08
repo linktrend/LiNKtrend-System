@@ -16,7 +16,7 @@ import {
 import { useLicensorScope } from "@/components/role-preview-provider";
 import { StatusPill } from "@/components/ui/status-pill";
 import { companyIdsForLicensee } from "@/lib/licensor-licensee-profile";
-import { companyTabHrefForSurface } from "@/lib/company-page-copy";
+import { CLIENTS_LICENSEES_LABEL, companyTabHrefForSurface } from "@/lib/company-page-copy";
 import { LICENSEE_REGISTRY, type LicenseeRegistryRow } from "@/lib/licensee-registry";
 import { formatUiLabel } from "@/lib/ui-standards";
 
@@ -40,10 +40,10 @@ export function LicenseeRegistryPanel() {
   return (
     <section className="space-y-4">
       <div>
-        <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">Registry</h2>
+        <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">{CLIENTS_LICENSEES_LABEL} registry</h2>
         <p className="mt-1 max-w-2xl text-sm text-zinc-600 dark:text-zinc-400">
-          Demo tenant catalogue for licensor scope selection. Choose a licensee to operate within that workspace, or stay
-          on All licensees for a read-only platform view.
+          Browse tenant service profiles. Select a client / licensee to operate within that workspace, or stay on All
+          licensees for a read-only platform view.
         </p>
       </div>
 
@@ -61,7 +61,7 @@ export function LicenseeRegistryPanel() {
           </colgroup>
           <DataTableHead>
             <tr>
-              <th className={DT.thTextInset}>Licensee</th>
+              <th className={DT.thTextInset}>Client / licensee</th>
               <th className={DT.thTextInset}>Plan</th>
               <th className={DT.thTextInset}>Status</th>
               <th className={DT.thTextInset}>Entities</th>

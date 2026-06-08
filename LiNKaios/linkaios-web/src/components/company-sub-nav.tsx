@@ -12,6 +12,7 @@ import {
   companyTabHrefForSurface,
   LICENSOR_LICENSEE_TABS,
   normalizeCompanyTab,
+  CLIENTS_LICENSEES_LABEL,
   normalizeLicensorLicenseeTab,
 } from "@/lib/company-page-copy";
 import { screenTabLinkClass, TABS, formatUiLabel } from "@/lib/ui-standards";
@@ -24,7 +25,7 @@ export function CompanySubNav() {
   const isLicensor = kind === "licensor";
   const tabs = isLicensor ? LICENSOR_LICENSEE_TABS : COMPANY_TABS;
   const activeTab = isLicensor ? normalizeLicensorLicenseeTab(rawTab) : normalizeCompanyTab(rawTab);
-  const navLabel = isLicensor ? "Licensee profile sections" : "Company sections";
+  const navLabel = isLicensor ? `${CLIENTS_LICENSEES_LABEL} sections` : "Company sections";
 
   return (
     <nav className={TABS.row} aria-label={navLabel}>
