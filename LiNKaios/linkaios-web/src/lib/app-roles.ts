@@ -66,10 +66,11 @@ const LICENSEE_NAV: Record<AppRoleTier, ReadonlySet<ShellNavSection>> = {
 };
 
 const LICENSOR_NAV: Record<AppRoleTier, ReadonlySet<ShellNavSection>> = {
-  user: new Set(["overview", "work", "linkbots", "suites", "linkskills", "linkbrain", "company", "settings"]),
+  user: new Set(["overview", "work", "projects", "linkbots", "suites", "linkskills", "linkbrain", "company", "settings"]),
   admin: new Set([
     "overview",
     "work",
+    "projects",
     "linkbots",
     "suites",
     "linkskills",
@@ -81,6 +82,7 @@ const LICENSOR_NAV: Record<AppRoleTier, ReadonlySet<ShellNavSection>> = {
   super_admin: new Set([
     "overview",
     "work",
+    "projects",
     "linkbots",
     "suites",
     "linkskills",
@@ -158,8 +160,15 @@ export function canAddExtraLinkbot(kind: AppActorKind, role: AppRoleTier): boole
   return role === "admin" || role === "super_admin";
 }
 
+/** Licensee tenant project CRUD — not available on Admin (vendor admin programs are separate). */
 export function canCreateProject(kind: AppActorKind, role: AppRoleTier): boolean {
+  if (kind === "licensor") return false;
   return role === "admin" || role === "super_admin";
+}
+
+/** Admin Projects nav — vendor admin programs, not client/licensee project management. */
+export function isAdminProgramsSurface(kind: AppActorKind): boolean {
+  return kind === "licensor";
 }
 
 export function canInteractWithLinkbotSession(kind: AppActorKind, role: AppRoleTier): boolean {

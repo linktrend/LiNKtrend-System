@@ -138,7 +138,7 @@ type AccordionKey = "work" | "agents" | "projects" | "skills" | "metrics" | "mem
 
 function accordionKeyForPath(pathname: string): AccordionKey {
   if (pathname.startsWith("/work")) return "work";
-  if (pathname.startsWith("/workers")) return "agents";
+  if (pathname.startsWith("/workers") || pathname.startsWith("/fleet")) return "agents";
   if (pathname.startsWith("/projects")) return "projects";
   if (pathname.startsWith("/skills")) return "skills";
   if (metricsSectionActive(pathname)) return "metrics";
@@ -362,7 +362,9 @@ export function ShellSidebar(props: {
                 onClick={() => toggle("agents")}
                 className={
                   "flex w-full items-center justify-between gap-2 rounded-md px-3 py-2 text-left text-sm font-medium text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800 " +
-                  (route.startsWith("/workers") ? "bg-zinc-100 text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100" : "")
+                  (route.startsWith("/workers") || route.startsWith("/fleet")
+                    ? "bg-zinc-100 text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100"
+                    : "")
                 }
                 aria-expanded={agentsOpen}
               >
@@ -377,6 +379,11 @@ export function ShellSidebar(props: {
                   <Link href={appHref("/workers")} className={footerSubLinkClass(route === "/workers")}>
                     {linkbotsFleetLabel}
                   </Link>
+                  {isAdmin ? (
+                    <Link href={appHref("/fleet")} className={subLinkClass(route.startsWith("/fleet"))}>
+                      Fleet v1
+                    </Link>
+                  ) : null}
                   {placeholderSubItem("Recent", "recent")}
                   {placeholderSubItem("Pinned", "pinned")}
                 </div>

@@ -1,2 +1,8 @@
-export { default } from "@/app/(shell)/projects/[id]/page";
-export * from "@/app/(shell)/projects/[id]/page";
+import { redirect } from "next/navigation";
+
+import { ADMIN_BASE_PATH } from "@/lib/app-surface";
+
+/** Block Client project detail bleed on Admin — tenant project detail is Client-only. */
+export default function AdminProjectDetailBlockedPage() {
+  redirect(`${ADMIN_BASE_PATH}/projects?blocked=detail`);
+}
