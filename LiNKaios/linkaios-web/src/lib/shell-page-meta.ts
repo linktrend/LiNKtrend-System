@@ -1,4 +1,5 @@
 import { stripAppBasePath } from "@/lib/app-surface";
+import { LICENSEES_PAGE_HEADER } from "@/lib/company-page-copy";
 
 /** Title + subtitle for shared shell page headers (breadcrumb leaf = title). */
 
@@ -37,8 +38,8 @@ const EXACT: Record<string, ShellPageMeta> = {
     subtitle: "Performance observability — cost, tokens, run time, success/failure, and usage by project, LiNKbot, model, tool, and skill.",
   },
   "/licensees": {
-    title: "Licensees",
-    subtitle: "Tenant registry — overview, companies & brands, billing, and Chatwoot support per licensee.",
+    title: LICENSEES_PAGE_HEADER.title,
+    subtitle: LICENSEES_PAGE_HEADER.subtitle,
   },
   "/company": {
     title: "Company",

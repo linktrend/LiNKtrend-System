@@ -39,6 +39,7 @@ import { useTenantTopology } from "@/hooks/use-tenant-topology";
 import { METRICS_SIDEBAR_ITEMS, metricsSectionActive } from "@/lib/metrics-nav";
 import { MEMORY_SIDEBAR_ITEMS, memorySectionActive } from "@/lib/memory-nav";
 import { COMPANY_SIDEBAR_ITEMS, companySectionActive } from "@/lib/company-nav";
+import { LICENSEES_PAGE_HEADER } from "@/lib/company-page-copy";
 
 export type SidebarUser = {
   email: string | null;
@@ -478,7 +479,7 @@ export function ShellSidebar(props: {
               >
                 <span className="flex items-center gap-2">
                   <Building2 className="h-4 w-4 shrink-0 opacity-85" aria-hidden />
-                  {kind === "licensor" ? "Licensees" : "Company"}
+                  {kind === "licensor" ? LICENSEES_PAGE_HEADER.title : "Company"}
                 </span>
                 {companyOpen ? (
                   <ChevronDown className="h-4 w-4 text-zinc-400" aria-hidden />

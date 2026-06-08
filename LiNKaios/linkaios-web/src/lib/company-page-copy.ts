@@ -22,7 +22,7 @@ export const COMPANY_PAGE_HEADER = {
 } as const;
 
 export const LICENSEES_PAGE_HEADER = {
-  title: "Licensees",
+  title: "Clients / Licensees",
   subtitle: "Tenant registry — overview, companies & brands, billing, and Chatwoot support per licensee.",
 } as const;
 

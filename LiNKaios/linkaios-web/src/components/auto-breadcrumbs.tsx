@@ -16,6 +16,7 @@ import { useModuleSubscriptions } from "@/hooks/use-module-subscriptions";
 import { resolveSettingsSubpageMeta } from "@/lib/shell-page-meta";
 import { enrichShellBreadcrumbs } from "@/lib/shell-breadcrumb-hubs";
 import { fixtureLicensedByModule } from "@/lib/ui-mocks/modules-catalog-demo";
+import { LICENSEES_PAGE_HEADER } from "@/lib/company-page-copy";
 import { formatUiLabel, SHELL } from "@/lib/ui-standards";
 
 const STATIC_LABELS: Record<string, string> = {
@@ -54,7 +55,7 @@ const STATIC_LABELS: Record<string, string> = {
   memory: "LiNKbrain",
   metrics: "Metrics",
   company: "Company",
-  licensees: "Licensees",
+  licensees: LICENSEES_PAGE_HEADER.title,
   gateway: "Integration routing",
   settings: "Settings",
   user: "User",
