@@ -1,4 +1,13 @@
-export type WorkerDetailTabId = "sessions" | "projects" | "skills" | "brain" | "models" | "settings" | "logs" | "lifecycle";
+export type WorkerDetailTabId =
+  | "sessions"
+  | "projects"
+  | "skills"
+  | "brain"
+  | "models"
+  | "settings"
+  | "logs"
+  | "lifecycle"
+  | "native-ui";
 
 export const WORKER_DETAIL_TABS: {
   id: WorkerDetailTabId;
@@ -54,6 +63,12 @@ export const WORKER_DETAIL_TABS: {
     label: "Lifecycle",
     href: (id) => `/workers/${id}/lifecycle`,
     match: (path, id) => path.startsWith(`/workers/${id}/lifecycle`),
+  },
+  {
+    id: "native-ui",
+    label: "Native UI",
+    href: (id) => `/workers/${id}/native-ui`,
+    match: (path, id) => path.startsWith(`/workers/${id}/native-ui`),
   },
 ];
 

@@ -5,6 +5,8 @@ import { useEffect, useMemo, useState, type ReactNode } from "react";
 
 import { WorkEmptyState } from "@/app/(shell)/work/work-empty-state";
 import type { ChannelMessage, ChannelMessageThread } from "@/lib/work-messages";
+import type { WorkMessagingChannelConfig } from "@/lib/work-channel-config";
+import { openExternalPopup } from "@/lib/zulip-links";
 import { InsetSelect } from "@/components/forms";
 import { BUTTON, FIELD, FORM, screenTabLinkClass, TABS } from "@/lib/ui-standards";
 
@@ -40,23 +42,57 @@ function paneTitle(label: string, count?: number): string {
   return count === undefined ? text : `${text} (${count})`;
 }
 
-function ExternalPlatformLink(props: { href: string; label: string; className?: string }) {
-  const external = props.href.startsWith("http");
+function isExternalHttpHref(href: string): boolean {
+  return href.startsWith("http://") || href.startsWith("https://");
+}
+
+function ZulipExternalLink(props: { href: string; label: string; className?: string; asButton?: boolean; children?: ReactNode }) {
+  const external = isExternalHttpHref(props.href);
+  const className =
+    props.className ??
+    "inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-zinc-500 transition hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100";
+
+  if (!external) {
+    return (
+      <span
+        className={`${className} cursor-not-allowed opacity-50`}
+        title="Zulip URL not configured"
+        aria-label="Zulip URL not configured"
+      >
+        {props.children ?? <ExternalLink className="h-4 w-4" aria-hidden />}
+      </span>
+    );
+  }
+
+  if (props.asButton) {
+    return (
+      <button
+        type="button"
+        aria-label={props.label}
+        title={props.label}
+        className={className}
+        onClick={() => openExternalPopup(props.href)}
+      >
+        {props.children ?? <ExternalLink className="h-4 w-4" aria-hidden />}
+      </button>
+    );
+  }
+
   return (
-    <a
-      href={props.href}
-      target={external ? "_blank" : undefined}
-      rel={external ? "noopener noreferrer" : undefined}
+    <button
+      type="button"
       aria-label={props.label}
       title={props.label}
-      className={
-        props.className ??
-        "inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-zinc-500 transition hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100"
-      }
+      className={className}
+      onClick={() => openExternalPopup(props.href)}
     >
-      <ExternalLink className="h-4 w-4" aria-hidden />
-    </a>
+      {props.children ?? <ExternalLink className="h-4 w-4" aria-hidden />}
+    </button>
   );
+}
+
+function ExternalPlatformLink(props: { href: string; label: string; className?: string }) {
+  return <ZulipExternalLink href={props.href} label={props.label} className={props.className} />;
 }
 
 function PaneHeader(props: { title: string; action?: ReactNode }) {
@@ -108,7 +144,16 @@ export function WorkMessagesWorkspace(props: {
   threads: ChannelMessageThread[];
   agents: { id: string; display_name: string }[];
   missionPrimaryAgent: Record<string, string | null>;
+  channelConfig: WorkMessagingChannelConfig;
+  zulipConfigured: boolean;
 }) {
+  const visibleChannels = useMemo(() => {
+    const channels: ProductChannel[] = ["zulip"];
+    if (props.channelConfig.slack) channels.push("slack");
+    if (props.channelConfig.telegram) channels.push("telegram");
+    return channels;
+  }, [props.channelConfig.slack, props.channelConfig.telegram]);
+
   const [productChannel, setProductChannel] = useState<ProductChannel>("zulip");
   const [agentId, setAgentId] = useState<string>("all");
   const [threadId, setThreadId] = useState<string | null>(null);
@@ -165,8 +210,14 @@ export function WorkMessagesWorkspace(props: {
   }
 
   const channelLabel = CHANNEL_LABEL[productChannel];
-  const platformOpenHref = selectedMessage?.openHref ?? selectedThread?.openHref ?? "/settings/platform";
-  const platformOpenExternal = platformOpenHref.startsWith("http");
+  const platformOpenHref = selectedMessage?.openHref ?? selectedThread?.openHref ?? "";
+  const platformOpenExternal = isExternalHttpHref(platformOpenHref);
+
+  useEffect(() => {
+    if (!visibleChannels.includes(productChannel)) {
+      setProductChannel("zulip");
+    }
+  }, [productChannel, visibleChannels]);
 
   const emptyState =
     filteredThreads.length === 0 ? (
@@ -175,15 +226,19 @@ export function WorkMessagesWorkspace(props: {
         title={channelThreads.length === 0 ? `No ${channelLabel} threads yet` : "No threads for this LiNKbot"}
         description={
           channelThreads.length === 0
-            ? `Connect ${channelLabel} in platform settings so project streams appear here.`
+            ? productChannel === "zulip" && !props.zulipConfigured
+              ? "Set ZULIP_SITE_URL in the deployment environment so project streams link to your Zulip workspace."
+              : `Connect ${channelLabel} in platform settings so project streams appear here.`
             : "Try All LiNKbots or pick another LiNKbot to see matching threads."
         }
         actions={
           channelThreads.length === 0
-            ? [
-                { kind: "link", label: "Open platform settings", href: "/settings/platform" },
-                { kind: "link", label: "View projects", href: "/projects", variant: "secondary" },
-              ]
+            ? productChannel === "zulip" && !props.zulipConfigured
+              ? [{ kind: "link", label: "Open platform settings", href: "/settings/platform" }]
+              : [
+                  { kind: "link", label: "Open platform settings", href: "/settings/platform" },
+                  { kind: "link", label: "View projects", href: "/projects", variant: "secondary" },
+                ]
             : [{ kind: "button", label: "Show all LiNKbots", onClick: () => setAgentId("all") }]
         }
       />
@@ -195,7 +250,7 @@ export function WorkMessagesWorkspace(props: {
   return (
     <div className="space-y-5">
       <div className={TABS.row} role="tablist" aria-label="Message channel">
-        {(Object.keys(CHANNEL_LABEL) as ProductChannel[]).map((key) => (
+        {visibleChannels.map((key) => (
           <button
             key={key}
             type="button"
@@ -236,15 +291,23 @@ export function WorkMessagesWorkspace(props: {
           </InsetSelect>
         </label>
         {selectedThread ? (
-          <a
-            href={platformOpenHref}
-            target={platformOpenExternal ? "_blank" : undefined}
-            rel={platformOpenExternal ? "noopener noreferrer" : undefined}
-            className={`${BUTTON.secondaryRow} ml-auto inline-flex shrink-0 items-center gap-2`}
-          >
-            Open in {channelLabel}
-            <ExternalLink className="h-4 w-4 shrink-0" aria-hidden />
-          </a>
+          platformOpenExternal ? (
+            <button
+              type="button"
+              className={`${BUTTON.secondaryRow} ml-auto inline-flex shrink-0 items-center gap-2`}
+              onClick={() => openExternalPopup(platformOpenHref)}
+            >
+              Open in {channelLabel}
+              <ExternalLink className="h-4 w-4 shrink-0" aria-hidden />
+            </button>
+          ) : (
+            <span
+              className={`${BUTTON.secondaryRow} ml-auto inline-flex shrink-0 cursor-not-allowed items-center gap-2 opacity-60`}
+              title="Zulip URL not configured"
+            >
+              Zulip URL not configured
+            </span>
+          )
         ) : null}
       </div>
 

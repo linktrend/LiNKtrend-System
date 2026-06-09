@@ -89,7 +89,7 @@ function senderFromPayload(payload: unknown): string {
 
 type ThreadAcc = ChannelMessageThread & { _rows: ZulipMessageLinkRow[] };
 
-const SETTINGS_FALLBACK = "/settings/platform";
+const SETTINGS_FALLBACK = "";
 
 function zulipOpenHref(
   zulipSiteUrl: string | null,
@@ -98,11 +98,13 @@ function zulipOpenHref(
   messageId?: string | number | null,
 ): string {
   if (!zulipSiteUrl || streamId == null) return SETTINGS_FALLBACK;
-  return buildZulipThreadUrl(zulipSiteUrl, {
-    streamId,
-    topic: topic?.trim() || "(no topic)",
-    messageId,
-  });
+  return (
+    buildZulipThreadUrl(zulipSiteUrl, {
+      streamId,
+      topic: topic?.trim() || "(no topic)",
+      messageId,
+    }) ?? SETTINGS_FALLBACK
+  );
 }
 
 function subjectFromPayload(payload: unknown): string | null {

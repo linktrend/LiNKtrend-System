@@ -2,10 +2,7 @@ import { AlertCircle } from "lucide-react";
 import { Suspense } from "react";
 
 import { fetchRecentTraces } from "@/lib/traces-db";
-import { IntegrationWarningBanner } from "@/components/integration-warning-banner";
 import { ShellPageHeaderClient } from "@/components/shell-page-header-client";
-import { isUiMocksEnabled } from "@/lib/ui-mocks/flags";
-import { DEMO_WORK_ALERTS } from "@/lib/ui-mocks/work-alert-fixtures";
 import { traceToWorkAlert, type WorkAlert } from "@/lib/work-alerts";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -16,7 +13,6 @@ export const dynamic = "force-dynamic";
 
 export default async function WorkAlertsPage() {
   const supabase = await createSupabaseServerClient();
-  const uiMocksEnabled = isUiMocksEnabled();
   const { rows: traces, error } = await fetchRecentTraces(supabase, { limit: 50 });
 
   const fromDb: WorkAlert[] =
@@ -32,10 +28,7 @@ export default async function WorkAlertsPage() {
           }),
         );
 
-  const fixtureAlerts = uiMocksEnabled ? DEMO_WORK_ALERTS : [];
-  const merged = [...fixtureAlerts, ...fromDb].sort(
-    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-  );
+  const merged = [...fromDb].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
   const traceIds = fromDb.filter((a) => a.id.startsWith("trace-")).map((a) => a.id.replace(/^trace-/, ""));
   let traceAckPersistenceEnabled = false;
@@ -53,8 +46,7 @@ export default async function WorkAlertsPage() {
   }
 
   const traceLoadFailed = Boolean(error);
-  const hasFixtureRows = fixtureAlerts.length > 0;
-  const blockingLoadFailure = !uiMocksEnabled && traceLoadFailed && fromDb.length === 0;
+  const blockingLoadFailure = traceLoadFailed && fromDb.length === 0;
 
   if (blockingLoadFailure) {
     const reason = error ?? "System logs could not be queried.";
@@ -91,12 +83,10 @@ export default async function WorkAlertsPage() {
         subtitle="Problems and warnings that may need you to review or fix something."
       />
       <div className="mt-8 space-y-4">
-        {traceLoadFailed && (uiMocksEnabled || hasFixtureRows) ? (
-          <IntegrationWarningBanner
-            title="Live system logs are unavailable — fixture alerts shown below"
-            reason={error ?? "The traces query did not succeed."}
-            retryHint="Check Supabase connectivity and schema exposure (linkaios.traces), then use Refresh in the toolbar. Your inbox is not empty — review fixture rows while integration is restored."
-          />
+        {traceLoadFailed ? (
+          <p className="rounded-lg border border-amber-200 bg-amber-50/90 px-3 py-2 text-sm text-amber-950 dark:border-amber-800 dark:bg-amber-950/35 dark:text-amber-100" role="status">
+            Live system logs are unavailable: {error ?? "The traces query did not succeed."}
+          </p>
         ) : null}
         <Suspense fallback={<p className="text-sm text-zinc-500">Loading alerts…</p>}>
           <AlertsInbox

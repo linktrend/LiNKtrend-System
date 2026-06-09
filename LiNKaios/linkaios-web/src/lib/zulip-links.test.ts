@@ -26,8 +26,8 @@ describe("buildZulipThreadUrl", () => {
     ).toBe("https://chat.example.com/#narrow/channel/42/topic/deployment/with/991");
   });
 
-  it("falls back to settings when site URL is invalid", () => {
-    expect(buildZulipThreadUrl("", { streamId: 1, topic: "x" })).toBe("/settings/platform");
+  it("returns null when site URL is invalid", () => {
+    expect(buildZulipThreadUrl("", { streamId: 1, topic: "x" })).toBeNull();
   });
 });
 

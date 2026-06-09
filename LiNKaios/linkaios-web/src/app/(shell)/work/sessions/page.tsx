@@ -1,6 +1,4 @@
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { isUiMocksEnabled } from "@/lib/ui-mocks/flags";
-import { DEMO_SESSION_THREADS } from "@/lib/ui-mocks/session-threads";
 import { missionIdFromSessionMetadata } from "@/lib/session-display";
 import { mapWorkerSessionsToThreads } from "@/lib/work-sessions";
 
@@ -11,7 +9,6 @@ export const dynamic = "force-dynamic";
 
 export default async function WorkSessionsPage() {
   const supabase = await createSupabaseServerClient();
-  const uiMocksEnabled = isUiMocksEnabled();
 
   const [sessionsRes, agentsRes] = await Promise.all([
     supabase
@@ -40,24 +37,20 @@ export default async function WorkSessionsPage() {
     }
   }
 
-  const fromDb =
+  const sessions =
     !err && raw.length
       ? mapWorkerSessionsToThreads(raw as Parameters<typeof mapWorkerSessionsToThreads>[0], agentName, missionTitles)
       : [];
-
-  const merged = [...(uiMocksEnabled ? DEMO_SESSION_THREADS : []), ...fromDb].sort(
-    (a, b) => new Date(b.startedAt).getTime() - new Date(a.startedAt).getTime(),
-  );
 
   return (
     <main>
       <ShellPageHeaderClient
         title="Sessions"
-        subtitle="See what each LiNKbot is doing. Use the message icon to open the session workspace when waiting; Stop ends the session."
+        subtitle="See what each LiNKbot is doing. View opens the session; Cancel ends a running session."
       />
       <div className="mt-8">
         {err ? <p className="mb-4 text-sm text-red-700 dark:text-red-400">Could not load sessions: {err.message}</p> : null}
-        <SessionsInbox sessions={merged} />
+        <SessionsInbox sessions={sessions} />
       </div>
     </main>
   );

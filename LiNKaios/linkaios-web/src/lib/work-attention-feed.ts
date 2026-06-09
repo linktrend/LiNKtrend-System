@@ -1,4 +1,4 @@
-import type { WorkAlert } from "@/lib/work-alerts";
+import { isActionableWorkAlert, type WorkAlert } from "@/lib/work-alerts";
 import type { ChannelMessageThread } from "@/lib/work-messages";
 import type { SessionThreadRow } from "@/lib/work-sessions";
 import { isDemoAgentId } from "@/lib/ui-mocks/entities";
@@ -43,7 +43,9 @@ export function buildAttentionFeed(input: {
 }): AttentionFeedItem[] {
   const out: Sortable[] = [];
 
-  const alertsSorted = [...input.alerts].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  const alertsSorted = [...input.alerts]
+    .filter(isActionableWorkAlert)
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   for (const a of alertsSorted) {
     const sevRank = alertSeverityRank(a.severity);
     out.push({

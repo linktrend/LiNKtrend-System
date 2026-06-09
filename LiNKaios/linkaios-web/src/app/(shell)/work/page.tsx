@@ -9,10 +9,6 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { alertToneFromMerged, type WorkRowTone } from "@/lib/overview-dashboard";
 import { WORK_STREAM_STATUS_PILL_LABELS } from "@/lib/status-colors";
 import { buildAttentionFeed } from "@/lib/work-attention-feed";
-import { DEMO_CHANNEL_THREADS } from "@/lib/ui-mocks/channel-threads";
-import { isUiMocksEnabled } from "@/lib/ui-mocks/flags";
-import { DEMO_SESSION_THREADS } from "@/lib/ui-mocks/session-threads";
-import { DEMO_WORK_ALERTS } from "@/lib/ui-mocks/work-alert-fixtures";
 import { fetchRecentTraces, traceRowToLegacy } from "@/lib/traces-db";
 import { traceToWorkAlert } from "@/lib/work-alerts";
 import { groupZulipIntoThreads, prepareChannelThreads } from "@/lib/work-messages";
@@ -28,7 +24,6 @@ function streamToneClass(_tone: WorkRowTone): string {
 
 export default async function WorkDashboardPage() {
   const supabase = await createSupabaseServerClient();
-  const uiMocksEnabled = isUiMocksEnabled();
 
   const [tracesResult, zulipRes, sessionsRes, agentsRes, brainDraftCountRes, runningSessionsRes, brainDraftsPreview] =
     await Promise.all([
@@ -63,16 +58,14 @@ export default async function WorkDashboardPage() {
     tracesResult.rows.map((t) =>
       traceToWorkAlert({ ...traceRowToLegacy(t), id: String(t.id) }),
     ) ?? [];
-  const alertsMerged = [...(uiMocksEnabled ? DEMO_WORK_ALERTS : []), ...traceAlerts].sort(
+  const alertsMerged = [...traceAlerts].sort(
     (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
   );
 
   const zulipSiteUrl = getZulipSiteUrlFromEnv();
   const zulipThreads = zulipRes.data?.length ? groupZulipIntoThreads(zulipRes.data, { zulipSiteUrl }) : [];
   const messagesMerged = prepareChannelThreads(
-    [...(uiMocksEnabled ? DEMO_CHANNEL_THREADS : []), ...zulipThreads].sort(
-      (a, b) => new Date(b.lastActivity).getTime() - new Date(a.lastActivity).getTime(),
-    ),
+    [...zulipThreads].sort((a, b) => new Date(b.lastActivity).getTime() - new Date(a.lastActivity).getTime()),
     { zulipSiteUrl },
   );
 
@@ -90,12 +83,10 @@ export default async function WorkDashboardPage() {
       missionTitles.set(String(row.id), row.title);
     }
   }
-  const sessionRows = rawSessions.length
+  const sessionsMerged = (rawSessions.length
     ? mapWorkerSessionsToThreads(rawSessions as Parameters<typeof mapWorkerSessionsToThreads>[0], agentName, missionTitles)
-    : [];
-  const sessionsMerged = [...(uiMocksEnabled ? DEMO_SESSION_THREADS : []), ...sessionRows].sort(
-    (a, b) => new Date(b.startedAt).getTime() - new Date(a.startedAt).getTime(),
-  );
+    : []
+  ).sort((a, b) => new Date(b.startedAt).getTime() - new Date(a.startedAt).getTime());
 
   const brainCount = brainDraftCountRes.error ? 0 : brainDraftCountRes.count ?? 0;
   const brainPreviewLine =

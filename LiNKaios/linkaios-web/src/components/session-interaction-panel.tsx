@@ -13,7 +13,7 @@ function requestEscalationNotice() {
   );
 }
 
-export function SessionInteractionPanel(props: { nativeUiHref: string }) {
+export function SessionInteractionPanel() {
   const { kind, role } = useAppRole();
   const canInteract = canInteractWithLinkbotSession(kind, role);
 
@@ -22,8 +22,8 @@ export function SessionInteractionPanel(props: { nativeUiHref: string }) {
       <section className="rounded-xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
         <h2 className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Session access</h2>
         <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
-          You can review this session timeline and outputs. Sending messages or opening the native operator UI requires
-          Admin or Super Admin access. If something looks wrong, escalate it to your workspace admin.
+          You can review this session timeline and outputs. Sending messages requires Admin or Super Admin access. If
+          something looks wrong, escalate it to your workspace admin. Use the Native UI tab to open the agent shell.
         </p>
         <button type="button" className={`${BUTTON.secondaryCompact} mt-4`} onClick={requestEscalationNotice}>
           Report issue to Admin
@@ -36,7 +36,8 @@ export function SessionInteractionPanel(props: { nativeUiHref: string }) {
     <section className="rounded-xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
       <h2 className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Interaction</h2>
       <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
-        Send messages into this session once your gateway bridges operator chat to bot runtime.
+        Send messages into this session once your gateway bridges operator chat to bot runtime. Open the agent shell from
+        the Native UI tab when you need the full operator interface.
       </p>
       <textarea
         disabled
@@ -44,16 +45,6 @@ export function SessionInteractionPanel(props: { nativeUiHref: string }) {
         className="mt-4 w-full max-w-xl rounded-lg border border-dashed border-zinc-300 bg-zinc-50 px-3 py-2 text-sm text-zinc-500 dark:border-zinc-700 dark:bg-zinc-900/40 dark:text-zinc-400"
         placeholder="Messaging not connected for this session…"
       />
-      <p className="mt-3">
-        <a
-          href={props.nativeUiHref}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-sm font-medium text-sky-700 underline dark:text-sky-400"
-        >
-          Open Native UI
-        </a>
-      </p>
     </section>
   );
 }

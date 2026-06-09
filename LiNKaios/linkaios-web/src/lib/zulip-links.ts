@@ -34,9 +34,9 @@ export type ZulipThreadLinkParams = {
  * Builds a shareable Zulip web URL for a channel topic or a message within it.
  * Zulip documents topic links and message permalinks via `#narrow/…` hashes.
  */
-export function buildZulipThreadUrl(siteUrl: string, params: ZulipThreadLinkParams): string {
+export function buildZulipThreadUrl(siteUrl: string, params: ZulipThreadLinkParams): string | null {
   const base = normalizeZulipSiteUrl(siteUrl);
-  if (!base) return "/settings/platform";
+  if (!base) return null;
 
   const streamId = String(params.streamId);
   const topic = params.topic.trim() || "(no topic)";
@@ -47,3 +47,12 @@ export function buildZulipThreadUrl(siteUrl: string, params: ZulipThreadLinkPara
 
   return `${base}/${hash}`;
 }
+
+/** Opens an external URL in a new browser tab (popup-safe for operator workflows). */
+export function openExternalPopup(url: string): void {
+  if (typeof window === "undefined" || !url.startsWith("http")) return;
+  window.open(url, "_blank", "noopener,noreferrer");
+}
+
+/** @deprecated Use openExternalPopup */
+export const openZulipExternalUrl = openExternalPopup;

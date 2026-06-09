@@ -127,16 +127,20 @@ export function SessionsCatalogTable(props: {
                 </td>
                 <td className={DT.tdControl}>
                   <div className={DT.actionsRow}>
-                    <DataTableIconAction icon={Eye} label={`Open ${s.sessionTitle}`} href={s.openHref} />
-                    {sessionStopEligible(s) && props.onStop ? (
-                      <DataTableIconAction
-                        icon={X}
-                        tone="danger"
-                        label={props.stoppingId === s.id ? "Stopping session" : "Stop session"}
-                        disabled={props.stoppingId === s.id}
-                        onClick={() => props.onStop!(s)}
-                      />
-                    ) : null}
+                    <DataTableIconAction icon={Eye} label={`View ${s.sessionTitle}`} href={s.openHref} />
+                    <DataTableIconAction
+                      icon={X}
+                      tone="danger"
+                      label={
+                        props.stoppingId === s.id
+                          ? "Cancelling session"
+                          : sessionStopEligible(s)
+                            ? "Cancel session"
+                            : "Cancel session (not running)"
+                      }
+                      disabled={!sessionStopEligible(s) || props.stoppingId === s.id || !props.onStop}
+                      onClick={sessionStopEligible(s) && props.onStop ? () => props.onStop!(s) : undefined}
+                    />
                   </div>
                 </td>
               </tr>

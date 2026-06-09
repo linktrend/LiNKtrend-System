@@ -1,7 +1,6 @@
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { DEMO_CHANNEL_THREADS } from "@/lib/ui-mocks/channel-threads";
-import { isUiMocksEnabled } from "@/lib/ui-mocks/flags";
 import { groupZulipIntoThreads, prepareChannelThreads } from "@/lib/work-messages";
+import { isZulipMessagingConfigured, resolveWorkMessagingChannelConfig } from "@/lib/work-channel-config";
 import { getZulipSiteUrlFromEnv } from "@/lib/zulip-links";
 
 import { ShellPageHeaderClient } from "@/components/shell-page-header-client";
@@ -11,7 +10,8 @@ export const dynamic = "force-dynamic";
 
 export default async function WorkMessagesPage() {
   const supabase = await createSupabaseServerClient();
-  const uiMocksEnabled = isUiMocksEnabled();
+  const channelConfig = resolveWorkMessagingChannelConfig();
+  const zulipConfigured = isZulipMessagingConfigured();
 
   const [zulipRes, agentsRes, missionsRes] = await Promise.all([
     supabase
@@ -28,9 +28,7 @@ export default async function WorkMessagesPage() {
   const zulipSiteUrl = getZulipSiteUrlFromEnv();
   const fromDb = !error && rows?.length ? groupZulipIntoThreads(rows, { zulipSiteUrl }) : [];
   const merged = prepareChannelThreads(
-    [...(uiMocksEnabled ? DEMO_CHANNEL_THREADS : []), ...fromDb].sort(
-      (a, b) => new Date(b.lastActivity).getTime() - new Date(a.lastActivity).getTime(),
-    ),
+    [...fromDb].sort((a, b) => new Date(b.lastActivity).getTime() - new Date(a.lastActivity).getTime()),
     { zulipSiteUrl },
   );
 
@@ -52,15 +50,26 @@ export default async function WorkMessagesPage() {
     <main>
       <ShellPageHeaderClient
         title="Messages"
-        subtitle="Threads from connected channels, newest first. Open a channel product to reply in Zulip, Slack, or Telegram."
+        subtitle="Zulip project streams, newest first. Open in Zulip to reply in your workspace."
       />
       <div className="mt-8">
         {error ? (
           <p className="mb-4 rounded-lg border border-amber-200 bg-amber-50/90 px-3 py-2 text-sm text-amber-950 dark:border-amber-800 dark:bg-amber-950/35 dark:text-amber-100" role="status">
-            Channel data could not be loaded. Showing fixtures only if enabled; otherwise the workspace may be empty.
+            Channel data could not be loaded. Check gateway connectivity and refresh.
           </p>
         ) : null}
-        <WorkMessagesWorkspace threads={merged} agents={agents} missionPrimaryAgent={missionPrimaryAgent} />
+        {!zulipConfigured ? (
+          <p className="mb-4 rounded-lg border border-amber-200 bg-amber-50/90 px-3 py-2 text-sm text-amber-950 dark:border-amber-800 dark:bg-amber-950/35 dark:text-amber-100" role="status">
+            Zulip URL is not configured. Set <code className="text-xs">ZULIP_SITE_URL</code> in the deployment environment so Open in Zulip links work.
+          </p>
+        ) : null}
+        <WorkMessagesWorkspace
+          threads={merged}
+          agents={agents}
+          missionPrimaryAgent={missionPrimaryAgent}
+          channelConfig={channelConfig}
+          zulipConfigured={zulipConfigured}
+        />
       </div>
     </main>
   );

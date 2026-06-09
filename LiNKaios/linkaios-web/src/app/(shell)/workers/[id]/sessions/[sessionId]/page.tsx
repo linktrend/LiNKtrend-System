@@ -5,13 +5,14 @@ import type { AgentRecord } from "@linktrend/shared-types";
 
 import { SessionInteractionPanel } from "@/components/session-interaction-panel";
 import { SessionBreadcrumbRegister } from "@/components/session-breadcrumb-register";
+import { StatusPill } from "@/components/ui/status-pill";
 import { DEMO_SESSION_THREADS } from "@/lib/ui-mocks/session-threads";
 import { isDemoAgentId } from "@/lib/ui-mocks/entities";
 import { isUiMocksEnabled } from "@/lib/ui-mocks/flags";
 import { mapWorkerSessionsToThreads } from "@/lib/work-sessions";
 import type { SessionThreadRow } from "@/lib/work-sessions";
+import { SESSION_DISPLAY_PILL_LABELS, type StatusTone } from "@/lib/status-colors";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { linkbotNativeUiHref } from "@/lib/linkbot-native-ui";
 
 export const dynamic = "force-dynamic";
 
@@ -79,12 +80,30 @@ export default async function SessionDetailPage(props: {
   return <SessionDetailShell agentId={id} row={mapped} focusTranscript={focusTranscript} />;
 }
 
+function sessionStatusTone(st: SessionThreadRow["displayStatus"]): StatusTone {
+  switch (st) {
+    case "running":
+      return "active";
+    case "waiting":
+      return "warning";
+    case "completed":
+      return "success";
+    case "failed":
+      return "danger";
+    default:
+      return "neutral";
+  }
+}
+
+function statusLabel(st: SessionThreadRow["displayStatus"]): string {
+  return st.charAt(0).toUpperCase() + st.slice(1);
+}
+
 function SessionDetailShell(props: { agentId: string; row: SessionThreadRow; focusTranscript?: boolean }) {
   const { row, agentId, focusTranscript } = props;
   const agentName = row.agentName;
   const projectLabel = row.projectTitle;
   const display = row.displayStatus;
-  const openclaw = linkbotNativeUiHref(agentId);
 
   const timeline = [
     { t: "Started", at: row.startedAt },
@@ -128,17 +147,19 @@ function SessionDetailShell(props: { agentId: string; row: SessionThreadRow; foc
           </div>
           <div>
             <dt className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Status</dt>
-            <dd className="mt-1 capitalize text-zinc-900 dark:text-zinc-100">{display}</dd>
+            <dd className="mt-1">
+              <StatusPill
+                label={statusLabel(display)}
+                tone={sessionStatusTone(display)}
+                equalWidthLabels={SESSION_DISPLAY_PILL_LABELS}
+              />
+            </dd>
           </div>
           <div>
             <dt className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Last activity</dt>
             <dd className="mt-1 text-zinc-800 dark:text-zinc-200">{new Date(row.lastActivityAt).toLocaleString()}</dd>
           </div>
         </dl>
-        <details className="mt-3 text-xs text-zinc-400">
-          <summary className="cursor-pointer select-none text-zinc-500">Technical id</summary>
-          <p className="mt-1 font-mono">{row.id}</p>
-        </details>
       </header>
 
       <section className="rounded-xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
@@ -174,7 +195,7 @@ function SessionDetailShell(props: { agentId: string; row: SessionThreadRow; foc
         </pre>
       </section>
 
-      <SessionInteractionPanel nativeUiHref={openclaw} />
+      <SessionInteractionPanel />
     </div>
   );
 }
