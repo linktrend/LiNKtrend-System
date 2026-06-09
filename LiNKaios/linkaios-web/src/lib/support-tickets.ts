@@ -42,12 +42,12 @@ function readAll(): SupportTicket[] {
   if (typeof window === "undefined") return [];
   try {
     const raw = window.localStorage.getItem(SUPPORT_TICKETS_STORAGE_KEY);
-    if (!raw) return seedDemoTickets();
+    if (!raw) return [];
     const parsed = JSON.parse(raw) as unknown;
-    if (!Array.isArray(parsed) || parsed.length === 0) return seedDemoTickets();
+    if (!Array.isArray(parsed)) return [];
     return parsed as SupportTicket[];
   } catch {
-    return seedDemoTickets();
+    return [];
   }
 }
 
@@ -55,29 +55,6 @@ function writeAll(rows: SupportTicket[]) {
   if (typeof window === "undefined") return;
   window.localStorage.setItem(SUPPORT_TICKETS_STORAGE_KEY, JSON.stringify(rows));
   window.dispatchEvent(new CustomEvent(EVENT_SUPPORT_TICKETS_CHANGED));
-}
-
-function seedDemoTickets(): SupportTicket[] {
-  const now = new Date().toISOString();
-  return [
-    {
-      id: "st-demo-001",
-      licenseeId: "xyz-marketing",
-      companyId: "xyz-marketing",
-      brandId: "xyz-main",
-      subject: "LinkSites preview publish stuck",
-      description: "Preview site generation completed but publish button stays disabled.",
-      pagePath: "/projects",
-      status: "open",
-      priority: "high",
-      source: "page_help",
-      requestedBy: "Licensee admin",
-      createdAt: now,
-      updatedAt: now,
-      externalRef: null,
-      aiAttemptSummary: "Suggested checking project phase and capability lease — user escalated.",
-    },
-  ];
 }
 
 export function readSupportTickets(): SupportTicket[] {

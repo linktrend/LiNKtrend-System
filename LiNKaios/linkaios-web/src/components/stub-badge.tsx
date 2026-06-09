@@ -18,6 +18,21 @@ export function StubBadge(props: { className?: string; label?: string }) {
   );
 }
 
+const SHADOW_BADGE_CLASS =
+  "border-sky-300 bg-sky-50 text-sky-900 uppercase tracking-wide dark:border-sky-900/50 dark:bg-sky-950/40 dark:text-sky-100";
+
+/** Marks governed shadow-mode surfaces — visible but not yet backed by live integration. */
+export function ShadowModeBadge(props: { className?: string; label?: string }) {
+  return (
+    <Badge
+      variant="outline"
+      className={props.className ? `${SHADOW_BADGE_CLASS} ${props.className}` : SHADOW_BADGE_CLASS}
+    >
+      {props.label ?? "Shadow mode"}
+    </Badge>
+  );
+}
+
 /** Marks planned surfaces that are visible but not yet available. */
 export function ComingSoonBadge(props: { className?: string }) {
   return (

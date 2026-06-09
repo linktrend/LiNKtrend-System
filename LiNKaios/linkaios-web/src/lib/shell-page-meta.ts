@@ -37,6 +37,10 @@ const EXACT: Record<string, ShellPageMeta> = {
     title: "Metrics",
     subtitle: "Performance observability — cost, tokens, run time, success/failure, and usage by project, LiNKbot, model, tool, and skill.",
   },
+  "/customer-service": {
+    title: "Customer Service",
+    subtitle: "Unified support ticket queue across licensees — governed by Chatwoot when the connector is live.",
+  },
   "/licensees": {
     title: LICENSEES_PAGE_HEADER.title,
     subtitle: LICENSEES_PAGE_HEADER.subtitle,
@@ -198,6 +202,7 @@ const SEGMENT_LABELS: Record<string, string> = {
   modules: "Suites",
   suites: "Suites",
   metrics: "Metrics",
+  "customer-service": "Customer Service",
   company: "Company",
   settings: "Settings",
   gateway: "Integration routing",
@@ -254,6 +259,7 @@ export function suppressesAutoShellPageHeader(pathname: string): boolean {
   if (route === "/memory" || route.startsWith("/memory/")) return true;
   if (route === "/suites" || route.startsWith("/suites/")) return true;
   if (route === "/metrics") return true;
+  if (route === "/customer-service" || route.startsWith("/customer-service/")) return true;
   if (route === "/company" || route.startsWith("/company/")) return true;
   if (route === "/licensees" || route.startsWith("/licensees/")) return true;
   if (route === "/settings" || route.startsWith("/settings/")) return true;

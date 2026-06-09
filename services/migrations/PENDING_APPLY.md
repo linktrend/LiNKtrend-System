@@ -10,7 +10,7 @@ Do **not** apply these individually during feature work. Run as one batch when t
 | `035_linkguard_canonical_schema.sql` | Moves `prism` tables into `linkguard`; drops `prism` schema | **Applied** 2026-05-30 |
 | *(planned)* `036_linkskills_capability_catalog.sql` | Persist licensor-registered capability connectors | Pending |
 | *(planned)* `037_linkskills_catalog_requests.sql` | Licensee request queue → Work inbox | Pending |
-| *(planned)* `038_support_tickets.sql` | Support tickets queue (Chatwoot sync) | Pending |
+| `038_support_tickets.sql` | Support tickets queue (Chatwoot sync) | **Ready** — apply with 036–037 batch |
 
 ## Apply command (when ready)
 

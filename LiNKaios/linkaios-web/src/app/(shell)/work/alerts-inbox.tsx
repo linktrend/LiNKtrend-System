@@ -84,7 +84,7 @@ function severityLabel(sev: WorkAlert["severity"]) {
 
 function goToFixHref(a: WorkAlert, opts: { isLicensor: boolean; appHref: (path: string) => string }): string {
   if (a.id.startsWith("st-")) {
-    return opts.isLicensor ? opts.appHref("/admin/licensees?tab=support") : opts.appHref("/settings/support");
+    return opts.isLicensor ? opts.appHref("/customer-service") : opts.appHref("/settings/support");
   }
   const blob = `${a.title} ${a.summary} ${a.source}`.toLowerCase();
   if (a.id.startsWith("lsr-")) return opts.appHref("/skills/skills");
@@ -96,7 +96,7 @@ function goToFixHref(a: WorkAlert, opts: { isLicensor: boolean; appHref: (path: 
 
 function viewAlertHref(a: WorkAlert, opts: { isLicensor: boolean; appHref: (path: string) => string }): string {
   if (a.id.startsWith("st-")) {
-    return opts.isLicensor ? opts.appHref("/admin/licensees?tab=support") : opts.appHref("/settings/support");
+    return opts.isLicensor ? opts.appHref("/customer-service") : opts.appHref("/settings/support");
   }
   return opts.appHref("/settings/traces");
 }

@@ -14,6 +14,7 @@ import {
   ChevronRight,
   Clock,
   FolderKanban,
+  Headphones,
   LayoutDashboard,
   Pin,
   Settings,
@@ -36,6 +37,7 @@ import { effectiveBrandId, parseLicenseeContext } from "@/lib/licensee-context";
 import { memoryHref } from "@/lib/memory-href";
 import { settingsSectionActive, settingsSidebarItems } from "@/lib/settings-nav";
 import { useTenantTopology } from "@/hooks/use-tenant-topology";
+import { CUSTOMER_SERVICE_SIDEBAR_ITEMS, customerServiceSectionActive } from "@/lib/customer-service-nav";
 import { METRICS_SIDEBAR_ITEMS, metricsSectionActive } from "@/lib/metrics-nav";
 import { MEMORY_SIDEBAR_ITEMS, memorySectionActive } from "@/lib/memory-nav";
 import { COMPANY_SIDEBAR_ITEMS, companySectionActive } from "@/lib/company-nav";
@@ -134,10 +136,21 @@ function SidebarUserBlock(props: { user: SidebarUser }) {
   );
 }
 
-type AccordionKey = "work" | "agents" | "projects" | "skills" | "metrics" | "memory" | "company" | "settings" | null;
+type AccordionKey =
+  | "work"
+  | "customer_service"
+  | "agents"
+  | "projects"
+  | "skills"
+  | "metrics"
+  | "memory"
+  | "company"
+  | "settings"
+  | null;
 
 function accordionKeyForPath(pathname: string): AccordionKey {
   if (pathname.startsWith("/work")) return "work";
+  if (customerServiceSectionActive(pathname)) return "customer_service";
   if (pathname.startsWith("/workers") || pathname.startsWith("/fleet")) return "agents";
   if (pathname.startsWith("/projects")) return "projects";
   if (pathname.startsWith("/skills")) return "skills";
@@ -175,6 +188,7 @@ export function ShellSidebar(props: {
   }, [route, props.mobileOpen, props.onMobileOpenChange]);
 
   const workOpen = openAccordion === "work";
+  const customerServiceOpen = openAccordion === "customer_service";
   const agentsOpen = openAccordion === "agents";
   const projectsOpen = openAccordion === "projects";
   const skillsOpen = openAccordion === "skills";
@@ -184,8 +198,20 @@ export function ShellSidebar(props: {
   const settingsOpen = openAccordion === "settings";
 
   const toggle = (key: Exclude<AccordionKey, null>) => {
-    setOpenAccordion((cur) => (cur === key ? null : key));
+    setOpenAccordion((cur) => {
+      if (cur === key) {
+        if (key === "agents" && (route.startsWith("/workers") || route.startsWith("/fleet"))) {
+          return cur;
+        }
+        return null;
+      }
+      return key;
+    });
   };
+
+  const agentsSectionActive = route.startsWith("/workers") || route.startsWith("/fleet");
+  const workersFleetScope = searchParams.get("scope") === "admin" ? "admin" : "all";
+  const workersListRoute = route === "/workers" || route === "/workers/";
 
   const settingsActive = settingsSectionActive(route);
   const metricsActive = metricsSectionActive(route);
@@ -202,7 +228,7 @@ export function ShellSidebar(props: {
     match: (path: string, search?: string) => item.match(routePath(path), search),
   }));
 
-  const linkbotsFleetLabel = "All LiNKbots";
+  const linkbotsFleetLabel = isAdmin ? "All LiNKbots" : "All LiNKbots";
   const visibleMemoryTabs = visibleLinkbrainTabs(kind, role);
 
   const memoryLink = (tab: (typeof MEMORY_SIDEBAR_ITEMS)[number]["id"]) =>
@@ -282,6 +308,49 @@ export function ShellSidebar(props: {
                   <Link href={appHref("/work/sessions")} className={subLinkClass(route === "/work/sessions")}>
                     Sessions
                   </Link>
+                  {isAdmin ? (
+                    <Link
+                      href={appHref("/customer-service")}
+                      className={subLinkClass(customerServiceSectionActive(route))}
+                    >
+                      Support Tickets
+                    </Link>
+                  ) : null}
+                </div>
+              ) : null}
+            </div>
+          ) : null}
+
+          {isAdmin && show("customer_service") ? (
+            <div className="mt-1">
+              <button
+                type="button"
+                onClick={() => toggle("customer_service")}
+                className={
+                  "flex w-full items-center justify-between gap-2 rounded-md px-3 py-2 text-left text-sm font-medium text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800 " +
+                  (customerServiceSectionActive(route)
+                    ? "bg-zinc-100 text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100"
+                    : "")
+                }
+                aria-expanded={customerServiceOpen}
+              >
+                <span className="flex items-center gap-2">
+                  <Headphones className="h-4 w-4 shrink-0 opacity-85" aria-hidden />
+                  Customer Service
+                </span>
+                {customerServiceOpen ? (
+                  <ChevronDown className="h-4 w-4 text-zinc-400" aria-hidden />
+                ) : (
+                  <ChevronRight className="h-4 w-4 text-zinc-400" aria-hidden />
+                )}
+              </button>
+              {customerServiceOpen ? (
+                <div className={subMenuRail}>
+                  {CUSTOMER_SERVICE_SIDEBAR_ITEMS.map((item) => (
+                    <Link key={item.id} href={appHref(item.href)} className={subLinkClass(item.match(route))}>
+                      {item.label}
+                    </Link>
+                  ))}
                 </div>
               ) : null}
             </div>
@@ -362,7 +431,7 @@ export function ShellSidebar(props: {
                 onClick={() => toggle("agents")}
                 className={
                   "flex w-full items-center justify-between gap-2 rounded-md px-3 py-2 text-left text-sm font-medium text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800 " +
-                  (route.startsWith("/workers") || route.startsWith("/fleet")
+                  (agentsSectionActive
                     ? "bg-zinc-100 text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100"
                     : "")
                 }
@@ -376,13 +445,24 @@ export function ShellSidebar(props: {
               </button>
               {agentsOpen ? (
                 <div className={subMenuRail}>
-                  <Link href={appHref("/workers")} className={footerSubLinkClass(route === "/workers")}>
+                  <Link
+                    href={appHref("/workers")}
+                    className={footerSubLinkClass(workersListRoute && workersFleetScope === "all")}
+                  >
                     {linkbotsFleetLabel}
                   </Link>
                   {isAdmin ? (
-                    <Link href={appHref("/fleet")} className={subLinkClass(route.startsWith("/fleet"))}>
-                      Fleet v1
-                    </Link>
+                    <>
+                      <Link
+                        href={appHref("/workers?scope=admin")}
+                        className={subLinkClass(workersListRoute && workersFleetScope === "admin")}
+                      >
+                        Admin LiNKbots
+                      </Link>
+                      <Link href={appHref("/fleet")} className={subLinkClass(route.startsWith("/fleet"))}>
+                        Fleet v1
+                      </Link>
+                    </>
                   ) : null}
                   {placeholderSubItem("Recent", "recent")}
                   {placeholderSubItem("Pinned", "pinned")}
