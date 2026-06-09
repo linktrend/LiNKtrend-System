@@ -34,7 +34,7 @@ export function AdminProgramsPage(props: { blocked?: "create" | "detail" | null 
         </div>
       ) : null}
 
-      <section aria-label="Admin programs">
+      <section aria-label="Projects">
         <div className="rounded-xl border border-dashed border-zinc-300 bg-zinc-50/80 p-8 text-center dark:border-zinc-700 dark:bg-zinc-900/40">
           <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">{ADMIN_PROGRAMS_PAGE.emptyTitle}</p>
           <p className="mx-auto mt-2 max-w-xl text-sm text-zinc-600 dark:text-zinc-400">
@@ -61,7 +61,7 @@ export function AdminProgramsPage(props: { blocked?: "create" | "detail" | null 
         open={planeModalOpen}
         onClose={() => setPlaneModalOpen(false)}
         planeHref={planeHref}
-        projectTitle="Admin programs workspace"
+        projectTitle="Projects workspace"
       />
     </main>
   );

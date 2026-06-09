@@ -22,15 +22,18 @@ export const COMPANY_PAGE_HEADER = {
 } as const;
 
 /** User-facing label for the licensor tenant registry (route stays `/licensees`). */
-export const CLIENTS_LICENSEES_LABEL = "Clients / Licensees";
+export const LICENSEES_LABEL = "Licensees";
+
+/** @deprecated Use {@link LICENSEES_LABEL}. */
+export const CLIENTS_LICENSEES_LABEL = LICENSEES_LABEL;
 
 export const LICENSEES_PAGE_HEADER = {
-  title: CLIENTS_LICENSEES_LABEL,
+  title: LICENSEES_LABEL,
   subtitle: "Tenant registry — overview, companies & brands, billing, and Chatwoot support per licensee.",
 } as const;
 
 export const LICENSEE_PROFILE_PAGE_HEADER = {
-  title: "Client / Licensee Profile",
+  title: "Licensee Profile",
   subtitle: "Service contacts, tenant topology, billing, and support — not internal corporate governance.",
 } as const;
 

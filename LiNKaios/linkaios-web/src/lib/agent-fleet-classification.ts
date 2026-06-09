@@ -41,7 +41,7 @@ export type IsAdminBotOptions = {
 
 /**
  * True when the agent is part of the vendor (licensor) workforce — not a client tenant bot under monitor.
- * On Admin, only admin bots may show the Projects tab (admin programs).
+ * On Admin, only admin bots may show the Projects tab (vendor projects).
  */
 export function isAdminBot(agent: IsAdminBotInput, options: IsAdminBotOptions = {}): boolean {
   if (options.uiMocksDemoAgent && isDemoAgentId(agent.id)) {

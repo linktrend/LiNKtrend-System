@@ -28,6 +28,7 @@ export const ROLE_TIER_LABELS: Record<AppRoleTier, string> = {
 export type ShellNavSection =
   | "overview"
   | "work"
+  | "customer_service"
   | "projects"
   | "linkbots"
   | "suites"
@@ -66,10 +67,22 @@ const LICENSEE_NAV: Record<AppRoleTier, ReadonlySet<ShellNavSection>> = {
 };
 
 const LICENSOR_NAV: Record<AppRoleTier, ReadonlySet<ShellNavSection>> = {
-  user: new Set(["overview", "work", "projects", "linkbots", "suites", "linkskills", "linkbrain", "company", "settings"]),
+  user: new Set([
+    "overview",
+    "work",
+    "customer_service",
+    "projects",
+    "linkbots",
+    "suites",
+    "linkskills",
+    "linkbrain",
+    "company",
+    "settings",
+  ]),
   admin: new Set([
     "overview",
     "work",
+    "customer_service",
     "projects",
     "linkbots",
     "suites",
@@ -82,6 +95,7 @@ const LICENSOR_NAV: Record<AppRoleTier, ReadonlySet<ShellNavSection>> = {
   super_admin: new Set([
     "overview",
     "work",
+    "customer_service",
     "projects",
     "linkbots",
     "suites",
@@ -165,13 +179,13 @@ export function canAddExtraLinkbot(kind: AppActorKind, role: AppRoleTier): boole
   return role === "admin" || role === "super_admin";
 }
 
-/** Licensee tenant project CRUD — not available on Admin (vendor admin programs are separate). */
+/** Licensee tenant project CRUD — not available on Admin (vendor projects are separate). */
 export function canCreateProject(kind: AppActorKind, role: AppRoleTier): boolean {
   if (kind === "licensor") return false;
   return role === "admin" || role === "super_admin";
 }
 
-/** Admin Projects nav — vendor admin programs, not client/licensee project management. */
+/** Admin Projects nav — vendor studio projects, not client/licensee project management. */
 export function isAdminProgramsSurface(kind: AppActorKind): boolean {
   return kind === "licensor";
 }

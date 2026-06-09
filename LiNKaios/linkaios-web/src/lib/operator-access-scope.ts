@@ -43,12 +43,13 @@ export function isWorkspaceAccessScope(scope: OperatorAccessScope): scope is Ope
 const LICENSOR_NAV_SECTION_LABELS: Record<ShellNavSection, string> = {
   overview: "Overview",
   work: "Work",
-  projects: "Admin Programs",
+  customer_service: "Customer Service",
+  projects: "Projects",
   linkbots: "LiNKbots",
   suites: "Suites",
   linkskills: "LiNKskills",
   linkbrain: "LiNKbrain",
-  company: "Clients / Licensees",
+  company: "Licensees",
   metrics: "Metrics",
   settings: "Settings",
 };
