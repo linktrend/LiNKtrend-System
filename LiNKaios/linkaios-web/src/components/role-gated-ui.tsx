@@ -96,13 +96,19 @@ export function AddLinkbotHeaderAction(props: { className?: string }) {
   );
 }
 
-export function AddKnowledgeHeaderAction() {
+export function AddKnowledgeHeaderAction(props: { collective?: boolean }) {
   const hrefForPath = useMemoryPath();
+  const base = hrefForPath("/memory/drafts/new");
+  const href = props.collective ? `${base}?scope=company&collective=1` : base;
   return (
     <Link
-      href={hrefForPath("/memory/drafts/new")}
+      href={href}
       className={BUTTON.addRow}
-      title="Creates a draft in Inbox — Admin or Super Admin must approve before LiNKbrain records it"
+      title={
+        props.collective
+          ? "Adds a draft to the vendor collective Inbox — triage before shared LiNKbrain records it"
+          : "Creates a draft in Inbox — Admin or Super Admin must approve before LiNKbrain records it"
+      }
     >
       Add Knowledge
     </Link>

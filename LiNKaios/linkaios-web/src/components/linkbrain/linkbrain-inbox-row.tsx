@@ -37,7 +37,19 @@ function inboxIcon(type: string) {
   return FileText;
 }
 
-function inboxContextLine(d: BrainInboxRow, data: LinkbrainPageData): string {
+function inboxContextLine(d: BrainInboxRow, data: LinkbrainPageData, licensorCollective?: boolean): string {
+  if (licensorCollective) {
+    if (d.scope === "company") return "Licensee memory · collective queue";
+    if (d.scope === "mission" && d.mission_id) {
+      const hit = data.missionRows.find((r) => String(r.mission.id) === String(d.mission_id));
+      return hit ? `Admin program: ${hit.mission.title}` : "Admin program memory";
+    }
+    if (d.scope === "agent" && d.agent_id) {
+      const hit = data.agents.find((a) => a.id === d.agent_id);
+      return hit ? `LiNKbot: ${hit.display_name}` : "LiNKbot memory";
+    }
+    return "Vendor collective";
+  }
   if (d.scope === "company") return "Company-wide memory";
   if (d.scope === "mission" && d.mission_id) {
     const hit = data.missionRows.find((r) => String(r.mission.id) === String(d.mission_id));
@@ -142,7 +154,7 @@ export function LinkbrainInboxRow(props: {
         </p>
       ) : null}
       <p className="px-4 pt-2 text-xs text-zinc-600 dark:text-zinc-300">
-        {inboxSubmittedByLine(d)} · {inboxContextLine(d, props.data)}
+        {inboxSubmittedByLine(d)} · {inboxContextLine(d, props.data, props.licensorCollective)}
       </p>
       {props.licensorCollective && isCollectiveInboxDraft(d) ? (
         <div className="px-4 pt-2">

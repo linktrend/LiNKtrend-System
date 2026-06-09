@@ -25,6 +25,7 @@ export function LicensorScopeLine() {
 
   if (!isAdmin) return null;
   if (settingsSectionActive(routePath(pathname))) return null;
+  if (routePath(pathname).startsWith("/admin/projects")) return null;
 
   const readOnly = licensorScopeIsReadOnly(scope, role);
 

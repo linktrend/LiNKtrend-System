@@ -5,7 +5,7 @@ import { useMemo } from "react";
 import { LinkbrainAskForm } from "@/components/linkbrain/linkbrain-ask-form";
 import { LinkbrainOrgScopePanel } from "@/components/linkbrain/linkbrain-org-scope-panel";
 import { LinkbrainMemoryDocList } from "@/components/linkbrain/linkbrain-memory-doc-row";
-import { CompanyOrgNarrowSelect, MemoryAgentSelect, MemoryProjectSelect } from "@/components/linkbrain/linkbrain-filters";
+import { AdminProgramMemorySelect, CompanyOrgNarrowSelect, MemoryAgentSelect, MemoryProjectSelect } from "@/components/linkbrain/linkbrain-filters";
 import { LinkbrainInboxRow } from "@/components/linkbrain/linkbrain-inbox-row";
 import { LinkbrainInboxToolbar } from "@/components/linkbrain/linkbrain-inbox-toolbar";
 import type { InboxSubmissionSource } from "@/components/linkbrain/linkbrain-labels";
@@ -41,14 +41,20 @@ export function MemoryCommandCentre(props: {
   brainSandbox: BrainRetrieveContextResult | null;
   brainRetrieveStage: BrainRetrieveStage;
   collectiveTagFilters?: CollectiveTagFilters;
+  /** Vendor admin program picker — replaces client project list on Admin LiNKbrain. */
+  adminPrograms?: { id: string; title: string }[];
+  /** When false, collective demo overlay is skipped (live vendor brain only). */
+  collectiveDemoOverlay?: boolean;
 }) {
   const { kind } = useAppRole();
   const { scope: licensorScope } = useLicensorScope();
   const { isAdmin } = useAppSurface();
   const isLicensorCollective = kind === "licensor" && isAdmin;
+  const useCollectiveDemo = isLicensorCollective && props.collectiveDemoOverlay === true;
 
   const data = useMemo(() => {
     if (!isLicensorCollective) return props.data;
+    if (!useCollectiveDemo) return props.data;
 
     const base = applyLicensorCollectivePageOverlay(props.data, {
       tab: props.tab,
@@ -72,6 +78,7 @@ export function MemoryCommandCentre(props: {
     };
   }, [
     isLicensorCollective,
+    useCollectiveDemo,
     props.data,
     props.tab,
     props.missionFilter,
@@ -125,13 +132,24 @@ export function MemoryCommandCentre(props: {
       {tab === "project" ? (
         <section className="space-y-6">
           <div>
-            <label className="mb-2 block text-xs font-semibold text-zinc-500 dark:text-zinc-400">Project</label>
-            <MemoryProjectSelect
-              missions={data.missions.map((m) => ({ id: String(m.id), title: m.title }))}
-              selectedMissionId={props.missionFilter}
-              classification={props.classificationFilter}
-              scope={props.scope}
-            />
+            <label className="mb-2 block text-xs font-semibold text-zinc-500 dark:text-zinc-400">
+              {isLicensorCollective ? "Admin program" : "Project"}
+            </label>
+            {isLicensorCollective ? (
+              <AdminProgramMemorySelect
+                programs={props.adminPrograms ?? data.missions.map((m) => ({ id: String(m.id), title: m.title }))}
+                selectedMissionId={props.missionFilter}
+                classification={props.classificationFilter}
+                scope={props.scope}
+              />
+            ) : (
+              <MemoryProjectSelect
+                missions={data.missions.map((m) => ({ id: String(m.id), title: m.title }))}
+                selectedMissionId={props.missionFilter}
+                classification={props.classificationFilter}
+                scope={props.scope}
+              />
+            )}
           </div>
           {props.missionFilter ? (
             <>
@@ -140,7 +158,7 @@ export function MemoryCommandCentre(props: {
               ) : null}
               <LinkbrainMemoryDocList
                 files={data.brainPartitionFiles}
-                scopeLabel={projectTitle ?? "Project"}
+                scopeLabel={projectTitle ?? (isLicensorCollective ? "Admin program" : "Project")}
                 missionId={props.missionFilter}
                 licensorCollective={isLicensorCollective}
               />
@@ -148,7 +166,7 @@ export function MemoryCommandCentre(props: {
           ) : (
             <p className="text-sm text-zinc-500 dark:text-zinc-400">
               {isLicensorCollective
-                ? "Select a project to browse anonymised collective memory for that partition."
+                ? "Select an admin program to browse vendor collective memory for that partition."
                 : "Select a project to list approved memory."}
             </p>
           )}

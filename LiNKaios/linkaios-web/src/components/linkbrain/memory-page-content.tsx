@@ -10,6 +10,7 @@ import {
 } from "@/components/linkbrain/linkbrain-labels";
 import type { LinkbrainTab } from "@/lib/linkbrain-data";
 import { loadLinkbrainPageData } from "@/lib/linkbrain-data";
+import { loadAdminProgramPickerOptions } from "@/lib/admin-projects-data";
 import { runBrainRetrievalSandbox } from "@/lib/brain-sandbox";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { isUiMocksEnabled } from "@/lib/ui-mocks/flags";
@@ -136,6 +137,7 @@ export async function MemoryPageContent(props: {
       : "index_cards";
 
   const supabase = await createSupabaseServerClient();
+  const adminPrograms = props.licensorCollective ? await loadAdminProgramPickerOptions(supabase) : [];
   let data = await loadLinkbrainPageData(supabase, {
     tab,
     missionId: missionFilter,
@@ -150,6 +152,15 @@ export async function MemoryPageContent(props: {
     inboxSort,
     brainFileKindFilter,
   });
+
+  if (props.licensorCollective && adminPrograms.length > 0) {
+    const adminIds = new Set(adminPrograms.map((p) => p.id));
+    data = {
+      ...data,
+      missions: data.missions.filter((m) => adminIds.has(String(m.id))),
+      missionRows: data.missionRows.filter((row) => adminIds.has(String(row.mission.id))),
+    };
+  }
 
   if (uiMocksEnabled && !data.error && !props.licensorCollective) {
     data = applyLinkbrainUiMockOverlay(data, { tab, brainMissionId, brainAgentId });
@@ -239,6 +250,8 @@ export async function MemoryPageContent(props: {
           brainSandbox={brainSandbox}
           brainRetrieveStage={brainRetrieveStage}
           collectiveTagFilters={collectiveTagFilters}
+          adminPrograms={adminPrograms}
+          collectiveDemoOverlay={uiMocksEnabled}
         />
       ) : null}
 

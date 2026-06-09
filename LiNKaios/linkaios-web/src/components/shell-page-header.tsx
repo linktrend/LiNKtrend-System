@@ -9,8 +9,10 @@ export function ShellPageHeader(props: {
   subtitle: string;
   refreshedLabel?: string | null;
   actions?: React.ReactNode;
+  /** Hide per-licensee scope row — vendor-only surfaces (e.g. Admin Projects). */
+  hideLicensorScope?: boolean;
 }) {
-  const { title, subtitle, refreshedLabel, actions } = props;
+  const { title, subtitle, refreshedLabel, actions, hideLicensorScope } = props;
   const displayTitle = formatShellPageTitle(title);
 
   return (
@@ -20,7 +22,7 @@ export function ShellPageHeader(props: {
         <p className={SHELL.pageSubtitle}>{subtitle}</p>
         {actions ? <div className={SHELL.pageActions}>{actions}</div> : null}
       </div>
-      <LicensorScopeLine />
+      {hideLicensorScope ? null : <LicensorScopeLine />}
       {refreshedLabel ? (
         <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400" suppressHydrationWarning>
           {refreshedLabel}

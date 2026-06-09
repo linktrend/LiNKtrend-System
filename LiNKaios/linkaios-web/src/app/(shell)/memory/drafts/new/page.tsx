@@ -20,11 +20,13 @@ export default async function NewBrainDraftPage(props: {
     logicalPath?: string;
     missionId?: string;
     agentId?: string;
+    collective?: string;
     err?: string;
   }>;
 }) {
   const sp = await props.searchParams;
   const scope = parseScope(sp.scope ?? null);
+  const collective = sp.collective === "1";
   const logicalPath = sp.logicalPath?.trim() ?? "";
   const missionId = sp.missionId?.trim() ?? "";
   const agentId = sp.agentId?.trim() ?? "";
@@ -49,8 +51,11 @@ export default async function NewBrainDraftPage(props: {
     <main className="mx-auto max-w-2xl space-y-6">
       <ShellPageHeaderClient
         title="Add Knowledge"
-        subtitle="Creates a draft in Inbox — it is not recorded in LiNKbrain until an operator approves."
-       
+        subtitle={
+          collective
+            ? "Creates a draft in the vendor collective Inbox — triage before it joins shared LiNKbrain."
+            : "Creates a draft in Inbox — it is not recorded in LiNKbrain until an operator approves."
+        }
       />
 
       {sp.err ? (
@@ -72,7 +77,7 @@ export default async function NewBrainDraftPage(props: {
       ) : null}
 
       <NewBrainDraftForm
-        defaultScope={scope}
+        defaultScope={collective ? "company" : scope}
         defaultLogicalPath={logicalPath}
         defaultMissionId={missionId}
         defaultAgentId={agentId}
@@ -83,7 +88,7 @@ export default async function NewBrainDraftPage(props: {
 
       <p className="text-sm text-zinc-500 dark:text-zinc-400">
         <MemoryTabLink tab="inbox" className="text-sky-700 underline dark:text-sky-400">
-          Back to Inbox
+          Return to Inbox
         </MemoryTabLink>
       </p>
     </main>

@@ -5,27 +5,27 @@ export function linkbrainTabSubtitle(tab: LinkbrainTab, kind: AppActorKind = "li
   switch (tab) {
     case "inbox":
       return kind === "licensor"
-        ? "All anonymised memory submitted from licensees — approve, edit, or reject before it joins collective LiNKbrain."
+        ? "Vendor librarian queue — triage collective submissions before they join shared LiNKbrain."
         : "Review pending knowledge — edit, approve, or reject before it is recorded in LiNKbrain.";
     case "project":
       return kind === "licensor"
-        ? "Collective project memory — anonymised content with declared source; browse by licensee, project, and tags."
+        ? "Admin program memory — browse vendor studio projects (LiNKsuitegen, librarian filings), not client tenant projects."
         : "Select a project to view, edit, or add memory — new items go to Inbox first.";
     case "agent":
       return kind === "licensor"
-        ? "Collective LiNKbot memory — anonymised content with declared source; browse by licensee, LiNKbot, and tags."
+        ? "Collective LiNKbot memory — anonymised content with declared source; browse by LiNKbot and tags."
         : "Select a LiNKbot to view, edit, or add memory — new items go to Inbox first.";
     case "company":
       return kind === "licensor"
-        ? "Collective licensee-wide memory — anonymised content with declared source; browse by licensee and tags."
+        ? "Licensee-wide memory — anonymised submissions from subscribed tenants; browse by licensee and tags."
         : "Company-wide memory for this tenant — view, edit, or add items via Inbox approval.";
     case "ask":
       return kind === "licensor"
-        ? "Query collective LiNKbrain — filter by licensee, partition, project, LiNKbot, or tags, then ask a question."
+        ? "Query shared vendor LiNKbrain — filter by licensee, admin program, LiNKbot, or tags, then ask a question."
         : "Preview what LiNKbots see — choose scope, then ask a question.";
     case "audit":
       return kind === "licensor"
-        ? "Append-only collective audit — capability runs, approvals, and automations with declared licensee source."
+        ? "Vendor audit trail — capability runs, approvals, and automations across the shared brain."
         : "Append-only trace log — capability runs, approvals, and automations; new rows are added as work executes.";
     case "orgScope":
       return kind === "licensor"
@@ -41,7 +41,7 @@ export function linkbrainPageTitle(tab: LinkbrainTab, kind: AppActorKind = "lice
     case "inbox":
       return "Inbox";
     case "project":
-      return "Project Memory";
+      return kind === "licensor" ? "Admin Program Memory" : "Project Memory";
     case "agent":
       return "LiNKbot Memory";
     case "company":

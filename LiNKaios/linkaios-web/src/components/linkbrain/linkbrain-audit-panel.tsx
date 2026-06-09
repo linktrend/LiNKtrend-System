@@ -100,15 +100,36 @@ export async function LinkbrainAuditPanel(props: {
   }
 
   if (props.licensorCollective) {
-    rows = [...COLLECTIVE_AUDIT_FIXTURES, ...rows.map((r, i) => {
-      const fixture = COLLECTIVE_AUDIT_FIXTURES[i % COLLECTIVE_AUDIT_FIXTURES.length]!;
-      return {
-        ...r,
-        licensee_id: fixture.licensee_id,
-        licensee_name: fixture.licensee_name,
-      };
-    })];
+    const usingFixtures = uiMocksEnabled && rows.length === 0;
+    if (usingFixtures) {
+      rows = COLLECTIVE_AUDIT_FIXTURES;
+    } else if (uiMocksEnabled) {
+      rows = [
+        ...COLLECTIVE_AUDIT_FIXTURES,
+        ...rows.map((r, i) => {
+          const fixture = COLLECTIVE_AUDIT_FIXTURES[i % COLLECTIVE_AUDIT_FIXTURES.length]!;
+          return {
+            ...r,
+            licensee_id: fixture.licensee_id,
+            licensee_name: fixture.licensee_name,
+          };
+        }),
+      ];
+    }
   }
 
-  return <LinkbrainAuditTable rows={rows} licensorCollective={props.licensorCollective} />;
+  const dataSourceLabel = uiMocksEnabled
+    ? "Demo fixtures — sample collective audit rows for layout review."
+    : rows.length === 0
+      ? "Live — no vendor audit traces in range yet."
+      : "Live — append-only traces from linkaios.traces and linkbrain.audit_events.";
+
+  return (
+    <div className="space-y-3">
+      <p className="text-xs text-zinc-500 dark:text-zinc-400" role="status">
+        {dataSourceLabel} Librarian triage runs through LiNKbots fleet, not this Audit tab.
+      </p>
+      <LinkbrainAuditTable rows={rows} licensorCollective={props.licensorCollective} />
+    </div>
+  );
 }

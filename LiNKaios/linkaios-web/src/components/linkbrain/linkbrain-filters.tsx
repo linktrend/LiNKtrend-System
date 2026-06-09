@@ -14,6 +14,46 @@ import { FIELD, FORM } from "@/lib/ui-standards";
 
 export { memoryHref } from "@/lib/memory-href";
 
+export function AdminProgramMemorySelect(props: {
+  programs: { id: string; title: string }[];
+  selectedMissionId?: string;
+  classification?: string;
+  scope?: "recent" | "all";
+  memoryTab?: LinkbrainTab;
+  brainScope?: string;
+}) {
+  const router = useRouter();
+  const hrefForTab = useMemoryHref();
+  const sc = props.scope === "all" ? "all" : undefined;
+  const tab = props.memoryTab ?? "project";
+  return (
+    <InsetSelect
+      fullWidth={false}
+      value={props.selectedMissionId ?? ""}
+      aria-label="Select admin program"
+      onChange={(e) => {
+        const v = e.target.value.trim();
+        router.push(
+          hrefForTab(tab, {
+            mission: v || undefined,
+            classification: props.classification,
+            scope: sc,
+            brainScope: props.brainScope ?? (tab === "ask" ? "mission" : "mission"),
+            brainMission: v || undefined,
+          }),
+        );
+      }}
+    >
+      <option value="">Choose an admin program…</option>
+      {props.programs.map((m) => (
+        <option key={m.id} value={m.id}>
+          {m.title}
+        </option>
+      ))}
+    </InsetSelect>
+  );
+}
+
 export function MemoryProjectSelect(props: {
   missions: { id: string; title: string }[];
   selectedMissionId?: string;

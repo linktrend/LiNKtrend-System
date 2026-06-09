@@ -186,8 +186,13 @@ export function canCreateProject(kind: AppActorKind, role: AppRoleTier): boolean
 }
 
 /** Admin Projects nav — vendor studio projects, not client/licensee project management. */
-export function isAdminProgramsSurface(kind: AppActorKind): boolean {
+export function isAdminProjectsSurface(kind: AppActorKind): boolean {
   return kind === "licensor";
+}
+
+/** @deprecated Use {@link isAdminProjectsSurface}. */
+export function isAdminProgramsSurface(kind: AppActorKind): boolean {
+  return isAdminProjectsSurface(kind);
 }
 
 export function canInteractWithLinkbotSession(kind: AppActorKind, role: AppRoleTier): boolean {

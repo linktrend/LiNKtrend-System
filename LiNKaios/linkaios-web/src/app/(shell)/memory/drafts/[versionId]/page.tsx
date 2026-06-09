@@ -3,12 +3,47 @@ import { notFound } from "next/navigation";
 import { BrainDraftEditor } from "@/components/brain-draft-editor";
 import { MemoryTabLink } from "@/components/linkbrain/memory-surface-links";
 import { ShellPageHeaderClient } from "@/components/shell-page-header-client";
-import { publishBrainDraftFromForm } from "@/app/(shell)/memory/brain-actions";
+import { publishBrainDraftFromForm, rejectBrainDraftFromForm } from "@/app/(shell)/memory/brain-actions";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { BUTTON } from "@/lib/ui-standards";
 
 import { getBrainFileVersionById } from "@linktrend/linklogic-sdk";
 
 export const dynamic = "force-dynamic";
+
+function scopeLabel(scope: string | undefined): string {
+  if (scope === "company") return "Company memory";
+  if (scope === "mission") return "Project memory";
+  if (scope === "agent") return "LiNKbot memory";
+  return scope ?? "Unknown scope";
+}
+
+async function resolveScopeDetail(
+  supabase: Awaited<ReturnType<typeof createSupabaseServerClient>>,
+  file: { scope: string; mission_id: string | null; agent_id: string | null } | null,
+): Promise<string> {
+  if (!file) return "Scope unavailable";
+  const parts = [scopeLabel(file.scope)];
+  if (file.mission_id) {
+    const { data } = await supabase
+      .schema("linkaios")
+      .from("projects")
+      .select("title")
+      .eq("id", file.mission_id)
+      .maybeSingle();
+    parts.push(`Project: ${(data as { title?: string } | null)?.title ?? "Unknown project"}`);
+  }
+  if (file.agent_id) {
+    const { data } = await supabase
+      .schema("linkaios")
+      .from("agents")
+      .select("display_name")
+      .eq("id", file.agent_id)
+      .maybeSingle();
+    parts.push(`LiNKbot: ${(data as { display_name?: string } | null)?.display_name ?? "Unknown LiNKbot"}`);
+  }
+  return parts.join(" · ");
+}
 
 export default async function BrainDraftEditPage(props: { params: Promise<{ versionId: string }> }) {
   const { versionId } = await props.params;
@@ -39,49 +74,33 @@ export default async function BrainDraftEditPage(props: { params: Promise<{ vers
       }
     : null;
 
+  const scopeDetail = await resolveScopeDetail(supabase, file);
+
   return (
     <main className="mx-auto max-w-3xl space-y-6">
-      <ShellPageHeaderClient
-        title="Edit Inbox draft"
-        subtitle={file?.logical_path ?? "Draft awaiting approval"}
-       
-      />
-      <p className="text-sm text-zinc-600 dark:text-zinc-400">
-        Scope: {file?.scope ?? "—"}
-        {file?.mission_id ? (
-          <>
-            {" "}
-            · project <span className="font-mono text-xs">{file.mission_id}</span>
-          </>
-        ) : null}
-        {file?.agent_id ? (
-          <>
-            {" "}
-            · LiNKbot <span className="font-mono text-xs">{file.agent_id}</span>
-          </>
-        ) : null}
-      </p>
+      <ShellPageHeaderClient title="Edit Inbox Draft" subtitle="Review and moderate before publishing to LiNKbrain." />
+
+      <p className="text-sm text-zinc-600 dark:text-zinc-400">{scopeDetail}</p>
 
       <BrainDraftEditor versionId={versionId} initialBody={ver.body} />
 
-      <form action={publishBrainDraftFromForm} className="border-t border-zinc-200 pt-4 dark:border-zinc-800">
-        <input type="hidden" name="versionId" value={versionId} />
-        <p className="text-sm text-zinc-600 dark:text-zinc-400">
-          Approving publishes this draft to LiNKbrain. The prior published version for this path is archived.
-        </p>
-        <button
-          type="submit"
-          className="mt-3 rounded-lg bg-violet-700 px-4 py-2 text-sm font-medium text-white dark:bg-violet-600"
-        >
-          Approve &amp; publish
-        </button>
-      </form>
-
-      <p className="text-sm">
-        <MemoryTabLink tab="inbox" className="text-sky-700 underline dark:text-sky-400">
+      <div className="flex flex-wrap items-center gap-3 border-t border-zinc-200 pt-4 dark:border-zinc-800">
+        <form action={publishBrainDraftFromForm} className="inline">
+          <input type="hidden" name="versionId" value={versionId} />
+          <button type="submit" className={BUTTON.approveOutlineRow}>
+            Approve
+          </button>
+        </form>
+        <form action={rejectBrainDraftFromForm} className="inline">
+          <input type="hidden" name="versionId" value={versionId} />
+          <button type="submit" className={BUTTON.rejectOutlineRow}>
+            Reject
+          </button>
+        </form>
+        <MemoryTabLink tab="inbox" className={BUTTON.editRow}>
           Back to Inbox
         </MemoryTabLink>
-      </p>
+      </div>
     </main>
   );
 }
