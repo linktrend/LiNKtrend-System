@@ -11,17 +11,18 @@ const LABELS: Record<FleetView, string> = {
   org: "Org",
 };
 
-export function WorkersFleetNav(props: { current: FleetView }) {
+export function WorkersFleetNav(props: { current: FleetView; scope?: WorkersFleetScope }) {
+  const scopeQuery = workersFleetScopeQuery(props.scope ?? "all");
   return (
     <nav aria-label="LiNKbots views" className={`${TABS.row} mt-6`}>
       {VIEWS.map((v) => {
         const active = props.current === v;
+        const href =
+          v === "list"
+            ? `/workers${scopeQuery}`
+            : `/workers${scopeQuery}${scopeQuery ? "&" : "?"}view=${v}`;
         return (
-          <Link
-            key={v}
-            href={v === "list" ? "/workers" : `/workers?view=${v}`}
-            className={screenTabLinkClass(active)}
-          >
+          <Link key={v} href={href} className={screenTabLinkClass(active)}>
             {LABELS[v]}
           </Link>
         );
@@ -36,6 +37,18 @@ export function parseFleetView(raw: string | string[] | undefined): FleetView {
   return "list";
 }
 
+/** Admin LiNKbots registry scope — distinct from presence filter pills on the list page. */
+export type WorkersFleetScope = "all" | "admin";
+
+export function parseWorkersFleetScope(raw: string | string[] | undefined): WorkersFleetScope {
+  const v = (Array.isArray(raw) ? raw[0] : raw)?.toLowerCase();
+  return v === "admin" ? "admin" : "all";
+}
+
+export function workersFleetScopeQuery(scope: WorkersFleetScope): string {
+  return scope === "admin" ? "?scope=admin" : "";
+}
+
 export type FleetPresenceFilter = "all" | "active" | "inactive" | "online" | "busy" | "idle";
 
 export function parseFleetPresenceFilter(raw: string | string[] | undefined): FleetPresenceFilter {
@@ -46,8 +59,14 @@ export function parseFleetPresenceFilter(raw: string | string[] | undefined): Fl
 
 const pill = "inline-flex min-w-[6.5rem] shrink-0 items-center justify-center rounded-full px-3 py-1 text-xs font-semibold transition";
 
-export function FleetPresenceFilterBar(props: { current: FleetPresenceFilter; view: FleetView }) {
-  const base = props.view === "list" ? "/workers" : `/workers?view=${props.view}`;
+export function FleetPresenceFilterBar(props: {
+  current: FleetPresenceFilter;
+  view: FleetView;
+  scope?: WorkersFleetScope;
+}) {
+  const scopeQuery = workersFleetScopeQuery(props.scope ?? "all");
+  const base =
+    props.view === "list" ? `/workers${scopeQuery}` : `/workers${scopeQuery}${scopeQuery ? "&" : "?"}view=${props.view}`;
   const items: { id: FleetPresenceFilter; label: string }[] = [
     { id: "all", label: "All" },
     { id: "active", label: "Active" },

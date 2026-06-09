@@ -23,14 +23,18 @@ import { WorkersPageHeader } from "@/components/workers-page-header";
 import { readAppSurfaceFromHeaders, withAppBasePath } from "@/lib/app-surface";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { BADGE, BUTTON } from "@/lib/ui-standards";
+import { isAdminBot } from "@/lib/agent-fleet-classification";
+import { resolveLicensorTenantId } from "@/lib/admin-linkskills-tenant";
 import { parseRuntimeSettings } from "@/lib/agent-runtime-settings";
 import {
   FleetPresenceFilterBar,
   WorkersFleetNav,
   parseFleetPresenceFilter,
   parseFleetView,
+  parseWorkersFleetScope,
   type FleetPresenceFilter,
   type FleetView,
+  type WorkersFleetScope,
 } from "@/components/workers-fleet-nav";
 
 export const dynamic = "force-dynamic";
@@ -86,7 +90,9 @@ function demoFleetRow(agent: AgentRecord, index: number): FleetRow {
   };
 }
 
-export default async function WorkersPage(props: { searchParams: Promise<{ view?: string; filter?: string }> }) {
+export default async function WorkersPage(props: {
+  searchParams: Promise<{ view?: string; filter?: string; scope?: string }>;
+}) {
   const sp = await props.searchParams;
   const rawView = Array.isArray(sp.view) ? sp.view[0] : sp.view;
   if (rawView === "runtime") {
@@ -94,9 +100,11 @@ export default async function WorkersPage(props: { searchParams: Promise<{ view?
   }
   const view: FleetView = parseFleetView(sp.view);
   const filter = parseFleetPresenceFilter(sp.filter);
+  const fleetScope: WorkersFleetScope = parseWorkersFleetScope(sp.scope);
   const uiMocksEnabled = isUiMocksEnabled();
   const surface = await readAppSurfaceFromHeaders();
   const isAdminSurface = surface === "admin";
+  const licensorTenantId = isAdminSurface ? await resolveLicensorTenantId().catch(() => null) : null;
 
   const supabase = await createSupabaseServerClient();
 
@@ -153,7 +161,10 @@ export default async function WorkersPage(props: { searchParams: Promise<{ view?
         };
       });
 
-  const fleet = fleetBase;
+  const fleet = fleetBase.filter((row) => {
+    if (!isAdminSurface || fleetScope !== "admin") return true;
+    return isAdminBot(row, { licensorTenantId, uiMocksDemoAgent: uiMocksEnabled });
+  });
 
   const visible = fleet.filter((a) => passesFilter(a, filter));
 
@@ -166,7 +177,7 @@ export default async function WorkersPage(props: { searchParams: Promise<{ view?
   if (err && !uiMocksEnabled) {
     return (
       <main className="space-y-6">
-        <WorkersPageHeader />
+        <WorkersPageHeader fleetScope={isAdminSurface ? fleetScope : "all"} />
         <p className="text-sm text-red-700 dark:text-red-400">{err.message}</p>
       </main>
     );
@@ -175,7 +186,7 @@ export default async function WorkersPage(props: { searchParams: Promise<{ view?
   return (
     <main className="space-y-6">
       {!isAdminSurface ? <AddLinkbotRoot /> : null}
-      <WorkersPageHeader />
+      <WorkersPageHeader fleetScope={isAdminSurface ? fleetScope : "all"} />
       <FleetSummaryStatsGrid
         total={fleet.length}
         online={online}
@@ -183,16 +194,20 @@ export default async function WorkersPage(props: { searchParams: Promise<{ view?
         idle={idle}
         inactive={fleet.filter((a) => a.statusLabel === "Inactive").length}
       />
-      <WorkersFleetNav current={view} />
-      <FleetPresenceFilterBar current={filter} view={view} />
+      <WorkersFleetNav current={view} scope={isAdminSurface ? fleetScope : "all"} />
+      <FleetPresenceFilterBar current={filter} view={view} scope={isAdminSurface ? fleetScope : "all"} />
 
       {fleet.length === 0 ? (
         <div className="rounded-xl border border-dashed border-zinc-300 bg-zinc-50/80 p-8 text-center dark:border-zinc-700 dark:bg-zinc-900/40">
-          <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">No LiNKbots yet</p>
+          <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
+            {isAdminSurface && fleetScope === "admin" ? "No admin LiNKbots yet" : "No LiNKbots yet"}
+          </p>
           {isAdminSurface ? (
             <>
               <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
-                LiNKbots appear here when provisioned through suite composition for a licensee workspace.
+                {fleetScope === "admin"
+                  ? "Admin LiNKbots are vendor/studio bots with licensor fleet scope. They appear when provisioned through suite composition."
+                  : "LiNKbots appear here when provisioned through suite composition for a licensee workspace."}
               </p>
               <div className="mt-4 flex flex-wrap justify-center gap-2">
                 <Link href={withAppBasePath("/suites", surface)} className={BUTTON.addRow}>
