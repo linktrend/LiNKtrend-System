@@ -322,9 +322,10 @@ export function prismFsMaxDepth(env: Env): number {
 
 /**
  * LiNKaios web UI mock/fixture mode. Reads only `LINKAIOS_UI_MOCKS` — safe without `loadEnv()`.
- * Default false when unset.
+ * Always false in production (`NODE_ENV=production`). Default false when unset elsewhere.
  */
 export function linkaiosUiMocksEnabled(env: NodeJS.ProcessEnv = process.env): boolean {
+  if (env.NODE_ENV === "production") return false;
   return parseEnvBool01(env.LINKAIOS_UI_MOCKS, false);
 }
 

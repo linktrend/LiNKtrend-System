@@ -28,11 +28,8 @@ import {
 } from "@/components/summary-metric-card";
 import { StatusPill } from "@/components/ui/status-pill";
 import { licensorScopeIsReadOnly } from "@/lib/app-roles";
-import { CLIENTS_LICENSEES_LABEL } from "@/lib/company-page-copy";
+import { LICENSEES_LABEL } from "@/lib/company-page-copy";
 import { LICENSEE_REGISTRY, resolveLicenseeRegistry } from "@/lib/licensee-registry";
-import { DEMO_CHANNEL_THREADS } from "@/lib/ui-mocks/channel-threads";
-import { DEMO_SESSION_THREADS } from "@/lib/ui-mocks/session-threads";
-import { DEMO_WORK_ALERTS } from "@/lib/ui-mocks/work-alert-fixtures";
 import { formatUiLabel } from "@/lib/ui-standards";
 
 type PlatformService = {
@@ -99,9 +96,9 @@ function aggregatePlatformWorkStats() {
   const openIssues = LICENSEE_REGISTRY.reduce((sum, row) => sum + row.openIssues, 0);
   return {
     openIssues,
-    alerts: DEMO_WORK_ALERTS.length,
-    messages: DEMO_CHANNEL_THREADS.length,
-    sessions: DEMO_SESSION_THREADS.length,
+    alerts: 0,
+    messages: 0,
+    sessions: 0,
   };
 }
 
@@ -118,7 +115,7 @@ function PlatformBirdsEye(props: { href: (path: string) => string }) {
     {
       href: props.href("/licensees"),
       icon: Building2,
-      title: CLIENTS_LICENSEES_LABEL,
+      title: LICENSEES_LABEL,
       description: "Registry, billing status, and org topology.",
     },
     { href: props.href("/metrics"), icon: Zap, title: "Metrics", description: "Platform KPIs and usage snapshots." },
@@ -127,10 +124,10 @@ function PlatformBirdsEye(props: { href: (path: string) => string }) {
 
   return (
     <div className="space-y-8">
-      <SummaryMetricCardSection title={formatUiLabel(`${CLIENTS_LICENSEES_LABEL} snapshot`)}>
+      <SummaryMetricCardSection title={formatUiLabel(`${LICENSEES_LABEL} snapshot`)}>
         <SummaryMetricCardGrid statusPillLabels={["Active", "Trialing", "Suspended"]}>
           <SummaryMetricCard
-            title={CLIENTS_LICENSEES_LABEL}
+            title={LICENSEES_LABEL}
             icon={Building2}
             metric={stats.total}
             compactMetric
@@ -285,7 +282,7 @@ function LicenseeBirdsEye(props: { licenseeId: string; href: (path: string) => s
       <p className="text-sm text-zinc-600 dark:text-zinc-400">
         Client / licensee not found in the demo registry.{" "}
         <Link href={props.href("/licensees")} className="font-medium text-sky-700 underline dark:text-sky-400">
-          Open {CLIENTS_LICENSEES_LABEL}
+          Open {LICENSEES_LABEL}
         </Link>
       </p>
     );

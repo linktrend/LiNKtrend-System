@@ -29,6 +29,7 @@ RUN pnpm install --frozen-lockfile \
 FROM node:20-bookworm-slim AS runner
 WORKDIR /app
 ENV NODE_ENV=production
+ENV LINKAIOS_UI_MOCKS=0
 RUN groupadd --gid 1001 linktrend \
  && useradd --uid 1001 --gid 1001 --shell /bin/bash --create-home linktrend
 COPY --from=builder /app/LiNKaios/linkaios-web/public ./LiNKaios/linkaios-web/public

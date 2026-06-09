@@ -8,6 +8,8 @@ import type { SkillCatalogRow } from "@/components/skills-catalog-table";
 import type { ToolCatalogRow } from "@/components/tools-catalog-table";
 import { loadLeaseStatus } from "@/lib/cockpit";
 import { computeCapabilitiesSliceStats, computeLeasesHubStats, type CapabilitiesSliceStatRow } from "@/lib/capabilities-slice-stats";
+import { resolveLeasePanelTenantId } from "@/lib/admin-linkskills-tenant";
+import { readAppSurfaceFromHeaders } from "@/lib/app-surface";
 import { readSkillAdminFlags } from "@/lib/skills-admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { connectorHubStats, DEMO_CONNECTOR_CATALOG_ROWS } from "@/lib/ui-mocks/capability-connectors-demo";
@@ -107,7 +109,10 @@ export default async function SkillsCapabilitiesHubPage() {
   );
   const connectorsStats = connectorHubStats(DEMO_CONNECTOR_CATALOG_ROWS);
 
-  let leaseRows = await loadLeaseStatus(supabase, "default", { time_range: "24h" });
+  const surface = await readAppSurfaceFromHeaders();
+  const tenantId = await resolveLeasePanelTenantId(surface);
+  let leaseRows =
+    tenantId != null ? await loadLeaseStatus(supabase, tenantId, { time_range: "24h" }) : [];
   if (uiMocksEnabled && leaseRows.length === 0) {
     leaseRows = DEMO_LEASE_ROWS;
   }

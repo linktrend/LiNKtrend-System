@@ -2,12 +2,11 @@ import { ShellLayout } from "@/components/shell-layout";
 import { RolePreviewProvider } from "@/components/role-preview-provider";
 import { resolveDataEnvironment } from "@/lib/data-environment";
 import { getAppRoleTierForUser } from "@/lib/command-centre-access";
-import { isUiMocksEnabled } from "@/lib/ui-mocks/flags";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export default async function AdminAppLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createSupabaseServerClient();
-  const uiMocksEnabled = isUiMocksEnabled();
+  const uiMocksEnabled = false;
   const dataEnvironment = resolveDataEnvironment();
   const {
     data: { user },

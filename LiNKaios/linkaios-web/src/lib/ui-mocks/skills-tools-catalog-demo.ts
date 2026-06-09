@@ -1,6 +1,8 @@
 import type { SkillCatalogRow } from "@/components/skills-catalog-table";
 import type { ToolCatalogRow } from "@/components/tools-catalog-table";
 
+import { isUiMocksEnabled } from "@/lib/ui-mocks/flags";
+
 /** Prefixed ids — not in DB; catalogue tables treat these as read-only fixtures. */
 const FIX = "00000000-0000-4000-8000-";
 
@@ -83,12 +85,14 @@ export const DEMO_TOOL_CATALOG_ROWS: ToolCatalogRow[] = [
 ];
 
 export function mergeSkillCatalogWithDemo(rows: SkillCatalogRow[]): SkillCatalogRow[] {
+  if (!isUiMocksEnabled()) return rows;
   const ids = new Set(rows.map((r) => r.id));
   const extra = DEMO_SKILL_CATALOG_ROWS.filter((r) => !ids.has(r.id));
   return [...extra, ...rows];
 }
 
 export function mergeToolCatalogWithDemo(rows: ToolCatalogRow[]): ToolCatalogRow[] {
+  if (!isUiMocksEnabled()) return rows;
   const ids = new Set(rows.map((r) => r.id));
   const extra = DEMO_TOOL_CATALOG_ROWS.filter((r) => !ids.has(r.id));
   return [...extra, ...rows];
