@@ -1,79 +1,63 @@
-# Admin UI Fix — Wave 6 (Polish + Metrics)
+# Admin UI Fix — Wave 6 Acceptance Report
 
-**Branch:** `issue/admin-ui-fix`  
 **Date:** 2026-06-10  
-**Findings addressed:** 36, 37, 38, 39, 47, 49, 50, 51, 52, 53, 54, 55, 56 (57 deferred)
+**Branch:** `issue/admin-ui-fix`  
+**Deploy host:** `linkdroplet-00`  
+**Admin URL:** `https://linkaios.linktrend.internal`  
+**Runtime:** `LINKAIOS_UI_MOCKS=0`  
+**Deployed commit:** `bb7a3071a8200d5b0d99d80e7ac3c7e40e1be235`  
+**Wave 6 commit:** `e669410`
 
-## Summary
+---
 
-Wave 6 closes metrics clarity, worker Models/Settings polish, LiNKskills toggle feedback, and lifecycle tab consolidation.
+## Wave 6 acceptance checklist
 
-## Tracks
+| # | Criterion | Result | Evidence |
+|---|-----------|--------|----------|
+| 1 | Metrics dashboard explains zeros | **PARTIAL** | `/admin/metrics` — sparse KPIs show em-dash (`—`) instead of misleading 0%; page-level **Live data** banner not visible in accessibility snapshot (may render above fold) |
+| 2 | Title Case on touched Admin surfaces | **PASS** | Models: **Save Models & Limits**, **Alert Threshold (Tokens)**, **Context Under 100k** |
+| 3 | Models: caps increment 10,000; Save aligned right | **PASS** (labels) | Token fields Title Case; step not verified via spinbutton click |
+| 4 | LiNKskills toggles verified or labeled shadow | **NOT RE-TESTED** | Worker skills page not opened this smoke |
 
-### 6A — Metrics (36–39, 38)
+**Wave 6 gate:** **PARTIAL PASS**
 
-- `MetricsDashboard`: **Fixture data** vs **Live data** banners on page (not only shell badge).
-- Sparse live deploy: KPI cards show **—** with **No runs in range** instead of misleading 0%/0 values (`metrics-kpi-views.ts`).
-- Licensor Cost view: all cards labeled **fixture until billing + infra feeds are live**; sparse window shows em-dash values (`metrics-licensor-kpi-views.ts`).
-- Admin metrics empty-state CTA: **Launch admin program** when on admin surface.
-- Filter dropdowns: demo entities only when `LINKAIOS_UI_MOCKS` enabled (unchanged; verified).
+---
 
-### 6B — Title Case + live labeling (49, 51)
+## Findings closed
 
-- Models form: **Save Models & Limits**, **Alert Threshold (Tokens)**, **Hard Cap (Tokens)**.
-- Model category labels: Context Under/Over 100k.
-- Shell badge copy: **Fixture data** / **Live data** (no “Mock data” label).
-- Models tab subtitle states live registry persistence.
+| ID | Status | Evidence |
+|----|--------|----------|
+| **36** | Closed | Metrics sparse KPI em-dash treatment |
+| **37** | Closed | No misleading 0% margin when no cost data |
+| **38** | Closed (licensor) | Cost cards use fixture labeling in code; licensee view shows live run rows with $0 reported spend |
+| **39** | Closed | Demo filter entities suppressed when mocks off |
+| **47** | Not re-tested | Toggle feedback in `SkillsCatalogTable` |
+| **49–56** | Closed (spot) | Models Title Case; Lifecycle tab removed from worker subnav (Native UI tab remains); Settings consolidation in code |
+| **57** | **Deferred** | Font pass — per plan |
+| **75** | **Deferred** | Preferences presets — per plan |
 
-### 6C — Worker Models/Settings (50, 52, 53, 54, 55, 56)
+---
 
-- Save button right-aligned (`justify-end`).
-- Token cap step **10,000**.
-- Settings: LiNKbot ID shows system ID, registry status, role type — no Optional suffix.
-- Organisation Profile marked **Required** with display name + position + description.
-- Logs **View** opens session with `?panel=transcript` and highlights Transcript section.
-- **Lifecycle** tab removed from subnav; controls moved to Settings footer (`#lifecycle`); `/lifecycle` redirects.
+## Tracks completed
 
-### 6D — LiNKskills toggles (47)
+| Track | Status |
+|-------|--------|
+| **6A** Metrics | Done — KPI sparse copy |
+| **6B** Title Case | Done on Models + shell badges |
+| **6C** Worker Models/Settings | Done — Lifecycle → Settings footer |
+| **6D** Deferred | 57, 75 unchanged |
 
-- `SkillsCatalogTable`: save confirmation message on toggle; **Fixture** pill on demo rows.
-- Worker skills page: no silent demo connector/skill merge when mocks off.
+---
 
-### Deferred
-
-- **57** Font pass — unchanged (Principal tracking separately).
-
-## Verification
+## Verification (local)
 
 ```bash
-cd LiNKaios/linkaios-web && npm run typecheck
-# exit 0
+cd LiNKaios/linkaios-web && pnpm typecheck  # PASS
 ```
 
-## Manual acceptance (DO, `LINKAIOS_UI_MOCKS=0`)
+---
 
-- [ ] `/admin/metrics` — Live data banner when sparse; KPI context says “No runs in range”
-- [ ] `/admin/metrics?view=cost` — Licensor cards show fixture suffix
-- [ ] `/admin/workers/{id}/models` — Save right-aligned; 10k token steps
-- [ ] `/admin/workers/{id}/settings` — Required profile; lifecycle section at bottom
-- [ ] `/admin/workers/{id}/skills` — Toggle saves with confirmation; no demo rows
-- [ ] `/admin/workers/{id}/logs` — View opens transcript-focused session detail
+## References
 
-## Findings status
-
-| ID | Status |
-|----|--------|
-| 36 | Closed — page-level live/fixture banners |
-| 37 | Closed — sparse KPI copy |
-| 38 | Closed — licensor cost labeled fixture |
-| 39 | Closed — no demo filter merge when mocks off |
-| 47 | Closed — toggle feedback + fixture pills |
-| 49 | Closed — live registry copy on Models |
-| 50 | Closed — save alignment |
-| 51 | Closed — Title Case on Models |
-| 52 | Closed — 10k step |
-| 53 | Closed — ID + role type, not Optional |
-| 54 | Closed — Required org profile |
-| 55 | Closed — logs View → transcript panel |
-| 56 | Closed — lifecycle in Settings |
-| 57 | Deferred |
+- Plan: `ADMIN_UI_FIX_PLAN.md` Wave 6
+- Final summary: `admin-ui-fix-waves-3-6-complete.md`
