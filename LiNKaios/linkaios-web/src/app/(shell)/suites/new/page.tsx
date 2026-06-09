@@ -6,24 +6,30 @@ import { FormEvent, useState } from "react";
 
 import { useAppSurface } from "@/components/app-surface-provider";
 import { ShellPageHeaderClient } from "@/components/shell-page-header-client";
+import { useLicensorSuiteStore } from "@/hooks/use-licensor-suite-store";
 import { BUTTON } from "@/lib/ui-standards";
 
 export default function LicensorNewSuitePage() {
   const { href: appHref } = useAppSurface();
   const router = useRouter();
+  const { createDraftSuite } = useLicensorSuiteStore();
   const [name, setName] = useState("");
   const [summary, setSummary] = useState("");
 
   const onSubmit = (event: FormEvent) => {
     event.preventDefault();
-    const slug = name.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "new-suite";
+    const trimmedName = name.trim();
+    const trimmedSummary = summary.trim();
+    const slug =
+      trimmedName.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "new-suite";
+    createDraftSuite({ id: slug, name: trimmedName, summary: trimmedSummary });
     router.push(appHref(`/suites/${slug}/builder`));
   };
 
   return (
     <main className="space-y-6">
       <ShellPageHeaderClient
-        title="Add suite"
+        title="Add Suite"
         subtitle="Start a draft product — assemble modules, phases, issues, LiNKbots, and automations before publishing."
       />
 
@@ -51,15 +57,12 @@ export default function LicensorNewSuitePage() {
         </label>
         <div className="flex flex-wrap gap-2 pt-2">
           <button type="submit" className={BUTTON.primaryRow}>
-            Create draft & open builder
+            Create Draft & Open Builder
           </button>
           <Link href={appHref("/suites")} className={BUTTON.secondaryCardAction}>
             Cancel
           </Link>
         </div>
-        <p className="text-xs text-zinc-500 dark:text-zinc-400">
-          Mock flow — new drafts are not persisted yet. Use an existing suite row to review the full builder.
-        </p>
       </form>
     </main>
   );

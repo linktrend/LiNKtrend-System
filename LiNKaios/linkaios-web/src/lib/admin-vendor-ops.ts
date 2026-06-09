@@ -4,7 +4,7 @@
  */
 
 import { ALL_LICENSEES_SCOPE, type LicensorScope } from "@/lib/app-roles";
-import type { LicensorSuitePublishState } from "@/lib/ui-mocks/licensor-suite-catalog";
+import type { LicensorSuitePublishState } from "@/lib/licensor-suite-catalog";
 
 export const DEMO_TENANT_ID = "demo-tenant";
 
@@ -41,7 +41,7 @@ export function suiteVisibleInMarketplace(publishState: LicensorSuitePublishStat
   return publishState === "published";
 }
 
-export type SuitePublishAction = "mark_ready" | "publish" | "unpublish";
+export type SuitePublishAction = "mark_ready" | "publish" | "unpublish" | "suspend";
 
 export function nextSuitePublishState(
   current: LicensorSuitePublishState,
@@ -50,6 +50,7 @@ export function nextSuitePublishState(
   if (action === "mark_ready" && current === "draft") return "ready";
   if (action === "publish" && current === "ready") return "published";
   if (action === "unpublish" && current === "published") return "ready";
+  if (action === "suspend" && current === "published") return "draft";
   return null;
 }
 

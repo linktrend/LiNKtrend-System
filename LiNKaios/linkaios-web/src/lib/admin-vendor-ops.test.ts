@@ -37,5 +37,7 @@ describe("admin vendor ops (LTS-004)", () => {
     expect(suiteVisibleInMarketplace("published")).toBe(true);
     expect(nextSuitePublishState("draft", "mark_ready")).toBe("ready");
     expect(nextSuitePublishState("ready", "publish")).toBe("published");
+    expect(nextSuitePublishState("published", "unpublish")).toBe("ready");
+    expect(nextSuitePublishState("published", "suspend")).toBe("draft");
   });
 });

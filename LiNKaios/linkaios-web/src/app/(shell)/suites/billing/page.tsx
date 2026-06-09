@@ -11,7 +11,7 @@ import {
 } from "@/components/data-table";
 import { StatusPill } from "@/components/ui/status-pill";
 import { LICENSOR_SUITE_PUBLISH_PILL_LABELS, MARKETPLACE_LISTED_PILL_LABELS } from "@/lib/status-colors";
-import { LICENSOR_SUITE_PRODUCTS } from "@/lib/ui-mocks/licensor-suite-catalog";
+import { LICENSOR_SUITE_PRODUCTS } from "@/lib/licensor-suite-catalog";
 import { formatUiLabel } from "@/lib/ui-standards";
 
 export const dynamic = "force-dynamic";
