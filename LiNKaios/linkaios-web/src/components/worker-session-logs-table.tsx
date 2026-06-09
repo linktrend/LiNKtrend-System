@@ -252,7 +252,7 @@ export function WorkerSessionLogsTable(props: { rows: SessionLogRow[] }) {
                   </td>
                   <td className={DT.tdControl}>
                     <div className={DT.actionsRow}>
-                      <DataTableIconAction icon={Eye} label={`Open ${row.sessionTitle}`} href={row.openHref} />
+                      <DataTableIconAction icon={Eye} label={`View transcript for ${row.sessionTitle}`} href={row.openHref} />
                     </div>
                   </td>
                 </tr>

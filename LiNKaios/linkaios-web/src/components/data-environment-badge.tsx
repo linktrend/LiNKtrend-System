@@ -15,11 +15,11 @@ export function DataEnvironmentBadge(props: { mode: DataEnvironmentMode }) {
       aria-label={isMock ? "Mock data environment" : "Live data environment"}
     >
       <Database className="h-3.5 w-3.5 shrink-0 text-zinc-500 dark:text-zinc-400" aria-hidden />
-      <StatusPill label={isMock ? "Mock data" : "Live data"} tone={isMock ? "warning" : "success"} />
+      <StatusPill label={isMock ? "Fixture data" : "Live data"} tone={isMock ? "warning" : "success"} />
       <span className="text-zinc-600 dark:text-zinc-400">
         {isMock
           ? "Fixture rows may appear alongside live telemetry."
-          : "Showing production data paths — fixtures hidden unless mocks are enabled."}
+          : "Production data paths — fixtures hidden unless LINKAIOS_UI_MOCKS is enabled."}
       </span>
     </div>
   );

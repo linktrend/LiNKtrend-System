@@ -125,7 +125,7 @@ async function WorkerSkillsSliceContent(props: { agentId: string; slice: WorkerL
       ? demoConnectorRowsForAgent(agentId)
       : uiMocksEnabled
         ? DEMO_CONNECTOR_CATALOG_ROWS.slice(0, 4)
-        : DEMO_CONNECTOR_CATALOG_ROWS.slice(0, 4);
+        : [];
 
     return (
       <div className="space-y-4">
@@ -177,7 +177,7 @@ async function WorkerSkillsSliceContent(props: { agentId: string; slice: WorkerL
     const { data } = await listSkills(supabase, { limit: 400 });
     const apiRows = ((data ?? []) as SkillRecord[]).map(toSkillRow);
     const merged = uiMocksEnabled ? mergeSkillCatalogWithDemo(apiRows) : apiRows;
-    skillRows = merged.length > 0 ? merged.slice(0, 6) : MOCK_UI_AGENT_SKILLS_ROWS.map(demoSkillRowToCatalog);
+    skillRows = merged.length > 0 ? merged.slice(0, 6) : uiMocksEnabled ? MOCK_UI_AGENT_SKILLS_ROWS.map(demoSkillRowToCatalog) : [];
   }
 
   return (

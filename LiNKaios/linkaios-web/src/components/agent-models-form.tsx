@@ -201,8 +201,14 @@ export function AgentModelsForm(props: { agentId: string; initial: AgentRuntimeS
 
       {dirty && !props.readonly ? (
         <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-950 dark:border-amber-900/60 dark:bg-amber-950/30 dark:text-amber-100">
-          You have unsaved changes. Select <span className="font-medium">Save models &amp; limits</span> before leaving
+          You have unsaved changes. Select <span className="font-medium">Save Models &amp; Limits</span> before leaving
           this tab or your edits will be lost.
+        </p>
+      ) : null}
+
+      {!props.readonly ? (
+        <p className="text-xs text-zinc-500 dark:text-zinc-400">
+          Live registry — changes persist to <span className="font-mono">linkaios.agents.runtime_settings</span>.
         </p>
       ) : null}
 
@@ -255,11 +261,11 @@ export function AgentModelsForm(props: { agentId: string; initial: AgentRuntimeS
         />
         <div className="mt-4 space-y-3">
           <label className="flex max-w-xs flex-col gap-1">
-            <span className="text-sm font-medium text-zinc-800 dark:text-zinc-200">Alert threshold (tokens)</span>
+            <span className="text-sm font-medium text-zinc-800 dark:text-zinc-200">Alert Threshold (Tokens)</span>
             <input
               type="number"
               min={0}
-              step={1}
+              step={10000}
               disabled={props.readonly || pending}
               placeholder="e.g. 500000"
               className={FIELD.controlCompact}
@@ -276,11 +282,11 @@ export function AgentModelsForm(props: { agentId: string; initial: AgentRuntimeS
             />
           </label>
           <label className="flex max-w-xs flex-col gap-1">
-            <span className="text-sm font-medium text-zinc-800 dark:text-zinc-200">Hard cap (tokens)</span>
+            <span className="text-sm font-medium text-zinc-800 dark:text-zinc-200">Hard Cap (Tokens)</span>
             <input
               type="number"
               min={0}
-              step={1}
+              step={10000}
               disabled={props.readonly || pending}
               placeholder="e.g. 2000000"
               className={FIELD.controlCompact}
@@ -346,9 +352,11 @@ export function AgentModelsForm(props: { agentId: string; initial: AgentRuntimeS
       ) : null}
 
       {!props.readonly ? (
-        <button type="button" disabled={pending || !dirty} onClick={onSave} className={BUTTON.primaryRow}>
-          {pending ? "Saving…" : "Save models & limits"}
-        </button>
+        <div className="flex justify-end">
+          <button type="button" disabled={pending || !dirty} onClick={onSave} className={BUTTON.primaryRow}>
+            {pending ? "Saving…" : "Save Models & Limits"}
+          </button>
+        </div>
       ) : (
         <p className="text-xs text-zinc-400">
           Demo state for <span className="font-mono">{props.agentId}</span> — not persisted.

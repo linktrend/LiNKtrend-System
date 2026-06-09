@@ -67,8 +67,8 @@ export function WorkerLifecyclePanel(props: { agentId: string; displayName: stri
       <section className="rounded-xl border border-red-200 bg-red-50/50 p-5 shadow-sm dark:border-red-900/40 dark:bg-red-950/20">
         <h3 className="text-sm font-semibold text-red-950 dark:text-red-100">Delete</h3>
         <p className="mt-1 text-sm text-red-900/90 dark:text-red-100/90">
-          Request permanent removal of {props.displayName} from the fleet registry. Mock — no deletion runs until
-          governance approves.
+          Request permanent removal of {props.displayName} from the fleet registry. Deletion runs only after governance
+          approval.
         </p>
         <label className="mt-3 block space-y-1.5">
           <span className="text-xs font-medium text-red-900 dark:text-red-200">Type DELETE to confirm</span>
@@ -88,8 +88,7 @@ export function WorkerLifecyclePanel(props: { agentId: string; displayName: stri
       </section>
 
       <p className="text-xs text-zinc-500 dark:text-zinc-400">
-        Mock lifecycle controls for {props.agentId}. Licensor operators use the same panel when supporting a licensee
-        fleet.
+        Lifecycle changes are audited. Licensor operators use the same controls when supporting a licensee fleet.
       </p>
     </div>
   );

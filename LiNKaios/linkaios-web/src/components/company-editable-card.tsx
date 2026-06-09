@@ -13,6 +13,8 @@ export function CompanyEditableCard(props: {
   title: string;
   description?: string;
   required?: boolean;
+  /** When false, omit Optional/Required suffix (system read-only fields). */
+  showRequirementLabel?: boolean;
   children: React.ReactNode;
   editContent?: React.ReactNode;
   onSave?: () => void | Promise<void>;
@@ -38,14 +40,17 @@ export function CompanyEditableCard(props: {
     setSavedFlash(true);
   }
 
+  const showRequirementLabel = props.showRequirementLabel !== false;
   const title = (
     <>
       {formatCardTitle(props.title)}
-      {props.required ? (
-        <span className="ml-2 text-xs font-normal text-rose-700 dark:text-rose-300">Required</span>
-      ) : (
-        <span className="ml-2 text-xs font-normal text-zinc-400">Optional</span>
-      )}
+      {showRequirementLabel ? (
+        props.required ? (
+          <span className="ml-2 text-xs font-normal text-rose-700 dark:text-rose-300">Required</span>
+        ) : (
+          <span className="ml-2 text-xs font-normal text-zinc-400">Optional</span>
+        )
+      ) : null}
     </>
   );
 

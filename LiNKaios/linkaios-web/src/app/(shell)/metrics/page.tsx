@@ -5,6 +5,7 @@ import { fetchMetricsSnapshot } from "@/app/(shell)/metrics/actions";
 import { WorkEmptyState } from "@/app/(shell)/work/work-empty-state";
 import { MetricsDashboard, type MetricsFilterOption } from "@/components/metrics-dashboard";
 import { ShellPageHeaderClient } from "@/components/shell-page-header-client";
+import { readAppSurfaceFromHeaders } from "@/lib/app-surface";
 import { buildMetricsSnapshotFromRows, type MetricsSnapshot } from "@/lib/metrics-snapshot";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { DEMO_SIDEBAR_AGENTS, DEMO_SIDEBAR_MISSIONS } from "@/lib/ui-mocks/entities";
@@ -29,6 +30,8 @@ function emptyMetricsSnapshot(days: number): MetricsSnapshot {
 
 export default async function MetricsPage() {
   const uiMocksEnabled = isUiMocksEnabled();
+  const surface = await readAppSurfaceFromHeaders();
+  const isAdmin = surface === "admin";
 
   const supabase = await createSupabaseServerClient();
 
@@ -90,10 +93,17 @@ export default async function MetricsPage() {
           icon={BarChart3}
           title="No run activity yet"
           description="Launch a project or start a LiNKbot session to populate cost, token, and reliability charts."
-          actions={[
-            { kind: "link", label: "Add project", href: "/projects/new" },
-            { kind: "link", label: "Open LiNKbots", href: "/workers", variant: "secondary" },
-          ]}
+          actions={
+            isAdmin
+              ? [
+                  { kind: "link", label: "Launch admin program", href: "/projects/new" },
+                  { kind: "link", label: "Open LiNKbots", href: "/workers", variant: "secondary" },
+                ]
+              : [
+                  { kind: "link", label: "Add project", href: "/projects/new" },
+                  { kind: "link", label: "Open LiNKbots", href: "/workers", variant: "secondary" },
+                ]
+          }
         />
       ) : null}
       <MetricsDashboard

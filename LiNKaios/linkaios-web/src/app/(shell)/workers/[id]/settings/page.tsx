@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { WorkerLifecyclePanel } from "@/components/worker-lifecycle-panel";
 import { WorkerRoleAwareSettingsForm } from "@/components/worker-role-aware-forms";
 import { WorkerTabSectionHeader } from "@/components/worker-tab-section-header";
 import { parseRuntimeSettings } from "@/lib/agent-runtime-settings";
@@ -14,13 +15,21 @@ export default async function WorkerSettingsPage(props: { params: Promise<{ id: 
 
   if (isDemoAgentId(id)) {
     const initial = demoAgentRuntimeSettings(id);
+    const displayName = id === "demo-lisa" ? "Lisa (CEO)" : "Eric (CTO)";
     return (
       <section className="space-y-4">
         <WorkerTabSectionHeader
           title="Settings"
-          subtitle="Profile, LiNKbrain personality files, and runtime policy for this LiNKbot."
+          subtitle="Profile, LiNKbrain personality files, runtime policy, and lifecycle controls for this LiNKbot."
         />
-        <WorkerRoleAwareSettingsForm agentId={id} initial={initial} forceReadonly={isDemoAgentId(id)} />
+        <WorkerRoleAwareSettingsForm
+          agentId={id}
+          displayName={displayName}
+          registryStatus="active"
+          initial={initial}
+          forceReadonly={isDemoAgentId(id)}
+          lifecycleSlot={<WorkerLifecyclePanel agentId={id} displayName={displayName} />}
+        />
       </section>
     );
   }
@@ -45,14 +54,22 @@ export default async function WorkerSettingsPage(props: { params: Promise<{ id: 
   }
 
   const initial = parseRuntimeSettings((agent as { runtime_settings?: unknown }).runtime_settings);
+  const displayName = String((agent as { display_name: string }).display_name);
+  const registryStatus = String((agent as { status?: string }).status ?? "active");
 
   return (
     <section className="space-y-4">
-      <div>
-        <h2 className="text-sm font-semibold text-zinc-500 dark:text-zinc-400">Settings</h2>
-        <p className="mt-1 max-w-2xl text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">Basic LiNKbot settings.</p>
-      </div>
-      <WorkerRoleAwareSettingsForm agentId={id} initial={initial} />
+      <WorkerTabSectionHeader
+        title="Settings"
+        subtitle="Profile, LiNKbrain files, runtime policy, and lifecycle controls for this LiNKbot."
+      />
+      <WorkerRoleAwareSettingsForm
+        agentId={id}
+        displayName={displayName}
+        registryStatus={registryStatus}
+        initial={initial}
+        lifecycleSlot={<WorkerLifecyclePanel agentId={id} displayName={displayName} />}
+      />
     </section>
   );
 }

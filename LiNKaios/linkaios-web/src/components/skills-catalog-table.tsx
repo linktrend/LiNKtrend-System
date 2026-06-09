@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 
 import { Archive, Eye, Pencil } from "lucide-react";
 
@@ -10,6 +10,7 @@ import { LifecyclePill } from "@/components/catalog-ui";
 import { catalogueRowHighlightClass } from "@/components/capability-catalog-shared";
 import { CapabilityCatalogColGroup, CAPABILITY_CATALOG_TABLE_CLASS } from "@/components/capability-catalog-table-layout";
 import { DataTableIconAction, DataTableShell, DT, TableBoolToggle } from "@/components/data-table";
+import { FixturePill } from "@/components/fixture-pill";
 import { useAppRole } from "@/components/role-preview-provider";
 import {
   canEditLinkskillsCatalogue,
@@ -33,6 +34,7 @@ export type SkillCatalogRow = {
 export function SkillsCatalogTable(props: { rows: SkillCatalogRow[] }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
+  const [toggleMessage, setToggleMessage] = useState<string | null>(null);
   const { kind, role } = useAppRole();
   const canEditCatalogue = canEditLinkskillsCatalogue(kind, role);
   const canToggleTenant = canToggleTenantSkillOrTool(kind, role);
@@ -41,7 +43,12 @@ export function SkillsCatalogTable(props: { rows: SkillCatalogRow[] }) {
 
   async function applyRuntimeFlags(id: string, published: boolean, runtimeEnabled: boolean) {
     startTransition(async () => {
-      await updateSkillPublishFlags(id, published, runtimeEnabled);
+      const res = await updateSkillPublishFlags(id, published, runtimeEnabled);
+      if (res.ok) {
+        setToggleMessage("Skill flags saved.");
+      } else {
+        setToggleMessage(res.error ?? "Could not save skill flags.");
+      }
       router.refresh();
     });
   }
@@ -49,11 +56,17 @@ export function SkillsCatalogTable(props: { rows: SkillCatalogRow[] }) {
   function applyCompanyToggle(r: SkillCatalogRow, enabled: boolean) {
     if (kind === "licensee") {
       setOrgEnabled(r.id, enabled);
+      setToggleMessage(enabled ? "Skill enabled for company." : "Skill disabled for company.");
       return;
     }
     if (r.isFixture) return;
     startTransition(async () => {
-      await updateSkillPublishFlags(r.id, enabled, enabled ? r.runtimeEnabled : false);
+      const res = await updateSkillPublishFlags(r.id, enabled, enabled ? r.runtimeEnabled : false);
+      if (res.ok) {
+        setToggleMessage("Skill publish flag saved.");
+      } else {
+        setToggleMessage(res.error ?? "Could not save skill flag.");
+      }
       router.refresh();
     });
   }
@@ -62,6 +75,11 @@ export function SkillsCatalogTable(props: { rows: SkillCatalogRow[] }) {
 
   return (
     <DataTableShell scrollableBody>
+      {toggleMessage ? (
+        <p role="status" className="border-b border-zinc-100 px-4 py-2 text-xs text-emerald-700 dark:border-zinc-800 dark:text-emerald-400">
+          {toggleMessage}
+        </p>
+      ) : null}
       <table className={CAPABILITY_CATALOG_TABLE_CLASS}>
         <CapabilityCatalogColGroup />
         <thead className={DT.thead}>
@@ -108,8 +126,9 @@ export function SkillsCatalogTable(props: { rows: SkillCatalogRow[] }) {
                   </span>
                 </td>
                 <td className={`${DT.tdClipInset} text-sm font-medium text-zinc-900 dark:text-zinc-100`}>
-                  <span className={DT.tdTextSpan} title={r.name}>
+                  <span className={`${DT.tdTextSpan} inline-flex items-center gap-2`} title={r.name}>
                     {r.name}
+                    {r.isFixture ? <FixturePill /> : null}
                   </span>
                 </td>
                 <td className={DT.tdClipInset}>

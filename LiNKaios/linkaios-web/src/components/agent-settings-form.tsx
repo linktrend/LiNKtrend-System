@@ -26,8 +26,11 @@ function memoryAgentHref(agentId: string): string {
 
 export function AgentSettingsForm(props: {
   agentId: string;
+  displayName?: string;
+  registryStatus?: string;
   initial: AgentRuntimeSettings;
   readonly?: boolean;
+  lifecycleSlot?: React.ReactNode;
 }) {
   const router = useRouter();
   const initialRef = useRef(props.initial);
@@ -84,19 +87,43 @@ export function AgentSettingsForm(props: {
         icon={Fingerprint}
         title="LiNKbot ID"
         description="Stable identifier used in sessions, LiNKbrain partitions, and capability leases."
+        required
+        showRequirementLabel={false}
         editContent={undefined}
       >
-        <p className="font-mono text-sm text-zinc-800 dark:text-zinc-200">{props.agentId}</p>
+        <dl className="space-y-3 text-sm">
+          <div>
+            <dt className="text-xs font-medium text-zinc-500 dark:text-zinc-400">System ID</dt>
+            <dd className="mt-1 font-mono text-zinc-800 dark:text-zinc-200">{props.agentId}</dd>
+          </div>
+          {props.registryStatus ? (
+            <div>
+              <dt className="text-xs font-medium text-zinc-500 dark:text-zinc-400">Registry Status</dt>
+              <dd className="mt-1 capitalize text-zinc-800 dark:text-zinc-200">{props.registryStatus}</dd>
+            </div>
+          ) : null}
+          <div>
+            <dt className="text-xs font-medium text-zinc-500 dark:text-zinc-400">Role Type</dt>
+            <dd className="mt-1 text-zinc-800 dark:text-zinc-200">{profile.title?.trim() || "Unassigned"}</dd>
+          </div>
+        </dl>
       </CompanyEditableCard>
 
       <CompanyEditableCard
         icon={User}
-        title="Organisation profile"
-        description="How this LiNKbot appears in the directory: job title and a short description."
+        title="Organisation Profile"
+        description="How this LiNKbot appears in the directory: display name, job title, and a short description."
+        required
         editContent={
           <div className="space-y-3">
+            {props.displayName ? (
+              <div>
+                <span className="text-sm font-medium text-zinc-800 dark:text-zinc-200">Display Name</span>
+                <p className="mt-1 text-sm text-zinc-700 dark:text-zinc-300">{props.displayName}</p>
+              </div>
+            ) : null}
             <label className="flex flex-col gap-1">
-              <span className="text-sm font-medium text-zinc-800 dark:text-zinc-200">Position / title</span>
+              <span className="text-sm font-medium text-zinc-800 dark:text-zinc-200">Position / Title</span>
               <input
                 type="text"
                 disabled={pending}
@@ -127,8 +154,14 @@ export function AgentSettingsForm(props: {
         onSave={persist}
       >
         <dl className="space-y-3 text-sm">
+          {props.displayName ? (
+            <div>
+              <dt className="text-xs font-medium text-zinc-500 dark:text-zinc-400">Display Name</dt>
+              <dd className="mt-1 font-medium text-zinc-900 dark:text-zinc-100">{props.displayName}</dd>
+            </div>
+          ) : null}
           <div>
-            <dt className="text-xs font-medium text-zinc-500 dark:text-zinc-400">Position / title</dt>
+            <dt className="text-xs font-medium text-zinc-500 dark:text-zinc-400">Position / Title</dt>
             <dd className="mt-1 font-medium text-zinc-900 dark:text-zinc-100">{profile.title || "—"}</dd>
           </div>
           <div>
@@ -163,6 +196,14 @@ export function AgentSettingsForm(props: {
         >
           {message}
         </p>
+      ) : null}
+
+      {props.lifecycleSlot ? (
+        <section id="lifecycle" className="scroll-mt-24 space-y-3 border-t border-zinc-200 pt-8 dark:border-zinc-800">
+          <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Lifecycle</h2>
+          <p className="text-sm text-zinc-600 dark:text-zinc-400">Suspend, terminate, or request removal for this LiNKbot.</p>
+          {props.lifecycleSlot}
+        </section>
       ) : null}
     </div>
   );

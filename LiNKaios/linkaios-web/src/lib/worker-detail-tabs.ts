@@ -66,6 +66,7 @@ export function workerDetailTabsForSurface(options: {
   showProjectsOnAdmin: boolean;
 }): typeof WORKER_DETAIL_TABS {
   return WORKER_DETAIL_TABS.filter((tab) => {
+    if (tab.id === "lifecycle") return false;
     if (tab.id !== "projects") return true;
     if (!options.isAdminSurface) return true;
     return options.showProjectsOnAdmin;

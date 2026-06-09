@@ -9,8 +9,8 @@ export type ModelCategoryId =
 
 export const MODEL_CATEGORY_LABELS: Record<ModelCategoryId, string> = {
   heartbeat: "Heartbeat",
-  context_lt_100k: "Context <100k",
-  context_gt_100k: "Context >100k",
+  context_lt_100k: "Context Under 100k",
+  context_gt_100k: "Context Over 100k",
   execution: "Execution",
   fallback: "Fallback",
 };

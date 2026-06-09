@@ -53,7 +53,7 @@ export default async function WorkerModelsPage(props: { params: Promise<{ id: st
     <section className="space-y-4">
       <WorkerTabSectionHeader
         title="Models"
-        subtitle="Model selection for this LiNKbot, plus spend limits and fallback behaviour."
+        subtitle="Model selection for this LiNKbot, plus spend limits and fallback behaviour. Values persist in the live agent registry."
       />
       <WorkerRoleAwareModelsForm agentId={id} initial={initial} />
     </section>

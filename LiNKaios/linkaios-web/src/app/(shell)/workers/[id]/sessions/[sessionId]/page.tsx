@@ -15,8 +15,13 @@ import { linkbotNativeUiHref } from "@/lib/linkbot-native-ui";
 
 export const dynamic = "force-dynamic";
 
-export default async function SessionDetailPage(props: { params: Promise<{ id: string; sessionId: string }> }) {
+export default async function SessionDetailPage(props: {
+  params: Promise<{ id: string; sessionId: string }>;
+  searchParams: Promise<{ panel?: string }>;
+}) {
   const { id, sessionId } = await props.params;
+  const sp = await props.searchParams;
+  const focusTranscript = sp.panel === "transcript";
 
   if (!isUiMocksEnabled() && isDemoAgentId(id)) {
     notFound();
@@ -25,7 +30,7 @@ export default async function SessionDetailPage(props: { params: Promise<{ id: s
   if (isUiMocksEnabled() && isDemoAgentId(id)) {
     const row = DEMO_SESSION_THREADS.find((s) => s.id === sessionId && s.agentId === id);
     if (!row) notFound();
-    return <SessionDetailShell agentId={id} row={row} />;
+    return <SessionDetailShell agentId={id} row={row} focusTranscript={focusTranscript} />;
   }
 
   const supabase = await createSupabaseServerClient();
@@ -71,11 +76,11 @@ export default async function SessionDetailPage(props: { params: Promise<{ id: s
   );
   if (!mapped) notFound();
 
-  return <SessionDetailShell agentId={id} row={mapped} />;
+  return <SessionDetailShell agentId={id} row={mapped} focusTranscript={focusTranscript} />;
 }
 
-function SessionDetailShell(props: { agentId: string; row: SessionThreadRow }) {
-  const { row, agentId } = props;
+function SessionDetailShell(props: { agentId: string; row: SessionThreadRow; focusTranscript?: boolean }) {
+  const { row, agentId, focusTranscript } = props;
   const agentName = row.agentName;
   const projectLabel = row.projectTitle;
   const display = row.displayStatus;
@@ -151,10 +156,18 @@ function SessionDetailShell(props: { agentId: string; row: SessionThreadRow }) {
         </ol>
       </section>
 
-      <section className="rounded-xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
-        <h2 className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Outputs</h2>
+      <section
+        id="transcript"
+        className={
+          "rounded-xl border bg-white p-5 shadow-sm dark:bg-zinc-950 " +
+          (focusTranscript
+            ? "border-sky-300 ring-2 ring-sky-200 dark:border-sky-700 dark:ring-sky-900/50"
+            : "border-zinc-200 dark:border-zinc-800")
+        }
+      >
+        <h2 className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Transcript</h2>
         <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
-          Structured outputs from tools and gateway transcripts will render here when the runtime records them.
+          Structured outputs from tools and gateway transcripts render here when the runtime records them.
         </p>
         <pre className="mt-4 max-h-64 overflow-auto rounded-lg border border-zinc-100 bg-zinc-50 p-3 text-xs text-zinc-700 dark:border-zinc-800 dark:bg-zinc-900/60 dark:text-zinc-300">
           {JSON.stringify(row.metadata, null, 2)}

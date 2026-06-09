@@ -12,8 +12,24 @@ export function WorkerRoleAwareModelsForm(props: { agentId: string; initial: Age
   return <AgentModelsForm agentId={props.agentId} initial={props.initial} readonly={readOnly} />;
 }
 
-export function WorkerRoleAwareSettingsForm(props: { agentId: string; initial: AgentRuntimeSettings; forceReadonly?: boolean }) {
+export function WorkerRoleAwareSettingsForm(props: {
+  agentId: string;
+  displayName?: string;
+  registryStatus?: string;
+  initial: AgentRuntimeSettings;
+  forceReadonly?: boolean;
+  lifecycleSlot?: React.ReactNode;
+}) {
   const { kind, role } = useAppRole();
   const readOnly = props.forceReadonly === true || !canConfigureLinkbot(kind, role);
-  return <AgentSettingsForm agentId={props.agentId} initial={props.initial} readonly={readOnly} />;
+  return (
+    <AgentSettingsForm
+      agentId={props.agentId}
+      displayName={props.displayName}
+      registryStatus={props.registryStatus}
+      initial={props.initial}
+      readonly={readOnly}
+      lifecycleSlot={props.lifecycleSlot}
+    />
+  );
 }

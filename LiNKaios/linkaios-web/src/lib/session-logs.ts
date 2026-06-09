@@ -68,7 +68,7 @@ export function mapThreadToSessionLog(row: SessionThreadRow): SessionLogRow | nu
     costUsd,
     transcriptSizeKb: transcriptBytes != null ? Math.round(transcriptBytes / 1024) : null,
     status: row.displayStatus === "failed" ? "failed" : "completed",
-    openHref: row.openHref,
+    openHref: `${row.openHref}?panel=transcript`,
   };
 }
 

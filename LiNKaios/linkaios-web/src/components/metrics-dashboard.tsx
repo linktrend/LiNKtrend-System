@@ -25,7 +25,7 @@ import {
 } from "@/lib/metrics-scope-filters";
 import { METRICS_ACTIVITY_CATEGORY_OPTIONS, type MetricsActivityCategory } from "@/lib/metrics-filters";
 import { demoMetricsSnapshotFiltered } from "@/lib/ui-mocks/metrics-demo-snapshot";
-import { DomainStatusPill } from "@/components/ui/status-pill";
+import { StatusPill } from "@/components/ui/status-pill";
 import { formatMetricsCardTitle, screenTabLinkClass, TABLE, TABS, FIELD, FORM } from "@/lib/ui-standards";
 
 export type { MetricsFilterOption } from "@/lib/metrics-scope-filters";
@@ -381,9 +381,30 @@ export function MetricsDashboard(props: {
   ];
 
   const loadIssue = props.loadError || refreshError;
+  const sparseLive = !props.demoMode && !loadIssue && snapshot.totalTraces === 0;
 
   return (
     <div className="space-y-6">
+      {props.demoMode ? (
+        <div
+          role="status"
+          className="flex flex-wrap items-center gap-2 rounded-lg border border-amber-200 bg-amber-50/90 px-3 py-2 text-sm text-amber-950 dark:border-amber-800 dark:bg-amber-950/35 dark:text-amber-100"
+        >
+          <StatusPill label="Fixture data" tone="warning" />
+          <span>Metrics use demo snapshots — not live platform telemetry. Set LINKAIOS_UI_MOCKS=0 for production review.</span>
+        </div>
+      ) : null}
+
+      {sparseLive ? (
+        <div
+          role="status"
+          className="flex flex-wrap items-center gap-2 rounded-lg border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm text-zinc-700 dark:border-zinc-700 dark:bg-zinc-900/50 dark:text-zinc-300"
+        >
+          <StatusPill label="Live data" tone="success" />
+          <span>No run traces in the selected range — zeros below mean sparse activity, not a load failure.</span>
+        </div>
+      ) : null}
+
       {loadIssue ? (
         <div
           role="status"
@@ -473,7 +494,7 @@ export function MetricsDashboard(props: {
               <p className="text-[11px] font-semibold text-zinc-500 dark:text-zinc-400">
                 Scope
                 {props.demoMode ? (
-                  <span className="ml-2 font-normal normal-case text-zinc-400">· mock dimensions active</span>
+                  <span className="ml-2 font-normal normal-case text-zinc-400">· fixture dimensions active</span>
                 ) : (
                   <span className="ml-2 font-normal normal-case text-zinc-400">· filters payload metadata when present</span>
                 )}
