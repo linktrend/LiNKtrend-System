@@ -1,6 +1,9 @@
+"use client";
+
 import Link from "next/link";
 import { Brain, Key, Link2, Wrench, type LucideIcon } from "lucide-react";
 
+import { useAppSurface } from "@/components/app-surface-provider";
 import { TitledCardHeader } from "@/components/titled-card-header";
 import type {
   CapabilitiesHubSliceStats,
@@ -54,6 +57,8 @@ export function CapabilitiesHubCards(props: {
   connectors: ConnectorsHubStats;
   leases: LeasesHubStats;
 }) {
+  const { href: appHref } = useAppSurface();
+
   return (
     <div className="grid gap-6 md:grid-cols-2">
       <HubSliceCard
@@ -61,7 +66,7 @@ export function CapabilitiesHubCards(props: {
         title="Skills"
         description="Packaged procedures that call governed tools and capabilities at runtime."
         lines={hubCatalogStatLines(props.skills)}
-        href="/skills/skills"
+        href={appHref("/skills/skills")}
         actionLabel="Open Skills catalogue"
       />
       <HubSliceCard
@@ -69,7 +74,7 @@ export function CapabilitiesHubCards(props: {
         title="Tools"
         description="Callable integrations and actions executed through approved capability governance."
         lines={hubCatalogStatLines(props.tools)}
-        href="/skills/tools"
+        href={appHref("/skills/tools")}
         actionLabel="Open Tools catalogue"
       />
       <HubSliceCard
@@ -77,7 +82,7 @@ export function CapabilitiesHubCards(props: {
         title="Capabilities"
         description="Governed bridges to external software — Odoo, Plane, Payload, Zulip, and the capability registry."
         lines={hubConnectorStatLines(props.connectors)}
-        href="/skills/connectors"
+        href={appHref("/skills/connectors")}
         actionLabel="Open capabilities catalogue"
       />
       <HubSliceCard
@@ -85,7 +90,7 @@ export function CapabilitiesHubCards(props: {
         title="Leases"
         description="Time-scoped grants for capabilities, tools, and side effects — plus kill switches and approval posture."
         lines={hubLeaseStatLines(props.leases)}
-        href="/skills/leases"
+        href={appHref("/skills/leases")}
         actionLabel="Open leases"
       />
     </div>

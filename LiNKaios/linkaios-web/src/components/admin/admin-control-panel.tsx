@@ -18,7 +18,6 @@ import {
   Zap,
 } from "lucide-react";
 
-import { SettingCard } from "@/components/settings/setting-card";
 import { useAppSurface } from "@/components/app-surface-provider";
 import { useAppRole, useLicensorScope } from "@/components/role-preview-provider";
 import {
@@ -30,7 +29,7 @@ import { StatusPill } from "@/components/ui/status-pill";
 import { licensorScopeIsReadOnly } from "@/lib/app-roles";
 import { LICENSEES_LABEL } from "@/lib/company-page-copy";
 import { LICENSEE_REGISTRY, resolveLicenseeRegistry } from "@/lib/licensee-registry";
-import { formatUiLabel } from "@/lib/ui-standards";
+import { BUTTON, formatUiLabel } from "@/lib/ui-standards";
 
 type PlatformService = {
   id: string;
@@ -227,17 +226,16 @@ function PlatformBirdsEye(props: { href: (path: string) => string }) {
 
       <section className="space-y-3">
         <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">{formatUiLabel("Quick links")}</h2>
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {quickLinks.map((item) => (
-            <SettingCard
-              key={item.href}
-              icon={item.icon}
-              title={item.title}
-              description={item.description}
-              actionLabel={`Open ${item.title}`}
-              href={item.href}
-            />
-          ))}
+        <div className="flex flex-wrap gap-2">
+          {quickLinks.map((item) => {
+            const Icon = item.icon;
+            return (
+              <Link key={item.href} href={item.href} className={`${BUTTON.secondaryRow} inline-flex items-center gap-2`}>
+                <Icon className="h-4 w-4 shrink-0" aria-hidden />
+                {item.title}
+              </Link>
+            );
+          })}
         </div>
       </section>
     </div>
@@ -448,17 +446,17 @@ function LicenseeBirdsEye(props: { licenseeId: string; href: (path: string) => s
 
       <section className="space-y-3">
         <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">{formatUiLabel("Quick links")}</h2>
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {quickLinks.map((item) => (
-            <SettingCard
-              key={item.href}
-              icon={item.icon}
-              title={formatUiLabel(item.title)}
-              description={item.description}
-              actionLabel={`Open ${formatUiLabel(item.title)}`}
-              href={item.href}
-            />
-          ))}
+        <div className="flex flex-wrap gap-2">
+          {quickLinks.map((item) => {
+            const Icon = item.icon;
+            const title = formatUiLabel(item.title);
+            return (
+              <Link key={item.href} href={item.href} className={`${BUTTON.secondaryRow} inline-flex items-center gap-2`}>
+                <Icon className="h-4 w-4 shrink-0" aria-hidden />
+                {title}
+              </Link>
+            );
+          })}
         </div>
       </section>
     </div>
@@ -467,16 +465,20 @@ function LicenseeBirdsEye(props: { licenseeId: string; href: (path: string) => s
 
 /** Licensor admin overview — platform bird's-eye or single-tenant snapshot. */
 export function AdminControlPanel() {
-  const { scope, isAllLicensees } = useLicensorScope();
+  const { scope, isSingleLicensee, isAdminView, isCrossTenantReadOnly } = useLicensorScope();
   const { role } = useAppRole();
   const { href } = useAppSurface();
-  const readOnlyAll = isAllLicensees && licensorScopeIsReadOnly(scope, role);
+  const readOnlyAll = isCrossTenantReadOnly && licensorScopeIsReadOnly(scope, role);
 
   return (
     <div className="space-y-6">
       {readOnlyAll ? <ReadOnlyPlatformBanner /> : null}
 
-      {isAllLicensees ? <PlatformBirdsEye href={href} /> : <LicenseeBirdsEye licenseeId={scope} href={href} />}
+      {isSingleLicensee ? (
+        <LicenseeBirdsEye licenseeId={scope} href={href} />
+      ) : (
+        <PlatformBirdsEye href={href} />
+      )}
     </div>
   );
 }

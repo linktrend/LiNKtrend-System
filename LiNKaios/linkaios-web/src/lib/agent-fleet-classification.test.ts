@@ -27,6 +27,21 @@ describe("agent fleet classification", () => {
     ).toBe(false);
   });
 
+  it("isAdminBot matches licensor tenant_id column when scope is absent", () => {
+    expect(
+      isAdminBot(
+        { id: "a3", tenant_id: "lic-1", runtime_settings: {} },
+        { licensorTenantId: "lic-1" },
+      ),
+    ).toBe(true);
+    expect(
+      isAdminBot(
+        { id: "a4", tenant_id: "client-9", runtime_settings: {} },
+        { licensorTenantId: "lic-1" },
+      ),
+    ).toBe(false);
+  });
+
   it("isAdminBot matches licensor tenant_id when scope is absent", () => {
     expect(
       isAdminBot(

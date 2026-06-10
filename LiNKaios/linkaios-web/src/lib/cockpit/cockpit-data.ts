@@ -111,8 +111,28 @@ export async function loadLeaseStatus(
       "lease_id, capability, status, tenant_id, run_id, stage_id, requested_at, granted_at, executed_at, expires_at, kill_switch_state, ledger_entry_id, audit_event_id",
     )
     .eq("tenant_id", tenantId)
-    .order("requested_at", { ascending: false })
-    .limit(options?.time_range === "1h" ? 20 : DEFAULT_RECENT_LIMIT);
+    .order("requested_at", { ascending: false });
+
+  const range = options?.time_range ?? "24h";
+  if (range !== "30d" && range !== "7d") {
+    query = query.limit(range === "1h" ? 20 : DEFAULT_RECENT_LIMIT);
+  } else {
+    query = query.limit(200);
+  }
+
+  if (range === "1h") {
+    const since = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+    query = query.gte("requested_at", since);
+  } else if (range === "24h") {
+    const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+    query = query.gte("requested_at", since);
+  } else if (range === "7d") {
+    const since = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+    query = query.gte("requested_at", since);
+  } else if (range === "30d") {
+    const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+    query = query.gte("requested_at", since);
+  }
 
   if (options?.status?.length) {
     query = query.in("status", options.status);
@@ -146,6 +166,97 @@ export async function loadLeaseStatus(
       audit_event_id: l.audit_event_id,
     })) ?? []
   );
+}
+
+function mapLeaseRows(data: unknown[] | null | undefined): LeaseStatus[] {
+  return (
+    data?.map((l) => {
+      const row = l as Record<string, unknown>;
+      return {
+        lease_id: String(row.lease_id),
+        capability: String(row.capability),
+        status: row.status as LeaseStatus["status"],
+        tenant_id: String(row.tenant_id),
+        run_id: row.run_id as string | null,
+        stage_id: row.stage_id as string | null,
+        requested_at: String(row.requested_at),
+        granted_at: row.granted_at as string | null,
+        executed_at: row.executed_at as string | null,
+        expires_at: row.expires_at as string | null,
+        kill_switch_state: row.kill_switch_state as "open" | "tripped",
+        ledger_entry_id: row.ledger_entry_id as string | null,
+        audit_event_id: row.audit_event_id as string | null,
+      };
+    }) ?? []
+  );
+}
+
+function applyLeaseTimeRange<T extends { gte: (col: string, val: string) => T; limit: (n: number) => T }>(
+  query: T,
+  range: NonNullable<CockpitFilterOptions["time_range"]>,
+): T {
+  if (range !== "30d" && range !== "7d") {
+    return query.limit(range === "1h" ? 20 : DEFAULT_RECENT_LIMIT);
+  }
+  return query.limit(200);
+}
+
+/**
+ * Load LinkSkills leases across multiple tenants (Admin View aggregation).
+ */
+export async function loadLeaseStatusForTenants(
+  supabase: SupabaseClient,
+  tenantIds: string[],
+  options?: CockpitFilterOptions,
+): Promise<LeaseStatus[]> {
+  const unique = [...new Set(tenantIds.filter(Boolean))];
+  if (unique.length === 0) return [];
+  if (unique.length === 1) {
+    return loadLeaseStatus(supabase, unique[0]!, options);
+  }
+
+  const range = options?.time_range ?? "24h";
+  let query = supabase
+    .schema("linkskills")
+    .from("lease_registry")
+    .select(
+      "lease_id, capability, status, tenant_id, run_id, stage_id, requested_at, granted_at, executed_at, expires_at, kill_switch_state, ledger_entry_id, audit_event_id",
+    )
+    .in("tenant_id", unique)
+    .order("requested_at", { ascending: false });
+
+  query = applyLeaseTimeRange(query, range);
+
+  if (range === "1h") {
+    const since = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+    query = query.gte("requested_at", since);
+  } else if (range === "24h") {
+    const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+    query = query.gte("requested_at", since);
+  } else if (range === "7d") {
+    const since = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+    query = query.gte("requested_at", since);
+  } else if (range === "30d") {
+    const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+    query = query.gte("requested_at", since);
+  }
+
+  if (options?.status?.length) {
+    query = query.in("status", options.status);
+  }
+
+  if (options?.capability?.length) {
+    query = query.in("capability", options.capability);
+  }
+
+  const { data, error } = await query;
+
+  if (error) {
+    console.error("Failed to load multi-tenant lease status:", error);
+    return [];
+  }
+
+  return mapLeaseRows(data);
 }
 
 /**

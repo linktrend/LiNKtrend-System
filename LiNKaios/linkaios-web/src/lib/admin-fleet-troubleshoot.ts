@@ -3,7 +3,11 @@
  * Traceability: PPD §4 Admin fleet troubleshoot.
  */
 
-import { ALL_LICENSEES_SCOPE, type LicensorScope } from "@/lib/app-roles";
+export {
+  aggregateCrossTenantFleet,
+  assertFleetTroubleshootAllowed,
+  type LicensorScope,
+} from "@/lib/licensor-view-scope";
 
 export type FleetTroubleshootAction = "view_logs" | "restart_session" | "kill_switch_reset";
 
@@ -37,30 +41,6 @@ export function fleetTroubleshootHref(agentId: string, action: FleetTroubleshoot
     case "kill_switch_reset":
       return `/skills?agent=${encodeURIComponent(agentId)}&action=reset_kill_switch`;
   }
-}
-
-export function aggregateCrossTenantFleet(scope: LicensorScope, rows: FleetAgentRow[]): FleetAgentRow[] {
-  if (scope === ALL_LICENSEES_SCOPE) return rows;
-  return rows.filter((row) => row.tenantId === scope);
-}
-
-export function assertFleetTroubleshootAllowed(
-  scope: LicensorScope,
-  agentTenantId: string,
-): { allowed: boolean; reason?: string } {
-  if (scope === ALL_LICENSEES_SCOPE) {
-    return {
-      allowed: false,
-      reason: "Select a licensee scope before fleet troubleshoot actions",
-    };
-  }
-  if (scope !== agentTenantId) {
-    return {
-      allowed: false,
-      reason: `Cross-tenant fleet action blocked: scope ${scope} ≠ agent tenant ${agentTenantId}`,
-    };
-  }
-  return { allowed: true };
 }
 
 export function fleetHealthSummary(rows: FleetAgentRow[]): {

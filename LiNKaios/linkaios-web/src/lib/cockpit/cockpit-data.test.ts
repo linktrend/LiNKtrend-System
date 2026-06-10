@@ -12,6 +12,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import {
   loadModuleStatus,
   loadLeaseStatus,
+  loadLeaseStatusForTenants,
   loadRunOverview,
   loadWorkflowRunStatus,
   loadAuditEvents,
@@ -39,6 +40,7 @@ function createMockSupabase(result: MockQueryResult<Record<string, unknown>>): S
     in: vi.fn().mockReturnThis(),
     order: vi.fn().mockReturnThis(),
     limit: vi.fn().mockReturnThis(),
+    gte: vi.fn().mockReturnThis(),
     then: vi.fn(resolveThenable(result)),
   };
 
@@ -59,6 +61,7 @@ function createMockSupabaseWithChain(results: Record<string, MockQueryResult<Rec
     in: vi.fn().mockReturnThis(),
     order: vi.fn().mockReturnThis(),
     limit: vi.fn().mockReturnThis(),
+    gte: vi.fn().mockReturnThis(),
     then: vi.fn().mockImplementation((onfulfilled, onrejected) => {
       const result = allResults[callIndex] ?? { data: [], error: null };
       callIndex++;
@@ -171,6 +174,35 @@ describe("loadLeaseStatus", () => {
       status: "granted",
       kill_switch_state: "open",
     });
+  });
+});
+
+describe("loadLeaseStatusForTenants", () => {
+  it("delegates to single-tenant loader when one id is provided", async () => {
+    const mockSupabase = createMockSupabase({
+      data: [
+        {
+          lease_id: "lease-1",
+          capability: "cap.test",
+          status: "granted",
+          tenant_id: "tenant-1",
+          run_id: "run-1",
+          stage_id: "stage-1",
+          requested_at: "2026-05-18T10:00:00Z",
+          granted_at: null,
+          executed_at: null,
+          expires_at: null,
+          kill_switch_state: "open",
+          ledger_entry_id: null,
+          audit_event_id: null,
+        },
+      ],
+      error: null,
+    });
+
+    const result = await loadLeaseStatusForTenants(mockSupabase, ["tenant-1"]);
+    expect(result).toHaveLength(1);
+    expect(result[0]?.tenant_id).toBe("tenant-1");
   });
 });
 

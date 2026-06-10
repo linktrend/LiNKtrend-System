@@ -19,6 +19,7 @@ export function LinkbrainMemoryDocRow(props: {
   missionId?: string;
   agentId?: string;
   licensorCollective?: boolean;
+  readOnly?: boolean;
 }) {
   const f = props.file;
   const Icon = f.file_kind === "daily_log" ? BookOpen : FileText;
@@ -55,12 +56,14 @@ export function LinkbrainMemoryDocRow(props: {
           <LinkbrainStatusPill label="Draft only" tone="draft" />
         )}
         <MemoryDocIconAction href={hrefForPath(`/memory/files/${f.id}`)} label="View document" icon="view" />
-        <MemoryDocIconAction
-          href={hrefForPath(`/memory/files/${f.id}#governance`)}
-          label="Edit document"
-          icon="edit"
-          title="Edits go through Inbox approval"
-        />
+        {!props.readOnly ? (
+          <MemoryDocIconAction
+            href={hrefForPath(`/memory/files/${f.id}?edit=1`)}
+            label="Edit document"
+            icon="edit"
+            title="Edits go through Inbox approval"
+          />
+        ) : null}
       </div>
     </li>
   );
@@ -72,6 +75,7 @@ export function LinkbrainMemoryDocList(props: {
   missionId?: string;
   agentId?: string;
   licensorCollective?: boolean;
+  readOnly?: boolean;
 }) {
   if (props.files.length === 0) {
     return (
@@ -92,6 +96,7 @@ export function LinkbrainMemoryDocList(props: {
           missionId={props.missionId}
           agentId={props.agentId}
           licensorCollective={props.licensorCollective}
+          readOnly={props.readOnly}
         />
       ))}
     </ul>

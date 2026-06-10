@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { ALL_LICENSEES_SCOPE } from "@/lib/app-roles";
+import { ADMIN_SCOPE, ALL_LICENSEES_SCOPE, PLATFORM_ALL_SCOPE } from "@/lib/app-roles";
 
 import {
   aggregateCrossTenantFleet,
@@ -25,7 +25,7 @@ describe("admin fleet troubleshoot (LTS-005)", () => {
   it("blocks troubleshoot when scope is All licensees", () => {
     const result = assertFleetTroubleshootAllowed(ALL_LICENSEES_SCOPE, "xyz-marketing");
     expect(result.allowed).toBe(false);
-    expect(result.reason).toMatch(/Select a licensee/i);
+    expect(result.reason).toMatch(/Select Admin or one licensee/i);
   });
 
   it("acceptance: vendor fleet status, troubleshoot links, capability defaults", () => {

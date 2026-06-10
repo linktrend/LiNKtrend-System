@@ -20,6 +20,7 @@ import {
   Zap,
 } from "lucide-react";
 
+import { useAppSurface } from "@/components/app-surface-provider";
 import { AttentionQueueRow } from "@/components/action-queue";
 import { CompanySummaryPanel } from "@/components/company-summary-panel";
 import { LicenseeOnboardingBanner, LicenseeOnboardingWizard } from "@/components/onboarding/licensee-onboarding-wizard";
@@ -104,6 +105,7 @@ const GOVERNANCE_CHECKLIST: {
 ];
 
 function GovernanceChecklist() {
+  const { href: appHref } = useAppSurface();
   const { progress, hydrated, complete } = useOnboardingProgress();
   if (!hydrated || complete) return null;
 
@@ -120,7 +122,7 @@ function GovernanceChecklist() {
         {pending.map((item) => (
           <Link
             key={item.stepId}
-            href={item.href}
+            href={appHref(item.href)}
             className="group flex flex-col gap-2 rounded-xl border border-zinc-200 bg-white p-4 shadow-sm transition hover:border-zinc-300 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-950 dark:hover:border-zinc-700 dark:hover:bg-zinc-900/60"
           >
             <span className="inline-flex items-center gap-2 text-sm font-semibold text-zinc-900 dark:text-zinc-100">
@@ -152,6 +154,7 @@ function OrganisationSnapshot() {
 
 export function OverviewHome(props: { data: OverviewData; mvoProof: MvoProofSnapshot }) {
   const { data } = props;
+  const { href: appHref } = useAppSurface();
   const { role } = useAppRole();
   const isSuperAdmin = role === "super_admin";
   const isAdmin = role === "admin";
@@ -323,7 +326,7 @@ export function OverviewHome(props: { data: OverviewData; mvoProof: MvoProofSnap
                   className="mt-4 grid-cols-2 sm:grid-cols-3 lg:grid-cols-5"
                 />
               </SummaryMetricCardSection>
-              <Link href="/workers" className={`${BUTTON.secondaryCardAction} mt-4`}>
+              <Link href={appHref("/workers")} className={`${BUTTON.secondaryCardAction} mt-4`}>
                 View LiNKbots
               </Link>
             </section>
@@ -347,7 +350,7 @@ export function OverviewHome(props: { data: OverviewData; mvoProof: MvoProofSnap
                   <span className="font-semibold tabular-nums text-zinc-900 dark:text-zinc-100">{moduleRows.length}</span>
                 </li>
               </ul>
-              <Link href="/suites/my-suites" className={`${BUTTON.secondaryCardAction} mt-4`}>
+              <Link href={appHref("/suites/my-suites")} className={`${BUTTON.secondaryCardAction} mt-4`}>
                 Manage suites
               </Link>
             </section>
@@ -366,7 +369,7 @@ export function OverviewHome(props: { data: OverviewData; mvoProof: MvoProofSnap
                 className="mt-4 grid-cols-2 lg:grid-cols-4"
               />
             </SummaryMetricCardSection>
-            <Link href="/projects" className={`${BUTTON.secondaryCardAction} mt-4`}>
+            <Link href={appHref("/projects")} className={`${BUTTON.secondaryCardAction} mt-4`}>
               View projects
             </Link>
           </section>
@@ -378,14 +381,14 @@ export function OverviewHome(props: { data: OverviewData; mvoProof: MvoProofSnap
           <h2 className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Quick actions</h2>
           <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
             {[
-              { href: "/workers", icon: Sparkles, title: "Add LiNKbot", hint: "Deploy a new fleet worker" },
+              { href: "/suites", icon: Sparkles, title: "Open Suites", hint: "Assign LiNKbots through suite composition" },
               { href: "/projects/new", icon: FolderKanban, title: "Create project", hint: "Start client work in a suite module" },
               { href: "/skills/skills", icon: Wrench, title: "Add skill", hint: "Publish a governed procedure" },
               { href: "/memory?tab=inbox&inbox_source=human_upload", icon: Upload, title: "Upload to LiNKbrain", hint: "Send company knowledge to inbox" },
             ].map((action) => (
               <Link
                 key={action.href}
-                href={action.href}
+                href={appHref(action.href)}
                 className="group flex flex-col gap-2 rounded-xl border border-zinc-200 bg-white px-4 py-3 shadow-sm transition hover:border-zinc-300 hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-950 dark:hover:border-zinc-700 dark:hover:bg-zinc-900/60"
               >
                 <span className="inline-flex items-center gap-2 text-sm font-semibold text-zinc-900 dark:text-zinc-100">

@@ -93,12 +93,40 @@ export async function loadSupportTicketsFromDb(
   }
 
   const env = loadEnv();
-  const { resolveChatwootSupportSyncState, syncChatwootConversationsToDb } = await import(
-    "@/lib/chatwoot-support-sync"
-  );
+  let resolveChatwootSupportSyncState: typeof import("@/lib/chatwoot-support-sync").resolveChatwootSupportSyncState;
+  let syncChatwootConversationsToDb: typeof import("@/lib/chatwoot-support-sync").syncChatwootConversationsToDb;
+  try {
+    ({ resolveChatwootSupportSyncState, syncChatwootConversationsToDb } = await import(
+      "@/lib/chatwoot-support-sync"
+    ));
+  } catch (error) {
+    return {
+      tickets: (data ?? []).map((row) => mapSupportTicketRow(row as SupportTicketRow)),
+      mode: "live",
+      tableReady: true,
+      loadError: null,
+      chatwootSyncReady: false,
+      chatwootSyncError: error instanceof Error ? error.message : "Chatwoot sync module unavailable.",
+    };
+  }
+
   const chatwootState = await resolveChatwootSupportSyncState(env);
   if (chatwootState.ready) {
-    const syncResult = await syncChatwootConversationsToDb(getSupabaseAdmin(), env);
+    let adminClient: ReturnType<typeof getSupabaseAdmin>;
+    try {
+      adminClient = getSupabaseAdmin();
+    } catch (error) {
+      return {
+        tickets: (data ?? []).map((row) => mapSupportTicketRow(row as SupportTicketRow)),
+        mode: "live",
+        tableReady: true,
+        loadError: null,
+        chatwootSyncReady: false,
+        chatwootSyncError: error instanceof Error ? error.message : "Service role client unavailable.",
+      };
+    }
+
+    const syncResult = await syncChatwootConversationsToDb(adminClient, env);
     if (syncResult.error) {
       return {
         tickets: (data ?? []).map((row) => mapSupportTicketRow(row as SupportTicketRow)),

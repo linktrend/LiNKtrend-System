@@ -17,10 +17,13 @@ export function ProjectOverviewSnapshotGrid(props: {
   /** @deprecated Use projectId */
   missionId?: string;
   snapshot: ProjectOverviewSnapshot;
+  /** When true, cards are informational only — no tab navigation. */
+  informationalOnly?: boolean;
 }) {
   const projectId = resolveProjectIdFromProps(props);
   const base = `/projects/${encodeURIComponent(projectId)}`;
   const s = props.snapshot;
+  const link = !props.informationalOnly;
 
   return (
     <SummaryMetricCardGrid
@@ -28,7 +31,7 @@ export function ProjectOverviewSnapshotGrid(props: {
       statusPillLabels={WORK_STREAM_STATUS_PILL_LABELS}
     >
       <SummaryMetricCard
-        href={`${base}?tab=phases`}
+        href={link ? `${base}?tab=phases` : undefined}
         title="Phases"
         icon={Workflow}
         metric={s.workflows.inProgress}
@@ -49,7 +52,7 @@ export function ProjectOverviewSnapshotGrid(props: {
         surfaceClassName={SUMMARY_METRIC_CARD.surfaceDefault}
       />
       <SummaryMetricCard
-        href={`${base}?tab=issues`}
+        href={link ? `${base}?tab=issues` : undefined}
         title="Issues"
         icon={ListTodo}
         metric={s.issues.inProgress}
@@ -70,7 +73,7 @@ export function ProjectOverviewSnapshotGrid(props: {
         surfaceClassName={SUMMARY_METRIC_CARD.surfaceDefault}
       />
       <SummaryMetricCard
-        href={`${base}?tab=runs`}
+        href={link ? `${base}?tab=runs` : undefined}
         title="Runs"
         icon={PlayCircle}
         metric={s.runs.total}
@@ -79,7 +82,7 @@ export function ProjectOverviewSnapshotGrid(props: {
         surfaceClassName={SUMMARY_METRIC_CARD.surfaceDefault}
       />
       <SummaryMetricCard
-        href={`${base}?tab=leases`}
+        href={link ? `${base}?tab=leases` : undefined}
         title="Leases"
         icon={FileKey2}
         metric={s.leases.active}

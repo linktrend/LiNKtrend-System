@@ -8,33 +8,34 @@ import { FleetOrgChart } from "@/components/fleet-org-chart";
 import { FleetSummaryStatsGrid } from "@/components/summary-metric-card";
 import { demoFleetProfile } from "@/lib/demo-fleet-profiles";
 import { DEMO_SIDEBAR_AGENTS } from "@/lib/ui-mocks/entities";
-import { isUiMocksEnabled } from "@/lib/ui-mocks/flags";
+import { isUiMocksEnabledForSurface } from "@/lib/ui-mocks/flags";
 import { agentOperationalUxFromSessions } from "@/lib/agent-operational-ux";
 import { buildFleetOrgChart } from "@/lib/fleet-org-chart-layout";
+import {
+  formatFleetKindLabel,
+  resolveFleetCardMeta,
+  type FleetCardMeta,
+} from "@/lib/fleet-card-meta";
 import {
   formatFleetHeartbeat,
   linkbotFleetStatusLabel,
   linkbotFleetStatusTone,
   type LinkbotFleetStatusLabel,
 } from "@/lib/linkbot-fleet-status";
-import { AddLinkbotHeaderAction } from "@/components/role-gated-ui";
-import { AddLinkbotRoot } from "@/components/add-linkbot";
 import { WorkersPageHeader } from "@/components/workers-page-header";
-import { readAppSurfaceFromHeaders, withAppBasePath } from "@/lib/app-surface";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { BADGE, BUTTON } from "@/lib/ui-standards";
-import { isAdminBot } from "@/lib/agent-fleet-classification";
 import { resolveLicensorTenantId } from "@/lib/admin-linkskills-tenant";
 import { parseRuntimeSettings } from "@/lib/agent-runtime-settings";
+import { readAppSurfaceFromHeaders, withAppBasePath } from "@/lib/app-surface";
+import { filterFleetAgentsForViewScope, parseLicensorScopeParam } from "@/lib/licensor-view-scope";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { BADGE, BUTTON } from "@/lib/ui-standards";
 import {
   FleetPresenceFilterBar,
   WorkersFleetNav,
   parseFleetPresenceFilter,
   parseFleetView,
-  parseWorkersFleetScope,
   type FleetPresenceFilter,
   type FleetView,
-  type WorkersFleetScope,
 } from "@/components/workers-fleet-nav";
 
 export const dynamic = "force-dynamic";
@@ -47,6 +48,7 @@ type FleetRow = AgentRecord & {
   projectLine: string;
   lastHeartbeatIso: string | null;
   description: string;
+  fleet: FleetCardMeta;
 };
 
 function titleFromRuntime(raw: unknown): string | null {
@@ -78,31 +80,39 @@ function passesFilter(row: FleetRow, filter: FleetPresenceFilter): boolean {
 
 function demoFleetRow(agent: AgentRecord, index: number): FleetRow {
   const profile = demoFleetProfile(String(agent.id));
+  const statusLabel = profile?.statusLabel ?? "Online";
+  const presence =
+    statusLabel === "Busy" ? "busy" : statusLabel === "Idle" ? "idle" : statusLabel === "Inactive" ? "inactive" : "online";
   return {
     ...agent,
     role: profile?.role ?? (index === 0 ? "Chief Executive Officer" : "Chief Technology Officer"),
     demo: true,
     operationalUx: profile?.statusLabel === "Busy" ? "working" : profile?.statusLabel === "Idle" ? "idle" : "offline",
-    statusLabel: profile?.statusLabel ?? "Online",
+    statusLabel,
     projectLine: profile?.projectTitles.length ? profile.projectTitles.join(" · ") : "No active projects",
     lastHeartbeatIso: profile?.lastHeartbeatIso ?? null,
     description: profile?.description ?? "Fixture profile for UX review.",
+    fleet: resolveFleetCardMeta(agent, presence),
   };
+}
+
+function fleetCardMetaLine(fleet: FleetCardMeta): string {
+  return `${fleet.runtimeId} · ${formatFleetKindLabel(fleet.kind)} · ${fleet.runtimeStatus}`;
 }
 
 export default async function WorkersPage(props: {
   searchParams: Promise<{ view?: string; filter?: string; scope?: string }>;
 }) {
   const sp = await props.searchParams;
+  const surface = await readAppSurfaceFromHeaders();
   const rawView = Array.isArray(sp.view) ? sp.view[0] : sp.view;
   if (rawView === "runtime") {
-    redirect("/settings/platform");
+    redirect(withAppBasePath("/settings/platform", surface));
   }
   const view: FleetView = parseFleetView(sp.view);
   const filter = parseFleetPresenceFilter(sp.filter);
-  const fleetScope: WorkersFleetScope = parseWorkersFleetScope(sp.scope);
-  const uiMocksEnabled = isUiMocksEnabled();
-  const surface = await readAppSurfaceFromHeaders();
+  const viewScope = parseLicensorScopeParam(sp.scope);
+  const uiMocksEnabled = isUiMocksEnabledForSurface(surface);
   const isAdminSurface = surface === "admin";
   const licensorTenantId = isAdminSurface ? await resolveLicensorTenantId().catch(() => null) : null;
 
@@ -118,7 +128,7 @@ export default async function WorkersPage(props: {
     supabase
       .schema("linkaios")
       .from("agents")
-      .select("id, display_name, status, created_at, updated_at, runtime_settings")
+      .select("id, display_name, status, created_at, updated_at, runtime_settings, tenant_id")
       .order("updated_at", { ascending: false }),
   ]);
 
@@ -139,6 +149,16 @@ export default async function WorkersPage(props: {
         const operationalUx = agentOperationalUxFromSessions(String(a.id), sessionLites);
         const statusLabel = linkbotFleetStatusLabel(a.status, operationalUx);
         const parsed = parseRuntimeSettings(a.runtime_settings ?? {});
+        const presence =
+          statusLabel === "Busy"
+            ? "busy"
+            : statusLabel === "Idle"
+              ? "idle"
+              : statusLabel === "Inactive"
+                ? "inactive"
+                : statusLabel === "Online"
+                  ? "online"
+                  : "unknown";
         const role = parsed.linkaiosProfile.title?.trim() || titleFromRuntime(a.runtime_settings) || "LiNKbot";
         const description =
           parsed.linkaiosProfile.description?.trim() ||
@@ -158,12 +178,13 @@ export default async function WorkersPage(props: {
             : "Projects load on the LiNKbot detail tab.",
           lastHeartbeatIso: latest?.last_heartbeat ?? null,
           description,
+          fleet: resolveFleetCardMeta(a, presence),
         };
       });
 
-  const fleet = fleetBase.filter((row) => {
-    if (!isAdminSurface || fleetScope !== "admin") return true;
-    return isAdminBot(row, { licensorTenantId, uiMocksDemoAgent: uiMocksEnabled });
+  const fleet = filterFleetAgentsForViewScope(fleetBase, viewScope, {
+    licensorTenantId,
+    uiMocksDemoAgent: uiMocksEnabled,
   });
 
   const visible = fleet.filter((a) => passesFilter(a, filter));
@@ -177,7 +198,7 @@ export default async function WorkersPage(props: {
   if (err && !uiMocksEnabled) {
     return (
       <main className="space-y-6">
-        <WorkersPageHeader fleetScope={isAdminSurface ? fleetScope : "all"} />
+        <WorkersPageHeader />
         <p className="text-sm text-red-700 dark:text-red-400">{err.message}</p>
       </main>
     );
@@ -185,8 +206,7 @@ export default async function WorkersPage(props: {
 
   return (
     <main className="space-y-6">
-      {!isAdminSurface ? <AddLinkbotRoot /> : null}
-      <WorkersPageHeader fleetScope={isAdminSurface ? fleetScope : "all"} />
+      <WorkersPageHeader />
       <FleetSummaryStatsGrid
         total={fleet.length}
         online={online}
@@ -194,41 +214,23 @@ export default async function WorkersPage(props: {
         idle={idle}
         inactive={fleet.filter((a) => a.statusLabel === "Inactive").length}
       />
-      <WorkersFleetNav current={view} scope={isAdminSurface ? fleetScope : "all"} />
-      <FleetPresenceFilterBar current={filter} view={view} scope={isAdminSurface ? fleetScope : "all"} />
+      <WorkersFleetNav current={view} />
+      <FleetPresenceFilterBar current={filter} view={view} />
 
       {fleet.length === 0 ? (
         <div className="rounded-xl border border-dashed border-zinc-300 bg-zinc-50/80 p-8 text-center dark:border-zinc-700 dark:bg-zinc-900/40">
-          <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">
-            {isAdminSurface && fleetScope === "admin" ? "No admin LiNKbots yet" : "No LiNKbots yet"}
+          <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">No LiNKbots yet</p>
+          <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
+            LiNKbots appear when provisioned through suite composition. Use the sidebar View filter to narrow by admin or licensee scope.
           </p>
-          {isAdminSurface ? (
-            <>
-              <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
-                {fleetScope === "admin"
-                  ? "Admin LiNKbots are vendor/studio bots with licensor fleet scope. They appear when provisioned through suite composition."
-                  : "LiNKbots appear here when provisioned through suite composition for a licensee workspace."}
-              </p>
-              <div className="mt-4 flex flex-wrap justify-center gap-2">
-                <Link href={withAppBasePath("/suites", surface)} className={BUTTON.addRow}>
-                  Open Suites
-                </Link>
-                <Link href={withAppBasePath("/settings/platform", surface)} className={BUTTON.secondaryRow}>
-                  Integration routing
-                </Link>
-              </div>
-            </>
-          ) : (
-            <>
-              <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">Add a LiNKbot to see it listed here.</p>
-              <div className="mt-4 flex flex-wrap justify-center gap-2">
-                <AddLinkbotHeaderAction className={BUTTON.addRow} />
-                <Link href="/settings/platform" className={BUTTON.secondaryRow}>
-                  Integration routing
-                </Link>
-              </div>
-            </>
-          )}
+          <div className="mt-4 flex flex-wrap justify-center gap-2">
+            <Link href={withAppBasePath("/suites", surface)} className={BUTTON.addRow}>
+              Open Suites
+            </Link>
+            <Link href={withAppBasePath("/settings/platform", surface)} className={BUTTON.secondaryRow}>
+              Integration routing
+            </Link>
+          </div>
         </div>
       ) : null}
 
@@ -247,12 +249,13 @@ export default async function WorkersPage(props: {
             {visible.map((agent) => (
               <li key={agent.id}>
                 <Link
-                  href={`/workers/${agent.id}/sessions`}
+                  href={withAppBasePath(`/workers/${agent.id}/sessions`, surface)}
                   className="flex flex-wrap items-center justify-between gap-3 px-4 py-4 text-sm transition hover:bg-zinc-50 dark:hover:bg-zinc-900/60"
                 >
                   <div className="min-w-0 flex-1">
                     <p className="font-semibold text-zinc-900 dark:text-zinc-100">{agent.display_name}</p>
                     <p className="mt-0.5 text-xs font-medium text-violet-800 dark:text-violet-300">Role · {agent.role}</p>
+                    <p className="mt-0.5 font-mono text-[11px] text-zinc-500 dark:text-zinc-400">{fleetCardMetaLine(agent.fleet)}</p>
                     <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-zinc-600 dark:text-zinc-400">
                       {isAdminSurface ? "Monitor ·" : "Projects ·"} {agent.projectLine}
                     </p>
@@ -281,7 +284,7 @@ export default async function WorkersPage(props: {
             {visible.map((agent) => (
               <li key={agent.id}>
                 <Link
-                  href={`/workers/${agent.id}/sessions`}
+                  href={withAppBasePath(`/workers/${agent.id}/sessions`, surface)}
                   className="flex h-full flex-col rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm transition hover:border-zinc-300 hover:shadow-md dark:border-zinc-800 dark:bg-zinc-950 dark:hover:border-zinc-700"
                 >
                   <div className="flex items-start justify-between gap-3">
@@ -296,7 +299,8 @@ export default async function WorkersPage(props: {
                       {agent.statusLabel}
                     </span>
                   </div>
-                  <p className="mt-3 line-clamp-2 text-xs leading-relaxed text-zinc-600 dark:text-zinc-400">
+                  <p className="mt-2 font-mono text-[11px] text-zinc-500 dark:text-zinc-400">{fleetCardMetaLine(agent.fleet)}</p>
+                  <p className="mt-2 line-clamp-2 text-xs leading-relaxed text-zinc-600 dark:text-zinc-400">
                     {isAdminSurface ? "Monitor ·" : "Projects ·"} {agent.projectLine}
                   </p>
                   {agent.lastHeartbeatIso ? (
@@ -331,7 +335,7 @@ export default async function WorkersPage(props: {
                 {orgChart.extraAgents.map((a) => (
                   <li key={a.id}>
                     <Link
-                      href={`/workers/${a.id}/sessions`}
+                      href={withAppBasePath(`/workers/${a.id}/sessions`, surface)}
                       className="inline-flex rounded-full border border-zinc-200 bg-zinc-50 px-3 py-1 text-xs font-medium text-zinc-800 hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-200 dark:hover:bg-zinc-800"
                     >
                       {a.display_name}

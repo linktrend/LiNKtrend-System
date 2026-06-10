@@ -5,7 +5,6 @@ export type WorkerDetailTabId =
   | "brain"
   | "models"
   | "settings"
-  | "logs"
   | "lifecycle"
   | "native-ui";
 
@@ -51,12 +50,6 @@ export const WORKER_DETAIL_TABS: {
     label: "Settings",
     href: (id) => `/workers/${id}/settings`,
     match: (path, id) => path.startsWith(`/workers/${id}/settings`),
-  },
-  {
-    id: "logs",
-    label: "Logs",
-    href: (id) => `/workers/${id}/logs`,
-    match: (path, id) => path.startsWith(`/workers/${id}/logs`),
   },
   {
     id: "lifecycle",

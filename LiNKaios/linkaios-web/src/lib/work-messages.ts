@@ -1,3 +1,12 @@
+import type { LicensorScope } from "@/lib/app-roles";
+import {
+  isAdminViewScope,
+  isAllLicenseesScope,
+  isPlatformAllScope,
+  isSingleLicenseeScope,
+  normalizeLeaseTenantKey,
+  resolveLicensorTenantIdForView,
+} from "@/lib/licensor-view-scope";
 import { humanizePayloadSummary } from "@/lib/work-alerts";
 import { buildZulipThreadUrl } from "@/lib/zulip-links";
 
@@ -28,6 +37,8 @@ export type ChannelMessageThread = {
   /** Legacy concatenated transcript; prefer `messages`. */
   detail: string;
   missionId?: string | null;
+  /** Normalized tenant key for Admin View scoping (registry id or licensor UUID). */
+  tenantKey?: string | null;
   messageCount: number;
   messages: ChannelMessage[];
   streamId?: number | string | null;
@@ -305,6 +316,55 @@ export function formatChannelThreadAttentionSubtitle(thread: ChannelMessageThrea
   if (!preview) return undefined;
   if (preview.startsWith("{") || preview.startsWith("[")) return "Open thread for message detail.";
   return preview.length > 120 ? `${preview.slice(0, 119)}…` : preview;
+}
+
+export function resolveThreadTenantKey(
+  thread: ChannelMessageThread,
+  missionTenantById: Record<string, string | null | undefined>,
+  licensorTenantId?: string | null,
+): string | null {
+  if (thread.tenantKey) return thread.tenantKey;
+  if (!thread.missionId) return null;
+  const raw = missionTenantById[thread.missionId];
+  if (!raw) return null;
+  return normalizeLeaseTenantKey(raw, licensorTenantId);
+}
+
+export function enrichChannelThreadsWithTenantKey(
+  threads: ChannelMessageThread[],
+  missionTenantById: Record<string, string | null | undefined>,
+  licensorTenantId?: string | null,
+): ChannelMessageThread[] {
+  return threads.map((thread) => ({
+    ...thread,
+    tenantKey: resolveThreadTenantKey(thread, missionTenantById, licensorTenantId),
+  }));
+}
+
+export function filterChannelThreadsForViewScope(
+  scope: LicensorScope,
+  threads: ChannelMessageThread[],
+  licensorTenantId?: string | null,
+): ChannelMessageThread[] {
+  if (isPlatformAllScope(scope)) return threads;
+
+  return threads.filter((thread) => {
+    const key = thread.tenantKey;
+    if (!key) return false;
+    const tenantKey = normalizeLeaseTenantKey(key, licensorTenantId);
+    if (isAdminViewScope(scope)) {
+      const licensorId = resolveLicensorTenantIdForView(licensorTenantId);
+      return tenantKey === licensorId || key === licensorId;
+    }
+    if (isAllLicenseesScope(scope)) {
+      const licensorId = resolveLicensorTenantIdForView(licensorTenantId);
+      return tenantKey !== licensorId && key !== licensorId;
+    }
+    if (isSingleLicenseeScope(scope)) {
+      return tenantKey === scope || key === scope;
+    }
+    return true;
+  });
 }
 
 export function prepareChannelThreads(

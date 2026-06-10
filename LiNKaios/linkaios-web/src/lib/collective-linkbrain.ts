@@ -2,7 +2,8 @@ import type { BrainInboxRow, BrainVirtualFileEnriched } from "@linktrend/linklog
 import { inboxItemToSubmissionSource, type InboxSubmissionSource } from "@/components/linkbrain/linkbrain-labels";
 import type { BrainInboxItemType } from "@linktrend/linklogic-sdk";
 
-import { ALL_LICENSEES_SCOPE, type LicensorScope } from "@/lib/app-roles";
+import { matchesCollectiveDemoLicenseeScope } from "@/lib/licensor-view-scope";
+import type { LicensorScope } from "@/lib/app-roles";
 import { LICENSEE_REGISTRY } from "@/lib/licensee-registry";
 
 /** Partition of collective memory (maps to Project / LiNKbot / Licensee tabs). */
@@ -107,8 +108,7 @@ export function submissionSourceFromFileKind(fileKind: string, hasPublishedEdit 
 }
 
 export function matchesLicensorScope(scope: LicensorScope, licenseeId: string): boolean {
-  if (scope === ALL_LICENSEES_SCOPE) return true;
-  return scope === licenseeId;
+  return matchesCollectiveDemoLicenseeScope(scope, licenseeId);
 }
 
 export function matchesCollectiveTagFilters(

@@ -1,5 +1,18 @@
 import "server-only";
 
+import type { SupabaseClient } from "@supabase/supabase-js";
+
+import {
+  isAdminViewScope,
+  isAllLicenseesScope,
+  isPlatformAllScope,
+  isSingleLicenseeScope,
+  type LicensorScope,
+} from "@/lib/app-roles";
+import type { CockpitFilterOptions } from "@/lib/cockpit";
+import { loadLeaseStatusForTenants } from "@/lib/cockpit/cockpit-data";
+import { filterLeasesForViewScope } from "@/lib/licensor-view-scope";
+import { LICENSEE_REGISTRY } from "@/lib/licensee-registry";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 
 /** Vendor/licensor tenant slug — platform scope for LiNKtrend Admin governance surfaces. */
@@ -96,4 +109,75 @@ export async function resolveCalusaTenantId(): Promise<string> {
   throw new Error(
     "Failed to resolve licensor tenant: set LICENSOR_TENANT_ID or ensure seed_demo_tenant is available",
   );
+}
+
+async function resolveTenantUuidBySlug(slug: string): Promise<string | null> {
+  const supabase = getSupabaseAdmin();
+  const { data, error } = await supabase
+    .schema("linkaios_kernel")
+    .from("tenants")
+    .select("tenant_id")
+    .eq("slug", slug)
+    .maybeSingle();
+
+  if (error) {
+    console.error(`resolveTenantUuidBySlug(${slug}):`, error.message);
+    return null;
+  }
+
+  const row = data as { tenant_id?: string } | null;
+  return row?.tenant_id ?? null;
+}
+
+/**
+ * Resolve tenant UUIDs to query for the Admin sidebar View filter.
+ * Includes registry slug fallbacks when kernel rows are not seeded yet.
+ */
+export async function resolveTenantIdsForViewScope(scope: LicensorScope): Promise<string[]> {
+  const licensorId = await resolveLicensorTenantId();
+  const licenseeSlugs = LICENSEE_REGISTRY.map((row) => row.id);
+  const licenseeUuids = (
+    await Promise.all(licenseeSlugs.map((slug) => resolveTenantUuidBySlug(slug)))
+  ).filter((id): id is string => Boolean(id));
+
+  const licenseeKeys = [...new Set([...licenseeUuids, ...licenseeSlugs])];
+
+  if (isAdminViewScope(scope)) {
+    return licensorId ? [licensorId, LICENSOR_TENANT_SLUG] : [LICENSOR_TENANT_SLUG];
+  }
+
+  if (isAllLicenseesScope(scope)) {
+    return licenseeKeys;
+  }
+
+  if (isSingleLicenseeScope(scope)) {
+    const uuid = await resolveTenantUuidBySlug(scope);
+    return uuid ? [uuid, scope] : [scope];
+  }
+
+  if (isPlatformAllScope(scope)) {
+    const all = new Set<string>(licenseeKeys);
+    if (licensorId) {
+      all.add(licensorId);
+      all.add(LICENSOR_TENANT_SLUG);
+    }
+    return [...all];
+  }
+
+  return licensorId ? [licensorId] : [];
+}
+
+/**
+ * Load capability leases for Admin View — aggregates across tenants when scope requires it.
+ */
+export async function loadLeasesForAdminView(
+  supabase: SupabaseClient,
+  scope: LicensorScope,
+  options?: CockpitFilterOptions,
+): Promise<ReturnType<typeof loadLeaseStatusForTenants>> {
+  const tenantIds = await resolveTenantIdsForViewScope(scope);
+  if (tenantIds.length === 0) return [];
+  const leases = await loadLeaseStatusForTenants(supabase, tenantIds, options);
+  const licensorTenantId = await resolveLicensorTenantId();
+  return filterLeasesForViewScope(scope, leases, licensorTenantId);
 }

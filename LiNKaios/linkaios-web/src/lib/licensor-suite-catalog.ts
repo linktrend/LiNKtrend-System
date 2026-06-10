@@ -4,6 +4,7 @@ import {
   type ModuleProcess,
   type ModuleIssueTemplate,
 } from "@/lib/ui-mocks/modules-catalog-demo";
+import { suiteCompositionReady } from "@/lib/suite-composition";
 
 export type LicensorSuitePublishState = "draft" | "ready" | "published";
 
@@ -46,6 +47,7 @@ export type SuiteCompletenessChecklist = {
   modules: boolean;
   phases: boolean;
   issues: boolean;
+  composition: boolean;
   linkbots: boolean;
   automations: boolean;
 };
@@ -153,6 +155,7 @@ export function suiteCompletenessChecklist(product: LicensorSuiteProduct): Suite
     modules: product.moduleCount > 0,
     phases: product.phaseCount > 0,
     issues: product.issueCount > 0,
+    composition: suiteCompositionReady(product.modules),
     linkbots: product.linkbotCount > 0,
     automations: product.automationCount > 0,
   };

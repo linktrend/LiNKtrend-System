@@ -3,9 +3,12 @@
 import { useMemo } from "react";
 
 import { InsetSelect } from "@/components/forms";
+import { useLicensorScope } from "@/components/role-preview-provider";
 import { useMemoryPath } from "@/hooks/use-memory-href";
+import { isAdminViewScope, isAllLicenseesScope, isPlatformAllScope, isSingleLicenseeScope, ADMIN_SCOPE, ALL_LICENSEES_SCOPE, PLATFORM_ALL_SCOPE } from "@/lib/app-roles";
 import type { LinkbrainPageData } from "@/lib/linkbrain-data";
 import { LICENSEE_REGISTRY } from "@/lib/licensee-registry";
+import { LICENSOR_SCOPE_PARAM } from "@/lib/licensor-view-scope";
 import { MODULES_CATALOG_DEMO } from "@/lib/ui-mocks/modules-catalog-demo";
 import { FIELD, FORM } from "@/lib/ui-standards";
 
@@ -31,35 +34,64 @@ export function LinkbrainAskForm(props: {
   licensorCollective?: boolean;
 }) {
   const hrefForPath = useMemoryPath();
+  const { scope: viewScope } = useLicensorScope();
   const modules = useMemo(
     () => MODULES_CATALOG_DEMO.modules.filter((m) => m.published).map((m) => ({ id: m.id, name: m.name })),
     [],
   );
+
+  const collectiveCompanyValue = isSingleLicenseeScope(viewScope)
+    ? viewScope
+    : props.brainCompanyId ?? "";
+  const showCollectiveCompanyPicker =
+    props.licensorCollective &&
+    (isPlatformAllScope(viewScope) || isAllLicenseesScope(viewScope)) &&
+    !isAdminViewScope(viewScope);
 
   return (
     <form method="get" action={hrefForPath("/memory")} className="space-y-5 rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950">
       <input type="hidden" name="tab" value="ask" />
       <input type="hidden" name="b_path" value={props.sandboxPath ?? ""} />
 
-      <label htmlFor="ask-b-company" className={`block max-w-xl ${FORM.fieldStack}`}>
-        <span className={`${FIELD.label} text-sm text-zinc-900 dark:text-zinc-100`}>
-          {props.licensorCollective ? "Licensee" : "Company"}
-        </span>
-        <InsetSelect id="ask-b-company" name="b_company" defaultValue={props.brainCompanyId ?? ""}>
-          <option value="">{props.licensorCollective ? "All licensees" : "None"}</option>
-          {props.licensorCollective
-            ? LICENSEE_REGISTRY.map((row) => (
-                <option key={row.id} value={row.id}>
-                  {row.name}
-                </option>
-              ))
-            : props.data.legalEntities.map((entity) => (
-                <option key={entity.id} value={entity.id}>
-                  {entity.name}
-                </option>
-              ))}
-        </InsetSelect>
-      </label>
+      {props.licensorCollective ? (
+        <label htmlFor="ask-view-scope" className={`block max-w-xl ${FORM.fieldStack}`}>
+          <span className={`${FIELD.label} text-sm text-zinc-900 dark:text-zinc-100`}>View scope</span>
+          <InsetSelect id="ask-view-scope" name={LICENSOR_SCOPE_PARAM} defaultValue={viewScope}>
+            <option value={PLATFORM_ALL_SCOPE}>All</option>
+            <option value={ADMIN_SCOPE}>Admin</option>
+            <option value={ALL_LICENSEES_SCOPE}>All licensees</option>
+            {LICENSEE_REGISTRY.map((row) => (
+              <option key={row.id} value={row.id}>
+                {row.name}
+              </option>
+            ))}
+          </InsetSelect>
+        </label>
+      ) : null}
+
+      {props.licensorCollective ? (
+        showCollectiveCompanyPicker ? null : (
+          <input type="hidden" name="b_company" value={collectiveCompanyValue} />
+        )
+      ) : (
+        <label htmlFor="ask-b-company" className={`block max-w-xl ${FORM.fieldStack}`}>
+          <span className={`${FIELD.label} text-sm text-zinc-900 dark:text-zinc-100`}>Company</span>
+          <InsetSelect id="ask-b-company" name="b_company" defaultValue={props.brainCompanyId ?? ""}>
+            <option value="">None</option>
+            {props.data.legalEntities.map((entity) => (
+              <option key={entity.id} value={entity.id}>
+                {entity.name}
+              </option>
+            ))}
+          </InsetSelect>
+        </label>
+      )}
+
+      {props.licensorCollective ? (
+        <p className="text-xs text-zinc-500 dark:text-zinc-400">
+          Ask scope uses View above (All, Admin, All licensees, or one licensee). Sidebar View stays in sync.
+        </p>
+      ) : null}
 
       <label htmlFor="ask-b-module" className={`block max-w-xl ${FORM.fieldStack}`}>
         <span className={`${FIELD.label} text-sm text-zinc-900 dark:text-zinc-100`}>Suite</span>
@@ -74,7 +106,9 @@ export function LinkbrainAskForm(props: {
       </label>
 
       <label htmlFor="ask-b-mission" className={`block max-w-xl ${FORM.fieldStack}`}>
-        <span className={`${FIELD.label} text-sm text-zinc-900 dark:text-zinc-100`}>Project</span>
+        <span className={`${FIELD.label} text-sm text-zinc-900 dark:text-zinc-100`}>
+          {props.licensorCollective ? "Project" : "Project"}
+        </span>
         <InsetSelect id="ask-b-mission" name="b_mission" defaultValue={props.brainMissionId ?? ""}>
           <option value="">None</option>
           {props.data.missions.map((m) => (

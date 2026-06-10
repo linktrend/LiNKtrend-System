@@ -6,7 +6,9 @@ import { Download } from "lucide-react";
 
 import { DT } from "@/components/data-table";
 import { InsetSelect } from "@/components/forms";
+import { useLicensorScope } from "@/components/role-preview-provider";
 import { downloadCsv } from "@/lib/csv-download";
+import { matchesLicenseeRegistryId } from "@/lib/licensor-view-scope";
 import { BUTTON, DATA_TABLE } from "@/lib/ui-standards";
 
 export type AuditTraceRow = {
@@ -15,10 +17,13 @@ export type AuditTraceRow = {
   mission_title: string | null;
   licensee_id?: string | null;
   licensee_name?: string | null;
+  /** When true, row is studio/admin context (not tenant licensee). */
+  admin_context?: boolean;
   created_at: string;
 };
 
-type DaysFilter = "7" | "30" | "90" | "all";
+type DaysFilter = "7" | "30";
+type OriginFilter = "all" | "admin" | "licensee";
 
 function formatWhen(iso: string): string {
   return new Date(iso).toLocaleString(undefined, {
@@ -34,8 +39,8 @@ export function LinkbrainAuditTable(props: { rows: AuditTraceRow[]; licensorColl
   const [query, setQuery] = useState("");
   const [projectFilter, setProjectFilter] = useState<string>("all");
   const [daysFilter, setDaysFilter] = useState<DaysFilter>("30");
-
-  const [licenseeFilter, setLicenseeFilter] = useState<string>("all");
+  const [originFilter, setOriginFilter] = useState<OriginFilter>("all");
+  const { scope: viewScope } = useLicensorScope();
 
   const projects = useMemo(() => {
     const map = new Map<string, string>();
@@ -46,29 +51,27 @@ export function LinkbrainAuditTable(props: { rows: AuditTraceRow[]; licensorColl
     return [...map.entries()].sort((a, b) => a[1].localeCompare(b[1]));
   }, [props.rows]);
 
-  const licensees = useMemo(() => {
-    const map = new Map<string, string>();
-    for (const row of props.rows) {
-      if (!row.licensee_id) continue;
-      map.set(row.licensee_id, row.licensee_name ?? row.licensee_id);
-    }
-    return [...map.entries()].sort((a, b) => a[1].localeCompare(b[1]));
-  }, [props.rows]);
-
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    const cutoff =
-      daysFilter === "all" ? 0 : Date.now() - Number(daysFilter) * 86_400_000;
+    const cutoff = Date.now() - Number(daysFilter) * 86_400_000;
 
     return props.rows.filter((row) => {
-      if (daysFilter !== "all" && new Date(row.created_at).getTime() < cutoff) return false;
+      if (new Date(row.created_at).getTime() < cutoff) return false;
       if (projectFilter !== "all" && row.mission_id !== projectFilter) return false;
-      if (props.licensorCollective && licenseeFilter !== "all" && row.licensee_id !== licenseeFilter) return false;
+      if (
+        props.licensorCollective &&
+        row.licensee_id &&
+        !matchesLicenseeRegistryId(viewScope, row.licensee_id)
+      ) {
+        return false;
+      }
+      if (props.licensorCollective && originFilter === "admin" && !row.admin_context) return false;
+      if (props.licensorCollective && originFilter === "licensee" && row.admin_context) return false;
       if (!q) return true;
       const hay = [row.event_type, row.mission_title, row.mission_id].filter(Boolean).join(" ").toLowerCase();
       return hay.includes(q);
     });
-  }, [props.rows, query, projectFilter, daysFilter, licenseeFilter, props.licensorCollective]);
+  }, [props.rows, query, projectFilter, daysFilter, originFilter, props.licensorCollective, viewScope]);
 
   function handleDownload() {
     downloadCsv(
@@ -129,24 +132,19 @@ export function LinkbrainAuditTable(props: { rows: AuditTraceRow[]; licensorColl
               >
                 <option value="7">Last 7 days</option>
                 <option value="30">Last 30 days</option>
-                <option value="90">Last 90 days</option>
-                <option value="all">All loaded</option>
               </InsetSelect>
             </div>
-            {props.licensorCollective && licensees.length > 0 ? (
+            {props.licensorCollective ? (
               <div className="shrink-0 max-w-[13rem]">
                 <InsetSelect
                   compact
-                  value={licenseeFilter}
-                  onChange={(e) => setLicenseeFilter(e.target.value)}
-                  aria-label="Licensee"
+                  value={originFilter}
+                  onChange={(e) => setOriginFilter(e.target.value as OriginFilter)}
+                  aria-label="Context"
                 >
-                  <option value="all">All licensees</option>
-                  {licensees.map(([id, name]) => (
-                    <option key={id} value={id}>
-                      {name}
-                    </option>
-                  ))}
+                  <option value="all">All contexts</option>
+                  <option value="admin">Admin</option>
+                  <option value="licensee">Licensees</option>
                 </InsetSelect>
               </div>
             ) : null}

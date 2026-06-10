@@ -2,6 +2,8 @@
 
 import { Bot, Clock, Radio, Users, WifiOff, type LucideIcon } from "lucide-react";
 
+import { useAppSurface } from "@/components/app-surface-provider";
+
 import {
   SummaryMetricStatusPill,
   WORK_STREAM_STATUS_PILL_LABELS,
@@ -25,10 +27,11 @@ function WorkforceStatCard(props: {
   icon: LucideIcon;
   preview: string;
   tone: WorkRowTone;
+  workersHref: string;
 }) {
   return (
     <SummaryMetricCard
-      href="/workers"
+      href={props.workersHref}
       title={props.label}
       icon={props.icon}
       metric={props.value}
@@ -47,6 +50,9 @@ export function OverviewWorkforceSummaryGrid(props: {
   idle: number;
   className?: string;
 }) {
+  const { href: appHref } = useAppSurface();
+  const workersHref = appHref("/workers");
+
   const cards = [
     {
       key: "total",
@@ -103,6 +109,7 @@ export function OverviewWorkforceSummaryGrid(props: {
           icon={card.icon}
           preview={card.preview}
           tone={card.tone}
+          workersHref={workersHref}
         />
       ))}
     </SummaryMetricCardGrid>

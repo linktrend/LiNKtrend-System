@@ -218,6 +218,11 @@ export function canSeePlatformSettingsTab(kind: AppActorKind, role: AppRoleTier)
   return kind === "licensor" && (role === "admin" || role === "super_admin");
 }
 
+/** Manual LiNKguard residue sweep — licensor Admin and Super Admin only (not licensee roles). */
+export function canRunLinkguardCleanup(kind: AppActorKind, role: AppRoleTier): boolean {
+  return kind === "licensor" && (role === "admin" || role === "super_admin");
+}
+
 /** Suspend / terminate / delete LiNKbots — Super Admin on licensee; Admin+ on licensor. */
 export function canManageLinkbotLifecycle(kind: AppActorKind, role: AppRoleTier): boolean {
   if (kind === "licensee") return role === "super_admin";
@@ -248,20 +253,56 @@ export function linkskillsAccessMode(kind: AppActorKind, role: AppRoleTier): "fu
   return "operational";
 }
 
-/** Licensor sidebar scope: all tenants vs one tenant. */
+/** Licensor Admin sidebar View — entire platform (admin + all licensees). */
+export const PLATFORM_ALL_SCOPE = "__platform__" as const;
+
+/** Licensor Admin sidebar View — studio/licensor admin bots and data only. */
+export const ADMIN_SCOPE = "__admin__" as const;
+
+/** Licensor Admin sidebar View — all tenant/licensee scope, not admin. */
 export const ALL_LICENSEES_SCOPE = "__all__" as const;
 
-export type LicensorScope = typeof ALL_LICENSEES_SCOPE | string;
+/** Principal-approved licensor tenant UUID (studio operator tenant). */
+export const LICENSOR_TENANT_ID_FALLBACK = "da570876-176d-452a-a428-6536d48303e9";
+
+export type LicensorScope =
+  | typeof PLATFORM_ALL_SCOPE
+  | typeof ADMIN_SCOPE
+  | typeof ALL_LICENSEES_SCOPE
+  | string;
+
+const LICENSOR_SCOPE_SENTINELS: ReadonlySet<string> = new Set([
+  PLATFORM_ALL_SCOPE,
+  ADMIN_SCOPE,
+  ALL_LICENSEES_SCOPE,
+]);
+
+export function isPlatformAllScope(scope: LicensorScope): boolean {
+  return scope === PLATFORM_ALL_SCOPE;
+}
+
+export function isAdminViewScope(scope: LicensorScope): boolean {
+  return scope === ADMIN_SCOPE;
+}
 
 export function isAllLicenseesScope(scope: LicensorScope): boolean {
   return scope === ALL_LICENSEES_SCOPE;
 }
 
-/** Licensor User: read-only when All licensees; support writes when one licensee selected. */
+export function isSingleLicenseeScope(scope: LicensorScope): boolean {
+  return !LICENSOR_SCOPE_SENTINELS.has(scope);
+}
+
+/** Read-only aggregate views — cross-tenant writes blocked until Admin or one licensee is selected. */
+export function isCrossTenantReadOnlyScope(scope: LicensorScope): boolean {
+  return isPlatformAllScope(scope) || isAllLicenseesScope(scope);
+}
+
+/** Licensor User: read-only in aggregate views; writes when Admin or one licensee is selected. */
 export function licensorScopeCanWrite(scope: LicensorScope, role: AppRoleTier): boolean {
   if (role === "super_admin") return true;
   if (role === "admin") return true;
-  if (role === "user") return !isAllLicenseesScope(scope);
+  if (role === "user") return isSingleLicenseeScope(scope) || isAdminViewScope(scope);
   return false;
 }
 

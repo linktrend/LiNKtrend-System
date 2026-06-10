@@ -2,6 +2,8 @@
 
 import { CheckCircle2, FileStack, FolderKanban, ShieldAlert } from "lucide-react";
 
+import { useAppSurface } from "@/components/app-surface-provider";
+
 import {
   SummaryMetricStatusPill,
   WORK_STREAM_STATUS_PILL_LABELS,
@@ -18,13 +20,16 @@ export function OverviewProjectsSummaryGrid(props: {
   needsAttention: number;
   className?: string;
 }) {
+  const { href: appHref } = useAppSurface();
+  const projectsHref = appHref("/projects");
+
   return (
     <SummaryMetricCardGrid
       className={props.className ?? "mt-4 grid-cols-2 lg:grid-cols-4"}
       statusPillLabels={WORK_STREAM_STATUS_PILL_LABELS}
     >
       <SummaryMetricCard
-        href="/projects"
+        href={projectsHref}
         title="Draft"
         icon={FileStack}
         metric={props.draft}
@@ -37,7 +42,7 @@ export function OverviewProjectsSummaryGrid(props: {
         surfaceClassName={SUMMARY_METRIC_CARD.surfaceDefault}
       />
       <SummaryMetricCard
-        href="/projects"
+        href={projectsHref}
         title="Active"
         icon={FolderKanban}
         metric={props.active}
@@ -50,7 +55,7 @@ export function OverviewProjectsSummaryGrid(props: {
         surfaceClassName={SUMMARY_METRIC_CARD.surfaceDefault}
       />
       <SummaryMetricCard
-        href="/projects"
+        href={projectsHref}
         title="Completed"
         icon={CheckCircle2}
         metric={props.completed}
@@ -63,7 +68,7 @@ export function OverviewProjectsSummaryGrid(props: {
         surfaceClassName={SUMMARY_METRIC_CARD.surfaceDefault}
       />
       <SummaryMetricCard
-        href="/projects"
+        href={projectsHref}
         title="Needs attention"
         icon={ShieldAlert}
         metric={props.needsAttention}

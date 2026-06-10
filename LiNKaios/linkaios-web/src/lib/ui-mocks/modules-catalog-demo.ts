@@ -2,6 +2,21 @@ import { BUSINESS_MODULES, BUSINESS_PROCESSES } from "@/lib/ui-mocks/modules-cat
 
 export type IssueExecutorKind = "automation" | "agent" | "human" | "hybrid";
 
+/** Issue dependency edge — aligned with LiNKdeveloper `issueDependencyContractSchema`. */
+export type IssueDependencyType =
+  | "blocked_by"
+  | "can_run_after"
+  | "must_finish_before"
+  | "can_run_in_parallel_with";
+
+export type IssueDependency = {
+  dependsOnIssueId: string;
+  dependencyType: IssueDependencyType;
+};
+
+/** Phase execution within a module — sequential (default) or parallel lanes. */
+export type PhaseConcurrency = "sequential" | "parallel";
+
 export type ModuleIssueTemplate = {
   id: string;
   title: string;
@@ -9,7 +24,19 @@ export type ModuleIssueTemplate = {
   description?: string;
   inputContract: string;
   outputContract: string;
-  executors: { kind: IssueExecutorKind; name: string; description?: string }[];
+  /** Cross-issue composition edges for publish/launch orchestration. */
+  dependencies?: IssueDependency[];
+  /** Optional executor guidance uploaded as Markdown. */
+  instructionMd?: string;
+  instructionMdFileName?: string;
+  executors: {
+    kind: IssueExecutorKind;
+    name: string;
+    description?: string;
+    /** Parsed LiNKautowork workflow definition when added via JSON upload. */
+    automationJson?: Record<string, unknown>;
+    roleId?: string;
+  }[];
 };
 
 export type ModulePhaseTemplate = {
@@ -17,6 +44,13 @@ export type ModulePhaseTemplate = {
   name: string;
   stage: string;
   summary: string;
+  /** Phase-level contract summary (feeds downstream phase inputs). */
+  inputContract?: string;
+  outputContract?: string;
+  /** Whether issues in this phase may run in parallel lanes. */
+  concurrency?: PhaseConcurrency;
+  /** Phase ids that must complete before this phase starts. */
+  dependsOnPhaseIds?: string[];
   issues: ModuleIssueTemplate[];
 };
 
@@ -31,6 +65,11 @@ export type SuiteModuleTemplate = {
   published: boolean;
   summary: string;
   rerunsAutomatically: boolean;
+  /** Module-level contract summary for suite composition. */
+  inputContract?: string;
+  outputContract?: string;
+  /** Module ids that must complete before this module starts. */
+  dependsOnModuleIds?: string[];
   workflows: ModulePhaseTemplate[];
 };
 

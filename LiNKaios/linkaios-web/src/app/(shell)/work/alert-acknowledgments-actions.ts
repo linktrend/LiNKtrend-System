@@ -41,5 +41,6 @@ export async function acknowledgeTraceAlertAction(alertId: string): Promise<{ ok
   }
 
   revalidatePath("/work/alerts");
+  revalidatePath("/admin/work/alerts");
   return { ok: true };
 }
