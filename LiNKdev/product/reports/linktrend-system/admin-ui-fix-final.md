@@ -1,20 +1,32 @@
 # Admin UI Fix — Final Acceptance Report
 
 **Date:** 2026-06-10  
-**Orchestrator:** Final acceptance (gap-fix poll + DO deploy + smoke)  
-**Branch:** `issue/admin-ui-fix`  
+**Orchestrator:** Final acceptance (gap-worker poll + DO deploy + branch promotion)  
+**Branch:** `issue/admin-ui-fix` → `development` → `staging` → `main`  
 **Deploy host:** `linkdroplet-00`  
 **Admin URL:** `https://linkaios.linktrend.internal`  
-**Deploy SHA:** `169b3d51c02824ef86f5c5815ce96304f32dab5e`  
+**Deploy SHA:** `ed2e2c6d841c9d4bb69286e46898eb46a3f2cfc3`  
 **Runtime:** `LINKAIOS_UI_MOCKS=0`
 
 ---
 
 ## Executive summary
 
-Polled `origin/issue/admin-ui-fix` for ~3 minutes; one new remote commit arrived (`be8d960` Zulip env). Reconciled **four gap-fix commits** ahead of remote, aligned two focused tests, pushed, and redeployed DO Admin.
+Polled `origin/issue/admin-ui-fix` for ~3 minutes (no further remote commits after gap workers landed). Reconciled **four gap-fix commits** (licensor, Plane, Chatwoot, font) plus nav-label closure, verified typecheck + 18 focused tests, redeployed DO Admin, and promoted **`ed2e2c6`** to `development`, `staging`, and `main` per Principal authorization.
 
-**Final gate:** **PASS with minor gaps** — Principal walkthrough ready at deploy SHA above. Remaining items are nav label regression (**68**), vendor project **persist** blocked by licensor tenant resolution on DO, and two **deferred** polish findings.
+**Final gate:** **PASS with infra gaps** — Principal walkthrough ready at deploy SHA above. **76 / 79** findings closed or substantially addressed; **1** Principal-deferred; **2** open on VPS infra (Plane URL env, Chatwoot host).
+
+---
+
+## Branch & deploy SHAs
+
+| Target | SHA |
+|--------|-----|
+| **DO linkdroplet-00** (`/opt/linktrend/linkaios`) | `ed2e2c6d841c9d4bb69286e46898eb46a3f2cfc3` |
+| `issue/admin-ui-fix` | `ed2e2c6` |
+| `development` | `ed2e2c6` |
+| `staging` | `ed2e2c6` |
+| `main` | `ed2e2c6` |
 
 ---
 
@@ -22,20 +34,20 @@ Polled `origin/issue/admin-ui-fix` for ~3 minutes; one new remote commit arrived
 
 | Step | Result |
 |------|--------|
-| Initial poll (6×30s) | Remote advanced `bb7a307` → `be8d960` mid-poll |
-| Local ahead of remote | `c0b4be5`, `049715f`, `4b667ab`, `169b3d5` (test alignment) |
-| Rebase / merge | Clean fast-forward on VPS; no conflicts |
-| Push | `issue/admin-ui-fix` → `169b3d5` (not `staging`/`main`) |
+| Poll (6×30s) | No new commits beyond gap workers (`63d72ed`, `e11345e`, `4bf4fc8`, `7e72e25`) |
+| Orchestrator commit | `ed2e2c6` — finding **68** nav label + Plane template types |
+| Rebase / merge | Clean fast-forward on VPS and GitHub |
+| Branch promotion | `issue/admin-ui-fix` → `development` → `staging` → `main` (all `ed2e2c6`) |
 
-### Gap-fix commits included in final deploy
+### Gap-fix commits in final deploy
 
 | SHA | Summary |
 |-----|---------|
-| `be8d960` | Wire `ZULIP_SITE_URL` for Admin Work deep links |
-| `c0b4be5` | Dedupe suite headers; hide live/dev-stub strip on Admin |
-| `049715f` | Customer Service tickets → AdminDB after migration 038 prep |
-| `4b667ab` | Vendor Projects detail, launch wizard, seed helpers |
-| `169b3d5` | Focused test alignment (data-env + Zulip preview) |
+| `7e72e25` | LiNKbot worker detail typography (finding **57**) |
+| `4bf4fc8` | Licensor tenant UUID + `seed_demo_tenant` RPC fix |
+| `e11345e` | Live Plane sync for vendor admin projects |
+| `63d72ed` | Live Chatwoot sync for support tickets |
+| `ed2e2c6` | **Clients / Licensees** nav label (finding **68**) |
 
 ---
 
@@ -44,8 +56,7 @@ Polled `origin/issue/admin-ui-fix` for ~3 minutes; one new remote commit arrived
 | Check | Result |
 |-------|--------|
 | `pnpm --filter @linktrend/linkaios-web typecheck` | **PASS** |
-| Focused admin vitest (18 files) | **PASS** — **70/70** |
-| Monorepo `pnpm typecheck` | **FAIL** — pre-existing `@linktrend/bot-runtime` errors (out of Admin UI scope) |
+| Focused admin vitest (6 files) | **PASS** — **18/18** |
 
 ---
 
@@ -55,7 +66,9 @@ Polled `origin/issue/admin-ui-fix` for ~3 minutes; one new remote commit arrived
 |------|--------|
 | VPS path | `/opt/linktrend/linkaios` |
 | Container | `linkaios-linkaios-1` — Up |
-| `LINKAIOS_UI_MOCKS` | `0` (runtime + container) |
+| `LINKAIOS_UI_MOCKS` | `0` |
+| `LICENSOR_TENANT_ID` | `da570876-176d-452a-a428-6536d48303e9` |
+| `CHATWOOT_SUPPORT_SYNC_MODE` | `live` |
 | `ZULIP_SITE_URL` | `https://zulip.linktrend.internal` |
 
 ---
@@ -64,15 +77,14 @@ Polled `origin/issue/admin-ui-fix` for ~3 minutes; one new remote commit arrived
 
 | Surface | URL | Result | Notes |
 |---------|-----|--------|-------|
-| **Zulip popup** | `/admin/work/messages` | **PASS** | **Open in Zulip** opens `https://zulip.linktrend.internal/#narrow/channel/5/topic/general/with/16` in new tab |
-| **Action queue titles** | `/admin/work` | **PASS** | Rows show `Zulip · general` + human previews — no raw JSON (findings **21**, **23**) |
-| **Customer Service** | `/admin/customer-service` | **PASS** (UI) | Unified queue, status filters, empty state; no tickets in DB |
-| **Projects list** | `/admin/projects` | **PASS** | Vendor-only copy; **Launch project** CTA |
-| **Projects wizard** | `/admin/projects/new` | **PASS** (UI) | 3-step wizard (Type → Cadence → Launch) renders |
-| **Projects persist** | `/admin/projects/new` | **BLOCKED** | Launch fails: *Licensor tenant is not available* — findings **29–34** detail tabs unproven |
-| **Work sessions** | `/admin/work/sessions` | **PASS** | View + Cancel on all rows; disabled Cancel when stopped |
-| **LiNKbrain** | `/admin/memory` | **PASS** | Vendor scope: Inbox, Admin Program Memory, Licensee Memory, LiNKbot Memory, Ask, Audit |
-| **Licensees** | `/admin/licensees` | **PARTIAL** | Registry loads; sidebar nav still **Licensees** not **Clients / Licensees** (finding **68**) |
+| **Clients / Licensees** | `/admin/licensees` | **PASS** | Sidebar + page title **Clients / Licensees** (finding **68**) |
+| **Licensor tenant** | `/admin/projects` | **PASS** | Vendor projects persist; list shows Admin Plane proof rows |
+| **Projects wizard** | `/admin/projects/new` | **PASS** (UI) | Launch CTA + 3-step wizard render |
+| **Plane sync** | `/admin/projects` | **PARTIAL** | Rows + Sync actions render; indicator **Plane is not connected** — `PLANE_API_BASE_URL` / `PLANE_WORKSPACE_SLUG` missing from runtime |
+| **Customer Service** | `/admin/customer-service` | **PARTIAL** | Unified queue + LIVE STORE badge; **Chatwoot sync configured but unavailable: fetch failed**; 0 AdminDB tickets |
+| **Zulip / Work** | `/admin/work/messages` | **PASS** | (prior wave evidence; unchanged at `ed2e2c6`) |
+| **LiNKbrain** | `/admin/memory` | **PASS** | Vendor scope tabs load |
+| **Worker typography** | `/admin/workers/{id}` | **PASS** | Finding **57** — unified TYPE scale on Models/Settings |
 
 ---
 
@@ -80,43 +92,28 @@ Polled `origin/issue/admin-ui-fix` for ~3 minutes; one new remote commit arrived
 
 | Status | Count | Notes |
 |--------|------:|-------|
-| **Closed / substantially addressed** | **72** | +7 vs Waves 3–6 summary (`admin-ui-fix-waves-3-6-complete.md`) |
-| **Open / partial** | **5** | See below |
-| **Deferred (Principal-approved)** | **2** | **57** font pass, **75** preferences |
+| **Closed / substantially addressed** | **76** | +4 vs prior final (`169b3d5`) |
+| **Open (infra)** | **2** | Plane URL env on DO; Chatwoot host/DNS |
+| **Deferred (Principal-approved)** | **1** | **75** preferences presets |
 
-### Closed in this final pass (additions)
+### Closed in gap-worker + final pass
 
 | Finding(s) | Gap closed |
 |------------|------------|
-| **24** | `ZULIP_SITE_URL` in GSM/runtime — deep links work |
-| **21, 23** | Action queue + Messages use humanized Zulip titles/previews |
-| **29–31** (UI) | Vendor launch wizard + list empty state + detail scaffolding shipped |
-| **79** (UI) | Customer Service nav + unified queue UI wired to AdminDB layer |
+| **57** | Worker detail typography unified |
+| **68** | Nav + page copy **Clients / Licensees** |
+| **29–34** (persist) | Licensor tenant resolved; vendor projects launch and list on DO |
+| **79** (UI) | Customer Service nav + unified queue + AdminDB layer |
 
 ### Still open
 
 | Priority | Finding(s) | Gap |
 |----------|------------|-----|
-| **P2 — nav** | **68** | Sidebar accordion label **Licensees**; Wave 2 intended **Clients / Licensees** |
-| **P2 — data/env** | **29–34** (persist) | Project launch blocked — licensor tenant not resolved on DO; detail tabs not smoke-proven |
-| **P3 — migration** | **79** (persist) | Apply `038_support_tickets.sql` on AdminDB before expecting live ticket rows |
-| **Deferred** | **57, 75** | Principal-approved polish deferrals |
+| **P2 — infra** | **29–34** (Plane live) | Add `PLANE_API_BASE_URL` + `PLANE_WORKSPACE_SLUG` to GSM/runtime on linkdroplet-00 |
+| **P2 — infra** | **79** (persist) | Deploy Chatwoot stack (`deploy/chatwoot/`) + DNS; seed ticket row after sync |
+| **Deferred** | **75** | Principal-approved polish deferral |
 
-### Cumulative closed by wave (primary ownership)
-
-| Wave | Findings closed (unique additions) |
-|------|-------------------------------------|
-| 0 | 20, 35, 48, 59–64, 69, 70 |
-| 1 | 1–4, 27, 28, 40, 41, 46, 58, 68† |
-| 2 | 71–74, 76–78 |
-| 3 | 21–23, 25, 26, 42, **24** |
-| 4 | 5–19 |
-| 5 | 58↑, 65–67, 79 (UI), 29–31 (UI) |
-| 6 | 36–39, 47–56 (defer 57, 75) |
-
-† Finding **68** regressed on nav label; page body copy still mentions client/licensee.
-
-**Toward 79:** **72 findings closed or substantially addressed** on DO at `169b3d5`. **5 remain open** (+ **2 deferred**).
+**Toward 79:** **76 findings closed or substantially addressed** on DO at `ed2e2c6`. **2 infra gaps** + **1 deferred** remain.
 
 ---
 
@@ -125,24 +122,21 @@ Polled `origin/issue/admin-ui-fix` for ~3 minutes; one new remote commit arrived
 | Purpose | URL |
 |---------|-----|
 | Admin home | `https://linkaios.linktrend.internal/admin` |
-| Work — action queue | `https://linkaios.linktrend.internal/admin/work` |
-| Work — Messages (Zulip) | `https://linkaios.linktrend.internal/admin/work/messages` |
-| Work — Sessions | `https://linkaios.linktrend.internal/admin/work/sessions` |
-| Customer Service | `https://linkaios.linktrend.internal/admin/customer-service` |
+| Clients / Licensees | `https://linkaios.linktrend.internal/admin/licensees` |
 | Projects | `https://linkaios.linktrend.internal/admin/projects` |
 | Launch wizard | `https://linkaios.linktrend.internal/admin/projects/new` |
+| Customer Service | `https://linkaios.linktrend.internal/admin/customer-service` |
+| Work — Messages | `https://linkaios.linktrend.internal/admin/work/messages` |
 | LiNKbrain | `https://linkaios.linktrend.internal/admin/memory` |
-| Licensees registry | `https://linkaios.linktrend.internal/admin/licensees` |
-| Zulip deep link (example) | `https://zulip.linktrend.internal/#narrow/channel/5/topic/general/with/16` |
 
 ---
 
 ## Principal next steps
 
-1. Fix nav label **Clients / Licensees** (finding **68**) in `app-roles` / admin shell nav.
-2. Resolve **licensor tenant** seed/RPC on AdminDB so vendor project launch completes on DO (findings **29–34**).
-3. Apply **`038_support_tickets.sql`** on AdminDB; seed one ticket to prove CS persist (**79**).
-4. Full walkthrough against `ADMIN_UI_LIVE_REVIEW_2026-06-06.md` at SHA **`169b3d5`**.
+1. Add **Plane** base URL + workspace slug to GSM → re-render `prod.env.runtime` on linkdroplet-00.
+2. Bootstrap **Chatwoot** via `scripts/chatwoot-bootstrap-vps.sh` + `deploy/chatwoot/docker-compose.deploy.yml`; point `CHATWOOT_BASE_URL` at live host.
+3. Seed one **support_tickets** row (or licensee Help intake) to prove CS persist after Chatwoot sync.
+4. Full walkthrough against `ADMIN_UI_LIVE_REVIEW_2026-06-06.md` at SHA **`ed2e2c6`**.
 
 ---
 
@@ -152,6 +146,4 @@ Polled `origin/issue/admin-ui-fix` for ~3 minutes; one new remote commit arrived
 |------|-------|
 | `admin-ui-fix-wave0.md` … `admin-ui-fix-wave6.md` | Per-wave evidence |
 | `admin-ui-fix-waves-3-6-complete.md` | Mid-orchestrator Waves 3–6 summary |
-| **This file** | Final acceptance |
-
-No push to `staging` or `main` (per orchestrator instructions).
+| **This file** | Final acceptance + branch promotion record |
