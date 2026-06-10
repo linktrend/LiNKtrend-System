@@ -29,7 +29,11 @@ export function buildAdminBotByAgentId(
   const out: Record<string, boolean> = {};
   for (const agent of agents) {
     out[String(agent.id)] = isAdminBot(
-      { id: String(agent.id), runtime_settings: agent.runtime_settings ?? null },
+      {
+        id: String(agent.id),
+        runtime_settings:
+          (agent.runtime_settings as Record<string, unknown> | null | undefined) ?? null,
+      },
       options,
     );
   }
