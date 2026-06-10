@@ -154,6 +154,8 @@ const envSchema = z.object({
   CHATWOOT_INBOX_ID: optionalNonEmpty(),
   /** Support ticket sync mode. `live` pulls/pushes via cap.chatwoot.customer_support. */
   CHATWOOT_SUPPORT_SYNC_MODE: z.enum(["off", "live"]).optional(),
+  /** Skip TLS verification for internal Chatwoot host (linkdroplet Traefik CA). */
+  CHATWOOT_TLS_INSECURE: optionalNonEmpty(),
   /** Plane API base URL. */
   PLANE_API_BASE_URL: optionalNonEmpty(),
   /** Plane workspace slug. */

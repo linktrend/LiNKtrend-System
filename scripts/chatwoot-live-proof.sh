@@ -24,9 +24,13 @@ fi
 
 BASE_URL="${CHATWOOT_BASE_URL%/}"
 AUTH_HEADER=( -H "api_access_token: ${CHATWOOT_API_ACCESS_TOKEN}" -H "content-type: application/json" )
+CURL=(curl -fsS)
+if [[ -n "${CHATWOOT_TLS_INSECURE:-}" && "${CHATWOOT_TLS_INSECURE}" != "0" ]]; then
+  CURL+=(-k)
+fi
 
 echo "== Chatwoot readiness =="
-curl -fsS "${AUTH_HEADER[@]}" "${BASE_URL}/api/v1/accounts/${CHATWOOT_ACCOUNT_ID}" | head -c 200
+"${CURL[@]}" "${AUTH_HEADER[@]}" "${BASE_URL}/api/v1/accounts/${CHATWOOT_ACCOUNT_ID}" | head -c 200
 echo
 
 create_ticket() {
@@ -35,7 +39,7 @@ create_ticket() {
   local description="$3"
   local source_id="${licensee}:proof:$(date +%s)-$RANDOM"
 
-  curl -fsS "${AUTH_HEADER[@]}" -X POST \
+  "${CURL[@]}" "${AUTH_HEADER[@]}" -X POST \
     "${BASE_URL}/api/v1/accounts/${CHATWOOT_ACCOUNT_ID}/conversations" \
     -d "$(jq -nc \
       --arg inbox "$CHATWOOT_INBOX_ID" \
