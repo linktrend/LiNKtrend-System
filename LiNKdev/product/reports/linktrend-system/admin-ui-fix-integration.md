@@ -47,6 +47,7 @@ Prior wave acceptance docs (`admin-ui-fix-wave0.md` … `wave6.md`, `waves-3-6-c
 
 | SHA | Message |
 |-----|---------|
+| `490639f` | `feat(admin-ui): close infra gaps for plane status, fleet binding, and tenant scoping` |
 | `44da8b7` | `fix(shell): remove admin/client switcher from toolbar` |
 | `0e38684` | `feat(scope): licensor View filter and LinkSkills lease scoping` |
 | `fd38606` | `feat(admin-ui): integrate parallel wave fixes for Admin shell` |
@@ -82,7 +83,7 @@ pnpm test \
 
 | Result | Count |
 |--------|------:|
-| **PASS** | 45 tests / 14 files |
+| **PASS** | 59 tests / 17 files |
 | **FAIL** | 0 (after removing broken Wave 7 import) |
 
 Typecheck not re-run full monorepo in this pass; prior wave docs report PASS at `bb7a307`.
