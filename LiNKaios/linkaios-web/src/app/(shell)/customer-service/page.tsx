@@ -1,6 +1,6 @@
 import { CustomerServiceQueue } from "@/components/customer-service/customer-service-queue";
 import { ShellPageHeaderClient } from "@/components/shell-page-header-client";
-import { loadSupportTicketsFromDb } from "@/lib/support-tickets-data";
+import { loadSupportTicketsFromDb } from "@/lib/support-tickets-db.server";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
