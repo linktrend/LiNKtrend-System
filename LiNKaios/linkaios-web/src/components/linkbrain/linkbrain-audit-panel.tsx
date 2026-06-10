@@ -1,5 +1,4 @@
 import { LinkbrainAuditTable, type AuditTraceRow } from "@/components/linkbrain/linkbrain-audit-table";
-import { buildAdminCollectiveAuditSeed } from "@/lib/admin-collective-brain-seed";
 import { readAppSurfaceFromHeaders } from "@/lib/app-surface";
 import { fetchMvoAuditEventsForRun } from "@/lib/linkbrain-mvo-audit";
 import { fetchRecentTraces } from "@/lib/traces-db";
@@ -118,23 +117,15 @@ export async function LinkbrainAuditPanel(props: {
     }
   }
 
-  let usedAdminSeed = false;
-  if (props.licensorCollective && rows.length === 0) {
-    if (uiMocksEnabled) {
-      rows = COLLECTIVE_AUDIT_FIXTURES;
-    } else {
-      rows = buildAdminCollectiveAuditSeed();
-      usedAdminSeed = true;
-    }
+  if (props.licensorCollective && rows.length === 0 && uiMocksEnabled) {
+    rows = COLLECTIVE_AUDIT_FIXTURES;
   }
 
   const dataSourceLabel = uiMocksEnabled
     ? "Demo fixtures — sample collective audit rows for layout review."
-    : usedAdminSeed
-      ? "Admin seed — reviewable audit rows until live vendor traces populate."
-      : rows.length === 0
-        ? "Live — no vendor audit traces in range yet."
-        : "Live — append-only traces from linkaios.traces and linkbrain.audit_events.";
+    : rows.length === 0
+      ? "Live — no vendor audit traces in range yet."
+      : "Live — append-only traces from linkaios.traces and linkbrain.audit_events.";
 
   return (
     <div className="space-y-3">

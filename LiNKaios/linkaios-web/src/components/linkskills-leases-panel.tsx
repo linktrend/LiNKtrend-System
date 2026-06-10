@@ -11,11 +11,10 @@ import {
 import { DomainStatusPill, StatusPill } from "@/components/ui/status-pill";
 import { readAppSurfaceFromHeaders } from "@/lib/app-surface";
 import { loadLeaseStatus } from "@/lib/cockpit";
-import { resolveLeasePanelTenantId, resolveLicensorTenantId } from "@/lib/admin-linkskills-tenant";
-import { ADMIN_LINKSKILLS_LEASE_SEED } from "@/lib/admin-linkskills-seed";
+import { loadLeasesForAdminView, resolveLeasePanelTenantId } from "@/lib/admin-linkskills-tenant";
 import { resolveProjectIdFromProps } from "@/lib/api/project-mission-id";
 import type { LicensorScope } from "@/lib/app-roles";
-import { filterLeasesForViewScope, PLATFORM_ALL_SCOPE } from "@/lib/licensor-view-scope";
+import { PLATFORM_ALL_SCOPE } from "@/lib/licensor-view-scope";
 import { loadEnv } from "@linktrend/shared-config";
 import { createSupabaseServiceClient } from "@linktrend/db";
 import { isUiMocksEnabledForSurface } from "@/lib/ui-mocks/flags";
@@ -44,14 +43,18 @@ export async function LinkskillsLeasesPanel(props?: {
   const surface = await readAppSurfaceFromHeaders();
   const tenantId = await resolveLeasePanelTenantId(surface);
   const mocksOn = isUiMocksEnabledForSurface(surface);
+  const viewScope = props?.viewScope ?? PLATFORM_ALL_SCOPE;
 
+  const timeRange = projectId ? "30d" : "24h";
   let leases =
-    tenantId != null ? await loadLeaseStatus(supabase, tenantId, { time_range: projectId ? "30d" : "24h" }) : [];
+    surface === "admin" && !projectId
+      ? await loadLeasesForAdminView(supabase, viewScope, { time_range: timeRange })
+      : tenantId != null
+        ? await loadLeaseStatus(supabase, tenantId, { time_range: timeRange })
+        : [];
 
   if (mocksOn && leases.length === 0) {
     leases = projectId ? DEMO_LEASE_ROWS.filter((l) => l.mission_id === projectId) : DEMO_LEASE_ROWS;
-  } else if (!mocksOn && surface === "admin" && leases.length === 0 && !projectId) {
-    leases = ADMIN_LINKSKILLS_LEASE_SEED;
   } else if (projectId) {
     const { fetchMetricsSnapshot } = await import("@/app/(shell)/metrics/actions");
     const metrics = await fetchMetricsSnapshot({ days: 30, missionId: projectId, agentId: null });
@@ -61,12 +64,6 @@ export async function LinkskillsLeasesPanel(props?: {
         .filter((id): id is string => Boolean(id)),
     );
     leases = leases.filter((l) => l.run_id != null && runIds.has(l.run_id));
-  }
-
-  const viewScope = props?.viewScope ?? PLATFORM_ALL_SCOPE;
-  if (surface === "admin" && !projectId) {
-    const licensorTenantId = await resolveLicensorTenantId();
-    leases = filterLeasesForViewScope(viewScope, leases, licensorTenantId);
   }
 
   const scoped = projectId != null;

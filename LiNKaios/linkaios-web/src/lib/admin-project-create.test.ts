@@ -5,9 +5,7 @@ vi.mock("server-only", () => ({}));
 const rpc = vi.fn();
 const linkaiosFrom = vi.fn(() => ({
   select: vi.fn(() => ({
-    ilike: vi.fn(() => ({
-      limit: vi.fn(async () => ({ data: [], error: null })),
-    })),
+    limit: vi.fn(async () => ({ data: [], error: null })),
   })),
   update: vi.fn(() => ({
     eq: vi.fn(async () => ({ error: null })),

@@ -14,7 +14,7 @@ import {
   PLATFORM_ALL_SCOPE,
   type LicensorScope,
 } from "@/lib/app-roles";
-import { isAdminBot, parseAgentFleetClassification, type IsAdminBotInput } from "@/lib/agent-fleet-classification";
+import { isAdminBot, resolveAgentLicenseeTenantId, type IsAdminBotInput } from "@/lib/agent-fleet-classification";
 import { LICENSEE_REGISTRY } from "@/lib/licensee-registry";
 
 export {
@@ -81,10 +81,10 @@ function agentMatchesLicenseeScope(
   options: FleetFilterOptions,
 ): boolean {
   if (isAdminBot(agent, options)) return false;
-  const classification = parseAgentFleetClassification(agent.runtime_settings ?? null);
-  if (classification.tenantId === licenseeId) return true;
+  const tenantId = resolveAgentLicenseeTenantId(agent, options);
+  if (tenantId === licenseeId) return true;
   const licensorId = resolveLicensorTenantIdForView(options.licensorTenantId);
-  if (classification.tenantId && classification.tenantId !== licensorId && classification.tenantId !== licenseeId) {
+  if (tenantId && tenantId !== licensorId && tenantId !== licenseeId) {
     return false;
   }
   return String(agent.id).includes(licenseeId.split("-")[0] ?? licenseeId);

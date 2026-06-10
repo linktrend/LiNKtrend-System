@@ -1,5 +1,13 @@
+import { resolveLicensorTenantId } from "@/lib/admin-linkskills-tenant";
+import { readAppSurfaceFromHeaders } from "@/lib/app-surface";
+import { parseLicensorScopeParam } from "@/lib/licensor-view-scope";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { groupZulipIntoThreads, prepareChannelThreads } from "@/lib/work-messages";
+import {
+  enrichChannelThreadsWithTenantKey,
+  filterChannelThreadsForViewScope,
+  groupZulipIntoThreads,
+  prepareChannelThreads,
+} from "@/lib/work-messages";
 import { isZulipMessagingConfigured, resolveWorkMessagingChannelConfig } from "@/lib/work-channel-config";
 import { getZulipSiteUrlFromEnv } from "@/lib/zulip-links";
 
@@ -8,8 +16,13 @@ import { WorkMessagesWorkspace } from "../work-messages-workspace";
 
 export const dynamic = "force-dynamic";
 
-export default async function WorkMessagesPage() {
+export default async function WorkMessagesPage(props: {
+  searchParams: Promise<{ scope?: string | string[]; thread?: string | string[] }>;
+}) {
+  const searchParams = await props.searchParams;
   const supabase = await createSupabaseServerClient();
+  const surface = await readAppSurfaceFromHeaders();
+  const viewScope = parseLicensorScopeParam(searchParams.scope);
   const channelConfig = resolveWorkMessagingChannelConfig();
   const zulipConfigured = isZulipMessagingConfigured();
 
@@ -21,16 +34,26 @@ export default async function WorkMessagesPage() {
       .order("created_at", { ascending: false })
       .limit(200),
     supabase.schema("linkaios").from("agents").select("id, display_name").order("display_name", { ascending: true }),
-    supabase.schema("linkaios").from("projects").select("id, primary_agent_id"),
+    supabase.schema("linkaios").from("projects").select("id, primary_agent_id, tenant_id"),
   ]);
 
   const { data: rows, error } = zulipRes;
   const zulipSiteUrl = getZulipSiteUrlFromEnv();
   const fromDb = !error && rows?.length ? groupZulipIntoThreads(rows, { zulipSiteUrl }) : [];
-  const merged = prepareChannelThreads(
+  const missionTenantById: Record<string, string | null> = {};
+  for (const m of missionsRes.data ?? []) {
+    const row = m as { id: string; tenant_id?: string | null };
+    missionTenantById[String(row.id)] = row.tenant_id ? String(row.tenant_id) : null;
+  }
+  const licensorTenantId = surface === "admin" ? await resolveLicensorTenantId() : null;
+  let merged = prepareChannelThreads(
     [...fromDb].sort((a, b) => new Date(b.lastActivity).getTime() - new Date(a.lastActivity).getTime()),
     { zulipSiteUrl },
   );
+  merged = enrichChannelThreadsWithTenantKey(merged, missionTenantById, licensorTenantId);
+  if (surface === "admin") {
+    merged = filterChannelThreadsForViewScope(viewScope, merged, licensorTenantId);
+  }
 
   const agents =
     (agentsRes.data ?? []).map((a) => ({

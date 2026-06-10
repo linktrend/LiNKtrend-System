@@ -74,6 +74,8 @@ pnpm test \
   src/lib/session-stop-policy.test.ts \
   src/lib/suite-composition.test.ts \
   src/lib/admin-project-create.test.ts \
+  src/lib/admin-project-suite-binding.test.ts \
+  src/lib/plane-project-status.test.ts \
   src/lib/admin/linksuitegen/admin-integration.test.ts \
   src/lib/admin/linksuitegen/machine-review/openclaw-dispatch.test.ts
 ```
@@ -99,7 +101,7 @@ Confirm in `/opt/linktrend/runtime/linkaios/prod.env.runtime` (render via `./ops
 | `PLANE_WORKSPACE_SLUG` | **Yes** | Plane board URLs (`linkprojects` on DO) |
 | `NEXT_PUBLIC_PLANE_WORKSPACE_SLUG` | **Yes** | Client-side Plane links (same slug) |
 | `NEXT_PUBLIC_LINKBOT_NATIVE_UI_BASE_URL` | **Yes** | LiNKbot Native UI popup on worker Sessions tab |
-| `ZULIP_SITE_URL` | **Yes** | Work → Messages "Open in Zulip" (prior gap on DO) |
+| `ZULIP_SITE_URL` | **Yes** | Work → Messages "Open in Zulip" — empty state when unset (no broken links) |
 | `LICENSOR_TENANT_ID` | Recommended | LinkSkills lease tenant resolution without RPC seed |
 
 Also verify: `NODE_ENV=production`, Supabase service role, GSM mount, Traefik host `linkaios.linktrend.internal`.
@@ -120,8 +122,9 @@ git pull --rebase origin issue/admin-ui-fix
 ./ops/render-runtime-env-from-gsm.sh prod \
   --output /opt/linktrend/runtime/linkaios/prod.env.runtime
 
-# Apply Supabase migration (Principal gate if non-local)
-# supabase/migrations/202606101200_admin_project_p1.sql
+# Apply Supabase migrations (Principal gate if non-local)
+# supabase/migrations/202606101200_admin_project_p1.sql  — projects.brief + get_project_run_spine
+# supabase/migrations/202606101201_admin_agents_tenant_id.sql — agents.tenant_id fleet View scoping
 
 docker compose -f docker-compose.deploy.yml build
 docker compose -f docker-compose.deploy.yml up -d --remove-orphans
@@ -133,15 +136,17 @@ Health: `https://linkaios.linktrend.internal` loads; container `linkaios-linkaio
 
 ## Known remaining gaps
 
-| Priority | Gap | Owner |
-|----------|-----|-------|
-| P1 | `ZULIP_SITE_URL` missing on DO blocks Zulip links | Ops / GSM |
-| P1 | Apply `202606101200_admin_project_p1.sql` for project brief + run spine | Principal DB gate |
-| P2 | LinkSkills multi-tenant lease **aggregation** (load per licensee UUID) — filter-only wired | Future packet |
-| P2 | Work → Messages not tenant-keyed | Data model |
-| P2 | Wave 7 `client-tenant-linktrend` module not implemented; test removed | LiNKdeveloper |
-| P3 | Dead code: `app-surface-switch.tsx`, `sidebar-role-preview.tsx` exports unused | Cleanup |
-| P3 | Hardcoded Client paths in overview/cockpit grids if reused under Admin | Grep follow-up |
+None — infra closure pass complete (2026-06-10). Post-deploy still requires GSM/runtime values on linkdroplet-00 (`ZULIP_SITE_URL`, Supabase migration apply) — see deploy checklist above.
+
+Historical gaps (closed this pass):
+
+| Gap | Resolution |
+|-----|------------|
+| Plane → Archived status sync | Live Plane GET + mapping heuristic → Draft/Active/Archived on Admin project detail/index |
+| Lead LiNKbot UUID binding | `resolveLicensorLeadAgentId` binds `primary_agent_id` from licensor fleet by `roleId` or exact name |
+| `ZULIP_SITE_URL` | Documented in `deploy/prod/.env.example`; Work → Messages empty state when unset |
+| Project brief migration | `202606101200_admin_project_p1.sql` — `projects.brief` + `get_project_run_spine` |
+| `agents.tenant_id` | `202606101201_admin_agents_tenant_id.sql` + View filter reads column first |
 
 ---
 

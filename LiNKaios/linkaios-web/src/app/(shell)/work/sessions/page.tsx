@@ -26,7 +26,7 @@ export default async function WorkSessionsPage() {
       .select("id, agent_id, status, started_at, last_heartbeat, ended_at, metadata")
       .order("started_at", { ascending: false })
       .limit(50),
-    supabase.schema("linkaios").from("agents").select("id, display_name, runtime_settings"),
+    supabase.schema("linkaios").from("agents").select("id, display_name, runtime_settings, tenant_id"),
   ]);
 
   const err = sessionsRes.error || agentsRes.error;

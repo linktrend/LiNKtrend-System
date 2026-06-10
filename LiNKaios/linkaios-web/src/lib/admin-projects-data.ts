@@ -18,6 +18,7 @@ import type { ProjectIndexRow } from "@/lib/project-index-rows";
 import { getPlaneBridgeConfig, planeProjectBoardHref, planeWorkspaceProjectsHref } from "@/lib/plane-links";
 import { loadPlaneBridgesForProjects, planeHrefFromBridge, type PlaneProjectBridge } from "@/lib/plane-project-bridge";
 import { isPlaneLiveConfigured } from "@/lib/kernel/plane-project-sync";
+import { resolveEffectiveProjectStatus } from "@/lib/plane-project-status";
 
 export type { AdminProjectType, AdminProjectTypeLabel };
 
@@ -66,6 +67,10 @@ function resolveAdminPlaneProjectHref(
   );
 }
 
+function effectiveStatus(row: AdminProjectDbRow, bridge?: PlaneProjectBridge): string {
+  return resolveEffectiveProjectStatus(row.status, bridge?.planeLiveState ?? "unmapped");
+}
+
 function rowFromDb(
   row: AdminProjectDbRow,
   planeCfg: ReturnType<typeof getPlaneBridgeConfig>,
@@ -75,7 +80,7 @@ function rowFromDb(
   return {
     id: row.id,
     title: row.title,
-    status: row.status,
+    status: effectiveStatus(row, bridge),
     suiteName: adminSuiteDisplayName(row.suite_id),
     phaseName: "Phase pending",
     activeIssue: "No active issue linked",
@@ -162,7 +167,7 @@ export async function loadAdminProjectById(
     project: {
       id: row.id,
       title: row.title,
-      status: row.status,
+      status: effectiveStatus(row, liveBridge),
       suiteId: row.suite_id,
       suiteDisplayName: adminSuiteDisplayName(row.suite_id),
       moduleIds: row.module_ids ?? [],

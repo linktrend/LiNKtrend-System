@@ -245,7 +245,7 @@ export function WorkMessagesWorkspace(props: {
         actions={
           channelThreads.length === 0
             ? productChannel === "zulip" && !props.zulipConfigured
-              ? [{ kind: "link", label: "Open platform settings", href: "/settings/platform" }]
+              ? undefined
               : [
                   { kind: "link", label: "Open platform settings", href: "/settings/platform" },
                   { kind: "link", label: "View projects", href: "/projects", variant: "secondary" },

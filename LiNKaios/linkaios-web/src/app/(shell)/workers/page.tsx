@@ -128,7 +128,7 @@ export default async function WorkersPage(props: {
     supabase
       .schema("linkaios")
       .from("agents")
-      .select("id, display_name, status, created_at, updated_at, runtime_settings")
+      .select("id, display_name, status, created_at, updated_at, runtime_settings, tenant_id")
       .order("updated_at", { ascending: false }),
   ]);
 
