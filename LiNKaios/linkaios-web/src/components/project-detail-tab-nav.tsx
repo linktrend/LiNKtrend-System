@@ -13,14 +13,17 @@ export function ProjectDetailTabNav(props: {
   /** @deprecated Use projectId */
   missionId?: string;
   tab: ProjectTabId;
+  /** Route prefix before `/{id}` — default Client `/projects`. */
+  basePath?: string;
 }) {
   const id = resolveProjectIdFromProps(props);
+  const base = props.basePath ?? "/projects";
 
   return (
     <nav className={`${TABS.row} mb-8`} aria-label="Project sections">
       {PROJECT_TAB_DEFS.map((t) => {
         const active = props.tab === t.id;
-        const href = t.id === "overview" ? `/projects/${id}` : `/projects/${id}?tab=${t.id}`;
+        const href = t.id === "overview" ? `${base}/${id}` : `${base}/${id}?tab=${t.id}`;
         return (
           <Link key={t.id} href={href} className={screenTabLinkClass(active)}>
             {t.label}

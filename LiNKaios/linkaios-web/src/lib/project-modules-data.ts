@@ -65,6 +65,42 @@ function fallbackRow(projectId: string): ProjectModuleRow | null {
   };
 }
 
+/** Modules bound to a live project row — resolves catalogue metadata when available. */
+export function liveProjectModulesFromIds(
+  moduleIds: string[],
+  opts: { cadence?: string | null; suiteId?: string | null } = {},
+): ProjectModuleRow[] {
+  const continuous = opts.cadence === "continuous";
+  const suiteName =
+    opts.suiteId != null
+      ? MODULES_CATALOG_DEMO.modules.find((m) => m.id === opts.suiteId)?.name ?? opts.suiteId
+      : null;
+
+  return moduleIds
+    .map((id, index) => {
+      const fromCatalogue = rowFromProcess(id, index + 1);
+      if (fromCatalogue) {
+        return { ...fromCatalogue, continuous, suiteName: fromCatalogue.suiteName ?? suiteName };
+      }
+      const label = id
+        .split(/[./_-]/)
+        .filter(Boolean)
+        .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+        .join(" ");
+      return {
+        order: index + 1,
+        templateId: id,
+        name: label || id,
+        summary: "Module bound when this project was created.",
+        phaseCount: 0,
+        issueCount: 0,
+        continuous,
+        suiteName,
+      } satisfies ProjectModuleRow;
+    })
+    .filter((row): row is ProjectModuleRow => row != null);
+}
+
 /** Modules included in a live project — ordered list from fixtures or bridge fallback. */
 export function demoProjectModules(projectId: string): ProjectModuleRow[] {
   const registeredProcessIds = getRegisteredDemoProjectProcessIds(projectId);

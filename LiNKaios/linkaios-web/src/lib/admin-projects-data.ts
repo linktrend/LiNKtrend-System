@@ -21,12 +21,28 @@ export type AdminProjectIndexRow = ProjectIndexRow & {
   projectTypeLabel: AdminProjectTypeLabel;
 };
 
+export type AdminProjectDetailRow = {
+  id: string;
+  title: string;
+  status: string;
+  suiteId: string | null;
+  moduleIds: string[];
+  cadence: string | null;
+  primaryAgentId: string | null;
+  projectType: AdminProjectType;
+  projectTypeLabel: AdminProjectTypeLabel;
+  planeProjectHref: string | null;
+  planeSyncStatus: "synced" | "pending";
+};
+
 type AdminProjectDbRow = {
   id: string;
   title: string;
   status: string;
   suite_id: string | null;
   module_ids: string[] | null;
+  cadence: string | null;
+  primary_agent_id?: string | null;
 };
 
 function rowFromDb(
@@ -92,6 +108,57 @@ export async function loadAdminProjectIndexRows(
   });
 
   return { rows, error: null };
+}
+
+/** Load one vendor project scoped to the licensor tenant — returns null when out of scope. */
+export async function loadAdminProjectById(
+  supabase: SupabaseClient,
+  projectId: string,
+): Promise<{ project: AdminProjectDetailRow | null; error: string | null }> {
+  const tenantId = await resolveLicensorTenantId();
+  if (!tenantId) {
+    return { project: null, error: null };
+  }
+
+  const { data, error } = await supabase
+    .schema("linkaios")
+    .from("projects")
+    .select("id, title, status, suite_id, module_ids, cadence, primary_agent_id")
+    .eq("id", projectId)
+    .eq("tenant_id", tenantId)
+    .maybeSingle();
+
+  if (error) {
+    return { project: null, error: error.message };
+  }
+
+  if (!data) {
+    return { project: null, error: null };
+  }
+
+  const row = data as AdminProjectDbRow;
+  const planeCfg = getPlaneBridgeConfig();
+  const planeLive = isPlaneLiveConfigured();
+  const liveBridge =
+    planeLive ? (await loadPlaneBridgesForProjects([row.id]))[row.id] : undefined;
+  const projectType = classifyAdminProjectType(row.suite_id, row.module_ids);
+
+  return {
+    project: {
+      id: row.id,
+      title: row.title,
+      status: row.status,
+      suiteId: row.suite_id,
+      moduleIds: row.module_ids ?? [],
+      cadence: row.cadence,
+      primaryAgentId: row.primary_agent_id ?? null,
+      projectType,
+      projectTypeLabel: adminProjectTypeLabel(projectType),
+      planeProjectHref: planeProjectBoardHref(planeCfg, liveBridge?.code ?? null),
+      planeSyncStatus: liveBridge?.planeSyncStatus ?? "pending",
+    },
+    error: null,
+  };
 }
 
 /** Project picker options for Admin LiNKbrain program-memory tab. */

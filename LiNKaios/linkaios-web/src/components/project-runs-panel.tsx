@@ -29,6 +29,7 @@ export async function ProjectRunsPanel(props: {
   projectId?: string;
   /** @deprecated Use projectId */
   missionId?: string;
+  tracesHref?: string;
 }) {
   const projectId = resolveProjectIdFromProps(props);
   let snapshot: MetricsSnapshot;
@@ -45,10 +46,17 @@ export async function ProjectRunsPanel(props: {
   }
 
   return (
-    <RecentRunsTable
-      snapshot={snapshot}
-      hideProjectColumn
-      tracesHref={`/settings/traces?project=${encodeURIComponent(projectId)}`}
-    />
+    <div className="space-y-4">
+      <p className="text-sm text-zinc-600 dark:text-zinc-400">
+        Each Run is one pass through project modules — continuous projects repeat Runs over time. Rows are governance
+        traces from LiNKbot and automation activity; open system logs for the full audit tail filtered to this project.
+      </p>
+      <RecentRunsTable
+        snapshot={snapshot}
+        hideProjectColumn
+        tracesHref={props.tracesHref ?? `/settings/traces?project=${encodeURIComponent(projectId)}`}
+        sectionTitle="Runs (last 30 days)"
+      />
+    </div>
   );
 }

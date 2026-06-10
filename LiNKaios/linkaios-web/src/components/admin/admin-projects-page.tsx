@@ -1,6 +1,7 @@
 "use client";
 
-import { ExternalLink } from "lucide-react";
+import Link from "next/link";
+import { ExternalLink, Plus } from "lucide-react";
 import { useState } from "react";
 
 import { AdminProjectsIndexTable } from "@/components/admin/admin-projects-index-table";
@@ -9,20 +10,14 @@ import { ShellPageHeaderClient } from "@/components/shell-page-header-client";
 import { UiButton } from "@/components/ui/button-bridge";
 import type { AdminProjectIndexRow } from "@/lib/admin-projects-data";
 import { ADMIN_PROJECTS_PAGE } from "@/lib/admin-projects-copy";
+import { ADMIN_BASE_PATH } from "@/lib/app-surface";
 
 export function AdminProjectsPage(props: {
   rows: AdminProjectIndexRow[];
   planeWorkspaceHref: string | null;
   loadError?: string | null;
-  blocked?: "create" | "detail" | null;
 }) {
   const [planeModalOpen, setPlaneModalOpen] = useState(false);
-  const blockedCopy =
-    props.blocked === "create"
-      ? { title: ADMIN_PROJECTS_PAGE.blockedCreateTitle, body: ADMIN_PROJECTS_PAGE.blockedCreateBody }
-      : props.blocked === "detail"
-        ? { title: ADMIN_PROJECTS_PAGE.blockedDetailTitle, body: ADMIN_PROJECTS_PAGE.blockedDetailBody }
-        : null;
 
   return (
     <main className="space-y-10">
@@ -30,20 +25,18 @@ export function AdminProjectsPage(props: {
         title={ADMIN_PROJECTS_PAGE.title}
         subtitle={ADMIN_PROJECTS_PAGE.subtitle}
         hideLicensorScope
+        actions={
+          <Link href={`${ADMIN_BASE_PATH}/projects/new`}>
+            <UiButton buttonKey="approveRow">
+              <Plus className="mr-1.5 h-4 w-4" aria-hidden />
+              {ADMIN_PROJECTS_PAGE.launchButton}
+            </UiButton>
+          </Link>
+        }
       />
 
       {props.loadError ? (
         <p className="text-sm text-red-700 dark:text-red-400">{props.loadError}</p>
-      ) : null}
-
-      {blockedCopy ? (
-        <div
-          role="status"
-          className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950 dark:border-amber-900/60 dark:bg-amber-950/30 dark:text-amber-100"
-        >
-          <p className="font-medium">{blockedCopy.title}</p>
-          <p className="mt-1 text-amber-900/90 dark:text-amber-100/90">{blockedCopy.body}</p>
-        </div>
       ) : null}
 
       <section aria-label="Vendor projects">
@@ -57,6 +50,12 @@ export function AdminProjectsPage(props: {
               {ADMIN_PROJECTS_PAGE.planeHint}
             </p>
             <div className="mt-5 flex flex-wrap justify-center gap-2">
+              <Link href={`${ADMIN_BASE_PATH}/projects/new`}>
+                <UiButton buttonKey="approveRow">
+                  <Plus className="mr-1.5 h-4 w-4" aria-hidden />
+                  {ADMIN_PROJECTS_PAGE.launchButton}
+                </UiButton>
+              </Link>
               <UiButton
                 buttonKey="secondaryRow"
                 type="button"

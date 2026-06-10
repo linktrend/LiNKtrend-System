@@ -3,7 +3,10 @@ import { ChevronRight } from "lucide-react";
 
 import { resolveProjectIdFromProps } from "@/lib/api/project-mission-id";
 import { isUiMocksEnabled } from "@/lib/ui-mocks/flags";
-import { demoProjectModules } from "@/lib/project-modules-data";
+import {
+  demoProjectModules,
+  liveProjectModulesFromIds,
+} from "@/lib/project-modules-data";
 
 function cadenceLabel(continuous: boolean): string {
   return continuous ? "Continuous" : "Once";
@@ -13,10 +16,22 @@ export async function ProjectModulesPanel(props: {
   projectId?: string;
   /** @deprecated Use projectId */
   missionId?: string;
+  moduleIds?: string[];
+  suiteId?: string | null;
+  cadence?: string | null;
+  /** Route prefix for tab links — defaults to Client `/projects`. */
+  basePath?: string;
 }) {
   const projectId = resolveProjectIdFromProps(props);
-  const modules = isUiMocksEnabled() ? demoProjectModules(projectId) : [];
-  const base = `/projects/${encodeURIComponent(projectId)}`;
+  const modules = isUiMocksEnabled()
+    ? demoProjectModules(projectId)
+    : props.moduleIds && props.moduleIds.length > 0
+      ? liveProjectModulesFromIds(props.moduleIds, {
+          cadence: props.cadence,
+          suiteId: props.suiteId,
+        })
+      : [];
+  const base = `${props.basePath ?? "/projects"}/${encodeURIComponent(projectId)}`;
 
   if (modules.length === 0) {
     return (

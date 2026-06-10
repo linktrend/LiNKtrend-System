@@ -38,3 +38,33 @@ export function adminProjectTypeLabel(type: AdminProjectType): AdminProjectTypeL
       return "Platform Ops";
   }
 }
+
+/** Governed create presets for Admin Launch wizard — maps to linkaios.create_project fields. */
+export const ADMIN_PROJECT_CREATE_PRESETS: Record<
+  AdminProjectType,
+  { suiteId: string; moduleIds: string[]; summary: string }
+> = {
+  suite_gen: {
+    suiteId: "linksuitegen",
+    moduleIds: ["suite-gen-catalogue"],
+    summary: "LiNKsuitegen vendor catalogue and publish pipeline.",
+  },
+  librarian_filings: {
+    suiteId: "linkbrain",
+    moduleIds: ["linksites.librarian"],
+    summary: "Collective knowledge filings and librarian review queue.",
+  },
+  platform_ops: {
+    suiteId: "linktrend-platform",
+    moduleIds: ["platform-ops"],
+    summary: "Studio platform operations and governance tasks.",
+  },
+};
+
+export function resolveAdminProjectCreatePreset(type: AdminProjectType) {
+  return ADMIN_PROJECT_CREATE_PRESETS[type];
+}
+
+export function isAdminProjectType(value: unknown): value is AdminProjectType {
+  return value === "suite_gen" || value === "librarian_filings" || value === "platform_ops";
+}

@@ -2,14 +2,13 @@
 
 import Link from "next/link";
 
-import { projectRunProgressHref } from "@/lib/client-mvo-flow";
-import { projectTabHref } from "@/lib/project-tabs";
 import { BUTTON } from "@/lib/ui-standards";
 
 /** Shown after successful POST /api/projects — links operator to Run progress tab. */
-export function ProjectCreatedBanner(props: { projectId: string }) {
-  const runsHref = projectRunProgressHref(props.projectId);
-  const overviewHref = projectTabHref(props.projectId, "overview");
+export function ProjectCreatedBanner(props: { projectId: string; basePath?: string }) {
+  const base = props.basePath ?? "/projects";
+  const runsHref = `${base}/${encodeURIComponent(props.projectId)}?tab=runs`;
+  const overviewHref = `${base}/${encodeURIComponent(props.projectId)}`;
 
   return (
     <div
