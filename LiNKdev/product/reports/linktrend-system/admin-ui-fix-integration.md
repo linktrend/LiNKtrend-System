@@ -5,6 +5,9 @@
 **Integrator:** parallel subagent reconciliation + focused commits  
 **Deploy host:** `linkdroplet-00`  
 **Admin URL:** `https://linkaios.linktrend.internal`
+**Branch HEAD:** `666cd622fa9fc029f565485d5adce571287bfe16` (`666cd62`)
+
+**Gap-closure verification (2026-06-10):** Working tree clean. Linear history — `d53c191` (Stripe) → `490639f` (infra) → `666cd62` (docs); no duplicate or conflicting changes between those SHAs.
 
 ---
 
@@ -43,22 +46,28 @@ Prior wave acceptance docs (`admin-ui-fix-wave0.md` … `wave6.md`, `waves-3-6-c
 
 ---
 
-## Commit SHAs (integration pass)
+## Commit SHAs (integration + gap closure)
 
 | SHA | Message |
 |-----|---------|
+| `666cd62` | `docs(admin-ui): update integration summary after infra gap closure` |
 | `490639f` | `feat(admin-ui): close infra gaps for plane status, fleet binding, and tenant scoping` |
-| `44da8b7` | `fix(shell): remove admin/client switcher from toolbar` |
-| `0e38684` | `feat(scope): licensor View filter and LinkSkills lease scoping` |
-| `fd38606` | `feat(admin-ui): integrate parallel wave fixes for Admin shell` |
-| `e0cc9b4` | `chore(deploy): document Chatwoot public URL and project brief migration` |
+| `d53c191` | `feat(admin): Stripe catalog API and Admin hybrid UI` |
+| `6c081b7` | `docs(admin-ui): record integration commit SHAs in summary` |
 | `309fecd` | `docs(admin-ui): wave acceptance reports and integration summary` |
+| `e0cc9b4` | `chore(deploy): document Chatwoot public URL and project brief migration` |
+| `fd38606` | `feat(admin-ui): integrate parallel wave fixes for Admin shell` |
+| `0e38684` | `feat(scope): licensor View filter and LinkSkills lease scoping` |
+| `44da8b7` | `fix(shell): remove admin/client switcher from toolbar` |
 
-Run `git log --oneline -5 issue/admin-ui-fix` after final commits for authoritative list.
+Authoritative: `git rev-parse issue/admin-ui-fix` → `666cd622fa9fc029f565485d5adce571287bfe16`.
+
 
 ---
 
 ## Test results
+
+**Verified at HEAD `666cd62`:** 83 tests, 21 files, 0 failures.
 
 ```bash
 cd LiNKaios/linkaios-web
@@ -77,16 +86,24 @@ pnpm test \
   src/lib/admin-project-create.test.ts \
   src/lib/admin-project-suite-binding.test.ts \
   src/lib/plane-project-status.test.ts \
+  src/lib/agent-fleet-classification.test.ts \
+  src/lib/cockpit/cockpit-data.test.ts \
+  src/lib/work-messages-scope.test.ts \
   src/lib/admin/linksuitegen/admin-integration.test.ts \
-  src/lib/admin/linksuitegen/machine-review/openclaw-dispatch.test.ts
+  src/lib/admin/linksuitegen/machine-review/openclaw-dispatch.test.ts \
+  src/lib/admin/stripe/governance.test.ts \
+  src/lib/admin/stripe/stripe-admin.test.ts
 ```
 
 | Result | Count |
 |--------|------:|
-| **PASS** | 59 tests / 17 files |
-| **FAIL** | 0 (after removing broken Wave 7 import) |
+| **PASS** | 83 tests / 21 files |
+| **FAIL** | 0 |
+
+**Code hygiene (source tree):** No `ADMIN_LINKSKILLS_LEASE_SEED`, `buildAdminCollectiveBrainSeed`, or `app-surface-switch` in `LiNKaios/linkaios-web` — seed modules and switcher component removed (`490639f`). Historical wave reports may still mention them.
 
 Typecheck not re-run full monorepo in this pass; prior wave docs report PASS at `bb7a307`.
+
 
 ---
 
@@ -104,6 +121,7 @@ Confirm in `/opt/linktrend/runtime/linkaios/prod.env.runtime` (render via `./ops
 | `NEXT_PUBLIC_LINKBOT_NATIVE_UI_BASE_URL` | **Yes** | LiNKbot Native UI popup on worker Sessions tab |
 | `ZULIP_SITE_URL` | **Yes** | Work → Messages "Open in Zulip" — empty state when unset (no broken links) |
 | `LICENSOR_TENANT_ID` | Recommended | LinkSkills lease tenant resolution without RPC seed |
+| `STRIPE_SECRET_KEY` | **Yes** (Admin billing) | Suite billing tab + `cap.stripe.product_management` (GSM: `LINKTREND_AIOS_PROD_STRIPE_SECRET_KEY`) |
 
 Also verify: `NODE_ENV=production`, Supabase service role, GSM mount, Traefik host `linkaios.linktrend.internal`.
 
@@ -124,8 +142,8 @@ git pull --rebase origin issue/admin-ui-fix
   --output /opt/linktrend/runtime/linkaios/prod.env.runtime
 
 # Apply Supabase migrations (Principal gate if non-local)
-# supabase/migrations/202606101200_admin_project_p1.sql  — projects.brief + get_project_run_spine
-# supabase/migrations/202606101201_admin_agents_tenant_id.sql — agents.tenant_id fleet View scoping
+#   supabase/migrations/202606101200_admin_project_p1.sql       — projects.brief + get_project_run_spine
+#   supabase/migrations/202606101201_admin_agents_tenant_id.sql — agents.tenant_id fleet View scoping
 
 docker compose -f docker-compose.deploy.yml build
 docker compose -f docker-compose.deploy.yml up -d --remove-orphans
