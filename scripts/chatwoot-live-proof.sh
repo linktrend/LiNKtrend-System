@@ -45,7 +45,7 @@ create_ticket() {
   local description="$3"
   local contact_name="$4"
   local source_id="${licensee}:proof:$(date +%s)-$RANDOM"
-  local contact_email="support+${licensee}@linktrend.internal"
+  local contact_email="support+${licensee}+${source_id}@linktrend.internal"
 
   local contact_json
   contact_json="$(chatwoot_curl "${AUTH_HEADER[@]}" -X POST \
