@@ -20,7 +20,7 @@ BEGIN
 
   INSERT INTO linkaios_kernel.tenant_plugins (tenant_id, plugin_id, enabled)
   VALUES (v_tenant_id, 'websitefactory', true)
-  ON CONFLICT (tenant_id, plugin_id) DO UPDATE SET enabled = true, updated_at = now();
+  ON CONFLICT ON CONSTRAINT tenant_plugins_pkey DO UPDATE SET enabled = true, updated_at = now();
 
   RETURN QUERY
   SELECT v_tenant_id AS tenant_id, v_plugin_ids AS plugin_ids;
