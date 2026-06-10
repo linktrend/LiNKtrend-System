@@ -90,24 +90,28 @@ export function SupportAssistantPanel(props: {
       setErr("Subject and details are required to open a ticket.");
       return;
     }
-    startTransition(() => {
-      createSupportTicket({
-        licenseeId,
-        companyId: props.companyId,
-        brandId: props.brandId,
-        subject,
-        description: detail,
-        pagePath,
-        requestedBy: `Licensee ${role}`,
-        source: "page_help",
-        aiAttemptSummary: aiReply,
-      });
-      window.dispatchEvent(
-        new CustomEvent("linkaios-toast", {
-          detail: `Support ticket sent. Track it in Settings → Support or Work → Alerts.`,
-        }),
-      );
-      props.onClose();
+    startTransition(async () => {
+      try {
+        await createSupportTicket({
+          licenseeId,
+          companyId: props.companyId,
+          brandId: props.brandId,
+          subject,
+          description: detail,
+          pagePath,
+          requestedBy: `Licensee ${role}`,
+          source: "page_help",
+          aiAttemptSummary: aiReply,
+        });
+        window.dispatchEvent(
+          new CustomEvent("linkaios-toast", {
+            detail: `Support ticket sent. Track it in Settings → Support or Work → Alerts.`,
+          }),
+        );
+        props.onClose();
+      } catch (e) {
+        setErr(e instanceof Error ? e.message : "Could not open support ticket.");
+      }
     });
   }
 

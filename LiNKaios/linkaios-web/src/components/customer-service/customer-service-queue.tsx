@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useEffect, useMemo, useState, useTransition } from "react";
 import { Headphones } from "lucide-react";
 
 import { ShadowModeBadge } from "@/components/stub-badge";
@@ -13,6 +14,7 @@ import { resolveLicenseeRegistry } from "@/lib/licensee-registry";
 import { SUPPORT_TICKET_PILL_LABELS } from "@/lib/status-colors";
 import {
   EVENT_SUPPORT_TICKETS_CHANGED,
+  hydrateSupportTicketsState,
   readSupportTickets,
   SUPPORT_BACKEND_LABEL,
   SUPPORT_BACKEND_REPO,
@@ -43,11 +45,20 @@ export function CustomerServiceQueue(props: {
   tableReady: boolean;
   loadError: string | null;
 }) {
+  const router = useRouter();
   const { href: appHref } = useAppSurface();
   const [filter, setFilter] = useState<TicketFilter>("all");
   const [tickets, setTickets] = useState<SupportTicket[]>(props.initialTickets);
+  const [statusError, setStatusError] = useState<string | null>(null);
+  const [pending, startTransition] = useTransition();
 
   useEffect(() => {
+    hydrateSupportTicketsState({ tableReady: props.tableReady, tickets: props.initialTickets });
+    setTickets(props.initialTickets);
+  }, [props.initialTickets, props.tableReady]);
+
+  useEffect(() => {
+    if (props.tableReady) return undefined;
     const sync = () => {
       const local = readSupportTickets();
       setTickets(mergeSupportTicketSources(props.initialTickets, local));
@@ -55,13 +66,26 @@ export function CustomerServiceQueue(props: {
     sync();
     window.addEventListener(EVENT_SUPPORT_TICKETS_CHANGED, sync);
     return () => window.removeEventListener(EVENT_SUPPORT_TICKETS_CHANGED, sync);
-  }, [props.initialTickets]);
+  }, [props.initialTickets, props.tableReady]);
 
   const visible = useMemo(() => filterTickets(tickets, filter), [tickets, filter]);
   const openCount = tickets.filter((t) => t.status !== "resolved").length;
 
   function setStatus(id: string, status: SupportTicketStatus) {
-    updateSupportTicketStatus(id, status);
+    setStatusError(null);
+    startTransition(async () => {
+      try {
+        const updated = await updateSupportTicketStatus(id, status);
+        if (updated) {
+          setTickets((prev) => prev.map((t) => (t.id === id ? updated : t)));
+        }
+        if (props.tableReady) {
+          router.refresh();
+        }
+      } catch (e) {
+        setStatusError(e instanceof Error ? e.message : "Could not update ticket status.");
+      }
+    });
   }
 
   return (
@@ -71,7 +95,7 @@ export function CustomerServiceQueue(props: {
           <div className="flex flex-wrap items-center gap-2">
             <Headphones className="h-5 w-5 shrink-0 text-zinc-500" aria-hidden />
             <h2 className="text-base font-semibold text-zinc-900 dark:text-zinc-100">Unified Ticket Queue</h2>
-            {props.queueMode === "shadow" ? (
+            {!props.tableReady ? (
               <ShadowModeBadge label="Shadow — migration 038 pending" />
             ) : (
               <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-emerald-900 ring-1 ring-emerald-300 dark:bg-emerald-950/50 dark:text-emerald-100 dark:ring-emerald-800">
@@ -98,7 +122,16 @@ export function CustomerServiceQueue(props: {
           role="alert"
           className="rounded-lg border border-amber-200 bg-amber-50/90 px-3 py-2 text-sm text-amber-950 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-100"
         >
-          Could not load tickets from the database: {props.loadError}. Showing browser-submitted tickets only.
+          Could not load tickets from the database: {props.loadError}.
+        </p>
+      ) : null}
+
+      {statusError ? (
+        <p
+          role="alert"
+          className="rounded-lg border border-amber-200 bg-amber-50/90 px-3 py-2 text-sm text-amber-950 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-100"
+        >
+          {statusError}
         </p>
       ) : null}
 
@@ -165,6 +198,7 @@ export function CustomerServiceQueue(props: {
                     <button
                       type="button"
                       className={BUTTON.secondaryCompact}
+                      disabled={pending}
                       onClick={() => setStatus(t.id, "in_progress")}
                     >
                       Start Work
@@ -174,6 +208,7 @@ export function CustomerServiceQueue(props: {
                     <button
                       type="button"
                       className={BUTTON.primaryCompact}
+                      disabled={pending}
                       onClick={() => setStatus(t.id, "resolved")}
                     >
                       Resolve

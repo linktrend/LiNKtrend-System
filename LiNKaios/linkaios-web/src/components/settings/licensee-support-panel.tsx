@@ -4,11 +4,11 @@ import { useEffect, useState, useTransition } from "react";
 import { useSearchParams } from "next/navigation";
 
 import { DomainStatusPill } from "@/components/ui/status-pill";
-import { resolveLicenseeIdForCompany } from "@/lib/licensor-licensee-profile";
 import { SUPPORT_TICKET_PILL_LABELS } from "@/lib/status-colors";
 import {
   createSupportTicket,
   EVENT_SUPPORT_TICKETS_CHANGED,
+  hydrateSupportTicketsState,
   readSupportTicketsForLicensee,
   SUPPORT_BACKEND_LABEL,
   SUPPORT_BACKEND_REPO,
@@ -17,24 +17,32 @@ import {
 import { useAppRole } from "@/components/role-preview-provider";
 import { BUTTON, FIELD, FORM } from "@/lib/ui-standards";
 
-export function LicenseeSupportPanel() {
+export function LicenseeSupportPanel(props: {
+  licenseeId: string;
+  initialTickets: SupportTicket[];
+  tableReady: boolean;
+}) {
   const searchParams = useSearchParams();
   const companyId = searchParams.get("companyId");
   const brandId = searchParams.get("brandId");
-  const licenseeId = resolveLicenseeIdForCompany(companyId ?? "xyz-marketing");
   const { role } = useAppRole();
-  const [tickets, setTickets] = useState<SupportTicket[]>([]);
+  const [tickets, setTickets] = useState<SupportTicket[]>(props.initialTickets);
   const [subject, setSubject] = useState("");
   const [detail, setDetail] = useState("");
   const [err, setErr] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
 
   useEffect(() => {
-    const sync = () => setTickets(readSupportTicketsForLicensee(licenseeId));
+    hydrateSupportTicketsState({ tableReady: props.tableReady, tickets: props.initialTickets });
+    setTickets(props.initialTickets);
+  }, [props.initialTickets, props.tableReady]);
+
+  useEffect(() => {
+    const sync = () => setTickets(readSupportTicketsForLicensee(props.licenseeId));
     sync();
     window.addEventListener(EVENT_SUPPORT_TICKETS_CHANGED, sync);
     return () => window.removeEventListener(EVENT_SUPPORT_TICKETS_CHANGED, sync);
-  }, [licenseeId]);
+  }, [props.licenseeId]);
 
   function submit() {
     setErr(null);
@@ -42,24 +50,29 @@ export function LicenseeSupportPanel() {
       setErr("Subject and details are required.");
       return;
     }
-    startTransition(() => {
-      createSupportTicket({
-        licenseeId,
-        companyId,
-        brandId,
-        subject,
-        description: detail,
-        pagePath: "/settings/support",
-        requestedBy: `Licensee ${role}`,
-        source: "settings",
-      });
-      setSubject("");
-      setDetail("");
-      window.dispatchEvent(
-        new CustomEvent("linkaios-toast", {
-          detail: "Ticket opened. Our team will respond via Chatwoot.",
-        }),
-      );
+    startTransition(async () => {
+      try {
+        await createSupportTicket({
+          licenseeId: props.licenseeId,
+          companyId,
+          brandId,
+          subject,
+          description: detail,
+          pagePath: "/settings/support",
+          requestedBy: `Licensee ${role}`,
+          source: "settings",
+        });
+        setSubject("");
+        setDetail("");
+        setTickets(readSupportTicketsForLicensee(props.licenseeId));
+        window.dispatchEvent(
+          new CustomEvent("linkaios-toast", {
+            detail: "Ticket opened. Our team will respond via Chatwoot.",
+          }),
+        );
+      } catch (e) {
+        setErr(e instanceof Error ? e.message : "Could not open ticket.");
+      }
     });
   }
 

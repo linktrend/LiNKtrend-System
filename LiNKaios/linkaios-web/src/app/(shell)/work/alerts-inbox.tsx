@@ -83,7 +83,7 @@ function severityLabel(sev: WorkAlert["severity"]) {
 }
 
 function goToFixHref(a: WorkAlert, opts: { isLicensor: boolean; appHref: (path: string) => string }): string {
-  if (a.id.startsWith("st-")) {
+  if (a.id.startsWith("support-") || a.id.startsWith("st-")) {
     return opts.isLicensor ? opts.appHref("/customer-service") : opts.appHref("/settings/support");
   }
   const blob = `${a.title} ${a.summary} ${a.source}`.toLowerCase();
@@ -95,7 +95,7 @@ function goToFixHref(a: WorkAlert, opts: { isLicensor: boolean; appHref: (path: 
 }
 
 function viewAlertHref(a: WorkAlert, opts: { isLicensor: boolean; appHref: (path: string) => string }): string {
-  if (a.id.startsWith("st-")) {
+  if (a.id.startsWith("support-") || a.id.startsWith("st-")) {
     return opts.isLicensor ? opts.appHref("/customer-service") : opts.appHref("/settings/support");
   }
   return opts.appHref("/settings/traces");
@@ -117,6 +117,7 @@ export function AlertsInbox(props: {
   items: WorkAlert[];
   traceAckPersistenceEnabled: boolean;
   initialResolvedIds: string[];
+  supportTicketsPersistenceEnabled?: boolean;
 }) {
   const [selected, setSelected] = useState<WorkAlert | null>(null);
   const [filter, setFilter] = useState<AlertFilter>("all");
@@ -145,6 +146,10 @@ export function AlertsInbox(props: {
   }, []);
 
   useEffect(() => {
+    if (props.supportTicketsPersistenceEnabled) {
+      setSupportAlerts([]);
+      return undefined;
+    }
     const sync = () => {
       const tickets = isLicensor
         ? readOpenSupportTicketsForLicensor()
@@ -158,7 +163,7 @@ export function AlertsInbox(props: {
     sync();
     window.addEventListener(EVENT_SUPPORT_TICKETS_CHANGED, sync);
     return () => window.removeEventListener(EVENT_SUPPORT_TICKETS_CHANGED, sync);
-  }, [isLicensor, licenseeId]);
+  }, [isLicensor, licenseeId, props.supportTicketsPersistenceEnabled]);
 
   const allItems = useMemo(() => {
     const merged = [...props.items, ...requestAlerts, ...supportAlerts];

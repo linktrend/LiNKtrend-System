@@ -1,6 +1,14 @@
 "use client";
 
+import {
+  createSupportTicketAction,
+  listSupportTicketsAction,
+  updateSupportTicketStatusAction,
+} from "@/lib/support-tickets-actions";
+import { supportTicketIdForWorkAlert } from "@/lib/support-tickets-data";
 import type { WorkAlert } from "@/lib/work-alerts";
+
+export { supportTicketIdForWorkAlert } from "@/lib/support-tickets-data";
 
 /**
  * Canonical support backend — Chatwoot fork at `/Users/linktrend/Projects/link-chatwoot`.
@@ -38,7 +46,15 @@ export type SupportTicket = {
 export const SUPPORT_TICKETS_STORAGE_KEY = "linkaios.support-tickets.v1";
 export const EVENT_SUPPORT_TICKETS_CHANGED = "linkaios-support-tickets-changed";
 
-function readAll(): SupportTicket[] {
+let persistenceEnabled = false;
+let liveTicketCache: SupportTicket[] = [];
+
+function dispatchChanged() {
+  if (typeof window === "undefined") return;
+  window.dispatchEvent(new CustomEvent(EVENT_SUPPORT_TICKETS_CHANGED));
+}
+
+function readAllLocal(): SupportTicket[] {
   if (typeof window === "undefined") return [];
   try {
     const raw = window.localStorage.getItem(SUPPORT_TICKETS_STORAGE_KEY);
@@ -51,25 +67,60 @@ function readAll(): SupportTicket[] {
   }
 }
 
-function writeAll(rows: SupportTicket[]) {
+function writeAllLocal(rows: SupportTicket[]) {
   if (typeof window === "undefined") return;
   window.localStorage.setItem(SUPPORT_TICKETS_STORAGE_KEY, JSON.stringify(rows));
-  window.dispatchEvent(new CustomEvent(EVENT_SUPPORT_TICKETS_CHANGED));
+  dispatchChanged();
+}
+
+/** Hydrate client cache from a server render when migration 038 is applied. */
+export function hydrateSupportTicketsState(opts: { tableReady: boolean; tickets?: SupportTicket[] }) {
+  persistenceEnabled = opts.tableReady;
+  if (opts.tableReady) {
+    liveTicketCache = opts.tickets ?? [];
+  }
+}
+
+export function isSupportTicketsPersistenceEnabled(): boolean {
+  return persistenceEnabled;
+}
+
+export function setLiveSupportTicketsCache(tickets: SupportTicket[]) {
+  liveTicketCache = tickets;
 }
 
 export function readSupportTickets(): SupportTicket[] {
-  return readAll();
+  return persistenceEnabled ? liveTicketCache : readAllLocal();
 }
 
 export function readSupportTicketsForLicensee(licenseeId: string): SupportTicket[] {
-  return readAll().filter((t) => t.licenseeId === licenseeId);
+  return readSupportTickets().filter((t) => t.licenseeId === licenseeId);
 }
 
 export function readOpenSupportTicketsForLicensor(): SupportTicket[] {
-  return readAll().filter((t) => t.status !== "resolved");
+  return readSupportTickets().filter((t) => t.status !== "resolved");
 }
 
-export function createSupportTicket(input: {
+export async function refreshSupportTicketsFromServer(opts?: {
+  licenseeId?: string;
+  openOnly?: boolean;
+}): Promise<SupportTicket[]> {
+  const result = await listSupportTicketsAction(opts);
+  if (result.tableReady) {
+    persistenceEnabled = true;
+    if (opts?.licenseeId) {
+      liveTicketCache = result.tickets;
+    } else {
+      liveTicketCache = result.tickets;
+    }
+    dispatchChanged();
+    return result.tickets;
+  }
+  persistenceEnabled = false;
+  return readAllLocal();
+}
+
+function createSupportTicketLocal(input: {
   licenseeId: string;
   companyId?: string | null;
   brandId?: string | null;
@@ -99,26 +150,67 @@ export function createSupportTicket(input: {
     externalRef: null,
     aiAttemptSummary: input.aiAttemptSummary ?? null,
   };
-  writeAll([ticket, ...readAll()]);
+  writeAllLocal([ticket, ...readAllLocal()]);
   return ticket;
 }
 
-export function updateSupportTicketStatus(id: string, status: SupportTicketStatus): SupportTicket | null {
+/** Create a ticket — persists to AdminDB when migration 038 is applied, else browser session. */
+export async function createSupportTicket(input: {
+  licenseeId: string;
+  companyId?: string | null;
+  brandId?: string | null;
+  subject: string;
+  description: string;
+  pagePath: string;
+  requestedBy?: string;
+  source?: SupportTicketSource;
+  priority?: SupportTicketPriority;
+  aiAttemptSummary?: string | null;
+}): Promise<SupportTicket> {
+  const result = await createSupportTicketAction(input);
+  if (result.tableReady && result.ok && result.ticket) {
+    persistenceEnabled = true;
+    liveTicketCache = [result.ticket, ...liveTicketCache.filter((t) => t.id !== result.ticket!.id)];
+    dispatchChanged();
+    return result.ticket;
+  }
+  if (result.tableReady && !result.ok) {
+    throw new Error(result.error ?? "Could not create support ticket.");
+  }
+  return createSupportTicketLocal(input);
+}
+
+/** Update ticket status — writes to AdminDB when migration 038 is applied. */
+export async function updateSupportTicketStatus(
+  id: string,
+  status: SupportTicketStatus,
+): Promise<SupportTicket | null> {
+  const result = await updateSupportTicketStatusAction(id, status);
+  if (result.tableReady && result.ok && result.ticket) {
+    persistenceEnabled = true;
+    liveTicketCache = liveTicketCache.map((t) => (t.id === id ? result.ticket! : t));
+    dispatchChanged();
+    return result.ticket;
+  }
+  if (result.tableReady && !result.ok) {
+    throw new Error(result.error ?? "Could not update support ticket.");
+  }
+
   let updated: SupportTicket | null = null;
-  const next = readAll().map((t) => {
+  const next = readAllLocal().map((t) => {
     if (t.id !== id) return t;
     updated = { ...t, status, updatedAt: new Date().toISOString() };
     return updated;
   });
   if (!updated) return null;
-  writeAll(next);
+  writeAllLocal(next);
   return updated;
 }
 
 export function supportTicketToWorkAlert(t: SupportTicket, licenseeName: string): WorkAlert {
   const severity = t.priority === "high" ? "warning" : "info";
   return {
-    id: t.id,
+    id: supportTicketIdForWorkAlert(t.id),
     title: `Support · ${t.subject}`,
     severity,
     summary: t.description.slice(0, 160) + (t.description.length > 160 ? "…" : ""),

@@ -46,8 +46,9 @@ DROP POLICY IF EXISTS linkaios_support_tickets_update ON linkaios.support_ticket
 CREATE POLICY linkaios_support_tickets_select ON linkaios.support_tickets
   FOR SELECT TO authenticated USING (true);
 
+-- Licensee Help/Settings intake: any signed-in user may open a ticket; status changes stay operator-gated.
 CREATE POLICY linkaios_support_tickets_insert ON linkaios.support_tickets
-  FOR INSERT TO authenticated WITH CHECK (linkaios.command_centre_write_allowed());
+  FOR INSERT TO authenticated WITH CHECK (true);
 
 CREATE POLICY linkaios_support_tickets_update ON linkaios.support_tickets
   FOR UPDATE TO authenticated

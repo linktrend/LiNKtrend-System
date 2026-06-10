@@ -16,6 +16,20 @@ export type SupportTicketsLoadResult = {
   loadError: string | null;
 };
 
+export type SupportTicketCreateInput = {
+  licenseeId: string;
+  companyId?: string | null;
+  brandId?: string | null;
+  subject: string;
+  description: string;
+  pagePath: string;
+  requestedBy?: string;
+  source?: SupportTicketSource;
+  priority?: SupportTicketPriority;
+  aiAttemptSummary?: string | null;
+  tenantId?: string | null;
+};
+
 type SupportTicketRow = {
   id: string;
   licensee_id: string;
@@ -34,7 +48,10 @@ type SupportTicketRow = {
   ai_attempt_summary: string | null;
 };
 
-function isMissingTableError(message: string, code?: string): boolean {
+const SUPPORT_TICKET_SELECT =
+  "id, licensee_id, company_id, brand_id, subject, description, page_path, status, priority, source, requested_by, created_at, updated_at, external_ref, ai_attempt_summary";
+
+export function isMissingSupportTicketsTableError(message: string, code?: string): boolean {
   const lower = message.toLowerCase();
   return (
     code === "42P01" ||
@@ -66,24 +83,34 @@ export function mapSupportTicketRow(row: SupportTicketRow): SupportTicket {
   };
 }
 
+function supportTicketsQuery(supabase: SupabaseClient) {
+  return supabase.schema("linkaios").from("support_tickets");
+}
+
 /**
  * Load support tickets from linkaios.support_tickets when migration 038 is applied.
  * Returns shadow mode with an empty list when the table is not yet available.
  */
 export async function loadSupportTicketsFromDb(
   supabase: SupabaseClient,
+  opts?: { licenseeId?: string; openOnly?: boolean },
 ): Promise<SupportTicketsLoadResult> {
-  const { data, error } = await supabase
-    .schema("linkaios")
-    .from("support_tickets")
-    .select(
-      "id, licensee_id, company_id, brand_id, subject, description, page_path, status, priority, source, requested_by, created_at, updated_at, external_ref, ai_attempt_summary",
-    )
+  let query = supportTicketsQuery(supabase)
+    .select(SUPPORT_TICKET_SELECT)
     .order("created_at", { ascending: false })
     .limit(500);
 
+  if (opts?.licenseeId) {
+    query = query.eq("licensee_id", opts.licenseeId);
+  }
+  if (opts?.openOnly) {
+    query = query.neq("status", "resolved");
+  }
+
+  const { data, error } = await query;
+
   if (error) {
-    if (isMissingTableError(error.message, error.code)) {
+    if (isMissingSupportTicketsTableError(error.message, error.code)) {
       return { tickets: [], mode: "shadow", tableReady: false, loadError: null };
     }
     return {
@@ -103,7 +130,89 @@ export async function loadSupportTicketsFromDb(
   };
 }
 
-/** Merge database tickets with browser-submitted tickets (dedupe by id, prefer DB). */
+/** Probe whether migration 038 has been applied. */
+export async function probeSupportTicketsTable(supabase: SupabaseClient): Promise<boolean> {
+  const { error } = await supportTicketsQuery(supabase).select("id").limit(1);
+  if (!error) return true;
+  if (isMissingSupportTicketsTableError(error.message, error.code)) return false;
+  return false;
+}
+
+/** Insert a support ticket row; returns null when the table is missing. */
+export async function insertSupportTicketInDb(
+  supabase: SupabaseClient,
+  input: SupportTicketCreateInput,
+): Promise<{ ticket: SupportTicket | null; tableReady: boolean; error: string | null }> {
+  const now = new Date().toISOString();
+  const { data, error } = await supportTicketsQuery(supabase)
+    .insert({
+      tenant_id: input.tenantId ?? null,
+      licensee_id: input.licenseeId,
+      company_id: input.companyId ?? null,
+      brand_id: input.brandId ?? null,
+      subject: input.subject.trim(),
+      description: input.description.trim(),
+      page_path: input.pagePath,
+      status: "open",
+      priority: input.priority ?? "normal",
+      source: input.source ?? "manual",
+      requested_by: input.requestedBy?.trim() || "Licensee user",
+      ai_attempt_summary: input.aiAttemptSummary ?? null,
+      created_at: now,
+      updated_at: now,
+    })
+    .select(SUPPORT_TICKET_SELECT)
+    .single();
+
+  if (error) {
+    if (isMissingSupportTicketsTableError(error.message, error.code)) {
+      return { ticket: null, tableReady: false, error: null };
+    }
+    return { ticket: null, tableReady: true, error: error.message };
+  }
+
+  return {
+    ticket: mapSupportTicketRow(data as SupportTicketRow),
+    tableReady: true,
+    error: null,
+  };
+}
+
+/** Update ticket status; returns null when the table is missing or row not found. */
+export async function updateSupportTicketStatusInDb(
+  supabase: SupabaseClient,
+  id: string,
+  status: SupportTicketStatus,
+): Promise<{ ticket: SupportTicket | null; tableReady: boolean; error: string | null }> {
+  const { data, error } = await supportTicketsQuery(supabase)
+    .update({ status, updated_at: new Date().toISOString() })
+    .eq("id", id)
+    .select(SUPPORT_TICKET_SELECT)
+    .maybeSingle();
+
+  if (error) {
+    if (isMissingSupportTicketsTableError(error.message, error.code)) {
+      return { ticket: null, tableReady: false, error: null };
+    }
+    return { ticket: null, tableReady: true, error: error.message };
+  }
+
+  if (!data) {
+    return { ticket: null, tableReady: true, error: "Ticket not found." };
+  }
+
+  return {
+    ticket: mapSupportTicketRow(data as SupportTicketRow),
+    tableReady: true,
+    error: null,
+  };
+}
+
+export function supportTicketIdForWorkAlert(ticketId: string): string {
+  return ticketId.startsWith("support-") ? ticketId : `support-${ticketId}`;
+}
+
+/** Merge database tickets with browser-submitted tickets (dedupe by id, prefer DB). Shadow mode only. */
 export function mergeSupportTicketSources(
   dbTickets: SupportTicket[],
   localTickets: SupportTicket[],

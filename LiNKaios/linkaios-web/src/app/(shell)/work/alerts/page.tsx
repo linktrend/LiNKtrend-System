@@ -3,6 +3,9 @@ import { Suspense } from "react";
 
 import { fetchRecentTraces } from "@/lib/traces-db";
 import { ShellPageHeaderClient } from "@/components/shell-page-header-client";
+import { resolveLicenseeRegistry } from "@/lib/licensee-registry";
+import { loadSupportTicketsFromDb } from "@/lib/support-tickets-data";
+import { supportTicketToWorkAlert } from "@/lib/support-tickets";
 import { traceToWorkAlert, type WorkAlert } from "@/lib/work-alerts";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -28,7 +31,14 @@ export default async function WorkAlertsPage() {
           }),
         );
 
-  const merged = [...fromDb].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  const supportLoaded = await loadSupportTicketsFromDb(supabase, { openOnly: true });
+  const supportAlerts: WorkAlert[] = supportLoaded.tickets.map((t) =>
+    supportTicketToWorkAlert(t, resolveLicenseeRegistry(t.licenseeId)?.name ?? t.licenseeId),
+  );
+
+  const merged = [...fromDb, ...supportAlerts].sort(
+    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+  );
 
   const traceIds = fromDb.filter((a) => a.id.startsWith("trace-")).map((a) => a.id.replace(/^trace-/, ""));
   let traceAckPersistenceEnabled = false;
@@ -93,6 +103,7 @@ export default async function WorkAlertsPage() {
             items={merged}
             traceAckPersistenceEnabled={traceAckPersistenceEnabled}
             initialResolvedIds={initialResolvedIds}
+            supportTicketsPersistenceEnabled={supportLoaded.tableReady}
           />
         </Suspense>
       </div>

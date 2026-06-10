@@ -1,17 +1,19 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useTransition } from "react";
 
 import { Headphones } from "lucide-react";
 
 import Link from "next/link";
 
+import { probeSupportTicketsTableAction } from "@/lib/support-tickets-actions";
 import { DomainStatusPill } from "@/components/ui/status-pill";
 import { ShadowModeBadge } from "@/components/stub-badge";
 import { useAppSurface } from "@/components/app-surface-provider";
 import {
   EVENT_SUPPORT_TICKETS_CHANGED,
   readSupportTicketsForLicensee,
+  refreshSupportTicketsFromServer,
   SUPPORT_BACKEND_REPO,
   SUPPORT_BACKEND_LABEL,
   SUPPORT_CAPABILITY_SCOPE,
@@ -24,13 +26,47 @@ import { BUTTON } from "@/lib/ui-standards";
 export function LicensorLicenseeSupportPanel(props: { licenseeId: string }) {
   const { href: appHref } = useAppSurface();
   const [tickets, setTickets] = useState<SupportTicket[]>([]);
+  const [tableReady, setTableReady] = useState(false);
+  const [statusError, setStatusError] = useState<string | null>(null);
+  const [pending, startTransition] = useTransition();
 
   useEffect(() => {
-    const sync = () => setTickets(readSupportTicketsForLicensee(props.licenseeId));
-    sync();
-    window.addEventListener(EVENT_SUPPORT_TICKETS_CHANGED, sync);
-    return () => window.removeEventListener(EVENT_SUPPORT_TICKETS_CHANGED, sync);
+    let cancelled = false;
+
+    async function load() {
+      const probe = await probeSupportTicketsTableAction();
+      if (cancelled) return;
+      setTableReady(probe.tableReady);
+      if (probe.tableReady) {
+        const rows = await refreshSupportTicketsFromServer({ licenseeId: props.licenseeId });
+        if (!cancelled) setTickets(rows);
+        return;
+      }
+      if (!cancelled) setTickets(readSupportTicketsForLicensee(props.licenseeId));
+    }
+
+    void load();
+    const onChanged = () => void load();
+    window.addEventListener(EVENT_SUPPORT_TICKETS_CHANGED, onChanged);
+    return () => {
+      cancelled = true;
+      window.removeEventListener(EVENT_SUPPORT_TICKETS_CHANGED, onChanged);
+    };
   }, [props.licenseeId]);
+
+  function setStatus(id: string, status: SupportTicket["status"]) {
+    setStatusError(null);
+    startTransition(async () => {
+      try {
+        const updated = await updateSupportTicketStatus(id, status);
+        if (updated) {
+          setTickets((prev) => prev.map((t) => (t.id === id ? updated : t)));
+        }
+      } catch (e) {
+        setStatusError(e instanceof Error ? e.message : "Could not update ticket.");
+      }
+    });
+  }
 
   return (
     <section className="space-y-4">
@@ -56,12 +92,18 @@ export function LicensorLicenseeSupportPanel(props: { licenseeId: string }) {
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <ShadowModeBadge label="Shadow — Chatwoot pending" />
+          {!tableReady ? <ShadowModeBadge label="Shadow — migration 038 pending" /> : null}
           <Link href={appHref("/customer-service")} className="text-xs font-medium text-sky-700 hover:underline dark:text-sky-300">
             All licensees queue
           </Link>
         </div>
       </div>
+
+      {statusError ? (
+        <p className="text-sm text-red-700 dark:text-red-300" role="alert">
+          {statusError}
+        </p>
+      ) : null}
 
       {tickets.length === 0 ? (
         <p className="text-sm text-zinc-600 dark:text-zinc-400">No support tickets for this licensee.</p>
@@ -93,7 +135,8 @@ export function LicensorLicenseeSupportPanel(props: { licenseeId: string }) {
                   <button
                     type="button"
                     className={BUTTON.secondaryCompact}
-                    onClick={() => updateSupportTicketStatus(t.id, "in_progress")}
+                    disabled={pending}
+                    onClick={() => setStatus(t.id, "in_progress")}
                   >
                     Start work
                   </button>
@@ -102,7 +145,8 @@ export function LicensorLicenseeSupportPanel(props: { licenseeId: string }) {
                   <button
                     type="button"
                     className={BUTTON.primaryCompact}
-                    onClick={() => updateSupportTicketStatus(t.id, "resolved")}
+                    disabled={pending}
+                    onClick={() => setStatus(t.id, "resolved")}
                   >
                     Resolve
                   </button>
