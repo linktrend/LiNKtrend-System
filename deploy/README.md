@@ -107,6 +107,7 @@ cd /opt/linktrend/linkbot-core && docker compose -f docker-compose.deploy.yml up
 | Service | URL |
 |---------|-----|
 | LiNKaios | `https://linkaios.linktrend.internal/login` |
+| Zulip | `https://zulip.linktrend.internal` |
 | CMS | `https://cms.linktrend.internal` |
 | App1 preview | `https://app1.linktrend.internal` |
 | n8n | `https://n8n.linktrend.internal` |
@@ -158,3 +159,38 @@ curl -k -sS -X POST "https://linkbot.linktrend.internal/v1/linktrend/agent-run" 
 ```
 
 Expect `"ok": true` and a `runId` (model reply depends on provider keys in gateway runtime env).
+
+### Zulip env (Work → Messages + gateway)
+
+LiNKaios **Open in Zulip** deep links read `ZULIP_SITE_URL` at runtime in the `linkaios` container (not a GSM secret — set as plain env in `deploy/prod/.env`).
+
+| Variable | Purpose |
+|----------|---------|
+| `ZULIP_SITE_URL` | Zulip web app base URL, e.g. `https://zulip.linktrend.internal` |
+| `ZULIP_INTERNAL_HOST_IP` | Tailscale IP for `zulip.linktrend.internal` (compose `extra_hosts`) |
+| `ZULIP_TLS_INSECURE` | `1` when using internal CA (gateway curl/API probes) |
+| `ZULIP_BOT_EMAIL_SECRET_NAME` | GSM name → rendered as `ZULIP_BOT_EMAIL` |
+| `ZULIP_BOT_API_KEY_SECRET_NAME` | GSM name → rendered as `ZULIP_BOT_API_KEY` |
+
+**GSM secrets (project `linkbot-901208`):**
+
+- `LINKTREND_AIOS_PROD_ZULIP_BOT_EMAIL` — shared LiNKaios bot email
+- `LINKTREND_AIOS_PROD_ZULIP_BOT_API_KEY` — shared LiNKaios bot API key
+- Per-agent bots (OpenClaw profiles): `LINKTREND_AIOS_PROD_ZULIP_BOT_EMAIL_*` / `LINKTREND_AIOS_PROD_ZULIP_BOT_API_KEY_*` (see root `.env.example`)
+
+**Render + apply on linkdroplet-00:**
+
+```bash
+cd /opt/linktrend/linkaios
+# Ensure deploy/prod/.env includes ZULIP_SITE_URL (see deploy/prod/.env.example and prod.env.runtime.template)
+./ops/render-runtime-env-from-gsm.sh prod --output /opt/linktrend/runtime/linkaios/prod.env.runtime
+docker compose -f docker-compose.deploy.yml up -d --remove-orphans
+```
+
+Verify in container: `docker compose -f docker-compose.deploy.yml exec linkaios printenv ZULIP_SITE_URL`
+
+Smoke (host or container with rendered env):
+
+```bash
+./scripts/zulip-live-proof.sh
+```

@@ -1,3 +1,4 @@
+import { humanizePayloadSummary } from "@/lib/work-alerts";
 import { buildZulipThreadUrl } from "@/lib/zulip-links";
 
 export type ChannelMessage = {
@@ -49,11 +50,27 @@ export type ZulipMessageLinkRow = {
 
 function previewFromPayload(payload: unknown): string {
   if (payload == null) return "Inbound channel message (metadata only).";
-  if (typeof payload === "object" && payload !== null && "preview" in payload && typeof (payload as { preview: unknown }).preview === "string") {
-    return (payload as { preview: string }).preview;
+  if (typeof payload === "object" && payload !== null) {
+    const o = payload as Record<string, unknown>;
+    if (typeof o.preview === "string" && o.preview.trim()) return o.preview.trim();
+    if (typeof o.content === "string" && o.content.trim()) {
+      const content = o.content.trim();
+      return content.length > 140 ? `${content.slice(0, 140)}…` : content;
+    }
+    const msg = o.message;
+    if (msg && typeof msg === "object") {
+      const m = msg as Record<string, unknown>;
+      if (typeof m.content === "string" && m.content.trim()) {
+        const content = m.content.trim();
+        return content.length > 140 ? `${content.slice(0, 140)}…` : content;
+      }
+    }
+    const sender = senderFromPayload(payload);
+    if (sender !== "Unknown sender") return `Message from ${sender}`;
+    const summary = humanizePayloadSummary(payload);
+    if (summary.trim()) return summary;
   }
-  const s = JSON.stringify(payload);
-  return s.length > 140 ? `${s.slice(0, 140)}…` : s;
+  return "Inbound Zulip message";
 }
 
 function bodyFromPayload(payload: unknown): string {
@@ -214,7 +231,7 @@ export function groupZulipIntoThreads(
         id: `zulip-${key}`,
         channel: "Zulip",
         channelTag: "Zulip",
-        subject: `Stream ${stream} · ${topic}`,
+        subject: topic,
         preview: previewFromPayload(row.payload),
         lastActivity: row.created_at,
         detail: "",
@@ -270,6 +287,24 @@ export function groupZulipIntoThreads(
       openHref: zulipOpenHref(zulipSiteUrl, g.streamId, g.topic, chronological[chronological.length - 1]?.zulip_message_id),
     });
   });
+}
+
+/** Operator-facing action-queue title — avoids raw stream ids and JSON blobs. */
+export function formatChannelThreadAttentionTitle(thread: ChannelMessageThread): string {
+  const tag = (thread.channelTag || thread.channel).trim() || "Message";
+  if (tag.toLowerCase() === "zulip") {
+    const topic = thread.topic?.trim() || thread.subject.trim();
+    return topic ? `Zulip · ${topic}` : "Zulip message";
+  }
+  return `${tag}: ${thread.subject}`;
+}
+
+/** Operator-facing action-queue subtitle — never surfaces raw JSON metadata. */
+export function formatChannelThreadAttentionSubtitle(thread: ChannelMessageThread): string | undefined {
+  const preview = thread.preview?.trim();
+  if (!preview) return undefined;
+  if (preview.startsWith("{") || preview.startsWith("[")) return "Open thread for message detail.";
+  return preview.length > 120 ? `${preview.slice(0, 119)}…` : preview;
 }
 
 export function prepareChannelThreads(

@@ -11,7 +11,7 @@ import { WORK_STREAM_STATUS_PILL_LABELS } from "@/lib/status-colors";
 import { buildAttentionFeed } from "@/lib/work-attention-feed";
 import { fetchRecentTraces, traceRowToLegacy } from "@/lib/traces-db";
 import { traceToWorkAlert } from "@/lib/work-alerts";
-import { groupZulipIntoThreads, prepareChannelThreads } from "@/lib/work-messages";
+import { groupZulipIntoThreads, prepareChannelThreads, formatChannelThreadAttentionTitle } from "@/lib/work-messages";
 import { getZulipSiteUrlFromEnv } from "@/lib/zulip-links";
 import { missionIdFromSessionMetadata } from "@/lib/session-display";
 import { mapWorkerSessionsToThreads } from "@/lib/work-sessions";
@@ -135,7 +135,7 @@ export default async function WorkDashboardPage() {
             tone={msgTone}
             surfaceClass={streamToneClass(msgTone)}
             count={messagesMerged.length}
-            preview={messagesMerged[0] ? `${messagesMerged[0].channel}: ${messagesMerged[0].subject}` : "—"}
+            preview={messagesMerged[0] ? formatChannelThreadAttentionTitle(messagesMerged[0]) : "—"}
           />
           <WorkStreamCard
             kind="sessions"

@@ -1,5 +1,9 @@
 import { isActionableWorkAlert, type WorkAlert } from "@/lib/work-alerts";
-import type { ChannelMessageThread } from "@/lib/work-messages";
+import {
+  formatChannelThreadAttentionSubtitle,
+  formatChannelThreadAttentionTitle,
+  type ChannelMessageThread,
+} from "@/lib/work-messages";
 import type { SessionThreadRow } from "@/lib/work-sessions";
 import { isDemoAgentId } from "@/lib/ui-mocks/entities";
 import { isUiMockWorkAlert } from "@/lib/ui-mocks/fixture-provenance";
@@ -67,8 +71,8 @@ export function buildAttentionFeed(input: {
       id: `msg-${m.id}`,
       kind: "message",
       typeLabel: "Message",
-      title: `${m.channel}: ${m.subject}`,
-      subtitle: m.preview?.trim() ? m.preview.trim().slice(0, 120) : undefined,
+      title: formatChannelThreadAttentionTitle(m),
+      subtitle: formatChannelThreadAttentionSubtitle(m),
       href: m.openHref?.trim() ? m.openHref : "/work/messages",
       isFixture: m.id.startsWith("demo-channel"),
       _sort: [3, -new Date(m.lastActivity).getTime()],
