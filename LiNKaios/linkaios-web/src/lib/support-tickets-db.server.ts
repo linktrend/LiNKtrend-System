@@ -15,6 +15,7 @@ import {
   type SupportTicketCreateInput,
   type SupportTicketsLoadResult,
 } from "@/lib/support-tickets-data";
+import { getSupabaseAdmin } from "@/lib/supabase-admin";
 
 type SupportTicketRow = {
   id: string;
@@ -97,7 +98,7 @@ export async function loadSupportTicketsFromDb(
   );
   const chatwootState = await resolveChatwootSupportSyncState(env);
   if (chatwootState.ready) {
-    const syncResult = await syncChatwootConversationsToDb(supabase, env);
+    const syncResult = await syncChatwootConversationsToDb(getSupabaseAdmin(), env);
     if (syncResult.error) {
       return {
         tickets: (data ?? []).map((row) => mapSupportTicketRow(row as SupportTicketRow)),
