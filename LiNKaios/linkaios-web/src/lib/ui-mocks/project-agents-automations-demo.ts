@@ -1,10 +1,11 @@
 import { demoFleetProfile } from "@/lib/demo-fleet-profiles";
+import type { LinkbotFleetStatusLabel } from "@/lib/linkbot-fleet-status";
 import { DEMO_SIDEBAR_AGENTS } from "@/lib/ui-mocks/entities";
 
 export type ProjectAutomationRow = {
   id: string;
   title: string;
-  lastRunIso: string;
+  lastRunIso: string | null;
 };
 
 const minutesAgo = (m: number) => new Date(Date.now() - m * 60 * 1000).toISOString();
@@ -40,7 +41,7 @@ export type ProjectLinkbotRow = {
   id: string;
   display_name: string;
   role: string;
-  statusLabel: "Inactive" | "Busy" | "Idle" | "Online";
+  statusLabel: LinkbotFleetStatusLabel;
   lastHeartbeatIso: string | null;
 };
 

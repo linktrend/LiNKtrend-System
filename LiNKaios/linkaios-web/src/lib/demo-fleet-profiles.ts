@@ -1,3 +1,5 @@
+import type { LinkbotFleetStatusLabel } from "@/lib/linkbot-fleet-status";
+
 /** Demo LiNKbot fleet profiles for UI review (`LINKAIOS_UI_MOCKS=1`). */
 
 export type DemoFleetProfile = {
@@ -6,7 +8,7 @@ export type DemoFleetProfile = {
   description: string;
   projectTitles: string[];
   /** Single fleet status badge: Inactive | Busy | Idle | Online */
-  statusLabel: "Inactive" | "Busy" | "Idle" | "Online";
+  statusLabel: LinkbotFleetStatusLabel;
   lastHeartbeatIso: string;
   currentActivity: string;
   primaryModel: string;

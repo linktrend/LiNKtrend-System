@@ -2,7 +2,7 @@ import type { AgentRecord } from "@linktrend/shared-types";
 
 import type { AgentOperationalUx } from "@/lib/agent-operational-ux";
 
-export type LinkbotFleetStatusLabel = "Inactive" | "Busy" | "Idle" | "Online";
+export type LinkbotFleetStatusLabel = "Inactive" | "Busy" | "Idle" | "Online" | "Template";
 
 export function linkbotFleetStatusLabel(
   registryStatus: AgentRecord["status"],
@@ -24,6 +24,12 @@ export function linkbotFleetStatusTone(label: LinkbotFleetStatusLabel): string {
       return "bg-violet-50 text-violet-800 ring-violet-300 dark:bg-violet-950/40 dark:text-violet-100 dark:ring-violet-800";
     case "Inactive":
       return "bg-zinc-100 text-zinc-700 ring-zinc-300 dark:bg-zinc-800 dark:text-zinc-200 dark:ring-zinc-600";
+    case "Template":
+      return "bg-amber-50 text-amber-900 ring-amber-300 dark:bg-amber-950/40 dark:text-amber-100 dark:ring-amber-800";
+    default: {
+      const _exhaustive: never = label;
+      return _exhaustive;
+    }
   }
 }
 
