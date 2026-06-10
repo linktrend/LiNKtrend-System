@@ -32,6 +32,31 @@ describe("data environment", () => {
     ).toEqual({ showBadge: true, mode: "live" });
   });
 
+  it("hides badge on admin when mocks are off even with dev stub", () => {
+    expect(
+      resolveDataEnvironment(
+        {
+          NODE_ENV: "development",
+          LINKAIOS_UI_MOCKS: "",
+          LINKAIOS_SUPABASE_HEALTH_DEV_STUB: "1",
+        },
+        { surface: "admin" },
+      ),
+    ).toEqual({ showBadge: false, mode: "live" });
+  });
+
+  it("shows mock badge on admin only when LINKAIOS_UI_MOCKS=1", () => {
+    expect(
+      resolveDataEnvironment(
+        {
+          NODE_ENV: "production",
+          LINKAIOS_UI_MOCKS: "1",
+        },
+        { surface: "admin" },
+      ),
+    ).toEqual({ showBadge: true, mode: "mock" });
+  });
+
   it("detects dev stub only outside production", () => {
     expect(
       isDevStubModeActive({

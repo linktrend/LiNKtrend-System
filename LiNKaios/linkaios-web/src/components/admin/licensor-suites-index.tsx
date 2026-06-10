@@ -34,6 +34,7 @@ export function LicensorSuitesIndex() {
       <ShellPageHeaderClient
         title="Suites"
         subtitle="Compose suite products from modules, phases, and issues — then publish to the licensee marketplace."
+        hideLicensorScope
         actions={
           <Link href={appHref("/suites/new")} className={BUTTON.addRow}>
             <Plus className="h-4 w-4" aria-hidden />

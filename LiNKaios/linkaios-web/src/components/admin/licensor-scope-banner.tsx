@@ -24,8 +24,12 @@ export function LicensorScopeLine() {
   const { role } = useAppRole();
 
   if (!isAdmin) return null;
-  if (settingsSectionActive(routePath(pathname))) return null;
-  if (routePath(pathname).startsWith("/admin/projects")) return null;
+  const route = routePath(pathname);
+  if (settingsSectionActive(route)) return null;
+  if (route.startsWith("/admin/projects")) return null;
+  // Vendor suite composition — scope control lives in the sidebar; avoid a second header row.
+  if (route === "/suites" || route.startsWith("/suites/")) return null;
+  if (route === "/linksuitegen" || route.startsWith("/linksuitegen/")) return null;
 
   const readOnly = licensorScopeIsReadOnly(scope, role);
 
@@ -35,7 +39,7 @@ export function LicensorScopeLine() {
         <span className={SHELL.licensorScopePrefix}>View:</span>
         <span className={SHELL.licensorScopeName}>All licensees</span>
         {readOnly ? (
-          <StatusPill label="Read-only" tone="warning" equalWidth />
+          <StatusPill label="Read-only" tone="neutral" equalWidth />
         ) : null}
       </div>
     );
@@ -53,7 +57,7 @@ export function LicensorScopeLine() {
         tone={licenseeStatusTone(licensee.status)}
         equalWidth
       />
-      {readOnly ? <StatusPill label="Read-only" tone="warning" equalWidth /> : null}
+      {readOnly ? <StatusPill label="Read-only" tone="neutral" equalWidth /> : null}
     </div>
   );
 }

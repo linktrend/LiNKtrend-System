@@ -177,7 +177,11 @@ export function LicensorSuiteBuilderPanel(props: { suiteId: string }) {
   if (!suite) {
     return (
       <main className="space-y-4">
-        <ShellPageHeaderClient title="Suite not found" subtitle="Return to the suite catalogue and open an existing row." />
+        <ShellPageHeaderClient
+          title="Suite not found"
+          subtitle="Return to the suite catalogue and open an existing row."
+          hideLicensorScope
+        />
         <Link href={appHref("/suites")} className={BUTTON.secondaryCardAction}>
           Back to suites
         </Link>
@@ -209,8 +213,9 @@ export function LicensorSuiteBuilderPanel(props: { suiteId: string }) {
   return (
     <main className="space-y-6">
       <ShellPageHeaderClient
-        title={suite.name}
-        subtitle={suite.summary}
+        title="Suite builder"
+        subtitle={suite.summary ? `${suite.name} — ${suite.summary}` : suite.name}
+        hideLicensorScope
         actions={
           <div className="flex flex-wrap items-center justify-end gap-2">
             {suite.publishState === "draft" ? (

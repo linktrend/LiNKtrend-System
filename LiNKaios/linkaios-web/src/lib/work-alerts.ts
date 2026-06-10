@@ -43,7 +43,8 @@ function payloadRecord(payload: unknown): Record<string, unknown> | null {
   return payload as Record<string, unknown>;
 }
 
-function humanizePayloadSummary(payload: unknown): string {
+/** Plain-language one-liner for trace/message payloads in operator queues. */
+export function humanizePayloadSummary(payload: unknown): string {
   const o = payloadRecord(payload);
   if (!o) {
     const s = String(payload ?? "").trim();

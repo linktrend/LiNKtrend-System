@@ -7,7 +7,7 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 export default async function AdminAppLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createSupabaseServerClient();
   const uiMocksEnabled = false;
-  const dataEnvironment = resolveDataEnvironment();
+  const dataEnvironment = resolveDataEnvironment(process.env, { surface: "admin" });
   const {
     data: { user },
   } = await supabase.auth.getUser();
