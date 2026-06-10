@@ -1,5 +1,6 @@
 import type { Env } from "@linktrend/shared-config";
 
+import { adminProcessById, adminProcessesForSuite } from "@/lib/admin-suite-templates";
 import { processesForModule } from "@/lib/ui-mocks/modules-catalog-demo";
 import type { ModulePhaseTemplate, SuiteModuleTemplate } from "@/lib/ui-mocks/modules-catalog-demo";
 
@@ -63,8 +64,26 @@ function cycleWindow(): { start_date: string; end_date: string; name: string } {
 }
 
 function modulesForBootstrap(suiteId: string, moduleIds: string[]): SuiteModuleTemplate[] {
-  const catalogue = processesForModule(suiteId).filter((p) => p.published && moduleIds.includes(p.id));
-  return catalogue.length > 0 ? catalogue : processesForModule(suiteId).filter((p) => p.published).slice(0, 1);
+  const fromClientCatalogue = processesForModule(suiteId).filter(
+    (process) => process.published && moduleIds.includes(process.id),
+  );
+  if (fromClientCatalogue.length > 0) {
+    return fromClientCatalogue;
+  }
+
+  const fromAdminById = moduleIds
+    .map((id) => adminProcessById(id))
+    .filter((process): process is SuiteModuleTemplate => Boolean(process));
+  if (fromAdminById.length > 0) {
+    return fromAdminById;
+  }
+
+  const adminSuiteFallback = adminProcessesForSuite(suiteId).filter((process) => process.published);
+  if (adminSuiteFallback.length > 0) {
+    return adminSuiteFallback.slice(0, 1);
+  }
+
+  return processesForModule(suiteId).filter((process) => process.published).slice(0, 1);
 }
 
 async function createPlaneProject(
@@ -72,7 +91,7 @@ async function createPlaneProject(
   input: PlaneBootstrapInput,
 ): Promise<PlaneProjectResponse> {
   const identifier = slugifyIdentifier(input.project_title, input.linkaios_project_id);
-  return planeApiRequest<PlaneProjectResponse>(
+  const project = await planeApiRequest<PlaneProjectResponse>(
     config,
     "POST",
     planeV1WorkspacePath(config, "/projects/"),
@@ -82,6 +101,18 @@ async function createPlaneProject(
       description: `LiNKaios project ${input.linkaios_project_id}`,
     },
   );
+
+  await planeApiRequest<PlaneProjectResponse>(
+    config,
+    "PATCH",
+    planeV1WorkspacePath(config, `/projects/${project.id}/`),
+    {
+      module_view: true,
+      cycle_view: true,
+    },
+  );
+
+  return project;
 }
 
 async function createPlaneModule(
@@ -141,7 +172,10 @@ async function createPlaneCycle(
     config,
     "POST",
     planeV1WorkspacePath(config, `/projects/${planeProjectId}/cycles/`),
-    window,
+    {
+      ...window,
+      project_id: planeProjectId,
+    },
   );
 }
 

@@ -14,6 +14,7 @@ import {
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { BADGE } from "@/lib/ui-standards";
 import { resolveProjectIdFromProps } from "@/lib/api/project-mission-id";
+import { loadPlaneProjectSnapshot } from "@/lib/plane-project-snapshot";
 import { isUiMocksEnabled } from "@/lib/ui-mocks/flags";
 import {
   demoProjectAutomations,
@@ -109,7 +110,11 @@ function ProjectAutomationsList(props: { rows: ProjectAutomationRow[] }) {
   );
 }
 
-async function loadProjectLinkbotsAndAutomations(missionId: string, primaryAgentId: string | null) {
+async function loadProjectLinkbotsAndAutomations(
+  missionId: string,
+  primaryAgentId: string | null,
+  suiteContext?: { suiteId?: string | null; moduleIds?: string[] },
+) {
   if (isUiMocksEnabled()) {
     return {
       linkbots: demoProjectLinkbots(missionId),
@@ -178,6 +183,36 @@ async function loadProjectLinkbotsAndAutomations(missionId: string, primaryAgent
       lastRunIso: w.completed_at ?? w.invoked_at,
     }));
 
+  if (linkbots.length === 0 || automations.length === 0) {
+    const snapshot = await loadPlaneProjectSnapshot({
+      projectId: missionId,
+      suiteId: suiteContext?.suiteId,
+      moduleIds: suiteContext?.moduleIds,
+    });
+
+    if (linkbots.length === 0 && snapshot.linkbotRoles.length > 0) {
+      for (const role of snapshot.linkbotRoles) {
+        linkbots.push({
+          id: role.id,
+          display_name: role.display_name,
+          role: role.role,
+          statusLabel: "Template",
+          lastHeartbeatIso: null,
+        });
+      }
+    }
+
+    if (automations.length === 0 && snapshot.automationTitles.length > 0) {
+      for (const automation of snapshot.automationTitles) {
+        automations.push({
+          id: automation.id,
+          title: automation.title,
+          lastRunIso: null,
+        });
+      }
+    }
+  }
+
   return { linkbots, automations };
 }
 
@@ -187,11 +222,14 @@ export async function ProjectLinkbotsAutomationsPanel(props: {
   /** @deprecated Use projectId */
   missionId?: string;
   primaryAgentId?: string | null;
+  suiteId?: string | null;
+  moduleIds?: string[];
 }) {
   const projectId = resolveProjectIdFromProps(props);
   const { linkbots, automations } = await loadProjectLinkbotsAndAutomations(
     projectId,
     props.primaryAgentId ?? null,
+    { suiteId: props.suiteId, moduleIds: props.moduleIds },
   );
 
   return (

@@ -32,5 +32,9 @@ describe("admin projects data (Wave 5A)", () => {
     expect(rows).toHaveLength(1);
     expect(rows[0]?.templateId).toBe("suite-gen-catalogue");
     expect(rows[0]?.continuous).toBe(true);
+    expect(rows[0]?.name).toBe("Suite catalogue pipeline");
+    expect(rows[0]?.phaseCount).toBeGreaterThan(0);
+    expect(rows[0]?.issueCount).toBeGreaterThan(0);
+    expect(rows[0]?.suiteName).toBe("LiNKsuitegen");
   });
 });

@@ -1,6 +1,7 @@
 import { GovernanceTraceStepsPanel } from "@/components/governance-trace-steps-panel";
 import { ProjectTrackedItemsTable } from "@/components/project-tracked-items-table";
 import { resolveProjectIdFromProps } from "@/lib/api/project-mission-id";
+import { loadPlaneProjectSnapshot } from "@/lib/plane-project-snapshot";
 import { loadProjectPhaseTimeline } from "@/lib/project-run-phases";
 import { isUiMocksEnabled } from "@/lib/ui-mocks/flags";
 import { demoProjectWorkflows } from "@/lib/ui-mocks/project-workflows-issues-demo";
@@ -9,6 +10,8 @@ export async function ProjectWorkflowsPanel(props: {
   projectId?: string;
   /** @deprecated Use projectId */
   missionId?: string;
+  suiteId?: string | null;
+  moduleIds?: string[];
 }) {
   const projectId = resolveProjectIdFromProps(props);
   const uiMocksEnabled = isUiMocksEnabled();
@@ -22,6 +25,30 @@ export async function ProjectWorkflowsPanel(props: {
         items={items}
         emptyMessage="No phases are registered for this project yet."
       />
+    );
+  }
+
+  const snapshot = await loadPlaneProjectSnapshot({
+    projectId,
+    suiteId: props.suiteId,
+    moduleIds: props.moduleIds,
+  });
+
+  if (snapshot.phases.length > 0) {
+    return (
+      <div className="space-y-3">
+        {snapshot.error ? (
+          <p className="text-sm text-amber-800 dark:text-amber-200">
+            Plane phase sync is pending ({snapshot.error}). Showing suite template phases.
+          </p>
+        ) : null}
+        <ProjectTrackedItemsTable
+          kind="workflow"
+          title="Phases"
+          items={snapshot.phases}
+          emptyMessage="No phases are registered for this project yet."
+        />
+      </div>
     );
   }
 

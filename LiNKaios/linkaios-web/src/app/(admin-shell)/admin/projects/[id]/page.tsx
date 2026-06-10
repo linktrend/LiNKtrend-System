@@ -82,16 +82,33 @@ function AdminProjectTabs(props: {
   }
 
   if (tab === "phases") {
-    return <ProjectWorkflowsPanel projectId={project.id} />;
+    return (
+      <ProjectWorkflowsPanel
+        projectId={project.id}
+        suiteId={project.suiteId}
+        moduleIds={project.moduleIds}
+      />
+    );
   }
 
   if (tab === "issues") {
-    return <ProjectIssuesPanel projectId={project.id} />;
+    return (
+      <ProjectIssuesPanel
+        projectId={project.id}
+        suiteId={project.suiteId}
+        moduleIds={project.moduleIds}
+      />
+    );
   }
 
   if (tab === "agents") {
     return (
-      <ProjectLinkbotsAutomationsPanel projectId={project.id} primaryAgentId={project.primaryAgentId} />
+      <ProjectLinkbotsAutomationsPanel
+        projectId={project.id}
+        primaryAgentId={project.primaryAgentId}
+        suiteId={project.suiteId}
+        moduleIds={project.moduleIds}
+      />
     );
   }
 

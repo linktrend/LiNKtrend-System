@@ -1,3 +1,4 @@
+import { adminProcessById } from "@/lib/admin-suite-templates";
 import {
   getRegisteredDemoProjectProcessIds,
 } from "@/lib/projects/demo-project-registry";
@@ -20,13 +21,15 @@ export type ProjectModuleRow = {
 };
 
 function issueCountForProcess(processId: string): number {
-  const process = MODULES_CATALOG_DEMO.processes.find((p) => p.id === processId);
+  const process =
+    MODULES_CATALOG_DEMO.processes.find((p) => p.id === processId) ?? adminProcessById(processId);
   if (!process) return 0;
   return process.workflows.reduce((sum, wf) => sum + wf.issues.length, 0);
 }
 
 function rowFromProcess(processId: string, order: number): ProjectModuleRow | null {
-  const process = MODULES_CATALOG_DEMO.processes.find((p) => p.id === processId);
+  const process =
+    MODULES_CATALOG_DEMO.processes.find((p) => p.id === processId) ?? adminProcessById(processId);
   if (!process) return null;
   const suite = MODULES_CATALOG_DEMO.modules.find((m) => m.id === process.moduleId);
   return {
@@ -73,7 +76,14 @@ export function liveProjectModulesFromIds(
   const continuous = opts.cadence === "continuous";
   const suiteName =
     opts.suiteId != null
-      ? MODULES_CATALOG_DEMO.modules.find((m) => m.id === opts.suiteId)?.name ?? opts.suiteId
+      ? MODULES_CATALOG_DEMO.modules.find((m) => m.id === opts.suiteId)?.name ??
+        (opts.suiteId === "linksuitegen"
+          ? "LiNKsuitegen"
+          : opts.suiteId === "linkbrain"
+            ? "LiNKbrain Librarian"
+            : opts.suiteId === "linktrend-platform"
+              ? "Platform Ops"
+              : opts.suiteId)
       : null;
 
   return moduleIds
