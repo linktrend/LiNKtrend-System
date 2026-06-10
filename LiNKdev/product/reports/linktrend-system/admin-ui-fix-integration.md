@@ -51,7 +51,7 @@ Prior wave acceptance docs (`admin-ui-fix-wave0.md` … `wave6.md`, `waves-3-6-c
 | `0e38684` | `feat(scope): licensor View filter and LinkSkills lease scoping` |
 | `fd38606` | `feat(admin-ui): integrate parallel wave fixes for Admin shell` |
 | `e0cc9b4` | `chore(deploy): document Chatwoot public URL and project brief migration` |
-| *(this commit)* | `docs(admin-ui): wave reports and integration summary` |
+| `309fecd` | `docs(admin-ui): wave acceptance reports and integration summary` |
 
 Run `git log --oneline -5 issue/admin-ui-fix` after final commits for authoritative list.
 
