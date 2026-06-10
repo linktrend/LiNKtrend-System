@@ -39,8 +39,8 @@ type LeadExecutorTemplate = {
 /** First agent executor from the module template — used to resolve lead LiNKbot. */
 export function adminLeadExecutorTemplate(projectType: AdminProjectType): LeadExecutorTemplate {
   const preset = resolveAdminProjectCreatePreset(projectType);
-  const module = adminProcessById(preset.moduleIds[0]);
-  const firstAgent = module?.workflows
+  const suiteModule = adminProcessById(preset.moduleIds[0]);
+  const firstAgent = suiteModule?.workflows
     ?.flatMap((w) => w.issues)
     .flatMap((i) => i.executors)
     .find((e) => e.kind === "agent");

@@ -17,7 +17,7 @@ function toHandoffInput(body: HandoffImportBody): LinksuitegenHandoffInput {
     suite_family: body.suite_family,
     suite_version: body.suite_version,
     bundle_path: body.bundle_path,
-    validation_status: body.validation_status,
+    validation_status: body.validation_status as LinksuitegenHandoffInput["validation_status"],
     display_name: body.display_name,
     admin_install_target: body.admin_install_target,
   };
