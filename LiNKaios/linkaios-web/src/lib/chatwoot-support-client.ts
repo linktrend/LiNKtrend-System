@@ -1,6 +1,8 @@
+import "server-only";
+
 import type { Env } from "@linktrend/shared-config";
-import http from "node:http";
-import https from "node:https";
+import http from "http";
+import https from "https";
 
 import type { SupportTicketPriority, SupportTicketStatus } from "@/lib/support-tickets";
 

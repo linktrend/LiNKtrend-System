@@ -1,10 +1,6 @@
 import { loadEnv } from "@linktrend/shared-config";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-import {
-  resolveChatwootSupportSyncState,
-  syncChatwootConversationsToDb,
-} from "@/lib/chatwoot-support-sync";
 import type {
   SupportTicket,
   SupportTicketPriority,
@@ -146,6 +142,9 @@ export async function loadSupportTicketsFromDb(
   }
 
   const env = loadEnv();
+  const { resolveChatwootSupportSyncState, syncChatwootConversationsToDb } = await import(
+    "@/lib/chatwoot-support-sync"
+  );
   const chatwootState = await resolveChatwootSupportSyncState(env);
   if (chatwootState.ready) {
     const syncResult = await syncChatwootConversationsToDb(supabase, env);
