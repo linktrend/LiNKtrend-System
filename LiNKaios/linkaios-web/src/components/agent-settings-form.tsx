@@ -11,7 +11,7 @@ import { TitledCardHeader } from "@/components/titled-card-header";
 import { serialiseRuntimeSettings, type AgentRuntimeSettings } from "@/lib/agent-runtime-settings";
 import { isDemoAgentId } from "@/lib/ui-mocks/entities";
 import { demoBrainAgentSlugForId, resolveDemoBrainAgentId } from "@/lib/ui-mocks/linkbrain-demo-agents";
-import { BUTTON, CARD, FIELD, formatCardTitle } from "@/lib/ui-standards";
+import { BUTTON, CARD, FIELD, formatCardTitle, WORKER_DETAIL } from "@/lib/ui-standards";
 
 function jsonSig(s: AgentRuntimeSettings): string {
   return JSON.stringify(serialiseRuntimeSettings(s));
@@ -91,20 +91,20 @@ export function AgentSettingsForm(props: {
         showRequirementLabel={false}
         editContent={undefined}
       >
-        <dl className="space-y-3 text-sm">
+        <dl className={WORKER_DETAIL.dl}>
           <div>
-            <dt className="text-xs font-medium text-zinc-500 dark:text-zinc-400">System ID</dt>
-            <dd className="mt-1 font-mono text-zinc-800 dark:text-zinc-200">{props.agentId}</dd>
+            <dt className={WORKER_DETAIL.dlLabel}>System ID</dt>
+            <dd className={`mt-1 ${WORKER_DETAIL.dlValueMono}`}>{props.agentId}</dd>
           </div>
           {props.registryStatus ? (
             <div>
-              <dt className="text-xs font-medium text-zinc-500 dark:text-zinc-400">Registry Status</dt>
-              <dd className="mt-1 capitalize text-zinc-800 dark:text-zinc-200">{props.registryStatus}</dd>
+              <dt className={WORKER_DETAIL.dlLabel}>Registry Status</dt>
+              <dd className={`mt-1 capitalize ${WORKER_DETAIL.dlValue}`}>{props.registryStatus}</dd>
             </div>
           ) : null}
           <div>
-            <dt className="text-xs font-medium text-zinc-500 dark:text-zinc-400">Role Type</dt>
-            <dd className="mt-1 text-zinc-800 dark:text-zinc-200">{profile.title?.trim() || "Unassigned"}</dd>
+            <dt className={WORKER_DETAIL.dlLabel}>Role Type</dt>
+            <dd className={`mt-1 ${WORKER_DETAIL.dlValue}`}>{profile.title?.trim() || "Unassigned"}</dd>
           </div>
         </dl>
       </CompanyEditableCard>
@@ -118,12 +118,12 @@ export function AgentSettingsForm(props: {
           <div className="space-y-3">
             {props.displayName ? (
               <div>
-                <span className="text-sm font-medium text-zinc-800 dark:text-zinc-200">Display Name</span>
-                <p className="mt-1 text-sm text-zinc-700 dark:text-zinc-300">{props.displayName}</p>
+                <span className={WORKER_DETAIL.fieldLabel}>Display Name</span>
+                <p className={`mt-1 ${WORKER_DETAIL.dlValue}`}>{props.displayName}</p>
               </div>
             ) : null}
             <label className="flex flex-col gap-1">
-              <span className="text-sm font-medium text-zinc-800 dark:text-zinc-200">Position / Title</span>
+              <span className={WORKER_DETAIL.fieldLabel}>Position / Title</span>
               <input
                 type="text"
                 disabled={pending}
@@ -134,7 +134,7 @@ export function AgentSettingsForm(props: {
               />
             </label>
             <label className="flex flex-col gap-1">
-              <span className="text-sm font-medium text-zinc-800 dark:text-zinc-200">Description</span>
+              <span className={WORKER_DETAIL.fieldLabel}>Description</span>
               <textarea
                 disabled={pending}
                 value={profile.description}
@@ -153,20 +153,20 @@ export function AgentSettingsForm(props: {
         }
         onSave={persist}
       >
-        <dl className="space-y-3 text-sm">
+        <dl className={WORKER_DETAIL.dl}>
           {props.displayName ? (
             <div>
-              <dt className="text-xs font-medium text-zinc-500 dark:text-zinc-400">Display Name</dt>
-              <dd className="mt-1 font-medium text-zinc-900 dark:text-zinc-100">{props.displayName}</dd>
+              <dt className={WORKER_DETAIL.dlLabel}>Display Name</dt>
+              <dd className={`mt-1 ${WORKER_DETAIL.dlValueEmphasis}`}>{props.displayName}</dd>
             </div>
           ) : null}
           <div>
-            <dt className="text-xs font-medium text-zinc-500 dark:text-zinc-400">Position / Title</dt>
-            <dd className="mt-1 font-medium text-zinc-900 dark:text-zinc-100">{profile.title || "—"}</dd>
+            <dt className={WORKER_DETAIL.dlLabel}>Position / Title</dt>
+            <dd className={`mt-1 ${WORKER_DETAIL.dlValueEmphasis}`}>{profile.title || "—"}</dd>
           </div>
           <div>
-            <dt className="text-xs font-medium text-zinc-500 dark:text-zinc-400">Description</dt>
-            <dd className="mt-1 text-zinc-700 dark:text-zinc-300">{profile.description || "—"}</dd>
+            <dt className={WORKER_DETAIL.dlLabel}>Description</dt>
+            <dd className={`mt-1 ${WORKER_DETAIL.dlValue}`}>{profile.description || "—"}</dd>
           </div>
         </dl>
       </CompanyEditableCard>
@@ -200,8 +200,8 @@ export function AgentSettingsForm(props: {
 
       {props.lifecycleSlot ? (
         <section id="lifecycle" className="scroll-mt-24 space-y-3 border-t border-zinc-200 pt-8 dark:border-zinc-800">
-          <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Lifecycle</h2>
-          <p className="text-sm text-zinc-600 dark:text-zinc-400">Suspend, terminate, or request removal for this LiNKbot.</p>
+          <h2 className={WORKER_DETAIL.tabSectionTitle}>Lifecycle</h2>
+          <p className={WORKER_DETAIL.bodyMuted}>Suspend, terminate, or request removal for this LiNKbot.</p>
           {props.lifecycleSlot}
         </section>
       ) : null}

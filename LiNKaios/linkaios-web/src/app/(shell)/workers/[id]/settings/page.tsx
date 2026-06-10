@@ -3,6 +3,7 @@ import Link from "next/link";
 import { WorkerLifecyclePanel } from "@/components/worker-lifecycle-panel";
 import { WorkerRoleAwareSettingsForm } from "@/components/worker-role-aware-forms";
 import { WorkerTabSectionHeader } from "@/components/worker-tab-section-header";
+import { TYPE, WORKER_DETAIL } from "@/lib/ui-standards";
 import { parseRuntimeSettings } from "@/lib/agent-runtime-settings";
 import { isDemoAgentId } from "@/lib/ui-mocks/entities";
 import { demoAgentRuntimeSettings } from "@/lib/ui-mocks/worker-ui";
@@ -40,13 +41,13 @@ export default async function WorkerSettingsPage(props: { params: Promise<{ id: 
   if (error || !agent) {
     return (
       <section className="space-y-4">
-        <h2 className="text-sm font-semibold text-zinc-500 dark:text-zinc-400">Settings</h2>
-        <p className="max-w-xl text-sm text-zinc-600 dark:text-zinc-400">
+        <h2 className={WORKER_DETAIL.tabSectionTitle}>Settings</h2>
+        <p className={`max-w-xl ${WORKER_DETAIL.bodyMuted}`}>
           Settings could not be loaded for this id. Confirm the LiNKbot exists in{" "}
-          <code className="rounded bg-zinc-100 px-1 text-xs dark:bg-zinc-800">linkaios.agents</code> and that your account
+          <code className={`rounded bg-zinc-100 px-1 ${TYPE.caption} dark:bg-zinc-800`}>linkaios.agents</code> and that your account
           can read it.
         </p>
-        <Link href="/workers" className="text-sm font-medium text-sky-700 underline dark:text-sky-400">
+        <Link href="/workers" className={`${TYPE.bodyMedium} text-sky-700 underline dark:text-sky-400`}>
           Back to LiNKbots
         </Link>
       </section>

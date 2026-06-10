@@ -361,6 +361,32 @@ export const SHELL = {
 } as const;
 
 /**
+ * LiNKbot worker detail surfaces — single type ramp composed from {@link TYPE}.
+ * Use on header, Models/Settings tabs, and lifecycle panels; do not mix ad hoc `text-[11px]` / `font-medium` variants.
+ */
+export const WORKER_DETAIL = {
+  roleLine: `${TYPE.bodyMedium} text-violet-800 dark:text-violet-300`,
+  description: TYPE.bodyMuted,
+  agentId: `${TYPE.caption} font-mono`,
+  snapshotLabel: TYPE.captionSemibold,
+  snapshotTerm: TYPE.caption,
+  snapshotValue: TYPE.body,
+  snapshotValueMono: `${TYPE.caption} font-mono text-zinc-800 dark:text-zinc-200`,
+  tabSectionTitle: TYPE.subsectionTitle,
+  tabSectionSubtitle: `mt-1 max-w-2xl leading-relaxed ${TYPE.bodyMuted}`,
+  cardTitle: `${TYPE.tabLabel} text-zinc-900 dark:text-zinc-100`,
+  dl: "space-y-3 text-sm",
+  dlLabel: `${TYPE.caption} font-medium`,
+  dlValue: TYPE.body,
+  dlValueMono: `${TYPE.body} font-mono`,
+  dlValueEmphasis: `${TYPE.bodyMedium} text-zinc-900 dark:text-zinc-100`,
+  metaNote: TYPE.caption,
+  bodyMuted: TYPE.bodyMuted,
+  fieldLabel: TYPE.bodyMedium,
+  notice: `rounded-xl border border-zinc-200 bg-zinc-50 px-4 py-3 ${TYPE.bodyMuted} dark:border-zinc-800 dark:bg-zinc-900/40`,
+} as const;
+
+/**
  * Titled content cards — icon left of title (Settings hub, profile sections, company cards).
  * Use {@link TitledCardHeader} from `@/components/titled-card-header`.
  */

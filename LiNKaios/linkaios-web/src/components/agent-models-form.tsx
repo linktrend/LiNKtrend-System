@@ -14,7 +14,7 @@ import {
   type ModelCategoryId,
 } from "@/lib/agent-runtime-settings";
 import { InsetSelect } from "@/components/forms";
-import { BUTTON, CARD, FIELD, formatCardTitle } from "@/lib/ui-standards";
+import { BUTTON, CARD, FIELD, formatCardTitle, TYPE, WORKER_DETAIL } from "@/lib/ui-standards";
 
 const PRIMARY_MODEL_ROWS: ModelCategoryId[] = ["heartbeat", "context_lt_100k", "context_gt_100k", "execution"];
 
@@ -103,18 +103,14 @@ function NullableModelSelect(props: {
 }
 
 function CategoryLabel(props: { label: string }) {
-  return (
-    <span className="min-w-0 text-sm font-medium text-zinc-800 dark:text-zinc-200 sm:w-40 sm:shrink-0">
-      {props.label}
-    </span>
-  );
+  return <span className={`min-w-0 sm:w-40 sm:shrink-0 ${WORKER_DETAIL.fieldLabel}`}>{props.label}</span>;
 }
 
 function KindBadge(props: { modelId: string }) {
   const m = APPROVED_MODEL_CATALOG.find((x) => x.id === props.modelId);
   if (!m) {
     return (
-      <span className="shrink-0 rounded-full bg-zinc-200 px-2 py-0.5 text-[10px] font-medium text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">
+      <span className={`shrink-0 rounded-full bg-zinc-200 px-2 py-0.5 ${TYPE.caption} font-medium text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300`}>
         Unknown
       </span>
     );
@@ -123,7 +119,7 @@ function KindBadge(props: { modelId: string }) {
   return (
     <span
       className={
-        "shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium " +
+        `shrink-0 rounded-full px-2 py-0.5 ${TYPE.caption} font-medium ` +
         (cloud
           ? "bg-amber-100 text-amber-900 dark:bg-amber-950/80 dark:text-amber-200"
           : "bg-emerald-100 text-emerald-900 dark:bg-emerald-950/80 dark:text-emerald-200")
@@ -140,7 +136,7 @@ function ModelKindSlot(props: { modelId: string | null }) {
       {props.modelId ? (
         <KindBadge modelId={props.modelId} />
       ) : (
-        <span className="text-[10px] font-medium text-zinc-500">None</span>
+        <span className={`${TYPE.caption} font-medium text-zinc-500`}>None</span>
       )}
     </span>
   );
@@ -195,9 +191,7 @@ export function AgentModelsForm(props: { agentId: string; initial: AgentRuntimeS
 
   return (
     <div className="space-y-6">
-      <p className="text-sm text-zinc-600 dark:text-zinc-400">
-        Model selection for the LiNKbot and token usage limits.
-      </p>
+      <p className={WORKER_DETAIL.bodyMuted}>Model selection for the LiNKbot and token usage limits.</p>
 
       {dirty && !props.readonly ? (
         <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-950 dark:border-amber-900/60 dark:bg-amber-950/30 dark:text-amber-100">
@@ -207,7 +201,7 @@ export function AgentModelsForm(props: { agentId: string; initial: AgentRuntimeS
       ) : null}
 
       {!props.readonly ? (
-        <p className="text-xs text-zinc-500 dark:text-zinc-400">
+        <p className={WORKER_DETAIL.metaNote}>
           Live registry — changes persist to <span className="font-mono">linkaios.agents.runtime_settings</span>.
         </p>
       ) : null}
@@ -261,7 +255,7 @@ export function AgentModelsForm(props: { agentId: string; initial: AgentRuntimeS
         />
         <div className="mt-4 space-y-3">
           <label className="flex max-w-xs flex-col gap-1">
-            <span className="text-sm font-medium text-zinc-800 dark:text-zinc-200">Alert Threshold (Tokens)</span>
+            <span className={WORKER_DETAIL.fieldLabel}>Alert Threshold (Tokens)</span>
             <input
               type="number"
               min={0}
@@ -282,7 +276,7 @@ export function AgentModelsForm(props: { agentId: string; initial: AgentRuntimeS
             />
           </label>
           <label className="flex max-w-xs flex-col gap-1">
-            <span className="text-sm font-medium text-zinc-800 dark:text-zinc-200">Hard Cap (Tokens)</span>
+            <span className={WORKER_DETAIL.fieldLabel}>Hard Cap (Tokens)</span>
             <input
               type="number"
               min={0}
@@ -358,7 +352,7 @@ export function AgentModelsForm(props: { agentId: string; initial: AgentRuntimeS
           </button>
         </div>
       ) : (
-        <p className="text-xs text-zinc-400">
+        <p className={WORKER_DETAIL.metaNote}>
           Demo state for <span className="font-mono">{props.agentId}</span> — not persisted.
         </p>
       )}
