@@ -22,7 +22,7 @@ Status meanings:
 | DigitalOcean | `cap.digitalocean.deployment`, `cap.digitalocean.infrastructure` | Pending | DigitalOcean | Primary deployment/infrastructure target across modules. |
 | EAS | `cap.eas.build` | Declared | Expo Application Services | LiNKapps/mobile app tracks. |
 | Vercel | `cap.vercel.deployment` | Declared | Vercel | Optional web deployment target, secondary to DigitalOcean where applicable. |
-| Chatwoot | `cap.chatwoot.customer_support` | Pending | `/Users/linktrend/Projects/link-chatwoot` | Support, CRM, Linktrend Media, and client-facing modules. |
+| Chatwoot | `cap.chatwoot.customer_support` | Live (MVO) | `/Users/linktrend/Projects/link-chatwoot` | Support, CRM, Linktrend Media, and client-facing modules. |
 | GlitchTip | `cap.glitchtip.error_monitoring` | Pending | `/Users/linktrend/Projects/link-GlitchTip` | All deployed modules/services needing error monitoring. |
 | GrowthBook | `cap.growthbook.feature_flags` | Pending | `/Users/linktrend/Projects/link-growthbook` | LiNKapps and modules needing experiments/feature flags. |
 | Listmonk | `cap.listmonk.email_marketing` | Pending | `/Users/linktrend/Projects/link-listmonk` | Linktrend Media and marketing workflows. |

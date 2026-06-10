@@ -20,6 +20,8 @@ export default async function CustomerServicePage() {
         queueMode={loaded.mode}
         tableReady={loaded.tableReady}
         loadError={loaded.loadError}
+        chatwootSyncReady={loaded.chatwootSyncReady}
+        chatwootSyncError={loaded.chatwootSyncError}
       />
     </main>
   );

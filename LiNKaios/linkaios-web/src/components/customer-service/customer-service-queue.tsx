@@ -44,6 +44,8 @@ export function CustomerServiceQueue(props: {
   queueMode: SupportTicketsQueueMode;
   tableReady: boolean;
   loadError: string | null;
+  chatwootSyncReady: boolean;
+  chatwootSyncError: string | null;
 }) {
   const router = useRouter();
   const { href: appHref } = useAppSurface();
@@ -97,8 +99,12 @@ export function CustomerServiceQueue(props: {
             <h2 className="text-base font-semibold text-zinc-900 dark:text-zinc-100">Unified Ticket Queue</h2>
             {!props.tableReady ? (
               <ShadowModeBadge label="Shadow — migration 038 pending" />
-            ) : (
+            ) : props.chatwootSyncReady ? (
               <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-emerald-900 ring-1 ring-emerald-300 dark:bg-emerald-950/50 dark:text-emerald-100 dark:ring-emerald-800">
+                Live — Chatwoot sync
+              </span>
+            ) : (
+              <span className="rounded-full bg-sky-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-sky-900 ring-1 ring-sky-300 dark:bg-sky-950/50 dark:text-sky-100 dark:ring-sky-800">
                 Live store
               </span>
             )}
@@ -140,6 +146,15 @@ export function CustomerServiceQueue(props: {
           <strong className="font-semibold">Shadow mode:</strong> apply{" "}
           <code className="text-xs">services/migrations/038_support_tickets.sql</code> to persist tickets in AdminDB.
           Until then, only tickets submitted from licensee surfaces appear in this browser session.
+        </p>
+      ) : null}
+
+      {props.tableReady && props.chatwootSyncError ? (
+        <p
+          role="alert"
+          className="rounded-lg border border-amber-200 bg-amber-50/90 px-3 py-2 text-sm text-amber-950 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-100"
+        >
+          Chatwoot sync is configured but unavailable: {props.chatwootSyncError}. Showing AdminDB tickets only.
         </p>
       ) : null}
 

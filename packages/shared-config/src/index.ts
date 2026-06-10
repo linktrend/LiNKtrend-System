@@ -150,6 +150,10 @@ const envSchema = z.object({
   CHATWOOT_API_ACCESS_TOKEN: optionalNonEmpty(),
   /** Chatwoot readiness check timeout in milliseconds (default 5000). */
   CHATWOOT_READINESS_TIMEOUT_MS: optionalNonEmpty(),
+  /** Chatwoot API channel inbox id for support ticket sync. */
+  CHATWOOT_INBOX_ID: optionalNonEmpty(),
+  /** Support ticket sync mode. `live` pulls/pushes via cap.chatwoot.customer_support. */
+  CHATWOOT_SUPPORT_SYNC_MODE: z.enum(["off", "live"]).optional(),
   /** Plane API base URL. */
   PLANE_API_BASE_URL: optionalNonEmpty(),
   /** Plane workspace slug. */

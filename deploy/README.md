@@ -112,6 +112,7 @@ cd /opt/linktrend/linkbot-core && docker compose -f docker-compose.deploy.yml up
 | App1 preview | `https://app1.linktrend.internal` |
 | n8n | `https://n8n.linktrend.internal` |
 | LiNKbot gateway | `https://linkbot.linktrend.internal/healthz` |
+| Chatwoot | `https://chatwoot.linktrend.internal` |
 
 ### Internal TLS (no browser warning)
 

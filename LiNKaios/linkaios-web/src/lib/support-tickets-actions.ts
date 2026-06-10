@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 
 import { assertCommandCentreWriter } from "@/lib/command-centre-writer-gate";
+import { pushSupportTicketToChatwoot } from "@/lib/chatwoot-support-sync";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { SupportTicket, SupportTicketStatus } from "@/lib/support-tickets";
 import {
@@ -50,14 +51,18 @@ export async function createSupportTicketAction(
     return { ok: false, tableReady: false, error: "Not signed in." };
   }
 
-  const result = await insertSupportTicketInDb(supabase, input);
+  const chatwootPush = await pushSupportTicketToChatwoot(input);
+  const result = await insertSupportTicketInDb(supabase, {
+    ...input,
+    externalRef: chatwootPush.externalRef ?? undefined,
+    source: input.source ?? (chatwootPush.externalRef ? "chatwoot_sync" : undefined),
+  });
   if (!result.tableReady) {
     return { ok: false, tableReady: false, error: undefined };
   }
   if (result.error || !result.ticket) {
     return { ok: false, tableReady: true, error: result.error ?? "Could not create ticket." };
   }
-
   revalidatePath("/customer-service");
   revalidatePath("/work/alerts");
   revalidatePath("/settings/support");

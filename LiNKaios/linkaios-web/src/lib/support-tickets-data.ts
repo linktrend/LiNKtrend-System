@@ -1,5 +1,10 @@
+import { loadEnv } from "@linktrend/shared-config";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
+import {
+  resolveChatwootSupportSyncState,
+  syncChatwootConversationsToDb,
+} from "@/lib/chatwoot-support-sync";
 import type {
   SupportTicket,
   SupportTicketPriority,
@@ -14,6 +19,8 @@ export type SupportTicketsLoadResult = {
   mode: SupportTicketsQueueMode;
   tableReady: boolean;
   loadError: string | null;
+  chatwootSyncReady: boolean;
+  chatwootSyncError: string | null;
 };
 
 export type SupportTicketCreateInput = {
@@ -28,6 +35,7 @@ export type SupportTicketCreateInput = {
   priority?: SupportTicketPriority;
   aiAttemptSummary?: string | null;
   tenantId?: string | null;
+  externalRef?: string | null;
 };
 
 type SupportTicketRow = {
@@ -91,10 +99,10 @@ function supportTicketsQuery(supabase: SupabaseClient) {
  * Load support tickets from linkaios.support_tickets when migration 038 is applied.
  * Returns shadow mode with an empty list when the table is not yet available.
  */
-export async function loadSupportTicketsFromDb(
+async function querySupportTickets(
   supabase: SupabaseClient,
   opts?: { licenseeId?: string; openOnly?: boolean },
-): Promise<SupportTicketsLoadResult> {
+) {
   let query = supportTicketsQuery(supabase)
     .select(SUPPORT_TICKET_SELECT)
     .order("created_at", { ascending: false })
@@ -107,17 +115,70 @@ export async function loadSupportTicketsFromDb(
     query = query.neq("status", "resolved");
   }
 
-  const { data, error } = await query;
+  return query;
+}
+
+export async function loadSupportTicketsFromDb(
+  supabase: SupabaseClient,
+  opts?: { licenseeId?: string; openOnly?: boolean },
+): Promise<SupportTicketsLoadResult> {
+  const { data, error } = await querySupportTickets(supabase, opts);
 
   if (error) {
     if (isMissingSupportTicketsTableError(error.message, error.code)) {
-      return { tickets: [], mode: "shadow", tableReady: false, loadError: null };
+      return {
+        tickets: [],
+        mode: "shadow",
+        tableReady: false,
+        loadError: null,
+        chatwootSyncReady: false,
+        chatwootSyncError: null,
+      };
     }
     return {
       tickets: [],
       mode: "shadow",
       tableReady: false,
       loadError: error.message,
+      chatwootSyncReady: false,
+      chatwootSyncError: null,
+    };
+  }
+
+  const env = loadEnv();
+  const chatwootState = await resolveChatwootSupportSyncState(env);
+  if (chatwootState.ready) {
+    const syncResult = await syncChatwootConversationsToDb(supabase, env);
+    if (syncResult.error) {
+      return {
+        tickets: (data ?? []).map((row) => mapSupportTicketRow(row as SupportTicketRow)),
+        mode: "live",
+        tableReady: true,
+        loadError: null,
+        chatwootSyncReady: false,
+        chatwootSyncError: syncResult.error,
+      };
+    }
+
+    const { data: syncedData, error: syncedError } = await querySupportTickets(supabase, opts);
+    if (syncedError) {
+      return {
+        tickets: (data ?? []).map((row) => mapSupportTicketRow(row as SupportTicketRow)),
+        mode: "live",
+        tableReady: true,
+        loadError: null,
+        chatwootSyncReady: true,
+        chatwootSyncError: syncedError.message,
+      };
+    }
+
+    return {
+      tickets: (syncedData ?? []).map((row) => mapSupportTicketRow(row as SupportTicketRow)),
+      mode: "live",
+      tableReady: true,
+      loadError: null,
+      chatwootSyncReady: true,
+      chatwootSyncError: null,
     };
   }
 
@@ -127,6 +188,8 @@ export async function loadSupportTicketsFromDb(
     mode: "live",
     tableReady: true,
     loadError: null,
+    chatwootSyncReady: false,
+    chatwootSyncError: chatwootState.error,
   };
 }
 
@@ -157,6 +220,7 @@ export async function insertSupportTicketInDb(
       priority: input.priority ?? "normal",
       source: input.source ?? "manual",
       requested_by: input.requestedBy?.trim() || "Licensee user",
+      external_ref: input.externalRef ?? null,
       ai_attempt_summary: input.aiAttemptSummary ?? null,
       created_at: now,
       updated_at: now,

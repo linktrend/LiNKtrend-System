@@ -22,7 +22,7 @@ export const SUPPORT_CAPABILITY_SCOPE = "cap.chatwoot.customer_support";
 
 export type SupportTicketStatus = "open" | "in_progress" | "resolved";
 export type SupportTicketPriority = "low" | "normal" | "high";
-export type SupportTicketSource = "page_help" | "settings" | "manual";
+export type SupportTicketSource = "page_help" | "settings" | "manual" | "chatwoot_sync";
 
 export type SupportTicket = {
   id: string;

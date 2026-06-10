@@ -1,0 +1,80 @@
+# Capability Connector: cap.chatwoot.customer_support
+# Governed support ticket sync for LiNKaios Admin Customer Service queue.
+
+plugin_id: cap.chatwoot.customer_support
+plugin_kind: capability
+plugin_name: Chatwoot Customer Support
+version: "1.0.0-mvo"
+purpose: Governed support ticket queue sync between LiNKaios and Chatwoot
+
+modes_supported:
+  - shadow
+  - live
+
+operations:
+  - operation_id: support.ticket.sync_pull
+    description: Pull Chatwoot conversations into linkaios.support_tickets
+    default_mode: live
+    lease_skus:
+      - chatwoot.support.ticket.sync
+    idempotency_key_pattern: "${tenant_id}:support.sync_pull:${sync_window_floor_ts}"
+    allowed_callers:
+      - linkaios
+    failure_mapping:
+      auth: INTEGRATION_AUTH_FAILED
+      unavailable: INTEGRATION_UNAVAILABLE
+
+  - operation_id: support.ticket.push
+    description: Create Chatwoot conversation when licensee opens a support ticket
+    default_mode: live
+    lease_skus:
+      - chatwoot.support.ticket.create
+    idempotency_key_pattern: "${tenant_id}:${ticket_id}:support.ticket.push"
+    allowed_callers:
+      - linkaios
+    failure_mapping:
+      auth: INTEGRATION_AUTH_FAILED
+      unavailable: INTEGRATION_UNAVAILABLE
+
+  - operation_id: connectivity.probe
+    description: Chatwoot account readiness check
+    default_mode: shadow
+    lease_skus:
+      - chatwoot.connectivity.probe
+    idempotency_key_pattern: "${tenant_id}:${probe_window_floor_ts}"
+    allowed_callers:
+      - linkaios
+    failure_mapping:
+      connectivity: INTEGRATION_UNAVAILABLE
+      auth: INTEGRATION_AUTH_FAILED
+
+auth_config_surface:
+  - chatwoot.base_url
+  - chatwoot.account_id
+  - chatwoot.api_access_token_ref
+  - chatwoot.inbox_id
+  - chatwoot.support_sync_mode
+
+studio_secret_source:
+  provider: google_secret_manager
+  version: latest
+  refs:
+    chatwoot.api_access_token_ref: LINKTREND_AIOS_PROD_CHATWOOT_API_ACCESS_TOKEN
+
+mvo_runtime_modes:
+  - shadow
+  - live
+
+audit_events:
+  - capability.requested
+  - capability.executed
+  - support.ticket.synced
+  - capability.failed
+
+non_ownership:
+  - Chatwoot inbox routing rules
+  - Chatwoot agent assignment policy
+  - Licensee CRM taxonomy
+
+required_by_modules:
+  - linkaios-admin-customer-service
