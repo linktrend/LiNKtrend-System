@@ -50,7 +50,7 @@ Prior wave acceptance docs (`admin-ui-fix-wave0.md` … `wave6.md`, `waves-3-6-c
 
 | SHA | Message |
 |-----|---------|
-| `7778a49` | `docs(admin-ui): finalize gap-closure verification summary` |
+| `0a9859c` | `docs(admin-ui): finalize gap-closure verification summary` |
 | `b6b14e3` | `docs(admin-ui): sync integration summary HEAD SHA` |
 | `af7ac84` | `docs(admin-ui): record gap-closure verification at HEAD 666cd62` |
 | `666cd62` | `docs(admin-ui): update integration summary after infra gap closure` |
@@ -63,7 +63,7 @@ Prior wave acceptance docs (`admin-ui-fix-wave0.md` … `wave6.md`, `waves-3-6-c
 | `0e38684` | `feat(scope): licensor View filter and LinkSkills lease scoping` |
 | `44da8b7` | `fix(shell): remove admin/client switcher from toolbar` |
 
-Authoritative: `git rev-parse issue/admin-ui-fix` (verification docs: `af7ac84`…`b6b14e3` atop gap-closure `666cd62`).
+Authoritative: `git rev-parse issue/admin-ui-fix` (verification docs: `af7ac84`…`0a9859c` atop gap-closure `666cd62`).
 
 
 ---
