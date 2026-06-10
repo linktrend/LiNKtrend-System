@@ -8,12 +8,13 @@ import type { SkillCatalogRow } from "@/components/skills-catalog-table";
 import type { ToolCatalogRow } from "@/components/tools-catalog-table";
 import { loadLeaseStatus } from "@/lib/cockpit";
 import { computeCapabilitiesSliceStats, computeLeasesHubStats, type CapabilitiesSliceStatRow } from "@/lib/capabilities-slice-stats";
-import { resolveLeasePanelTenantId } from "@/lib/admin-linkskills-tenant";
+import { resolveLeasePanelTenantId, resolveLicensorTenantId } from "@/lib/admin-linkskills-tenant";
 import { readAppSurfaceFromHeaders } from "@/lib/app-surface";
+import { filterLeasesForViewScope, parseLicensorScopeParam } from "@/lib/licensor-view-scope";
 import { readSkillAdminFlags } from "@/lib/skills-admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { connectorHubStats, DEMO_CONNECTOR_CATALOG_ROWS } from "@/lib/ui-mocks/capability-connectors-demo";
-import { isUiMocksEnabled } from "@/lib/ui-mocks/flags";
+import { isUiMocksEnabledForSurface } from "@/lib/ui-mocks/flags";
 import { DEMO_LEASE_ROWS } from "@/lib/ui-mocks/leases-demo";
 import { mergeSkillCatalogWithDemo, mergeToolCatalogWithDemo } from "@/lib/ui-mocks/skills-tools-catalog-demo";
 import { readToolAdminFlags } from "@/lib/tools-admin";
@@ -50,9 +51,14 @@ function toolToRow(t: ToolRecord): ToolCatalogRow {
   };
 }
 
-export default async function SkillsCapabilitiesHubPage() {
+export default async function SkillsCapabilitiesHubPage(props: {
+  searchParams: Promise<{ scope?: string | string[] }>;
+}) {
+  const searchParams = await props.searchParams;
+  const viewScope = parseLicensorScopeParam(searchParams.scope);
   const supabase = await createSupabaseServerClient();
-  const uiMocksEnabled = isUiMocksEnabled();
+  const surface = await readAppSurfaceFromHeaders();
+  const uiMocksEnabled = isUiMocksEnabledForSurface(surface);
 
   const [skillsRes, toolsRes] = await Promise.all([
     listSkills(supabase, { limit: 400 }),
@@ -107,14 +113,17 @@ export default async function SkillsCapabilitiesHubPage() {
     new Set(["archived"]),
     "Archived",
   );
-  const connectorsStats = connectorHubStats(DEMO_CONNECTOR_CATALOG_ROWS);
+  const connectorsStats = connectorHubStats(uiMocksEnabled ? DEMO_CONNECTOR_CATALOG_ROWS : []);
 
-  const surface = await readAppSurfaceFromHeaders();
   const tenantId = await resolveLeasePanelTenantId(surface);
   let leaseRows =
     tenantId != null ? await loadLeaseStatus(supabase, tenantId, { time_range: "24h" }) : [];
   if (uiMocksEnabled && leaseRows.length === 0) {
     leaseRows = DEMO_LEASE_ROWS;
+  }
+  if (surface === "admin") {
+    const licensorTenantId = await resolveLicensorTenantId();
+    leaseRows = filterLeasesForViewScope(viewScope, leaseRows, licensorTenantId);
   }
   const leasesStats = computeLeasesHubStats(leaseRows);
 

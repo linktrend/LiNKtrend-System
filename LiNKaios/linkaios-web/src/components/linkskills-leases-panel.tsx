@@ -11,11 +11,14 @@ import {
 import { DomainStatusPill, StatusPill } from "@/components/ui/status-pill";
 import { readAppSurfaceFromHeaders } from "@/lib/app-surface";
 import { loadLeaseStatus } from "@/lib/cockpit";
-import { resolveLeasePanelTenantId } from "@/lib/admin-linkskills-tenant";
+import { resolveLeasePanelTenantId, resolveLicensorTenantId } from "@/lib/admin-linkskills-tenant";
+import { ADMIN_LINKSKILLS_LEASE_SEED } from "@/lib/admin-linkskills-seed";
 import { resolveProjectIdFromProps } from "@/lib/api/project-mission-id";
+import type { LicensorScope } from "@/lib/app-roles";
+import { filterLeasesForViewScope, PLATFORM_ALL_SCOPE } from "@/lib/licensor-view-scope";
 import { loadEnv } from "@linktrend/shared-config";
 import { createSupabaseServiceClient } from "@linktrend/db";
-import { isUiMocksEnabled } from "@/lib/ui-mocks/flags";
+import { isUiMocksEnabledForSurface } from "@/lib/ui-mocks/flags";
 import { DEMO_LEASE_ROWS } from "@/lib/ui-mocks/leases-demo";
 
 function leaseStatusForPill(raw: string): string {
@@ -29,6 +32,8 @@ export async function LinkskillsLeasesPanel(props?: {
   projectId?: string | null;
   /** @deprecated Use projectId */
   missionId?: string | null;
+  /** Sidebar View scope — filters lease rows on Admin surface. */
+  viewScope?: LicensorScope;
 }) {
   const projectId = resolveProjectIdFromProps({
     projectId: props?.projectId,
@@ -38,13 +43,15 @@ export async function LinkskillsLeasesPanel(props?: {
   const supabase = createSupabaseServiceClient(env);
   const surface = await readAppSurfaceFromHeaders();
   const tenantId = await resolveLeasePanelTenantId(surface);
-  const mocksOn = isUiMocksEnabled();
+  const mocksOn = isUiMocksEnabledForSurface(surface);
 
   let leases =
-    tenantId != null ? await loadLeaseStatus(supabase, tenantId, { time_range: "24h" }) : [];
+    tenantId != null ? await loadLeaseStatus(supabase, tenantId, { time_range: projectId ? "30d" : "24h" }) : [];
 
   if (mocksOn && leases.length === 0) {
     leases = projectId ? DEMO_LEASE_ROWS.filter((l) => l.mission_id === projectId) : DEMO_LEASE_ROWS;
+  } else if (!mocksOn && surface === "admin" && leases.length === 0 && !projectId) {
+    leases = ADMIN_LINKSKILLS_LEASE_SEED;
   } else if (projectId) {
     const { fetchMetricsSnapshot } = await import("@/app/(shell)/metrics/actions");
     const metrics = await fetchMetricsSnapshot({ days: 30, missionId: projectId, agentId: null });
@@ -56,10 +63,16 @@ export async function LinkskillsLeasesPanel(props?: {
     leases = leases.filter((l) => l.run_id != null && runIds.has(l.run_id));
   }
 
+  const viewScope = props?.viewScope ?? PLATFORM_ALL_SCOPE;
+  if (surface === "admin" && !projectId) {
+    const licensorTenantId = await resolveLicensorTenantId();
+    leases = filterLeasesForViewScope(viewScope, leases, licensorTenantId);
+  }
+
   const scoped = projectId != null;
   const sectionTitle = scoped ? "Leases for this project" : "Leases from the last 24 hours";
   const sectionBlurb = scoped
-    ? "Capability grants and denials recorded for runs tied to this project in the rolling window."
+    ? "Capability grants and denials for this project in the last 30 days (matched via governance run traces)."
     : "Rows ordered by decision time — granted, executed, denied, and pending approvals recorded for this tenant in the rolling window.";
 
   const grantedCount = leases.filter((l) => l.status === "granted" || l.status === "executed").length;
