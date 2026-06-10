@@ -1,4 +1,8 @@
+import "server-only";
+
 import type { Env } from "@linktrend/shared-config";
+import http from "http";
+import https from "https";
 
 import type { SupportTicketPriority, SupportTicketStatus } from "@/lib/support-tickets";
 
@@ -62,11 +66,19 @@ export function mapChatwootPriority(_status: string): SupportTicketPriority {
   return "normal";
 }
 
+type ChatwootHttpResponse = {
+  ok: boolean;
+  status: number;
+  json: () => Promise<unknown>;
+  text: () => Promise<string>;
+};
+
 export async function probeChatwootSupportReadiness(
   config: ChatwootSupportConfig,
+  env?: Env,
 ): Promise<{ ok: true } | { ok: false; error: string }> {
   try {
-    const response = await chatwootRequest(config, "GET", `/api/v1/accounts/${config.accountId}`);
+    const response = await chatwootRequest(config, "GET", `/api/v1/accounts/${config.accountId}`, undefined, env);
     if (!response.ok) {
       return { ok: false, error: `Chatwoot readiness failed (${response.status})` };
     }
@@ -81,6 +93,7 @@ export async function probeChatwootSupportReadiness(
 
 export async function listChatwootConversations(
   config: ChatwootSupportConfig,
+  env?: Env,
 ): Promise<ChatwootConversationRow[]> {
   const params = new URLSearchParams({
     inbox_id: config.inboxId,
@@ -91,6 +104,8 @@ export async function listChatwootConversations(
     config,
     "GET",
     `/api/v1/accounts/${config.accountId}/conversations?${params.toString()}`,
+    undefined,
+    env,
   );
   if (!response.ok) {
     throw new Error(`Chatwoot conversation list failed (${response.status})`);
@@ -116,6 +131,7 @@ export async function createChatwootConversation(
     pagePath: string;
     priority?: SupportTicketPriority;
   },
+  env?: Env,
 ): Promise<{ conversationId: string }> {
   const contactEmail = `support+${input.licenseeId}@linktrend.internal`;
   const contactResponse = await chatwootRequest(
@@ -127,6 +143,7 @@ export async function createChatwootConversation(
       name: input.requestedBy,
       email: contactEmail,
     },
+    env,
   );
 
   let contactId: number | undefined;
@@ -160,6 +177,7 @@ export async function createChatwootConversation(
     "POST",
     `/api/v1/accounts/${config.accountId}/conversations`,
     body,
+    env,
   );
   if (!response.ok) {
     const detail = await response.text();
@@ -174,26 +192,57 @@ export async function createChatwootConversation(
   return { conversationId: String(created.id) };
 }
 
+function chatwootTlsInsecure(env: Env): boolean {
+  const raw = env.CHATWOOT_TLS_INSECURE;
+  if (!raw) return false;
+  const normalized = raw.trim().toLowerCase();
+  return normalized === "1" || normalized === "true" || normalized === "yes";
+}
+
 async function chatwootRequest(
   config: ChatwootSupportConfig,
   method: "GET" | "POST" | "PATCH",
   path: string,
   body?: Record<string, unknown>,
-): Promise<Response> {
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), CHATWOOT_REQUEST_TIMEOUT_MS);
+  env?: Env,
+): Promise<ChatwootHttpResponse> {
+  const target = new URL(path, `${config.baseUrl}/`);
+  const payload = body ? JSON.stringify(body) : undefined;
+  const headers = {
+    api_access_token: config.apiToken,
+    "content-type": "application/json",
+    ...(payload ? { "content-length": String(Buffer.byteLength(payload)) } : {}),
+  };
+  const lib = target.protocol === "https:" ? https : http;
+  const requestOptions: https.RequestOptions = {
+    method,
+    hostname: target.hostname,
+    port: target.port || (target.protocol === "https:" ? 443 : 80),
+    path: `${target.pathname}${target.search}`,
+    headers,
+    rejectUnauthorized: !(env && chatwootTlsInsecure(env)),
+  };
 
-  try {
-    return await fetch(`${config.baseUrl}${path}`, {
-      method,
-      headers: {
-        api_access_token: config.apiToken,
-        "content-type": "application/json",
-      },
-      body: body ? JSON.stringify(body) : undefined,
-      signal: controller.signal,
+  return new Promise((resolve, reject) => {
+    const req = lib.request(requestOptions, (res) => {
+      const chunks: Buffer[] = [];
+      res.on("data", (chunk) => chunks.push(Buffer.from(chunk)));
+      res.on("end", () => {
+        const text = Buffer.concat(chunks).toString("utf8");
+        const status = res.statusCode ?? 500;
+        resolve({
+          ok: status >= 200 && status < 300,
+          status,
+          json: async () => (text ? JSON.parse(text) : {}),
+          text: async () => text,
+        });
+      });
     });
-  } finally {
-    clearTimeout(timeout);
-  }
+    req.setTimeout(CHATWOOT_REQUEST_TIMEOUT_MS, () => {
+      req.destroy(new Error("Chatwoot request timed out"));
+    });
+    req.on("error", reject);
+    if (payload) req.write(payload);
+    req.end();
+  });
 }

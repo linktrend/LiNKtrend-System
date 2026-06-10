@@ -154,12 +154,16 @@ const envSchema = z.object({
   CHATWOOT_INBOX_ID: optionalNonEmpty(),
   /** Support ticket sync mode. `live` pulls/pushes via cap.chatwoot.customer_support. */
   CHATWOOT_SUPPORT_SYNC_MODE: z.enum(["off", "live"]).optional(),
+  /** Skip TLS verification for internal Chatwoot host (linkdroplet Traefik CA). */
+  CHATWOOT_TLS_INSECURE: optionalNonEmpty(),
   /** Plane API base URL. */
   PLANE_API_BASE_URL: optionalNonEmpty(),
   /** Plane workspace slug. */
   PLANE_WORKSPACE_SLUG: optionalNonEmpty(),
   /** Plane API key. */
   PLANE_API_KEY: optionalNonEmpty(),
+  /** Set to `1` for studio Traefik self-signed cert on internal Plane (VPS only). */
+  PLANE_TLS_INSECURE: z.string().optional(),
   /** Plane integration mode. Default stub prevents remote writes. */
   LINKSKILLS_PLANE_MODE: z.enum(["stub", "shadow_readiness", "live"]).optional(),
   /** DigitalOcean API token. */

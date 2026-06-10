@@ -22,7 +22,7 @@ export const COMPANY_PAGE_HEADER = {
 } as const;
 
 /** User-facing label for the licensor tenant registry (route stays `/licensees`). */
-export const LICENSEES_LABEL = "Clients / Licensees";
+export const LICENSEES_LABEL = "Licensees";
 
 /** @deprecated Use {@link LICENSEES_LABEL}. */
 export const CLIENTS_LICENSEES_LABEL = LICENSEES_LABEL;

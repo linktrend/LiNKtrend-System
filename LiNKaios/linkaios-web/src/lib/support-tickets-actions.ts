@@ -11,8 +11,8 @@ import {
   loadSupportTicketsFromDb,
   probeSupportTicketsTable,
   updateSupportTicketStatusInDb,
-  type SupportTicketCreateInput,
-} from "@/lib/support-tickets-data";
+} from "@/lib/support-tickets-db.server";
+import type { SupportTicketCreateInput } from "@/lib/support-tickets-data";
 
 export type SupportTicketActionResult = {
   ok: boolean;

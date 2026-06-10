@@ -1,3 +1,5 @@
+import "server-only";
+
 import { loadEnv, type Env } from "@linktrend/shared-config";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
@@ -62,7 +64,7 @@ export async function resolveChatwootSupportSyncState(
   const config = resolveChatwootSupportConfig(env);
   if (!config) return { ready: false, error: null };
 
-  const readiness = await probeChatwootSupportReadiness(config);
+  const readiness = await probeChatwootSupportReadiness(config, env);
   if (!readiness.ok) {
     return { ready: false, error: readiness.error };
   }
@@ -76,14 +78,14 @@ export async function syncChatwootConversationsToDb(
   const config = resolveChatwootSupportConfig(env);
   if (!config) return { synced: 0, error: null };
 
-  const readiness = await probeChatwootSupportReadiness(config);
+  const readiness = await probeChatwootSupportReadiness(config, env);
   if (!readiness.ok) {
     return { synced: 0, error: readiness.error };
   }
 
   let conversations: ChatwootConversationRow[];
   try {
-    conversations = await listChatwootConversations(config);
+    conversations = await listChatwootConversations(config, env);
   } catch (error) {
     return {
       synced: 0,
@@ -152,14 +154,18 @@ export async function pushSupportTicketToChatwoot(
   if (!config) return { externalRef: null, error: null };
 
   try {
-    const created = await createChatwootConversation(config, {
-      subject: input.subject,
-      description: input.description,
-      licenseeId: input.licenseeId,
-      requestedBy: input.requestedBy?.trim() || "Licensee user",
-      pagePath: input.pagePath,
-      priority: input.priority,
-    });
+    const created = await createChatwootConversation(
+      config,
+      {
+        subject: input.subject,
+        description: input.description,
+        licenseeId: input.licenseeId,
+        requestedBy: input.requestedBy?.trim() || "Licensee user",
+        pagePath: input.pagePath,
+        priority: input.priority,
+      },
+      env,
+    );
     return { externalRef: created.conversationId, error: null };
   } catch (error) {
     return {
