@@ -5,7 +5,7 @@
 **Integrator:** parallel subagent reconciliation + focused commits  
 **Deploy host:** `linkdroplet-00`  
 **Admin URL:** `https://linkaios.linktrend.internal`
-**Branch HEAD:** `666cd622fa9fc029f565485d5adce571287bfe16` (`666cd62`)
+**Branch HEAD:** `43bc001234ac4070227460639c794946afc6ce04` (`43bc001`)
 
 **Gap-closure verification (2026-06-10):** Working tree clean. Linear history — `d53c191` (Stripe) → `490639f` (infra) → `666cd62` (docs); no duplicate or conflicting changes between those SHAs.
 
@@ -50,6 +50,8 @@ Prior wave acceptance docs (`admin-ui-fix-wave0.md` … `wave6.md`, `waves-3-6-c
 
 | SHA | Message |
 |-----|---------|
+| `43bc001` | `docs(admin-ui): point integration summary at branch HEAD` |
+| `af7ac84` | `docs(admin-ui): record gap-closure verification at HEAD 666cd62` |
 | `666cd62` | `docs(admin-ui): update integration summary after infra gap closure` |
 | `490639f` | `feat(admin-ui): close infra gaps for plane status, fleet binding, and tenant scoping` |
 | `d53c191` | `feat(admin): Stripe catalog API and Admin hybrid UI` |
@@ -60,7 +62,7 @@ Prior wave acceptance docs (`admin-ui-fix-wave0.md` … `wave6.md`, `waves-3-6-c
 | `0e38684` | `feat(scope): licensor View filter and LinkSkills lease scoping` |
 | `44da8b7` | `fix(shell): remove admin/client switcher from toolbar` |
 
-Authoritative: `git rev-parse issue/admin-ui-fix` → `666cd622fa9fc029f565485d5adce571287bfe16`.
+Authoritative: `git rev-parse issue/admin-ui-fix` → `43bc001234ac4070227460639c794946afc6ce04`.
 
 
 ---
