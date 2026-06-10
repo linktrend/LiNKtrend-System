@@ -1,5 +1,7 @@
 import type { Env } from "@linktrend/shared-config";
 import type { FailureCode } from "@linktrend/linklogic-sdk";
+import http from "node:http";
+import https from "node:https";
 
 import { PlaneReadinessError } from "./plane-adapter";
 
@@ -7,9 +9,17 @@ export type PlaneApiConfig = {
   baseUrl: string;
   workspaceSlug: string;
   apiKey: string;
+  tlsInsecure: boolean;
 };
 
 const PLANE_REQUEST_TIMEOUT_MS = 30_000;
+
+function planeTlsInsecure(env: Env): boolean {
+  const raw = env.PLANE_TLS_INSECURE;
+  if (!raw) return false;
+  const normalized = raw.trim().toLowerCase();
+  return normalized === "1" || normalized === "true" || normalized === "yes";
+}
 
 export function resolvePlaneApiConfig(env: Env): PlaneApiConfig {
   const baseUrl = env.PLANE_API_BASE_URL;
@@ -32,6 +42,7 @@ export function resolvePlaneApiConfig(env: Env): PlaneApiConfig {
     baseUrl: baseUrl as string,
     workspaceSlug: workspaceSlug as string,
     apiKey: apiKey as string,
+    tlsInsecure: planeTlsInsecure(env),
   };
 }
 
@@ -52,12 +63,81 @@ function mapPlaneHttpFailure(status: number): PlaneReadinessError {
   return new PlaneReadinessError("INTEGRATION_UNAVAILABLE", `Plane API unavailable (${status})`);
 }
 
-export async function planeApiRequest<T = Record<string, unknown>>(
+type PlaneHttpResponse = {
+  ok: boolean;
+  status: number;
+  text: () => Promise<string>;
+};
+
+async function planeHttpRequest(
+  config: PlaneApiConfig,
+  method: "GET" | "POST" | "PATCH",
+  url: string,
+  body?: Record<string, unknown>,
+): Promise<PlaneHttpResponse> {
+  const target = new URL(url);
+  const payload = body ? JSON.stringify(body) : undefined;
+  const headers: Record<string, string> = {
+    "X-Api-Key": config.apiKey,
+    "content-type": "application/json",
+    ...(payload ? { "content-length": String(Buffer.byteLength(payload)) } : {}),
+  };
+  const lib = target.protocol === "https:" ? https : http;
+  const requestOptions: https.RequestOptions = {
+    method,
+    hostname: target.hostname,
+    port: target.port || (target.protocol === "https:" ? 443 : 80),
+    path: `${target.pathname}${target.search}`,
+    headers,
+    rejectUnauthorized: !config.tlsInsecure,
+  };
+
+  return new Promise((resolve, reject) => {
+    const req = lib.request(requestOptions, (res) => {
+      const chunks: Buffer[] = [];
+      res.on("data", (chunk) => chunks.push(Buffer.from(chunk)));
+      res.on("end", () => {
+        const text = Buffer.concat(chunks).toString("utf8");
+        const status = res.statusCode ?? 500;
+        resolve({
+          ok: status >= 200 && status < 300,
+          status,
+          text: async () => text,
+        });
+      });
+    });
+    req.setTimeout(PLANE_REQUEST_TIMEOUT_MS, () => {
+      req.destroy(new Error("Plane request timed out"));
+    });
+    req.on("error", reject);
+    if (payload) req.write(payload);
+    req.end();
+  });
+}
+
+async function parsePlaneHttpResponse<T>(response: PlaneHttpResponse): Promise<T> {
+  if (!response.ok) {
+    throw mapPlaneHttpFailure(response.status);
+  }
+
+  if (response.status === 204) {
+    return {} as T;
+  }
+
+  const text = await response.text();
+  if (!text) {
+    return {} as T;
+  }
+
+  return JSON.parse(text) as T;
+}
+
+async function planeFetchRequest(
   config: PlaneApiConfig,
   method: "GET" | "POST" | "PATCH",
   path: string,
   body?: Record<string, unknown>,
-): Promise<T> {
+): Promise<PlaneHttpResponse> {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), PLANE_REQUEST_TIMEOUT_MS);
 
@@ -72,30 +152,38 @@ export async function planeApiRequest<T = Record<string, unknown>>(
       signal: controller.signal,
     });
 
-    if (!response.ok) {
-      throw mapPlaneHttpFailure(response.status);
-    }
+    return {
+      ok: response.ok,
+      status: response.status,
+      text: () => response.text(),
+    };
+  } finally {
+    clearTimeout(timeout);
+  }
+}
 
-    if (response.status === 204) {
-      return {} as T;
-    }
+export async function planeApiRequest<T = Record<string, unknown>>(
+  config: PlaneApiConfig,
+  method: "GET" | "POST" | "PATCH",
+  path: string,
+  body?: Record<string, unknown>,
+): Promise<T> {
+  const url = new URL(path, withTrailingSlash(config.baseUrl)).toString();
 
-    const text = await response.text();
-    if (!text) {
-      return {} as T;
-    }
+  try {
+    const response = config.tlsInsecure
+      ? await planeHttpRequest(config, method, url, body)
+      : await planeFetchRequest(config, method, path, body);
 
-    return JSON.parse(text) as T;
+    return await parsePlaneHttpResponse<T>(response);
   } catch (error) {
     if (error instanceof PlaneReadinessError) {
       throw error;
     }
-    if (error instanceof Error && error.name === "AbortError") {
+    if (error instanceof Error && (error.name === "AbortError" || error.message === "Plane request timed out")) {
       throw new PlaneReadinessError("INTEGRATION_TIMEOUT", "Plane API request timed out");
     }
     throw new PlaneReadinessError("INTEGRATION_UNAVAILABLE", "Plane API request failed");
-  } finally {
-    clearTimeout(timeout);
   }
 }
 
