@@ -45,7 +45,19 @@ describe("data environment", () => {
     ).toEqual({ showBadge: false, mode: "live" });
   });
 
-  it("shows mock badge on admin only when LINKAIOS_UI_MOCKS=1", () => {
+  it("shows mock badge on admin only when LINKAIOS_UI_MOCKS=1 in non-production", () => {
+    expect(
+      resolveDataEnvironment(
+        {
+          NODE_ENV: "development",
+          LINKAIOS_UI_MOCKS: "1",
+        },
+        { surface: "admin" },
+      ),
+    ).toEqual({ showBadge: true, mode: "mock" });
+  });
+
+  it("never shows mock badge on admin in production even if LINKAIOS_UI_MOCKS=1", () => {
     expect(
       resolveDataEnvironment(
         {
@@ -54,7 +66,7 @@ describe("data environment", () => {
         },
         { surface: "admin" },
       ),
-    ).toEqual({ showBadge: true, mode: "mock" });
+    ).toEqual({ showBadge: false, mode: "live" });
   });
 
   it("detects dev stub only outside production", () => {

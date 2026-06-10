@@ -46,7 +46,7 @@ describe("groupZulipIntoThreads", () => {
       { zulipSiteUrl: null },
     );
 
-    expect(threads[0]?.preview).toBe("Inbound Zulip message");
+    expect(threads[0]?.preview).toBe("Suite linksites");
   });
 });
 
