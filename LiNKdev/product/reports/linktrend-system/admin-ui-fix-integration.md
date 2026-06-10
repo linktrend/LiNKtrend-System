@@ -5,7 +5,7 @@
 **Integrator:** parallel subagent reconciliation + focused commits  
 **Deploy host:** `linkdroplet-00`  
 **Admin URL:** `https://linkaios.linktrend.internal`
-**Branch HEAD:** `9e63b17394a4860038efbd3e42bf7b82ae08d2e2` (`9e63b17`)
+**Verification doc commits:** `af7ac84`, `b6b14e3` atop gap-closure `666cd62` (branch HEAD: `git rev-parse issue/admin-ui-fix`)
 
 **Gap-closure verification (2026-06-10):** Working tree clean. Linear history — `d53c191` (Stripe) → `490639f` (infra) → `666cd62` (docs); no duplicate or conflicting changes between those SHAs.
 
@@ -50,7 +50,8 @@ Prior wave acceptance docs (`admin-ui-fix-wave0.md` … `wave6.md`, `waves-3-6-c
 
 | SHA | Message |
 |-----|---------|
-| `9e63b17` | `docs(admin-ui): sync integration summary HEAD SHA` |
+| `7778a49` | `docs(admin-ui): finalize gap-closure verification summary` |
+| `b6b14e3` | `docs(admin-ui): sync integration summary HEAD SHA` |
 | `af7ac84` | `docs(admin-ui): record gap-closure verification at HEAD 666cd62` |
 | `666cd62` | `docs(admin-ui): update integration summary after infra gap closure` |
 | `490639f` | `feat(admin-ui): close infra gaps for plane status, fleet binding, and tenant scoping` |
@@ -62,7 +63,7 @@ Prior wave acceptance docs (`admin-ui-fix-wave0.md` … `wave6.md`, `waves-3-6-c
 | `0e38684` | `feat(scope): licensor View filter and LinkSkills lease scoping` |
 | `44da8b7` | `fix(shell): remove admin/client switcher from toolbar` |
 
-Authoritative: `git rev-parse issue/admin-ui-fix` → `9e63b17394a4860038efbd3e42bf7b82ae08d2e2`.
+Authoritative: `git rev-parse issue/admin-ui-fix` (verification docs: `af7ac84`…`b6b14e3` atop gap-closure `666cd62`).
 
 
 ---
