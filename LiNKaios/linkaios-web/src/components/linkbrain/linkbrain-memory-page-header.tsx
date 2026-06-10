@@ -13,11 +13,13 @@ export function LinkbrainMemoryPageHeader(props: { tab: LinkbrainTab }) {
   const title = props.tab === "inbox" ? "LiNKbrain" : linkbrainPageTitle(props.tab, kind);
   const isVendorBrain = kind === "licensor" && isAdmin;
 
+  const showAddKnowledge = props.tab !== "audit" && (isVendorBrain || kind === "licensee");
+
   return (
     <ShellPageHeaderClient
       title={title}
       subtitle={linkbrainTabSubtitle(props.tab, kind)}
-      actions={isVendorBrain || kind === "licensee" ? <AddKnowledgeHeaderAction collective={isVendorBrain} /> : undefined}
+      actions={showAddKnowledge ? <AddKnowledgeHeaderAction collective={isVendorBrain} /> : undefined}
     />
   );
 }

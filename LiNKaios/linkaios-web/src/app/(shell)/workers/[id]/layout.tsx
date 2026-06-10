@@ -11,6 +11,7 @@ import { readAppSurfaceFromHeaders, withAppBasePath } from "@/lib/app-surface";
 import { isDemoAgentId } from "@/lib/ui-mocks/entities";
 import { isUiMocksEnabled } from "@/lib/ui-mocks/flags";
 import { demoWorkerHeaderModel, liveWorkerHeaderModel } from "@/lib/worker-header-model";
+import { linkbotNativeUiHref } from "@/lib/linkbot-native-ui";
 import { workerDetailTabsForSurface, type WorkerDetailTabId } from "@/lib/worker-detail-tabs";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -52,11 +53,12 @@ export default async function WorkerLayout(props: { children: React.ReactNode; p
         : "Demo technical LiNKbot — architecture reviews, release risk, and engineering coordination. Replace with a live worker bound to your gateway.",
     );
     const visibleTabIds = visibleTabIdsForAgent({ id, runtime_settings: null }, surface, licensorTenantId);
+    const nativeUiHref = linkbotNativeUiHref(id);
     return (
       <main className="space-y-6">
         <WorkerBreadcrumbRegister agentId={id} displayName={model.displayName} />
         <WorkerDetailHeader model={model} />
-        <WorkerSubnav agentId={id} visibleTabIds={visibleTabIds} />
+        <WorkerSubnav agentId={id} visibleTabIds={visibleTabIds} nativeUiHref={nativeUiHref} />
         <WorkerTabContent>{props.children}</WorkerTabContent>
       </main>
     );
@@ -87,12 +89,13 @@ export default async function WorkerLayout(props: { children: React.ReactNode; p
 
   const sessions = sessionsRes.data ?? [];
   const model = liveWorkerHeaderModel(a, sessions);
+  const nativeUiHref = linkbotNativeUiHref(id, a.runtime_settings);
 
   return (
     <main className="space-y-6">
       <WorkerBreadcrumbRegister agentId={id} displayName={a.display_name} />
       <WorkerDetailHeader model={model} />
-      <WorkerSubnav agentId={id} visibleTabIds={visibleTabIds} />
+      <WorkerSubnav agentId={id} visibleTabIds={visibleTabIds} nativeUiHref={nativeUiHref} />
       <WorkerTabContent>{props.children}</WorkerTabContent>
     </main>
   );

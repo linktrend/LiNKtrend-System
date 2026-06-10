@@ -1,3 +1,5 @@
+import { openExternalPopup } from "@/lib/zulip-links";
+
 /** Optional bridge to a self-hosted Plane workspace (see https://plane.so). */
 
 export type PlaneBridgeConfig = {
@@ -13,8 +15,17 @@ export function getPlaneBridgeConfig(): PlaneBridgeConfig {
     return { workspaceUrl: null, workspaceSlug: null };
   }
   const workspaceUrl = raw.replace(/\/$/, "");
-  const slug = process.env.NEXT_PUBLIC_PLANE_WORKSPACE_SLUG?.trim().replace(/^\/+|\/+$/g, "") || null;
+  const slug =
+    process.env.NEXT_PUBLIC_PLANE_WORKSPACE_SLUG?.trim().replace(/^\/+|\/+$/g, "") ||
+    process.env.PLANE_WORKSPACE_SLUG?.trim().replace(/^\/+|\/+$/g, "") ||
+    null;
   return { workspaceUrl, workspaceSlug: slug };
+}
+
+/** Opens Plane in a new browser tab (same popup pattern as Zulip). */
+export function openPlaneExternalUrl(url: string | null | undefined): void {
+  if (!url) return;
+  openExternalPopup(url);
 }
 
 /** Default “open workspace” link when no per-project mapping exists yet. */

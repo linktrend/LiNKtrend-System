@@ -2,23 +2,25 @@
 
 import Link from "next/link";
 import { ExternalLink, Plus } from "lucide-react";
-import { useState } from "react";
-
 import { AdminProjectsIndexTable } from "@/components/admin/admin-projects-index-table";
-import { PlaneOpenModal } from "@/components/plane-open-modal";
+import {
+  ProjectLifecycleSummaryGrid,
+  SummaryMetricCardSection,
+} from "@/components/summary-metric-card";
 import { ShellPageHeaderClient } from "@/components/shell-page-header-client";
 import { UiButton } from "@/components/ui/button-bridge";
 import type { AdminProjectIndexRow } from "@/lib/admin-projects-data";
 import { ADMIN_PROJECTS_PAGE } from "@/lib/admin-projects-copy";
 import { ADMIN_BASE_PATH } from "@/lib/app-surface";
+import type { ProjectSummaryColumnKey } from "@/lib/project-status-ui";
+import { openPlaneExternalUrl } from "@/lib/plane-links";
 
 export function AdminProjectsPage(props: {
   rows: AdminProjectIndexRow[];
+  lifecycleCounts?: Record<ProjectSummaryColumnKey, number>;
   planeWorkspaceHref: string | null;
   loadError?: string | null;
 }) {
-  const [planeModalOpen, setPlaneModalOpen] = useState(false);
-
   return (
     <main className="space-y-10">
       <ShellPageHeaderClient
@@ -37,6 +39,12 @@ export function AdminProjectsPage(props: {
 
       {props.loadError ? (
         <p className="text-sm text-red-700 dark:text-red-400">{props.loadError}</p>
+      ) : null}
+
+      {props.lifecycleCounts ? (
+        <SummaryMetricCardSection title="At a glance" aria-label="Lifecycle summary">
+          <ProjectLifecycleSummaryGrid counts={props.lifecycleCounts} />
+        </SummaryMetricCardSection>
       ) : null}
 
       <section aria-label="Vendor projects">
@@ -59,7 +67,7 @@ export function AdminProjectsPage(props: {
               <UiButton
                 buttonKey="secondaryRow"
                 type="button"
-                onClick={() => setPlaneModalOpen(true)}
+                onClick={() => openPlaneExternalUrl(props.planeWorkspaceHref)}
                 title={props.planeWorkspaceHref ? "Open Plane workspace" : "Plane is not connected"}
               >
                 <ExternalLink className="mr-1.5 h-4 w-4" aria-hidden />
@@ -79,12 +87,6 @@ export function AdminProjectsPage(props: {
         )}
       </section>
 
-      <PlaneOpenModal
-        open={planeModalOpen}
-        onClose={() => setPlaneModalOpen(false)}
-        planeHref={props.planeWorkspaceHref}
-        projectTitle="Vendor projects workspace"
-      />
     </main>
   );
 }

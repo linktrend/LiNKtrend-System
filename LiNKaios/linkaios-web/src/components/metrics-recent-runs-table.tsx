@@ -47,8 +47,10 @@ function formatTokens(n: number) {
 export function RecentRunsTable(props: {
   snapshot: MetricsSnapshot;
   hideProjectColumn?: boolean;
+  hideTracesLink?: boolean;
   tracesHref?: string;
   sectionTitle?: string;
+  projectTitleFallback?: string;
 }) {
   const rows = props.snapshot.runs.slice(0, 20);
   const [selected, setSelected] = useState<RunRow | null>(null);
@@ -131,8 +133,8 @@ export function RecentRunsTable(props: {
                     </td>
                     {!props.hideProjectColumn ? (
                       <td className={DT.tdClip}>
-                        <span className={DT.tdTextSpan} title={r.mission_title ?? undefined}>
-                          {r.mission_title ?? "—"}
+                        <span className={DT.tdTextSpan} title={r.mission_title ?? props.projectTitleFallback ?? undefined}>
+                          {r.mission_title ?? props.projectTitleFallback ?? "—"}
                         </span>
                       </td>
                     ) : null}
@@ -151,11 +153,13 @@ export function RecentRunsTable(props: {
             </tbody>
           </table>
         </div>
-        <div className="border-t border-zinc-100 px-4 py-2 dark:border-zinc-800">
-          <Link href={tracesHref} className="text-xs font-medium text-zinc-600 underline-offset-2 hover:underline dark:text-zinc-400">
-            Open system logs →
-          </Link>
-        </div>
+        {!props.hideTracesLink ? (
+          <div className="border-t border-zinc-100 px-4 py-2 dark:border-zinc-800">
+            <Link href={tracesHref} className="text-xs font-medium text-zinc-600 underline-offset-2 hover:underline dark:text-zinc-400">
+              Open system logs →
+            </Link>
+          </div>
+        ) : null}
       </section>
 
       <WorkInboxModal

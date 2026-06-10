@@ -378,7 +378,7 @@ export function OverviewHome(props: { data: OverviewData; mvoProof: MvoProofSnap
           <h2 className="text-xs font-semibold text-zinc-500 dark:text-zinc-400">Quick actions</h2>
           <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
             {[
-              { href: "/workers", icon: Sparkles, title: "Add LiNKbot", hint: "Deploy a new fleet worker" },
+              { href: "/suites", icon: Sparkles, title: "Open Suites", hint: "Assign LiNKbots through suite composition" },
               { href: "/projects/new", icon: FolderKanban, title: "Create project", hint: "Start client work in a suite module" },
               { href: "/skills/skills", icon: Wrench, title: "Add skill", hint: "Publish a governed procedure" },
               { href: "/memory?tab=inbox&inbox_source=human_upload", icon: Upload, title: "Upload to LiNKbrain", hint: "Send company knowledge to inbox" },

@@ -42,7 +42,7 @@ function inboxContextLine(d: BrainInboxRow, data: LinkbrainPageData, licensorCol
     if (d.scope === "company") return "Licensee memory · collective queue";
     if (d.scope === "mission" && d.mission_id) {
       const hit = data.missionRows.find((r) => String(r.mission.id) === String(d.mission_id));
-      return hit ? `Admin program: ${hit.mission.title}` : "Admin program memory";
+      return hit ? `Project: ${hit.mission.title}` : "Project memory";
     }
     if (d.scope === "agent" && d.agent_id) {
       const hit = data.agents.find((a) => a.id === d.agent_id);
@@ -218,7 +218,7 @@ export function MemoryDocIconAction(props: {
   const tone =
     props.icon === "view"
       ? "border-sky-300 bg-sky-50 text-sky-900 hover:bg-sky-100 dark:border-sky-800 dark:bg-sky-950/40 dark:text-sky-100 dark:hover:bg-sky-900/60"
-      : "border-violet-300 bg-violet-50 text-violet-900 hover:bg-violet-100 dark:border-violet-800 dark:bg-violet-950/40 dark:text-violet-100 dark:hover:bg-violet-900/60";
+      : "border-zinc-300 bg-zinc-50 text-zinc-900 hover:bg-zinc-100 dark:border-zinc-600 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:bg-zinc-800";
 
   return (
     <Link

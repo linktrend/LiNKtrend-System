@@ -4,6 +4,8 @@ import { useState, type ReactNode } from "react";
 
 import { ChevronDown, ChevronRight } from "lucide-react";
 
+import { SuiteBuilderEditButton } from "@/components/admin/suite-builder-modals";
+import { ISSUE_DEPENDENCY_TYPE_LABELS } from "@/lib/suite-composition";
 import type { ModuleProcessTreeVariant } from "@/lib/suites-page-copy";
 import type { ModuleProcess, ModuleWorkflow, ModuleIssueTemplate } from "@/lib/ui-mocks/modules-catalog-demo";
 
@@ -131,8 +133,32 @@ function AssigneeBlock(props: { executors: ModuleIssueTemplate["executors"] }) {
   );
 }
 
-function IssueRow(props: { issue: ModuleIssueTemplate }) {
+function dependencySummary(issue: ModuleIssueTemplate, processes: ModuleProcess[]): string | null {
+  const deps = issue.dependencies ?? [];
+  if (deps.length === 0) return null;
+  const issueIndex = new Map<string, string>();
+  for (const mod of processes) {
+    for (const phase of mod.workflows) {
+      for (const row of phase.issues) {
+        issueIndex.set(row.id, row.title);
+      }
+    }
+  }
+  return deps
+    .map((d) => `${ISSUE_DEPENDENCY_TYPE_LABELS[d.dependencyType]} ${issueIndex.get(d.dependsOnIssueId) ?? d.dependsOnIssueId}`)
+    .join("; ");
+}
+
+function IssueRow(props: {
+  issue: ModuleIssueTemplate;
+  processes: ModuleProcess[];
+  editable?: boolean;
+  onEditIssue?: (issue: ModuleIssueTemplate, moduleId: string, phaseId: string) => void;
+  moduleId: string;
+  phaseId: string;
+}) {
   const [open, setOpen] = useState(false);
+  const depLine = dependencySummary(props.issue, props.processes);
 
   return (
     <div className="ml-6 border-l border-amber-200/80 pl-3 dark:border-amber-900/40">
@@ -153,6 +179,12 @@ function IssueRow(props: { issue: ModuleIssueTemplate }) {
               <span className="min-w-0 truncate text-sm font-semibold leading-5 text-zinc-900 dark:text-zinc-100">
                 {props.issue.title}
               </span>
+              {props.editable && props.onEditIssue ? (
+                <SuiteBuilderEditButton
+                  label={`Edit ${props.issue.title}`}
+                  onClick={() => props.onEditIssue?.(props.issue, props.moduleId, props.phaseId)}
+                />
+              ) : null}
             </span>
             <p className="mt-1 line-clamp-3 min-h-[3rem] text-[11px] leading-4 text-zinc-500 dark:text-zinc-400">
               {props.issue.description ?? "Governed task template with input/output contracts"}
@@ -168,6 +200,17 @@ function IssueRow(props: { issue: ModuleIssueTemplate }) {
             <p className="line-clamp-2">
               <span className="font-semibold text-zinc-700 dark:text-zinc-300">Output:</span> {props.issue.outputContract}
             </p>
+            {depLine ? (
+              <p className="line-clamp-2">
+                <span className="font-semibold text-zinc-700 dark:text-zinc-300">Deps:</span> {depLine}
+              </p>
+            ) : null}
+            {props.issue.instructionMdFileName ? (
+              <p className="line-clamp-1">
+                <span className="font-semibold text-zinc-700 dark:text-zinc-300">Guide:</span>{" "}
+                {props.issue.instructionMdFileName}
+              </p>
+            ) : null}
           </div>
         </div>
       </div>
@@ -180,8 +223,17 @@ function IssueRow(props: { issue: ModuleIssueTemplate }) {
   );
 }
 
-function PhaseRow(props: { workflow: ModuleWorkflow }) {
+function PhaseRow(props: {
+  workflow: ModuleWorkflow;
+  processes: ModuleProcess[];
+  moduleId: string;
+  editable?: boolean;
+  onEditPhase?: (phase: ModuleWorkflow, moduleId: string) => void;
+  onEditIssue?: (issue: ModuleIssueTemplate, moduleId: string, phaseId: string) => void;
+}) {
   const [open, setOpen] = useState(false);
+  const concurrencyLabel =
+    props.workflow.concurrency === "parallel" ? "Parallel lanes" : props.workflow.concurrency === "sequential" ? "Sequential" : null;
 
   return (
     <div className="ml-3 border-l border-sky-200/80 pl-3 dark:border-sky-900/40">
@@ -196,16 +248,38 @@ function PhaseRow(props: { workflow: ModuleWorkflow }) {
             <LevelLabel level="Phase" />
             <span className="text-sm font-semibold leading-5 text-zinc-900 dark:text-zinc-100">{props.workflow.name}</span>
             <span className="text-xs font-medium text-zinc-500">· {props.workflow.stage}</span>
+            {concurrencyLabel ? (
+              <span className="rounded-full bg-sky-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-sky-800 dark:bg-sky-950/40 dark:text-sky-200">
+                {concurrencyLabel}
+              </span>
+            ) : null}
+            {props.editable && props.onEditPhase ? (
+              <SuiteBuilderEditButton
+                label={`Edit ${props.workflow.name}`}
+                onClick={() => props.onEditPhase?.(props.workflow, props.moduleId)}
+              />
+            ) : null}
           </span>
           <p className="mt-1 line-clamp-3 min-h-[3rem] text-[11px] leading-4 text-zinc-500 dark:text-zinc-400">
-            {props.workflow.summary} Stage group inside this module — contains one or more issues.
+            {props.workflow.summary}
+            {props.workflow.inputContract || props.workflow.outputContract
+              ? ` Contracts: ${props.workflow.inputContract ?? "—"} → ${props.workflow.outputContract ?? "—"}.`
+              : " Stage group inside this module — contains one or more issues."}
           </p>
         </span>
       </button>
       {open ? (
         <div className="space-y-2 pb-2">
           {props.workflow.issues.map((issue) => (
-            <IssueRow key={issue.id} issue={issue} />
+            <IssueRow
+              key={issue.id}
+              issue={issue}
+              processes={props.processes}
+              moduleId={props.moduleId}
+              phaseId={props.workflow.id}
+              editable={props.editable}
+              onEditIssue={props.onEditIssue}
+            />
           ))}
         </div>
       ) : null}
@@ -236,7 +310,14 @@ function catalogueIntro(owned: boolean) {
   );
 }
 
-function CatalogueModuleSection(props: { processes: ModuleProcess[]; owned: boolean }) {
+function CatalogueModuleSection(props: {
+  processes: ModuleProcess[];
+  owned: boolean;
+  editable?: boolean;
+  onEditModule?: (module: ModuleProcess) => void;
+  onEditPhase?: (phase: ModuleWorkflow, moduleId: string) => void;
+  onEditIssue?: (issue: ModuleIssueTemplate, moduleId: string, phaseId: string) => void;
+}) {
   const [openModuleId, setOpenModuleId] = useState<string | null>(props.processes[0]?.id ?? null);
 
   if (props.processes.length === 0) {
@@ -264,6 +345,12 @@ function CatalogueModuleSection(props: { processes: ModuleProcess[]; owned: bool
                 <span className="flex flex-wrap items-center gap-2">
                   <LevelLabel level="Module" />
                   <span className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">{process.name}</span>
+                  {props.editable && props.onEditModule ? (
+                    <SuiteBuilderEditButton
+                      label={`Edit ${process.name}`}
+                      onClick={() => props.onEditModule?.(process)}
+                    />
+                  ) : null}
                   {process.rerunsAutomatically ? (
                     <span className="rounded-full bg-sky-50 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-sky-800 dark:bg-sky-950/40 dark:text-sky-200">
                       Continuous run
@@ -279,7 +366,15 @@ function CatalogueModuleSection(props: { processes: ModuleProcess[]; owned: bool
             {open ? (
               <div className="space-y-2 border-t border-zinc-100 px-2 pb-3 pt-2 dark:border-zinc-800">
                 {process.workflows.map((wf) => (
-                  <PhaseRow key={wf.id} workflow={wf} />
+                  <PhaseRow
+                    key={wf.id}
+                    workflow={wf}
+                    processes={props.processes}
+                    moduleId={process.id}
+                    editable={props.editable}
+                    onEditPhase={props.onEditPhase}
+                    onEditIssue={props.onEditIssue}
+                  />
                 ))}
               </div>
             ) : null}
@@ -292,14 +387,27 @@ function CatalogueModuleSection(props: { processes: ModuleProcess[]; owned: bool
 
 export function ModuleProcessTree(props: {
   processes: ModuleProcess[];
-  variant?: ModuleProcessTreeVariant;
+  variant?: ModuleProcessTreeVariant | "builder";
+  onEditModule?: (module: ModuleProcess) => void;
+  onEditPhase?: (phase: ModuleWorkflow, moduleId: string) => void;
+  onEditIssue?: (issue: ModuleIssueTemplate, moduleId: string, phaseId: string) => void;
 }) {
   const variant = props.variant ?? "catalogue";
   const owned = variant === "operational";
+  const editable = variant === "builder";
 
   if (props.processes.length === 0) {
     return <p className="text-sm text-zinc-500">No modules published for this suite yet.</p>;
   }
 
-  return <CatalogueModuleSection processes={props.processes} owned={owned} />;
+  return (
+    <CatalogueModuleSection
+      processes={props.processes}
+      owned={owned}
+      editable={editable}
+      onEditModule={props.onEditModule}
+      onEditPhase={props.onEditPhase}
+      onEditIssue={props.onEditIssue}
+    />
+  );
 }

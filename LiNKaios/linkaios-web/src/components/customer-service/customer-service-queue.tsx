@@ -1,14 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState, useTransition } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Headphones } from "lucide-react";
 
 import { ShadowModeBadge } from "@/components/stub-badge";
 import { DomainStatusPill } from "@/components/ui/status-pill";
 import { WorkEmptyState } from "@/app/(shell)/work/work-empty-state";
 import { useAppSurface } from "@/components/app-surface-provider";
+import { EVENT_LICENSOR_SCOPE_CHANGED, useLicensorScope } from "@/components/role-preview-provider";
+import { filterSupportTicketsForViewScope } from "@/lib/licensor-view-scope";
+import { buildChatwootConversationUrl } from "@/lib/chatwoot-links";
 import { mergeSupportTicketSources, type SupportTicketsQueueMode } from "@/lib/support-tickets-data";
 import { resolveLicenseeRegistry } from "@/lib/licensee-registry";
 import { SUPPORT_TICKET_PILL_LABELS } from "@/lib/status-colors";
@@ -16,14 +18,10 @@ import {
   EVENT_SUPPORT_TICKETS_CHANGED,
   hydrateSupportTicketsState,
   readSupportTickets,
-  SUPPORT_BACKEND_LABEL,
-  SUPPORT_BACKEND_REPO,
-  SUPPORT_CAPABILITY_SCOPE,
-  updateSupportTicketStatus,
   type SupportTicket,
-  type SupportTicketStatus,
 } from "@/lib/support-tickets";
 import { BUTTON } from "@/lib/ui-standards";
+import { openExternalPopup } from "@/lib/zulip-links";
 
 type TicketFilter = "all" | "open" | "in_progress" | "resolved";
 
@@ -39,6 +37,10 @@ function filterBtnClass(active: boolean): string {
     : `${pill} bg-zinc-100 text-zinc-700 ring-1 ring-zinc-300 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-200 dark:ring-zinc-600`;
 }
 
+function startWorkLabel(status: SupportTicket["status"]): string {
+  return status === "open" ? "Start Work" : "Open in Chatwoot";
+}
+
 export function CustomerServiceQueue(props: {
   initialTickets: SupportTicket[];
   queueMode: SupportTicketsQueueMode;
@@ -46,13 +48,15 @@ export function CustomerServiceQueue(props: {
   loadError: string | null;
   chatwootSyncReady: boolean;
   chatwootSyncError: string | null;
+  chatwootPublicUrl: string | null;
+  chatwootAccountId: string | null;
 }) {
-  const router = useRouter();
   const { href: appHref } = useAppSurface();
+  const { scope, isSingleLicensee } = useLicensorScope();
   const [filter, setFilter] = useState<TicketFilter>("all");
   const [tickets, setTickets] = useState<SupportTicket[]>(props.initialTickets);
-  const [statusError, setStatusError] = useState<string | null>(null);
-  const [pending, startTransition] = useTransition();
+  const [popupError, setPopupError] = useState<string | null>(null);
+  const [scopeRevision, setScopeRevision] = useState(0);
 
   useEffect(() => {
     hydrateSupportTicketsState({ tableReady: props.tableReady, tickets: props.initialTickets });
@@ -70,24 +74,41 @@ export function CustomerServiceQueue(props: {
     return () => window.removeEventListener(EVENT_SUPPORT_TICKETS_CHANGED, sync);
   }, [props.initialTickets, props.tableReady]);
 
-  const visible = useMemo(() => filterTickets(tickets, filter), [tickets, filter]);
-  const openCount = tickets.filter((t) => t.status !== "resolved").length;
+  useEffect(() => {
+    const onScopeChanged = () => setScopeRevision((n) => n + 1);
+    window.addEventListener(EVENT_LICENSOR_SCOPE_CHANGED, onScopeChanged);
+    return () => window.removeEventListener(EVENT_LICENSOR_SCOPE_CHANGED, onScopeChanged);
+  }, []);
 
-  function setStatus(id: string, status: SupportTicketStatus) {
-    setStatusError(null);
-    startTransition(async () => {
-      try {
-        const updated = await updateSupportTicketStatus(id, status);
-        if (updated) {
-          setTickets((prev) => prev.map((t) => (t.id === id ? updated : t)));
-        }
-        if (props.tableReady) {
-          router.refresh();
-        }
-      } catch (e) {
-        setStatusError(e instanceof Error ? e.message : "Could not update ticket status.");
-      }
-    });
+  const scopedTickets = useMemo(() => {
+    void scopeRevision;
+    return filterSupportTicketsForViewScope(scope, tickets);
+  }, [scope, scopeRevision, tickets]);
+
+  const visible = useMemo(() => filterTickets(scopedTickets, filter), [scopedTickets, filter]);
+  const openCount = scopedTickets.filter((t) => t.status !== "resolved").length;
+  const scopedLicenseeName = isSingleLicensee ? resolveLicenseeRegistry(scope)?.name : null;
+
+  function openChatwoot(ticket: SupportTicket) {
+    setPopupError(null);
+    if (!ticket.externalRef) {
+      setPopupError("This ticket is not linked to a Chatwoot conversation yet.");
+      return;
+    }
+    if (!props.chatwootPublicUrl || !props.chatwootAccountId) {
+      setPopupError("Chatwoot operator URL is not configured. Set CHATWOOT_PUBLIC_URL and CHATWOOT_ACCOUNT_ID.");
+      return;
+    }
+    const href = buildChatwootConversationUrl(
+      props.chatwootPublicUrl,
+      props.chatwootAccountId,
+      ticket.externalRef,
+    );
+    if (!href) {
+      setPopupError("Could not build Chatwoot conversation link.");
+      return;
+    }
+    openExternalPopup(href);
   }
 
   return (
@@ -109,16 +130,13 @@ export function CustomerServiceQueue(props: {
               </span>
             )}
           </div>
-          <p className="mt-1 max-w-3xl text-sm text-zinc-600 dark:text-zinc-400">
-            Support requests across all licensees — assign, progress, and resolve tickets. Governed by{" "}
-            <code className="text-xs">{SUPPORT_CAPABILITY_SCOPE}</code> syncing to {SUPPORT_BACKEND_LABEL} (
-            <code className="text-xs">{SUPPORT_BACKEND_REPO}</code>) when the connector is live.
-          </p>
           <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
+            {scopedLicenseeName
+              ? `Showing tickets for ${scopedLicenseeName}. Change the sidebar Licensee view to switch scope.`
+              : "Dashboard mirror of Chatwoot — status updates happen in Chatwoot, not here."}{" "}
             {openCount === 0
               ? "No open tickets in queue."
-              : `${openCount} open ticket${openCount === 1 ? "" : "s"} need attention.`}{" "}
-            Tickets from Work → Alerts link here for licensor operators.
+              : `${openCount} open ticket${openCount === 1 ? "" : "s"} need attention.`}
           </p>
         </div>
       </div>
@@ -132,12 +150,12 @@ export function CustomerServiceQueue(props: {
         </p>
       ) : null}
 
-      {statusError ? (
+      {popupError ? (
         <p
           role="alert"
           className="rounded-lg border border-amber-200 bg-amber-50/90 px-3 py-2 text-sm text-amber-950 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-100"
         >
-          {statusError}
+          {popupError}
         </p>
       ) : null}
 
@@ -171,9 +189,11 @@ export function CustomerServiceQueue(props: {
           icon={Headphones}
           title={filter === "all" ? "No support tickets" : `No ${filter.replace("_", " ")} tickets`}
           description={
-            filter === "all"
-              ? "When licensees open tickets via Help or Settings → Support they appear here for your team."
-              : "Try another filter or wait for new requests from licensees."
+            scopedLicenseeName
+              ? `No tickets for ${scopedLicenseeName} in this filter. Try another filter or select All licensees in the sidebar.`
+              : filter === "all"
+                ? "When licensees open tickets via Help or Settings → Support they appear here for your team."
+                : "Try another filter or wait for new requests from licensees."
           }
           actions={[
             { kind: "link", label: "Open Work alerts", href: appHref("/work/alerts") },
@@ -184,6 +204,7 @@ export function CustomerServiceQueue(props: {
         <ul className="divide-y divide-zinc-200 rounded-xl border border-zinc-200 bg-white shadow-sm dark:divide-zinc-800 dark:border-zinc-800 dark:bg-zinc-950">
           {visible.map((t) => {
             const licenseeName = resolveLicenseeRegistry(t.licenseeId)?.name ?? t.licenseeId;
+            const canOpenChatwoot = Boolean(t.externalRef && props.chatwootPublicUrl && props.chatwootAccountId);
             return (
               <li key={t.id} className="space-y-2 px-4 py-3 first:rounded-t-xl last:rounded-b-xl">
                 <div className="flex flex-wrap items-start justify-between gap-2">
@@ -209,26 +230,19 @@ export function CustomerServiceQueue(props: {
                   </p>
                 ) : null}
                 <div className="flex flex-wrap gap-2">
-                  {t.status === "open" ? (
-                    <button
-                      type="button"
-                      className={BUTTON.secondaryCompact}
-                      disabled={pending}
-                      onClick={() => setStatus(t.id, "in_progress")}
-                    >
-                      Start Work
-                    </button>
-                  ) : null}
-                  {t.status !== "resolved" ? (
-                    <button
-                      type="button"
-                      className={BUTTON.primaryCompact}
-                      disabled={pending}
-                      onClick={() => setStatus(t.id, "resolved")}
-                    >
-                      Resolve
-                    </button>
-                  ) : null}
+                  <button
+                    type="button"
+                    className={BUTTON.secondaryCompact}
+                    disabled={!canOpenChatwoot}
+                    title={
+                      canOpenChatwoot
+                        ? "Open this conversation in Chatwoot"
+                        : "Chatwoot conversation link unavailable for this ticket"
+                    }
+                    onClick={() => openChatwoot(t)}
+                  >
+                    {startWorkLabel(t.status)}
+                  </button>
                 </div>
               </li>
             );

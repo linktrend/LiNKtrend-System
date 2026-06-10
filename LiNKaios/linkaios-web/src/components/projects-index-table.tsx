@@ -13,8 +13,8 @@ import {
   DataTableShell,
   DT,
 } from "@/components/data-table";
-import { PlaneOpenModal } from "@/components/plane-open-modal";
 import type { ProjectIndexRow } from "@/lib/project-index-rows";
+import { openPlaneExternalUrl } from "@/lib/plane-links";
 import { TABLE_COLUMN } from "@/lib/ui-standards";
 
 /** @deprecated Use ProjectIndexRow */
@@ -71,7 +71,6 @@ export function ProjectsIndexTable(props: {
 }) {
   const showSuite = props.showSuiteColumn !== false;
   const [syncById, setSyncById] = useState<Record<string, SyncState>>({});
-  const [planeModal, setPlaneModal] = useState<{ title: string; href: string | null } | null>(null);
 
   useEffect(() => {
     setSyncById(Object.fromEntries(props.rows.map((r) => [r.id, r.planeSyncStatus])));
@@ -178,7 +177,7 @@ export function ProjectsIndexTable(props: {
                       <DataTableIconAction
                         icon={ExternalLink}
                         label={planeHref ? `Open ${r.title} in Plane` : "Plane is not connected"}
-                        onClick={() => setPlaneModal({ title: r.title, href: planeHref })}
+                        onClick={() => openPlaneExternalUrl(planeHref)}
                       />
                     </div>
                   </td>
@@ -188,12 +187,6 @@ export function ProjectsIndexTable(props: {
           )}
         </DataTableBody>
       </DataTable>
-      <PlaneOpenModal
-        open={planeModal !== null}
-        onClose={() => setPlaneModal(null)}
-        planeHref={planeModal?.href ?? null}
-        projectTitle={planeModal?.title ?? "Project"}
-      />
     </DataTableShell>
   );
 }

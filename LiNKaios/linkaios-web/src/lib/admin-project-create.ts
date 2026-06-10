@@ -4,6 +4,7 @@ import { loadEnv } from "@linktrend/shared-config";
 import { bootstrapProjectZulip, zulipLiveReady } from "@linktrend/zulip-gateway";
 import { recordTrace } from "@linktrend/linklogic-sdk";
 
+import { bindAdminProjectSuiteTemplate } from "@/lib/admin-project-suite-binding";
 import { resolveLicensorTenantId } from "@/lib/admin-linkskills-tenant";
 import {
   adminProjectTypeLabel,
@@ -11,7 +12,6 @@ import {
   resolveAdminProjectCreatePreset,
   type AdminProjectType,
 } from "@/lib/admin-project-types";
-import { isPlaneLiveConfigured, syncLinkaiosProjectToPlane } from "@/lib/kernel/plane-project-sync";
 import type { CreateProjectResponse, ProjectCadence } from "@/lib/projects/types";
 import { CreateProjectError } from "@/lib/projects/types";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
@@ -105,19 +105,10 @@ export async function createAdminProjectPersisted(
   }
 
   const row = data[0] as CreateProjectRow;
-  let planeBootstrap: CreateProjectResponse["planeBootstrap"] = "pending";
+  await bindAdminProjectSuiteTemplate(supabase, row.project_id, input.projectType);
 
-  if (isPlaneLiveConfigured(loadEnv())) {
-    const plane = await syncLinkaiosProjectToPlane({
-      tenant_id: tenantId,
-      linkaios_project_id: row.project_id,
-      project_title: input.name,
-      suite_id: preset.suiteId,
-      module_ids: preset.moduleIds,
-      cadence: input.cadence,
-    });
-    planeBootstrap = plane.synced ? "live" : "pending";
-  }
+  // Draft projects defer Plane bootstrap until explicit launch (plane-sync).
+  const planeBootstrap: CreateProjectResponse["planeBootstrap"] = "pending";
 
   const env = loadEnv();
   if (zulipLiveReady(env)) {

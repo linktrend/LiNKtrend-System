@@ -32,22 +32,14 @@ const PLATFORM_STRIPE_PRODUCTS = [
   },
 ] as const;
 
-/** Stripe product mapping — source of truth for billing; platform shows links only (MVO stub). */
+/** Stripe product mapping for Marketplace checkout alignment. */
 export default function LicensorSuiteBillingPage() {
   return (
     <main className="space-y-6">
       <ShellPageHeaderClient
         title="Stripe products"
-        subtitle="LiNKaios core, capacity bundles, and each suite map to Stripe products — prices are configured in Stripe, not here."
+        subtitle="Platform and suite offerings mapped to Stripe product IDs. Pricing and billing frequency can be managed from Admin once the Stripe API integration is approved — see STRIPE_ADMIN_API_RESEARCH.md."
       />
-
-      <div className="rounded-xl border border-sky-200 bg-sky-50 p-4 text-sm text-sky-950 dark:border-sky-900/50 dark:bg-sky-950/30 dark:text-sky-50">
-        <p className="font-semibold">Billing source of truth: Stripe</p>
-        <p className="mt-1 text-sky-900/90 dark:text-sky-100/90">
-          Create and price products in the Stripe Dashboard. This screen maps Stripe product IDs to platform offerings
-          so Marketplace checkout and licensee billing stay aligned.
-        </p>
-      </div>
 
       <section className="space-y-3">
         <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Platform products</h2>

@@ -163,7 +163,7 @@ async function WorkerSkillsSliceContent(props: { agentId: string; slice: WorkerL
         {rows.length === 0 ? (
           <p className="text-sm text-zinc-500">No tools assigned to this LiNKbot yet.</p>
         ) : (
-          <ToolsCatalogTable rows={rows} />
+          <ToolsCatalogTable rows={rows} runtimeOnly />
         )}
       </div>
     );
@@ -190,7 +190,7 @@ async function WorkerSkillsSliceContent(props: { agentId: string; slice: WorkerL
       {skillRows.length === 0 ? (
         <p className="text-sm text-zinc-500">No skills assigned to this LiNKbot yet.</p>
       ) : (
-        <SkillsCatalogTable rows={skillRows} />
+        <SkillsCatalogTable rows={skillRows} runtimeOnly />
       )}
       <p className="text-xs text-zinc-500 dark:text-zinc-400">
         Company-wide catalogue lives under{" "}

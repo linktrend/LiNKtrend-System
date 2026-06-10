@@ -15,24 +15,13 @@ import { loadPlaneBridgesForProjects } from "@/lib/plane-project-bridge";
 import { isPlaneLiveConfigured } from "@/lib/kernel/plane-project-sync";
 import { projectIndexRowFromMission } from "@/lib/project-index-rows";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import type { ProjectSummaryColumnKey } from "@/lib/project-status-ui";
+import { projectSummaryColumnForStatus, type ProjectSummaryColumnKey } from "@/lib/project-status-ui";
 import { UiButton } from "@/components/ui/button-bridge";
 import { DEMO_SIDEBAR_MISSIONS } from "@/lib/ui-mocks/entities";
 import { isUiMocksEnabled } from "@/lib/ui-mocks/flags";
 import { DEMO_MISSION_PLANE_BRIDGE, demoMissionsFixtureRows } from "@/lib/ui-mocks/missions-fixtures";
 
 export const dynamic = "force-dynamic";
-
-const COLUMN_ORDER: {
-  key: ProjectSummaryColumnKey;
-  title: string;
-  statuses: ProjectRecord["status"][];
-}[] = [
-  { key: "draft", title: "Draft", statuses: ["draft"] },
-  { key: "active", title: "Active", statuses: ["assigned", "running"] },
-  { key: "completed", title: "Completed", statuses: ["completed"] },
-  { key: "attention", title: "Attention", statuses: ["failed", "cancelled"] },
-];
 
 export default async function ProjectsListPage() {
   const supabase = await createSupabaseServerClient();
@@ -66,13 +55,14 @@ export default async function ProjectsListPage() {
       ? await loadPlaneBridgesForProjects(merged.map((m) => String(m.id)))
       : {};
 
-  const byColumn = COLUMN_ORDER.map((col) => ({
-    ...col,
-    items: merged.filter((m) => col.statuses.includes(m.status)),
-  }));
-  const lifecycleCounts = Object.fromEntries(
-    byColumn.map((col) => [col.key, col.items.length]),
-  ) as Record<ProjectSummaryColumnKey, number>;
+  const lifecycleCounts: Record<ProjectSummaryColumnKey, number> = {
+    draft: 0,
+    active: 0,
+    archived: 0,
+  };
+  for (const m of merged) {
+    lifecycleCounts[projectSummaryColumnForStatus(m.status)] += 1;
+  }
 
   return (
     <main className="space-y-10">

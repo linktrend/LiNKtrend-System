@@ -1,17 +1,20 @@
 import { notFound } from "next/navigation";
 
+import { AdminLaunchProjectButton } from "@/components/admin/admin-launch-project-button";
 import { AdminProjectChannelsPanel } from "@/components/admin/admin-project-channels-panel";
 import { LeadLinkbotAffordance } from "@/components/lead-linkbot-affordance";
-import { ProjectCreatedBanner } from "@/components/projects/project-created-banner";
+import { ProjectBriefEditor } from "@/components/project-brief-editor";
+import { ProjectBreadcrumbRegister } from "@/components/project-breadcrumb-register";
 import { ProjectDetailMetaGrid } from "@/components/project-detail-meta-grid";
 import { ProjectDetailTabNav } from "@/components/project-detail-tab-nav";
 import { ProjectIssuesPanel } from "@/components/project-issues-panel";
 import { ProjectModulesPanel } from "@/components/project-modules-panel";
-import { ProjectOverviewPanel } from "@/components/project-overview-panel";
 import {
   ProjectLeasesPanel,
   ProjectLinkbotsAutomationsPanel,
 } from "@/components/project-linkbots-automations-panel";
+import { ProjectOverviewSnapshotGrid } from "@/components/project-overview-snapshot-grid";
+import { ProjectPlaneOverviewSection } from "@/components/project-plane-overview-section";
 import { ProjectRunsPanel } from "@/components/project-runs-panel";
 import { ProjectWorkflowProgress } from "@/components/project-workflow-progress";
 import { ProjectWorkflowsPanel } from "@/components/project-workflows-panel";
@@ -20,6 +23,7 @@ import { StatusPill } from "@/components/ui/status-pill";
 import { loadAdminProjectById } from "@/lib/admin-projects-data";
 import { ADMIN_PROJECTS_PAGE } from "@/lib/admin-projects-copy";
 import { ADMIN_BASE_PATH } from "@/lib/app-surface";
+import { loadProjectOverview } from "@/lib/project-overview-data";
 import { parseProjectTab, type ProjectTabId } from "@/lib/project-tabs";
 import {
   PROJECT_LIFECYCLE_PILL_LABELS,
@@ -54,6 +58,8 @@ function AdminProjectTabs(props: {
     moduleIds: string[];
     cadence: string | null;
     primaryAgentId: string | null;
+    leadAgentLabel: string;
+    brief: string | null;
     projectTypeLabel: string;
   };
   tab: ProjectTabId;
@@ -62,10 +68,7 @@ function AdminProjectTabs(props: {
 
   if (tab === "overview") {
     return (
-      <div className="space-y-8">
-        <AdminProjectChannelsPanel projectTitle={project.title} zulipSiteUrl={getZulipSiteUrlFromEnv()} />
-        <ProjectOverviewPanel projectId={project.id} title={project.title} />
-      </div>
+      <AdminProjectOverviewTab project={project} />
     );
   }
 
@@ -117,25 +120,56 @@ function AdminProjectTabs(props: {
   }
 
   if (tab === "runs") {
-    return (
-      <ProjectRunsPanel
-        projectId={project.id}
-        tracesHref={`${ADMIN_BASE_PATH}/settings/traces?project=${encodeURIComponent(project.id)}`}
-      />
-    );
+    return <ProjectRunsPanel projectId={project.id} projectTitle={project.title} />;
   }
 
   return null;
 }
 
+async function AdminProjectOverviewTab(props: {
+  project: {
+    id: string;
+    title: string;
+    brief: string | null;
+    leadAgentLabel: string;
+    projectTypeLabel: string;
+    suiteId: string | null;
+  };
+}) {
+  const { brief, snapshot } = await loadProjectOverview(props.project.id, props.project.title, {
+    briefOverride: props.project.brief,
+    projectTypeLabel: props.project.projectTypeLabel,
+  });
+
+  const briefText =
+    props.project.brief?.trim() ||
+    brief.description ||
+    "Add a project brief to capture goals, scope, and context as this vendor project evolves.";
+
+  return (
+    <div className="space-y-8">
+      <AdminProjectChannelsPanel projectTitle={props.project.title} zulipSiteUrl={getZulipSiteUrlFromEnv()} />
+      <ProjectBriefEditor
+        projectId={props.project.id}
+        initialBrief={briefText}
+        expectedOutputs={brief.expectedOutputs}
+      />
+      <section>
+        <h2 className="text-lg font-medium text-zinc-800 dark:text-zinc-100">Project snapshot</h2>
+        <ProjectOverviewSnapshotGrid projectId={props.project.id} snapshot={snapshot} informationalOnly />
+      </section>
+      <ProjectPlaneOverviewSection projectId={props.project.id} />
+    </div>
+  );
+}
+
 export default async function AdminProjectDetailPage(props: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ tab?: string | string[]; created?: string | string[] }>;
+  searchParams: Promise<{ tab?: string | string[] }>;
 }) {
   const { id } = await props.params;
   const sp = await props.searchParams;
   const tab = parseProjectTab(sp.tab);
-  const showCreatedBanner = (Array.isArray(sp.created) ? sp.created[0] : sp.created) === "1";
 
   const supabase = await createSupabaseServerClient();
   const { project, error } = await loadAdminProjectById(supabase, id);
@@ -152,12 +186,16 @@ export default async function AdminProjectDetailPage(props: {
 
   return (
     <main className="space-y-8">
+      <ProjectBreadcrumbRegister projectId={project.id} title={project.title} />
+
       <ShellPageHeaderClient
         title={project.title}
         subtitle={ADMIN_PROJECTS_PAGE.detailSubtitle}
         hideLicensorScope
+        titleExtra={<ProjectLifecycleStatusPill status={project.status} />}
         actions={
           <>
+            {isDraft ? <AdminLaunchProjectButton projectId={project.id} /> : null}
             {project.planeProjectHref ? (
               <a
                 href={project.planeProjectHref}
@@ -168,14 +206,9 @@ export default async function AdminProjectDetailPage(props: {
                 Open in Plane ↗
               </a>
             ) : null}
-            <ProjectLifecycleStatusPill status={project.status} />
           </>
         }
       />
-
-      {showCreatedBanner ? (
-        <ProjectCreatedBanner projectId={project.id} basePath={ADMIN_PROJECTS_BASE} />
-      ) : null}
 
       {isDraft ? (
         <p className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950 dark:border-amber-900/60 dark:bg-amber-950/30 dark:text-amber-100">
@@ -185,15 +218,16 @@ export default async function AdminProjectDetailPage(props: {
 
       <ProjectDetailMetaGrid
         items={[
-          { label: "Project ID", value: project.id },
+          { label: "Project ID", value: project.id, copyValue: project.id },
           { label: "Type", value: project.projectTypeLabel },
-          { label: "Suite", value: project.suiteId ?? "—" },
+          { label: "Suite", value: project.suiteDisplayName },
+          { label: "Modules", value: project.moduleDisplayNames },
           {
             label: "Lead LiNKbot",
             value: project.primaryAgentId ? (
-              <LeadLinkbotAffordance workerId={project.primaryAgentId} name="LiNKbot" />
+              <LeadLinkbotAffordance workerId={project.primaryAgentId} name={project.leadAgentLabel} />
             ) : (
-              "—"
+              project.leadAgentLabel
             ),
           },
         ]}

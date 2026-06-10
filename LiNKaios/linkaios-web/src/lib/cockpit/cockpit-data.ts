@@ -111,8 +111,28 @@ export async function loadLeaseStatus(
       "lease_id, capability, status, tenant_id, run_id, stage_id, requested_at, granted_at, executed_at, expires_at, kill_switch_state, ledger_entry_id, audit_event_id",
     )
     .eq("tenant_id", tenantId)
-    .order("requested_at", { ascending: false })
-    .limit(options?.time_range === "1h" ? 20 : DEFAULT_RECENT_LIMIT);
+    .order("requested_at", { ascending: false });
+
+  const range = options?.time_range ?? "24h";
+  if (range !== "30d" && range !== "7d") {
+    query = query.limit(range === "1h" ? 20 : DEFAULT_RECENT_LIMIT);
+  } else {
+    query = query.limit(200);
+  }
+
+  if (range === "1h") {
+    const since = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+    query = query.gte("requested_at", since);
+  } else if (range === "24h") {
+    const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+    query = query.gte("requested_at", since);
+  } else if (range === "7d") {
+    const since = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+    query = query.gte("requested_at", since);
+  } else if (range === "30d") {
+    const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+    query = query.gte("requested_at", since);
+  }
 
   if (options?.status?.length) {
     query = query.in("status", options.status);

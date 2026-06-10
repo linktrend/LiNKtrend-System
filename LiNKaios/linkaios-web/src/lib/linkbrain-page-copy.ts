@@ -9,7 +9,7 @@ export function linkbrainTabSubtitle(tab: LinkbrainTab, kind: AppActorKind = "li
         : "Review pending knowledge — edit, approve, or reject before it is recorded in LiNKbrain.";
     case "project":
       return kind === "licensor"
-        ? "Admin program memory — browse vendor studio projects (LiNKsuitegen, librarian filings), not client tenant projects."
+        ? "Browse vendor studio projects (LiNKsuitegen, librarian filings) — not client tenant projects."
         : "Select a project to view, edit, or add memory — new items go to Inbox first.";
     case "agent":
       return kind === "licensor"
@@ -21,7 +21,7 @@ export function linkbrainTabSubtitle(tab: LinkbrainTab, kind: AppActorKind = "li
         : "Company-wide memory for this tenant — view, edit, or add items via Inbox approval.";
     case "ask":
       return kind === "licensor"
-        ? "Query shared vendor LiNKbrain — filter by licensee, admin program, LiNKbot, or tags, then ask a question."
+        ? "Query shared vendor LiNKbrain — filter by View (All, Admin, licensees), project, LiNKbot, or tags, then ask."
         : "Preview what LiNKbots see — choose scope, then ask a question.";
     case "audit":
       return kind === "licensor"
@@ -41,7 +41,7 @@ export function linkbrainPageTitle(tab: LinkbrainTab, kind: AppActorKind = "lice
     case "inbox":
       return "Inbox";
     case "project":
-      return kind === "licensor" ? "Admin Program Memory" : "Project Memory";
+      return kind === "licensor" ? "Project" : "Project Memory";
     case "agent":
       return "LiNKbot Memory";
     case "company":

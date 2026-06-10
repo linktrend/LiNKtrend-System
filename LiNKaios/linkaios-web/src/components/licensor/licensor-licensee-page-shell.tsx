@@ -17,7 +17,10 @@ import { ALL_LICENSEES_SCOPE } from "@/lib/app-roles";
 import { resolveLicenseeRegistry } from "@/lib/licensee-registry";
 import { BUTTON } from "@/lib/ui-standards";
 
-function LicensorLicenseePageShellInner() {
+function LicensorLicenseePageShellInner(props: {
+  chatwootPublicUrl: string | null;
+  chatwootAccountId: string | null;
+}) {
   const searchParams = useSearchParams();
   const rawTab = searchParams.get("tab");
   const { scope, setScope } = useLicensorScope();
@@ -44,16 +47,27 @@ function LicensorLicenseePageShellInner() {
         }
       />
       <CompanySubNav />
-      <LicensorLicenseeTabContent tab={tab} licenseeId={scope} />
+      <LicensorLicenseeTabContent
+        tab={tab}
+        licenseeId={scope}
+        chatwootPublicUrl={props.chatwootPublicUrl}
+        chatwootAccountId={props.chatwootAccountId}
+      />
     </main>
   );
 }
 
 /** Admin-only licensee detail — service profile tabs without Client corporate governance panels. */
-export function LicensorLicenseePageShell() {
+export function LicensorLicenseePageShell(props: {
+  chatwootPublicUrl: string | null;
+  chatwootAccountId: string | null;
+}) {
   return (
     <Suspense fallback={<main className="p-6 text-sm text-zinc-500">Loading licensee profile…</main>}>
-      <LicensorLicenseePageShellInner />
+      <LicensorLicenseePageShellInner
+        chatwootPublicUrl={props.chatwootPublicUrl}
+        chatwootAccountId={props.chatwootAccountId}
+      />
     </Suspense>
   );
 }

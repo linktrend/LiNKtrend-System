@@ -12,6 +12,10 @@ import {
   applySuiteCompositionAction,
   type SuiteCompositionAction,
 } from "@/lib/licensor-suite-catalog";
+import {
+  applySuiteCompositionUpsert,
+  type SuiteCompositionUpsert,
+} from "@/lib/suite-composition";
 import type { ModuleProcess } from "@/lib/ui-mocks/modules-catalog-demo";
 import { nextSuitePublishState, type SuitePublishAction } from "@/lib/admin-vendor-ops";
 
@@ -81,6 +85,7 @@ export function useLicensorSuiteStore(): {
   getSuite: (suiteId: string) => LicensorSuiteProduct | undefined;
   transitionPublish: (suiteId: string, action: SuitePublishAction) => boolean;
   applyComposition: (suiteId: string, action: SuiteCompositionAction) => { ok: boolean; reason?: string };
+  upsertComposition: (suiteId: string, upsert: SuiteCompositionUpsert) => { ok: boolean; reason?: string };
   createDraftSuite: (input: { id: string; name: string; summary: string }) => void;
   linkStripeProduct: (suiteId: string, stripeProductId: string | null) => void;
 } {
@@ -136,16 +141,29 @@ export function useLicensorSuiteStore(): {
     [products],
   );
 
+  const persistModules = useCallback((suiteId: string, modules: ModuleProcess[]) => {
+    const current = readSnapshot();
+    writeSnapshot({ ...current, modules: { ...current.modules, [suiteId]: modules } });
+    setSnapshot(readSnapshot());
+  }, []);
+
   const applyComposition = useCallback((suiteId: string, action: SuiteCompositionAction) => {
     const base = products.find((p) => p.id === suiteId);
     if (!base) return { ok: false, reason: "Suite not found." };
     const result = applySuiteCompositionAction(base.modules, action);
     if (!result.ok) return result;
-    const current = readSnapshot();
-    writeSnapshot({ ...current, modules: { ...current.modules, [suiteId]: result.modules } });
-    setSnapshot(readSnapshot());
+    persistModules(suiteId, result.modules);
     return { ok: true };
-  }, [products]);
+  }, [products, persistModules]);
+
+  const upsertComposition = useCallback((suiteId: string, upsert: SuiteCompositionUpsert) => {
+    const base = products.find((p) => p.id === suiteId);
+    if (!base) return { ok: false, reason: "Suite not found." };
+    const result = applySuiteCompositionUpsert(base.modules, upsert);
+    if (!result.ok) return result;
+    persistModules(suiteId, result.modules);
+    return { ok: true };
+  }, [products, persistModules]);
 
   const createDraftSuite = useCallback((input: { id: string; name: string; summary: string }) => {
     const current = readSnapshot();
@@ -175,6 +193,7 @@ export function useLicensorSuiteStore(): {
     getSuite,
     transitionPublish,
     applyComposition,
+    upsertComposition,
     createDraftSuite,
     linkStripeProduct,
   };

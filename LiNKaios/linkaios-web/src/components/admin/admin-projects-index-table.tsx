@@ -13,9 +13,9 @@ import {
   DataTableShell,
   DT,
 } from "@/components/data-table";
-import { PlaneOpenModal } from "@/components/plane-open-modal";
 import type { AdminProjectIndexRow } from "@/lib/admin-projects-data";
 import { ADMIN_BASE_PATH } from "@/lib/app-surface";
+import { openPlaneExternalUrl } from "@/lib/plane-links";
 import { TABLE_COLUMN } from "@/lib/ui-standards";
 
 type SyncState = "synced" | "pending" | "syncing";
@@ -65,7 +65,6 @@ export function AdminProjectsIndexTable(props: {
   emptyMessage?: string;
 }) {
   const [syncById, setSyncById] = useState<Record<string, SyncState>>({});
-  const [planeModal, setPlaneModal] = useState<{ title: string; href: string | null } | null>(null);
 
   useEffect(() => {
     setSyncById(Object.fromEntries(props.rows.map((r) => [r.id, r.planeSyncStatus])));
@@ -158,7 +157,7 @@ export function AdminProjectsIndexTable(props: {
                       <DataTableIconAction
                         icon={ExternalLink}
                         label={planeHref ? `Open ${r.title} in Plane` : "Plane is not connected"}
-                        onClick={() => setPlaneModal({ title: r.title, href: planeHref })}
+                        onClick={() => openPlaneExternalUrl(planeHref)}
                       />
                     </div>
                   </td>
@@ -168,12 +167,6 @@ export function AdminProjectsIndexTable(props: {
           )}
         </DataTableBody>
       </DataTable>
-      <PlaneOpenModal
-        open={planeModal !== null}
-        onClose={() => setPlaneModal(null)}
-        planeHref={planeModal?.href ?? null}
-        projectTitle={planeModal?.title ?? "Project"}
-      />
     </DataTableShell>
   );
 }

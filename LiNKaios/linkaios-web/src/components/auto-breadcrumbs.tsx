@@ -92,7 +92,7 @@ function segmentLabel(
   }
   if (STATIC_LABELS[seg]) return STATIC_LABELS[seg];
   if (UUID_RE.test(seg) && uuidLabels[seg]) return uuidLabels[seg]!;
-  if (UUID_RE.test(seg) && prevSeg === "sessions") return "Session";
+  if (UUID_RE.test(seg) && prevSeg === "sessions") return seg.slice(0, 8);
   if (UUID_RE.test(seg)) return `…${seg.slice(0, 8)}`;
   return formatUiLabel(seg.replace(/-/g, " "));
 }

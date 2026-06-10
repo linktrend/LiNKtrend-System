@@ -1,13 +1,6 @@
-import {
-  FlaskConical,
-  Route,
-  ScrollText,
-  Trash2,
-  type LucideIcon,
-} from "lucide-react";
+import { Route, ScrollText, Trash2, type LucideIcon } from "lucide-react";
 
 import { SettingCard } from "@/components/settings/setting-card";
-import { StubBadge } from "@/components/stub-badge";
 import { ADMIN_BASE_PATH } from "@/lib/app-surface";
 
 /** Platform settings links — admin surface only (licensee app has no Platform tab). */
@@ -22,15 +15,15 @@ const PLATFORM_AREAS: {
   actionLabel: string;
   icon: LucideIcon;
   summary?: string;
-  devOnly?: boolean;
 }[] = [
   {
     href: adminHref("/settings/gateway"),
-    title: "Integration Routing",
-    description: "Channel and gateway routing configuration for inbound and outbound capabilities.",
-    actionLabel: "Manage routing",
+    title: "Zulip stream routing",
+    description:
+      "See which Zulip chat streams are linked to which LiNKaios projects — use this when messages land in the wrong place or a project stream is missing.",
+    actionLabel: "View stream routing",
     icon: Route,
-    summary: "Inbound/outbound capability paths",
+    summary: "Zulip stream ↔ project links and recent message routing",
   },
   {
     href: adminHref("/settings/traces"),
@@ -48,15 +41,6 @@ const PLATFORM_AREAS: {
     icon: Trash2,
     summary: "Worker residue cleanup and audit events",
   },
-  {
-    href: adminHref("/devtools/mvo-proof"),
-    title: "MVO Proof Surfaces",
-    description: "Deterministic WebsiteFactory, LEXOS, and LiNKapps proof snapshots for UI testing during MVO build-out.",
-    actionLabel: "View proof surfaces",
-    icon: FlaskConical,
-    summary: "Fixture-only demo snapshots",
-    devOnly: true,
-  },
 ];
 
 export function SettingsPlatformPanel() {
@@ -70,7 +54,6 @@ export function SettingsPlatformPanel() {
           description={item.description}
           actionLabel={item.actionLabel}
           href={item.href}
-          titleAction={item.devOnly ? <StubBadge label="Development only" /> : undefined}
         >
           {item.summary ? <p className="text-sm text-zinc-600 dark:text-zinc-400">{item.summary}</p> : null}
         </SettingCard>

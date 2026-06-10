@@ -1,6 +1,7 @@
 "use client";
 
 import { ArrowLeft, ExternalLink, MessageSquare, MessagesSquare } from "lucide-react";
+import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 
 import { WorkEmptyState } from "@/app/(shell)/work/work-empty-state";
@@ -154,9 +155,12 @@ export function WorkMessagesWorkspace(props: {
     return channels;
   }, [props.channelConfig.slack, props.channelConfig.telegram]);
 
+  const searchParams = useSearchParams();
+  const deepLinkThreadId = searchParams.get("thread");
+
   const [productChannel, setProductChannel] = useState<ProductChannel>("zulip");
   const [agentId, setAgentId] = useState<string>("all");
-  const [threadId, setThreadId] = useState<string | null>(null);
+  const [threadId, setThreadId] = useState<string | null>(deepLinkThreadId);
   const [messageId, setMessageId] = useState<string | null>(null);
   const [mobilePane, setMobilePane] = useState<MobilePane>("threads");
 
@@ -177,6 +181,13 @@ export function WorkMessagesWorkspace(props: {
   const selectedThread = filteredThreads.find((t) => t.id === threadId) ?? filteredThreads[0] ?? null;
   const selectedMessage =
     selectedThread?.messages.find((m) => m.id === messageId) ?? selectedThread?.messages[0] ?? null;
+
+  useEffect(() => {
+    if (deepLinkThreadId && filteredThreads.some((t) => t.id === deepLinkThreadId)) {
+      setThreadId(deepLinkThreadId);
+      setMobilePane("messages");
+    }
+  }, [deepLinkThreadId, filteredThreads]);
 
   useEffect(() => {
     if (filteredThreads.length === 0) {

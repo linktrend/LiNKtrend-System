@@ -12,18 +12,19 @@ export const ADMIN_PROJECTS_PAGE = {
     "Vendor projects are studio execution tracks — LiNKsuitegen catalogue work, librarian filings, and platform ops led by admin LiNKbots. They are separate from licensee project management on Client.",
   planeHint:
     "When projects are provisioned on Plane, open the workspace from the actions column after confirming context.",
-  wizardPageTitle: "Launch Project",
+  wizardPageTitle: "New Project",
   wizardPageSubtitle:
     "Create vendor-scoped studio work for admin LiNKbots — LiNKsuitegen, librarian filings, or platform ops.",
-  wizardTitle: "Launch vendor project",
-  wizardTypeHint: "Choose the studio track this project belongs to. Type sets suite and module bindings for orchestration.",
+  wizardTitle: "New vendor project",
+  wizardTypeHint: "Choose the vendor suite and cadence. Suite template binds modules, phases, issues, and lead LiNKbot on create.",
   wizardLaunchHint:
-    "Launch creates the project on the licensor tenant, records a governance trace, and provisions Plane when studio credentials are configured.",
+    "Create saves a Draft on the licensor tenant with suite bindings. Launch from project detail provisions Plane when studio credentials are configured.",
   detailSubtitle:
     "Vendor project detail — Plane runs board execution; LiNKaios runs orchestration, approvals, outputs, and traces.",
   draftStatusHint:
     "Draft means the project record exists but orchestration has not started yet. Status advances when the first Run is assigned or execution begins.",
-  launchButton: "Launch project",
+  launchButton: "New project",
+  createButton: "Create project",
 } as const;
 
 export const ADMIN_PROJECTS_NAV = {

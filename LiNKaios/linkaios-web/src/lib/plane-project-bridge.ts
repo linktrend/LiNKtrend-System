@@ -37,7 +37,7 @@ export async function loadPlaneBridgesForProjects(
     const leadId = String(row.lead_id);
     const planeProjectId = String(row.plane_project_id);
     const remote = await getPlaneProject(env, planeProjectId);
-    const identifier = remote?.identifier ?? planeProjectId.slice(0, 8).toUpperCase();
+    const identifier = remote?.identifier?.trim() || planeProjectId;
     out[leadId] = {
       code: identifier,
       planeSyncStatus: remote ? "synced" : "pending",
