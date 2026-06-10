@@ -13,6 +13,7 @@ services:
     restart: unless-stopped
     extra_hosts:
       - "zulip.linktrend.internal:${ZULIP_INTERNAL_HOST_IP:-100.86.158.30}"
+      - "plane.linktrend.internal:${PLANE_INTERNAL_HOST_IP:-${ZULIP_INTERNAL_HOST_IP:-100.86.158.30}}"
     labels:
       - traefik.enable=true
       - traefik.http.routers.${TRAEFIK_ROUTER_NAME:-linkaios}.rule=Host(`${TRAEFIK_HOST:-linkaios.linktrend.internal}`)

@@ -162,6 +162,8 @@ const envSchema = z.object({
   PLANE_WORKSPACE_SLUG: optionalNonEmpty(),
   /** Plane API key. */
   PLANE_API_KEY: optionalNonEmpty(),
+  /** Set to `1` for studio Traefik self-signed cert on internal Plane (VPS only). */
+  PLANE_TLS_INSECURE: z.string().optional(),
   /** Plane integration mode. Default stub prevents remote writes. */
   LINKSKILLS_PLANE_MODE: z.enum(["stub", "shadow_readiness", "live"]).optional(),
   /** DigitalOcean API token. */

@@ -1,3 +1,5 @@
+import "server-only";
+
 import { loadEnv, type Env } from "@linktrend/shared-config";
 import type { SupabaseClient } from "@supabase/supabase-js";
 

@@ -4,7 +4,7 @@ import { Suspense } from "react";
 import { fetchRecentTraces } from "@/lib/traces-db";
 import { ShellPageHeaderClient } from "@/components/shell-page-header-client";
 import { resolveLicenseeRegistry } from "@/lib/licensee-registry";
-import { loadSupportTicketsFromDb } from "@/lib/support-tickets-data";
+import { loadSupportTicketsFromDb } from "@/lib/support-tickets-db.server";
 import { supportTicketToWorkAlert } from "@/lib/support-tickets";
 import { traceToWorkAlert, type WorkAlert } from "@/lib/work-alerts";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
