@@ -2,6 +2,8 @@
 
 import { Bot, Clock, Radio, Users, WifiOff, type LucideIcon } from "lucide-react";
 
+import { useAppSurface } from "@/components/app-surface-provider";
+
 import {
   SummaryMetricStatusPill,
   WORK_STREAM_STATUS_PILL_LABELS,
@@ -26,11 +28,11 @@ function FleetStatCard(props: {
   icon: LucideIcon;
   preview: string;
   tone: WorkRowTone;
-  href?: string;
+  href: string;
 }) {
   return (
     <SummaryMetricCard
-      href={props.href ?? "/workers"}
+      href={props.href}
       title={props.label}
       icon={props.icon}
       metric={props.value}
@@ -49,6 +51,7 @@ export function FleetSummaryStatsGrid(props: {
   inactive: number;
   className?: string;
 }) {
+  const { href: appHref } = useAppSurface();
   const offline = Math.max(0, props.total - props.online);
   const cards = [
     {
@@ -106,6 +109,7 @@ export function FleetSummaryStatsGrid(props: {
           icon={card.icon}
           preview={card.preview}
           tone={card.tone}
+          href={appHref("/workers")}
         />
       ))}
     </SummaryMetricCardGrid>

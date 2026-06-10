@@ -10,6 +10,7 @@ import { catalogueRowHighlightClass } from "@/components/capability-catalog-shar
 import { CapabilityCatalogColGroup, CAPABILITY_CATALOG_TABLE_CLASS } from "@/components/capability-catalog-table-layout";
 import { DataTableIconAction, DataTableShell, DT, TableBoolToggle } from "@/components/data-table";
 import { useAppRole } from "@/components/role-preview-provider";
+import { useAppSurface } from "@/components/app-surface-provider";
 import { canEditLinkskillsCatalogue, canToggleTenantSkillOrTool } from "@/lib/app-roles";
 import { useOrgToolPolicy } from "@/lib/org-tool-policy";
 
@@ -27,12 +28,15 @@ export type ToolCatalogRow = {
   isFixture?: boolean;
 };
 
-export function ToolsCatalogTable(props: { rows: ToolCatalogRow[] }) {
+export function ToolsCatalogTable(props: { rows: ToolCatalogRow[]; runtimeOnly?: boolean }) {
+  const runtimeOnly = props.runtimeOnly ?? false;
   const router = useRouter();
+  const { href: appHref } = useAppSurface();
   const [pending, startTransition] = useTransition();
   const { kind, role } = useAppRole();
   const canEditCatalogue = canEditLinkskillsCatalogue(kind, role);
   const canToggleTenant = canToggleTenantSkillOrTool(kind, role);
+  const showRuntimeColumn = runtimeOnly || kind !== "licensor";
   const { hydrated, orgEnabledById, setOrgEnabled } = useOrgToolPolicy(props.rows);
 
   async function applyFlags(id: string, published: boolean, runtimeEnabled: boolean) {
@@ -65,12 +69,16 @@ export function ToolsCatalogTable(props: { rows: ToolCatalogRow[] }) {
             <th className={DT.thControl}>
               <div className={DT.controlInner}>Lifecycle</div>
             </th>
-            <th className={DT.thControl}>
-              <div className={DT.controlInner}>{availableColumnLabel}</div>
-            </th>
-            <th className={DT.thControl}>
-              <div className={DT.controlInner}>Runtime</div>
-            </th>
+            {runtimeOnly ? null : (
+              <th className={DT.thControl}>
+                <div className={DT.controlInner}>{availableColumnLabel}</div>
+              </th>
+            )}
+            {showRuntimeColumn ? (
+              <th className={DT.thControl}>
+                <div className={DT.controlInner}>Runtime</div>
+              </th>
+            ) : null}
             <th className={DT.thControl}>
               <div className={DT.controlInner}>Actions</div>
             </th>
@@ -110,46 +118,50 @@ export function ToolsCatalogTable(props: { rows: ToolCatalogRow[] }) {
                     <LifecyclePill status={r.status} />
                   </div>
                 </td>
-                <td className={DT.tdControl}>
-                  <TableBoolToggle
-                    on={displayPublished}
-                    disabled={
-                      pending ||
-                      r.status !== "approved" ||
-                      r.isFixture ||
-                      (kind === "licensee" ? !canToggleTenant : !canEditCatalogue)
-                    }
-                    ariaLabel={`${availableColumnLabel}: ${r.name}`}
-                    onToggle={(pub) => {
-                      if (kind === "licensee") {
-                        setOrgEnabled(r.id, pub);
-                        return;
+                {runtimeOnly ? null : (
+                  <td className={DT.tdControl}>
+                    <TableBoolToggle
+                      on={displayPublished}
+                      disabled={
+                        pending ||
+                        r.status !== "approved" ||
+                        r.isFixture ||
+                        (kind === "licensee" ? !canToggleTenant : !canEditCatalogue)
                       }
-                      void applyFlags(r.id, pub, pub ? r.runtimeEnabled : false);
-                    }}
-                  />
-                </td>
-                <td className={DT.tdControl}>
-                  <TableBoolToggle
-                    on={r.runtimeEnabled}
-                    disabled={
-                      canEditCatalogue
-                        ? pending || r.status !== "approved" || !r.published || r.isFixture
-                        : true
-                    }
-                    ariaLabel={`Runtime: ${r.name}`}
-                    onToggle={(on) => void applyFlags(r.id, r.published, on)}
-                  />
-                </td>
+                      ariaLabel={`${availableColumnLabel}: ${r.name}`}
+                      onToggle={(pub) => {
+                        if (kind === "licensee") {
+                          setOrgEnabled(r.id, pub);
+                          return;
+                        }
+                        void applyFlags(r.id, pub, pub ? r.runtimeEnabled : false);
+                      }}
+                    />
+                  </td>
+                )}
+                {showRuntimeColumn ? (
+                  <td className={DT.tdControl}>
+                    <TableBoolToggle
+                      on={r.runtimeEnabled}
+                      disabled={
+                        canEditCatalogue
+                          ? pending || r.status !== "approved" || (!runtimeOnly && !r.published) || r.isFixture
+                          : true
+                      }
+                      ariaLabel={`Runtime: ${r.name}`}
+                      onToggle={(on) => void applyFlags(r.id, r.published, on)}
+                    />
+                  </td>
+                ) : null}
                 <td className={DT.tdControl}>
                   <div className={DT.actionsRow}>
-                    <DataTableIconAction icon={Eye} label={`Open ${r.name}`} href={`/skills/tools/${r.id}`} />
+                    <DataTableIconAction icon={Eye} label={`Open ${r.name}`} href={appHref(`/skills/tools/${r.id}`)} />
                     {canEditCatalogue ? (
                       <>
                         <DataTableIconAction
                           icon={Pencil}
                           label={`Edit ${r.name}`}
-                          href={r.isFixture ? undefined : `/skills/tools/${r.id}`}
+                          href={r.isFixture ? undefined : appHref(`/skills/tools/${r.id}`)}
                           disabled={r.isFixture}
                         />
                         <DataTableIconAction

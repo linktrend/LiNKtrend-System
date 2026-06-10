@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import type { AgentRecord } from "@linktrend/shared-types";
 
 import { SessionsInbox } from "../../../work/sessions-inbox";
+import { WorkerLogsPanel } from "@/components/worker-logs-panel";
 import { WorkerTabSectionHeader } from "@/components/worker-tab-section-header";
 import { isDemoAgentId } from "@/lib/ui-mocks/entities";
 import { DEMO_SESSION_THREADS } from "@/lib/ui-mocks/session-threads";
@@ -35,6 +36,15 @@ export default async function WorkerSessionsPage(props: {
           />
           <div className="mt-4">
             <SessionsInbox sessions={threads} />
+          </div>
+        </section>
+        <section id="session-logs">
+          <WorkerTabSectionHeader
+            title="Session logs"
+            subtitle="Closed session transcripts — JSONL summaries with message counts, tool usage, and cost."
+          />
+          <div className="mt-4">
+            <WorkerLogsPanel agentId={id} />
           </div>
         </section>
       </div>
@@ -84,6 +94,15 @@ export default async function WorkerSessionsPage(props: {
         />
         <div className="mt-4">
           <SessionsInbox sessions={threads} />
+        </div>
+      </section>
+      <section id="session-logs">
+        <WorkerTabSectionHeader
+          title="Session logs"
+          subtitle="Closed session transcripts — JSONL summaries with message counts, tool usage, and cost."
+        />
+        <div className="mt-4">
+          <WorkerLogsPanel agentId={id} />
         </div>
       </section>
     </div>

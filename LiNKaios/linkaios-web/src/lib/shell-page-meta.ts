@@ -39,7 +39,7 @@ const EXACT: Record<string, ShellPageMeta> = {
   },
   "/customer-service": {
     title: "Customer Service",
-    subtitle: "Unified support ticket queue across licensees — governed by Chatwoot when the connector is live.",
+    subtitle: "Dashboard mirror of Chatwoot — work happens in Chatwoot; this queue reflects live ticket status.",
   },
   "/licensees": {
     title: LICENSEES_PAGE_HEADER.title,
@@ -150,7 +150,7 @@ const SETTINGS_SUBPAGE: Record<string, ShellPageMeta> = {
   },
   "/settings/platform": {
     title: "Platform",
-    subtitle: "Power-operator areas — routing, traces, LiNKguard cleanup, and development proof surfaces.",
+    subtitle: "Power-operator areas — Zulip stream routing, automation traces, and LiNKguard cleanup.",
   },
   "/settings/linkguard": {
     title: "LiNKguard",
@@ -161,8 +161,8 @@ const SETTINGS_SUBPAGE: Record<string, ShellPageMeta> = {
     subtitle: "Organisation-scoped defaults for which tools LiNKbots may call.",
   },
   "/settings/gateway": {
-    title: "Integration Routing",
-    subtitle: "Channel and gateway routing for inbound and outbound capabilities.",
+    title: "Zulip stream routing",
+    subtitle: "Troubleshooting view — which chat streams link to which LiNKaios projects and recent message routing.",
   },
 };
 

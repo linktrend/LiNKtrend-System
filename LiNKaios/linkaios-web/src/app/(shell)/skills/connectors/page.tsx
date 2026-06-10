@@ -3,12 +3,17 @@ import { ConnectorsCatalogDiscovery } from "@/components/connectors-catalog-disc
 import { LinkskillsHubNav } from "@/components/linkskills-hub-nav";
 import { ShellPageHeaderClient } from "@/components/shell-page-header-client";
 import { ConnectorsCatalogStatsGrid } from "@/components/summary-metric-card";
+import { readAppSurfaceFromHeaders } from "@/lib/app-surface";
 import { connectorHubStats, DEMO_CONNECTOR_CATALOG_ROWS } from "@/lib/ui-mocks/capability-connectors-demo";
+import { isUiMocksEnabledForSurface } from "@/lib/ui-mocks/flags";
 
 export const dynamic = "force-dynamic";
 
-export default function SkillsConnectorsPage() {
-  const stats = connectorHubStats(DEMO_CONNECTOR_CATALOG_ROWS);
+export default async function SkillsConnectorsPage() {
+  const surface = await readAppSurfaceFromHeaders();
+  const uiMocksEnabled = isUiMocksEnabledForSurface(surface);
+  const seedRows = uiMocksEnabled ? DEMO_CONNECTOR_CATALOG_ROWS : [];
+  const stats = connectorHubStats(seedRows);
 
   return (
     <main className="space-y-8">
@@ -26,7 +31,7 @@ export default function SkillsConnectorsPage() {
         pending={stats.pending}
       />
 
-      <ConnectorsCatalogDiscovery seedRows={DEMO_CONNECTOR_CATALOG_ROWS} />
+      <ConnectorsCatalogDiscovery seedRows={seedRows} />
     </main>
   );
 }

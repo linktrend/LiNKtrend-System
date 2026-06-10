@@ -25,7 +25,6 @@ import { ModulesSidebarSection } from "@/components/suites/modules-sidebar-secti
 import { LicensorSuitesSidebarSection } from "@/components/suites/licensor-suites-sidebar-section";
 
 import { useAppRole } from "@/components/role-preview-provider";
-import { SidebarRoleBadge } from "@/components/sidebar-role-preview";
 import { SidebarLicensorScope } from "@/components/sidebar-licensor-scope";
 import { useAppSurface } from "@/components/app-surface-provider";
 import { SidebarActiveContext } from "@/components/sidebar-active-context";
@@ -122,10 +121,7 @@ function SidebarUserBlock(props: { user: SidebarUser }) {
         )}
       </div>
       <div className="min-w-0 flex-1">
-        <div className="flex min-w-0 items-center gap-2">
-          <p className="min-w-0 truncate text-sm font-semibold leading-tight text-zinc-900 dark:text-zinc-100">{primary}</p>
-          <SidebarRoleBadge />
-        </div>
+        <p className="min-w-0 truncate text-sm font-semibold leading-tight text-zinc-900 dark:text-zinc-100">{primary}</p>
         {secondary ? (
           <p className="mt-0.5 truncate text-xs leading-tight text-zinc-500 dark:text-zinc-400">{secondary}</p>
         ) : user.email && primary !== user.email ? (
@@ -200,7 +196,7 @@ export function ShellSidebar(props: {
   const toggle = (key: Exclude<AccordionKey, null>) => {
     setOpenAccordion((cur) => {
       if (cur === key) {
-        if (key === "agents" && (route.startsWith("/workers") || route.startsWith("/fleet"))) {
+        if (key === "agents" && route.startsWith("/workers")) {
           return cur;
         }
         return null;
@@ -209,8 +205,7 @@ export function ShellSidebar(props: {
     });
   };
 
-  const agentsSectionActive = route.startsWith("/workers") || route.startsWith("/fleet");
-  const workersFleetScope = searchParams.get("scope") === "admin" ? "admin" : "all";
+  const agentsSectionActive = route.startsWith("/workers");
   const workersListRoute = route === "/workers" || route === "/workers/";
 
   const settingsActive = settingsSectionActive(route);
@@ -447,23 +442,10 @@ export function ShellSidebar(props: {
                 <div className={subMenuRail}>
                   <Link
                     href={appHref("/workers")}
-                    className={footerSubLinkClass(workersListRoute && workersFleetScope === "all")}
+                    className={footerSubLinkClass(workersListRoute)}
                   >
                     {linkbotsFleetLabel}
                   </Link>
-                  {isAdmin ? (
-                    <>
-                      <Link
-                        href={appHref("/workers?scope=admin")}
-                        className={subLinkClass(workersListRoute && workersFleetScope === "admin")}
-                      >
-                        Admin LiNKbots
-                      </Link>
-                      <Link href={appHref("/fleet")} className={subLinkClass(route.startsWith("/fleet"))}>
-                        Fleet v1
-                      </Link>
-                    </>
-                  ) : null}
                   {placeholderSubItem("Recent", "recent")}
                   {placeholderSubItem("Pinned", "pinned")}
                 </div>

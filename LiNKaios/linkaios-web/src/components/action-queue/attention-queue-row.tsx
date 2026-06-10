@@ -9,9 +9,11 @@ import {
 import {
   ActionQueueRow,
 } from "@/components/action-queue/action-queue-row";
-import type { AttentionFeedItem } from "@/lib/work-attention-feed";
+import { useAppSurface } from "@/components/app-surface-provider";
 import { FixturePill } from "@/components/fixture-pill";
 import { isUiMockAttentionItem } from "@/lib/ui-mocks/fixture-provenance";
+import type { AttentionFeedItem } from "@/lib/work-attention-feed";
+import { sanitizeAttentionHref } from "@/lib/work-attention-feed-routing";
 
 function queueItemIcon(item: AttentionFeedItem) {
   const accent = accentFromAttentionItem(item);
@@ -31,10 +33,12 @@ function queueItemIcon(item: AttentionFeedItem) {
 /** Action Queue row for All Work / Overview attention feed. */
 export function AttentionQueueRow(props: { item: AttentionFeedItem }) {
   const { item } = props;
+  const { href: appHref } = useAppSurface();
   const showFixture = isUiMockAttentionItem(item);
+  const rowHref = appHref(sanitizeAttentionHref(item.href, "/work"));
   return (
     <ActionQueueRow
-      href={item.href}
+      href={rowHref}
       accent={accentFromAttentionItem(item)}
       icon={queueItemIcon(item)}
       title={

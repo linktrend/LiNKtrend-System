@@ -4,15 +4,21 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 
 import { resolveLicensorTenantId } from "@/lib/admin-linkskills-tenant";
 import {
+  adminModuleDisplayNames,
+  adminSuiteDisplayName,
+  adminLeadAgentDisplayName,
+} from "@/lib/admin-project-suite-binding";
+import {
   adminProjectTypeLabel,
   classifyAdminProjectType,
   type AdminProjectType,
   type AdminProjectTypeLabel,
 } from "@/lib/admin-project-types";
 import type { ProjectIndexRow } from "@/lib/project-index-rows";
-import { getPlaneBridgeConfig, planeProjectBoardHref } from "@/lib/plane-links";
-import { loadPlaneBridgesForProjects } from "@/lib/plane-project-bridge";
+import { getPlaneBridgeConfig, planeProjectBoardHref, planeWorkspaceProjectsHref } from "@/lib/plane-links";
+import { loadPlaneBridgesForProjects, planeHrefFromBridge, type PlaneProjectBridge } from "@/lib/plane-project-bridge";
 import { isPlaneLiveConfigured } from "@/lib/kernel/plane-project-sync";
+import { resolveEffectiveProjectStatus } from "@/lib/plane-project-status";
 
 export type { AdminProjectType, AdminProjectTypeLabel };
 
@@ -26,9 +32,13 @@ export type AdminProjectDetailRow = {
   title: string;
   status: string;
   suiteId: string | null;
+  suiteDisplayName: string;
   moduleIds: string[];
+  moduleDisplayNames: string;
   cadence: string | null;
   primaryAgentId: string | null;
+  leadAgentLabel: string;
+  brief: string | null;
   projectType: AdminProjectType;
   projectTypeLabel: AdminProjectTypeLabel;
   planeProjectHref: string | null;
@@ -43,23 +53,39 @@ type AdminProjectDbRow = {
   module_ids: string[] | null;
   cadence: string | null;
   primary_agent_id?: string | null;
+  brief?: string | null;
 };
+
+function resolveAdminPlaneProjectHref(
+  planeCfg: ReturnType<typeof getPlaneBridgeConfig>,
+  bridge?: PlaneProjectBridge,
+): string | null {
+  return (
+    planeHrefFromBridge(bridge) ??
+    planeProjectBoardHref(planeCfg, bridge?.code ?? null) ??
+    planeWorkspaceProjectsHref(planeCfg)
+  );
+}
+
+function effectiveStatus(row: AdminProjectDbRow, bridge?: PlaneProjectBridge): string {
+  return resolveEffectiveProjectStatus(row.status, bridge?.planeLiveState ?? "unmapped");
+}
 
 function rowFromDb(
   row: AdminProjectDbRow,
   planeCfg: ReturnType<typeof getPlaneBridgeConfig>,
-  bridge?: { code: string | null; planeSyncStatus: "synced" | "pending" },
+  bridge?: PlaneProjectBridge,
 ): AdminProjectIndexRow {
   const projectType = classifyAdminProjectType(row.suite_id, row.module_ids);
   return {
     id: row.id,
     title: row.title,
-    status: row.status,
-    suiteName: adminProjectTypeLabel(projectType),
+    status: effectiveStatus(row, bridge),
+    suiteName: adminSuiteDisplayName(row.suite_id),
     phaseName: "Phase pending",
     activeIssue: "No active issue linked",
     planeSyncStatus: bridge?.planeSyncStatus ?? "pending",
-    planeProjectHref: planeProjectBoardHref(planeCfg, bridge?.code ?? null),
+    planeProjectHref: resolveAdminPlaneProjectHref(planeCfg, bridge),
     projectType,
     projectTypeLabel: adminProjectTypeLabel(projectType),
   };
@@ -98,13 +124,7 @@ export async function loadAdminProjectIndexRows(
 
   const rows = dbRows.map((row) => {
     const liveBridge = planeBridges[row.id];
-    return rowFromDb(
-      row,
-      planeCfg,
-      liveBridge
-        ? { code: liveBridge.code, planeSyncStatus: liveBridge.planeSyncStatus }
-        : undefined,
-    );
+    return rowFromDb(row, planeCfg, liveBridge);
   });
 
   return { rows, error: null };
@@ -123,7 +143,7 @@ export async function loadAdminProjectById(
   const { data, error } = await supabase
     .schema("linkaios")
     .from("projects")
-    .select("id, title, status, suite_id, module_ids, cadence, primary_agent_id")
+    .select("id, title, status, suite_id, module_ids, cadence, primary_agent_id, brief")
     .eq("id", projectId)
     .eq("tenant_id", tenantId)
     .maybeSingle();
@@ -147,14 +167,18 @@ export async function loadAdminProjectById(
     project: {
       id: row.id,
       title: row.title,
-      status: row.status,
+      status: effectiveStatus(row, liveBridge),
       suiteId: row.suite_id,
+      suiteDisplayName: adminSuiteDisplayName(row.suite_id),
       moduleIds: row.module_ids ?? [],
+      moduleDisplayNames: adminModuleDisplayNames(row.suite_id, row.module_ids ?? []),
       cadence: row.cadence,
       primaryAgentId: row.primary_agent_id ?? null,
+      leadAgentLabel: adminLeadAgentDisplayName(projectType),
+      brief: row.brief ?? null,
       projectType,
       projectTypeLabel: adminProjectTypeLabel(projectType),
-      planeProjectHref: planeProjectBoardHref(planeCfg, liveBridge?.code ?? null),
+      planeProjectHref: resolveAdminPlaneProjectHref(planeCfg, liveBridge),
       planeSyncStatus: liveBridge?.planeSyncStatus ?? "pending",
     },
     error: null,

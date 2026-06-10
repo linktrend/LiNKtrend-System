@@ -3,7 +3,15 @@ import { describe, expect, it, vi, beforeEach } from "vitest";
 vi.mock("server-only", () => ({}));
 
 const rpc = vi.fn();
-const schema = vi.fn(() => ({ rpc }));
+const linkaiosFrom = vi.fn(() => ({
+  select: vi.fn(() => ({
+    limit: vi.fn(async () => ({ data: [], error: null })),
+  })),
+  update: vi.fn(() => ({
+    eq: vi.fn(async () => ({ error: null })),
+  })),
+}));
+const schema = vi.fn(() => ({ rpc, from: linkaiosFrom }));
 const from = vi.fn(() => ({
   select: vi.fn(() => ({
     eq: vi.fn(() => ({

@@ -1,6 +1,4 @@
 import { AlertCircle } from "lucide-react";
-import { Suspense } from "react";
-
 import { fetchRecentTraces } from "@/lib/traces-db";
 import { ShellPageHeaderClient } from "@/components/shell-page-header-client";
 import { resolveLicenseeRegistry } from "@/lib/licensee-registry";
@@ -10,7 +8,7 @@ import { traceToWorkAlert, type WorkAlert } from "@/lib/work-alerts";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 import { WorkEmptyState } from "../work-empty-state";
-import { AlertsInbox } from "../alerts-inbox";
+import { AlertsInboxBoundary } from "../alerts-inbox-boundary";
 
 export const dynamic = "force-dynamic";
 
@@ -31,10 +29,26 @@ export default async function WorkAlertsPage() {
           }),
         );
 
-  const supportLoaded = await loadSupportTicketsFromDb(supabase, { openOnly: true });
-  const supportAlerts: WorkAlert[] = supportLoaded.tickets.map((t) =>
-    supportTicketToWorkAlert(t, resolveLicenseeRegistry(t.licenseeId)?.name ?? t.licenseeId),
-  );
+  let supportLoaded: Awaited<ReturnType<typeof loadSupportTicketsFromDb>> = {
+    tickets: [],
+    mode: "shadow",
+    tableReady: false,
+    loadError: null,
+    chatwootSyncReady: false,
+    chatwootSyncError: null,
+  };
+  let supportAlerts: WorkAlert[] = [];
+  try {
+    supportLoaded = await loadSupportTicketsFromDb(supabase, { openOnly: true });
+    supportAlerts = supportLoaded.tickets.map((t) =>
+      supportTicketToWorkAlert(t, resolveLicenseeRegistry(t.licenseeId)?.name ?? t.licenseeId),
+    );
+  } catch (error) {
+    supportLoaded = {
+      ...supportLoaded,
+      loadError: error instanceof Error ? error.message : "Support tickets could not be loaded.",
+    };
+  }
 
   const merged = [...fromDb, ...supportAlerts].sort(
     (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
@@ -98,14 +112,12 @@ export default async function WorkAlertsPage() {
             Live system logs are unavailable: {error ?? "The traces query did not succeed."}
           </p>
         ) : null}
-        <Suspense fallback={<p className="text-sm text-zinc-500">Loading alerts…</p>}>
-          <AlertsInbox
-            items={merged}
-            traceAckPersistenceEnabled={traceAckPersistenceEnabled}
-            initialResolvedIds={initialResolvedIds}
-            supportTicketsPersistenceEnabled={supportLoaded.tableReady}
-          />
-        </Suspense>
+        <AlertsInboxBoundary
+          items={merged}
+          traceAckPersistenceEnabled={traceAckPersistenceEnabled}
+          initialResolvedIds={initialResolvedIds}
+          supportTicketsPersistenceEnabled={supportLoaded.tableReady}
+        />
       </div>
     </main>
   );

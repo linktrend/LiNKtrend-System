@@ -4,6 +4,8 @@ import Link from "next/link";
 
 import { Activity, Bot, Layers, Shield } from "lucide-react";
 
+import { useAppSurface } from "@/components/app-surface-provider";
+
 import { SummaryMetricCard } from "@/components/summary-metric-card/summary-metric-card";
 import { SummaryMetricCardGrid } from "@/components/summary-metric-card/summary-metric-card-grid";
 import { BUTTON } from "@/lib/ui-standards";
@@ -20,6 +22,8 @@ export function CockpitSummaryStatsGrid(props: {
   busyWorkerCount: number;
   className?: string;
 }) {
+  const { href: appHref } = useAppSurface();
+
   return (
     <SummaryMetricCardGrid className={props.className ?? "gap-4"}>
       <SummaryMetricCard
@@ -33,7 +37,7 @@ export function CockpitSummaryStatsGrid(props: {
         }
         compactMetric
         footer={
-          <Link href="/suites/my-suites" className={BUTTON.secondaryCardAction}>
+          <Link href={appHref("/suites/my-suites")} className={BUTTON.secondaryCardAction}>
             Open suites
           </Link>
         }
@@ -49,7 +53,7 @@ export function CockpitSummaryStatsGrid(props: {
             : undefined
         }
         footer={
-          <Link href="/skills/leases" className={BUTTON.secondaryCardAction}>
+          <Link href={appHref("/skills/leases")} className={BUTTON.secondaryCardAction}>
             Open leases
           </Link>
         }
@@ -61,7 +65,7 @@ export function CockpitSummaryStatsGrid(props: {
         compactMetric
         preview={props.failedRunCount > 0 ? `${props.failedRunCount} failed (24h)` : undefined}
         footer={
-          <Link href="/work" className={BUTTON.secondaryCardAction}>
+          <Link href={appHref("/work")} className={BUTTON.secondaryCardAction}>
             Open work
           </Link>
         }
@@ -78,7 +82,7 @@ export function CockpitSummaryStatsGrid(props: {
         compactMetric
         preview={props.busyWorkerCount > 0 ? `${props.busyWorkerCount} busy` : undefined}
         footer={
-          <Link href="/workers" className={BUTTON.secondaryCardAction}>
+          <Link href={appHref("/workers")} className={BUTTON.secondaryCardAction}>
             Open LiNKbots
           </Link>
         }

@@ -3,12 +3,14 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+import { useAppSurface } from "@/components/app-surface-provider";
 import { LINKSKILLS_HUB_TABS, resolveLinkskillsHubTab } from "@/lib/linkskills-hub-tabs";
 import { screenTabLinkClass, TABS as SCREEN_TABS } from "@/lib/ui-standards";
 
 export function LinkskillsHubNav() {
   const pathname = usePathname() ?? "/skills";
-  const current = resolveLinkskillsHubTab(pathname);
+  const { href: appHref, routePath } = useAppSurface();
+  const current = resolveLinkskillsHubTab(routePath(pathname));
 
   return (
     <nav aria-label="LiNKskills sections" className={SCREEN_TABS.row}>
@@ -17,7 +19,7 @@ export function LinkskillsHubNav() {
         return (
           <Link
             key={tab.id}
-            href={tab.href}
+            href={appHref(tab.href)}
             aria-current={on ? "page" : undefined}
             className={screenTabLinkClass(on)}
             role="tab"

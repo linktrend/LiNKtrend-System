@@ -109,7 +109,14 @@ function liveBrief(
   };
 }
 
-export async function loadProjectOverview(missionId: string, title: string): Promise<{
+export async function loadProjectOverview(
+  missionId: string,
+  title: string,
+  options?: {
+    briefOverride?: string | null;
+    projectTypeLabel?: string;
+  },
+): Promise<{
   brief: ProjectOverviewBrief;
   snapshot: ProjectOverviewSnapshot;
 }> {
@@ -153,8 +160,19 @@ export async function loadProjectOverview(missionId: string, title: string): Pro
   const leases = leasesRaw.filter((l) => l.run_id != null && runIds.has(l.run_id));
   const runs = metricsRes.ok ? metricsRes.data.runs.slice(0, 20) : [];
 
+  const brief: ProjectOverviewBrief = options?.briefOverride?.trim()
+    ? {
+        description: options.briefOverride.trim(),
+        expectedOutputs: [
+          "Phase stages completed with audit events in LiNKbrain",
+          "Plane issues reflecting remaining human work",
+          "Governed capability leases for side effects",
+        ],
+      }
+    : liveBrief(missionId, title, bridge);
+
   return {
-    brief: liveBrief(missionId, title, bridge),
+    brief,
     snapshot: buildSnapshotFromParts({
       workflows: [],
       issues: [],

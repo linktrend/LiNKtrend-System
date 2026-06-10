@@ -1,8 +1,11 @@
 import type { ReactNode } from "react";
 
+import { CopyIdButton } from "@/components/copy-id-button";
+
 export type ProjectDetailMetaItem = {
   label: string;
   value: ReactNode;
+  copyValue?: string;
 };
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -24,8 +27,14 @@ export function ProjectDetailMetaGrid(props: { items: ProjectDetailMetaItem[] })
           className="rounded-xl border border-zinc-100 bg-zinc-50 px-4 py-3 dark:border-zinc-800 dark:bg-zinc-900/40"
         >
           <dt className="text-xs font-medium text-zinc-500 dark:text-zinc-400">{item.label}</dt>
-          <dd className={metaValueClass(item.value)} title={typeof item.value === "string" ? item.value : undefined}>
-            {item.value}
+          <dd className="mt-1 flex min-w-0 items-start gap-1">
+            <span
+              className={[metaValueClass(item.value), "min-w-0 flex-1"].join(" ")}
+              title={typeof item.value === "string" ? item.value : undefined}
+            >
+              {item.value}
+            </span>
+            {item.copyValue ? <CopyIdButton value={item.copyValue} label={`Copy ${item.label}`} /> : null}
           </dd>
         </div>
       ))}

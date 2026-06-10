@@ -30,7 +30,7 @@ export function AdminProgramMemorySelect(props: {
     <InsetSelect
       fullWidth={false}
       value={props.selectedMissionId ?? ""}
-      aria-label="Select admin program"
+      aria-label="Select project"
       onChange={(e) => {
         const v = e.target.value.trim();
         router.push(
@@ -44,7 +44,7 @@ export function AdminProgramMemorySelect(props: {
         );
       }}
     >
-      <option value="">Choose an admin program…</option>
+      <option value="">Choose a project…</option>
       {props.programs.map((m) => (
         <option key={m.id} value={m.id}>
           {m.title}

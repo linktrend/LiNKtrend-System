@@ -81,9 +81,17 @@ export type MetricsKpiBase = {
 
 export type DailyValue = { day: string; value: number };
 
+function trendPctFromBaseline(current: number, baseline: number): number | null {
+  if (baseline <= 0) return null;
+  return ((current - baseline) / baseline) * 100;
+}
+
 /** Trend from daily series: prefers month-over-month, then week-over-week, then half-window split. */
 export function periodTrendFromDailySeries(rows: DailyValue[]): { pct: number | null; label: string } {
   if (rows.length === 0) return { pct: null, label: "" };
+
+  const total = rows.reduce((sum, row) => sum + row.value, 0);
+  if (total <= 0) return { pct: null, label: "" };
 
   const byMonth = new Map<string, number>();
   for (const r of rows) {
@@ -94,7 +102,7 @@ export function periodTrendFromDailySeries(rows: DailyValue[]): { pct: number | 
   if (months.length >= 2) {
     const prev = months[months.length - 2]![1];
     const cur = months[months.length - 1]![1];
-    const pct = prev > 0 ? ((cur - prev) / prev) * 100 : cur > 0 ? 100 : 0;
+    const pct = trendPctFromBaseline(cur, prev);
     return { pct, label: "Month over month" };
   }
 
@@ -102,7 +110,7 @@ export function periodTrendFromDailySeries(rows: DailyValue[]): { pct: number | 
   if (sorted.length >= 14) {
     const prev7 = sorted.slice(-14, -7).reduce((s, r) => s + r.value, 0);
     const last7 = sorted.slice(-7).reduce((s, r) => s + r.value, 0);
-    const pct = prev7 > 0 ? ((last7 - prev7) / prev7) * 100 : last7 > 0 ? 100 : 0;
+    const pct = trendPctFromBaseline(last7, prev7);
     return { pct, label: "Week over week" };
   }
 
@@ -110,7 +118,7 @@ export function periodTrendFromDailySeries(rows: DailyValue[]): { pct: number | 
     const mid = Math.floor(sorted.length / 2);
     const first = sorted.slice(0, mid).reduce((s, r) => s + r.value, 0);
     const second = sorted.slice(mid).reduce((s, r) => s + r.value, 0);
-    const pct = first > 0 ? ((second - first) / first) * 100 : second > 0 ? 100 : 0;
+    const pct = trendPctFromBaseline(second, first);
     return { pct, label: "Period over period" };
   }
 

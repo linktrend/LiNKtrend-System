@@ -13,7 +13,8 @@ import {
   actionQueueIconClass,
 } from "@/components/action-queue";
 import { FixturePill } from "@/components/fixture-pill";
-import { useAppRole } from "@/components/role-preview-provider";
+import { useAppRole, useLicensorScope } from "@/components/role-preview-provider";
+import { filterSupportTicketsForViewScope } from "@/lib/licensor-view-scope";
 import { useAppSurface } from "@/components/app-surface-provider";
 import { StatusPill } from "@/components/ui/status-pill";
 import { WorkInboxModal } from "@/components/work-inbox-modal";
@@ -127,6 +128,7 @@ export function AlertsInbox(props: {
   const [supportAlerts, setSupportAlerts] = useState<WorkAlert[]>([]);
   const searchParams = useSearchParams();
   const { kind } = useAppRole();
+  const { scope: viewScope } = useLicensorScope();
   const { href: appHref } = useAppSurface();
   const isLicensor = kind === "licensor";
   const companyId = searchParams.get("companyId");
@@ -152,7 +154,10 @@ export function AlertsInbox(props: {
     }
     const sync = () => {
       const tickets = isLicensor
-        ? readOpenSupportTicketsForLicensor()
+        ? filterSupportTicketsForViewScope(
+            viewScope,
+            readOpenSupportTicketsForLicensor(),
+          )
         : readSupportTicketsForLicensee(licenseeId).filter((t) => t.status !== "resolved");
       setSupportAlerts(
         tickets.map((t) =>
@@ -163,7 +168,7 @@ export function AlertsInbox(props: {
     sync();
     window.addEventListener(EVENT_SUPPORT_TICKETS_CHANGED, sync);
     return () => window.removeEventListener(EVENT_SUPPORT_TICKETS_CHANGED, sync);
-  }, [isLicensor, licenseeId, props.supportTicketsPersistenceEnabled]);
+  }, [isLicensor, licenseeId, props.supportTicketsPersistenceEnabled, viewScope]);
 
   const allItems = useMemo(() => {
     const merged = [...props.items, ...requestAlerts, ...supportAlerts];

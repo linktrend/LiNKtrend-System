@@ -8,16 +8,21 @@ export function ShellPageHeader(props: {
   title: string;
   subtitle: string;
   refreshedLabel?: string | null;
+  /** Renders inline after the page title (e.g. lifecycle status pill). */
+  titleExtra?: React.ReactNode;
   actions?: React.ReactNode;
   /** Hide per-licensee scope row — vendor-only surfaces (e.g. Admin Projects). */
   hideLicensorScope?: boolean;
 }) {
-  const { title, subtitle, refreshedLabel, actions, hideLicensorScope } = props;
+  const { title, subtitle, refreshedLabel, titleExtra, actions, hideLicensorScope } = props;
   const displayTitle = formatShellPageTitle(title);
 
   return (
     <header className={SHELL.pageHeader}>
-      <h1 className={SHELL.pageTitle}>{displayTitle}</h1>
+      <div className="flex flex-wrap items-center gap-3">
+        <h1 className={SHELL.pageTitle}>{displayTitle}</h1>
+        {titleExtra ? <div className="shrink-0">{titleExtra}</div> : null}
+      </div>
       <div className={SHELL.pageSubtitleRow}>
         <p className={SHELL.pageSubtitle}>{subtitle}</p>
         {actions ? <div className={SHELL.pageActions}>{actions}</div> : null}

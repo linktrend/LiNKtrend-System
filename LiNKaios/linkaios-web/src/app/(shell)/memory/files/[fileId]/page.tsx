@@ -10,6 +10,7 @@ import { MemoryTabLink } from "@/components/linkbrain/memory-surface-links";
 import { PageIntro } from "@/components/page-intro";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { BUTTON } from "@/lib/ui-standards";
 
 import {
   getBrainUploadByFileId,
@@ -28,10 +29,11 @@ export const dynamic = "force-dynamic";
 
 export default async function BrainFileDetailPage(props: {
   params: Promise<{ fileId: string }>;
-  searchParams: Promise<{ err?: string }>;
+  searchParams: Promise<{ err?: string; edit?: string }>;
 }) {
   const { fileId } = await props.params;
   const sp = await props.searchParams;
+  const editMode = sp.edit === "1";
   const supabase = await createSupabaseServerClient();
   const {
     data: { user },
@@ -151,24 +153,28 @@ export default async function BrainFileDetailPage(props: {
         </section>
       ) : null}
 
-      <section id="governance" className="rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950">
-        <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Edit or remove</h2>
-        <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
-          Changes and removals go through <strong>Inbox</strong> — proposing an edit creates a new draft from the published
-          body for operator approval.
-        </p>
-        <form action={proposeEditFromPublishedForm} className="mt-3">
-          <input type="hidden" name="fileId" value={fileId} />
-          <button
-            type="submit"
-            disabled={!pub?.id}
-            className="rounded-lg bg-violet-700 px-4 py-2 text-sm font-medium text-white disabled:cursor-not-allowed disabled:opacity-50 dark:bg-violet-600"
-          >
-            Propose edit (new draft)
-          </button>
-        </form>
-      </section>
+      {editMode ? (
+        <section id="governance" className="rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950">
+          <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Edit or remove</h2>
+          <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
+            Changes and removals go through <strong>Inbox</strong> — proposing an edit creates a new draft from the published
+            body for operator approval.
+          </p>
+          <form action={proposeEditFromPublishedForm} className="mt-3">
+            <input type="hidden" name="fileId" value={fileId} />
+            <button
+              type="submit"
+              disabled={!pub?.id}
+              className={`${BUTTON.primaryCompact} disabled:cursor-not-allowed disabled:opacity-50`}
+            >
+              Propose edit (new draft)
+            </button>
+          </form>
+        </section>
+      ) : null}
 
+      {editMode ? (
+        <>
       <section className="rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950">
         <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Index cards</h2>
         <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">Catalog tier for Ask and progressive disclosure.</p>
@@ -251,6 +257,16 @@ export default async function BrainFileDetailPage(props: {
           )}
         </form>
       </section>
+        </>
+      ) : (
+        <p className="text-sm text-zinc-600 dark:text-zinc-400">
+          This document is read-only in View mode. Open{" "}
+          <a href={`?edit=1`} className="font-medium text-sky-700 underline dark:text-sky-400">
+            Edit mode
+          </a>{" "}
+          to propose changes through Inbox.
+        </p>
+      )}
 
       <p className="text-sm">
         <MemoryTabLink tab="inbox" className="text-sky-700 underline dark:text-sky-400">

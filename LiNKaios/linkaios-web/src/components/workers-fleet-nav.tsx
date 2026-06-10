@@ -1,5 +1,11 @@
-import Link from "next/link";
+"use client";
 
+import Link from "next/link";
+import { useSearchParams } from "next/navigation";
+
+import { useAppSurface } from "@/components/app-surface-provider";
+import { isPlatformAllScope } from "@/lib/app-roles";
+import { LICENSOR_SCOPE_PARAM, normalizeLicensorScope } from "@/lib/licensor-view-scope";
 import { screenTabLinkClass, TABS } from "@/lib/ui-standards";
 
 const VIEWS = ["list", "grid", "org"] as const;
@@ -11,16 +17,30 @@ const LABELS: Record<FleetView, string> = {
   org: "Org",
 };
 
-export function WorkersFleetNav(props: { current: FleetView; scope?: WorkersFleetScope }) {
-  const scopeQuery = workersFleetScopeQuery(props.scope ?? "all");
+function workersHref(
+  appHref: (path: string) => string,
+  searchParams: URLSearchParams,
+  overrides: { view?: FleetView; filter?: FleetPresenceFilter | null },
+): string {
+  const scope = normalizeLicensorScope(searchParams.get(LICENSOR_SCOPE_PARAM));
+  const params = new URLSearchParams();
+  if (!isPlatformAllScope(scope)) params.set(LICENSOR_SCOPE_PARAM, scope);
+  const view = overrides.view ?? parseFleetView(searchParams.get("view") ?? undefined);
+  if (view !== "list") params.set("view", view);
+  const filter = overrides.filter === null ? null : (overrides.filter ?? searchParams.get("filter"));
+  if (filter && filter !== "all") params.set("filter", filter);
+  const qs = params.toString();
+  return appHref(qs ? `/workers?${qs}` : "/workers");
+}
+
+export function WorkersFleetNav(props: { current: FleetView }) {
+  const { href: appHref } = useAppSurface();
+  const searchParams = useSearchParams();
   return (
     <nav aria-label="LiNKbots views" className={`${TABS.row} mt-6`}>
       {VIEWS.map((v) => {
         const active = props.current === v;
-        const href =
-          v === "list"
-            ? `/workers${scopeQuery}`
-            : `/workers${scopeQuery}${scopeQuery ? "&" : "?"}view=${v}`;
+        const href = workersHref(appHref, searchParams, { view: v === "list" ? "list" : v });
         return (
           <Link key={v} href={href} className={screenTabLinkClass(active)}>
             {LABELS[v]}
@@ -37,16 +57,18 @@ export function parseFleetView(raw: string | string[] | undefined): FleetView {
   return "list";
 }
 
-/** Admin LiNKbots registry scope — distinct from presence filter pills on the list page. */
+/** @deprecated Sidebar View filter replaces URL `scope=admin`. */
 export type WorkersFleetScope = "all" | "admin";
 
+/** @deprecated Use {@link parseLicensorScopeParam} from licensor-view-scope. */
 export function parseWorkersFleetScope(raw: string | string[] | undefined): WorkersFleetScope {
   const v = (Array.isArray(raw) ? raw[0] : raw)?.toLowerCase();
   return v === "admin" ? "admin" : "all";
 }
 
-export function workersFleetScopeQuery(scope: WorkersFleetScope): string {
-  return scope === "admin" ? "?scope=admin" : "";
+/** @deprecated Sidebar View syncs scope via {@link LICENSOR_SCOPE_PARAM}. */
+export function workersFleetScopeQuery(_scope: WorkersFleetScope): string {
+  return "";
 }
 
 export type FleetPresenceFilter = "all" | "active" | "inactive" | "online" | "busy" | "idle";
@@ -62,11 +84,9 @@ const pill = "inline-flex min-w-[6.5rem] shrink-0 items-center justify-center ro
 export function FleetPresenceFilterBar(props: {
   current: FleetPresenceFilter;
   view: FleetView;
-  scope?: WorkersFleetScope;
 }) {
-  const scopeQuery = workersFleetScopeQuery(props.scope ?? "all");
-  const base =
-    props.view === "list" ? `/workers${scopeQuery}` : `/workers${scopeQuery}${scopeQuery ? "&" : "?"}view=${props.view}`;
+  const { href: appHref } = useAppSurface();
+  const searchParams = useSearchParams();
   const items: { id: FleetPresenceFilter; label: string }[] = [
     { id: "all", label: "All" },
     { id: "active", label: "Active" },
@@ -81,8 +101,8 @@ export function FleetPresenceFilterBar(props: {
         const active = props.current === it.id;
         const href =
           it.id === "all"
-            ? base
-            : `${base}${base.includes("?") ? "&" : "?"}filter=${encodeURIComponent(it.id)}`;
+            ? workersHref(appHref, searchParams, { view: props.view, filter: null })
+            : workersHref(appHref, searchParams, { view: props.view, filter: it.id });
         return (
           <Link
             key={it.id}

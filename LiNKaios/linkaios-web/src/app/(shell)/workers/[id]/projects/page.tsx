@@ -17,23 +17,13 @@ import { getPlaneBridgeConfig, planeWorkspaceProjectsHref } from "@/lib/plane-li
 import { projectIndexRowFromMission } from "@/lib/project-index-rows";
 import { formatCardTitle } from "@/lib/ui-standards";
 import type { ProjectSummaryColumnKey } from "@/lib/project-status-ui";
+import { projectSummaryColumnForStatus } from "@/lib/project-status-ui";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { isDemoAgentId, DEMO_SIDEBAR_MISSIONS } from "@/lib/ui-mocks/entities";
 import { isUiMocksEnabled } from "@/lib/ui-mocks/flags";
 import { DEMO_MISSION_PLANE_BRIDGE, demoMissionsFixtureRows } from "@/lib/ui-mocks/missions-fixtures";
 
 export const dynamic = "force-dynamic";
-
-const COLUMN_ORDER: {
-  key: string;
-  title: string;
-  statuses: ProjectRecord["status"][];
-}[] = [
-  { key: "draft", title: "Draft", statuses: ["draft"] },
-  { key: "active", title: "Active", statuses: ["assigned", "running"] },
-  { key: "completed", title: "Completed", statuses: ["completed"] },
-  { key: "attention", title: "Attention", statuses: ["failed", "cancelled"] },
-];
 
 export default async function WorkerProjectsPage(props: { params: Promise<{ id: string }> }) {
   const { id } = await props.params;
@@ -105,13 +95,14 @@ export default async function WorkerProjectsPage(props: { params: Promise<{ id: 
   const rows = projects.map((m) =>
     projectIndexRowFromMission(m, planeCfg, uiMocksEnabled ? DEMO_MISSION_PLANE_BRIDGE[String(m.id)] : undefined),
   );
-  const byColumn = COLUMN_ORDER.map((col) => ({
-    ...col,
-    items: projects.filter((m) => col.statuses.includes(m.status)),
-  }));
-  const lifecycleCounts = Object.fromEntries(
-    byColumn.map((col) => [col.key, col.items.length]),
-  ) as Record<ProjectSummaryColumnKey, number>;
+  const lifecycleCounts: Record<ProjectSummaryColumnKey, number> = {
+    draft: 0,
+    active: 0,
+    archived: 0,
+  };
+  for (const m of projects) {
+    lifecycleCounts[projectSummaryColumnForStatus(m.status)] += 1;
+  }
 
   return (
     <div className="space-y-10">

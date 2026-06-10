@@ -1,6 +1,6 @@
 "use client";
 
-import { AlertTriangle, CheckCircle2, FileStack, Play, type LucideIcon } from "lucide-react";
+import { Archive, FileStack, Play, type LucideIcon } from "lucide-react";
 
 import {
   SummaryMetricStatusPill,
@@ -21,8 +21,7 @@ const COLUMNS: {
 }[] = [
   { key: "draft", title: "Draft", icon: FileStack, toneWhenPositive: "attention", previewSingular: "draft project" },
   { key: "active", title: "Active", icon: Play, toneWhenPositive: "attention", previewSingular: "active project" },
-  { key: "completed", title: "Completed", icon: CheckCircle2, toneWhenPositive: "attention", previewSingular: "completed project" },
-  { key: "attention", title: "Attention", icon: AlertTriangle, toneWhenPositive: "critical", previewSingular: "project needing attention" },
+  { key: "archived", title: "Archived", icon: Archive, toneWhenPositive: "attention", previewSingular: "archived project" },
 ];
 
 function toneForColumn(key: ProjectSummaryColumnKey, count: number): "ok" | "attention" | "critical" {
@@ -31,6 +30,7 @@ function toneForColumn(key: ProjectSummaryColumnKey, count: number): "ok" | "att
   return col.toneWhenPositive;
 }
 
+/** Informational lifecycle summary — no navigation links. */
 export function ProjectLifecycleSummaryGrid(props: {
   counts: Record<ProjectSummaryColumnKey, number>;
   className?: string;
@@ -43,7 +43,6 @@ export function ProjectLifecycleSummaryGrid(props: {
         return (
           <SummaryMetricCard
             key={col.key}
-            href="/projects"
             title={col.title}
             icon={col.icon}
             metric={count}

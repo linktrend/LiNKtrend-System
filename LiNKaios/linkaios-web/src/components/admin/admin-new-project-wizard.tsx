@@ -19,7 +19,7 @@ import { BUTTON } from "@/lib/ui-standards";
 
 type Cadence = "once" | "continuous";
 
-const STEPS = ["Type", "Cadence", "Launch"] as const;
+const STEPS = ["Details", "Review"] as const;
 
 const PROJECT_TYPES: AdminProjectType[] = ["suite_gen", "librarian_filings", "platform_ops"];
 
@@ -36,22 +36,23 @@ export function AdminNewProjectWizard() {
   const [projectType, setProjectType] = useState<AdminProjectType>("suite_gen");
   const [cadence, setCadence] = useState<Cadence>("once");
   const [projectName, setProjectName] = useState("");
-  const [isLaunching, setIsLaunching] = useState(false);
-  const [launchError, setLaunchError] = useState<string | null>(null);
+  const [isCreating, setIsCreating] = useState(false);
+  const [createError, setCreateError] = useState<string | null>(null);
 
   const preset = ADMIN_PROJECT_CREATE_PRESETS[projectType];
 
   function canNext(): boolean {
-    if (step === 0) return Boolean(projectType);
-    if (step === 1) return cadence === "once" || cadence === "continuous";
+    if (step === 0) {
+      return projectName.trim().length > 0 && Boolean(projectType);
+    }
     return projectName.trim().length > 0;
   }
 
-  async function launchProject() {
+  async function createProject() {
     if (!canNext()) return;
 
-    setLaunchError(null);
-    setIsLaunching(true);
+    setCreateError(null);
+    setIsCreating(true);
 
     try {
       const res = await fetch("/api/admin/projects", {
@@ -67,15 +68,15 @@ export function AdminNewProjectWizard() {
       const payload = (await res.json().catch(() => null)) as { projectId?: string; error?: string } | null;
 
       if (!res.ok || !payload?.projectId) {
-        setLaunchError(payload?.error ?? "Could not create the project. Check your entries and try again.");
+        setCreateError(payload?.error ?? "Could not create the project. Check your entries and try again.");
         return;
       }
 
-      router.push(`${ADMIN_BASE_PATH}/projects/${payload.projectId}?created=1`);
+      router.push(`${ADMIN_BASE_PATH}/projects/${payload.projectId}`);
     } catch {
-      setLaunchError("Could not reach LiNKaios. Try again in a moment.");
+      setCreateError("Could not reach LiNKaios. Try again in a moment.");
     } finally {
-      setIsLaunching(false);
+      setIsCreating(false);
     }
   }
 
@@ -87,7 +88,7 @@ export function AdminNewProjectWizard() {
           title={ADMIN_PROJECTS_PAGE.wizardTitle}
           titleClassName="text-sm font-semibold text-zinc-500 dark:text-zinc-400"
         />
-        <ol className="mt-4 grid gap-3 sm:grid-cols-3">
+        <ol className="mt-4 grid gap-3 sm:grid-cols-2">
           {STEPS.map((label, i) => (
             <li key={label} className={stepClass(step === i, step > i)}>
               {i + 1}. {label}
@@ -97,97 +98,111 @@ export function AdminNewProjectWizard() {
       </section>
 
       {step === 0 ? (
-        <section className="space-y-3">
-          <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Choose project type</h2>
-          <p className="text-sm text-zinc-600 dark:text-zinc-400">{ADMIN_PROJECTS_PAGE.wizardTypeHint}</p>
-          <div className="grid gap-3 sm:grid-cols-3">
-            {PROJECT_TYPES.map((type) => (
-              <button
-                key={type}
-                type="button"
-                onClick={() => setProjectType(type)}
-                className={
-                  "rounded-xl border px-4 py-3 text-left " +
-                  (projectType === type
-                    ? "border-zinc-900 bg-zinc-50 dark:border-zinc-100 dark:bg-zinc-900/60"
-                    : "border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950")
-                }
-              >
-                <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">{adminProjectTypeLabel(type)}</p>
-                <p className="mt-1 text-xs text-zinc-600 dark:text-zinc-400">
-                  {ADMIN_PROJECT_CREATE_PRESETS[type].summary}
-                </p>
-              </button>
-            ))}
+        <section className="space-y-6">
+          <div className="space-y-3">
+            <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Project name</h2>
+            <input
+              value={projectName}
+              onChange={(e) => setProjectName(e.target.value)}
+              placeholder="e.g. LiNKsuitegen Q2 catalogue"
+              className="w-full max-w-xl rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-950"
+            />
+          </div>
+
+          <div className="space-y-3">
+            <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Suite</h2>
+            <p className="text-sm text-zinc-600 dark:text-zinc-400">{ADMIN_PROJECTS_PAGE.wizardTypeHint}</p>
+            <div className="grid gap-3 sm:grid-cols-3">
+              {PROJECT_TYPES.map((type) => (
+                <button
+                  key={type}
+                  type="button"
+                  onClick={() => setProjectType(type)}
+                  className={
+                    "rounded-xl border px-4 py-3 text-left " +
+                    (projectType === type
+                      ? "border-zinc-900 bg-zinc-50 dark:border-zinc-100 dark:bg-zinc-900/60"
+                      : "border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950")
+                  }
+                >
+                  <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">{adminProjectTypeLabel(type)}</p>
+                  <p className="mt-1 text-xs text-zinc-600 dark:text-zinc-400">{ADMIN_PROJECT_CREATE_PRESETS[type].summary}</p>
+                  <p className="mt-2 text-xs font-medium text-zinc-500 dark:text-zinc-400">
+                    Suite · {ADMIN_PROJECT_CREATE_PRESETS[type].suiteId}
+                  </p>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Type</h2>
+            <p className="text-sm text-zinc-600 dark:text-zinc-400">
+              Once projects complete after a single pass. Continuous projects schedule recurring Runs.
+            </p>
+            <div className="grid gap-3 sm:grid-cols-2 max-w-xl">
+              {(
+                [
+                  ["once", "Once", "Single delivery track for this vendor project."],
+                  ["continuous", "Continuous", "Recurring Runs for ongoing studio operations."],
+                ] as const
+              ).map(([id, title, desc]) => (
+                <button
+                  key={id}
+                  type="button"
+                  onClick={() => setCadence(id)}
+                  className={
+                    "rounded-xl border px-4 py-3 text-left " +
+                    (cadence === id
+                      ? "border-zinc-900 bg-zinc-50 dark:border-zinc-100 dark:bg-zinc-900/60"
+                      : "border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950")
+                  }
+                >
+                  <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">{title}</p>
+                  <p className="mt-1 text-xs text-zinc-600 dark:text-zinc-400">{desc}</p>
+                </button>
+              ))}
+            </div>
           </div>
         </section>
       ) : null}
 
       {step === 1 ? (
-        <section className="space-y-3">
-          <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Project cadence</h2>
-          <p className="text-sm text-zinc-600 dark:text-zinc-400">
-            Once projects complete after a single pass. Continuous projects schedule recurring Runs.
-          </p>
-          <div className="grid gap-3 sm:grid-cols-2">
-            {(
-              [
-                ["once", "Once", "Single delivery track for this vendor project."],
-                ["continuous", "Continuous", "Recurring Runs for ongoing studio operations."],
-              ] as const
-            ).map(([id, title, desc]) => (
-              <button
-                key={id}
-                type="button"
-                onClick={() => setCadence(id)}
-                className={
-                  "rounded-xl border px-4 py-3 text-left " +
-                  (cadence === id
-                    ? "border-zinc-900 bg-zinc-50 dark:border-zinc-100 dark:bg-zinc-900/60"
-                    : "border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950")
-                }
-              >
-                <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">{title}</p>
-                <p className="mt-1 text-xs text-zinc-600 dark:text-zinc-400">{desc}</p>
-              </button>
-            ))}
-          </div>
-        </section>
-      ) : null}
-
-      {step === 2 ? (
         <section className="space-y-4">
-          <TitledCardHeader icon={Rocket} title="Review & launch" titleClassName="text-sm font-semibold text-zinc-900 dark:text-zinc-100" />
-          <label className="block text-sm">
-            <span className="font-medium text-zinc-800 dark:text-zinc-200">Project name</span>
-            <input
-              value={projectName}
-              onChange={(e) => setProjectName(e.target.value)}
-              placeholder="e.g. LiNKsuitegen Q2 catalogue"
-              className="mt-1 w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-950"
-            />
-          </label>
+          <TitledCardHeader icon={Rocket} title="Review" titleClassName="text-sm font-semibold text-zinc-900 dark:text-zinc-100" />
           <dl className="grid gap-2 text-sm sm:grid-cols-2">
             <div>
-              <dt className="text-zinc-500">Type</dt>
+              <dt className="text-zinc-500">Name</dt>
+              <dd className="font-medium text-zinc-900 dark:text-zinc-100">{projectName.trim()}</dd>
+            </div>
+            <div>
+              <dt className="text-zinc-500">Suite</dt>
+              <dd className="font-medium text-zinc-900 dark:text-zinc-100">{preset.suiteId}</dd>
+            </div>
+            <div>
+              <dt className="text-zinc-500">Track</dt>
               <dd className="font-medium text-zinc-900 dark:text-zinc-100">{adminProjectTypeLabel(projectType)}</dd>
             </div>
             <div>
-              <dt className="text-zinc-500">Cadence</dt>
+              <dt className="text-zinc-500">Type</dt>
               <dd className="font-medium capitalize text-zinc-900 dark:text-zinc-100">{cadence}</dd>
             </div>
             <div className="sm:col-span-2">
               <dt className="text-zinc-500">Modules</dt>
               <dd className="font-medium text-zinc-900 dark:text-zinc-100">{preset.moduleIds.join(" → ")}</dd>
             </div>
+            <div className="sm:col-span-2">
+              <dt className="text-zinc-500">Initial status</dt>
+              <dd className="font-medium text-zinc-900 dark:text-zinc-100">Draft</dd>
+            </div>
           </dl>
           <p className="text-xs text-zinc-500 dark:text-zinc-400">{ADMIN_PROJECTS_PAGE.wizardLaunchHint}</p>
         </section>
       ) : null}
 
-      {launchError ? (
+      {createError ? (
         <p className="text-sm text-red-600 dark:text-red-400" role="alert">
-          {launchError}
+          {createError}
         </p>
       ) : null}
 
@@ -198,7 +213,7 @@ export function AdminNewProjectWizard() {
           </Link>
         ) : null}
         {step > 0 ? (
-          <button type="button" onClick={() => setStep((s) => s - 1)} className={BUTTON.editCompact} disabled={isLaunching}>
+          <button type="button" onClick={() => setStep((s) => s - 1)} className={BUTTON.editCompact} disabled={isCreating}>
             Back
           </button>
         ) : null}
@@ -207,8 +222,8 @@ export function AdminNewProjectWizard() {
             Continue
           </button>
         ) : (
-          <UiButton buttonKey="approveRow" type="button" disabled={!canNext() || isLaunching} onClick={() => void launchProject()}>
-            {isLaunching ? "Launching…" : "Launch project"}
+          <UiButton buttonKey="approveRow" type="button" disabled={!canNext() || isCreating} onClick={() => void createProject()}>
+            {isCreating ? "Creating…" : ADMIN_PROJECTS_PAGE.createButton}
           </UiButton>
         )}
       </div>

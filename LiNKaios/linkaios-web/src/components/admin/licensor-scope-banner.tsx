@@ -20,27 +20,25 @@ function licenseeStatusTone(status: LicenseeRegistryRow["status"]) {
 export function LicensorScopeLine() {
   const pathname = usePathname() ?? "";
   const { isAdmin, routePath } = useAppSurface();
-  const { scope, isAllLicensees } = useLicensorScope();
+  const { scope, isSingleLicensee, isCrossTenantReadOnly } = useLicensorScope();
   const { role } = useAppRole();
 
   if (!isAdmin) return null;
   const route = routePath(pathname);
   if (settingsSectionActive(route)) return null;
   if (route.startsWith("/admin/projects")) return null;
-  // Vendor suite composition — scope control lives in the sidebar; avoid a second header row.
   if (route === "/suites" || route.startsWith("/suites/")) return null;
   if (route === "/linksuitegen" || route.startsWith("/linksuitegen/")) return null;
 
-  const readOnly = licensorScopeIsReadOnly(scope, role);
+  const readOnly = isCrossTenantReadOnly && licensorScopeIsReadOnly(scope, role);
+  const viewLabel = licensorScopeLabel(scope);
 
-  if (isAllLicensees) {
+  if (!isSingleLicensee) {
     return (
       <div className={SHELL.licensorScopeRow} role="status" aria-live="polite">
         <span className={SHELL.licensorScopePrefix}>View:</span>
-        <span className={SHELL.licensorScopeName}>All licensees</span>
-        {readOnly ? (
-          <StatusPill label="Read-only" tone="neutral" equalWidth />
-        ) : null}
+        <span className={SHELL.licensorScopeName}>{viewLabel}</span>
+        {readOnly ? <StatusPill label="Read-only" tone="neutral" equalWidth /> : null}
       </div>
     );
   }
