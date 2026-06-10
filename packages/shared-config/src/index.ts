@@ -144,6 +144,8 @@ const envSchema = z.object({
   CRM_MODE: z.enum(["stub_write", "shadow_readiness", "live"]).optional(),
   /** Chatwoot API base URL, e.g. https://chatwoot.example.com */
   CHATWOOT_BASE_URL: optionalNonEmpty(),
+  /** Operator browser origin for Open in Chatwoot links (when API base is internal Docker HTTP). */
+  CHATWOOT_PUBLIC_URL: optionalNonEmpty(),
   /** Chatwoot account id. */
   CHATWOOT_ACCOUNT_ID: optionalNonEmpty(),
   /** Chatwoot API access token. */
