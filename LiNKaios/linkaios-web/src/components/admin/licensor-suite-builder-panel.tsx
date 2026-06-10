@@ -1,8 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { FormEvent, useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { Bot, GitBranch, Layers3, ListChecks, Plus, Workflow } from "lucide-react";
+
+import { StripeSuiteTab } from "@/components/admin/stripe-suite-tab";
 
 import {
   SuiteAutomationModal,
@@ -119,58 +121,6 @@ function LicensorSuiteAutomationsTab(props: { suiteId: string; onAdd: () => void
   );
 }
 
-function LicensorSuiteStripeTab(props: { suiteId: string }) {
-  const { href: appHref } = useAppSurface();
-  const { getSuite, linkStripeProduct } = useLicensorSuiteStore();
-  const suite = getSuite(props.suiteId);
-  const [productId, setProductId] = useState(suite?.stripeProductId ?? "");
-
-  useEffect(() => {
-    setProductId(suite?.stripeProductId ?? "");
-  }, [suite?.stripeProductId, suite?.id]);
-
-  if (!suite) return null;
-
-  const onSubmit = (event: FormEvent) => {
-    event.preventDefault();
-    const trimmed = productId.trim();
-    linkStripeProduct(suite.id, trimmed.length > 0 ? trimmed : null);
-  };
-
-  return (
-    <div className="space-y-4">
-      <p className="text-sm text-zinc-600 dark:text-zinc-400">
-        Link a Stripe product ID before publishing to the licensee Marketplace. Full Stripe API integration is handled separately.
-      </p>
-      <form onSubmit={onSubmit} className="max-w-xl space-y-3 rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950">
-        <label className="block space-y-1.5">
-          <span className={FIELD.label}>Stripe product ID</span>
-          <input
-            value={productId}
-            onChange={(e) => setProductId(e.target.value)}
-            className={FIELD.control}
-            placeholder="prod_…"
-          />
-        </label>
-        <div className="flex flex-wrap gap-2">
-          <button type="submit" className={BUTTON.primaryRow}>
-            Save mapping
-          </button>
-          <Link href={appHref("/suites/billing")} className={BUTTON.secondaryCardAction}>
-            Open Stripe products overview
-          </Link>
-        </div>
-      </form>
-      {suite.stripeProductId ? (
-        <p className="text-xs text-zinc-500 dark:text-zinc-400">
-          Current mapping · <code className="font-mono">{suite.stripeProductId}</code>
-        </p>
-      ) : (
-        <p className="text-xs text-amber-700 dark:text-amber-300">Not linked — publish stays disabled until a product ID is saved.</p>
-      )}
-    </div>
-  );
-}
 
 export function LicensorSuiteBuilderPanel(props: { suiteId: string }) {
   const { href: appHref } = useAppSurface();
@@ -378,7 +328,7 @@ export function LicensorSuiteBuilderPanel(props: { suiteId: string }) {
       {tab === "automations" ? (
         <LicensorSuiteAutomationsTab suiteId={suite.id} onAdd={() => setModalState({ kind: "automation" })} />
       ) : null}
-      {tab === "stripe" ? <LicensorSuiteStripeTab suiteId={suite.id} /> : null}
+      {tab === "stripe" ? <StripeSuiteTab suiteId={suite.id} suiteName={suite.name} /> : null}
 
       <SuiteModuleModal
         open={modalState.kind === "module"}
