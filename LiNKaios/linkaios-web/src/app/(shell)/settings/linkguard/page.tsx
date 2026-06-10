@@ -1,6 +1,9 @@
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { LinkguardSettingsPanel } from "@/components/linkguard-settings-panel";
+import { canRunLinkguardCleanup } from "@/lib/app-roles";
+import { getAppRoleTierForUser } from "@/lib/command-centre-access";
+import { LINKGUARD_SUCCESS_ACTIONS } from "@/lib/linkguard-cleanup-actions";
 import { requireLicensorOperator } from "@/lib/licensor-access";
-import { LinkguardSummaryStatsGrid } from "@/components/summary-metric-card";
+import { createSupabaseServerClient } from "@/lib/supabase/server";
 import {
   DataTable,
   DataTableBody,
@@ -28,10 +31,17 @@ export default async function SettingsLinkguardPage() {
   await requireLicensorOperator();
 
   const supabase = await createSupabaseServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const role = user?.id
+    ? await getAppRoleTierForUser(supabase, { userId: user.id, email: user.email })
+    : "admin";
+  const canRunCleanup = canRunLinkguardCleanup("licensor", role);
 
   const since24h = new Date(Date.now() - 86_400_000).toISOString();
 
-  const [hbRes, failRes, recentRes] = await Promise.all([
+  const [hbRes, failRes, successRes, recentRes] = await Promise.all([
     supabase
       .schema("linkguard")
       .from("cleanup_events")
@@ -49,6 +59,14 @@ export default async function SettingsLinkguardPage() {
     supabase
       .schema("linkguard")
       .from("cleanup_events")
+      .select("created_at")
+      .in("action", [...LINKGUARD_SUCCESS_ACTIONS])
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle(),
+    supabase
+      .schema("linkguard")
+      .from("cleanup_events")
       .select("id, created_at, action, worker_session_id, detail")
       .order("created_at", { ascending: false })
       .limit(20),
@@ -56,17 +74,23 @@ export default async function SettingsLinkguardPage() {
 
   const lastHeartbeatAt =
     hbRes.data && typeof hbRes.data.created_at === "string" ? hbRes.data.created_at : null;
+  const latestSuccessAt =
+    successRes.data && typeof successRes.data.created_at === "string" ? successRes.data.created_at : null;
   const fsFailures24h = typeof failRes.count === "number" ? failRes.count : 0;
   const recent = recentRes.data ?? [];
 
   return (
     <div className="mt-6 space-y-8">
-      <LinkguardSummaryStatsGrid
+      <LinkguardSettingsPanel
         lastHeartbeatAge={formatAge(lastHeartbeatAt)}
         lastHeartbeatAt={lastHeartbeatAt}
         fsFailures24h={fsFailures24h}
+        latestSuccessAge={formatAge(latestSuccessAt)}
+        latestSuccessAt={latestSuccessAt}
         heartbeatError={!!hbRes.error}
         failuresError={!!failRes.error}
+        successError={!!successRes.error}
+        canRunCleanup={canRunCleanup}
       />
 
       <div>

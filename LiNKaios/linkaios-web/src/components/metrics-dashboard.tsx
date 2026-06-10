@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
 
 import { fetchMetricsSnapshot, type MetricsSnapshot } from "@/app/(shell)/metrics/actions";
+import { SHELL_REFRESH_EVENT } from "@/components/shell-chrome-toolbar";
 import { InsetSelect } from "@/components/forms";
 import { useAppSurface } from "@/components/app-surface-provider";
 import { RecentRunsTable } from "@/components/metrics-recent-runs-table";
@@ -270,7 +271,7 @@ export function MetricsDashboard(props: {
   const [missionTitleContains, setMissionTitleContains] = useState("");
   const [activityCategory, setActivityCategory] = useState<MetricsActivityCategory>("all");
   const [scope, setScope] = useState<MetricsScopeState>(DEFAULT_METRICS_SCOPE);
-  const [filtersOpen, setFiltersOpen] = useState(true);
+  const [filtersOpen, setFiltersOpen] = useState(false);
   const [viewTab, setViewTab] = useState<KpiViewId>(viewFromUrl);
   const [refreshError, setRefreshError] = useState<string | null>(null);
   const skipFetchOnce = useRef(false);
@@ -338,6 +339,12 @@ export function MetricsDashboard(props: {
     }
     const id = setTimeout(runFetch, 320);
     return () => clearTimeout(id);
+  }, [runFetch]);
+
+  useEffect(() => {
+    const onShellRefresh = () => runFetch();
+    window.addEventListener(SHELL_REFRESH_EVENT, onShellRefresh);
+    return () => window.removeEventListener(SHELL_REFRESH_EVENT, onShellRefresh);
   }, [runFetch]);
 
   const modelOptions = useMemo(() => {

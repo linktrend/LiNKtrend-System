@@ -7,6 +7,7 @@ export function ShellPageHeaderClient(props: {
   title: string;
   subtitle: string;
   refreshedLabel?: string | null;
+  titleExtra?: React.ReactNode;
   actions?: React.ReactNode;
   hideLicensorScope?: boolean;
 }) {
@@ -15,6 +16,7 @@ export function ShellPageHeaderClient(props: {
       title={props.title}
       subtitle={props.subtitle}
       refreshedLabel={props.refreshedLabel}
+      titleExtra={props.titleExtra}
       actions={props.actions}
       hideLicensorScope={props.hideLicensorScope}
     />

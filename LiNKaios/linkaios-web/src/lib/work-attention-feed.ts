@@ -7,6 +7,10 @@ import {
 import type { SessionThreadRow } from "@/lib/work-sessions";
 import { isDemoAgentId } from "@/lib/ui-mocks/entities";
 import { isUiMockWorkAlert } from "@/lib/ui-mocks/fixture-provenance";
+import {
+  sanitizeAttentionHref,
+  workMessagesThreadHref,
+} from "@/lib/work-attention-feed-routing";
 
 /** Unified queue for Overview + All Work (routing only; no new execution paths). */
 export type AttentionFeedItem = {
@@ -73,7 +77,7 @@ export function buildAttentionFeed(input: {
       typeLabel: "Message",
       title: formatChannelThreadAttentionTitle(m),
       subtitle: formatChannelThreadAttentionSubtitle(m),
-      href: m.openHref?.trim() ? m.openHref : "/work/messages",
+      href: workMessagesThreadHref(m),
       isFixture: m.id.startsWith("demo-channel"),
       _sort: [3, -new Date(m.lastActivity).getTime()],
     });
@@ -91,7 +95,7 @@ export function buildAttentionFeed(input: {
       typeLabel: "Session",
       title: `${s.agentName} — ${s.sessionTitle}`,
       subtitle: s.preview.trim() ? s.preview.trim().slice(0, 120) : undefined,
-      href: s.openHref,
+      href: sanitizeAttentionHref(s.openHref, "/work/sessions"),
       isFixture: isDemoAgentId(s.agentId),
       _sort: [4, -new Date(s.startedAt).getTime()],
     });
@@ -119,7 +123,7 @@ export function buildAttentionFeed(input: {
       typeLabel: "Session",
       title: `${s.agentName} — ${s.sessionTitle}`,
       subtitle: s.preview.trim() ? s.preview.trim().slice(0, 120) : undefined,
-      href: s.openHref,
+      href: sanitizeAttentionHref(s.openHref, "/work/sessions"),
       isFixture: isDemoAgentId(s.agentId),
       _sort: [sessionPriorityBand(s), -new Date(s.startedAt).getTime()],
     });

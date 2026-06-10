@@ -1,9 +1,19 @@
 "use client";
 
 import Link from "next/link";
-import { FormEvent, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { Bot, GitBranch, Layers3, ListChecks, Plus, Workflow } from "lucide-react";
 
+import { StripeSuiteTab } from "@/components/admin/stripe-suite-tab";
+
+import {
+  SuiteAutomationModal,
+  SuiteIssueModal,
+  SuiteLinkbotModal,
+  SuiteModuleModal,
+  SuitePhaseModal,
+  useSuiteBuilderModals,
+} from "@/components/admin/suite-builder-modals";
 import { SuiteCompletenessBar } from "@/components/admin/suite-completeness-bar";
 import { useAppSurface } from "@/components/app-surface-provider";
 import { ModuleProcessTree } from "@/components/suites/module-process-tree";
@@ -21,24 +31,20 @@ import {
   suiteBuilderCompleteness,
   suiteCompletenessChecklist,
 } from "@/lib/licensor-suite-catalog";
-import type { SuiteCompositionAction } from "@/lib/licensor-suite-catalog";
-import { BUTTON, FIELD, formatUiLabel, screenTabLinkClass } from "@/lib/ui-standards";
+import { BUTTON, FIELD, screenTabLinkClass } from "@/lib/ui-standards";
 
 type BuilderTab = "composition" | "linkbots" | "automations" | "stripe";
 
-const BUILDER_ACTIONS: { id: SuiteCompositionAction["type"]; label: string; icon: typeof Layers3 }[] = [
-  { id: "add_module", label: "Add Module", icon: Layers3 },
-  { id: "add_phase", label: "Add Phase", icon: GitBranch },
-  { id: "add_issue", label: "Add Issue", icon: ListChecks },
-  { id: "add_linkbot", label: "Add LiNKbot", icon: Bot },
-  { id: "add_automation", label: "Add Automation", icon: Workflow },
+const COMPOSITION_ACTIONS = [
+  { id: "module" as const, label: "Add Module", icon: Layers3 },
+  { id: "phase" as const, label: "Add Phase", icon: GitBranch },
+  { id: "issue" as const, label: "Add Issue", icon: ListChecks },
 ];
 
-function CompositionAddButton(props: {
+function TabAddButton(props: {
   label: string;
-  icon: typeof GitBranch;
+  icon: typeof Layers3;
   onClick: () => void;
-  disabled?: boolean;
 }) {
   const Icon = props.icon;
   return (
@@ -46,7 +52,6 @@ function CompositionAddButton(props: {
       type="button"
       className={`${BUTTON.secondaryCardAction} inline-flex items-center gap-1.5 !mt-0 px-3 py-1.5 text-xs`}
       onClick={props.onClick}
-      disabled={props.disabled}
     >
       <Plus className="h-3.5 w-3.5" aria-hidden />
       <Icon className="h-3.5 w-3.5" aria-hidden />
@@ -55,124 +60,81 @@ function CompositionAddButton(props: {
   );
 }
 
-function LicensorSuiteLinkbotsTab(props: { suiteId: string }) {
+function LicensorSuiteLinkbotsTab(props: { suiteId: string; onAdd: () => void }) {
   const { getSuite } = useLicensorSuiteStore();
   const suite = getSuite(props.suiteId);
   if (!suite) return null;
   const rows = extractSuiteLinkbots(suite);
 
-  if (rows.length === 0) {
-    return (
-      <p className="rounded-lg border border-dashed border-zinc-300 px-4 py-6 text-sm text-zinc-600 dark:border-zinc-700 dark:text-zinc-400">
-        No LiNKbots assigned yet. Use <strong>Add LiNKbot</strong> or assign from the composition tree.
-      </p>
-    );
-  }
-
   return (
-    <ul className="divide-y divide-zinc-200 rounded-xl border border-zinc-200 bg-white dark:divide-zinc-800 dark:border-zinc-800 dark:bg-zinc-950">
-      {rows.map((row) => (
-        <li key={row.id} className="px-4 py-4 text-sm">
-          <p className="font-semibold text-zinc-900 dark:text-zinc-100">{row.displayName}</p>
-          <p className="mt-0.5 text-xs font-medium text-violet-800 dark:text-violet-300">Role · {row.role}</p>
-          <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-            {row.moduleName} · {row.phaseName} · {row.issueTitle}
-          </p>
-        </li>
-      ))}
-    </ul>
-  );
-}
-
-function LicensorSuiteAutomationsTab(props: { suiteId: string }) {
-  const { getSuite } = useLicensorSuiteStore();
-  const suite = getSuite(props.suiteId);
-  if (!suite) return null;
-  const rows = extractSuiteAutomations(suite);
-
-  if (rows.length === 0) {
-    return (
-      <p className="rounded-lg border border-dashed border-zinc-300 px-4 py-6 text-sm text-zinc-600 dark:border-zinc-700 dark:text-zinc-400">
-        No automations registered yet. Use <strong>Add Automation</strong> for deterministic LiNKautowork steps.
-      </p>
-    );
-  }
-
-  return (
-    <ul className="divide-y divide-zinc-200 rounded-xl border border-zinc-200 bg-white dark:divide-zinc-800 dark:border-zinc-800 dark:bg-zinc-950">
-      {rows.map((row) => (
-        <li key={row.id} className="px-4 py-4 text-sm">
-          <p className="font-semibold text-zinc-900 dark:text-zinc-100">{row.title}</p>
-          <p className="mt-0.5 font-mono text-xs text-zinc-500 dark:text-zinc-400">{row.handle}</p>
-          <p className="mt-1 text-xs text-zinc-600 dark:text-zinc-400">{row.description}</p>
-          <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-            {row.moduleName} · {row.phaseName} · {row.issueTitle}
-          </p>
-        </li>
-      ))}
-    </ul>
-  );
-}
-
-function LicensorSuiteStripeTab(props: { suiteId: string }) {
-  const { href: appHref } = useAppSurface();
-  const { getSuite, linkStripeProduct } = useLicensorSuiteStore();
-  const suite = getSuite(props.suiteId);
-  const [productId, setProductId] = useState(suite?.stripeProductId ?? "");
-
-  useEffect(() => {
-    setProductId(suite?.stripeProductId ?? "");
-  }, [suite?.stripeProductId, suite?.id]);
-
-  if (!suite) return null;
-
-  const onSubmit = (event: FormEvent) => {
-    event.preventDefault();
-    const trimmed = productId.trim();
-    linkStripeProduct(suite.id, trimmed.length > 0 ? trimmed : null);
-  };
-
-  return (
-    <div className="space-y-4">
-      <p className="text-sm text-zinc-600 dark:text-zinc-400">
-        Link a Stripe product ID before publishing to the licensee Marketplace. Prices stay in the Stripe Dashboard.
-      </p>
-      <form onSubmit={onSubmit} className="max-w-xl space-y-3 rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950">
-        <label className="block space-y-1.5">
-          <span className={FIELD.label}>Stripe product ID</span>
-          <input
-            value={productId}
-            onChange={(e) => setProductId(e.target.value)}
-            className={FIELD.control}
-            placeholder="prod_…"
-          />
-        </label>
-        <div className="flex flex-wrap gap-2">
-          <button type="submit" className={BUTTON.primaryRow}>
-            Save mapping
-          </button>
-          <Link href={appHref("/suites/billing")} className={BUTTON.secondaryCardAction}>
-            Open Stripe products overview
-          </Link>
-        </div>
-      </form>
-      {suite.stripeProductId ? (
-        <p className="text-xs text-zinc-500 dark:text-zinc-400">
-          Current mapping · <code className="font-mono">{suite.stripeProductId}</code>
+    <div className="space-y-3">
+      <TabAddButton label="Add LiNKbot" icon={Bot} onClick={props.onAdd} />
+      {rows.length === 0 ? (
+        <p className="rounded-lg border border-dashed border-zinc-300 px-4 py-6 text-sm text-zinc-600 dark:border-zinc-700 dark:text-zinc-400">
+          No LiNKbots assigned yet. Use <strong>Add LiNKbot</strong> to bind a role profile to an issue.
         </p>
       ) : (
-        <p className="text-xs text-amber-700 dark:text-amber-300">Not linked — publish stays disabled until a product ID is saved.</p>
+        <ul className="divide-y divide-zinc-200 rounded-xl border border-zinc-200 bg-white dark:divide-zinc-800 dark:border-zinc-800 dark:bg-zinc-950">
+          {rows.map((row) => (
+            <li key={row.id} className="px-4 py-4 text-sm">
+              <p className="font-semibold text-zinc-900 dark:text-zinc-100">{row.displayName}</p>
+              <p className="mt-0.5 text-xs font-medium text-violet-800 dark:text-violet-300">Role · {row.role}</p>
+              <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+                {row.moduleName} · {row.phaseName} · {row.issueTitle}
+              </p>
+            </li>
+          ))}
+        </ul>
       )}
     </div>
   );
 }
 
+function LicensorSuiteAutomationsTab(props: { suiteId: string; onAdd: () => void }) {
+  const { getSuite } = useLicensorSuiteStore();
+  const suite = getSuite(props.suiteId);
+  if (!suite) return null;
+  const rows = extractSuiteAutomations(suite);
+
+  return (
+    <div className="space-y-3">
+      <TabAddButton label="Add Automation" icon={Workflow} onClick={props.onAdd} />
+      {rows.length === 0 ? (
+        <p className="rounded-lg border border-dashed border-zinc-300 px-4 py-6 text-sm text-zinc-600 dark:border-zinc-700 dark:text-zinc-400">
+          No automations registered yet. Use <strong>Add Automation</strong> with a LiNKautowork workflow JSON file.
+        </p>
+      ) : (
+        <ul className="divide-y divide-zinc-200 rounded-xl border border-zinc-200 bg-white dark:divide-zinc-800 dark:border-zinc-800 dark:bg-zinc-950">
+          {rows.map((row) => (
+            <li key={row.id} className="px-4 py-4 text-sm">
+              <p className="font-semibold text-zinc-900 dark:text-zinc-100">{row.title}</p>
+              <p className="mt-0.5 font-mono text-xs text-zinc-500 dark:text-zinc-400">{row.handle}</p>
+              <p className="mt-1 text-xs text-zinc-600 dark:text-zinc-400">{row.description}</p>
+              <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+                {row.moduleName} · {row.phaseName} · {row.issueTitle}
+              </p>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+
 export function LicensorSuiteBuilderPanel(props: { suiteId: string }) {
   const { href: appHref } = useAppSurface();
-  const { getSuite, transitionPublish, applyComposition } = useLicensorSuiteStore();
+  const { getSuite, transitionPublish, upsertComposition } = useLicensorSuiteStore();
   const suite = getSuite(props.suiteId);
   const [tab, setTab] = useState<BuilderTab>("composition");
-  const [actionMessage, setActionMessage] = useState<string | null>(null);
+
+  const handleSave = useCallback(
+    (upsert: Parameters<typeof upsertComposition>[1]) => upsertComposition(props.suiteId, upsert),
+    [props.suiteId, upsertComposition],
+  );
+
+  const { state: modalState, setState: setModalState, error: modalError, close: closeModal, save } =
+    useSuiteBuilderModals(handleSave);
 
   if (!suite) {
     return (
@@ -197,82 +159,78 @@ export function LicensorSuiteBuilderPanel(props: { suiteId: string }) {
     { key: "modules", label: "Modules" },
     { key: "phases", label: "Phases" },
     { key: "issues", label: "Issues" },
+    { key: "composition", label: "Contracts & deps" },
     { key: "linkbots", label: "LiNKbots" },
     { key: "automations", label: "Automations" },
   ];
 
-  const runCompositionAction = (type: SuiteCompositionAction["type"]) => {
-    const result = applyComposition(suite.id, { type });
-    if (!result.ok) {
-      setActionMessage(result.reason ?? "Could not apply change.");
-      return;
-    }
-    setActionMessage(null);
-  };
+  const publishActions = (
+    <>
+      {suite.publishState === "draft" ? (
+        <button
+          type="button"
+          className={`${BUTTON.secondaryCardAction} !mt-0 px-3 py-1.5 text-xs`}
+          disabled={!canMarkSuiteReady(suite)}
+          title={
+            canMarkSuiteReady(suite)
+              ? "Move suite to Ready for internal review before marketplace publish"
+              : "Finish the composition checklist first"
+          }
+          onClick={() => transitionPublish(suite.id, "mark_ready")}
+        >
+          Submit for Review
+        </button>
+      ) : null}
+      {suite.publishState === "ready" ? (
+        <button
+          type="button"
+          className={`${BUTTON.primaryRow} !mt-0 px-3 py-1.5 text-xs`}
+          disabled={!canPublishSuite(suite)}
+          title={
+            canPublishSuite(suite)
+              ? "Publish to licensee Marketplace"
+              : "Link a Stripe product on the Stripe tab before publishing"
+          }
+          onClick={() => transitionPublish(suite.id, "publish")}
+        >
+          Publish to Marketplace
+        </button>
+      ) : null}
+      {suite.publishState === "published" ? (
+        <>
+          <button
+            type="button"
+            className={`${BUTTON.secondaryCardAction} !mt-0 px-3 py-1.5 text-xs`}
+            onClick={() => transitionPublish(suite.id, "unpublish")}
+          >
+            Unpublish
+          </button>
+          <button
+            type="button"
+            className={`${BUTTON.secondaryCardAction} !mt-0 px-3 py-1.5 text-xs text-rose-700 dark:text-rose-300`}
+            onClick={() => transitionPublish(suite.id, "suspend")}
+          >
+            Suspend
+          </button>
+        </>
+      ) : null}
+    </>
+  );
 
   return (
     <main className="space-y-6">
       <ShellPageHeaderClient
-        title="Suite builder"
-        subtitle={suite.summary ? `${suite.name} — ${suite.summary}` : suite.name}
-        hideLicensorScope
-        actions={
-          <div className="flex flex-wrap items-center justify-end gap-2">
-            {suite.publishState === "draft" ? (
-              <button
-                type="button"
-                className={`${BUTTON.secondaryCardAction} !mt-0 px-3 py-1.5 text-xs`}
-                disabled={!canMarkSuiteReady(suite)}
-                title={
-                  canMarkSuiteReady(suite)
-                    ? "Move suite to Ready for internal review before marketplace publish"
-                    : "Finish the composition checklist first"
-                }
-                onClick={() => transitionPublish(suite.id, "mark_ready")}
-              >
-                Submit for Review
-              </button>
-            ) : null}
-            {suite.publishState === "ready" ? (
-              <button
-                type="button"
-                className={`${BUTTON.primaryRow} !mt-0 px-3 py-1.5 text-xs`}
-                disabled={!canPublishSuite(suite)}
-                title={
-                  canPublishSuite(suite)
-                    ? "Publish to licensee Marketplace"
-                    : "Link a Stripe product on the Stripe tab before publishing"
-                }
-                onClick={() => transitionPublish(suite.id, "publish")}
-              >
-                Publish to Marketplace
-              </button>
-            ) : null}
-            {suite.publishState === "published" ? (
-              <>
-                <button
-                  type="button"
-                  className={`${BUTTON.secondaryCardAction} !mt-0 px-3 py-1.5 text-xs`}
-                  onClick={() => transitionPublish(suite.id, "unpublish")}
-                >
-                  Unpublish
-                </button>
-                <button
-                  type="button"
-                  className={`${BUTTON.secondaryCardAction} !mt-0 px-3 py-1.5 text-xs text-rose-700 dark:text-rose-300`}
-                  onClick={() => transitionPublish(suite.id, "suspend")}
-                >
-                  Suspend
-                </button>
-              </>
-            ) : null}
-            <StatusPill
-              label={licensorSuitePublishLabel(suite.publishState)}
-              tone={licensorSuitePublishTone(suite.publishState)}
-              equalWidthLabels={LICENSOR_SUITE_PUBLISH_PILL_LABELS}
-            />
-          </div>
+        title={suite.name}
+        titleExtra={
+          <StatusPill
+            label={licensorSuitePublishLabel(suite.publishState)}
+            tone={licensorSuitePublishTone(suite.publishState)}
+            equalWidthLabels={LICENSOR_SUITE_PUBLISH_PILL_LABELS}
+          />
         }
+        subtitle={suite.summary ? `Suite builder — ${suite.summary}` : "Suite builder"}
+        hideLicensorScope
+        actions={publishActions}
       />
 
       <section className="rounded-xl border border-zinc-200 bg-white px-4 py-4 dark:border-zinc-800 dark:bg-zinc-950">
@@ -282,7 +240,7 @@ export function LicensorSuiteBuilderPanel(props: { suiteId: string }) {
               Composition progress toward publication
             </p>
             <p className="text-xs text-zinc-500 dark:text-zinc-400">
-              Tracks name, summary, modules, phases, issues, LiNKbots, and automations. Stripe linkage is required only at publish.
+              Tracks name, summary, modules, phases, issues, input/output contracts, LiNKbots, and automations. Stripe linkage is required only at publish.
             </p>
             <SuiteCompletenessBar percent={completeness} className="max-w-md pt-1" />
           </div>
@@ -296,7 +254,7 @@ export function LicensorSuiteBuilderPanel(props: { suiteId: string }) {
         </div>
         {suite.publishState === "draft" && !canMarkSuiteReady(suite) ? (
           <p className="mt-3 text-xs text-zinc-500 dark:text-zinc-400">
-            Submit for Review unlocks at 85% completeness (~6 of 7 checklist items).
+            Submit for Review unlocks at 85% completeness (contracts, assignees, and structure).
           </p>
         ) : null}
         {suite.publishState === "ready" ? (
@@ -305,24 +263,6 @@ export function LicensorSuiteBuilderPanel(props: { suiteId: string }) {
           </p>
         ) : null}
       </section>
-
-      {tab === "composition" ? (
-        <div className="flex flex-wrap gap-2">
-          {BUILDER_ACTIONS.map((action) => (
-            <CompositionAddButton
-              key={action.id}
-              label={action.label}
-              icon={action.icon}
-              onClick={() => runCompositionAction(action.id)}
-            />
-          ))}
-        </div>
-      ) : null}
-      {actionMessage ? (
-        <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900 dark:border-amber-900/40 dark:bg-amber-950/30 dark:text-amber-100">
-          {actionMessage}
-        </p>
-      ) : null}
 
       <nav aria-label="Suite builder sections" className="min-w-0 overflow-x-auto pb-px">
         <div className="flex w-max min-w-full flex-nowrap items-end gap-1 border-b border-zinc-200 dark:border-zinc-800">
@@ -348,18 +288,82 @@ export function LicensorSuiteBuilderPanel(props: { suiteId: string }) {
       </nav>
 
       {tab === "composition" ? (
-        suite.modules.length > 0 ? (
-          <ModuleProcessTree processes={suite.modules} variant="catalogue" />
-        ) : (
-          <p className="rounded-xl border border-dashed border-zinc-300 bg-zinc-50 px-4 py-8 text-center text-sm text-zinc-600 dark:border-zinc-700 dark:bg-zinc-900/30 dark:text-zinc-400">
-            No modules yet. Use <strong>Add Module</strong> to start assembling this suite.
-          </p>
-        )
+        <div className="space-y-4">
+          <div className="flex flex-wrap gap-2">
+            {COMPOSITION_ACTIONS.map((action) => (
+              <TabAddButton
+                key={action.id}
+                label={action.label}
+                icon={action.icon}
+                onClick={() => setModalState({ kind: action.id })}
+              />
+            ))}
+          </div>
+          {modalError ? (
+            <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900 dark:border-amber-900/40 dark:bg-amber-950/30 dark:text-amber-100">
+              {modalError}
+            </p>
+          ) : null}
+          {suite.modules.length > 0 ? (
+            <ModuleProcessTree
+              processes={suite.modules}
+              variant="builder"
+              onEditModule={(mod) => setModalState({ kind: "module", initial: mod })}
+              onEditPhase={(phase, moduleId) => setModalState({ kind: "phase", initial: { ...phase, moduleId } })}
+              onEditIssue={(issue, moduleId, phaseId) =>
+                setModalState({ kind: "issue", initial: { ...issue, moduleId, phaseId } })
+              }
+            />
+          ) : (
+            <p className="rounded-xl border border-dashed border-zinc-300 bg-zinc-50 px-4 py-8 text-center text-sm text-zinc-600 dark:border-zinc-700 dark:bg-zinc-900/30 dark:text-zinc-400">
+              No modules yet. Use <strong>Add Module</strong> to start assembling this suite.
+            </p>
+          )}
+        </div>
       ) : null}
 
-      {tab === "linkbots" ? <LicensorSuiteLinkbotsTab suiteId={suite.id} /> : null}
-      {tab === "automations" ? <LicensorSuiteAutomationsTab suiteId={suite.id} /> : null}
-      {tab === "stripe" ? <LicensorSuiteStripeTab suiteId={suite.id} /> : null}
+      {tab === "linkbots" ? (
+        <LicensorSuiteLinkbotsTab suiteId={suite.id} onAdd={() => setModalState({ kind: "linkbot" })} />
+      ) : null}
+      {tab === "automations" ? (
+        <LicensorSuiteAutomationsTab suiteId={suite.id} onAdd={() => setModalState({ kind: "automation" })} />
+      ) : null}
+      {tab === "stripe" ? <StripeSuiteTab suiteId={suite.id} suiteName={suite.name} /> : null}
+
+      <SuiteModuleModal
+        open={modalState.kind === "module"}
+        modules={suite.modules}
+        initial={modalState.kind === "module" ? modalState.initial : undefined}
+        onClose={closeModal}
+        onSave={save}
+      />
+      <SuitePhaseModal
+        open={modalState.kind === "phase"}
+        modules={suite.modules}
+        initial={modalState.kind === "phase" ? modalState.initial : undefined}
+        defaultModuleId={modalState.kind === "phase" ? modalState.defaultModuleId : undefined}
+        onClose={closeModal}
+        onSave={save}
+      />
+      <SuiteIssueModal
+        open={modalState.kind === "issue"}
+        modules={suite.modules}
+        initial={modalState.kind === "issue" ? modalState.initial : undefined}
+        onClose={closeModal}
+        onSave={save}
+      />
+      <SuiteLinkbotModal
+        open={modalState.kind === "linkbot"}
+        modules={suite.modules}
+        onClose={closeModal}
+        onSave={save}
+      />
+      <SuiteAutomationModal
+        open={modalState.kind === "automation"}
+        modules={suite.modules}
+        onClose={closeModal}
+        onSave={save}
+      />
     </main>
   );
 }

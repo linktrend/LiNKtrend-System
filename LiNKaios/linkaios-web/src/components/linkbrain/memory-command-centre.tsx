@@ -11,6 +11,7 @@ import { LinkbrainInboxToolbar } from "@/components/linkbrain/linkbrain-inbox-to
 import type { InboxSubmissionSource } from "@/components/linkbrain/linkbrain-labels";
 import { useAppRole, useLicensorScope } from "@/components/role-preview-provider";
 import { useAppSurface } from "@/components/app-surface-provider";
+import { licensorScopeIsReadOnly } from "@/lib/app-roles";
 import type { CollectiveTagFilters } from "@/lib/collective-linkbrain";
 import type { LinkbrainPageData, LinkbrainTab } from "@/lib/linkbrain-data";
 import {
@@ -46,10 +47,12 @@ export function MemoryCommandCentre(props: {
   /** When false, collective demo overlay is skipped (live vendor brain only). */
   collectiveDemoOverlay?: boolean;
 }) {
-  const { kind } = useAppRole();
-  const { scope: licensorScope } = useLicensorScope();
+  const { kind, role } = useAppRole();
+  const { scope: licensorScope, isCrossTenantReadOnly } = useLicensorScope();
   const { isAdmin } = useAppSurface();
   const isLicensorCollective = kind === "licensor" && isAdmin;
+  const collectiveReadOnly =
+    isLicensorCollective && isCrossTenantReadOnly && licensorScopeIsReadOnly(licensorScope, role);
   const useCollectiveDemo = isLicensorCollective && props.collectiveDemoOverlay === true;
 
   const data = useMemo(() => {
@@ -133,7 +136,7 @@ export function MemoryCommandCentre(props: {
         <section className="space-y-6">
           <div>
             <label className="mb-2 block text-xs font-semibold text-zinc-500 dark:text-zinc-400">
-              {isLicensorCollective ? "Admin program" : "Project"}
+              {isLicensorCollective ? "Project" : "Project"}
             </label>
             {isLicensorCollective ? (
               <AdminProgramMemorySelect
@@ -158,15 +161,16 @@ export function MemoryCommandCentre(props: {
               ) : null}
               <LinkbrainMemoryDocList
                 files={data.brainPartitionFiles}
-                scopeLabel={projectTitle ?? (isLicensorCollective ? "Admin program" : "Project")}
+                scopeLabel={projectTitle ?? "Project"}
                 missionId={props.missionFilter}
                 licensorCollective={isLicensorCollective}
+                readOnly={collectiveReadOnly}
               />
             </>
           ) : (
             <p className="text-sm text-zinc-500 dark:text-zinc-400">
               {isLicensorCollective
-                ? "Select an admin program to browse vendor collective memory for that partition."
+                ? "Select a project to browse vendor collective memory for that partition."
                 : "Select a project to list approved memory."}
             </p>
           )}
@@ -194,6 +198,7 @@ export function MemoryCommandCentre(props: {
                 scopeLabel={agentTitle ?? "LiNKbot"}
                 agentId={props.agentFilter}
                 licensorCollective={isLicensorCollective}
+                readOnly={collectiveReadOnly}
               />
             </>
           ) : (
@@ -219,6 +224,7 @@ export function MemoryCommandCentre(props: {
             files={data.brainPartitionFiles}
             scopeLabel={isLicensorCollective ? "Licensee-wide" : "Company"}
             licensorCollective={isLicensorCollective}
+            readOnly={collectiveReadOnly}
           />
         </section>
       ) : null}

@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+
+import { useAppSurface } from "@/components/app-surface-provider";
 import {
   Activity,
   CheckCircle2,
@@ -19,7 +21,6 @@ import { WorkEmptyState } from "@/app/(shell)/work/work-empty-state";
 import { DomainStatusPill, StatusPill } from "@/components/ui/status-pill";
 import { CockpitSummaryStatsGrid } from "@/components/summary-metric-card";
 import type { CockpitDashboardData, ModuleStatus, LeaseStatus, RunOverview } from "@/lib/cockpit";
-import { LICENSEE_HOME_PATH } from "@/lib/app-surface";
 import { BUTTON } from "@/lib/ui-standards";
 
 function healthTone(level: CockpitDashboardData["system_health"]): string {
@@ -110,7 +111,7 @@ function LeaseStatusRow({ lease }: { lease: LeaseStatus }) {
   );
 }
 
-function RunStatusRow({ run }: { run: RunOverview }) {
+function RunStatusRow({ run, workHref }: { run: RunOverview; workHref: string }) {
   const statusIcon =
     run.status === "succeeded" ? (
       <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
@@ -142,7 +143,7 @@ function RunStatusRow({ run }: { run: RunOverview }) {
         <span className="text-xs text-zinc-400 dark:text-zinc-500">
           {new Date(run.started_at).toLocaleTimeString()}
         </span>
-        <Link href="/work" className="rounded-md p-1 hover:bg-zinc-100 dark:hover:bg-zinc-800" aria-label="Open Work">
+        <Link href={workHref} className="rounded-md p-1 hover:bg-zinc-100 dark:hover:bg-zinc-800" aria-label="Open Work">
           <ChevronRight className="h-4 w-4 text-zinc-500" />
         </Link>
       </div>
@@ -151,6 +152,8 @@ function RunStatusRow({ run }: { run: RunOverview }) {
 }
 
 export function CockpitDashboard({ data }: { data: CockpitDashboardData }) {
+  const { href: appHref } = useAppSurface();
+
   return (
     <main className="space-y-8 pb-16">
       <section
@@ -211,7 +214,7 @@ export function CockpitDashboard({ data }: { data: CockpitDashboardData }) {
 
       <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <Link
-          href={LICENSEE_HOME_PATH}
+          href={appHref("/")}
           className="flex items-center gap-3 rounded-xl border border-zinc-200 bg-white p-4 shadow-sm transition hover:border-zinc-300 dark:border-zinc-800 dark:bg-zinc-950 dark:hover:border-zinc-700"
         >
           <LayoutDashboard className="h-5 w-5 text-zinc-500 dark:text-zinc-400" aria-hidden />
@@ -221,7 +224,7 @@ export function CockpitDashboard({ data }: { data: CockpitDashboardData }) {
           </div>
         </Link>
         <Link
-          href="/suites/my-suites"
+          href={appHref("/suites/my-suites")}
           className="flex items-center gap-3 rounded-xl border border-zinc-200 bg-white p-4 shadow-sm transition hover:border-zinc-300 dark:border-zinc-800 dark:bg-zinc-950 dark:hover:border-zinc-700"
         >
           <Layers className="h-5 w-5 text-zinc-500 dark:text-zinc-400" aria-hidden />
@@ -231,7 +234,7 @@ export function CockpitDashboard({ data }: { data: CockpitDashboardData }) {
           </div>
         </Link>
         <Link
-          href="/projects"
+          href={appHref("/projects")}
           className="flex items-center gap-3 rounded-xl border border-zinc-200 bg-white p-4 shadow-sm transition hover:border-zinc-300 dark:border-zinc-800 dark:bg-zinc-950 dark:hover:border-zinc-700"
         >
           <FolderKanban className="h-5 w-5 text-zinc-500 dark:text-zinc-400" aria-hidden />
@@ -241,7 +244,7 @@ export function CockpitDashboard({ data }: { data: CockpitDashboardData }) {
           </div>
         </Link>
         <Link
-          href="/work"
+          href={appHref("/work")}
           className="flex items-center gap-3 rounded-xl border border-zinc-200 bg-white p-4 shadow-sm transition hover:border-zinc-300 dark:border-zinc-800 dark:bg-zinc-950 dark:hover:border-zinc-700"
         >
           <Activity className="h-5 w-5 text-zinc-500 dark:text-zinc-400" aria-hidden />
@@ -268,7 +271,7 @@ export function CockpitDashboard({ data }: { data: CockpitDashboardData }) {
         <section>
           <div className="mb-4 flex items-center justify-between">
             <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Recent Runs</h2>
-            <Link href="/work" className="text-xs font-medium text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-300">
+            <Link href={appHref("/work")} className="text-xs font-medium text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-300">
               Open Work
             </Link>
           </div>
@@ -278,10 +281,12 @@ export function CockpitDashboard({ data }: { data: CockpitDashboardData }) {
                 icon={Activity}
                 title="No recent runs"
                 description="Runs from projects and automations will appear here once activity starts."
-                actions={[{ kind: "link", label: "Open Work", href: "/work" }]}
+                actions={[{ kind: "link", label: "Open Work", href: appHref("/work") }]}
               />
             ) : (
-              data.recent_runs.slice(0, 5).map((run) => <RunStatusRow key={run.run_id} run={run} />)
+              data.recent_runs.slice(0, 5).map((run) => (
+                <RunStatusRow key={run.run_id} run={run} workHref={appHref("/work")} />
+              ))
             )}
           </div>
         </section>
@@ -289,7 +294,7 @@ export function CockpitDashboard({ data }: { data: CockpitDashboardData }) {
         <section>
           <div className="mb-4 flex items-center justify-between">
             <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Recent Leases</h2>
-            <Link href="/skills/leases" className="text-xs font-medium text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-300">
+            <Link href={appHref("/skills/leases")} className="text-xs font-medium text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-300">
               Open leases
             </Link>
           </div>
@@ -299,7 +304,7 @@ export function CockpitDashboard({ data }: { data: CockpitDashboardData }) {
                 icon={Shield}
                 title="No recent leases"
                 description="Capability leases from LinkSkills will show here when projects request governed actions."
-                actions={[{ kind: "link", label: "Open leases", href: "/skills/leases" }]}
+                actions={[{ kind: "link", label: "Open leases", href: appHref("/skills/leases") }]}
               />
             ) : (
               data.recent_leases.slice(0, 5).map((lease) => <LeaseStatusRow key={lease.lease_id} lease={lease} />)
@@ -311,7 +316,7 @@ export function CockpitDashboard({ data }: { data: CockpitDashboardData }) {
       <section>
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Suite health</h2>
-          <Link href="/suites/my-suites" className="text-xs font-medium text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-300">
+          <Link href={appHref("/suites/my-suites")} className="text-xs font-medium text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-300">
             Open suites
           </Link>
         </div>
@@ -323,8 +328,8 @@ export function CockpitDashboard({ data }: { data: CockpitDashboardData }) {
               title="No suites registered"
               description="Subscribe to a suite from the marketplace to see tenant package health here."
               actions={[
-                { kind: "link", label: "Open My Suites", href: "/suites/my-suites" },
-                { kind: "link", label: "Browse marketplace", href: "/suites/marketplace", variant: "secondary" },
+                { kind: "link", label: "Open My Suites", href: appHref("/suites/my-suites") },
+                { kind: "link", label: "Browse marketplace", href: appHref("/suites/marketplace"), variant: "secondary" },
               ]}
             />
           ) : (

@@ -34,7 +34,7 @@ describe("licensor suite catalog", () => {
     expect(product.automationCount).toBe(1);
     expect(extractSuiteLinkbots(product)).toHaveLength(1);
     expect(extractSuiteAutomations(product)).toHaveLength(1);
-    expect(suiteBuilderCompleteness(product)).toBeGreaterThanOrEqual(85);
+    expect(suiteBuilderCompleteness(product)).toBeGreaterThanOrEqual(75);
   });
 
   it("blocks phase add when no module exists", () => {

@@ -12,6 +12,7 @@ import { CapabilityCatalogColGroup, CAPABILITY_CATALOG_TABLE_CLASS } from "@/com
 import { DataTableIconAction, DataTableShell, DT, TableBoolToggle } from "@/components/data-table";
 import { FixturePill } from "@/components/fixture-pill";
 import { useAppRole } from "@/components/role-preview-provider";
+import { useAppSurface } from "@/components/app-surface-provider";
 import {
   canEditLinkskillsCatalogue,
   canToggleTenantSkillOrTool,
@@ -31,14 +32,17 @@ export type SkillCatalogRow = {
   isFixture?: boolean;
 };
 
-export function SkillsCatalogTable(props: { rows: SkillCatalogRow[] }) {
+export function SkillsCatalogTable(props: { rows: SkillCatalogRow[]; runtimeOnly?: boolean }) {
+  const runtimeOnly = props.runtimeOnly ?? false;
   const router = useRouter();
+  const { href: appHref } = useAppSurface();
   const [pending, startTransition] = useTransition();
   const [toggleMessage, setToggleMessage] = useState<string | null>(null);
   const { kind, role } = useAppRole();
   const canEditCatalogue = canEditLinkskillsCatalogue(kind, role);
   const canToggleTenant = canToggleTenantSkillOrTool(kind, role);
   const canManagePlatform = canEditCatalogue;
+  const showRuntimeColumn = runtimeOnly || kind !== "licensor";
   const { hydrated, orgEnabledById, setOrgEnabled } = useOrgSkillPolicy(props.rows);
 
   async function applyRuntimeFlags(id: string, published: boolean, runtimeEnabled: boolean) {
@@ -90,12 +94,16 @@ export function SkillsCatalogTable(props: { rows: SkillCatalogRow[] }) {
             <th className={DT.thControl}>
               <div className={DT.controlInner}>Lifecycle</div>
             </th>
-            <th className={DT.thControl}>
-              <div className={DT.controlInner}>{companyColumnLabel}</div>
-            </th>
-            <th className={DT.thControl}>
-              <div className={DT.controlInner}>Runtime</div>
-            </th>
+            {runtimeOnly ? null : (
+              <th className={DT.thControl}>
+                <div className={DT.controlInner}>{companyColumnLabel}</div>
+              </th>
+            )}
+            {showRuntimeColumn ? (
+              <th className={DT.thControl}>
+                <div className={DT.controlInner}>Runtime</div>
+              </th>
+            ) : null}
             <th className={DT.thControl}>
               <div className={DT.controlInner}>Actions</div>
             </th>
@@ -105,8 +113,9 @@ export function SkillsCatalogTable(props: { rows: SkillCatalogRow[] }) {
           {props.rows.map((r) => {
             const orgEnabled = hydrated ? (orgEnabledById.get(r.id) ?? r.published) : r.published;
             const canToggleRuntime =
+              showRuntimeColumn &&
               canEditCatalogue &&
-              orgEnabled &&
+              (runtimeOnly || orgEnabled) &&
               r.status !== "deprecated" &&
               r.status !== "draft" &&
               !r.isFixture &&
@@ -141,31 +150,35 @@ export function SkillsCatalogTable(props: { rows: SkillCatalogRow[] }) {
                     <LifecyclePill status={r.status} />
                   </div>
                 </td>
-                <td className={DT.tdControl}>
-                  <TableBoolToggle
-                    on={kind === "licensee" ? orgEnabled : r.published}
-                    disabled={!canToggleCompany}
-                    ariaLabel={`${companyColumnLabel}: ${r.name}`}
-                    onToggle={(enabled) => applyCompanyToggle(r, enabled)}
-                  />
-                </td>
-                <td className={DT.tdControl}>
-                  <TableBoolToggle
-                    on={r.runtimeEnabled}
-                    disabled={!canToggleRuntime}
-                    ariaLabel={`Runtime: ${r.name}`}
-                    onToggle={(rt) => void applyRuntimeFlags(r.id, r.published, rt)}
-                  />
-                </td>
+                {runtimeOnly ? null : (
+                  <td className={DT.tdControl}>
+                    <TableBoolToggle
+                      on={kind === "licensee" ? orgEnabled : r.published}
+                      disabled={!canToggleCompany}
+                      ariaLabel={`${companyColumnLabel}: ${r.name}`}
+                      onToggle={(enabled) => applyCompanyToggle(r, enabled)}
+                    />
+                  </td>
+                )}
+                {showRuntimeColumn ? (
+                  <td className={DT.tdControl}>
+                    <TableBoolToggle
+                      on={r.runtimeEnabled}
+                      disabled={!canToggleRuntime}
+                      ariaLabel={`Runtime: ${r.name}`}
+                      onToggle={(rt) => void applyRuntimeFlags(r.id, r.published, rt)}
+                    />
+                  </td>
+                ) : null}
                 <td className={DT.tdControl}>
                   <div className={DT.actionsRow}>
-                    <DataTableIconAction icon={Eye} label={`View ${r.name}`} href={`/skills/${r.id}`} />
+                    <DataTableIconAction icon={Eye} label={`View ${r.name}`} href={appHref(`/skills/${r.id}`)} />
                     {canEditCatalogue ? (
                       <>
                         <DataTableIconAction
                           icon={Pencil}
                           label={`Edit ${r.name}`}
-                          href={r.isFixture ? undefined : `/skills/${r.id}`}
+                          href={r.isFixture ? undefined : appHref(`/skills/${r.id}`)}
                           disabled={r.isFixture}
                         />
                         <DataTableIconAction

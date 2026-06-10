@@ -206,14 +206,17 @@ export function enrichWorkerBreadcrumbs(pathname: string, items: BreadcrumbItem[
 
   if (tabIndex < 0) return;
 
-  const hasNested = parts.length > tabIndex + 1;
-  const tabItemIndex = items.length - (hasNested ? parts.length - tabIndex - 1 : 1);
-
+  // items[0] is LiNKaios; items[i+1] maps to parts[i]
+  const tabItemIndex = tabIndex + 1;
   if (tabItemIndex < 0 || tabItemIndex >= items.length) return;
 
-  if (itemHasLabel(items, tabLabel) && items[tabItemIndex]?.href === tab.href(agentId)) return;
+  const tabCrumb: BreadcrumbItem = { href: tab.href(agentId), label: tabLabel };
+  if (items[tabItemIndex]?.label === tabLabel) {
+    items[tabItemIndex] = tabCrumb;
+    return;
+  }
 
-  items[tabItemIndex] = { href: tab.href(agentId), label: tabLabel };
+  items[tabItemIndex] = tabCrumb;
 }
 
 export function enrichWorkBreadcrumbs(pathname: string, items: BreadcrumbItem[]) {

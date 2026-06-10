@@ -52,9 +52,10 @@ function windowHours(fromIso: string, toIso: string): number {
   return Math.max(1 / 60, (b - a) / (1000 * 60 * 60));
 }
 
-function trendFromSeries(rows: DailyValue[]): KpiTrend | null {
+function trendFromSeries(rows: DailyValue[], sparse: boolean): KpiTrend | null {
+  if (sparse) return null;
   const t = periodTrendFromDailySeries(rows);
-  return t.pct != null ? { pct: t.pct } : null;
+  return t.pct != null && Number.isFinite(t.pct) ? { pct: t.pct } : null;
 }
 
 function allDaysFromSnapshot(s: MetricsSnapshot): string[] {
@@ -201,15 +202,15 @@ export function buildKpiCards(view: KpiViewId, s: MetricsSnapshot): KpiCard[] {
 
   if (view === "cost") {
     return [
-      card(1, "Total cost", sparse ? "—" : fmtUsd(s.totalCostUsd), totalCostContext(s), "neutral", trendFromSeries(costDaily)),
-      card(2, "Tokens", sparse ? "—" : fmtTok(s.totalTokens), sparse ? "No runs in range" : "From payloads", "neutral", trendFromSeries(tokenDaily)),
+      card(1, "Total cost", sparse ? "—" : fmtUsd(s.totalCostUsd), totalCostContext(s), "neutral", trendFromSeries(costDaily, sparse)),
+      card(2, "Tokens", sparse ? "—" : fmtTok(s.totalTokens), sparse ? "No runs in range" : "From payloads", "neutral", trendFromSeries(tokenDaily, sparse)),
       card(
         3,
         "Cost per 1M tokens",
         sparse || s.totalTokens <= 0 ? "—" : fmtUsd(costPer1mTok),
         sparse ? "No runs in range" : "Pricing efficiency",
         costPer1mTok > 20 ? "warn" : "neutral",
-        trendFromSeries(costPer1mTokensSeries(s)),
+        trendFromSeries(costPer1mTokensSeries(s), sparse),
       ),
       card(
         4,
@@ -217,7 +218,7 @@ export function buildKpiCards(view: KpiViewId, s: MetricsSnapshot): KpiCard[] {
         sparse ? "—" : String(kb.successTraceEstimate),
         sparse ? "No runs in range" : "Total − error-like",
         "neutral",
-        trendFromSeries(successDaily),
+        trendFromSeries(successDaily, sparse),
       ),
       card(
         5,
@@ -225,7 +226,7 @@ export function buildKpiCards(view: KpiViewId, s: MetricsSnapshot): KpiCard[] {
         sparse || kb.successTraceEstimate <= 0 ? "—" : fmtUsd(costPerSuccess),
         sparse ? "No runs in range" : "Est. non-error runs",
         costPerSuccess > 0.05 ? "warn" : "neutral",
-        trendFromSeries(costPerSuccessSeries(s)),
+        trendFromSeries(costPerSuccessSeries(s), sparse),
       ),
       card(
         6,
@@ -250,7 +251,7 @@ export function buildKpiCards(view: KpiViewId, s: MetricsSnapshot): KpiCard[] {
         sparse || s.totalCostUsd <= 0 ? "—" : `${wastedPct.toFixed(1)}%`,
         sparse ? "No runs in range" : "Error-like cost / total spend",
         wastedPct > 12 ? "bad" : wastedPct > 5 ? "warn" : "neutral",
-        trendFromSeries(wastedCostPctSeries(s)),
+        trendFromSeries(wastedCostPctSeries(s), sparse),
       ),
       card(10, "Top cost project", sparse ? "—" : topProject.primary, sparse ? "No runs in range" : topProject.secondary, topProject.tone, null),
       card(
@@ -259,7 +260,7 @@ export function buildKpiCards(view: KpiViewId, s: MetricsSnapshot): KpiCard[] {
         sparse ? "—" : fmtUsd(kb.errorCostUsd),
         sparse ? "No runs in range" : "Spend on error-like rows",
         kb.errorCostUsd > s.totalCostUsd * 0.12 ? "bad" : kb.errorCostUsd > s.totalCostUsd * 0.05 ? "warn" : "neutral",
-        trendFromSeries(s.errorCostByDay.map((d) => ({ day: d.day, value: d.cost }))),
+        trendFromSeries(s.errorCostByDay.map((d) => ({ day: d.day, value: d.cost })), sparse),
       ),
       card(
         12,
@@ -267,25 +268,25 @@ export function buildKpiCards(view: KpiViewId, s: MetricsSnapshot): KpiCard[] {
         sparse ? "—" : String(s.totalTraces),
         sparse ? "No runs in range" : "All runs in filtered window",
         "neutral",
-        trendFromSeries(runDaily),
+        trendFromSeries(runDaily, sparse),
       ),
     ];
   }
 
   if (view === "performance") {
     return [
-      card(1, "Tasks (LLM-like)", sparse ? "—" : String(kb.llmTraces), sparse ? "No runs in range" : "Heuristic bucket", "neutral", trendFromSeries(runDaily)),
-      card(2, "Run success rate", sparse ? "—" : `${successRate.toFixed(1)}%`, sparse ? "No runs in range" : "Non-error / total", srTone, trendFromSeries(successDaily)),
-      card(3, "Avg duration", sparse ? "—" : fmtDur(avgMs), sparse ? "No runs in range" : durHint, avgMs != null && avgMs > 120_000 ? "warn" : "neutral", trendFromSeries(runDaily)),
-      card(4, "Median (P50)", sparse ? "—" : fmtDur(p50Ms), sparse ? "No runs in range" : "Payload latency", "neutral", trendFromSeries(runDaily)),
-      card(5, "P95 duration", sparse ? "—" : fmtDur(p95Ms), sparse ? "No runs in range" : "Tail latency", p95Ms != null && p95Ms > 300_000 ? "bad" : "neutral", trendFromSeries(runDaily)),
-      card(6, "Retries / run", sparse ? "—" : retriesPerTask.toFixed(2), sparse ? "No runs in range" : "Retry signals in events", rtTone, trendFromSeries(runDaily)),
-      card(7, "Steps proxy", sparse ? "—" : stepsProxy.toFixed(2), sparse ? "No runs in range" : "Tool / LLM ratio", stepsProxy > 6 ? "warn" : "neutral", trendFromSeries(runDaily)),
-      card(8, "Handoffs proxy", sparse ? "—" : handoffProxy.toFixed(2), sparse ? "No runs in range" : "Gateway / LLM ratio", "neutral", trendFromSeries(runDaily)),
-      card(9, "First-pass proxy", sparse ? "—" : `${firstPass.toFixed(0)}%`, sparse ? "No runs in range" : "1 − retries/success", firstPass < 75 ? "warn" : "neutral", trendFromSeries(successDaily)),
-      card(10, "Throughput", sparse ? "—" : throughput.toFixed(1), sparse ? "No runs in range" : "Successful runs / hour", "neutral", trendFromSeries(successDaily)),
-      card(11, "Total runs", sparse ? "—" : String(s.totalTraces), sparse ? "No runs in range" : "All activity in window", "neutral", trendFromSeries(runDaily)),
-      card(12, "Tool runs", sparse ? "—" : String(kb.toolTraces), sparse ? "No runs in range" : "Tool / MCP / invoke-like", "neutral", trendFromSeries(runDaily)),
+      card(1, "Tasks (LLM-like)", sparse ? "—" : String(kb.llmTraces), sparse ? "No runs in range" : "Heuristic bucket", "neutral", trendFromSeries(runDaily, sparse)),
+      card(2, "Run success rate", sparse ? "—" : `${successRate.toFixed(1)}%`, sparse ? "No runs in range" : "Non-error / total", srTone, trendFromSeries(successDaily, sparse)),
+      card(3, "Avg duration", sparse ? "—" : fmtDur(avgMs), sparse ? "No runs in range" : durHint, avgMs != null && avgMs > 120_000 ? "warn" : "neutral", trendFromSeries(runDaily, sparse)),
+      card(4, "Median (P50)", sparse ? "—" : fmtDur(p50Ms), sparse ? "No runs in range" : "Payload latency", "neutral", trendFromSeries(runDaily, sparse)),
+      card(5, "P95 duration", sparse ? "—" : fmtDur(p95Ms), sparse ? "No runs in range" : "Tail latency", p95Ms != null && p95Ms > 300_000 ? "bad" : "neutral", trendFromSeries(runDaily, sparse)),
+      card(6, "Retries / run", sparse ? "—" : retriesPerTask.toFixed(2), sparse ? "No runs in range" : "Retry signals in events", rtTone, trendFromSeries(runDaily, sparse)),
+      card(7, "Steps proxy", sparse ? "—" : stepsProxy.toFixed(2), sparse ? "No runs in range" : "Tool / LLM ratio", stepsProxy > 6 ? "warn" : "neutral", trendFromSeries(runDaily, sparse)),
+      card(8, "Handoffs proxy", sparse ? "—" : handoffProxy.toFixed(2), sparse ? "No runs in range" : "Gateway / LLM ratio", "neutral", trendFromSeries(runDaily, sparse)),
+      card(9, "First-pass proxy", sparse ? "—" : `${firstPass.toFixed(0)}%`, sparse ? "No runs in range" : "1 − retries/success", firstPass < 75 ? "warn" : "neutral", trendFromSeries(successDaily, sparse)),
+      card(10, "Throughput", sparse ? "—" : throughput.toFixed(1), sparse ? "No runs in range" : "Successful runs / hour", "neutral", trendFromSeries(successDaily, sparse)),
+      card(11, "Total runs", sparse ? "—" : String(s.totalTraces), sparse ? "No runs in range" : "All activity in window", "neutral", trendFromSeries(runDaily, sparse)),
+      card(12, "Tool runs", sparse ? "—" : String(kb.toolTraces), sparse ? "No runs in range" : "Tool / MCP / invoke-like", "neutral", trendFromSeries(runDaily, sparse)),
     ];
   }
 
@@ -295,18 +296,18 @@ export function buildKpiCards(view: KpiViewId, s: MetricsSnapshot): KpiCard[] {
   const errRate = (kb.nonTimeoutErrorTraces / total) * 100;
 
   return [
-    card(1, "Failure rate", sparse ? "—" : `${failRate.toFixed(1)}%`, sparse ? "No runs in range" : "Error-like / runs", frTone, trendFromSeries(runDaily)),
-    card(2, "Incidents (proxy)", sparse ? "—" : String(s.errorEvents), sparse ? "No runs in range" : "Error-shaped runs", s.errorEvents > total * 0.08 ? "bad" : "neutral", trendFromSeries(runDaily)),
-    card(3, "Timeout rate", sparse ? "—" : `${timeoutRate.toFixed(1)}%`, sparse ? "No runs in range" : "`timeout` in event", timeoutRate > 4 ? "warn" : "neutral", trendFromSeries(runDaily)),
-    card(4, "Non-timeout errors", sparse ? "—" : `${errRate.toFixed(1)}%`, sparse ? "No runs in range" : "fail / denied / blocked", errRate > 6 ? "bad" : errRate > 2 ? "warn" : "neutral", trendFromSeries(runDaily)),
+    card(1, "Failure rate", sparse ? "—" : `${failRate.toFixed(1)}%`, sparse ? "No runs in range" : "Error-like / runs", frTone, trendFromSeries(runDaily, sparse)),
+    card(2, "Incidents (proxy)", sparse ? "—" : String(s.errorEvents), sparse ? "No runs in range" : "Error-shaped runs", s.errorEvents > total * 0.08 ? "bad" : "neutral", trendFromSeries(runDaily, sparse)),
+    card(3, "Timeout rate", sparse ? "—" : `${timeoutRate.toFixed(1)}%`, sparse ? "No runs in range" : "`timeout` in event", timeoutRate > 4 ? "warn" : "neutral", trendFromSeries(runDaily, sparse)),
+    card(4, "Non-timeout errors", sparse ? "—" : `${errRate.toFixed(1)}%`, sparse ? "No runs in range" : "fail / denied / blocked", errRate > 6 ? "bad" : errRate > 2 ? "warn" : "neutral", trendFromSeries(runDaily, sparse)),
     card(5, "Stuck runs", "—", sparse ? "No runs in range" : "See worker sessions", "neutral", null),
-    card(6, "Retry rate", sparse ? "—" : `${retryRate.toFixed(1)}%`, sparse ? "No runs in range" : "retry in event_type", rrTone, trendFromSeries(runDaily)),
+    card(6, "Retry rate", sparse ? "—" : `${retryRate.toFixed(1)}%`, sparse ? "No runs in range" : "retry in event_type", rrTone, trendFromSeries(runDaily, sparse)),
     card(7, "Human intervention", "—", sparse ? "No runs in range" : "Not captured in metrics yet", "neutral", null),
-    card(8, "Tool failure rate", sparse || kb.toolTraces <= 0 ? "—" : `${toolFailRate.toFixed(1)}%`, sparse ? "No runs in range" : "Tool errors / tool runs", tfrTone, trendFromSeries(runDaily)),
-    card(9, "Model failure rate", sparse || kb.llmTraces <= 0 ? "—" : `${modelFailRate.toFixed(1)}%`, sparse ? "No runs in range" : "LLM errors / LLM runs", mfrTone, trendFromSeries(runDaily)),
+    card(8, "Tool failure rate", sparse || kb.toolTraces <= 0 ? "—" : `${toolFailRate.toFixed(1)}%`, sparse ? "No runs in range" : "Tool errors / tool runs", tfrTone, trendFromSeries(runDaily, sparse)),
+    card(9, "Model failure rate", sparse || kb.llmTraces <= 0 ? "—" : `${modelFailRate.toFixed(1)}%`, sparse ? "No runs in range" : "LLM errors / LLM runs", mfrTone, trendFromSeries(runDaily, sparse)),
     card(10, "MTTR", "—", sparse ? "No runs in range" : "Needs incident timestamps", "neutral", null),
-    card(11, "Successful runs", sparse ? "—" : String(kb.successTraceEstimate), sparse ? "No runs in range" : "Total − error-like", "neutral", trendFromSeries(successDaily)),
-    card(12, "Total runs", sparse ? "—" : String(s.totalTraces), sparse ? "No runs in range" : "All activity in window", "neutral", trendFromSeries(runDaily)),
+    card(11, "Successful runs", sparse ? "—" : String(kb.successTraceEstimate), sparse ? "No runs in range" : "Total − error-like", "neutral", trendFromSeries(successDaily, sparse)),
+    card(12, "Total runs", sparse ? "—" : String(s.totalTraces), sparse ? "No runs in range" : "All activity in window", "neutral", trendFromSeries(runDaily, sparse)),
   ];
 }
 

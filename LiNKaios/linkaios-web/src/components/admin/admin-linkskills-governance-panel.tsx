@@ -10,8 +10,8 @@ import {
   DT,
 } from "@/components/data-table";
 import { DomainStatusPill, StatusPill } from "@/components/ui/status-pill";
-import { loadLeaseStatus } from "@/lib/cockpit";
-import { resolveLicensorTenantId } from "@/lib/admin-linkskills-tenant";
+import { loadLeasesForAdminView, resolveLicensorTenantId } from "@/lib/admin-linkskills-tenant";
+import { PLATFORM_ALL_SCOPE } from "@/lib/licensor-view-scope";
 import { listKillSwitches } from "@linktrend/linkskills-logic-engine";
 
 function leaseStatusForPill(raw: string): string {
@@ -27,7 +27,7 @@ export async function AdminLinkskillsGovernancePanel() {
   const supabase = createSupabaseServiceClient(env);
 
   const [leases, killSwitchResult] = await Promise.all([
-    tenantId != null ? loadLeaseStatus(supabase, tenantId, { time_range: "24h" }) : Promise.resolve([]),
+    loadLeasesForAdminView(supabase, PLATFORM_ALL_SCOPE, { time_range: "24h" }),
     tenantId != null ? listKillSwitches(supabase, tenantId) : Promise.resolve({ data: [] }),
   ]);
 

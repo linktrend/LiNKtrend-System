@@ -9,7 +9,8 @@ import { SkillsSemanticDiscovery } from "@/components/skills-semantic-discovery"
 import { computeCapabilitiesSliceStats, type CapabilitiesSliceStatRow } from "@/lib/capabilities-slice-stats";
 import { readSkillAdminFlags } from "@/lib/skills-admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { isUiMocksEnabled } from "@/lib/ui-mocks/flags";
+import { readAppSurfaceFromHeaders } from "@/lib/app-surface";
+import { isUiMocksEnabledForSurface } from "@/lib/ui-mocks/flags";
 import { mergeSkillCatalogWithDemo } from "@/lib/ui-mocks/skills-tools-catalog-demo";
 import { CapabilitiesCatalogStatsGrid } from "@/components/summary-metric-card";
 
@@ -32,7 +33,8 @@ function toRow(s: SkillRecord): SkillCatalogRow {
 
 export default async function SkillsCatalogPage() {
   const supabase = await createSupabaseServerClient();
-  const uiMocksEnabled = isUiMocksEnabled();
+  const surface = await readAppSurfaceFromHeaders();
+  const uiMocksEnabled = isUiMocksEnabledForSurface(surface);
   const { data, error } = await listSkills(supabase, { limit: 400 });
 
   if (error && !uiMocksEnabled) {

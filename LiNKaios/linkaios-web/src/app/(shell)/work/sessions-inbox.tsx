@@ -7,26 +7,44 @@ import { useCallback, useMemo, useState } from "react";
 import { stopWorkerSessionAction } from "@/app/(shell)/work/session-actions";
 import { WorkEmptyState } from "@/app/(shell)/work/work-empty-state";
 import { SessionsCatalogTable } from "@/components/sessions-catalog-table";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  buildAdminBotByAgentId,
+  canStopWorkerSession,
+  type SessionStopPolicyInput,
+} from "@/lib/session-stop-policy";
 import type { SessionThreadRow } from "@/lib/work-sessions";
-
-const SESSION_UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 type SessionFilter = "all" | "running" | "waiting" | "completed" | "failed";
 
-function sessionStopEligible(s: SessionThreadRow): boolean {
-  if (!SESSION_UUID_RE.test(s.id)) return false;
-  return s.displayStatus === "running" || s.displayStatus === "waiting";
-}
-
-export function SessionsInbox(props: { sessions: SessionThreadRow[] }) {
+export function SessionsInbox(props: {
+  sessions: SessionThreadRow[];
+  stopPolicy?: SessionStopPolicyInput;
+}) {
   const router = useRouter();
   const [filter, setFilter] = useState<SessionFilter>("all");
   const [stoppingId, setStoppingId] = useState<string | null>(null);
   const [stopError, setStopError] = useState<string | null>(null);
+  const [confirmStop, setConfirmStop] = useState<SessionThreadRow | null>(null);
 
-  const onStop = useCallback(
+  const stopPolicy = props.stopPolicy ?? {};
+
+  const canStop = useCallback(
+    (s: SessionThreadRow) => canStopWorkerSession(s, stopPolicy),
+    [stopPolicy],
+  );
+
+  const executeStop = useCallback(
     async (s: SessionThreadRow) => {
-      if (!sessionStopEligible(s)) return;
+      if (!canStop(s)) return;
       setStopError(null);
       setStoppingId(s.id);
       const r = await stopWorkerSessionAction(s.id);
@@ -37,7 +55,15 @@ export function SessionsInbox(props: { sessions: SessionThreadRow[] }) {
       }
       router.refresh();
     },
-    [router],
+    [canStop, router],
+  );
+
+  const requestStop = useCallback(
+    (s: SessionThreadRow) => {
+      if (!canStop(s)) return;
+      setConfirmStop(s);
+    },
+    [canStop],
   );
 
   const visible = useMemo(() => {
@@ -78,7 +104,10 @@ export function SessionsInbox(props: { sessions: SessionThreadRow[] }) {
   return (
     <div className="space-y-4">
       {stopError ? (
-        <p className="rounded-lg border border-amber-200 bg-amber-50/90 px-3 py-2 text-sm text-amber-950 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-100" role="alert">
+        <p
+          className="rounded-lg border border-amber-200 bg-amber-50/90 px-3 py-2 text-sm text-amber-950 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-100"
+          role="alert"
+        >
           {stopError}
         </p>
       ) : null}
@@ -93,9 +122,7 @@ export function SessionsInbox(props: { sessions: SessionThreadRow[] }) {
       {visible.length === 0 ? (
         <WorkEmptyState
           icon={filter === "all" && props.sessions.length === 0 ? Bot : Filter}
-          title={
-            filter === "all" && props.sessions.length === 0 ? "No sessions yet" : "No sessions in this view"
-          }
+          title={filter === "all" && props.sessions.length === 0 ? "No sessions yet" : "No sessions in this view"}
           description={
             filter === "all" && props.sessions.length === 0
               ? "When LiNKbots start work on a project, their sessions will appear here."
@@ -111,8 +138,54 @@ export function SessionsInbox(props: { sessions: SessionThreadRow[] }) {
           }
         />
       ) : (
-        <SessionsCatalogTable rows={visible} stoppingId={stoppingId} onStop={(s) => void onStop(s)} />
+        <SessionsCatalogTable
+          rows={visible}
+          stoppingId={stoppingId}
+          canStop={canStop}
+          onStop={requestStop}
+        />
       )}
+
+      <Dialog open={confirmStop != null} onOpenChange={(open) => !open && setConfirmStop(null)}>
+        <DialogContent showCloseButton>
+          <DialogHeader>
+            <DialogTitle>Stop this session?</DialogTitle>
+            <DialogDescription>
+              {confirmStop
+                ? `This ends the running session for ${confirmStop.agentName}. The LiNKbot will stop work on “${confirmStop.sessionTitle}”.`
+                : null}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={() => setConfirmStop(null)}>
+              Keep running
+            </Button>
+            <Button
+              type="button"
+              variant="destructive"
+              disabled={!confirmStop || stoppingId === confirmStop.id}
+              onClick={() => {
+                if (!confirmStop) return;
+                const target = confirmStop;
+                setConfirmStop(null);
+                void executeStop(target);
+              }}
+            >
+              Stop session
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
+}
+
+export function adminSessionsStopPolicy(
+  agents: { id: string; runtime_settings?: unknown }[],
+  options: { licensorTenantId?: string | null; uiMocksDemoAgent?: boolean },
+): SessionStopPolicyInput {
+  return {
+    adminSurface: true,
+    adminBotByAgentId: buildAdminBotByAgentId(agents, options),
+  };
 }

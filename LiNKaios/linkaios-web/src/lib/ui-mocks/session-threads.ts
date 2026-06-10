@@ -19,7 +19,18 @@ export const DEMO_SESSION_THREADS: SessionThreadRow[] = [
     detail:
       "Fixture OpenClaw-style session transcript placeholder. Live session chats from the gateway will appear here " +
       "once wired (distinct from channel message threads).",
-    metadata: { mission_id: "demo-mission-1", session_title: "Q3 portfolio review" },
+    metadata: {
+      mission_id: "demo-mission-1",
+      session_title: "Q3 portfolio review",
+      messages: [
+        { role: "user", content: "Summarise Q3 portfolio risks for the board." },
+        { role: "assistant", content: "Northwind modernisation is on track; outreach pipeline needs one more qualified lead." },
+      ],
+      tool_calls: [
+        { name: "memory_search", status: "ok", detail: "Retrieved 3 portfolio briefs" },
+        { name: "mission_board", status: "ok", detail: "Listed active projects" },
+      ],
+    },
     openHref: "/workers/demo-lisa/sessions/a0000001-0000-4000-8000-000000000001",
   },
   {

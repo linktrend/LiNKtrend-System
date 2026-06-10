@@ -13,8 +13,6 @@ import { SESSION_DISPLAY_PILL_LABELS } from "@/lib/status-colors";
 import { TABLE_COLUMN } from "@/lib/ui-standards";
 import type { SessionThreadRow } from "@/lib/work-sessions";
 
-const SESSION_UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-
 function sessionStatusTone(st: SessionThreadRow["displayStatus"]): StatusTone {
   switch (st) {
     case "running":
@@ -32,11 +30,6 @@ function sessionStatusTone(st: SessionThreadRow["displayStatus"]): StatusTone {
 
 function statusLabel(st: SessionThreadRow["displayStatus"]): string {
   return st.charAt(0).toUpperCase() + st.slice(1);
-}
-
-function sessionStopEligible(s: SessionThreadRow): boolean {
-  if (!SESSION_UUID_RE.test(s.id)) return false;
-  return s.displayStatus === "running" || s.displayStatus === "waiting";
 }
 
 function formatRelativeTime(iso: string): string {
@@ -60,8 +53,10 @@ function shortPreview(text: string, max = 48): string {
 export function SessionsCatalogTable(props: {
   rows: SessionThreadRow[];
   stoppingId?: string | null;
+  canStop?: (session: SessionThreadRow) => boolean;
   onStop?: (session: SessionThreadRow) => void;
 }) {
+  const canStop = props.canStop ?? (() => false);
   return (
     <DataTableShell scrollableBody>
       <table className={SESSIONS_CATALOG_TABLE_CLASS}>
@@ -134,12 +129,14 @@ export function SessionsCatalogTable(props: {
                       label={
                         props.stoppingId === s.id
                           ? "Cancelling session"
-                          : sessionStopEligible(s)
+                          : canStop(s)
                             ? "Cancel session"
-                            : "Cancel session (not running)"
+                            : props.canStop
+                              ? "View only — client tenant session"
+                              : "Cancel session (not running)"
                       }
-                      disabled={!sessionStopEligible(s) || props.stoppingId === s.id || !props.onStop}
-                      onClick={sessionStopEligible(s) && props.onStop ? () => props.onStop!(s) : undefined}
+                      disabled={!canStop(s) || props.stoppingId === s.id || !props.onStop}
+                      onClick={canStop(s) && props.onStop ? () => props.onStop!(s) : undefined}
                     />
                   </div>
                 </td>

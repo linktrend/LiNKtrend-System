@@ -1,13 +1,22 @@
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { missionIdFromSessionMetadata } from "@/lib/session-display";
 import { mapWorkerSessionsToThreads } from "@/lib/work-sessions";
+import { readAppSurfaceFromHeaders } from "@/lib/app-surface";
+import { resolveLicensorTenantId } from "@/lib/admin-linkskills-tenant";
+import { isUiMocksEnabledForSurface } from "@/lib/ui-mocks/flags";
 
 import { ShellPageHeaderClient } from "@/components/shell-page-header-client";
+import { ScopedSessionsInbox } from "../scoped-sessions-inbox";
 import { SessionsInbox } from "../sessions-inbox";
 
 export const dynamic = "force-dynamic";
 
 export default async function WorkSessionsPage() {
+  const surface = await readAppSurfaceFromHeaders();
+  const isAdminSurface = surface === "admin";
+  const uiMocksEnabled = isUiMocksEnabledForSurface(surface);
+  const licensorTenantId = isAdminSurface ? await resolveLicensorTenantId().catch(() => null) : null;
+
   const supabase = await createSupabaseServerClient();
 
   const [sessionsRes, agentsRes] = await Promise.all([
@@ -17,7 +26,7 @@ export default async function WorkSessionsPage() {
       .select("id, agent_id, status, started_at, last_heartbeat, ended_at, metadata")
       .order("started_at", { ascending: false })
       .limit(50),
-    supabase.schema("linkaios").from("agents").select("id, display_name"),
+    supabase.schema("linkaios").from("agents").select("id, display_name, runtime_settings, tenant_id"),
   ]);
 
   const err = sessionsRes.error || agentsRes.error;
@@ -42,6 +51,11 @@ export default async function WorkSessionsPage() {
       ? mapWorkerSessionsToThreads(raw as Parameters<typeof mapWorkerSessionsToThreads>[0], agentName, missionTitles)
       : [];
 
+  const agents = (agentsRes.data ?? []).map((a) => ({
+    id: String(a.id),
+    runtime_settings: a.runtime_settings,
+  }));
+
   return (
     <main>
       <ShellPageHeaderClient
@@ -50,7 +64,16 @@ export default async function WorkSessionsPage() {
       />
       <div className="mt-8">
         {err ? <p className="mb-4 text-sm text-red-700 dark:text-red-400">Could not load sessions: {err.message}</p> : null}
-        <SessionsInbox sessions={sessions} />
+        {isAdminSurface ? (
+          <ScopedSessionsInbox
+            sessions={sessions}
+            agents={agents}
+            licensorTenantId={licensorTenantId}
+            uiMocksDemoAgent={uiMocksEnabled}
+          />
+        ) : (
+          <SessionsInbox sessions={sessions} />
+        )}
       </div>
     </main>
   );

@@ -10,7 +10,9 @@ import {
 } from "@/components/linkbrain/linkbrain-labels";
 import type { LinkbrainTab } from "@/lib/linkbrain-data";
 import { loadLinkbrainPageData } from "@/lib/linkbrain-data";
+import { enrichAdminCollectiveBrainPageData } from "@/lib/admin-collective-brain-data";
 import { loadAdminProgramPickerOptions } from "@/lib/admin-projects-data";
+import { parseLicensorScopeParam } from "@/lib/licensor-view-scope";
 import { runBrainRetrievalSandbox } from "@/lib/brain-sandbox";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { isUiMocksEnabled } from "@/lib/ui-mocks/flags";
@@ -24,7 +26,6 @@ export type MemoryPageSearchParams = {
   mission?: string;
   classification?: string;
   agent?: string;
-  scope?: string;
   b_company?: string;
   b_module?: string;
   b_mission?: string;
@@ -44,6 +45,8 @@ export type MemoryPageSearchParams = {
   c_submission?: string;
   /** LinkSites MVO run id — audit tab shows linkbrain.audit_events union for this run. */
   run?: string;
+  /** Licensor sidebar View — synced to URL via role-preview provider. */
+  scope?: string;
   err?: string;
 };
 
@@ -137,6 +140,7 @@ export async function MemoryPageContent(props: {
       : "index_cards";
 
   const supabase = await createSupabaseServerClient();
+  const licensorScope = props.licensorCollective ? parseLicensorScopeParam(sp.scope) : null;
   const adminPrograms = props.licensorCollective ? await loadAdminProgramPickerOptions(supabase) : [];
   let data = await loadLinkbrainPageData(supabase, {
     tab,
@@ -160,6 +164,16 @@ export async function MemoryPageContent(props: {
       missions: data.missions.filter((m) => adminIds.has(String(m.id))),
       missionRows: data.missionRows.filter((row) => adminIds.has(String(row.mission.id))),
     };
+  }
+
+  if (props.licensorCollective && licensorScope) {
+    data = await enrichAdminCollectiveBrainPageData(supabase, data, {
+      tab,
+      licensorScope,
+      missionId: missionFilter,
+      agentId: agentFilter,
+      adminProgramIds: adminPrograms.map((p) => p.id),
+    });
   }
 
   if (uiMocksEnabled && !data.error && !props.licensorCollective) {
@@ -251,7 +265,7 @@ export async function MemoryPageContent(props: {
           brainRetrieveStage={brainRetrieveStage}
           collectiveTagFilters={collectiveTagFilters}
           adminPrograms={adminPrograms}
-          collectiveDemoOverlay={uiMocksEnabled}
+          collectiveDemoOverlay={false}
         />
       ) : null}
 

@@ -8,9 +8,10 @@ import { ShellPageHeaderClient } from "@/components/shell-page-header-client";
 import { ToolsCatalogDiscovery } from "@/components/tools-catalog-discovery";
 import type { ToolCatalogRow } from "@/components/tools-catalog-table";
 import { computeCapabilitiesSliceStats, type CapabilitiesSliceStatRow } from "@/lib/capabilities-slice-stats";
+import { readAppSurfaceFromHeaders } from "@/lib/app-surface";
 import { readToolAdminFlags } from "@/lib/tools-admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { isUiMocksEnabled } from "@/lib/ui-mocks/flags";
+import { isUiMocksEnabledForSurface } from "@/lib/ui-mocks/flags";
 import { mergeToolCatalogWithDemo } from "@/lib/ui-mocks/skills-tools-catalog-demo";
 
 export const dynamic = "force-dynamic";
@@ -32,7 +33,8 @@ function toRow(t: ToolRecord): ToolCatalogRow {
 
 export default async function SkillsToolsPage() {
   const supabase = await createSupabaseServerClient();
-  const uiMocksEnabled = isUiMocksEnabled();
+  const surface = await readAppSurfaceFromHeaders();
+  const uiMocksEnabled = isUiMocksEnabledForSurface(surface);
   const { data, error } = await listTools(supabase, { limit: 400 });
 
   if (error && !uiMocksEnabled) {

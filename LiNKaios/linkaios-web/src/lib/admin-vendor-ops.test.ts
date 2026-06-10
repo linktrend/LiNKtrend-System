@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { ALL_LICENSEES_SCOPE } from "@/lib/app-roles";
+import { ALL_LICENSEES_SCOPE, PLATFORM_ALL_SCOPE } from "@/lib/app-roles";
 
 import {
   assertTenantScopedAccess,
@@ -15,6 +15,11 @@ describe("admin vendor ops (LTS-004)", () => {
     const result = assertTenantScopedAccess(ALL_LICENSEES_SCOPE, DEMO_TENANT_ID);
     expect(result.allowed).toBe(false);
     expect(result.reason).toMatch(/Cross-tenant/i);
+  });
+
+  it("blocks cross-tenant scoped mutations from platform All view", () => {
+    const result = assertTenantScopedAccess(PLATFORM_ALL_SCOPE, DEMO_TENANT_ID);
+    expect(result.allowed).toBe(false);
   });
 
   it("allows vendor ops when licensor scope matches tenant", () => {

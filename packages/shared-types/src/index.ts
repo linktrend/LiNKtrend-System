@@ -42,6 +42,8 @@ export interface AgentRecord {
   id: AgentId;
   display_name: string;
   status: AgentStatus;
+  /** Kernel tenant for fleet View scoping (linkaios.agents.tenant_id). */
+  tenant_id?: string | null;
   /** Programmable policy JSON from `linkaios.agents.runtime_settings`. */
   runtime_settings?: Record<string, unknown> | null;
   created_at: string;

@@ -18,7 +18,17 @@ import {
   submissionSourceFromInboxType,
 } from "@/lib/collective-linkbrain";
 import type { LinkbrainAgentOption, LinkbrainPageData, LinkbrainTab } from "@/lib/linkbrain-data";
-import { ALL_LICENSEES_SCOPE, type LicensorScope } from "@/lib/app-roles";
+import {
+  ADMIN_SCOPE,
+  ALL_LICENSEES_SCOPE,
+  isAdminViewScope,
+  isAllLicenseesScope,
+  isPlatformAllScope,
+  isSingleLicenseeScope,
+  PLATFORM_ALL_SCOPE,
+  type LicensorScope,
+} from "@/lib/app-roles";
+import { matchesCollectiveDemoLicenseeScope } from "@/lib/licensor-view-scope";
 import { LICENSEE_REGISTRY } from "@/lib/licensee-registry";
 
 const XYZ = "xyz-marketing";
@@ -315,8 +325,9 @@ function filterByScope<T extends { collective: { provenance: CollectiveMemoryPro
   rows: T[],
   scope: LicensorScope,
 ): T[] {
-  if (scope === ALL_LICENSEES_SCOPE) return rows;
-  return rows.filter((r) => r.collective.provenance.licenseeId === scope);
+  if (isPlatformAllScope(scope) || isAllLicenseesScope(scope)) return rows;
+  if (isAdminViewScope(scope)) return [];
+  return rows.filter((r) => matchesCollectiveDemoLicenseeScope(scope, r.collective.provenance.licenseeId));
 }
 
 function filesForTab(tab: LinkbrainTab, missionId?: string, agentId?: string): CollectiveMemoryFile[] {
@@ -378,21 +389,25 @@ export function applyLicensorCollectivePageOverlay(
     agentId?: string;
   },
 ): LinkbrainPageData {
-  const scope = params.licensorScope ?? ALL_LICENSEES_SCOPE;
+  const scope = params.licensorScope ?? PLATFORM_ALL_SCOPE;
 
   const missions = Object.values(MISSIONS).filter((m) => {
-    if (scope === ALL_LICENSEES_SCOPE) return true;
-    if (scope === XYZ) return m.id.startsWith("00000000-0000-4000-8000-00000000d2");
-    if (scope === LEXOS) return m.id === MISSIONS["lexos-intake"]!.id;
-    if (scope === HARBOR) return m.id === MISSIONS["harbor-onboarding"]!.id;
+    if (isPlatformAllScope(scope) || isAllLicenseesScope(scope)) return true;
+    if (isAdminViewScope(scope)) return false;
+    if (isSingleLicenseeScope(scope)) {
+      const licenseeId = MISSION_LICENSEE[m.id];
+      return licenseeId ? matchesCollectiveDemoLicenseeScope(scope, licenseeId) : false;
+    }
     return true;
   });
 
   const agents = AGENTS.filter((a) => {
-    if (scope === ALL_LICENSEES_SCOPE) return true;
-    if (scope === XYZ) return a.id.startsWith("agent-xyz");
-    if (scope === LEXOS) return a.id.startsWith("agent-lexos");
-    if (scope === HARBOR) return a.id.startsWith("agent-harbor");
+    if (isPlatformAllScope(scope) || isAllLicenseesScope(scope)) return true;
+    if (isAdminViewScope(scope)) return false;
+    if (isSingleLicenseeScope(scope)) {
+      const licenseeId = AGENT_LICENSEE[a.id];
+      return licenseeId ? matchesCollectiveDemoLicenseeScope(scope, licenseeId) : false;
+    }
     return true;
   });
 

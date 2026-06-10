@@ -1,8 +1,9 @@
 import { LinkbrainAuditTable, type AuditTraceRow } from "@/components/linkbrain/linkbrain-audit-table";
+import { readAppSurfaceFromHeaders } from "@/lib/app-surface";
 import { fetchMvoAuditEventsForRun } from "@/lib/linkbrain-mvo-audit";
 import { fetchRecentTraces } from "@/lib/traces-db";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { isUiMocksEnabled } from "@/lib/ui-mocks/flags";
+import { isUiMocksEnabledForSurface } from "@/lib/ui-mocks/flags";
 import { DEMO_TRACE_ROWS } from "@/lib/ui-mocks/traces-demo";
 
 const MISSION_ID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -21,6 +22,7 @@ const COLLECTIVE_AUDIT_FIXTURES: AuditTraceRow[] = [
     mission_title: "Website Factory — lead pipeline",
     licensee_id: "xyz-marketing",
     licensee_name: "XYZ Marketing Group",
+    admin_context: false,
     created_at: new Date(Date.now() - 86_400_000).toISOString(),
   },
   {
@@ -29,17 +31,28 @@ const COLLECTIVE_AUDIT_FIXTURES: AuditTraceRow[] = [
     mission_title: "Litigation intake automation",
     licensee_id: "lexos-legal",
     licensee_name: "LEXOS Legal LLP",
+    admin_context: false,
     created_at: new Date(Date.now() - 172_800_000).toISOString(),
   },
   {
-    event_type: "brain.collective.retrieval",
-    mission_id: null,
-    mission_title: null,
-    licensee_id: "harbor-dental",
-    licensee_name: "Harbor Dental Co-op",
+    event_type: "linkskills.lease.executed",
+    mission_id: "00000000-0000-4000-8000-00000000a101",
+    mission_title: "LiNKsuitegen — suite factory",
+    licensee_id: "linktrend",
+    licensee_name: "LiNKtrend Admin",
+    admin_context: true,
     created_at: new Date(Date.now() - 259_200_000).toISOString(),
   },
 ];
+
+function withAdminContext(row: AuditTraceRow): AuditTraceRow {
+  if (row.admin_context != null) return row;
+  const adminContext =
+    row.licensee_id === "linktrend" ||
+    row.event_type.includes(".admin.") ||
+    row.event_type.startsWith("admin.");
+  return { ...row, admin_context: adminContext };
+}
 
 export async function LinkbrainAuditPanel(props: {
   licensorCollective?: boolean;
@@ -47,7 +60,8 @@ export async function LinkbrainAuditPanel(props: {
   mvoRunId?: string | null;
 }) {
   const supabase = await createSupabaseServerClient();
-  const uiMocksEnabled = isUiMocksEnabled();
+  const surface = await readAppSurfaceFromHeaders();
+  const uiMocksEnabled = isUiMocksEnabledForSurface(surface);
 
   const { rows: traceRows, error } = await fetchRecentTraces(supabase, { limit: 500 });
 
@@ -61,7 +75,7 @@ export async function LinkbrainAuditPanel(props: {
     created_at: row.created_at,
   }));
 
-  if ((uiMocksEnabled || props.licensorCollective) && raw.length === 0) {
+  if (uiMocksEnabled && raw.length === 0) {
     raw = DEMO_TRACE_ROWS;
   }
 
@@ -75,47 +89,36 @@ export async function LinkbrainAuditPanel(props: {
     }
   }
 
-  let rows: AuditTraceRow[] = raw.map((row) => ({
-    event_type: row.event_type,
-    mission_id: row.mission_id,
-    mission_title:
-      row.mission_id && MISSION_ID_RE.test(row.mission_id)
-        ? (missionTitles.get(row.mission_id) ?? row.mission_id)
-        : (row.mission_id ?? null),
-    created_at: row.created_at,
-  }));
+  let rows: AuditTraceRow[] = raw.map((row) =>
+    withAdminContext({
+      event_type: row.event_type,
+      mission_id: row.mission_id,
+      mission_title:
+        row.mission_id && MISSION_ID_RE.test(row.mission_id)
+          ? (missionTitles.get(row.mission_id) ?? row.mission_id)
+          : (row.mission_id ?? null),
+      created_at: row.created_at,
+    }),
+  );
 
   const runFilter = props.mvoRunId?.trim();
   if (runFilter) {
     const { rows: mvoRows, error: mvoErr } = await fetchMvoAuditEventsForRun(supabase, runFilter);
     if (!mvoErr && mvoRows.length > 0) {
-      const mvoMapped: AuditTraceRow[] = mvoRows.map((ev) => ({
-        event_type: ev.action,
-        mission_id: runFilter,
-        mission_title: missionTitles.get(runFilter) ?? `Run ${runFilter.slice(0, 8)}`,
-        created_at: ev.ts,
-      }));
+      const mvoMapped: AuditTraceRow[] = mvoRows.map((ev) =>
+        withAdminContext({
+          event_type: ev.action,
+          mission_id: runFilter,
+          mission_title: missionTitles.get(runFilter) ?? `Run ${runFilter.slice(0, 8)}`,
+          created_at: ev.ts,
+        }),
+      );
       rows = [...mvoMapped, ...rows.filter((r) => r.mission_id !== runFilter)];
     }
   }
 
-  if (props.licensorCollective) {
-    const usingFixtures = uiMocksEnabled && rows.length === 0;
-    if (usingFixtures) {
-      rows = COLLECTIVE_AUDIT_FIXTURES;
-    } else if (uiMocksEnabled) {
-      rows = [
-        ...COLLECTIVE_AUDIT_FIXTURES,
-        ...rows.map((r, i) => {
-          const fixture = COLLECTIVE_AUDIT_FIXTURES[i % COLLECTIVE_AUDIT_FIXTURES.length]!;
-          return {
-            ...r,
-            licensee_id: fixture.licensee_id,
-            licensee_name: fixture.licensee_name,
-          };
-        }),
-      ];
-    }
+  if (props.licensorCollective && rows.length === 0 && uiMocksEnabled) {
+    rows = COLLECTIVE_AUDIT_FIXTURES;
   }
 
   const dataSourceLabel = uiMocksEnabled

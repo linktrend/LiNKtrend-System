@@ -52,7 +52,9 @@ export async function GatewayDashboard() {
   return (
     <>
       <p className="mt-2 max-w-2xl text-sm text-zinc-600 dark:text-zinc-400">
-        See how chat streams map to projects and recent message links.
+        Troubleshooting view for Zulip messaging: each row shows which chat stream is linked to a LiNKaios project, plus
+        recent inbound message links. Use this when operators report messages in the wrong stream or a project stream was
+        never created.
       </p>
 
       <div className="mt-8">

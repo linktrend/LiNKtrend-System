@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 import { AddLinkbotOpenButton } from "@/components/add-linkbot";
+import { useAppSurface } from "@/components/app-surface-provider";
 import { useAppRole } from "@/components/role-preview-provider";
 import { useMemoryPath } from "@/hooks/use-memory-href";
 import {
@@ -66,9 +67,10 @@ export function RoleGatedAddButton(props: {
 }
 
 export function AddProjectHeaderAction() {
+  const { href: appHref } = useAppSurface();
   return (
     <RoleGatedAddButton
-      href="/projects/new"
+      href={appHref("/projects/new")}
       label="Add Project"
       requestLabel="project"
       allowed={canCreateProject}
@@ -116,6 +118,7 @@ export function AddKnowledgeHeaderAction(props: { collective?: boolean }) {
 }
 
 export function ModuleAccessRequestPanel(props: { suiteName: string; mode: "preview" | "subscribe" }) {
+  const { href: appHref } = useAppSurface();
   const { kind, role } = useAppRole();
   const router = useRouter();
 
@@ -140,7 +143,7 @@ export function ModuleAccessRequestPanel(props: { suiteName: string; mode: "prev
           className={BUTTON.primaryCompact}
           onClick={() => {
             requestApprovalNotice(`${props.suiteName} ${label}`);
-            router.push("/work");
+            router.push(appHref("/work"));
           }}
         >
           Submit request
