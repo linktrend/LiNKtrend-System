@@ -6,6 +6,7 @@
  * - autowork.websitefactory.preview_serve
  * - autowork.linksites.* (LinkSites v2 workflows)
  * - autowork.lexos.* (LEXOS litigation workflows)
+ * - autowork.linkdeveloper.* (LiNKdeveloper workflow-map handles)
  */
 
 import { registerWorkflow } from "../lib/workflow-runner.js";
@@ -61,6 +62,16 @@ import {
   DEPLOY_HANDLE,
   COMPILE_HANDOFF_HANDLE,
 } from "./linkapps.js";
+import {
+  createProductRunBootstrapHandler,
+  createIssueDispatchHandler,
+  createValidationRecordHandler,
+  createArtifactWriteHandler,
+  PRODUCT_RUN_BOOTSTRAP_HANDLE,
+  ISSUE_DISPATCH_HANDLE,
+  VALIDATION_RECORD_HANDLE,
+  ARTIFACT_WRITE_HANDLE,
+} from "./linkdeveloper.js";
 
 /**
  * Bootstrap all WebsiteFactory workflows.
@@ -185,6 +196,49 @@ export function bootstrapWebsiteFactoryWorkflows(deps: {
 }
 
 /**
+ * Bootstrap LiNKdeveloper workflow-map handlers.
+ *
+ * @param deps.writeAuditEvent - Function to write audit events to LiNKbrain
+ */
+export function bootstrapLinkdeveloperWorkflows(deps: {
+  writeAuditEvent: (event: AuditEvent) => Promise<{ event_id: string }>;
+}): void {
+  const auditEmitter = createAuditEmitter(deps.writeAuditEvent);
+
+  registerWorkflow({
+    handle: PRODUCT_RUN_BOOTSTRAP_HANDLE,
+    display_name: "LiNKdeveloper Product Run Bootstrap",
+    description: "Open product run and Module 1 opportunity-intake issues",
+    requires_lease: true,
+    handler: createProductRunBootstrapHandler(auditEmitter),
+  });
+
+  registerWorkflow({
+    handle: ISSUE_DISPATCH_HANDLE,
+    display_name: "LiNKdeveloper Issue Dispatch",
+    description: "Route an issue to a governed executor lane",
+    requires_lease: true,
+    handler: createIssueDispatchHandler(auditEmitter),
+  });
+
+  registerWorkflow({
+    handle: VALIDATION_RECORD_HANDLE,
+    display_name: "LiNKdeveloper Validation Record",
+    description: "Record validation evidence for an issue",
+    requires_lease: true,
+    handler: createValidationRecordHandler(auditEmitter),
+  });
+
+  registerWorkflow({
+    handle: ARTIFACT_WRITE_HANDLE,
+    display_name: "LiNKdeveloper Artifact Write",
+    description: "Persist durable artifact references",
+    requires_lease: true,
+    handler: createArtifactWriteHandler(auditEmitter),
+  });
+}
+
+/**
  * Bootstrap all LEXOS litigation workflows.
  *
  * Per WP-105 and LEXOS_VERTICAL_PLUGIN_CONVERSION_PLAN.md §4.
@@ -250,6 +304,7 @@ export function bootstrapAllWorkflows(deps: {
   preview_route_prefix?: string;
 }): void {
   bootstrapWebsiteFactoryWorkflows(deps);
+  bootstrapLinkdeveloperWorkflows(deps);
   bootstrapLexosWorkflows(deps);
 }
 
@@ -322,3 +377,16 @@ export {
   clearLinkappsStores,
   getWorkflowHandles as getLinkappsWorkflowHandles,
 } from "./linkapps.js";
+
+export {
+  PRODUCT_RUN_BOOTSTRAP_HANDLE as LINKDEVELOPER_PRODUCT_RUN_BOOTSTRAP_HANDLE,
+  ISSUE_DISPATCH_HANDLE as LINKDEVELOPER_ISSUE_DISPATCH_HANDLE,
+  VALIDATION_RECORD_HANDLE as LINKDEVELOPER_VALIDATION_RECORD_HANDLE,
+  ARTIFACT_WRITE_HANDLE as LINKDEVELOPER_ARTIFACT_WRITE_HANDLE,
+  getProductRunBootstrap,
+  getIssueDispatch,
+  getValidationRecord,
+  getArtifactWrite,
+  getWorkflowMapHandles as getLinkdeveloperWorkflowMapHandles,
+  clearLinkdeveloperStores,
+} from "./linkdeveloper.js";
