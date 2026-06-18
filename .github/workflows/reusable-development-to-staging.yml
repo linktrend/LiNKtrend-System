@@ -1,0 +1,56 @@
+name: Reusable Development To Staging
+
+on:
+  workflow_call:
+
+jobs:
+  merge-development-into-staging:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout staging
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: staging
+
+      - name: Configure git
+        run: |
+          git config user.name "linktrend-promotion-bot"
+          git config user.email "actions@users.noreply.github.com"
+
+      - name: Merge development into staging
+        run: |
+          set -euo pipefail
+
+          git fetch origin development staging
+          git checkout staging
+          git reset --hard origin/staging
+
+          if git merge --no-edit --no-ff -X theirs origin/development; then
+            echo "Development merged cleanly into staging."
+          else
+            echo "Merge reported conflicts; preferring development branch contents."
+            while IFS= read -r path; do
+              if git show ":3:${path}" >/dev/null 2>&1; then
+                git checkout --theirs -- "${path}"
+                git add "${path}"
+              else
+                git rm -f --ignore-unmatch "${path}"
+              fi
+            done < <(git diff --name-only --diff-filter=U)
+
+            git add -A
+            if ! git diff --cached --quiet; then
+              git commit -m "chore(promote): merge development into staging preferring development"
+            fi
+          fi
+
+          if git diff --quiet origin/staging..HEAD; then
+            echo "No staging updates to push."
+            exit 0
+          fi
+
+          git push origin HEAD:staging
+

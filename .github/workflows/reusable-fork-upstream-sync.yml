@@ -1,0 +1,69 @@
+name: Reusable Fork Upstream Sync
+
+on:
+  workflow_call:
+    inputs:
+      upstream_url:
+        required: true
+        type: string
+      upstream_branch:
+        required: true
+        type: string
+
+jobs:
+  sync-upstream-into-development:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout development
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: development
+
+      - name: Configure git
+        run: |
+          git config user.name "linktrend-sync-bot"
+          git config user.email "actions@users.noreply.github.com"
+
+      - name: Merge upstream into development
+        env:
+          UPSTREAM_URL: ${{ inputs.upstream_url }}
+          UPSTREAM_BRANCH: ${{ inputs.upstream_branch }}
+        run: |
+          set -euo pipefail
+
+          git remote remove upstream 2>/dev/null || true
+          git remote add upstream "${UPSTREAM_URL}"
+          git fetch upstream "${UPSTREAM_BRANCH}"
+          git fetch origin development
+          git checkout development
+          git reset --hard origin/development
+
+          if git merge --no-edit --no-ff -X ours "upstream/${UPSTREAM_BRANCH}"; then
+            echo "Upstream merged cleanly into development."
+          else
+            echo "Merge reported conflicts; preferring fork customizations from development."
+            while IFS= read -r path; do
+              if git show ":2:${path}" >/dev/null 2>&1; then
+                git checkout --ours -- "${path}"
+                git add "${path}"
+              else
+                git rm -f --ignore-unmatch "${path}"
+              fi
+            done < <(git diff --name-only --diff-filter=U)
+
+            git add -A
+            if ! git diff --cached --quiet; then
+              git commit -m "chore(sync): merge upstream into development preferring fork customizations"
+            fi
+          fi
+
+          if git diff --quiet origin/development..HEAD; then
+            echo "No development updates to push."
+            exit 0
+          fi
+
+          git push origin HEAD:development
+
