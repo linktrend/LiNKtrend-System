@@ -47,10 +47,13 @@ jobs:
             fi
           fi
 
+          # Automated branch promotion should not rewrite workflow files because
+          # GitHub Actions token permissions vary by repo and can reject these pushes.
+          git restore --source origin/staging --staged --worktree .github/workflows || true
+
           if git diff --quiet origin/staging..HEAD; then
             echo "No staging updates to push."
             exit 0
           fi
 
           git push origin HEAD:staging
-

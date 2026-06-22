@@ -47,10 +47,13 @@ jobs:
             fi
           fi
 
+          # Keep workflow-file changes out of automated promotion pushes. Those
+          # changes can be shipped deliberately through normal PR review instead.
+          git restore --source origin/main --staged --worktree .github/workflows || true
+
           if git diff --quiet origin/main..HEAD; then
             echo "No main updates to push."
             exit 0
           fi
 
           git push origin HEAD:main
-

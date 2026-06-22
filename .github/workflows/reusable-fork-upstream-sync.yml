@@ -60,10 +60,13 @@ jobs:
             fi
           fi
 
+          # GitHub Actions cannot reliably push upstream workflow-file changes with
+          # the default token, and this fork lifecycle keeps repo automation local.
+          git restore --source origin/development --staged --worktree .github/workflows || true
+
           if git diff --quiet origin/development..HEAD; then
             echo "No development updates to push."
             exit 0
           fi
 
           git push origin HEAD:development
-
