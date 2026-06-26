@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import { FLEET_V1_OPENCLAW_AGENT_IDS } from "../../../../roles/platform/fleet-v1-openclaw.js";
-import { LINKSITES_ROLE_TO_OPENCLAW_AGENT } from "../../../../roles/suites/linksites/openclaw-mapping.js";
-import { LINKDEVELOPER_ROLE_TO_OPENCLAW_AGENT } from "../../../../roles/suites/linkdeveloper/openclaw-mapping.js";
-import { LINKSUITEGEN_FACTORY_ANALYST_ROLE_IDS } from "../../../../roles/suites/linksuitegen/openclaw-mapping.js";
+import { FLEET_V1_OPENCLAW_AGENT_IDS } from "./fleet-v1-openclaw.js";
+import { LINKSITES_ROLE_TO_OPENCLAW_AGENT } from "./linksites-openclaw-mapping.js";
+import { LINKDEVELOPER_ROLE_TO_OPENCLAW_AGENT } from "./linkdeveloper-openclaw-mapping.js";
+import { LINKSUITEGEN_FACTORY_ANALYST_ROLE_IDS } from "./linksuitegen-openclaw-mapping.js";
 import { listOpenClawMappedRoleIds, openClawAgentIdForRole } from "./suite-role-openclaw.js";
 
 describe("suite-role-openclaw barrel (Wave 1.8)", () => {

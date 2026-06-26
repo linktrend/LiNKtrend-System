@@ -5,10 +5,10 @@
  * that use Agent Zero are excluded — see suite `agent-zero-mapping.ts` (Wave 2).
  */
 
-import { FLEET_V1_OPENCLAW_AGENTS } from "../../../../roles/platform/fleet-v1-openclaw.js";
-import { LINKDEVELOPER_ROLE_TO_OPENCLAW_AGENT } from "../../../../roles/suites/linkdeveloper/openclaw-mapping.js";
-import { LINKSITES_ROLE_TO_OPENCLAW_AGENT } from "../../../../roles/suites/linksites/openclaw-mapping.js";
-import { LINKSUITEGEN_ROLE_TO_OPENCLAW_AGENT } from "../../../../roles/suites/linksuitegen/openclaw-mapping.js";
+import { FLEET_V1_OPENCLAW_AGENTS } from "./fleet-v1-openclaw.js";
+import { LINKDEVELOPER_ROLE_TO_OPENCLAW_AGENT } from "./linkdeveloper-openclaw-mapping.js";
+import { LINKSITES_ROLE_TO_OPENCLAW_AGENT } from "./linksites-openclaw-mapping.js";
+import { LINKSUITEGEN_ROLE_TO_OPENCLAW_AGENT } from "./linksuitegen-openclaw-mapping.js";
 
 const ROLE_TO_AGENT: Record<string, string> = {
   ...LINKSITES_ROLE_TO_OPENCLAW_AGENT,
