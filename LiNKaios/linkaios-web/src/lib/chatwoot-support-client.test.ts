@@ -1,4 +1,7 @@
 import { describe, expect, it } from "vitest";
+import { vi } from "vitest";
+
+vi.mock("server-only", () => ({}));
 
 import {
   isChatwootSupportSyncConfigured,
