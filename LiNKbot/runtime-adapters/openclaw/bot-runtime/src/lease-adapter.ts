@@ -13,7 +13,7 @@ import {
   FailureReport,
   FailureCode,
 } from "./local-types.js";
-import { BotLeaseRequest } from "./types.js";
+import type { BotLeaseRequest } from "./types.js";
 
 /**
  * Lease adapter configuration
@@ -217,6 +217,8 @@ export async function checkLeaseStatus(
     return null;
   }
 }
+
+export type { BotLeaseRequest } from "./types.js";
 
 /**
  * Batch request multiple leases

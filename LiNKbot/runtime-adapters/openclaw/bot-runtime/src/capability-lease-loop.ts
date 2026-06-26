@@ -4,7 +4,7 @@
 
 import type { Env } from "@linktrend/shared-config";
 import { writeBrainAuditEvent, type AuditEvent } from "@linktrend/linklogic-sdk";
-import { randomUUID } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import {
   buildLeaseIdempotencyKey,
   executeLease,
@@ -45,6 +45,7 @@ export async function invokeGovernedCapability(
   );
 
   const leaseRequest: BotLeaseRequest = {
+    session_id: invocation.session_id,
     tenant_id: invocation.tenant_id,
     run_id: invocation.run_id,
     stage_id: invocation.stage_id,
@@ -88,7 +89,17 @@ export async function invokeGovernedCapability(
   recordBotSkillTrace({
     session_id: invocation.session_id,
     skill_id: invocation.capability,
-    disclosed_at: new Date().toISOString(),
+    skill_name: invocation.capability,
+    captured_at: new Date().toISOString(),
+    trace_digest: createHash("sha256")
+      .update(
+        JSON.stringify({
+          capability: invocation.capability,
+          role_id: invocation.role_id,
+          stage_id: invocation.stage_id,
+        }),
+      )
+      .digest("hex"),
   });
 
   const auditIds: string[] = [];

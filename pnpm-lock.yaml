@@ -203,6 +203,9 @@ importers:
 
   LiNKbot/runtime-adapters/openclaw/bot-runtime:
     dependencies:
+      '@linktrend/db':
+        specifier: workspace:*
+        version: link:../../../../packages/db
       '@linktrend/linklogic-sdk':
         specifier: workspace:*
         version: link:../../../../packages/linklogic-sdk

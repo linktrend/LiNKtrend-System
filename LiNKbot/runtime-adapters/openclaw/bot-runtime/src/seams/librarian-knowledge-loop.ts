@@ -39,6 +39,7 @@ export type LibrarianIngestInput = {
   run_id: string;
   stage_id: string;
   project_id?: string;
+  proposal_id?: string;
   run_outputs?: Array<{ ref: string; summary: string }>;
   zulip_thread_refs?: Array<{ stream: string; topic: string; message_ids?: string[] }>;
 };
@@ -88,7 +89,10 @@ export function buildKnowledgeProposal(
     throw new Error("Librarian ingest requires at least one run output or Zulip thread ref");
   }
 
-  const proposal_id = options?.proposal_id ?? `librarian-proposal-${input.run_id}-${input.stage_id}`;
+  const proposal_id =
+    options?.proposal_id ??
+    input.proposal_id ??
+    `librarian-proposal-${input.run_id}-${input.stage_id}`;
   const created_at = options?.now ?? new Date().toISOString();
   const title = `LinkSites run knowledge — ${input.stage_id}`;
   const sourceLines = sources.map((s) => `- **${s.kind}** \`${s.ref}\`: ${s.summary}`).join("\n");
