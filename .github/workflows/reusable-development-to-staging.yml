@@ -33,6 +33,8 @@ jobs:
             echo "Development merged cleanly into staging."
           else
             echo "Merge reported conflicts; preferring development branch contents."
+            conflict_paths_file="$(mktemp)"
+            git diff --name-only --diff-filter=U > "${conflict_paths_file}"
             while IFS= read -r path; do
               if git show ":3:${path}" >/dev/null 2>&1; then
                 git checkout --theirs -- "${path}"
@@ -40,7 +42,8 @@ jobs:
               else
                 git rm -f --ignore-unmatch "${path}"
               fi
-            done < <(git diff --name-only --diff-filter=U)
+            done < "${conflict_paths_file}"
+            rm -f "${conflict_paths_file}"
             merge_message="chore(promote): merge development into staging preferring development"
           fi
 

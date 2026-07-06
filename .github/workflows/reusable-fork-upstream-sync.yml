@@ -46,6 +46,8 @@ jobs:
             echo "Upstream merged cleanly into development."
           else
             echo "Merge reported conflicts; preferring fork customizations from development."
+            conflict_paths_file="$(mktemp)"
+            git diff --name-only --diff-filter=U > "${conflict_paths_file}"
             while IFS= read -r path; do
               if git show ":2:${path}" >/dev/null 2>&1; then
                 git checkout --ours -- "${path}"
@@ -53,7 +55,8 @@ jobs:
               else
                 git rm -f --ignore-unmatch "${path}"
               fi
-            done < <(git diff --name-only --diff-filter=U)
+            done < "${conflict_paths_file}"
+            rm -f "${conflict_paths_file}"
             merge_message="chore(sync): merge upstream into development preferring fork customizations"
           fi
 
