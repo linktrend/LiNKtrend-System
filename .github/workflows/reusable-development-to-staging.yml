@@ -28,7 +28,8 @@ jobs:
           git checkout staging
           git reset --hard origin/staging
 
-          if git merge --no-edit --no-ff -X theirs origin/development; then
+          merge_message="chore(promote): merge development into staging"
+          if git merge --no-edit --no-commit --no-ff -X theirs origin/development; then
             echo "Development merged cleanly into staging."
           else
             echo "Merge reported conflicts; preferring development branch contents."
@@ -40,16 +41,22 @@ jobs:
                 git rm -f --ignore-unmatch "${path}"
               fi
             done < <(git diff --name-only --diff-filter=U)
-
-            git add -A
-            if ! git diff --cached --quiet; then
-              git commit -m "chore(promote): merge development into staging preferring development"
-            fi
+            merge_message="chore(promote): merge development into staging preferring development"
           fi
 
           # Automated branch promotion should not rewrite workflow files because
           # GitHub Actions token permissions vary by repo and can reject these pushes.
           git restore --source origin/staging --staged --worktree .github/workflows || true
+          git add -A
+
+          if git diff --cached --quiet; then
+            echo "No staging updates to push."
+            git merge --abort 2>/dev/null || true
+            git reset --hard origin/staging
+            exit 0
+          fi
+
+          git commit -m "${merge_message}"
 
           if git diff --quiet origin/staging..HEAD; then
             echo "No staging updates to push."

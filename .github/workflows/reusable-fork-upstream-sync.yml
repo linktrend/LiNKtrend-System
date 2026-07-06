@@ -41,7 +41,8 @@ jobs:
           git checkout development
           git reset --hard origin/development
 
-          if git merge --no-edit --no-ff -X ours "upstream/${UPSTREAM_BRANCH}"; then
+          merge_message="chore(sync): merge upstream into development"
+          if git merge --no-edit --no-commit --no-ff --allow-unrelated-histories -X ours "upstream/${UPSTREAM_BRANCH}"; then
             echo "Upstream merged cleanly into development."
           else
             echo "Merge reported conflicts; preferring fork customizations from development."
@@ -53,16 +54,22 @@ jobs:
                 git rm -f --ignore-unmatch "${path}"
               fi
             done < <(git diff --name-only --diff-filter=U)
-
-            git add -A
-            if ! git diff --cached --quiet; then
-              git commit -m "chore(sync): merge upstream into development preferring fork customizations"
-            fi
+            merge_message="chore(sync): merge upstream into development preferring fork customizations"
           fi
 
           # GitHub Actions cannot reliably push upstream workflow-file changes with
           # the default token, and this fork lifecycle keeps repo automation local.
           git restore --source origin/development --staged --worktree .github/workflows || true
+          git add -A
+
+          if git diff --cached --quiet; then
+            echo "No development updates to push."
+            git merge --abort 2>/dev/null || true
+            git reset --hard origin/development
+            exit 0
+          fi
+
+          git commit -m "${merge_message}"
 
           if git diff --quiet origin/development..HEAD; then
             echo "No development updates to push."
